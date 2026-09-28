@@ -17,3 +17,4 @@ run sync KW_NOW="2026-10-14 13:10" KW_KEYS="back down down down down down confir
 run clock KW_NOW="2026-10-14 13:10" KW_KEYS="back down down down down down down confirm"
 run holiday KW_NOW="2026-11-26 09:00" KW_KEYS="right"
 python3 topng.py out
+./test_update.sh

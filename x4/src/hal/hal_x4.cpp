@@ -123,16 +123,32 @@ bool appendLine(const char* path, const std::string& line) {
   return true;
 }
 bool exists(const char* path) { return sdOk && sdcard.exists(path); }
+int listFiles(const char* dir, char (*names)[48], int max) {
+  if (!sdOk) return 0;
+  int n = 0;
+  for (auto& s : sdcard.listFiles(dir, max)) {
+    if (n >= max) break;
+    if (s.length() > 47) continue;
+    strcpy(names[n++], s.c_str());
+  }
+  return n;
+}
+bool removeFile(const char* path) { return sdOk && sdcard.remove(path); }
+bool renameFile(const char* from, const char* to) { return sdOk && !sdcard.exists(to) && sdcard.rename(from, to); }
+bool makeDir(const char* path) { return sdOk && sdcard.mkdir(path); }
+bool removeEmptyDir(const char* path) { return sdOk && sdcard.rmdir(path); }  // rmdir refuses a folder with files in it
 
 int batteryPercent() { static const BatteryMonitor battery; return battery.readPercentage(); }
 bool woke_by_timer() { return esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_TIMER; }
 
 // ---------- Wi-Fi hotspot + local web page ----------
-// Where an uploaded file may go: month packs, check-ins, support list and safety plan in /kw; books in
-// /kw/library. Anything else is refused, and names can't climb out of those folders.
+// Where an uploaded file may go: month packs, check-ins and support list in /kw; books in /kw/library.
+// Anything else is refused, and names can't climb out of those folders. `me.txt` (her safety plan) is
+// never accepted as an upload: only the safety-plan editor (POST /api/me) writes it. Nothing here can
+// reach /kw/log (no folder names pass), so check-ins are never overwritten.
 static String uploadDir(const String& n) {
   if (n.indexOf('/') >= 0 || n.indexOf('\\') >= 0 || n.startsWith(".")) return "";
-  if (n == "support.txt" || n == "me.txt" || n == "checkins.txt") return "/kw/";
+  if (n == "support.txt" || n == "checkins.txt") return "/kw/";
   if (n.length() == 11 && n.endsWith(".txt") && n[4] == '-' && isDigit(n[0]) && isDigit(n[5])) return "/kw/";
   if (n.endsWith(".pdf") || n.endsWith(".epub")) return "/kw/library/";
   return "";
@@ -148,7 +164,7 @@ static void sendFile(FsFile& f, const char* type, const String& downloadName) {
   while ((n = f.read(buf, sizeof buf)) > 0) { if (c.write(buf, n) != (size_t)n) break; }
 }
 static FsFile uploadFile;
-static String uploadName;
+static String uploadName, uploadRefused;
 
 bool wifiStart(const char* ssid, const char* pass) {
   WiFi.mode(WIFI_AP);
@@ -201,13 +217,17 @@ bool wifiStart(const char* ssid, const char* pass) {
     writeFile("/kw/me.txt", std::string(body.c_str()));
     server->send(200, "text/plain", "Saved.");
   });
-  server->on("/api/upload", HTTP_POST, [] { server->send(200, "text/plain", uploadName.length() ? "Uploaded " + uploadName : "Nothing uploaded."); },
+  server->on("/api/upload", HTTP_POST, [] {
+      if (uploadName.length()) { server->send(200, "text/plain", "Uploaded " + uploadName); return; }
+      const bool plan = uploadRefused == "me.txt";
+      server->send(plan ? 403 : 400, "text/plain", plan ? "Not uploaded: me.txt is your safety plan. Change it in the My safety plan box above." : "Not uploaded: the X4 doesn't take that file name.");
+    },
     [] {
       HTTPUpload& up = server->upload();
       if (up.status == UPLOAD_FILE_START) {
-        uploadName = up.filename;
+        uploadName = up.filename; uploadRefused = "";
         const String dir = uploadDir(uploadName);
-        if (!dir.length()) { uploadName = ""; return; }
+        if (!dir.length()) { uploadRefused = uploadName; uploadName = ""; return; }
         uploadFile = sdcard.open((dir + uploadName).c_str(), O_WRONLY | O_CREAT | O_TRUNC);
       } else if (up.status == UPLOAD_FILE_WRITE) {
         if (uploadFile) uploadFile.write(up.buf, up.currentSize);
