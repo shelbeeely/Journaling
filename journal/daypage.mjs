@@ -33,6 +33,7 @@ export const IC = {
   bus: '<rect x="2" y="1.4" width="8" height="8" rx="1.4"/><path d="M2 5.6h8M3.6 9.4v1.4M8.4 9.4v1.4"/><circle cx="4" cy="7.5" r=".4"/><circle cx="8" cy="7.5" r=".4"/>',
   coin: '<circle cx="6" cy="6" r="4.8"/><path d="M7.6 4.2c-.4-.6-1-.8-1.6-.8-.9 0-1.6.5-1.6 1.2 0 1.6 3.4.9 3.4 2.6 0 .7-.8 1.2-1.8 1.2-.7 0-1.3-.3-1.7-.8M6 2.4v1M6 8.4v1.2"/>',
   clock: '<circle cx="6" cy="6" r="4.8"/><path d="M6 3.2V6l2 1.4"/>',
+  x4: '<rect x="2.4" y="1" width="7.2" height="10" rx="1.2"/><path d="M4.4 3.4h3.2M4.4 5.4h3.2M4.4 7.4h1.8"/>',
   ear: '<path d="M3.2 4.6a3 3 0 0 1 6 0c0 1.8-1.6 2.4-1.8 3.8-.2 1.2-.8 2-2 2-.8 0-1.4-.5-1.6-1.2"/><path d="M5 5a1.2 1.2 0 0 1 2.4 0c0 .8-.8 1-.9 1.8"/>',
   eye: '<path d="M.8 6s2-3.6 5.2-3.6S11.2 6 11.2 6 9.2 9.6 6 9.6.8 6 .8 6Z"/><circle cx="6" cy="6" r="1.6"/>',
   people: '<circle cx="4.2" cy="4" r="1.8"/><circle cx="8.4" cy="4.6" r="1.4"/><path d="M1 10.4a3.2 3.2 0 0 1 6.4 0M7.2 7.6a2.6 2.6 0 0 1 3.8 2.4"/>',
@@ -71,27 +72,30 @@ export function actionZone(n, pre = []) {
 export const CARE_ROWS = {
   meds: { name: 'Meds', icon: 'pill', items: { am: 'Morning', pm: 'Evening', prn: 'As needed' } },
   meals: { name: 'Meals', icon: 'meal' },
-  self_care: { name: 'Self-care', icon: 'shower', items: { shower: 'Shower', teeth: 'Teeth', joy: 'Did something I enjoy', text: 'Texted someone' } },
-  work: { name: 'Sleep & work', icon: 'sleep' },
+  self_care: { name: 'Self-care ticks', icon: 'shower', x4: true, items: { shower: 'Shower', teeth: 'Teeth', joy: 'Did something I enjoy', text: 'Texted someone' } },
+  work: { name: 'Work shift', icon: 'work' },
   checkin: { name: 'Mood', icon: 'high' },
-  anxiety: { name: 'Anxiety', icon: 'anx' },
+  anxiety: { name: 'Anxiety', icon: 'anx', x4: true },
   water: { name: 'Water', icon: 'water' },
 };
 export const REVIEW_ITEMS = { well: 'Went well', hard: 'Was hard', next: 'Tomorrow' };
+// The care split (paper and X4, one system): paper keeps meds, meals, water, mood and the work shift times; the X4 records
+// spoons left, sleep hours, anxiety and the care ticks (self-care, snack). The X4-only rows stay here, switched off, for
+// anyone who wants them on paper too. The little "X4:" line under the block names whatever is not on the page.
 const DEFAULT_ROWS = [
   { id: 'meds', on: true, items: { am: true, pm: true, prn: true } },
-  { id: 'meals', on: true, meals: 3, snack: true },
-  { id: 'self_care', on: true, items: { shower: true, teeth: true, joy: true, text: true } },
-  { id: 'work', on: true, sleep: true, work: true },
+  { id: 'meals', on: true, meals: 3, snack: false },
+  { id: 'self_care', on: false, items: { shower: true, teeth: true, joy: true, text: true } },
+  { id: 'work', on: true, sleep: false, work: true },
   { id: 'checkin', on: true, steps: 7 },
-  { id: 'anxiety', on: true },
-  { id: 'water', on: false, count: 8 },
+  { id: 'anxiety', on: false },
+  { id: 'water', on: true, count: 8 },
 ];
 export const ROW_OPTS = {
   meds: [{ k: 'items', kind: 'flags', label: 'Boxes', items: CARE_ROWS.meds.items, icons: true }],
-  meals: [{ k: 'meals', kind: 'num', label: 'Meal boxes', lo: 1, hi: 4 }, { k: 'snack', kind: 'bool', label: 'Snack box' }],
+  meals: [{ k: 'meals', kind: 'num', label: 'Meal boxes', lo: 1, hi: 4 }, { k: 'snack', kind: 'bool', label: 'Snack box (X4 has it)' }],
   self_care: [{ k: 'items', kind: 'flags', label: 'Boxes', items: CARE_ROWS.self_care.items, icons: true }],
-  work: [{ k: 'sleep', kind: 'bool', label: 'Sleep hours' }, { k: 'work', kind: 'bool', label: 'Work shift' }],
+  work: [{ k: 'work', kind: 'bool', label: 'Work shift times' }, { k: 'sleep', kind: 'bool', label: 'Sleep hours (X4 has it)' }],
   checkin: [{ k: 'steps', kind: 'choice', label: 'Scale', choices: [[5, '5 steps'], [7, '7 steps']] }],
   anxiety: [],
   water: [{ k: 'count', kind: 'num', label: 'Glasses', lo: 4, hi: 10 }],
@@ -114,8 +118,8 @@ export const TYPES = {
   review: { name: 'Went well · Was hard · Tomorrow', group: 'From your day', icon: 'next', single: true, hint: 'Short review columns', opts: [{ k: 'items', kind: 'flags', label: 'Columns', items: REVIEW_ITEMS, icons: true }] },
   body: { name: 'Writing space', group: 'Writing', icon: 'pen', single: true, locked: true, hint: 'Takes whatever room is left', opts: [{ k: 'style', kind: 'choice', label: 'Paper', choices: [['dots', 'Dot grid'], ['lines', 'Lines'], ['grid', '4 mm grid'], ['blank', 'Blank']], def: 'dots' }] },
   // ---- check-ins ----
-  care: { name: 'Care check-in', group: 'Check-ins', icon: 'pill', single: true, hint: 'Meds, meals, self-care, mood: two columns', opts: [] },
-  spoons: { name: 'Spoons', group: 'Check-ins', icon: 'spoon', single: true, hint: 'Cross off as you use them', opts: [N('count', 'How many', 6, 16, 12)] },
+  care: { name: 'Care check-in', group: 'Check-ins', icon: 'pill', single: true, hint: 'Meds, meals, work shift, mood, water: two columns', opts: [] },
+  spoons: { name: 'Spoons left', group: 'Check-ins', icon: 'spoon', single: true, hint: 'Off by default: the X4 counts spoons left', opts: [N('count', 'How many', 6, 16, 12)] },
   checks: { name: 'Checkboxes', group: 'Check-ins', icon: 'box', hint: 'Your own tick boxes · also on X4', opts: [T('Label', 'Habits', 24), LST('labels', 'Boxes', ['Stretch', 'Outside', 'Read'], 8)] },
   scale: { name: 'Scale', group: 'Check-ins', icon: 'bolt', hint: 'Circle a number between two words · also on X4', opts: [T('Label', 'Energy', 18), N('steps', 'Steps', 3, 10, 5), { k: 'lo', kind: 'text', label: 'Left word', def: 'low', max: 10 }, { k: 'hi', kind: 'text', label: 'Right word', def: 'high', max: 10 }] },
   words: { name: 'Words to circle', group: 'Check-ins', icon: 'list', hint: 'Circle the ones that fit today', opts: [T('Label', 'Feeling', 18), LST('words', 'Words', ['calm', 'tired', 'anxious', 'content', 'flat', 'overwhelmed', 'hopeful', 'irritable', 'proud', 'lonely'], 14)] },
@@ -194,7 +198,7 @@ function fixOpts(b) {
 export const DEFAULT_LAYOUT = {
   v: 2,
   blocks: [
-    ['sky'], ['notes'], ['events'], ['care'], ['spoons'], ['good', { on: false }], ['body'], ['actions'], ['review'], ['fact'],
+    ['sky'], ['notes'], ['events'], ['care'], ['spoons', { on: false }], ['good', { on: false }], ['body'], ['actions'], ['review'], ['fact'],
   ].map(([t, o]) => newBlock(t, o, t === 'good' ? 'gratitude' : t)),
 };
 
@@ -217,6 +221,8 @@ export function normalize(L) {
 
 // ---------- rendering ----------
 const bubs = (n) => Array(n).fill('<span class="bub"><i></i></span>').join('');
+// Numbered dots (mood -3..+3, anxiety 0..3): the number printed inside, the middle of a signed scale marked with a heavier ring.
+const nbubs = (n, lo, mid = false) => Array.from({ length: n }, (_, i) => { const v = lo + i; return `<span class="bub nb${mid && v === 0 ? ' mid' : ''}"><i>${v > 0 && mid ? '+' : v < 0 ? '−' : ''}${Math.abs(v)}</i></span>`; }).join('');
 const lbl = (icon, t) => `<b class="xl">${icon ? ic(icon, t) : ''}${t ? `<span>${esc(t)}</span>` : ''}</b>`;
 const PAPER_CLS = { lines: '', dots: 'pd', grid: 'pg' }; // lines = today's ruling, byte for byte
 const ruled = (n, cls = '') => `<span class="ru ${cls}" style="height:${(n * 0.22).toFixed(2)}in"></span>`;
@@ -238,13 +244,20 @@ function careRow(r) {
       const w = r.work ? `${ic('work', 'Work')}${box('<span class="off">off</span>')}<span class="blank xs"></span><span class="u">–</span><span class="blank xs"></span>` : '';
       return `<div class="cr" data-zone="work">${s}${s && w ? '<span class="gap"></span>' : ''}${w}</div>`;
     }
-    case 'checkin': return `<div class="cr" data-zone="checkin">${ic('low', 'Low')}${bubs(r.steps)}${ic('high', 'High')}</div>`;
-    case 'anxiety': return `<div class="cr" data-zone="anxiety">${ic('calm', 'Calm')}${bubs(4)}${ic('anx', 'Anxious')}</div>`;
+    case 'checkin': return `<div class="cr" data-zone="checkin">${ic('low', 'Low')}${nbubs(r.steps, -(r.steps >> 1), true)}${ic('high', 'High')}</div>`;
+    case 'anxiety': return `<div class="cr" data-zone="anxiety">${ic('calm', 'Calm')}${nbubs(4, 0)}${ic('anx', 'Anxious')}</div>`;
     case 'water': return `<div class="cr" data-zone="water">${ic('water', 'Water')}${Array(r.count).fill(box('')).join('')}</div>`;
   }
   return '';
 }
-const spoonRow = (b) => `<div class="cr sp" data-zone="spoons">${ic('spoon', 'Spoons')}${Array(b.count).fill(spoon()).join('')}</div>`;
+const spoonRow = (b) => `<div class="cr sp" data-zone="spoons">${ic('spoon', 'Spoons left')}${Array(b.count).fill(spoon()).join('')}</div>`;
+// One small line under the care block: what the X4 keeps that this page does not. Names only what is off the page.
+function x4Note(b, spoonsOn) {
+  const row = (id) => b.rows.find((r) => r.id === id), on = (id) => row(id) && row(id).on;
+  const w = row('work'), sc = row('self_care');
+  const list = [!spoonsOn && 'spoons', !(on('work') && w.sleep) && 'sleep', !on('anxiety') && 'anxiety', !(on('self_care') && sc && Object.values(sc.items).some(Boolean)) && 'care ticks'].filter(Boolean);
+  return list.length ? `<div class="x4n" data-zone="x4_note">${ic('x4', 'X4')}<span>X4: ${list.join(' · ')}</span></div>` : '';
+}
 // Bullet and habit marks drawn as SVG (never font glyphs, so no Type 3 fonts in the PDF).
 const MK = {
   task: '<circle cx="4" cy="4" r="1.5" fill="currentColor" stroke="none"/>', event: '<circle cx="4" cy="4" r="2.2"/>', note: '<path d="M1.8 4h4.4"/>',
@@ -309,9 +322,12 @@ export function dayBlocks(parts, layout, opt = {}) {
     count[b.type] = (count[b.type] || 0) + 1;
     const zone = count[b.type] > 1 ? `${b.type}_${count[b.type]}` : b.type;
     if (b.type === 'care') {
-      const rows = b.rows.filter((r) => r.on).map(careRow).filter(Boolean).join('');
+      const rowH = b.rows.filter((r) => r.on).map(careRow).filter(Boolean);
       const sp = on[i + 1] && on[i + 1].type === 'spoons' ? on[++i] : null; // spoons right after care share its box
-      if (rows || sp) push(b, `<div class="care" data-zone="care">${rows ? `<div class="cg2">${rows}</div>` : ''}${sp ? spoonRow(sp) : ''}</div>`);
+      const note = x4Note(b, on.some((x) => x.type === 'spoons')); // a spoons block anywhere on the page counts
+      // The X4 line takes the last free cell of the two-column grid; on an even row count it spans the width.
+      const grid = rowH.join('') + (note ? note.replace('class="x4n"', `class="x4n${rowH.length % 2 ? '' : ' wide'}"`) : '');
+      if (grid || sp) push(b, `<div class="care" data-zone="care">${grid ? `<div class="cg2">${grid}</div>` : ''}${sp ? spoonRow(sp) : ''}</div>`);
       continue;
     }
     push(b, renderBlock(b, parts, zone));
@@ -325,6 +341,7 @@ export const DAYPAGE_CSS = `
 .cbi { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; padding: 3px 0 4px; font-size: 7.5pt; line-height: 1.2; border-bottom: 1px solid #DCDCDC; }
 .ci { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; } .ci i { width: 10px; height: 10px; border: 1.2px solid #000; flex: none; } .ci span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .cbi .more { font-style: italic; color: #444; }
 .rev.c2 { grid-template-columns: 1fr 1fr; } .rev.c1 { grid-template-columns: 1fr; }
+.x4n { display: flex; align-items: center; gap: 4px; height: 0.23in; font: 500 6.2pt Inter, sans-serif; color: #555; white-space: nowrap; } .x4n.wide { grid-column: 1 / -1; } .x4n .ic { width: 10px; height: 10px; margin-right: 1px; }
 .care.solo { padding: 3px 0; } .care.solo .cr.sp { margin-top: 0; }
 .plain.log { border-top: 1px solid #bbb; }
 /* ruling backgrounds (.ruled/.ru/.pd/.pg/.grid) are for the screen; print redraws them as vectors: drawRulings() in render.mjs, keep its SPECS in sync */

@@ -8,6 +8,7 @@ import bwipjs from 'bwip-js';
 import { drawRulings } from './rulings.mjs';
 import { EDITION } from './content/edition.mjs';
 import { IC, ic, box, spoon, actionZone, dayBlocks, normalize, DAYPAGE_CSS } from './daypage.mjs';
+import { handoffHtml, GOOD_SPOON_NOTE } from './handoff.mjs';
 // Day page layout from the page editor (content/daypage.json); defaults reproduce the original page.
 const DAYPAGE = normalize(fs.existsSync(new URL('./content/daypage.json', import.meta.url)) ? JSON.parse(fs.readFileSync(new URL('./content/daypage.json', import.meta.url), 'utf8')) : null);
 if (process.argv[2] !== 'month' || !/^\d{4}-\d{2}$/.test(process.argv[3] || '')) {
@@ -59,7 +60,7 @@ function moon(deg, size = 18) {
 }
 
 // ---------- icons (monoline, 12x12, stroke 1.15 = 0.8pt at print size) ----------
-const ICON_KEY = [['pill', 'Meds'], ['am', 'Morning dose'], ['pm', 'Evening dose'], ['prn', 'As needed (write the time)'], ['meal', 'Meals'], ['snack', 'Snack'], ['shower', 'Shower'], ['teeth', 'Teeth'], ['joy', 'Did something I enjoy'], ['text', 'Texted someone'], ['low', 'Mood low … high'], ['anx', 'Anxiety 0–3'], ['sleep', 'Sleep hours'], ['work', 'Work shift'], ['spoon', 'Spoons: cross off as you use them'], ['coin', 'Payday'], ['well', 'Went well'], ['hard', 'Was hard'], ['next', 'Tomorrow']];
+const ICON_KEY = [['pill', 'Meds'], ['am', 'Morning dose'], ['pm', 'Evening dose'], ['prn', 'As needed (write the time)'], ['meal', 'Meals'], ['snack', 'Snack'], ['shower', 'Shower'], ['teeth', 'Teeth'], ['joy', 'Did something I enjoy'], ['text', 'Texted someone'], ['low', 'Mood −3 … +3 (0 = steady)'], ['anx', 'Anxiety 0–3'], ['sleep', 'Sleep hours'], ['work', 'Work shift'], ['spoon', 'Spoons left (counted on the X4)'], ['x4', 'Kept on the X4, not on this page'], ['coin', 'Payday'], ['well', 'Went well'], ['hard', 'Was hard'], ['next', 'Tomorrow']];
 const bubbles = (labels, lo, hi) => `<span class="end">${lo}</span>` + labels.map(() => `<span class="bub"><i></i></span>`).join('') + `<span class="end">${hi}</span>`;
 const dur = (min) => `${Math.floor(min / 60)}h ${String(min % 60).padStart(2, '0')}m`;
 const ruby = (k, r) => `<ruby>${k}<rt>${r}</rt></ruby>`;
@@ -120,10 +121,10 @@ function anatomyPage() {
     <div><h3>Each book</h3><p>Pick a <b>theme</b> (page {{P_THEME}}). Carry it over from last month or start a new one.</p></div>
     <div><h3>Each month</h3><p>Calendar, a sky &amp; seasons list, a one-page tracker, and a new-moon / full-moon page.</p></div>
     <div><h3>Each week</h3><p>A two-page spread to plan, a word of the week to copy, a weekly review, and an <b>exchange spread</b> to hand to someone.</p></div>
-    <div><h3>Each day</h3><p>A full page. Header is pre-filled with the sky. Circle your mood and spoons. Rapid-log anything. Answer three evening questions.</p></div>
+    <div><h3>Each day</h3><p>A full page. Header is pre-filled with the sky. Circle your mood, tick meds and meals. Rapid-log anything. Answer three evening questions.</p></div>
   </div>
   <h3 class="h3b">Anatomy of a day</h3>
-  <div class="anat"><div><b class="zl">DATE / TITLE / TAGS</b> printed date; write a title and tags in the boxes</div><div><b class="zl">SKY + CHECK-IN</b> moon, sun, season; circle mood, cross off spoons</div><div class="a3"><b class="zl">BODY</b> faint 5 mm dots: write anything</div><div><b class="zl">ACTION ITEMS</b> one task per checkbox</div><div><b class="zl">REVIEW</b> went well · was hard · tomorrow</div></div><p class="small" style="margin-top:5px"><b>At the back:</b> Support p. {{P_SUPPORT}} · Safety plan p. {{P_SAFETY}} · ${BUS_COV === 'none' ? '' : 'Bus times p. {{P_BUS}} · '}Where each piece comes from p. {{P_LINEAGE}}</p><h3 class="h3b">Scanning pages</h3><p class="small">Every page has a black frame, seven “send to” bubbles and a small square page code (a Data Matrix) that says which book and page it is. Fill a bubble to route the scan (you choose what each shape means in your scanning app). Keep the frame and the page code clear of ink. These markers are made for your own app; the Rocketbook app won’t read them.</p>`;
+  <div class="anat"><div><b class="zl">DATE / TITLE / TAGS</b> printed date; write a title and tags in the boxes</div><div><b class="zl">SKY + CHECK-IN</b> moon, sun, season; circle mood, tick meds and meals</div><div class="a3"><b class="zl">BODY</b> faint 5 mm dots: write anything</div><div><b class="zl">ACTION ITEMS</b> one task per checkbox</div><div><b class="zl">REVIEW</b> went well · was hard · tomorrow</div></div><p class="small" style="margin-top:5px"><b>At the back:</b> Support p. {{P_SUPPORT}} · Safety plan p. {{P_SAFETY}} · ${BUS_COV === 'none' ? '' : 'Bus times p. {{P_BUS}} · '}Where each piece comes from p. {{P_LINEAGE}}</p><h3 class="h3b">Scanning pages</h3><p class="small">Every page has a black frame, seven “send to” bubbles and a small square page code (a Data Matrix) that says which book and page it is. Fill a bubble to route the scan (you choose what each shape means in your scanning app). Keep the frame and the page code clear of ink. These markers are made for your own app; the Rocketbook app won’t read them.</p>`;
 }
 
 function keyPage() {
@@ -140,7 +141,8 @@ function keyPage() {
     <div><h3>Signs</h3><div class="gl-list">${signs}</div>
       <h3>Planets</h3><div class="gl-list">${planets}</div>
       <h3>Check-in</h3>
-      <p class="small"><b>Mood</b> −3 very low · 0 steady · +3 very high/wired<br><b>Spoons</b> ${spoon()} cross one out per spoon spent. Start with the number you woke up with. A <b>good-spoon day</b> ends with 4 or more left.</p>
+      <p class="small"><b>Mood</b> −3 very low · 0 steady · +3 very high/wired<br><b>Spoons</b> ${spoon()} the X4 counts the spoons you have <b>left</b>. A <b>good-spoon day</b> ends with 4 or more left.</p>
+      <p class="small lives"><b>What lives where.</b> Paper is the record: meds, meals, water, mood, work shift, routines, events, writing and the safety plan. The X4 takes the counting: spoons left, sleep, anxiety and shower, teeth, joy, texted, snack. Your own check-ins are on both. If they differ, trust the book.</p>
     </div>
   </div>
   `;
@@ -259,6 +261,7 @@ function carePage() {
   const rows = (n, cols) => Array(n).fill(`<tr>${cols.map(() => '<td></td>').join('')}</tr>`).join('');
   return `<h2 class="pt">Care plan</h2>
   <p class="lead">The daily care boxes are there to notice, not to grade. A day with one box checked still counts.</p>
+  <p class="small lives"><b>Paper:</b> meds, meals, water, mood, work · <b>X4:</b> spoons, sleep, anxiety, ticks</p>
   <h3>My meds</h3>
   <table class="carep"><tr><th>Name</th><th>When</th><th>What it’s for</th></tr>${rows(4, [1, 2, 3])}</table>
   <h3>What helps on hard days</h3><div class="lines l2"></div>
@@ -287,9 +290,9 @@ function closingPage() {
   const step = (t) => `<div class="cbl2"><i></i><span>${t}</span></div>`;
   return `<h2 class="pt">Closing ${VOL.label}</h2>
   <p class="small">Do this with your Keeper open${kp ? ` to <b>page ${kp}</b>` : ''}, before starting ${nextName}. About 15 minutes.</p>
-  <h3 class="sh">1 · Total the tracker</h3>
-  <div class="qg">${st('Avg mood', '−3…+3')}${st('Avg sleep', 'h')}${st('Showers', '/' + dim)}${st('Meds taken', 'days')}${st('Good-spoon days', 'days')}${st('Work hours', 'h')}</div>
-  <p class="small">Good-spoon day: 4 or more spoons left at bedtime. In the tracker’s spoons box, write the number left.</p>
+  <h3 class="sh">1 · Total the month</h3>
+  ${handoffHtml({ trackerPage: REF_TRACKER, caption: (tag, where) => `<p class="src"><b>${tag}</b> · ${where}</p>`, grid: (h) => `<div class="qg">${h}</div>`, cell: st })}
+  <p class="small">${GOOD_SPOON_NOTE}</p>
   <h3 class="sh">2 · Hand off to the Keeper${kp ? ` (p. ${kp}–${kp + 1})` : ''}</h3>
   ${step('Copy the totals, highs, lows and health notes')}${step('Add new contacts and birthdays')}${step('Update account hints and where recovery codes are kept')}${step('Index pages worth finding later (this is <b>Book ' + VOL.n + '</b>)')}${step('Back up the X4 log: Wi-Fi sync → download')}
   <h3 class="sh">3 · Carry forward</h3>
@@ -378,10 +381,11 @@ function monthSky(M) {
 }
 
 function monthTracker(M) {
-  const rows = M.days.map((d) => `<tr><td class="dn">${d.d}</td><td class="kj">${DAY_LETTERS[(d.weekday + 6) % 7]}</td><td class="mc">${moon(d.moon.phaseDeg, 8)}</td><td class="mood">${[-3, -2, -1, 0, 1, 2, 3].map(() => '<i></i>').join('')}</td><td class="bx"></td><td class="bx"></td><td class="bx"></td><td class="bx"></td><td class="bx"></td><td class="bx"></td></tr>`).join('');
+  // Paper items only (mood, meds, meals, work hours). Spoons, sleep, anxiety and care ticks are counted on the X4.
+  const rows = M.days.map((d) => `<tr><td class="dn">${d.d}</td><td class="kj">${DAY_LETTERS[(d.weekday + 6) % 7]}</td><td class="mc">${moon(d.moon.phaseDeg, 8)}</td><td class="mood">${[-3, -2, -1, 0, 1, 2, 3].map(() => '<i></i>').join('')}</td><td class="bx"></td><td class="bx"></td><td class="bx"></td></tr>`).join('');
   return `<h2 class="pt">${M.name} · tracker</h2>
-  <table class="trk" data-zone="tracker_grid"><tr><th colspan="3"></th><th>${ic('low')} mood ${ic('high')}</th><th>${ic('sleep', 'Sleep')}</th><th>${ic('pill', 'Meds')}</th><th>${ic('meal', 'Meals')}</th><th>${ic('shower', 'Shower')}</th><th>${ic('work', 'Work')}</th><th>${ic('spoon', 'Spoons')}</th></tr><tr class="un"><th colspan="3"></th><th>−3 … +3</th><th>hrs</th><th>tick</th><th>0–3</th><th>tick</th><th>hrs</th><th>left</th></tr>${rows}</table>
-  <p class="small">Fill one mood dot (−3 to +3). Hours for sleep and work, meals 0–3, spoons left at bedtime. X4: Menu → This month.</p>`;
+  <table class="trk" data-zone="tracker_grid"><tr><th colspan="3"></th><th>${ic('low')} mood ${ic('high')}</th><th>${ic('pill', 'Meds')}</th><th>${ic('meal', 'Meals')}</th><th>${ic('work', 'Work')}</th></tr><tr class="un"><th colspan="3"></th><th>−3 … <b>0</b> … +3</th><th>tick</th><th>0–3</th><th>hrs</th></tr>${rows}</table>
+  <p class="small trn" data-zone="tracker_note">${ic('x4', 'X4')} Spoons, sleep, anxiety and care ticks: X4 → This month. Mood: one dot. Meds: tick when all doses are taken.</p>`;
 }
 
 function monthMoonPage(M) {
@@ -462,7 +466,7 @@ function exchange(W, side) {
 }
 
 // ---------- assemble ----------
-let REF_THEME = 0;
+let REF_THEME = 0, REF_TRACKER = 0;
 add('title', titlePage(), '', 'title');               // 1 (recto)
 add('', `<div class="blankpage"></div>`, '', 'blank'); // 2
 add('', anatomyPage(), '', 'anatomy');
@@ -474,7 +478,7 @@ REF_THEME = pages.length + 1; add('', themePage(), '', 'theme');
 const monthStartWeek = (M) => D.weeks.find((W) => W.days.some((d) => d.m === M.m && d.y === M.y));
 for (const W of D.weeks) {
   const M = D.months.find((M) => monthStartWeek(M) === W);
-  if (M) { SEC = 'month'; SPAN = [M.days[0].date, M.days[M.days.length - 1].date]; alignToVerso(); add('', monthCalendar(M), '', 'month_cal'); add('', monthSky(M), '', 'month_sky'); add('', monthTracker(M), '', 'month_tracker'); add('', monthMoonPage(M), '', 'month_moon'); }
+  if (M) { SEC = 'month'; SPAN = [M.days[0].date, M.days[M.days.length - 1].date]; alignToVerso(); add('', monthCalendar(M), '', 'month_cal'); add('', monthSky(M), '', 'month_sky'); REF_TRACKER = pages.length + 1; add('', monthTracker(M), '', 'month_tracker'); add('', monthMoonPage(M), '', 'month_moon'); }
   SEC = 'week'; SPAN = [W.days[0].date, W.days[W.days.length - 1].date];
   alignToVerso();
   add('', weekLeft(W), '', 'week_left'); add('', weekRight(W), '', 'week_right');
@@ -594,7 +598,7 @@ table { border-collapse: collapse; }
 .trk { width: 100%; font-size: 7pt; } .trk th { font-size: 7pt; font-weight: 700; text-align: left; padding: 2px; border-bottom: 1px solid #333; }
 .trk td { border-bottom: 1px solid #bbb; padding: 0 2px; height: 0.2in; } .trk .dn { width: 0.2in; font-weight: 700; text-align: right; } .trk .kj { width: 0.18in; color: #444; } .trk .mc { width: 0.14in; }
 .trk i { display: inline-block; width: 7px; height: 7px; border: 1px solid #444; border-radius: 50%; margin: 0 2px; vertical-align: middle; }
-.trk .mood i:nth-child(4) { border-width: 1.2px; } .trk .bx { width: 0.42in; border-left: 1px solid #bbb; } .trk .nt { border-left: 1px solid #bbb; }
+.trk .mood i:nth-child(4) { border-width: 1.6px; } .trk .bx { width: 0.42in; border-left: 1px solid #bbb; } .trk .nt { border-left: 1px solid #bbb; }
 .mp { margin-top: 0.1in; } .mph { display: flex; gap: 8px; align-items: center; } .mph h3 { margin: 0; } .mph p { margin: 0; font-size: 7.6pt; }
 .whead { display: flex; justify-content: space-between; align-items: baseline; }
 .wrow { flex: 1; display: grid; grid-template-columns: 0.62in 0.9in 1fr; border-top: 1px solid #333; padding-top: 3px; min-height: 0; }
@@ -614,7 +618,8 @@ table { border-collapse: collapse; }
 .dev { font-size: 7pt; padding: 2px 0; border-bottom: 1px solid #999; max-height: calc(3 * 1.2em + 4px); overflow: hidden; } .dev .more { color: #444; }
 .sky1 .pay-mk { display: inline-flex; margin-left: 4px; color: #555; } .sky1 .pay-mk .ic { width: 11px; height: 11px; }
 .chk, .spn { display: flex; align-items: center; gap: 3px; font-size: 7pt; padding: 3px 0 1px; } .lbl { font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; font-size: 7pt; margin: 0 2px 0 5px; } .lbl:first-child { margin-left: 0; }
-.bub { display: inline-flex; } .bub i { width: 9px; height: 9px; border: 1px solid #333; border-radius: 50%; } .bub:nth-child(5) i { border-width: 1.6px; } .end { font-size: 7pt; color: #444; }
+.bub { display: inline-flex; } .bub i { width: 9px; height: 9px; border: 1px solid #333; border-radius: 50%; } .bub:nth-child(5) i { border-width: 1.6px; }
+.bub.nb i { border-width: 1px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; font: 500 5.6pt Inter, sans-serif; font-style: normal; line-height: 1; color: #222; } .bub.nb.mid i { border-width: 1.7px; font-weight: 700; } .end { font-size: 7pt; color: #444; }
 .blank { display: inline-block; width: 0.35in; border-bottom: 1px solid #333; height: 9px; } .blank.long { flex: 1; } .spoon { margin: 0 0.5px; } .sp2 { margin-left: 8px; }
 .log { flex: 1; min-height: 0.8in; margin-top: 3px; }
 .rev { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; border-top: 1px solid #333; padding-top: 2px; } .rev div { font-size: 7pt; display: flex; flex-direction: column; } .rev b { text-transform: uppercase; letter-spacing: 0.5px; font-size: 7pt; } .rev span { height: 0.42in; overflow: hidden; }
@@ -655,10 +660,10 @@ table { border-collapse: collapse; }
 .care .ck { gap: 2px; } .care .ck .ic { width: 11px; height: 11px; } .care .gap { width: 6px; } .care .u { font-size: 7pt; color: #555; } .care .off { font: 500 7pt Inter, sans-serif; text-transform: uppercase; }
 .blank.xs { width: 0.24in; } .care [data-zone="work"] { gap: 3px; } .care .cr.sp { margin-top: 1px; }
 .rev .zl .ic { width: 12px; height: 12px; }
-.trk th .ic { width: 10px; height: 10px; }
+.trk th .ic { width: 10px; height: 10px; } .trn .ic { width: 10px; height: 10px; vertical-align: -2px; margin-right: 3px; } .src { font-size: 7pt; margin: 8px 0 1px; color: #333; } .lives { margin-top: 1px; margin-bottom: 0; }
 .ikey { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 12px; font-size: 7.5pt; margin-bottom: 6px; } .ikey span { display: flex; align-items: center; gap: 5px; } .ikey .ic { width: 11px; height: 11px; }
 .sq { margin-top: 3px; } .sph { display: flex; align-items: flex-end; gap: 10px; } .sph .pt { flex: none; } .sph .qf { max-width: 2.1in; } .pn { display: flex; gap: 8px; align-items: flex-end; } .pn .qf:first-child { flex: 1.2; } .sq .lines.l2 { height: 0.36in; } .sq + .sq { margin-top: 5px; } .sq b { font-size: 7.5pt; } .script { margin-top: 3px; border: 1px solid #000; padding: 5px 7px; font-size: 7.5pt; line-height: 1.35; }
-.carep { width: 100%; } .carep th { text-align: left; font-size: 7.5pt; border-bottom: 1px solid #333; } .carep td { height: 0.28in; border-bottom: 1px solid #bbb; } .wd .wdn { font-size: 11pt; font-weight: 600; display: block; line-height: 1.1; } .cal .sk { font-size: 7pt; font-style: italic; color: #333; line-height: 1.1; border: none; padding: 0; }
+.carep { width: 100%; } .carep th { text-align: left; font-size: 7.5pt; border-bottom: 1px solid #333; } .carep td { height: 0.26in; border-bottom: 1px solid #bbb; } .wd .wdn { font-size: 11pt; font-weight: 600; display: block; line-height: 1.1; } .cal .sk { font-size: 7pt; font-style: italic; color: #333; line-height: 1.1; border: none; padding: 0; }
 .ztags { grid-column: 1 / -1; }
 .sky1 { display: flex; flex-wrap: wrap; gap: 0 4px; align-items: center; font-size: 8pt; line-height: 1.25; margin: 2px 0; } .sky1 > span:not(.season) { white-space: nowrap; } .sky1 .season { margin-left: auto; font-style: italic; color: #333; text-align: right; } .sky2l { font-size: 8pt; color: #333; margin: 1px 0 3px; }
 .net { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 7pt; font-variant-numeric: tabular-nums; margin-top: 4px; }

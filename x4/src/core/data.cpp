@@ -119,23 +119,25 @@ bool loadDay(const std::string& date, Day& d) {
   return true;
 }
 
-// ---------- check-in items (same order and icons as the paper day page) ----------
+// ---------- check-in items ----------
+// X4 built-ins first (order = the paper page's reading order after the split), then the paper-owned keys, hidden.
 Item ITEMS[MAX_ITEMS] = {
-  {"med_am", "Morning meds", IC_AM, Kind::Toggle, 0, 1, 0, "Meds"},
-  {"med_pm", "Evening meds", IC_PM, Kind::Toggle, 0, 1, 0, "Meds"},
-  {"prn", "As-needed dose", IC_PRN, Kind::Stamp, 0, 0, 0, "Meds"},
-  {"meal1", "Meal 1", IC_MEAL, Kind::Toggle, 0, 1, 0, "Food"},
-  {"meal2", "Meal 2", IC_MEAL, Kind::Toggle, 0, 1, 0, "Food"},
-  {"meal3", "Meal 3", IC_MEAL, Kind::Toggle, 0, 1, 0, "Food"},
-  {"snack", "Snack", IC_SNACK, Kind::Toggle, 0, 1, 0, "Food"},
+  {"spoons", "Spoons left", IC_SPOON, Kind::Count, 0, 12, 12, "Energy"},
+  {"sleep", "Sleep (hours)", IC_SLEEP, Kind::Count, 0, 14, 7, "Energy"},
+  {"anxiety", "Anxiety", IC_ANX, Kind::Scale, 0, 3, 0, "Feel"},
   {"shower", "Shower", IC_SHOWER, Kind::Toggle, 0, 1, 0, "Care"},
   {"teeth", "Teeth", IC_TEETH, Kind::Toggle, 0, 1, 0, "Care"},
   {"joy", "Did something I enjoy", IC_JOY, Kind::Toggle, 0, 1, 0, "Care"},
   {"texted", "Texted someone", IC_TEXT, Kind::Toggle, 0, 1, 0, "Care"},
-  {"mood", "Mood", IC_MID, Kind::Scale, -3, 3, 0, "Feel"},
-  {"anxiety", "Anxiety", IC_ANX, Kind::Scale, 0, 3, 0, "Feel"},
-  {"spoons", "Spoons left", IC_SPOON, Kind::Count, 0, 12, 12, "Energy"},
-  {"sleep", "Sleep (hours)", IC_SLEEP, Kind::Count, 0, 14, 7, "Energy"},
+  {"snack", "Snack", IC_SNACK, Kind::Toggle, 0, 1, 0, "Care"},
+  // Paper-owned since the care split. Same keys as always, so old logs still count.
+  {"med_am", "Morning meds", IC_AM, Kind::Toggle, 0, 1, 0, "Meds", true},
+  {"med_pm", "Evening meds", IC_PM, Kind::Toggle, 0, 1, 0, "Meds", true},
+  {"prn", "As-needed dose", IC_PRN, Kind::Stamp, 0, 0, 0, "Meds", true},
+  {"meal1", "Meal 1", IC_MEAL, Kind::Toggle, 0, 1, 0, "Food", true},
+  {"meal2", "Meal 2", IC_MEAL, Kind::Toggle, 0, 1, 0, "Food", true},
+  {"meal3", "Meal 3", IC_MEAL, Kind::Toggle, 0, 1, 0, "Food", true},
+  {"mood", "Mood", IC_MID, Kind::Scale, -3, 3, 0, "Feel", true},
 };
 int ITEM_COUNT = BUILTIN_COUNT;
 
@@ -213,7 +215,7 @@ bool DayLog::has(int i) const { return value[i] != INT_MIN; }
 int DayLog::get(int i) const { return has(i) ? value[i] : ITEMS[i].def; }
 int DayLog::doneCount() const {
   int n = 0;
-  for (int i = 0; i < BUILTIN_COUNT; i++) if (ITEMS[i].kind == Kind::Toggle && has(i) && value[i]) n++;
+  for (int i = 0; i < BUILTIN_COUNT; i++) if (!ITEMS[i].hidden && ITEMS[i].kind == Kind::Toggle && has(i) && value[i]) n++;
   return n;
 }
 
@@ -276,25 +278,27 @@ void monthStats(int year, int month, MonthStats& s) {
     seen[dd] = true;
     const int i = itemIndex(k); if (i >= 0) L[dd].value[i] = atoi(v.c_str());
   });
-  const int iMood = itemIndex("mood"), iSleep = itemIndex("sleep"), iSpoons = itemIndex("spoons");
-  const int iAm = itemIndex("med_am"), iPm = itemIndex("med_pm"), iShower = itemIndex("shower");
-  const int iJoy = itemIndex("joy"), iText = itemIndex("texted");
-  float mood = 0, sleep = 0;
+  float spoons = 0, sleep = 0, anxiety = 0, mood = 0;
   for (int d = 1; d <= s.days; d++) {
     if (!seen[d]) continue;
     s.loggedDays++;
     const DayLog& l = L[d];
-    if (l.has(iMood)) { mood += l.value[iMood]; s.moodN++; }
-    if (l.has(iSleep)) { sleep += l.value[iSleep]; s.sleepN++; }
-    if (l.has(iShower) && l.value[iShower]) s.showers++;
-    const bool am = l.has(iAm) && l.value[iAm], pm = l.has(iPm) && l.value[iPm];
-    if (am && pm) s.medsBoth++;
-    if (am || pm) s.medsAny++;
-    if (l.has(iSpoons) && l.value[iSpoons] >= 4) s.goodSpoonDays++;
-    if (l.has(iJoy) && l.value[iJoy]) s.joy++;
-    if (l.has(iText) && l.value[iText]) s.texted++;
+    auto on = [&](int i) { return l.has(i) && l.value[i]; };
+    if (l.has(I_SPOONS)) { spoons += l.value[I_SPOONS]; s.spoonsN++; if (l.value[I_SPOONS] >= 4) s.goodSpoonDays++; }
+    if (l.has(I_SLEEP)) { sleep += l.value[I_SLEEP]; s.sleepN++; }
+    if (l.has(I_ANXIETY)) { anxiety += l.value[I_ANXIETY]; s.anxietyN++; }
+    if (on(I_SHOWER)) s.showers++;
+    if (on(I_TEETH)) s.teeth++;
+    if (on(I_JOY)) s.joy++;
+    if (on(I_TEXTED)) s.texted++;
+    // Paper-owned keys from logs written before the split: still read, only shown as a quiet note.
+    if (l.has(I_MOOD)) { mood += l.value[I_MOOD]; s.moodN++; }
+    if (on(I_MED_AM) && on(I_MED_PM)) s.medsBoth++;
+    if (on(I_MED_AM) || on(I_MED_PM)) s.medsAny++;
     s.doneByDay[d] = l.doneCount();
   }
-  if (s.moodN) s.avgMood = mood / s.moodN;
+  if (s.spoonsN) s.avgSpoons = spoons / s.spoonsN;
+  if (s.anxietyN) s.avgAnxiety = anxiety / s.anxietyN;
   if (s.sleepN) s.avgSleep = sleep / s.sleepN;
+  if (s.moodN) s.avgMood = mood / s.moodN;
 }

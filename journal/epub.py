@@ -75,7 +75,7 @@ def day_html(d):
 {f'<h3>Sky notes</h3><ul>{"".join(f"<li>{e(n)}</li>" for n in notes)}</ul>' if notes else ''}
 {f'<h3>Events</h3><ul>{ev}</ul>' if ev else ''}
 {f'<p class="fact"><span class="lbl">On this day</span> <i>{e(d["fact"])}</i></p>' if d.get('fact') else ''}
-<div class="box"><p class="lbl">Check-in (write it in the paper book)</p><p>Mood −3…+3 · Sleep · Spoons</p><p class="lbl">Tonight</p><p>What went well? What was hard? What will I do tomorrow?</p></div>
+<div class="box"><p class="lbl">Check-in (write it in the paper book)</p><p>On paper: meds, meals, water, mood −3…+3. On the X4: spoons left, sleep, anxiety, care ticks.</p><p class="lbl">Tonight</p><p>What went well? What was hard? What will I do tomorrow?</p></div>
 </div>'''
 
 def pio_html(W):

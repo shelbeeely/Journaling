@@ -7,9 +7,11 @@ the three things paper can't:
   page (moon, sunrise/sunset, Spokane season, events, routines, today's care, "on this day"). It wakes
   itself at 4:31 a.m. to draw the new day (see "The day starts when you wake"), then goes straight back to sleep.
   A quiet "book p. 26" under the date says which page of the paper book is today's.
-- **Button check-ins.** Meds (AM/PM, as-needed with the time), meals, snack, shower, teeth, did something I enjoy,
-  texted someone, mood, anxiety, spoons, sleep. One press per box, saved to the SD card.
-  **This month** adds them up into the numbers your Keeper's "Closing" page asks for.
+- **Button check-ins.** The X4's half of the care split: **spoons left**, sleep hours, anxiety 0–3, and the care ticks
+  (shower, teeth, did something I enjoy, texted someone, snack), in that order. One press per item, saved to the SD card.
+  Meds, meals, water and mood are on paper, so they are not here (Today says "on paper"). Routines, events and notes are
+  shown on Today as text only; paper is where they are ticked and written.
+  **This month** adds up what the X4 records; the Closing page and the Keeper say which of their six boxes come from it.
 - **Support, one long-press away.** Hold **Back** for about a second on any screen: text-first crisis
   numbers, then your safety plan and the "can you text with me" message.
 
@@ -25,6 +27,28 @@ under **Oct 31** (in October's log), and the sleep screen only flips to the new 
 "last night" the corner says "last night · ▶ Nov 1" (Today) or "Oct 31 · last night" (Check in). Press
 **▶ day** on Today to switch to the new calendar day, **◀ day** to come back. This holds for shift work too:
 if you wake at 6 p.m., the day's check-ins simply start when the paper page does.
+
+## The care split (what lives where)
+
+| On paper | On the X4 |
+| --- | --- |
+| Meds (AM, PM, as-needed), meals, water, mood −3…+3 | Spoons left, sleep hours, anxiety 0–3 |
+| Work shift times, routines, events, writing | Shower, teeth, joy, texted, snack (the care ticks) |
+| Safety plan: the source of truth | A copy of the plan: if it differs, trust the book |
+
+Your own check-ins (editor blocks) are on both. The Check in list is spoons, sleep, anxiety, then the care ticks, the
+order the paper page reads.
+
+**Old logs.** The log keys never change, so nothing is migrated and nothing is lost. `med_am`, `med_pm`, `prn`,
+`meal1`-`meal3` and `mood` are still known keys: they are hidden on Check in and Today, but still read, so a log written before
+the split loads without "older custom entries" warnings, and This month shows one quiet line ("Earlier X4 entries: mood
++0.2 avg, meds 4 days") when a month holds them. The care-ticks-by-day dots now count only the five care ticks, so an
+old month's dots read lower than they did. `host/test_legacy.sh` (run by `preview.sh`) feeds a pre-split log to the real
+month-stats code and checks the numbers.
+
+**This month.** Two bold tiles are Keeper boxes and use the exact labels the Closing page and the Keeper print:
+**Good-spoon days** (4+ spoons left) and **Avg sleep**. Below them: average spoons left, average anxiety and the days each
+care tick was ticked. The other four boxes (Avg mood, Meds taken, Avg meals, Work hours) come from the paper tracker.
 
 ## Which build am I on?
 
@@ -139,6 +163,6 @@ differs (a folder for the SD card, PNG frames for the panel, scripted buttons).
 - **After a flat battery** the time falls back to the last saved time. Check in won't open until the
   clock is set: it goes to the Clock screen with a plain message (also when the date is earlier than
   your books' build date), so nothing is filed under a wrong day.
-- **Unlogged is "-".** Today shows a dash for mood, anxiety and spoons you haven't logged, never a default;
+- **Unlogged is "-".** Today shows a dash for spoons, sleep and anxiety you haven't logged, never a default;
   This month averages and counts only days you logged.
 - Today lists up to 6 calendar lines and says "+N more on paper" for the rest.

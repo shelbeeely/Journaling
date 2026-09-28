@@ -4,6 +4,7 @@
 // Usage: node keeper.mjs [label]      -> out/keeper/keeper-interior-5.5x8.5.pdf + pages.txt
 import fs from 'node:fs';
 import { launch } from './browser.mjs';
+import { handoffHtml, HANDOFF_BOXES, GOOD_SPOON_NOTE } from './handoff.mjs';
 
 const LABEL = process.argv[2] || 'Oct 2026 – Sep 2027';
 const OUT = 'out/keeper'; fs.mkdirSync(OUT, { recursive: true });
@@ -100,8 +101,8 @@ for (const M of MONTHS) {
   const next = MONTHS[M.n] ? `${MONTHS[M.n].name}` : 'next year';
   INDEX[M.id] = pages.length + 1;
   add(`<div class="hh"><h2>Closing ${M.name} ${M.y}</h2><span>BOOK ${M.n} OF 12</span></div>
-  <h3>From the tracker</h3><div class="sts">${stat('Avg mood', '−3…+3')}${stat('Avg sleep', 'h')}${stat('Showers', `/${new Date(Date.UTC(M.y, +M.id.slice(5), 0)).getUTCDate()}`)}${stat('Meds taken', 'days')}${stat('Good-spoon days', 'days')}${stat('Work hours', 'h')}</div>
-  <p class="small">Good-spoon day: 4 or more spoons left at bedtime. In the tracker’s spoons box, write the number left.</p>
+  <h3>Totals</h3>${handoffHtml({ caption: (tag, where) => `<p class="src"><b>${tag}</b> · ${where}</p>`, grid: (h) => `<div class="sts">${h}</div>`, cell: stat })}
+  <p class="small">${GOOD_SPOON_NOTE}</p>
   <div class="two"><div><h3>Highs</h3>${lines(4)}</div><div><h3>Lows</h3>${lines(4)}</div></div>
   <h3>Health</h3><p class="small">Appointments, med changes, how the meds felt.</p>${lines(3)}
   <h3>Money &amp; work</h3>${lines(2)}
@@ -115,7 +116,7 @@ for (const M of MONTHS) {
   <h3>Intention for ${next}</h3>${lines(1)}`, 'hr');
 }
 add(`<h2>Year at a glance</h2><p class="small">Copy each month’s totals here to see the whole year.</p>
-<table class="t yr"><tr><th>Month</th><th>Mood</th><th>Sleep</th><th>Showers</th><th>Meds</th><th>Spoons</th><th>Work h</th></tr>${MONTHS.map((M) => `<tr><td>${M.name.slice(0, 3)} ${String(M.y).slice(2)}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`).join('')}</table>
+<table class="t yr"><tr><th>Month</th>${HANDOFF_BOXES.map((b) => `<th>${b.label}</th>`).join('')}</tr>${MONTHS.map((M) => `<tr><td>${M.name.slice(0, 3)} ${String(M.y).slice(2)}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`).join('')}</table>
 <h3>What this year taught me</h3>${lines(6)}`);
 fs.writeFileSync(`${OUT}/index.json`, JSON.stringify({ handoff_page: INDEX }, null, 1)); // read by render.mjs for the "Closing the month" page
 
@@ -153,7 +154,7 @@ h1 { font-size: 30pt; margin: 0.1in 0; } h2 { font-size: 15pt; margin: 0 0 0.08i
 .sh { border-bottom: 1px solid #000; } .sup { border-bottom: 1px solid #e3e3e3; padding: 1px 0; } .sup .sn { display: flex; gap: 3px; align-items: center; } .sup .sn b { margin-right: auto; font-size: 7.5pt; }
 .chip { font: 700 7pt Inter, sans-serif; border: 1px solid #000; padding: 0 2px; line-height: 1.2; } .chip.tx { background: #000; color: #fff; }
 .blankpage { height: 100%; }
-.hh { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #000; margin-bottom: 4px; } .hh h2 { margin: 0; } .hh span { font: 700 7pt Inter, sans-serif; letter-spacing: .1em; }
+.src { font-size: 7pt; margin: 8px 0 1px; color: #333; } .hh { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #000; margin-bottom: 4px; } .hh h2 { margin: 0; } .hh span { font: 700 7pt Inter, sans-serif; letter-spacing: .1em; }
 .sts { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; } .st { display: flex; align-items: flex-end; gap: 4px; } .st span { font: 500 7pt Inter, sans-serif; text-transform: uppercase; white-space: nowrap; } .st i { flex: 1; border-bottom: 1px solid #777; height: 0.22in; } .st em { font-size: 7pt; color: #555; font-style: normal; }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .cbs { display: grid; grid-template-columns: 1fr 1fr; column-gap: 12px; } .cbl { display: flex; align-items: flex-end; gap: 5px; height: 0.25in; } .cbl i { width: 9px; height: 9px; border: 1px solid #000; flex: none; margin-bottom: 3px; } .cbl span { flex: 1; border-bottom: 1px solid #bbb; font-size: 7.5pt; height: 100%; display: flex; align-items: flex-end; } .cbs .cbl span { border-bottom: none; }
