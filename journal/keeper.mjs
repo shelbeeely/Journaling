@@ -107,7 +107,7 @@ for (const M of MONTHS) {
   <h3>Money &amp; work</h3>${lines(2)}
   <h3>One line to remember ${M.name} by</h3>${lines(1)}`, 'hl');
   add(`<div class="hh"><h2>Into ${next}</h2><span>HANDOFF</span></div>
-  <h3>Keeper updated</h3><div class="cbs">${cbx('New contacts')}${cbx('Birthdays')}${cbx('Account hints')}${cbx('Recovery code locations')}${cbx('Clinic &amp; support still right')}${cbx('Tracker totals copied')}</div>
+  <h3>Keeper updated</h3><div class="cbs">${cbx('New contacts')}${cbx('Birthdays')}${cbx('Account hints')}${cbx('Recovery code locations')}${cbx('Clinic &amp; support still right')}${cbx('Tracker totals copied')}<div class="cbl wide"><i></i><span>Back up the X4 log: Wi-Fi sync → download</span></div></div>
   <h3>Carry forward</h3><p class="small">Copy these into week 1 of the new book.</p>${blank(7).map(() => cbx('')).join('')}
   <h3>Follow up with</h3>${lines(2)}
   <h3>Worth finding later</h3><table class="t ix"><tr><th>What</th><th>Book</th><th>Page</th></tr>${blank(4).map(() => `<tr><td></td><td>${M.n}</td><td></td></tr>`).join('')}</table>
@@ -156,6 +156,7 @@ h1 { font-size: 30pt; margin: 0.1in 0; } h2 { font-size: 15pt; margin: 0 0 0.08i
 .hh { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #000; margin-bottom: 4px; } .hh h2 { margin: 0; } .hh span { font: 700 7pt Inter, sans-serif; letter-spacing: .1em; }
 .sts { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; } .st { display: flex; align-items: flex-end; gap: 4px; } .st span { font: 500 7pt Inter, sans-serif; text-transform: uppercase; white-space: nowrap; } .st i { flex: 1; border-bottom: 1px solid #777; height: 0.22in; } .st em { font-size: 7pt; color: #555; font-style: normal; }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.cbl.wide { grid-column: 1 / -1; }
 .cbs { display: grid; grid-template-columns: 1fr 1fr; column-gap: 12px; } .cbl { display: flex; align-items: flex-end; gap: 5px; height: 0.25in; } .cbl i { width: 9px; height: 9px; border: 1px solid #000; flex: none; margin-bottom: 3px; } .cbl span { flex: 1; border-bottom: 1px solid #bbb; font-size: 7.5pt; height: 100%; display: flex; align-items: flex-end; } .cbs .cbl span { border-bottom: none; }
 .ix td { height: 0.25in; } .ix th:nth-child(2), .ix th:nth-child(3) { width: 0.5in; } .ix td:nth-child(2) { color: #888; text-align: center; }
 .yr td { height: 0.3in; }
