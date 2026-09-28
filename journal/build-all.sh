@@ -28,5 +28,6 @@ unset SIZE
 # page identity across books: shared pages (Key, Support, Safety ...) must be byte-identical in every book and both sizes
 [ ${#dirs[@]} -eq 0 ] || node check-pages.mjs "${dirs[@]}" || { echo "::error::page identity"; fail=1; }
 [ ${#dirs[@]} -eq 0 ] || node check-codes.mjs "${dirs[@]}" || { echo "::error::scan codes"; fail=1; }
+[ ${#dirs[@]} -eq 0 ] || node check-handoff.mjs "${dirs[@]}" || { echo "::error::handoff boxes differ between the X4, the Closing page and the Keeper"; fail=1; }
 node proof-test.mjs || fail=1   # KDP proof test sheet (both sizes), not part of the books
 exit $fail

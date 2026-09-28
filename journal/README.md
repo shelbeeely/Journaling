@@ -87,6 +87,37 @@ No Type 3 fonts (KDP rejects them). Same check CI runs:
 
 No output = pass.
 
+## What lives where (the care split)
+Paper and the X4 are one system. Every daily care item lives in exactly one place, and each side says where the other half is.
+
+| | Paper | X4 |
+| --- | --- | --- |
+| Meds (morning, evening, as-needed), meals, water | yes: the day page care block | not on Check in or Today ("on paper") |
+| Mood (dots numbered −3…+3, the middle marked) | yes | not on Check in or Today ("on paper") |
+| Work shift times, routines, events, writing | yes: paper is the record | shows routines, events and notes only |
+| Spoons **left** (0–12), sleep hours, anxiety 0–3 | off by default (switchable in the editor) | yes: Check in, Today, This month |
+| Shower, teeth, joy, texted, snack | off by default (switchable) | yes: the "care ticks" |
+| Your own check-ins (editor blocks) | prints the block | also on Check in |
+| Safety plan | **source of truth** | a copy; "if this differs, trust the book" |
+
+The day page prints one small line under the care block naming what the X4 keeps ("X4: spoons · sleep · anxiety · care ticks").
+The line only lists what is off the page, so switching an X4 row back on in the editor removes it from the line.
+
+## Month totals: the six boxes
+`handoff.mjs` is the one definition of the six boxes on the Closing page, the Keeper's handoff spread and (for the two X4 ones) the X4's This month:
+
+| Box | Unit | Comes from |
+| --- | --- | --- |
+| Avg mood | −3…+3 | paper tracker |
+| Meds taken | days, all doses | paper tracker |
+| Avg meals | a day, 0–3 | paper tracker |
+| Work hours | h | paper tracker |
+| Avg sleep | hours | X4 → This month |
+| Good-spoon days | 4+ left | X4 → This month |
+
+`check-handoff.mjs` (run by `build-all.sh`) fails the build when a label or unit differs between those pages or from the X4 firmware.
+The paper tracker page holds mood dots, meds tick, meals 0–3 and work hours only; it says spoons, sleep, anxiety and care ticks are on the X4.
+
 ## X4 SD card
 Needs the months built first (it reads `out/m<YYYY-MM>/data.json`).
 
@@ -98,7 +129,7 @@ It never writes `me.txt` or `log/`: those live only on the card, and a blank cop
 
 It also writes `checkins.txt` from `content/daypage.json`, so your editor blocks show up on the X4 check-in screen:
 Checkboxes become ticks, Scale becomes a 1–steps scale, Habits become dots, and Fill-in blanks become counts (0–99).
-Care, spoons and sleep are already built in. The X4 holds **16 custom items** at most; extras are dropped with a warning.
+Spoons left, sleep, anxiety and the care ticks are built in (meds, meals, water and mood stay on paper). The X4 holds **16 custom items** at most; extras are dropped with a warning.
 
 **Update the card:** copy the whole `kw-update` folder to the card's root (Replace is fine), eject, and turn the X4 on.
 It moves the files into `/kw` and deletes `/kw-update`. Your safety plan (`/kw/me.txt`) and check-in log (`/kw/log/`)

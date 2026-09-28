@@ -147,7 +147,7 @@ static void drawToday(bool sleeping) {
   y += 6;
   C->hline(M, y, CW); y += 34;
 
-  // Notes (holidays bold), one-off events, routines as checkboxes.
+  // Notes (holidays bold), one-off events, routines. Routines are text with a clock: paper is where they get ticked (S13).
   int shown = 0;
   const int total = (int)(d.notes.size() + d.events.size() + d.routines.size());
   for (auto& n : d.notes) {
@@ -161,32 +161,35 @@ static void drawToday(bool sleeping) {
   }
   for (auto& r : d.routines) {
     if (shown >= 6) break;
-    C->rect(M, y - 16, 16, 16, 2); C->wrap(F_UI, M + 24, y, CW - 24, r.c_str(), 1); y += 30; shown++;
+    C->icon(IC_PRN, M - 2, y - 20, 24); C->wrap(F_UI, M + 30, y, CW - 30, r.c_str(), 1); y += 30; shown++;
   }
   if (!shown) { C->text(F_BODY_I, M, y, "Nothing on the calendar."); y += 30; }
   else if (total > shown) { C->text(F_UI_S, M + 24, y - 6, ("+" + std::to_string(total - shown) + " more on paper").c_str()); y += 26; }
   y += 4;
   C->hline(M, y, CW); y += 14;
 
-  // Today's care at a glance: filled tile = done. Same icons as the paper page.
-  C->text(F_UI_S, M, y + 14, "TODAY'S CARE");
-  const int tiles[] = {0, 1, 3, 4, 5, 7, 8, 9, 10};
+  // Today's care at a glance, the X4's half of the split: filled tile = done. Same icons as the paper page.
+  C->text(F_UI_S, M, y + 14, "CARE TICKS");
+  static const int tiles[] = {I_SHOWER, I_TEETH, I_JOY, I_TEXTED, I_SNACK};
   y += 26;
-  for (int i = 0; i < 9; i++) {
-    const int tx = M + i * 47, idx = tiles[i];
+  for (int i = 0; i < 5; i++) {
+    const int tx = M + i * 60, idx = tiles[i];
     const bool on = log.has(idx) && log.get(idx);
-    if (on) { C->fillRound(tx, y, 40, 40, 6); C->icon(ITEMS[idx].icon, tx + 8, y + 8, 24, false); }
-    else { C->roundRect(tx, y, 40, 40, 6, 2); C->icon(ITEMS[idx].icon, tx + 8, y + 8, 24, true); }
+    if (on) { C->fillRound(tx, y, 48, 48, 6); C->icon(ITEMS[idx].icon, tx + 12, y + 12, 24, false); }
+    else { C->roundRect(tx, y, 48, 48, 6, 2); C->icon(ITEMS[idx].icon, tx + 12, y + 12, 24, true); }
   }
-  y += 70;
+  y += 78;
   // Only what was actually logged shows as a value; anything else is "–" (never a guessed default).
-  char feel[96], mv[8] = "–", av[8] = "–", sv[8] = "–";
-  if (log.has(11)) snprintf(mv, sizeof mv, "%s%d", log.get(11) > 0 ? "+" : "", log.get(11));
-  if (log.has(12)) snprintf(av, sizeof av, "%d", log.get(12));
-  if (log.has(13)) snprintf(sv, sizeof sv, "%d", log.get(13));
-  snprintf(feel, sizeof feel, "Mood %s  ·  Anxiety %s  ·  %s spoons", mv, av, sv);
-  C->text(F_UI, M, y, (log.has(11) || log.has(12) || log.has(13)) ? feel : "No check-in yet today.");
-  y += 22;
+  // Mood, meds, meals and water are paper's: Today says so instead of showing a value.
+  char feel[96], av[8] = "–", sv[8] = "–", zv[8] = "–";
+  if (log.has(I_SPOONS)) snprintf(sv, sizeof sv, "%d", log.get(I_SPOONS));
+  if (log.has(I_SLEEP)) snprintf(zv, sizeof zv, "%dh", log.get(I_SLEEP));
+  if (log.has(I_ANXIETY)) snprintf(av, sizeof av, "%d", log.get(I_ANXIETY));
+  snprintf(feel, sizeof feel, "%s spoons left  ·  Sleep %s  ·  Anxiety %s", sv, zv, av);
+  C->text(F_UI, M, y, (log.has(I_SPOONS) || log.has(I_SLEEP) || log.has(I_ANXIETY)) ? feel : "No check-in yet today.");
+  y += 26;
+  C->text(F_UI_S, M, y, "Meds, meals, water, mood: on paper");
+  y += 16;
   if (log.orphans) { C->text(F_UI_S, M, y + 6, (std::to_string(log.orphans) + " older custom entr" + (log.orphans == 1 ? "y" : "ies") + " kept in the log").c_str()); y += 26; }
 
   // On this day (the footer fact from the paper page).
@@ -209,21 +212,30 @@ static void drawToday(bool sleeping) {
 }
 
 // ---------------------------------------------------------------------------------------------
-// CHECK IN — the paper page's care block, one button press per box.
+// CHECK IN — the X4's half of the care split (spoons left, sleep, anxiety, care ticks), one press per item.
 // ---------------------------------------------------------------------------------------------
 static const int ROW_H = 43, LIST_Y = 100, HEAD_H = 36, VIEW_H = HINT_Y - LIST_Y;
 
+// Paper-owned built-ins (meds, meals, mood) stay in ITEMS so old logs read, but they are not rows here.
+static int prevShown(int i) { for (int k = i - 1; k >= 0; k--) if (!ITEMS[k].hidden) return k; return -1; }
+static int lastShown() { for (int k = ITEM_COUNT - 1; k >= 0; k--) if (!ITEMS[k].hidden) return k; return 0; }
+static int stepSel(int from, int dir) {  // next shown row up or down, wrapping
+  int i = from;
+  do { i = (i + dir + ITEM_COUNT) % ITEM_COUNT; } while (ITEMS[i].hidden);
+  return i;
+}
 // A custom group starts a new section; built-ins keep their original separators.
 static bool newGroup(int i) {
-  if (i == 0) return false;
-  if (i < BUILTIN_COUNT) return strcmp(ITEMS[i - 1].group, ITEMS[i].group) != 0;
+  const int p = prevShown(i);
+  if (p < 0) return false;
+  if (i < BUILTIN_COUNT) return strcmp(ITEMS[p].group, ITEMS[i].group) != 0;
   return i == BUILTIN_COUNT || ITEMS[i - 1].group != ITEMS[i].group;
 }
 static bool hasHeading(int i) { return i >= BUILTIN_COUNT && newGroup(i) && ITEMS[i].group[0]; }
 // Top of row i in list coordinates (before scrolling); headings sit above their first row.
 static int rowTop(int i) {
   int y = 0;
-  for (int k = 0; k <= i; k++) { if (hasHeading(k)) y += HEAD_H; if (k < i) y += ROW_H; }
+  for (int k = 0; k <= i; k++) { if (ITEMS[k].hidden) continue; if (hasHeading(k)) y += HEAD_H; if (k < i) y += ROW_H; }
   return y;
 }
 
@@ -258,7 +270,7 @@ static void drawCheckin() {
   if (rolledBack() && S.dayOffset == 0) sub += " · last night";
   header("Check in", sub.c_str(), IC_CHECK);
   // Scroll only when the list is taller than the screen (never with the built-ins alone).
-  const int total = rowTop(ITEM_COUNT - 1) + ROW_H;
+  const int total = rowTop(lastShown()) + ROW_H;
   if (total <= VIEW_H) S.scroll = 0;
   else {
     const int top = rowTop(S.sel) - (hasHeading(S.sel) ? HEAD_H : 0), bottom = rowTop(S.sel) + ROW_H;
@@ -268,6 +280,7 @@ static void drawCheckin() {
   }
   for (int i = 0; i < ITEM_COUNT; i++) {
     const Item& it = ITEMS[i];
+    if (it.hidden) continue;
     const int ry = rowTop(i) - S.scroll;
     if (hasHeading(i) && ry - HEAD_H >= 0 && ry <= VIEW_H) {
       std::string H = it.group; for (auto& ch : H) if (ch >= 'a' && ch <= 'z') ch -= 32;
@@ -309,7 +322,7 @@ static void drawCheckin() {
       }
       case Kind::Count: {
         char b[16]; snprintf(b, sizeof b, "%d", log.get(i));
-        if (i == 13) {  // spoons: draw them, filled = left
+        if (i == I_SPOONS) {  // spoons: draw them, filled = left
           for (int k = 0; k < 12; k++) {
             const int sx = R - (12 - k) * 15, on = log.has(i) && k < log.get(i);  // unset: all outlines, not 12 full
             if (on) { C->fillCircle(sx + 5, y + 16, 5); C->fill(sx + 4, y + 20, 3, 11); }
@@ -372,7 +385,7 @@ static void checkinPress(Btn b) {
 struct MenuEntry { const char* label; const char* sub; int icon; Scr to; };
 static const MenuEntry MENU[] = {
   {"Today", "the almanac page", IC_CAL, Scr::Today},
-  {"Check in", "meds, meals, care, mood, spoons", IC_CHECK, Scr::Checkin},
+  {"Check in", "spoons, sleep, anxiety, care ticks", IC_CHECK, Scr::Checkin},
   {"This month", "totals for your Keeper handoff", IC_CHART, Scr::Month},
   {"Support", "numbers to text or call", IC_HEART, Scr::Support},
   {"My safety plan", "and people to text", IC_PERSON, Scr::Plan},
@@ -410,30 +423,43 @@ static void drawMonth() {
   C->clear();
   header(monthName(m0).c_str(), sub, IC_CHART);
   if (!built.empty()) C->textRight(F_UI_S, Canvas::W - M, 36, ("pack " + built).c_str());
+  // Two big tiles are Keeper boxes (labels match the Closing page and the Keeper: journal/handoff.mjs, check-handoff.mjs);
+  // the rest is what only the X4 counts. Mood, meds, meals and work hours are on the paper tracker.
   struct Stat { const char* label; char val[16]; const char* unit; };
-  Stat st[6];
+  Stat st[4];
   auto set = [&](int i, const char* l, const char* u, const char* fmt, double v, bool have) {
     st[i].label = l; st[i].unit = u; if (have) snprintf(st[i].val, 16, fmt, v); else strcpy(st[i].val, "–");
   };
-  set(0, "Avg mood", "−3…+3", "%+.1f", s.avgMood, s.moodN);
+  set(0, "Good-spoon days", "4+ left", "%.0f", s.goodSpoonDays, s.spoonsN);
   set(1, "Avg sleep", "hours", "%.1f", s.avgSleep, s.sleepN);
-  char u2[16]; snprintf(u2, sizeof u2, "of %d days", s.days);
-  set(2, "Showers", u2, "%.0f", s.showers, s.loggedDays);
-  set(3, "Meds, both doses", "days", "%.0f", s.medsBoth, s.loggedDays);
-  set(4, "Good-spoon days", "4+ left", "%.0f", s.goodSpoonDays, s.loggedDays);
-  set(5, "Enjoyed something", "days", "%.0f", s.joy, s.loggedDays);
-  for (int i = 0; i < 6; i++) {
+  set(2, "Avg spoons left", "of 12", "%.1f", s.avgSpoons, s.spoonsN);
+  set(3, "Avg anxiety", "0–3", "%.1f", s.avgAnxiety, s.anxietyN);
+  for (int i = 0; i < 4; i++) {
     const int col = i % 2, row = i / 2, x = M + col * (CW / 2 + 6), y = 104 + row * 108;
-    C->rect(x, y, CW / 2 - 6, 96, 2);
+    C->rect(x, y, CW / 2 - 6, 96, i < 2 ? 3 : 1);  // the two Keeper boxes get the heavier frame
     C->text(F_UI_S, x + 12, y + 26, st[i].label);
     const int ex = C->text(F_UI_XL, x + 12, y + 76, st[i].val);
     C->text(F_UI_S, ex + 8, y + 76, st[i].unit);
   }
-  // Calendar: each day's dot grows with the care boxes ticked that day.
-  int y = 450;
-  C->text(F_UI_S, M, y, "CARE BOXES TICKED, BY DAY"); y += 16;
+  // Care ticks: days each was ticked.
+  {
+    static const int ic4[] = {IC_SHOWER, IC_TEETH, IC_JOY, IC_TEXT};
+    static const char* nm4[] = {"Showers", "Teeth", "Enjoyed", "Texted"};
+    const int cnt[4] = {s.showers, s.teeth, s.joy, s.texted}, w = (CW - 3 * 8) / 4;
+    for (int i = 0; i < 4; i++) {
+      const int x = M + i * (w + 8), y = 320;
+      char b[8]; if (s.loggedDays) snprintf(b, sizeof b, "%d", cnt[i]); else strcpy(b, "–");
+      C->rect(x, y, w, 76, 1);
+      C->icon(ic4[i], x + 8, y + 8, 24);
+      C->text(F_UI_S, x + 8, y + 68, nm4[i]);
+      C->textRight(F_UI_B, x + w - 8, y + 30, b);
+    }
+  }
+  // Calendar: each day's dot grows with the care ticks done that day.
+  int y = 424;
+  C->text(F_UI_S, M, y, "CARE TICKS, BY DAY"); y += 8;
   struct tm first = {}; first.tm_year = y0 - 1900; first.tm_mon = m0 - 1; first.tm_mday = 1; first.tm_hour = 12; mktime(&first);
-  const int lead = (first.tm_wday + 6) % 7, cellW = CW / 7, cellH = 44;
+  const int lead = (first.tm_wday + 6) % 7, cellW = CW / 7, rows = (lead + s.days + 6) / 7, cellH = rows > 5 ? 38 : 44;
   static const char* WD = "MTWTFSS";
   for (int i = 0; i < 7; i++) { char b[2] = {WD[i], 0}; C->textCenter(F_UI_S, M + i * cellW + cellW / 2, y + 18, b); }
   y += 26;
@@ -441,18 +467,26 @@ static void drawMonth() {
     const int k = lead + d - 1, cx = M + (k % 7) * cellW + cellW / 2, cy = y + (k / 7) * cellH + cellH / 2;
     const int n = s.doneByDay[d];
     char b[4]; snprintf(b, sizeof b, "%d", d);
-    if (n) C->fillCircle(cx, cy, 5 + n * 12 / 9 > 18 ? 18 : 5 + n * 12 / 9);
+    if (n) C->fillCircle(cx, cy, 5 + n * 12 / 5 > 17 ? 17 : 5 + n * 12 / 5);
     else C->circle(cx, cy, 5, 1);
     if (!n) C->text(F_UI_S, cx + 8, cy - 6, b);
+  }
+  // Logs from before the care split may still hold mood and meds: read, never lost, shown as one quiet line.
+  if (s.moodN || s.medsAny) {
+    char old[80];
+    if (s.moodN) snprintf(old, sizeof old, "Earlier X4 entries: mood %+.1f avg, meds %d days", s.avgMood, s.medsBoth);
+    else snprintf(old, sizeof old, "Earlier X4 entries: meds %d days", s.medsBoth);
+    C->text(F_UI_S, M, HINT_Y - 52, old);
   }
   // Where it goes in the Keeper.
   std::string pack; int kp = 0;
   char path[24]; snprintf(path, sizeof path, "/kw/%04d-%02d.txt", y0, m0);
   if (hal::readFile(path, pack)) { size_t p = pack.find("\nkeeper="); if (p != std::string::npos) kp = atoi(pack.c_str() + p + 8); }
   char foot[96];
-  if (kp) snprintf(foot, sizeof foot, "Copy these to your Keeper, page %d.", kp);
-  else snprintf(foot, sizeof foot, "Copy these to your Keeper's handoff page.");
-  C->text(F_BODY_I, M, HINT_Y - 18, foot);
+  if (kp) snprintf(foot, sizeof foot, "Keeper p. %d: copy the two bold boxes.", kp);
+  else snprintf(foot, sizeof foot, "Keeper handoff: copy the two bold boxes.");
+  C->text(F_UI_S, M, HINT_Y - 30, foot);
+  C->text(F_UI_S, M, HINT_Y - 10, "Mood, meds, meals, work hours: paper tracker.");
   // First days of a month open on the month just finished (its totals go to the Keeper); ▶ reaches the new one.
   hintBar("Back", "", "◀ month", S.monthOffset == -1 && atoi(bd.c_str() + 8) <= 3 ? "this month ▶" : "month ▶");
 }
@@ -549,7 +583,7 @@ static void breakLines(const Font& f, const std::string& s, int w, std::vector<s
 struct PlanLine { uint8_t kind; bool start; std::string s; int adv; };  // kind: 0 heading, 1 body, 2 dotted, 3 note, 4 gap
 static int planPages = 1;
 static void drawPlan() {
-  static const int TOP = 120, BOX_Y = HINT_Y - 150;
+  static const int TOP = 120, BOX_Y = HINT_Y - 162;
   static const int LIMIT = HINT_Y - 44, LIMIT_LAST = BOX_Y - 14;  // lowest baseline on a page
   std::string f; hal::readFile("/kw/me.txt", f);
   size_t a = 0; bool any = false;
@@ -627,6 +661,8 @@ static void drawPlan() {
     C->textRight(F_UI_S, x - 10, HINT_Y - 14, "more");
     C->line(x - 6, cy - 3, x, cy + 3, 2); C->line(x, cy + 3, x + 6, cy - 3, 2);
   }
+  // The paper safety plan is the source of truth; this is a copy of it.
+  C->text(F_UI_S, M, HINT_Y - 10, "If this differs, trust the book.");
   hintBar("Back", "Support", S.page ? "◀ page" : "", S.page + 1 < pages ? "page ▶" : "");
 }
 
@@ -758,8 +794,8 @@ void appMain() {
         break;
       case Scr::Checkin:
         if (b == Btn::Back) { S.scr = Scr::Today; render(false); }
-        else if (b == Btn::Up) { S.sel = (S.sel + ITEM_COUNT - 1) % ITEM_COUNT; render(true); }
-        else if (b == Btn::Down) { S.sel = (S.sel + 1) % ITEM_COUNT; render(true); }
+        else if (b == Btn::Up) { S.sel = stepSel(S.sel, -1); render(true); }
+        else if (b == Btn::Down) { S.sel = stepSel(S.sel, 1); render(true); }
         else { checkinPress(b); render(true); }
         break;
       case Scr::Menu:
