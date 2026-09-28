@@ -475,9 +475,9 @@ Sibling docs are written in parallel; if a file name differs when they land, fix
 - **With the ETP** ([emergent-task-planner.md](emergent-task-planner.md)): choose three tasks with bubble estimates, then block them.
 - **With Pomodoro** (no sibling doc yet): run pomodoros inside a deep-work block.
 - **With the Bullet Journal** ([bullet-journal.md](bullet-journal.md), sibling doc): the block column sits beside a daily log; capture goes in bullets; migration at shutdown.
-- **With GTD** ([getting-things-done.md](getting-things-done.md), sibling doc): GTD's lists feed the blocks; the weekly review becomes the weekly plan.
+- **With GTD** ([getting-things-done.md](getting-things-done-paper.md), sibling doc): GTD's lists feed the blocks; the weekly review becomes the weekly plan.
 - **With the Eisenhower matrix** ([eisenhower-matrix.md](eisenhower-matrix.md), sibling doc): "important, not urgent" goes into deep blocks first.
-- **With Ivy Lee** ([ivy-lee.md](ivy-lee.md), sibling doc): the six tasks become the day's blocks.
+- **With Ivy Lee** ([ivy-lee.md](ivy-lee-method.md), sibling doc): the six tasks become the day's blocks.
 - **With spoon tracking:** a spoon number beside each block.
 
 ## 22. Ready-to-use bank

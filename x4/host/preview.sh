@@ -40,3 +40,4 @@ printf "ev=9:00a Dentist\nev=10:30a Call the pharmacy\nev=12:00p Lunch with Sam\
 printf "2026-10-31T09:00,c_old_key,1\n2026-10-31T09:01,c_other_old,2\n2026-10-31T09:02,mood,2\n" >> /tmp/kwsd/kw/log/2026-10.csv
 env KW_SD=/tmp/kwsd KW_OUT=out/manyevents KW_NOW="2026-10-31 13:10" KW_KEYS="" ./kw_host >/dev/null
 python3 topng.py out
+./test_update.sh

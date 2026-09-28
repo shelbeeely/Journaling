@@ -445,7 +445,7 @@ Sibling docs are written in parallel; if a file name differs when they land, fix
 
 - **With time blocking** ([time-block-planner.md](time-block-planner.md)): use the ETP's three tasks and bubbles as the input to a block plan; the ETP grid is a lighter block column.
 - **With the Bullet Journal** ([bullet-journal.md](bullet-journal.md), sibling doc): the ETP replaces the daily log on busy days; bullets go in the notes area. Migrate leftovers as usual.
-- **With Ivy Lee or MITs** ([ivy-lee.md](ivy-lee.md), sibling doc): the three important tasks are a short Ivy Lee list with time estimates.
+- **With Ivy Lee or MITs** ([ivy-lee.md](ivy-lee-method.md), sibling doc): the three important tasks are a short Ivy Lee list with time estimates.
 - **With the Eisenhower matrix** ([eisenhower-matrix.md](eisenhower-matrix.md), sibling doc): pick the three from "important, not urgent."
 - **With Seah's own forms:** Concrete Goals Tracker for the week's results, Task Progress Tracker for a project's effort, Compact Calendar for the year.
 - **With a shutdown ritual:** end the ETP review by saying the day is closed (see the shutdown ritual in [time-block-planner.md](time-block-planner.md)).

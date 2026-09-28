@@ -537,7 +537,7 @@ No studies test Jibun Techo itself. Two strong adjacent findings:
 - **With a Traveler's Notebook:** the B6 slim DIARY can live in a B6 elastic cover with IDEA and other inserts. See
   [travelers-notebook.md](travelers-notebook.md).
 - **With time blocking:** Jibun's plan half is time blocking; the actual half adds the review. See
-  [time-blocking.md](time-blocking.md).
+  [time-blocking.md](time-block-planner.md).
 - **With habit or mood trackers:** the monthly project page is a ready habit grid. See
   [habit-tracking.md](habit-tracking.md).
 

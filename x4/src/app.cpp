@@ -5,6 +5,7 @@
 #include <vector>
 #include "core/canvas.h"
 #include "core/data.h"
+#include "core/update.h"
 #include "hal/hal.h"
 #include "gen/assets.h"
 #include "lib/qrcodegen.hpp"
@@ -111,8 +112,8 @@ static void drawToday(bool sleeping) {
   int y;
   if (!d.ok) {
     header("Keeping Watch", prettyDate(date).c_str());
-    C->wrap(F_BODY, M, 150, CW, ("No day pack for " + date.substr(0, 7) + " on the card. Copy it from the journal "
-                                 "build to /kw/ on the SD card, or upload it from the Wi-Fi page (Menu, then Wi-Fi sync).").c_str());
+    C->wrap(F_BODY, M, 150, CW, ("No day pack for " + date.substr(0, 7) + " on the card. Copy the kw-update folder "
+                                 "from the journal build to the SD card, or upload it from the Wi-Fi page (Menu, then Wi-Fi sync).").c_str());
     hintBar("Menu", "Check in", "◀ day", "day ▶");
     return;
   }
@@ -488,7 +489,7 @@ static void drawSupport() {
     }
     y += 30 + 26 * ((C->width(F_UI, e.detail.c_str()) / (CW - 10)) + 1) + 12;
   }
-  if (v.empty()) C->wrap(F_BODY, M, 150, CW, "Call or text 988, any hour. Text HOME to 741741. Copy support.txt to /kw/ on the card for the full list.");
+  if (v.empty()) C->wrap(F_BODY, M, 150, CW, "Call or text 988, any hour. Text HOME to 741741. Copy the kw-update folder to the card for the full list.");
   char pg[16]; snprintf(pg, sizeof pg, "%d / %d", S.page + 1, supportPages);
   hintBar("Back", "Safety plan", S.page ? "◀ page" : "", S.page + 1 < supportPages ? "page ▶" : "");
   C->textRight(F_UI_S, Canvas::W - M, HINT_Y - 10, pg);
@@ -706,6 +707,7 @@ static void go(Scr s) { S.prev = S.scr; S.scr = s; S.sel = 0; S.page = 0; S.scro
 
 void appMain() {
   hal::begin();
+  kwupdate::apply();  // packs copied to /kw-update move into /kw (never /kw/log or an existing /kw/me.txt)
   timeInit();
   FB = hal::framebuffer();
   static Canvas canvas(FB); C = &canvas;
