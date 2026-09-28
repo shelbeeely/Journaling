@@ -12,7 +12,7 @@ const methodLayout = (blocks) => normalize({ v: 2, blocks: blocks.map(([t, u, o]
 export const METHOD_LAYOUTS = [
   {
     id: 'original', name: 'Keeping Watch original',
-    blurb: 'Care check-in, spoons, writing space and a short review.',
+    blurb: 'Care check-in (meds, meals, mood, water), writing space and a short review. Spoons, sleep and anxiety live on the X4.',
     layout: DEFAULT_LAYOUT,
   },
   {

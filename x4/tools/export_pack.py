@@ -23,7 +23,8 @@ os.makedirs(OUT, exist_ok=True)
 strip = lambda s: re.sub(r'<[^>]+>', '', s).replace('&amp;', '&').replace('\n', ' ').strip()
 
 # Custom check-ins: the day page editor's own blocks, so what's on paper is also on the X4.
-# Mirrors journal/daypage.mjs TYPES (defaults and clamps). Built-ins (care, spoons, sleeptimes) are already on the device.
+# Mirrors journal/daypage.mjs TYPES (defaults and clamps). The care split: spoons left, sleep, anxiety and the care ticks are built into the device;
+# meds, meals, water and mood are paper's (the firmware keeps reading their old keys, see 'live' below, so old logs never warn).
 CHECKIN_MAX = 16  # the firmware has 32 slots; the built-ins use 15
 CHECKIN_TYPES = {  # type: (kind, hi, default title, title max, default labels, labels max)
     'checks': ('toggle', 1, 'Habits', 24, ['Stretch', 'Outside', 'Read'], 8),
@@ -138,6 +139,7 @@ print('checkins', n, 'items')
 
 # Changing custom check-ins mid-month leaves that month's earlier lines under keys that no longer exist.
 # The X4 keeps them in the log and says how many it sees; warn here so it is a choice, never a surprise.
+# The paper-owned keys (med_am, med_pm, prn, meal1-3, mood) are hidden on the X4 but still known, so an old log is not "orphaned".
 live = {'med_am', 'med_pm', 'prn', 'prn_undo', 'meal1', 'meal2', 'meal3', 'snack', 'shower', 'teeth', 'joy', 'texted',
         'mood', 'anxiety', 'spoons', 'sleep'} | {l.split('|')[0] for l in ck if '|' in l}
 old_keys = set()

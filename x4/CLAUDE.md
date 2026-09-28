@@ -34,4 +34,10 @@ the sibling `journal/` project). Target: Xteink X4 (ESP32-C3, no PSRAM, ~380 KB 
    current, timer wake accuracy over a few nights, web page upload/download speed.
 2. Dual boot with CrossPoint: menu item to boot the other OTA slot, and a way back (FreeInk RecoveryBoot).
 3. Month switch on the device: a "Closing <month>" screen that walks through the Keeper handoff.
-4. Routines as tickable items (today they are shown, not logged).
+4. Routines as tickable items. Not planned: since the care split, paper is where routines are ticked and the X4 shows them as text.
+
+## The care split (approved 2026-09-28)
+Paper: meds, meals, water, mood, work shift, routines, events, writing, safety plan (source of truth). X4: spoons **left**,
+sleep, anxiety, shower, teeth, joy, texted, snack, plus custom check-ins. `ITEMS[]` keeps every old key (`med_am`, `med_pm`,
+`prn`, `meal1-3`, `mood`) as `hidden` entries so old logs still read; do not rename or drop them. The two Keeper tiles on
+This month ("Good-spoon days", "Avg sleep") must match `journal/handoff.mjs` (`journal/check-handoff.mjs` enforces it).
