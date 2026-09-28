@@ -92,6 +92,10 @@ Needs the months built first (it reads `out/m<YYYY-MM>/data.json`).
 
 Writes `out/sd-card/kw/`: one day pack per month (`2026-10.txt`), `support.txt`, a starter `me.txt` (safety plan,
 kept if it exists), `log/`, and `library/` (the book PDFs and EPUBs; `KW_NO_LIBRARY=1` skips it).
+
+It also writes `checkins.txt` from `content/daypage.json`, so your editor blocks show up on the X4 check-in screen:
+Checkboxes become ticks, Scale becomes a 1–steps scale, Habits become dots, and Fill-in blanks become counts (0–99).
+Care, spoons and sleep are already built in. The X4 holds **16 custom items** at most; extras are dropped with a warning.
 Copy the `kw` folder to the root of the X4's SD card.
 
 ## Content you edit

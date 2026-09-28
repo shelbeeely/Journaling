@@ -5,14 +5,88 @@ Reads journal/out/m<YYYY-MM>/data.json (written by render.mjs) plus content/supp
 trans.json and clinic.json, and writes:
   sd/kw/<YYYY-MM>.txt   one section per day ("@YYYY-MM-DD"), key=value lines, UTF-8
   sd/kw/support.txt     the Support screen (sections "#", entries "name|detail|how")
+  sd/kw/checkins.txt    custom check-ins from content/daypage.json ("@group", "key|label|kind|lo|hi|def")
 Usage: python3 tools/export_pack.py <journal dir> <sd dir> [YYYY-MM ...]   (default: every built month)
 """
-import json, os, sys, glob, re
+import json, os, sys, glob, re, math
 
 J, SD = sys.argv[1], sys.argv[2]
 months = sys.argv[3:] or sorted(os.path.basename(p)[1:] for p in glob.glob(f'{J}/out/m20??-??') if os.path.isdir(p))
 os.makedirs(f'{SD}/kw/log', exist_ok=True)
 strip = lambda s: re.sub(r'<[^>]+>', '', s).replace('&amp;', '&').replace('\n', ' ').strip()
+
+# Custom check-ins: the day page editor's own blocks, so what's on paper is also on the X4.
+# Mirrors journal/daypage.mjs TYPES (defaults and clamps). Built-ins (care, spoons, sleeptimes) are already on the device.
+CHECKIN_MAX = 16  # the firmware has 32 slots; the built-ins use 15
+CHECKIN_TYPES = {  # type: (kind, hi, default title, title max, default labels, labels max)
+    'checks': ('toggle', 1, 'Habits', 24, ['Stretch', 'Outside', 'Read'], 8),
+    'habits': ('dots', 2, 'Habits', 24, ['Stretch', 'Outside', 'Read', 'Water'], 8),
+    'fields': ('count', 99, 'Outside', 18, ['Minutes outside', 'Steps'], 6),
+    'scale': ('scale', None, 'Energy', 18, None, 0),  # one item, 1..steps
+}
+
+def slugify(label):  # key part: lowercase, runs outside [a-z0-9] -> _, max 24, never empty
+    return re.sub(r'[^a-z0-9]+', '_', label.lower()).strip('_')[:24].strip('_') or 'item'
+
+def clean(v): return ' '.join(str(v).replace('|', ' ').split())  # no pipes or newlines inside a field
+
+def opt_text(b, k, d, mx):
+    v = b.get(k)
+    return d if v is None else str(v)[:mx]
+
+def opt_list(b, k, d, mx):
+    v = b.get(k)
+    v = v if isinstance(v, list) else v.split(',') if isinstance(v, str) else d
+    return [x for x in (str(x).strip()[:24] for x in v) if x][:mx]
+
+def opt_num(b, k, lo, hi, d):
+    try: return min(hi, max(lo, math.floor(float(b.get(k)) + 0.5)))  # JS Math.round
+    except (TypeError, ValueError, OverflowError): return d  # NaN, Infinity too
+
+def checkins(path):
+    lines = ['# Custom check-ins from the day page layout']
+    if not os.path.exists(path): return lines, 0
+    try: L = json.load(open(path, encoding='utf-8'))
+    except ValueError as e: sys.exit(f'export_pack: {path} is not valid JSON ({e}). Fix or delete it, then rerun.')
+    if not isinstance(L, dict) or L.get('v') != 2 or not isinstance(L.get('blocks'), list):
+        print(f'checkins: {path} is not a v2 layout (open and save it in the editor); no custom check-ins')
+        return lines, 0
+    items, dropped, uids, keys = 0, 0, set(), set()
+    for b in L['blocks']:
+        if not isinstance(b, dict) or b.get('type') not in CHECKIN_TYPES or not b.get('on', True): continue
+        t = b['type']; kind, hi, dtitle, tmax, dlabels, lmax = CHECKIN_TYPES[t]
+        uid = b.get('uid') if isinstance(b.get('uid'), str) and re.fullmatch(r'[\w-]{1,40}', b.get('uid')) else t
+        uid = re.sub(r'[^a-z0-9_]', '_', uid.lower()); base, n = uid, 2
+        while uid in uids: uid, n = f'{base}_{n}', n + 1
+        uids.add(uid)
+        title = clean(opt_text(b, 'title', dtitle, tmax)) or dtitle
+        if t == 'scale':
+            steps = opt_num(b, 'steps', 3, 10, 5)
+            rows = [(None, title, kind, 1, steps, (1 + steps) // 2)]  # one item, keyed c_<uid>
+        else:
+            rows, slugs = [], set()
+            for x in opt_list(b, 'labels', dlabels, lmax):
+                label = clean(x)
+                if not label: continue
+                slug = slugify(label); base_s, n = slug, 2
+                while slug in slugs: slug, n = f'{base_s}_{n}', n + 1
+                slugs.add(slug)
+                rows.append((slug, label, kind, 0, hi, 0))
+        out = []
+        for slug, label, k, lo, h, d in rows:  # keys follow the label, so deleting one leaves the others (except same-slug labels, numbered in order)
+            if items >= CHECKIN_MAX: dropped += 1; continue
+            key = f'c_{uid}' if slug is None else f'c_{uid}_{slug}'; base_k, n = key, 2
+            while key in keys: key, n = f'{base_k}_{n}', n + 1  # e.g. scale uid "a_b" vs checks uid "a" + label "b"
+            keys.add(key)
+            out.append(f'{key}|{label}|{k}|{lo}|{h}|{d}'); items += 1
+        if out: lines += [f'@{title}'] + out
+    if dropped: print(f'checkins: WARNING {dropped} item(s) dropped; the X4 holds at most {CHECKIN_MAX} custom check-ins')
+    return lines, items
+
+ck, n = checkins(f'{J}/content/daypage.json')
+open(f'{SD}/kw/checkins.txt', 'w', encoding='utf-8').write('\n'.join(ck) + '\n')
+print('checkins', n, 'items')
+
 PLANET = {0: ('☉', 'Sun'), 1: ('☽', 'Moon'), 2: ('♂', 'Mars'), 3: ('☿', 'Mercury'), 4: ('♃', 'Jupiter'), 5: ('♀', 'Venus'), 6: ('♄', 'Saturn')}
 
 def dur(m): return f'{m // 60}h {m % 60:02d}m'
