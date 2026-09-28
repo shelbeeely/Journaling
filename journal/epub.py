@@ -2,7 +2,7 @@ import os
 """Build an EPUB 3 companion for the Xteink X4 (CrossPoint reader, 480x800 e-ink).
 Reads out/m<YYYY-MM>/data.json (from render.mjs). Plain HTML only: no tables, no astro glyph fonts, English only.
 Usage: python3 epub.py m<YYYY-MM>   (e.g. m2026-10; run `node render.mjs month 2026-10 ...` first)"""
-import json, zipfile, io, uuid, datetime, html, sys, re
+import json, zipfile, io, uuid, datetime, html, sys, re, calendar
 from PIL import Image, ImageDraw
 
 ARG = sys.argv[1] if len(sys.argv) > 1 else ''
@@ -59,7 +59,7 @@ def dur(m): return f'{m//60}h {m%60:02d}m'
 
 def day_html(d):
     jp = d['jp']; mo = d['moon']; su = d['sun']
-    moon_line = ' · '.join(f"enters {i['sign']} {i['time']}" for i in mo['ingress']) or f"in {mo['sign']}"
+    moon_line = ' · '.join(f"enters {i['sign']} {i['time']}" for i in mo['ingress']) or f"in {mo.get('phaseSign', mo['sign'])}"
     notes = [n['text'] for n in d['notes']]
     for c in jp['koChange']:
         notes.insert(0, f"New Spokane season {c['time']}: {c['en']}")
@@ -103,6 +103,19 @@ intro = page('Keeping Watch', f'''<h1>Keeping Watch</h1>
 <p class="dim">Astrology is included as a reflection prompt, not a forecast. Astronomy is calculated with astronomy-engine. Daily facts: Computer History Museum “This Day in History” and Wikipedia date pages.</p>''')
 files['intro.xhtml'] = (intro, 'application/xhtml+xml'); spine.append('intro.xhtml')
 
+# STA bus coverage of this month from the feed's dates (same rule as data.mjs busCoverage): full / partial / none
+def bus_coverage():
+    if not os.path.exists('gtfs/network.json'): return 'none'
+    N = json.load(open('gtfs/network.json'))
+    mid = f"{VOL['year']}-{VOL['month']:02d}"
+    if mid not in N.get('months', {}): return 'none'
+    iso = lambda x: f"{x[:4]}-{x[4:6]}-{x[6:]}"
+    first = f"{mid}-01"; last = f"{mid}-{calendar.monthrange(VOL['year'], VOL['month'])[1]:02d}"
+    a, b = iso(N['valid_from']), iso(N['valid_to'])
+    if last < a or first > b: return 'none'
+    return 'full' if first >= a and last <= b else 'partial'
+BUS_COV = bus_coverage()
+
 # Support resources + safety plan prompts (content/support.json, shared with the paper book)
 if os.path.exists('content/support.json'):
     SUP = json.load(open('content/support.json'))
@@ -117,11 +130,12 @@ if os.path.exists('content/support.json'):
         for h, items in json.load(open('content/trans.json')):
             body += f"<h2>{h}</h2><ul>" + ''.join(f"<li><b>{n}</b>{(' [' + c.replace(' ', '] [') + ']') if c else ''}<br/>{d}</li>" for n, d, c in items) + "</ul>"
     body += "<h2>My safety plan</h2><p>Fill in the paper page on a good day. Work down the list until you feel safer:</p><ol><li>Signs a hard time is starting</li><li>Things I can do on my own</li><li>People or places that take my mind off it</li><li>People I can text for help</li><li>Professionals: therapist, prescriber, 988, crisis line 1-877-266-1818</li><li>Making my space safer</li><li>What matters to me</li></ol><p><b>A text I can send when talking is too hard:</b> “Hey, I’m having a hard time. I’m not up for a call. Can you text with me for a bit?”</p>"
+    if BUS_COV == 'none': body += "<p><b>Bus times:</b> spokanetransit.com or the STA app</p>"
     body = body.replace('&amp;', '&').replace('&', '&amp;').replace('&amp;amp;', '&amp;')
     files['support.xhtml'] = (page('Support', body), 'application/xhtml+xml'); spine.append('support.xhtml')
 
 # STA schedules (gtfs/network.json): network summary + hour grids
-if os.path.exists('gtfs/network.json'):
+if BUS_COV != 'none':
     N = json.load(open('gtfs/network.json'))
     E = N['months'].get(f"{VOL['year']}-{VOL['month']:02d}")
     if E:
@@ -129,7 +143,9 @@ if os.path.exists('gtfs/network.json'):
         num = lambda r: int(''.join(c for c in N['routes'][r]['n'] if c.isdigit()) or 0)
         cell = lambda x: f"{x['span']} · {x['every']}" if x and x.get('every') else (x['span'] if x else '—')
         rows = ''.join(f"<tr><td><b>{e(N['routes'][r]['n'])}</b> {e(N['routes'][r]['name'])}</td>" + ''.join(f"<td>{e(cell(E['summary'][r].get(k)))}</td>" for k, _ in DAYS) + '</tr>' for r in sorted(E['summary'], key=num) if r in N['routes'])
-        body = f"<h1>STA buses</h1><p class='dim'>First–last bus · minutes between buses at midday. Schedule {N['valid_from'][4:6]}/{N['valid_from'][6:]} – {N['valid_to'][4:6]}/{N['valid_to'][6:]}/{N['valid_to'][:4]}. Holidays run Sunday times.{' This schedule may have changed; check spokanetransit.com.' if E['stale'] else ''}</p><table class='bus'><tr><th>Route</th>{''.join(f'<th>{l}</th>' for _, l in DAYS)}</tr>{rows}</table>"
+        until = datetime.date(int(N['valid_to'][:4]), int(N['valid_to'][4:6]), int(N['valid_to'][6:]))
+        VALID = f"<p><b>Schedule valid through {until.strftime('%b')} {until.day} · check spokanetransit.com after</b></p>" if BUS_COV == 'partial' else ''
+        body = f"<h1>STA buses</h1><p class='dim'>First–last bus · minutes between buses at midday. Schedule {N['valid_from'][4:6]}/{N['valid_from'][6:]} – {N['valid_to'][4:6]}/{N['valid_to'][6:]}/{N['valid_to'][:4]}. Holidays run Sunday times.</p>{VALID}<table class='bus'><tr><th>Route</th>{''.join(f'<th>{l}</th>' for _, l in DAYS)}</tr>{rows}</table>"
         for r in ['6', '68', '66', '32', '97', '65', '61', '62', '63', '7']:
             G = E['grids'].get(r)
             if not G: continue

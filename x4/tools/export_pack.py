@@ -11,6 +11,7 @@ trans.json and clinic.json, and writes an UPDATE folder, never the card's own kw
 Copy the kw-update folder to the card root. On boot the X4 moves these files into /kw and deletes /kw-update.
 It never touches /kw/log (her check-ins) or an existing /kw/me.txt (her safety plan), so this tool writes neither
 a me.txt nor a log folder: a copy, a "Replace" of the folder or a half-finished copy can't destroy them.
+Every file's first line ends "built YYYY-MM-DD" (the journal build date); each day has "page=N" (printed page).
 Usage: python3 tools/export_pack.py <journal dir> <sd dir> [YYYY-MM ...]   (default: every built month)
 """
 import json, os, sys, glob, re, math
@@ -89,9 +90,32 @@ def checkins(path):
     if dropped: print(f'checkins: WARNING {dropped} item(s) dropped; the X4 holds at most {CHECKIN_MAX} custom check-ins')
     return lines, items
 
+# Build stamp: the journal build's own date (data.json "generated"), the same day the book's title page prints
+# ("Built 2026-09-28"). Written into the first line of every pack, support.txt and checkins.txt so the X4
+# can show which build is on the card, and so a clock set before it can be caught.
+def built_stamp():
+    for mid in months:
+        try: return json.load(open(f'{J}/out/m{mid}/data.json'))['generated'][:10]
+        except (FileNotFoundError, KeyError, ValueError): pass
+    import datetime; return datetime.date.today().isoformat()
+BUILT = built_stamp()
+
 ck, n = checkins(f'{J}/content/daypage.json')
+ck[0] += f' · built {BUILT}'
 open(f'{OUT}/checkins.txt', 'w', encoding='utf-8').write('\n'.join(ck) + '\n')
 print('checkins', n, 'items')
+
+# Changing custom check-ins mid-month leaves that month's earlier lines under keys that no longer exist.
+# The X4 keeps them in the log and says how many it sees; warn here so it is a choice, never a surprise.
+live = {'med_am', 'med_pm', 'prn', 'prn_undo', 'meal1', 'meal2', 'meal3', 'snack', 'shower', 'teeth', 'joy', 'texted',
+        'mood', 'anxiety', 'spoons', 'sleep'} | {l.split('|')[0] for l in ck if '|' in l}
+old_keys = set()
+for lp in glob.glob(f'{SD}/kw/log/*.csv'):
+    for ln in open(lp, encoding='utf-8', errors='replace'):
+        f = ln.rstrip('\n').split(',')
+        if len(f) >= 3 and not ln.startswith('#') and f[1] not in live: old_keys.add(f[1])
+if old_keys: print(f'checkins: WARNING the log on this card has {len(old_keys)} key(s) no longer in the layout ({", ".join(sorted(old_keys)[:4])}). '
+                   'Their entries stay in the CSV and the X4 shows a count, but they are not in Check in or This month. Change custom check-ins at the start of a month.')
 
 PLANET = {0: ('☉', 'Sun'), 1: ('☽', 'Moon'), 2: ('♂', 'Mars'), 3: ('☿', 'Mercury'), 4: ('♃', 'Jupiter'), 5: ('♀', 'Venus'), 6: ('♄', 'Saturn')}
 
@@ -103,7 +127,15 @@ for mid in months:
     for W in D['weeks']:
         for d in W['days']:
             week_of[d['date']] = W
-    out = [f'# Keeping Watch day pack {mid} · generated from the paper journal build']
+    # Printed page of each day in the paper book (layout.json; identical in both trims), so Today can say "book p. 26".
+    page_of = {}
+    try:
+        for pg in json.load(open(f'{J}/out/m{mid}/layout.json'))['pages']:
+            if pg.get('date') and pg.get('type') == 'dayp': page_of[pg['date']] = pg['page']
+    except FileNotFoundError:
+        print(f'pack {mid}: no layout.json, so no page numbers on Today')
+    stamp = D.get('generated', BUILT)[:10]
+    out = [f'# Keeping Watch day pack {mid} · generated from the paper journal build · built {stamp}']
     try:
         kp = json.load(open(f'{J}/out/keeper/index.json'))['handoff_page'].get(mid)
         if kp: out.append(f'keeper={kp}')
@@ -115,8 +147,9 @@ for mid in months:
         g, pn = PLANET[d['weekday']]
         out.append(f"@{d['date']}")
         out.append(f"wd={d['weekdayName']}")
+        if d['date'] in page_of: out.append(f"page={page_of[d['date']]}")
         out.append(f"planet={g} {pn}")
-        out.append(f"moon={mo['phaseDeg']}|{mo['lit']}|{mo['phase']}|{mo['glyph']} {mo['sign']}")
+        out.append(f"moon={mo['phaseDeg']}|{mo['lit']}|{mo['phase']}|{mo.get('phaseGlyph', mo['glyph'])} {mo.get('phaseSign', mo['sign'])}")
         for i in mo['ingress']: out.append(f"moonin={D['glyphs'][i['sign']]} {i['sign']} {i['time']}")
         out.append(f"sun={su['rise']}|{su['set']}|{dur(su['lengthMin'])}|{su['glyph']} {su['sign']}")
         out.append(f"season={jp['ko']['en']}|{jp['ko'].get('note', '')}")
@@ -141,14 +174,14 @@ if not os.environ.get('KW_NO_LIBRARY'):  # previews and CI sample cards skip the
     lib = f'{OUT}/library'; os.makedirs(lib, exist_ok=True)
     for mid in months:
         for src in glob.glob(f'{J}/out/m{mid}/keeping-watch-*') + glob.glob(f'{J}/out/m{mid}-letter/keeping-watch-*'):
-            if src.endswith(('.pdf', '.epub')): shutil.copy(src, lib)
+            if src.endswith(('.pdf', '.epub')) and not src.endswith('-cover.pdf'): shutil.copy(src, lib)  # covers are for KDP, not for reading
     for src in glob.glob(f'{J}/out/keeper/*.pdf') + glob.glob(f'{J}/out/keeping-watch-support-pages.pdf'):
-        shutil.copy(src, lib)
+        if not src.endswith('-cover.pdf'): shutil.copy(src, lib)
     print('library', len(os.listdir(lib)), 'files', sum(os.path.getsize(os.path.join(lib, f)) for f in os.listdir(lib)) // (1024 * 1024), 'MB')
 
 # Support screen
 C = json.load(open(f'{J}/content/clinic.json'))
-lines = ['# Support · checked Sep 2026']
+lines = [f'# Support · checked Sep 2026 · built {BUILT}']
 for fname in ('support.json', 'trans.json'):
     for h, items in json.load(open(f'{J}/content/{fname}')):
         lines.append(f'#{strip(h)}')

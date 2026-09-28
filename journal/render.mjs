@@ -3,7 +3,7 @@
 // Usage: node render.mjs month <YYYY-MM> [a.ics,b.ics]      (SIZE=letter for 8.5x11, HARDCOVER=1 to pad to 76+ pages)
 import fs from 'node:fs';
 import { launch } from './browser.mjs';
-import { build } from './data.mjs';
+import { build, busCoverage } from './data.mjs';
 import bwipjs from 'bwip-js';
 import { IC, ic, box, spoon, actionZone, dayBlocks, normalize, DAYPAGE_CSS } from './daypage.mjs';
 // Day page layout from the page editor (content/daypage.json); defaults reproduce the original page.
@@ -18,6 +18,8 @@ const monthName = new Date(Date.UTC(yr, mo - 1, 1)).toLocaleDateString('en-US', 
 // globalContent is kept only so data.json (read by epub.py) stays byte-identical.
 const VOL = { n: bookNo, start: [yr, mo, 1], days: new Date(Date.UTC(yr, mo, 0)).getUTCDate(), label: `${monthName} ${yr}`, short: `${monthName.slice(0, 3)} ${yr}`, globalContent: true, id: `${yr}-${String(mo).padStart(2, '0')}`, month: mo, year: yr };
 const ICS = process.argv[4];
+// STA bus pages: 'full' (feed covers the whole month), 'partial' (feed ends mid-month) or 'none' (no schedule to print).
+const BUS_COV = busCoverage(VOL.id);
 const OUT = `out/m${VOL.id}${process.env.SIZE === 'letter' ? '-letter' : ''}`;
 const { FACTS, PIONEERS, WORDS, PROMPTS } = await import('./content/year.mjs');
 const D = build(ICS, VOL, WORDS);
@@ -96,6 +98,7 @@ function titlePage() {
     <p class="sub">A sky, season &amp; self journal</p>
     <p class="range">Book ${VOL.n} of 12 · ${VOL.label}</p>
     <p class="place">Sky data for ${esc(D.config.place)} · ${D.config.lat.toFixed(2)}° N, ${Math.abs(D.config.lon).toFixed(2)}° W · Pacific Time</p>
+    <p class="built">Built ${D.generated.slice(0, 10)}</p>
     <p class="owner">This journal belongs to<br><span class="line"></span></p>
   </div>`;
 }
@@ -105,7 +108,7 @@ function lineagePage() {
   <p class="lead">Every part of this journal is borrowed from a method people used for centuries. The history shows one lesson: methods die when they get complicated. <b>Skip anything, any day.</b> A blank box is data too.</p>
   <table class="lin">${LINEAGE.map(([a, b]) => `<tr><th>${a}</th><td>${b}</td></tr>`).join('')}</table>
   <p class="small">Daily “On this day” facts come from the Computer History Museum’s This Day in History and Wikipedia’s date pages. Pioneer profiles are checked against each person’s Wikipedia article.</p>
-  <p class="small">Astrology here is a reflection prompt, not a forecast. The astronomy (sunrise, sunset, moon phase, solstice) is real and calculated for ${esc(D.config.place)}.</p>`;
+  <p class="small">Astrology here is a reflection prompt, not a forecast. The astronomy (sunrise, sunset, moon phase, solstice) is real and calculated for ${esc(D.config.place)}.</p>${busLine()}`;
 }
 
 function anatomyPage() {
@@ -117,7 +120,7 @@ function anatomyPage() {
     <div><h3>Each day</h3><p>A full page. Header is pre-filled with the sky. Circle your mood and spoons. Rapid-log anything. Answer three evening questions.</p></div>
   </div>
   <h3 class="h3b">Anatomy of a day</h3>
-  <div class="anat"><div><b class="zl">DATE / TITLE / TAGS</b> printed date; write a title and tags in the boxes</div><div><b class="zl">SKY + CHECK-IN</b> moon, sun, season; circle mood, cross off spoons</div><div class="a3"><b class="zl">BODY</b> faint 5 mm dots: write anything</div><div><b class="zl">ACTION ITEMS</b> one task per checkbox</div><div><b class="zl">REVIEW</b> went well · was hard · tomorrow</div></div><p class="small" style="margin-top:5px"><b>At the back:</b> Support p. {{P_SUPPORT}} · Safety plan p. {{P_SAFETY}} · Bus times p. {{P_BUS}} · Where each piece comes from p. {{P_LINEAGE}}</p><h3 class="h3b">Scanning pages</h3><p class="small">Every page has a black frame, seven “send to” bubbles and a small square page code (a Data Matrix) that says which book and page it is. Fill a bubble to route the scan (you choose what each shape means in your scanning app). Keep the frame and the page code clear of ink. These markers are made for your own app; the Rocketbook app won’t read them.</p>`;
+  <div class="anat"><div><b class="zl">DATE / TITLE / TAGS</b> printed date; write a title and tags in the boxes</div><div><b class="zl">SKY + CHECK-IN</b> moon, sun, season; circle mood, cross off spoons</div><div class="a3"><b class="zl">BODY</b> faint 5 mm dots: write anything</div><div><b class="zl">ACTION ITEMS</b> one task per checkbox</div><div><b class="zl">REVIEW</b> went well · was hard · tomorrow</div></div><p class="small" style="margin-top:5px"><b>At the back:</b> Support p. {{P_SUPPORT}} · Safety plan p. {{P_SAFETY}} · ${BUS_COV === 'none' ? '' : 'Bus times p. {{P_BUS}} · '}Where each piece comes from p. {{P_LINEAGE}}</p><h3 class="h3b">Scanning pages</h3><p class="small">Every page has a black frame, seven “send to” bubbles and a small square page code (a Data Matrix) that says which book and page it is. Fill a bubble to route the scan (you choose what each shape means in your scanning app). Keep the frame and the page code clear of ink. These markers are made for your own app; the Rocketbook app won’t read them.</p>`;
 }
 
 function keyPage() {
@@ -134,7 +137,7 @@ function keyPage() {
     <div><h3>Signs</h3><div class="gl-list">${signs}</div>
       <h3>Planets</h3><div class="gl-list">${planets}</div>
       <h3>Check-in</h3>
-      <p class="small"><b>Mood</b> −3 very low · 0 steady · +3 very high/wired<br><b>Energy</b> 1 empty … 5 full<br><b>Spoons</b> ${spoon()} cross one out per spoon spent. Start with the number you woke up with.</p>
+      <p class="small"><b>Mood</b> −3 very low · 0 steady · +3 very high/wired<br><b>Spoons</b> ${spoon()} cross one out per spoon spent. Start with the number you woke up with. A <b>good-spoon day</b> ends with 4 or more left.</p>
     </div>
   </div>
   `;
@@ -179,19 +182,24 @@ function packGrids(E) {
 }
 const DAY3 = [['weekday', 'WKDY'], ['saturday', 'SAT'], ['sunday', 'SUN']];
 const shortStop = (n) => tc(n || '').replace('K Street Station', 'Cheney').replace('Eagle Station', 'EWU').replace('West Plains TC', 'W Plains').replace(/ \(.*?\)/g, '').replace('Spokane International Airport Concourse ', 'Airport ');
+let busWarned = false;
 function busMeta() {
   const E = NET.months[VOL.id];
   const ymd = (s) => `${s.slice(4, 6).replace(/^0/, '')}/${s.slice(6).replace(/^0/, '')}/${s.slice(2, 4)}`;
-  if (E.stale) console.warn(`! STA schedule ends ${NET.valid_to}; refresh gtfs before printing ${VOL.id}`);
-  return { E, note: `STA schedule ${ymd(NET.valid_from)}–${ymd(NET.valid_to)}.${E.stale ? ' <b>May have changed: check spokanetransit.com.</b>' : ''}` };
+  if (BUS_COV === 'partial' && !busWarned && (busWarned = true)) console.warn(`! STA schedule ends ${NET.valid_to}; ${VOL.id} is only partly covered (pages say so). Refresh gtfs before printing.`);
+  const until = new Date(Date.UTC(+NET.valid_to.slice(0, 4), +NET.valid_to.slice(4, 6) - 1, +NET.valid_to.slice(6))).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+  const from = new Date(Date.UTC(+NET.valid_from.slice(0, 4), +NET.valid_from.slice(4, 6) - 1, +NET.valid_from.slice(6))).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+  const startsLate = `${NET.valid_from.slice(0, 4)}-${NET.valid_from.slice(4, 6)}` === VOL.id && NET.valid_from.slice(6) !== '01';
+  const valid = BUS_COV === 'partial' ? `<p class="busvalid">${startsLate ? `Schedule starts ${from} · check spokanetransit.com before` : `Schedule valid through ${until} · check spokanetransit.com after`}</p>` : '';
+  return { E, valid, note: `STA schedule ${ymd(NET.valid_from)}–${ymd(NET.valid_to)}.` };
 }
 function netPage(part) {
-  const { E, note } = busMeta();
+  const { E, note, valid } = busMeta();
   const ids = Object.keys(E.summary).filter((r) => NET.routes[r]).sort((a, b) => parseInt(NET.routes[a].n) - parseInt(NET.routes[b].n));
   const half = Math.ceil(ids.length / 2), mine = part === 0 ? ids.slice(0, half) : ids.slice(half);
   const cell = (x) => x ? `${x.span.replace(/:00/g, '')}${x.every ? ` <b>${x.every === 7.5 ? '7–8' : x.every}</b>` : ''}` : '<span class="dim">no service</span>';
   const rows = mine.map((r) => `<tr><td class="rn">${esc(NET.routes[r].n)}</td><td class="rname">${esc(NET.routes[r].name)}</td>${DAY3.map(([k]) => `<td>${cell(E.summary[r][k])}</td>`).join('')}</tr>`).join('');
-  return `<h2 class="pt">${part === 0 ? 'STA at a glance' : 'STA at a glance, cont.'}</h2><p class="small">First–last bus, then <b>minutes between buses</b> at midday.</p>
+  return `<h2 class="pt">${part === 0 ? 'STA at a glance' : 'STA at a glance, cont.'}</h2>${valid}<p class="small">First–last bus, then <b>minutes between buses</b> at midday.</p>
   <table class="net"><colgroup><col class="c1"><col class="c2"><col><col><col></colgroup><tr><th></th><th>Route</th>${DAY3.map(([, l]) => `<th>${l}</th>`).join('')}</tr>${rows}</table>
   ${part === 1 ? `<p class="small">${note} Gaps are typical 7a–6p. Holidays run the Sunday schedule. Next pages: minutes past the hour at the first stop named, → where the bus is headed. Weekday times are from ${E.samples.weekday.slice(5).replace('-', '/')}; EWU break days can differ.</p>` : ''}`;
 }
@@ -230,8 +238,8 @@ function gridTable(E, r) {
 ${partial ? '<p class="small">* starts partway along the route.</p>' : ''}`;
 }
 function gridPage(routeIds) {
-  const { E, note } = busMeta();
-  return `<div class="xh"><h2 class="pt">Bus times</h2><span class="dim">minutes past the hour</span></div>
+  const { E, note, valid } = busMeta();
+  return `<div class="xh"><h2 class="pt">Bus times</h2><span class="dim">minutes past the hour</span></div>${valid}
   ${routeIds.map((r) => gridTable(E, r)).join('')}
   <p class="small">Shaded rows like <b>8–10a</b> repeat the same minutes each hour. ${note}</p>`;
 }
@@ -258,12 +266,12 @@ function carePage() {
 // ---------- support pages (checked Sep 2026; numbers and hours change, so re-check each edition) ----------
 const SUPPORT = JSON.parse(fs.readFileSync('content/support.json', 'utf8')); // shared with epub.py
 const TRANS = JSON.parse(fs.readFileSync('content/trans.json', 'utf8'));
-const CUT = `<div class="cutnote"><svg width="9" height="8" viewBox="0 0 12 10" style="vertical-align:-1px"><circle cx="2.5" cy="2.5" r="1.8" fill="none" stroke="#444" stroke-width="1"/><circle cx="2.5" cy="7.5" r="1.8" fill="none" stroke="#444" stroke-width="1"/><path d="M4 3.4 L11.5 8.5 M4 6.6 L11.5 1.5" stroke="#444" stroke-width="1"/></svg> To remove this page, cut along the inside edge of the black frame.</div>`;
 function dirPage(title, intro, data) {
   const chip = (t) => t.split(' ').filter(Boolean).map((x) => `<span class="chip${x === 'TEXT' ? ' tx' : ''}">${x}</span>`).join('');
-  return `${CUT}<h2 class="pt">${title}</h2><p class="small">${intro}</p>
+  return `<h2 class="pt">${title}</h2><p class="small">${intro}</p>
   ${data.map(([h, items]) => `<h3 class="sh">${h}</h3>${items.map(([n, d, c]) => `<div class="sup"><div class="sn"><b>${n}</b>${chip(c)}</div><div class="sd">${d}</div></div>`).join('')}`).join('')}`;
 }
+const busLine = () => BUS_COV === 'none' ? '<div class="busbox"><b>Bus times:</b> spokanetransit.com or the STA app</div>' : '';
 const supportPage = () => dirPage('Support', '<span class="chip tx">TEXT</span> means you can text instead of talking. Emergency: <b>911</b>. 988’s LGBTQ+ “press 3” option ended July 2025. Checked Sep 2026.', SUPPORT);
 const transPage = () => dirPage('Trans support', 'For trans people in Spokane and Washington. <span class="chip tx">TEXT</span> means you can message instead of calling. Checked Sep 2026.', TRANS);
 // Last page of each monthly book: the handoff to the Keeper (page numbers from out/keeper/index.json).
@@ -278,8 +286,9 @@ function closingPage() {
   <p class="small">Do this with your Keeper open${kp ? ` to <b>page ${kp}</b>` : ''}, before starting ${nextName}. About 15 minutes.</p>
   <h3 class="sh">1 · Total the tracker</h3>
   <div class="qg">${st('Avg mood', '−3…+3')}${st('Avg sleep', 'h')}${st('Showers', '/' + dim)}${st('Meds taken', 'days')}${st('Good-spoon days', 'days')}${st('Work hours', 'h')}</div>
+  <p class="small">Good-spoon day: 4 or more spoons left at bedtime. In the tracker’s spoons box, write the number left.</p>
   <h3 class="sh">2 · Hand off to the Keeper${kp ? ` (p. ${kp}–${kp + 1})` : ''}</h3>
-  ${step('Copy the totals, highs, lows and health notes')}${step('Add new contacts and birthdays')}${step('Update account hints; cross out used recovery codes')}${step('Index pages worth finding later (this is <b>Book ' + VOL.n + '</b>)')}${step('Back up the X4 log: Wi-Fi sync → download')}
+  ${step('Copy the totals, highs, lows and health notes')}${step('Add new contacts and birthdays')}${step('Update account hints and where recovery codes are kept')}${step('Index pages worth finding later (this is <b>Book ' + VOL.n + '</b>)')}${step('Back up the X4 log: Wi-Fi sync → download')}
   <h3 class="sh">3 · Carry forward</h3>
   ${step('Mark unfinished tasks in this book with &gt; and copy them to the Keeper')}${step('Scan any pages you still want in your app')}
   <h3 class="sh">4 · Start fresh</h3>
@@ -294,13 +303,14 @@ function contactsPage() {
 }
 function safetyPage() {
   const q = (n, t, h = 'l2') => `<div class="sq"><b>${n}. ${t}</b><div class="lines ${h}"></div></div>`;
-  return `${CUT}<h2 class="pt">My safety plan</h2>
+  const person = () => `<div class="pn"><div class="qf"><span>Name</span><i></i></div><div class="qf"><span>Phone</span><i></i></div><span class="qt"><i></i> TEXT OK</span></div>`;
+  return `<div class="sph"><h2 class="pt">My safety plan</h2><div class="qf"><span>Last reviewed</span><i></i></div></div>
   <p class="small">Fill this in on a good day, so it is ready on a hard one. Work down the list until you feel safer.</p>
   ${q(1, 'Signs a hard time is starting (thoughts, moods, situations)')}
   ${q(2, 'Things I can do on my own to feel a little better')}
   ${q(3, 'People or places that help me get my mind off it')}
-  ${q(4, 'People I can text for help')}
-  ${q(5, 'Professionals: my therapist, my prescriber, 988, crisis line 1-877-266-1818')}
+  <div class="sq" style="margin-bottom:5px"><b>4. People I can text or call for help</b>${person()}${person()}${person()}</div>
+  ${q(5, 'Professionals and crisis lines: my therapist, my prescriber; 988 (call or text); text HOME to 741741; Frontier crisis line 1-877-266-1818; Trans Lifeline (877) 565-8860 (call, weekdays 10–6 PT)')}
   ${q(6, 'How I can make my space safer (meds, other things)')}
   ${q(7, 'What matters to me, worth staying for', 'l2')}
   <div class="script"><b>A text I can send when talking is too hard:</b><br>“Hey, I’m having a hard time. I’m not up for a call. Can you text with me for a bit?”</div>`;
@@ -367,13 +377,13 @@ function monthSky(M) {
 function monthTracker(M) {
   const rows = M.days.map((d) => `<tr><td class="dn">${d.d}</td><td class="kj">${DAY_LETTERS[(d.weekday + 6) % 7]}</td><td class="mc">${moon(d.moon.phaseDeg, 8)}</td><td class="mood">${[-3, -2, -1, 0, 1, 2, 3].map(() => '<i></i>').join('')}</td><td class="bx"></td><td class="bx"></td><td class="bx"></td><td class="bx"></td><td class="bx"></td><td class="bx"></td></tr>`).join('');
   return `<h2 class="pt">${M.name} · tracker</h2>
-  <table class="trk"><tr><th colspan="3"></th><th>${ic('low')} mood ${ic('high')}</th><th>${ic('sleep', 'Sleep')}</th><th>${ic('pill', 'Meds')}</th><th>${ic('meal', 'Meals')}</th><th>${ic('shower', 'Shower')}</th><th>${ic('work', 'Work')}</th><th>${ic('spoon', 'Spoons')}</th></tr><tr class="un"><th colspan="3"></th><th>−3 … +3</th><th>hrs</th><th>tick</th><th>0–3</th><th>tick</th><th>hrs</th><th>used</th></tr>${rows}</table>
-  <p class="small">Mood: fill one dot, −3 low to +3 high. Sleep and work in hours, meals 0–3, spoons used; tick meds and shower. X4: Menu → This month has the totals.</p>`;
+  <table class="trk"><tr><th colspan="3"></th><th>${ic('low')} mood ${ic('high')}</th><th>${ic('sleep', 'Sleep')}</th><th>${ic('pill', 'Meds')}</th><th>${ic('meal', 'Meals')}</th><th>${ic('shower', 'Shower')}</th><th>${ic('work', 'Work')}</th><th>${ic('spoon', 'Spoons')}</th></tr><tr class="un"><th colspan="3"></th><th>−3 … +3</th><th>hrs</th><th>tick</th><th>0–3</th><th>tick</th><th>hrs</th><th>left</th></tr>${rows}</table>
+  <p class="small">Mood: fill one dot, −3 low to +3 high. Sleep and work in hours, meals 0–3; tick meds and shower; in the spoons box write how many you had left at bedtime. X4: Menu → This month has the totals.</p>`;
 }
 
 function monthMoonPage(M) {
   const nm = M.days.find((d) => d.moon.quarter === 0), fm = M.days.find((d) => d.moon.quarter === 2);
-  const block = (d, title, prompt) => d ? `<div class="mp"><div class="mph">${moon(d.moon.phaseDeg, 26)}<div><h3>${title} · ${M.name.slice(0, 3)} ${d.d}</h3><p class="dim">in ${G(d.moon.glyph)} ${d.moon.sign} · ${esc(d.notes.find((n) => n.kind === 'moon')?.text || '')}</p></div></div><p class="small">${prompt}</p><div class="lines l7"></div></div>` : '';
+  const block = (d, title, prompt) => d ? `<div class="mp"><div class="mph">${moon(d.moon.phaseDeg, 26)}<div><h3>${title} · ${M.name.slice(0, 3)} ${d.d}</h3><p class="dim">in ${G(d.moon.phaseGlyph || d.moon.glyph)} ${d.moon.phaseSign || d.moon.sign} · ${esc(d.notes.find((n) => n.kind === 'moon')?.text || '')}</p></div></div><p class="small">${prompt}</p><div class="lines l7"></div></div>` : '';
   return `<h2 class="pt">${M.name} · moon pages</h2>
   <div class="boxline">Theme check-in: how is my season theme going?</div><div class="lines l3"></div>
   ${block(nm, 'New moon', 'Set an intention for the next four weeks. What do you want to start, or tend?')}
@@ -460,7 +470,9 @@ for (const W of D.weeks) {
   if (M) { alignToVerso(); add('', monthCalendar(M)); add('', monthSky(M)); add('', monthTracker(M)); add('', monthMoonPage(M)); }
   alignToVerso();
   add('', weekLeft(W)); add('', weekRight(W));
-  const endsHere = W.days[W.days.length - 1].weekday === 0; // the week's Sunday is in this book
+  // The week's Sunday is in this book. The year's last week (Sep 27–Oct 3 2027, week 53) ends after the final book,
+  // so it gets its review and exchange here instead of never being printed.
+  const endsHere = W.days[W.days.length - 1].weekday === 0 || (W === D.weeks[D.weeks.length - 1] && W.gi === 52);
   for (const d of W.days) add('dayp', dayFull(d), d.date);
   if (endsHere) { add('', weekReview(W)); alignToVerso(); add('', exchange(W, 'L')); add('', exchange(W, 'R')); } // Exchange (verso) and Reply (recto) must face each other
 }
@@ -471,7 +483,7 @@ add('', closingPage());
 const REF = { theme: REF_THEME };
 REF.support = pages.length + 1; add('', supportPage()); add('', transPage());
 REF.safety = pages.length + 1; add('', safetyPage());
-if (NET && NET.months[VOL.id]) { alignToVerso(); REF.bus = pages.length + 1; add('', netPage(0)); add('', netPage(1)); for (const g of packGrids(NET.months[VOL.id])) add('', gridPage(g)); }
+if (NET && BUS_COV !== 'none') { alignToVerso(); REF.bus = pages.length + 1; add('', netPage(0)); add('', netPage(1)); for (const g of packGrids(NET.months[VOL.id])) add('', gridPage(g)); }
 REF.lineage = pages.length + 1; add('', lineagePage());
 for (const p of pages) p.html = p.html.replace(/\{\{P_(\w+)\}\}/g, (_, k) => REF[k.toLowerCase()] ?? '?');
 while (pages.length % 2) add('notes', notesPage('Notes'));
@@ -596,7 +608,7 @@ h4 { margin: 0 0 2px; font-size: 8.5pt; }
 .title { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%; }
 .tmoon { display: flex; gap: 14px; margin-bottom: 0.2in; }
 .sub { font-style: italic; font-size: 12pt; margin: 0; } .jp-title { font-size: 16pt; margin: 0.12in 0; } .range { font-size: 11pt; letter-spacing: 2px; text-transform: uppercase; margin: 0.1in 0; }
-.place { font-size: 7.5pt; color: #444; } .owner { margin-top: 0.6in; font-size: 8pt; color: #444; } .owner .line { display: inline-block; width: 3in; border-bottom: 1px solid #333; height: 0.3in; }
+.place { font-size: 7.5pt; color: #444; } .built { font-size: 6pt; line-height: 9pt; margin: 0; color: #666; } .owner { margin-top: calc(0.6in - 9pt); font-size: 8pt; color: #444; } .owner .line { display: inline-block; width: 3in; border-bottom: 1px solid #333; height: 0.3in; }
 table { border-collapse: collapse; }
 .lin th { text-align: left; vertical-align: top; padding: 4px 8px 4px 0; width: 1.45in; font-size: 8pt; }
 .lin td { padding: 4px 0; font-size: 8pt; border-bottom: 1px solid #bbb; line-height: 1.35; }
@@ -695,17 +707,18 @@ table { border-collapse: collapse; }
 .rev .zl .ic { width: 12px; height: 12px; }
 .trk th .ic { width: 10px; height: 10px; }
 .ikey { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 12px; font-size: 7.5pt; margin-bottom: 6px; } .ikey span { display: flex; align-items: center; gap: 5px; } .ikey .ic { width: 11px; height: 11px; }
-.cutnote { font: 600 7pt Inter, sans-serif; color: #444; margin: -4px 0 0; line-height: 1.1; } .sq { margin-top: 3px; } .sq .lines.l2 { height: 0.46in; } .sq b { font-size: 7.5pt; } .script { margin-top: 3px; border: 1px solid #000; padding: 5px 7px; font-size: 7.5pt; line-height: 1.35; }
+.sq { margin-top: 3px; } .sph { display: flex; align-items: flex-end; gap: 10px; } .sph .pt { flex: none; } .sph .qf { max-width: 2.1in; } .pn { display: flex; gap: 8px; align-items: flex-end; } .pn .qf:first-child { flex: 1.2; } .sq .lines.l2 { height: 0.36in; } .sq + .sq { margin-top: 5px; } .sq b { font-size: 7.5pt; } .script { margin-top: 3px; border: 1px solid #000; padding: 5px 7px; font-size: 7.5pt; line-height: 1.35; }
 .carep { width: 100%; } .carep th { text-align: left; font-size: 7.5pt; border-bottom: 1px solid #333; } .carep td { height: 0.28in; border-bottom: 1px solid #bbb; } .wd .wdn { font-size: 11pt; font-weight: 600; display: block; line-height: 1.1; } .cal .sk { font-size: 7pt; font-style: italic; color: #333; line-height: 1.1; border: none; padding: 0; }
 .ztags { grid-column: 1 / -1; }
 .sky1 { display: flex; gap: 4px; align-items: center; font-size: 7pt; line-height: 1.25; margin: 2px 0; } .sky1 .season { margin-left: auto; font-style: italic; color: #333; text-align: right; } .sky2l { font-size: 7pt; color: #333; margin: 1px 0 3px; }
 .net { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 7pt; font-variant-numeric: tabular-nums; margin-top: 4px; }
 .net th { font: 600 7pt Inter, sans-serif; text-align: left; border-bottom: 1px solid #000; padding: 1px 3px; }
-.net td { padding: 1.6px 1.5px; overflow: hidden; letter-spacing: -0.015em; border-bottom: 1px solid #e3e3e3; white-space: nowrap; } .net .rn { font: 700 7.5pt Inter, sans-serif; text-align: right; padding-right: 4px; } .net col.c1 { width: 0.22in; } .net col.c2 { width: 0.66in; }
+.net td { padding: 1.6px 1.5px; overflow: hidden; letter-spacing: -0.015em; border-bottom: 1px solid #e3e3e3; white-space: nowrap; } .net .rn { font: 700 7.5pt Inter, sans-serif; text-align: right; padding-right: 4px; } .net col.c1 { width: 0.3in; } .net col.c2 { width: 0.66in; }
 .net .rname { text-overflow: ellipsis; }
 .hg { width: 100%; border-collapse: collapse; font-size: 7pt; font-variant-numeric: tabular-nums; margin-top: 4px; table-layout: fixed; }
 .hg th { font: 600 7pt Inter, sans-serif; padding: 1px 2px; text-align: left; } .hg th.gh { border-bottom: 1px solid #000; line-height: 1.15; vertical-align: bottom; } .hg th.gh .dim { font-weight: 400; }
-.hg tr.rng td { background: #f1f1f1; } .hg td { padding: 0.4px 2px; line-height: 1.1; border-bottom: 1px solid #e3e3e3; white-space: nowrap; overflow: hidden; } .hg td.hl { font: 600 7pt Inter, sans-serif; text-align: right; padding-right: 5px; } .hg td.hl.pm { font-weight: 800; }
+.hg tr.rng td { background: #f1f1f1; } .hg td { padding: 0.4px 2px; line-height: 1.1; border-bottom: 1px solid #e3e3e3; overflow: hidden; letter-spacing: -0.02em; } .hg td.hl { white-space: nowrap; font: 600 7pt Inter, sans-serif; text-align: right; padding-right: 5px; } .hg td.hl.pm { font-weight: 800; }
+.busvalid { font: 600 7pt Inter, sans-serif; margin: 3px 0 0; border: 1px solid #000; padding: 2px 5px; display: inline-block; } .busbox { margin-top: 8px; border: 1px solid #000; padding: 4px 7px; font-size: 8pt; }
 .rt { font: 600 7.5pt Inter, sans-serif; text-transform: uppercase; margin: 6px 0 0; } .hg .gs { border-left: 1px solid #9a9a9a; padding-left: 4px; }
 .az { margin-top: 4px; } .cb { display: flex; align-items: center; gap: 6px; height: 0.24in; } .cb i { width: 10px; height: 10px; border: 1.2px solid #000; flex: none; } .cb span { flex: 1; border-bottom: 1px solid #DCDCDC; height: 100%; display: flex; align-items: flex-end; font-size: 7.5pt; padding-bottom: 1px; }
 .m .chk .zl, .m .spn .zl { margin-right: 3px; }
