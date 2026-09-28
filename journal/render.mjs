@@ -1,52 +1,34 @@
-// Renders the KDP interior (monthly: 5.5x8.5; quarterly: 6x9) as HTML (one fixed-size div per page) and prints it to PDF with Chromium.
-// Usage: node render.mjs [events.ics]
+// Renders one monthly book's KDP interior (5.5x8.5, or 8.5x11 with SIZE=letter) as HTML (one fixed-size div per page)
+// and prints it to PDF with Chromium.
+// Usage: node render.mjs month <YYYY-MM> [a.ics,b.ics]      (SIZE=letter for 8.5x11, HARDCOVER=1 to pad to 76+ pages)
 import fs from 'node:fs';
 import { launch } from './browser.mjs';
 import { build } from './data.mjs';
-import { VOLUMES } from './volumes.mjs';
-
-// Usage:  node render.mjs <volume 1-4> [events.ics]          quarterly 6x9 book
-//         node render.mjs month <YYYY-MM> [events.ics]      monthly A5 book with scan markers
 import bwipjs from 'bwip-js';
 import { IC, ic, box, spoon, actionZone, dayBlocks, normalize, DAYPAGE_CSS } from './daypage.mjs';
 // Day page layout from the page editor (content/daypage.json); defaults reproduce the original page.
 const DAYPAGE = normalize(fs.existsSync(new URL('./content/daypage.json', import.meta.url)) ? JSON.parse(fs.readFileSync(new URL('./content/daypage.json', import.meta.url), 'utf8')) : null);
-const MONTHLY = process.argv[2] === 'month';
-let VN, VOL, ICS, CONTENT, OUT;
-if (MONTHLY) {
-  const [y, m] = process.argv[3].split('-').map(Number);
-  const bookNo = (y - 2026) * 12 + m - 9; // Oct 2026 = book 1 … Sep 2027 = book 12
-  const dim = new Date(Date.UTC(y, m, 0)).getUTCDate();
-  const name = new Date(Date.UTC(y, m - 1, 1)).toLocaleDateString('en-US', { month: 'long', timeZone: 'UTC' });
-  VN = bookNo;
-  VOL = { n: bookNo, start: [y, m, 1], days: dim, label: `${name} ${y}`, short: `${name.slice(0, 3)} ${y}`, globalContent: true, id: `${y}-${String(m).padStart(2, '0')}`, month: m, year: y };
-  ICS = process.argv[4];
-  CONTENT = await import('./content/year.mjs');
-  OUT = `out/m${VOL.id}${process.env.SIZE === 'letter' ? '-letter' : ''}`;
-} else {
-  VN = +(process.argv[2] || 1);
-  VOL = { n: VN, ...VOLUMES[VN] };
-  ICS = process.argv[3];
-  CONTENT = await import(`./content/v${VN}.mjs`);
-  OUT = `out/v${VN}`;
+if (process.argv[2] !== 'month' || !/^\d{4}-\d{2}$/.test(process.argv[3] || '')) {
+  console.error('Usage: node render.mjs month <YYYY-MM> [a.ics,b.ics]   (SIZE=letter, HARDCOVER=1)');
+  process.exit(1);
 }
-const { FACTS, PIONEERS, WORDS, PROMPTS } = CONTENT;
+const [yr, mo] = process.argv[3].split('-').map(Number);
+const bookNo = (yr - 2026) * 12 + mo - 9; // Oct 2026 = book 1 … Sep 2027 = book 12
+const monthName = new Date(Date.UTC(yr, mo - 1, 1)).toLocaleDateString('en-US', { month: 'long', timeZone: 'UTC' });
+// globalContent is kept only so data.json (read by epub.py) stays byte-identical.
+const VOL = { n: bookNo, start: [yr, mo, 1], days: new Date(Date.UTC(yr, mo, 0)).getUTCDate(), label: `${monthName} ${yr}`, short: `${monthName.slice(0, 3)} ${yr}`, globalContent: true, id: `${yr}-${String(mo).padStart(2, '0')}`, month: mo, year: yr };
+const ICS = process.argv[4];
+const OUT = `out/m${VOL.id}${process.env.SIZE === 'letter' ? '-letter' : ''}`;
+const { FACTS, PIONEERS, WORDS, PROMPTS } = await import('./content/year.mjs');
 const D = build(ICS, VOL, WORDS);
 for (const d of D.days) d.fact = FACTS[d.date.slice(5)] || null;
 const thursdayIn = (W) => { const t = W.days.find((d) => d.weekday === 4); return !!t; };
 for (const W of D.weeks) {
-  if (MONTHLY) {
-    // A week's pioneer and exchange prompt live in the book that holds that week's Thursday, so nothing repeats.
-    W.owns = thursdayIn(W);
-    W.pioneer = W.owns ? CONTENT.PIONEERS[W.gi] || null : null;
-    W.prompt = PROMPTS[W.gi] || null;
-    W.label = `Week ${W.gi + 1}`;
-  } else {
-    W.owns = true;
-    W.pioneer = PIONEERS.length ? PIONEERS[(W.n - 1) % PIONEERS.length] : null;
-    W.prompt = PROMPTS.length ? PROMPTS[(W.n - 1) % PROMPTS.length] : null;
-    W.label = `Week ${W.n}`;
-  }
+  // A week's pioneer and exchange prompt live in the book that holds that week's Thursday, so nothing repeats.
+  W.owns = thursdayIn(W);
+  W.pioneer = W.owns ? PIONEERS[W.gi] || null : null;
+  W.prompt = PROMPTS[W.gi] || null;
+  W.label = `Week ${W.gi + 1}`;
 }
 const missing = { facts: D.days.filter((d) => !d.fact).length, pioneers: D.weeks.filter((w) => w.owns && !w.pioneer).length, words: D.weeks.filter((w) => !w.word).length, prompts: D.weeks.filter((w) => !w.prompt).length };
 if (Object.values(missing).some(Boolean)) console.warn('content gaps:', JSON.stringify(missing));
@@ -83,8 +65,8 @@ const pages = [];
 const add = (cls, html, date = '') => pages.push({ cls, html, date });
 const alignToVerso = () => { if ((pages.length + 1) % 2 === 1) add('notes', notesPage('Notes')); }; // next page must be even
 const alignToRecto = () => { if ((pages.length + 1) % 2 === 0) add('notes', notesPage('Notes')); };
-const notesPage = (title) => MONTHLY ? `${headerZone('', title)}<div class="dots fill" data-zone="body"></div>${actionZone(4)}` : `<h2 class="pt">${title}</h2><div class="dots fill"></div>`;
-// AI-scan zones (monthly): labelled header boxes, faint body grid, checkbox action items.
+const notesPage = (title) => `${headerZone('', title)}<div class="dots fill" data-zone="body"></div>${actionZone(4)}`;
+// AI-scan zones: labelled header boxes, faint body grid, checkbox action items.
 function headerZone(dateText, titleText = '') {
   return `<div class="hz"><div class="zbox zdate" data-zone="date"><span class="zl">DATE:</span><span class="zv">${dateText}</span></div><div class="zbox ztitle" data-zone="title"><span class="zl">TITLE:</span><span class="zv">${titleText}</span></div><div class="zbox ztags" data-zone="tags"><span class="zl">TAGS:</span></div></div>`;
 }
@@ -112,7 +94,7 @@ function titlePage() {
     <div class="tmoon">${moon(90, 64)}${moon(180, 64)}${moon(270, 64)}</div>
     <h1>Keeping Watch</h1>
     <p class="sub">A sky, season &amp; self journal</p>
-    <p class="range">${MONTHLY ? `Book ${VOL.n} of 12 · ${VOL.label}` : `Volume ${VOL.n} · ${VOL.label}`}</p>
+    <p class="range">Book ${VOL.n} of 12 · ${VOL.label}</p>
     <p class="place">Sky data for ${esc(D.config.place)} · ${D.config.lat.toFixed(2)}° N, ${Math.abs(D.config.lon).toFixed(2)}° W · Pacific Time</p>
     <p class="owner">This journal belongs to<br><span class="line"></span></p>
   </div>`;
@@ -129,18 +111,13 @@ function lineagePage() {
 function anatomyPage() {
   return `<h2 class="pt">How to use it</h2>
   <div class="steps">
-    <div><h3>${MONTHLY ? 'Each book' : 'Each season'}</h3><p>Pick a <b>theme</b> (page {{P_THEME}}). ${MONTHLY ? 'Carry it over from last month or start a new one.' : 'Check in with it at each month start.'}</p></div>
+    <div><h3>Each book</h3><p>Pick a <b>theme</b> (page {{P_THEME}}). Carry it over from last month or start a new one.</p></div>
     <div><h3>Each month</h3><p>Calendar, a sky &amp; seasons list, a one-page tracker, and a new-moon / full-moon page.</p></div>
     <div><h3>Each week</h3><p>A two-page spread to plan, a word of the week to copy, a weekly review, and an <b>exchange spread</b> to hand to someone.</p></div>
-    <div><h3>Each day</h3><p>${MONTHLY ? 'A full page.' : 'Half a page.'} Header is pre-filled with the sky. Circle your mood and spoons. Rapid-log anything. Answer three evening questions.</p></div>
+    <div><h3>Each day</h3><p>A full page. Header is pre-filled with the sky. Circle your mood and spoons. Rapid-log anything. Answer three evening questions.</p></div>
   </div>
   <h3 class="h3b">Anatomy of a day</h3>
-  ${MONTHLY ? `<div class="anat"><div><b class="zl">DATE / TITLE / TAGS</b> printed date; write a title and tags in the boxes</div><div><b class="zl">SKY + CHECK-IN</b> moon, sun, season; circle mood, cross off spoons</div><div class="a3"><b class="zl">BODY</b> faint 5 mm dots: write anything</div><div><b class="zl">ACTION ITEMS</b> one task per checkbox</div><div><b class="zl">REVIEW</b> went well · was hard · tomorrow</div></div>` : `<div class="anat">
-    <div class="a1"><b>${G('①')} Header</b> date · weekday kanji · moon phase &amp; sign · sunrise/sunset · micro-season</div>
-    <div class="a2"><b>${G('②')} Check-in</b> mood −3…+3 · sleep · spoons</div>
-    <div class="a3"><b>${G('③')} Rapid log</b> tasks, events, notes, feelings (key on next page)</div>
-    <div class="a4"><b>${G('④')} Evening review</b> well · hard · tomorrow (Seneca)</div>
-  </div>`}${MONTHLY ? `<p class="small" style="margin-top:5px"><b>At the back:</b> Support p. {{P_SUPPORT}} · Safety plan p. {{P_SAFETY}} · Bus times p. {{P_BUS}} · Where each piece comes from p. {{P_LINEAGE}}</p>` : ''}${MONTHLY ? `<h3 class="h3b">Scanning pages</h3><p class="small">Every page has a black frame, seven “send to” bubbles and a small square page code (a Data Matrix) that says which book and page it is. Fill a bubble to route the scan (you choose what each shape means in your scanning app). Keep the frame and the page code clear of ink. These markers are made for your own app; the Rocketbook app won’t read them.</p>` : ''}`;
+  <div class="anat"><div><b class="zl">DATE / TITLE / TAGS</b> printed date; write a title and tags in the boxes</div><div><b class="zl">SKY + CHECK-IN</b> moon, sun, season; circle mood, cross off spoons</div><div class="a3"><b class="zl">BODY</b> faint 5 mm dots: write anything</div><div><b class="zl">ACTION ITEMS</b> one task per checkbox</div><div><b class="zl">REVIEW</b> went well · was hard · tomorrow</div></div><p class="small" style="margin-top:5px"><b>At the back:</b> Support p. {{P_SUPPORT}} · Safety plan p. {{P_SAFETY}} · Bus times p. {{P_BUS}} · Where each piece comes from p. {{P_LINEAGE}}</p><h3 class="h3b">Scanning pages</h3><p class="small">Every page has a black frame, seven “send to” bubbles and a small square page code (a Data Matrix) that says which book and page it is. Fill a bubble to route the scan (you choose what each shape means in your scanning app). Keep the frame and the page code clear of ink. These markers are made for your own app; the Rocketbook app won’t read them.</p>`;
 }
 
 function keyPage() {
@@ -160,7 +137,7 @@ function keyPage() {
       <p class="small"><b>Mood</b> −3 very low · 0 steady · +3 very high/wired<br><b>Energy</b> 1 empty … 5 full<br><b>Spoons</b> ${spoon()} cross one out per spoon spent. Start with the number you woke up with.</p>
     </div>
   </div>
-  ${MONTHLY ? '' : weekdayTable()}`;
+  `;
 }
 
 function weekdayTable() {
@@ -339,20 +316,6 @@ function themePage() {
   <div class="boxline">What I want to feel by ${seasonGoal()}</div><div class="lines l4"></div>`;
 }
 
-function quarterPage() {
-  const events = D.days.flatMap((d) => d.notes.filter((n) => n.kind !== 'holiday' && (n.kind !== 'astro' || /retro|direct/.test(n.text))).map((n) => `<tr><td>${MONTHS[d.m - 1].slice(0, 3)} ${d.d}</td><td>${esc(n.text)}</td></tr>`));
-  return `<h2 class="pt">Quarter at a glance</h2>
-  <div class="minis">${D.months.map(miniCal).join('')}</div>
-  <h3>Key sky dates</h3><table class="sky2">${events.join('')}</table>`;
-}
-
-function miniCal(M) {
-  const lead = (M.days[0].weekday + 6) % 7; // Monday-start
-  const cells = Array(lead).fill('<td></td>').concat(M.days.map((d) => `<td class="${d.moon.quarter != null ? 'q' : ''}">${d.d}${d.moon.quarter != null ? `<span class="mq">${moon(d.moon.phaseDeg, 7)}</span>` : ''}</td>`));
-  const rows = []; for (let i = 0; i < cells.length; i += 7) rows.push(`<tr>${cells.slice(i, i + 7).join('')}</tr>`);
-  return `<div class="mini"><h4>${M.name}</h4><table><tr>${['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((x) => `<th>${x}</th>`).join('')}</tr>${rows.join('')}</table></div>`;
-}
-
 // ---------- month section ----------
 function monthCalendar(M) {
   // Full month grid; dates that live in the neighbouring volume are shaded.
@@ -433,7 +396,7 @@ function weekRight(W) {
   <h3>Mood line</h3>
   <table class="mline">${[3, 2, 1, 0, -1, -2, -3].map((v) => `<tr class="${v === 0 ? 'zero' : ''}"><td class="hl">${v > 0 ? '+' + v : v}</td>${days.map(() => '<td><i></i></td>').join('')}</tr>`).join('')}<tr><td></td>${days.map((x) => `<td class="dl">${x}</td>`).join('')}</tr></table>
   ${pioneerCard(W)}
-  ${MONTHLY && W.pioneer ? '' : '<h3>Notes</h3><div class="dots fill"></div>'}`;
+  ${W.pioneer ? '' : '<h3>Notes</h3><div class="dots fill"></div>'}`;
 }
 
 function pioneerCard(W) {
@@ -441,30 +404,6 @@ function pioneerCard(W) {
   const [name, years, what, fact] = p;
   return `<div class="pio"><div class="pio-h"><span class="pio-k">Pioneer of the week</span><b>${esc(name)}</b> <span class="dim">${years}</span></div><p>${esc(what)}</p><p class="pio-f"><b>Useless knowledge</b> ${esc(fact)}</p></div>`;
 }
-
-function dayHalf(d) {
-  const moonTxt = d.moon.ingress.length ? d.moon.ingress.map((i) => `Moon enters ${G(D.glyphs[i.sign])} ${i.sign} ${i.time}`).join(' · ') : `Moon in ${G(d.moon.glyph)} ${d.moon.sign}`;
-  const notes = d.notes.map((n) => esc(n.text));
-  if (d.jp.koChange.length) notes.unshift(`new micro-season ${d.jp.koChange[0].time}`);
-  const retro = d.retro.length ? `${G('℞')} ${d.retro.map((p) => G(PLANET_GLYPH[p])).join('')}` : '';
-  const ev = d.events.length ? `<div class="dev">${d.events.map((e) => `○ ${e.time ? e.time + ' ' : ''}${esc(e.title)}`).join(' · ')}</div>` : '';
-  return `<div class="day">
-    <div class="dh">
-      <div class="dnum">${d.d}</div>
-      <div class="dmeta"><div class="dname">${d.weekdayName} <span class="dim">· ${MONTHS[d.m - 1]}</span></div>
-        <div class="djp dim">${G(DAY_PLANET[d.weekday][1])} ${DAY_PLANET[d.weekday][0]} day</div></div>
-      <div class="dsky">${moon(d.moon.phaseDeg, 22)}<div><div>${d.moon.phase} · ${d.moon.lit}%</div><div>${moonTxt} · Sun ${G(d.sun.glyph)}</div><div>${G('☀')} ${d.sun.rise} – ${d.sun.set} <span class="dim">(${dur(d.sun.lengthMin)})</span></div></div></div>
-    </div>
-    <div class="dko">${esc(d.jp.ko.en)} <span class="dim">· ${d.jp.sekki.en}</span>${notes.length ? ` <span class="dn2">· ${notes.join(' · ')}</span>` : ''}${retro ? ` <span class="rt">${retro}</span>` : ''}</div>
-    ${ev}
-    <div class="chk"><span class="lbl">mood</span>${bubbles(['', '', '', '', '', '', ''], '−3', '+3')}<span class="lbl">sleep</span><span class="blank"></span>h</div>
-    <div class="spn"><span class="lbl">spoons</span><span class="end">start</span><span class="blank sm"></span>${Array(12).fill(spoon()).join('')}<span class="lbl sp2">spent on</span><span class="blank long"></span></div>
-    <div class="dots log"></div>
-    <div class="rev"><div><b>Went well</b><span class="lines" data-pitch="0.21"></span></div><div><b>Was hard</b><span class="lines" data-pitch="0.21"></span></div><div><b>Tomorrow</b><span class="lines" data-pitch="0.21"></span></div></div>
-    ${FACTS[d.date.slice(5)] ? `<div class="fact"><b>On this day</b> ${esc(FACTS[d.date.slice(5)])}</div>` : ''}
-  </div>`;
-}
-
 
 function dayFull(d) {
   const moonTxt = d.moon.ingress.length ? d.moon.ingress.map((i) => `→ ${G(D.glyphs[i.sign])} ${i.time}`).join(' ') : `in ${G(d.moon.glyph)}`;
@@ -506,13 +445,11 @@ function exchange(W, side) {
 let REF_THEME = 0;
 add('title', titlePage());               // 1 (recto)
 add('', `<div class="blankpage"></div>`); // 2
-if (!MONTHLY) add('', lineagePage());     // quarterly keeps it up front; monthly moves it to the back
 add('', anatomyPage());
 add('', keyPage());
-if (MONTHLY) add('', `<h2 class="pt">Key, continued</h2><h3>Day page icons</h3><div class="ikey">${ICON_KEY.map(([k, t]) => `<span>${ic(k)} ${t}</span>`).join('')}</div>${weekdayTable()}<h3>Send-to symbols</h3><p class="small">Fire (solid triangle), water (open triangle), air (three winds), earth (circled cross), crescent moon, full moon and pentacle. Fill the bubble above one to route a scan; you decide what each means in your app.</p>`);
-if (MONTHLY) { add('', carePage()); add('', contactsPage()); }
+add('', `<h2 class="pt">Key, continued</h2><h3>Day page icons</h3><div class="ikey">${ICON_KEY.map(([k, t]) => `<span>${ic(k)} ${t}</span>`).join('')}</div>${weekdayTable()}<h3>Send-to symbols</h3><p class="small">Fire (solid triangle), water (open triangle), air (three winds), earth (circled cross), crescent moon, full moon and pentacle. Fill the bubble above one to route a scan; you decide what each means in your app.</p>`);
+add('', carePage()); add('', contactsPage());
 REF_THEME = pages.length + 1; add('', themePage());
-if (!MONTHLY) add('', quarterPage());    // 7
 
 const monthStartWeek = (M) => D.weeks.find((W) => W.days.some((d) => d.m === M.m && d.y === M.y));
 for (const W of D.weeks) {
@@ -521,41 +458,33 @@ for (const W of D.weeks) {
   alignToVerso();
   add('', weekLeft(W)); add('', weekRight(W));
   const endsHere = W.days[W.days.length - 1].weekday === 0; // the week's Sunday is in this book
-  if (MONTHLY) {
-    for (const d of W.days) add('dayp', dayFull(d), d.date);
-    if (endsHere) { add('', weekReview(W)); add('', exchange(W, 'L')); add('', exchange(W, 'R')); }
-  } else {
-    const halves = [...W.days.map(dayHalf), weekReview(W)];
-    for (let i = 0; i < halves.length; i += 2) add('halves', halves[i] + '<div class="cut"></div>' + halves[i + 1]);
-    add('', exchange(W, 'L')); add('', exchange(W, 'R'));
-  }
+  for (const d of W.days) add('dayp', dayFull(d), d.date);
+  if (endsHere) { add('', weekReview(W)); add('', exchange(W, 'L')); add('', exchange(W, 'R')); }
 }
 alignToVerso();
-add('', `<h2 class="pt">Looking back on ${MONTHLY ? 'the month' : 'the season'}</h2><div class="boxline">My theme was</div><div class="lines l2"></div><div class="boxline">What the trackers showed me</div><div class="lines l6"></div><div class="boxline">Which parts of this journal I actually used</div><div class="lines l4"></div><div class="boxline">What to change in the next edition</div><div class="lines l6"></div>`);
-add('', MONTHLY ? closingPage() : notesPage('Notes'));
+add('', `<h2 class="pt">Looking back on the month</h2><div class="boxline">My theme was</div><div class="lines l2"></div><div class="boxline">What the trackers showed me</div><div class="lines l6"></div><div class="boxline">Which parts of this journal I actually used</div><div class="lines l4"></div><div class="boxline">What to change in the next edition</div><div class="lines l6"></div>`);
+add('', closingPage());
 // Reference section at the back: support, safety plan, bus times, and where each piece comes from.
 const REF = { theme: REF_THEME };
-if (MONTHLY) {
-  REF.support = pages.length + 1; add('', supportPage()); add('', transPage());
-  REF.safety = pages.length + 1; add('', safetyPage());
-  if (NET && NET.months[VOL.id]) { alignToVerso(); REF.bus = pages.length + 1; add('', netPage(0)); add('', netPage(1)); for (const g of packGrids(NET.months[VOL.id])) add('', gridPage(g)); }
-  REF.lineage = pages.length + 1; add('', lineagePage());
-  for (const p of pages) p.html = p.html.replace(/\{\{P_(\w+)\}\}/g, (_, k) => REF[k.toLowerCase()] ?? '?');
-}
+REF.support = pages.length + 1; add('', supportPage()); add('', transPage());
+REF.safety = pages.length + 1; add('', safetyPage());
+if (NET && NET.months[VOL.id]) { alignToVerso(); REF.bus = pages.length + 1; add('', netPage(0)); add('', netPage(1)); for (const g of packGrids(NET.months[VOL.id])) add('', gridPage(g)); }
+REF.lineage = pages.length + 1; add('', lineagePage());
+for (const p of pages) p.html = p.html.replace(/\{\{P_(\w+)\}\}/g, (_, k) => REF[k.toLowerCase()] ?? '?');
 while (pages.length % 2) add('notes', notesPage('Notes'));
 
 // ---------- HTML ----------
 // 5.5 x 8.5 in: a KDP.com size for both paperback and hardcover (A5 is only offered on KDP Japan)
 // SIZE=letter: 8.5 x 11 in. The page is laid out at 6.57 x 8.5 (same height as the small book) and zoomed x1.294,
 // so everything, type included, scales up evenly and the wider page gets a little more room across.
-const LETTER = MONTHLY && process.env.SIZE === 'letter', ZOOM = LETTER ? 11 / 8.5 : 1;
-const W_IN = MONTHLY ? (LETTER ? +(8.5 / ZOOM).toFixed(4) : 5.5) : 6, H_IN = MONTHLY ? 8.5 : 9;
-const TRIM_W = +(W_IN * ZOOM).toFixed(3), TRIM_H = +(H_IN * ZOOM).toFixed(3), SIZE_TAG = LETTER ? '8.5x11' : MONTHLY ? '5.5x8.5' : '6x9';
-const INSIDE = MONTHLY ? 0.5 : 0.625, OUTSIDE = MONTHLY ? 0.3 : 0.45, TOP = MONTHLY ? 0.3 : 0.5, BOTTOM = MONTHLY ? 0.3 : 0.55;
+const LETTER = process.env.SIZE === 'letter', ZOOM = LETTER ? 11 / 8.5 : 1;
+const W_IN = LETTER ? +(8.5 / ZOOM).toFixed(4) : 5.5, H_IN = 8.5;
+const TRIM_W = +(W_IN * ZOOM).toFixed(3), TRIM_H = +(H_IN * ZOOM).toFixed(3), SIZE_TAG = LETTER ? '8.5x11' : '5.5x8.5';
+const INSIDE = 0.5, OUTSIDE = 0.3, TOP = 0.3, BOTTOM = 0.3;
 const BORDER_PT = 9, BORDER = BORDER_PT / 72, QUIET = 0.5, STRIP = 0.42; // 9pt anchor border, 0.5in quiet zone, marker strip height
 const FRAME_PAD = BORDER + QUIET;
 
-// Scan markers (monthly): thick border + 7 send-to bubbles + a Data Matrix page code.
+// Scan markers: thick border + 7 send-to bubbles + a Data Matrix page code.
 // Payload: KW1|<book id>|<page no>|<page type>|<date>. Read by Shelbee's own scanning app, not the Rocketbook app.
 const SYMBOLS = [ // fire (solid △), water (open ▽), air (three winds), earth (⊕), crescent (solid), full moon (solid disc), pentacle
   // Chosen so no two look alike after a blurry phone photo (tested: worst pair correlation 0.63; the old set had 0.90).
@@ -574,7 +503,7 @@ const HARDCOVER = process.env.HARDCOVER === '1';
 if (HARDCOVER) while (pages.length < 76 || pages.length % 2) add('notes', notesPage('Notes'));
 // Page code: Data Matrix with a short payload "KW1|<yymm>|<page>" (16x16 modules). Page type and date come from layout.json.
 const pageCode = (i) => `KW1|${VOL.id.slice(2).replace('-', '')}|${String(i + 1).padStart(3, '0')}`;
-const qrSvgs = MONTHLY ? pages.map((p, i) => bwipjs.toSVG({ bcid: 'datamatrix', text: pageCode(i) })) : [];
+const qrSvgs = pages.map((p, i) => bwipjs.toSVG({ bcid: 'datamatrix', text: pageCode(i) }));
 const html = `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/600.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/700.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/400-italic.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/noto-serif-jp/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/noto-serif-jp/600.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/noto-sans-jp/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/dejavu-sans/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/inter/500.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/inter/700.css"><style>
 @page { size: ${TRIM_W}in ${TRIM_H}in; margin: 0; }
 * { box-sizing: border-box; }
@@ -724,7 +653,7 @@ table { border-collapse: collapse; }
 .blankpage { flex: 1; }
 ${DAYPAGE_CSS}
 </style></head><body>
-${pages.map((p, i) => { const n = i + 1; const side = n % 2 ? 'recto' : 'verso'; const marks = MONTHLY ? `<div class="frame"></div><div class="strip"><span class="pno">${n}</span><span class="send">SEND TO</span>${symbolRow}<span class="qr">${qrSvgs[i]}</span></div>` : ''; return `<div class="page ${side} ${p.cls} ${MONTHLY ? 'm' : ''}">${p.html}${marks}${!MONTHLY && n > 2 ? `<div class="folio">${n}</div>` : ''}</div>`; }).join('\n')}
+${pages.map((p, i) => { const n = i + 1; const side = n % 2 ? 'recto' : 'verso'; const marks = `<div class="frame"></div><div class="strip"><span class="pno">${n}</span><span class="send">SEND TO</span>${symbolRow}<span class="qr">${qrSvgs[i]}</span></div>`; return `<div class="page ${side} ${p.cls} m">${p.html}${marks}</div>`; }).join('\n')}
 <script>
 document.querySelectorAll('.lines').forEach((el) => {
   const pitch = parseFloat(el.dataset.pitch || '0.26') * 96;
@@ -739,23 +668,21 @@ fs.writeFileSync(`${OUT}/data.json`, JSON.stringify(D, null, 1));
 const browser = await launch();
 const page = await browser.newPage();
 await page.goto('file://' + process.cwd() + `/${OUT}/journal.html`, { waitUntil: 'networkidle' }); await page.evaluate(() => document.fonts.ready);
-if (MONTHLY) {
-  // Zone map for the scanning app: every labelled zone in mm, relative to the inner edge of the black frame.
-  const layout = await page.evaluate(() => {
-    const px2mm = 25.4 / 96;
-    return [...document.querySelectorAll('.page')].map((pg, i) => {
-      const f = pg.querySelector('.frame').getBoundingClientRect(), bw = parseFloat(getComputedStyle(pg.querySelector('.frame')).borderTopWidth);
-      const ox = f.left + bw, oy = f.top + bw, fw = f.width - 2 * bw, fh = f.height - 2 * bw;
-      const rect = (el) => { const e = el.getBoundingClientRect(); return { x: +((e.left - ox) * px2mm).toFixed(1), y: +((e.top - oy) * px2mm).toFixed(1), w: +(e.width * px2mm).toFixed(1), h: +(e.height * px2mm).toFixed(1) }; };
-      const zones = [...pg.querySelectorAll('[data-zone]')].map((el) => ({ zone: el.dataset.zone, ...rect(el) }));
-      zones.push({ zone: 'page_code', ...rect(pg.querySelector('.qr')) }, { zone: 'send_to', ...rect(pg.querySelector('.strip')) });
-      return { page: i + 1, frame_inner_mm: { w: +(fw * px2mm).toFixed(1), h: +(fh * px2mm).toFixed(1) }, zones };
-    });
+// Zone map for the scanning app: every labelled zone in mm, relative to the inner edge of the black frame.
+const layout = await page.evaluate(() => {
+  const px2mm = 25.4 / 96;
+  return [...document.querySelectorAll('.page')].map((pg, i) => {
+    const f = pg.querySelector('.frame').getBoundingClientRect(), bw = parseFloat(getComputedStyle(pg.querySelector('.frame')).borderTopWidth);
+    const ox = f.left + bw, oy = f.top + bw, fw = f.width - 2 * bw, fh = f.height - 2 * bw;
+    const rect = (el) => { const e = el.getBoundingClientRect(); return { x: +((e.left - ox) * px2mm).toFixed(1), y: +((e.top - oy) * px2mm).toFixed(1), w: +(e.width * px2mm).toFixed(1), h: +(e.height * px2mm).toFixed(1) }; };
+    const zones = [...pg.querySelectorAll('[data-zone]')].map((el) => ({ zone: el.dataset.zone, ...rect(el) }));
+    zones.push({ zone: 'page_code', ...rect(pg.querySelector('.qr')) }, { zone: 'send_to', ...rect(pg.querySelector('.strip')) });
+    return { page: i + 1, frame_inner_mm: { w: +(fw * px2mm).toFixed(1), h: +(fh * px2mm).toFixed(1) }, zones };
   });
-  const meta = pages.map((p, i) => ({ type: (p.cls || 'page').split(' ')[0] || 'page', date: p.date || null, code: pageCode(i), code_format: 'data_matrix' }));
-  fs.writeFileSync(`${OUT}/layout.json`, JSON.stringify({ book: VOL.id, trim_in: [TRIM_W, TRIM_H], border_pt: BORDER_PT, quiet_zone_in: QUIET, symbols: ['fire', 'water', 'air', 'earth', 'crescent_moon', 'full_moon', 'pentacle'], pages: layout.map((l, i) => ({ ...meta[i], ...l })) }, null, 1));
-}
-await page.pdf({ width: `${TRIM_W}in`, height: `${TRIM_H}in`, path: MONTHLY ? `${OUT}/keeping-watch-${VOL.id}-interior-${HARDCOVER ? 'hardcover-' : ''}${SIZE_TAG}.pdf` : `${OUT}/keeping-watch-v${VN}-interior-6x9.pdf`, printBackground: true, preferCSSPageSize: true });
+});
+const meta = pages.map((p, i) => ({ type: (p.cls || 'page').split(' ')[0] || 'page', date: p.date || null, code: pageCode(i), code_format: 'data_matrix' }));
+fs.writeFileSync(`${OUT}/layout.json`, JSON.stringify({ book: VOL.id, trim_in: [TRIM_W, TRIM_H], border_pt: BORDER_PT, quiet_zone_in: QUIET, symbols: ['fire', 'water', 'air', 'earth', 'crescent_moon', 'full_moon', 'pentacle'], pages: layout.map((l, i) => ({ ...meta[i], ...l })) }, null, 1));
+await page.pdf({ width: `${TRIM_W}in`, height: `${TRIM_H}in`, path: `${OUT}/keeping-watch-${VOL.id}-interior-${HARDCOVER ? 'hardcover-' : ''}${SIZE_TAG}.pdf`, printBackground: true, preferCSSPageSize: true });
 await browser.close();
 fs.writeFileSync(`${OUT}/pages.txt`, String(pages.length));
-console.log(`${MONTHLY ? 'book ' + VOL.id : 'volume ' + VN}: ${D.days[0].date} → ${D.days[D.days.length - 1].date}, ${D.weeks.length} weeks, ${pages.length} pages`);
+console.log(`book ${VOL.id}: ${D.days[0].date} → ${D.days[D.days.length - 1].date}, ${D.weeks.length} weeks, ${pages.length} pages`);

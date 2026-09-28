@@ -102,7 +102,7 @@ function loadEvents(paths, t0, t1) {
 const HOL = {};
 export function build(icsPath, vol, words = []) {
   const [sy, sm, sd] = vol.start;
-  const first = localMidnight(sy, sm, sd), last = localMidnight(sy, sm, sd + (vol.days || vol.weeks * 7));
+  const first = localMidnight(sy, sm, sd), last = localMidnight(sy, sm, sd + vol.days);
   const events = loadEvents(icsPath, first, last);
   const days = [];
   // Quarter moons across the range
@@ -183,8 +183,8 @@ export function build(icsPath, vol, words = []) {
     }
     weeks[weeks.length - 1].days.push(day);
   }
-  for (const W of weeks) W.word = words.length ? (vol.globalContent ? words[W.gi] : words[(W.n - 1) % words.length]) || null : null;
-  // A month belongs to this volume if its 15th is inside the volume.
+  for (const W of weeks) W.word = words[W.gi] || null;
+  // A month belongs to this book if its 15th is inside it.
   const months = days.filter((x) => x.d === 15).map((x) => ({ y: x.y, m: x.m, name: new Date(Date.UTC(x.y, x.m - 1, 1)).toLocaleDateString('en-US', { month: 'long', timeZone: 'UTC' }), days: days.filter((z) => z.y === x.y && z.m === x.m) }));
   return { config: CONFIG, volume: vol, days, weeks, months, glyphs: GLYPH, generated: new Date().toISOString() };
 }
