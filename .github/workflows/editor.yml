@@ -1,0 +1,50 @@
+# Builds the day page editor and publishes it with GitHub Pages.
+# The editor only ever contains a generic sample day, so the site is safe to be public.
+# Private repo on a free plan (no Pages)? Set the EDITOR_PAGES_REPO variable (e.g. you/keeping-watch-editor, a public
+# repo) and the EDITOR_PAGES_TOKEN secret (token with contents:write on it); the site is pushed there instead.
+name: Editor
+on:
+  push:
+    branches: [main]
+    paths: ['journal/daypage.mjs', 'journal/editor/**', 'journal/render.mjs', 'journal/content/daypage.json', '.github/workflows/editor.yml']
+  pull_request:
+    paths: ['journal/daypage.mjs', 'journal/editor/**']
+  workflow_dispatch:
+permissions: { contents: read, pages: write, id-token: write }
+concurrency: { group: pages, cancel-in-progress: true }
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: journal } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: journal/package-lock.json }
+      - run: npm ci && npx playwright-core install --with-deps chromium
+      - name: Sample book (test.ics only) for the page CSS
+        run: node render.mjs month 2026-10 test.ics
+      - run: node editor/build.mjs
+      - name: Editor tests (drag from palette, every block, overflow meter)
+        run: node editor/test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: editor-test-screens, path: journal/editor/dist/test/ }
+      - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request' && vars.EDITOR_PAGES_REPO == ''
+        with: { path: journal/editor/dist/site }
+      - name: Push to the public editor repo instead
+        if: github.event_name != 'pull_request' && vars.EDITOR_PAGES_REPO != ''
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          personal_token: ${{ secrets.EDITOR_PAGES_TOKEN }}
+          external_repository: ${{ vars.EDITOR_PAGES_REPO }}
+          publish_branch: gh-pages
+          publish_dir: journal/editor/dist/site
+  deploy:
+    needs: build
+    if: github.event_name != 'pull_request' && vars.EDITOR_PAGES_REPO == ''
+    runs-on: ubuntu-latest
+    environment: { name: github-pages, url: '${{ steps.d.outputs.page_url }}' }
+    steps:
+      - id: d
+        uses: actions/deploy-pages@v4

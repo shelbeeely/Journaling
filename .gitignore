@@ -1,0 +1,18 @@
+# personal data: never commit
+journal/private/*
+!journal/private/README.md
+*.ics
+!journal/test.ics
+# build output
+journal/out/
+journal/editor/dist/
+journal/node_modules
+journal/gtfs/*.txt
+journal/gtfs/sta.zip
+x4/.pio/
+x4/host/out/
+x4/host/kw_host
+x4/host/sd/
+*.bin
+freeink-sdk/
+.DS_Store

@@ -1,0 +1,12 @@
+{
+ "name": "Unify Community Health – Mission",
+ "address": "120 W Mission Ave, Spokane 99201",
+ "lines": [
+  ["Medical", "<b>509-326-4343</b>, you can text this number. After hours: call or text the same number.", "TEXT CALL"],
+  ["Pharmacy", "509-323-8757, Mon–Fri 8 am–7 pm. Walk-in or mail delivery.", "CALL"],
+  ["Messages", "MyChart at mychart.yvfwc.org, for messages, results and appointments.", "ONLINE"],
+  ["Hours", "Medical Mon–Fri 7:45 am–7 pm; closed weekends. Counseling and therapy on site.", ""],
+  ["Also", "Unify NE, 4001 N Cook St (Northeast Community Center): medical and dental, same medical number.", "VISIT"]
+ ],
+ "checked": "Sep 2026"
+}

@@ -1,0 +1,323 @@
+# Keeping Watch day pack 2026-10 · generated from the paper journal build
+keeper=24
+@2026-10-01
+wd=Thursday
+planet=♃ Jupiter
+moon=246.6|70|Waning Gibbous|♊ Gemini
+sun=6:49a|6:28p|11h 39m|♎ Libra
+season=Sumac flames on the basalt|Smooth sumac turns scarlet on scabland slopes and river canyons.
+fact=1982 — Sony releases the CDP-101 in Japan, the first CD player ever sold. (2003: 4chan launches.)
+pioneer=Ada Lovelace|1815–1852|Her 1843 “Note G” on Babbage’s Analytical Engine is often called the first published computer program. She saw machines could handle music and symbols, not just numbers.|At 12 she designed wings from paper, oilsilk, wire and feathers and planned a book called “Flyology.”
+prompt=Something small you noticed this week.
+@2026-10-02
+wd=Friday
+planet=♀ Venus
+moon=259.9|59|Waning Gibbous|♊ Gemini
+moonin=♋ Cancer 12:54p
+sun=6:50a|6:26p|11h 36m|♎ Libra
+season=Sumac flames on the basalt|Smooth sumac turns scarlet on scabland slopes and river canyons.
+newseason=9:45p
+fact=1955 — ENIAC, one of the first electronic computers, is retired.
+pioneer=Ada Lovelace|1815–1852|Her 1843 “Note G” on Babbage’s Analytical Engine is often called the first published computer program. She saw machines could handle music and symbols, not just numbers.|At 12 she designed wings from paper, oilsilk, wire and feathers and planned a book called “Flyology.”
+prompt=Something small you noticed this week.
+@2026-10-03
+wd=Saturday
+planet=♄ Saturn
+moon=273.1|47|Last Quarter|♋ Cancer
+sun=6:52a|6:24p|11h 32m|♎ Libra
+season=Tamaracks turn gold|Western larch, the conifer that drops its needles, glows orange on eastern hillsides.
+note=Last Quarter 6:25a
+note=Venus stations retrograde
+fact=1950 — Bardeen and Brattain receive a patent for the transistor.
+pioneer=Ada Lovelace|1815–1852|Her 1843 “Note G” on Babbage’s Analytical Engine is often called the first published computer program. She saw machines could handle music and symbols, not just numbers.|At 12 she designed wings from paper, oilsilk, wire and feathers and planned a book called “Flyology.”
+prompt=Something small you noticed this week.
+@2026-10-04
+wd=Sunday
+planet=☉ Sun
+moon=286.1|36|Waning Crescent|♋ Cancer
+moonin=♌ Leo 3:54p
+sun=6:53a|6:22p|11h 29m|♎ Libra
+season=Tamaracks turn gold|Western larch, the conifer that drops its needles, glows orange on eastern hillsides.
+fact=1957 — Sputnik 1 becomes the first artificial satellite to orbit Earth.
+pioneer=Ada Lovelace|1815–1852|Her 1843 “Note G” on Babbage’s Analytical Engine is often called the first published computer program. She saw machines could handle music and symbols, not just numbers.|At 12 she designed wings from paper, oilsilk, wire and feathers and planned a book called “Flyology.”
+prompt=Something small you noticed this week.
+@2026-10-05
+wd=Monday
+planet=☽ Moon
+moon=299.1|26|Waning Crescent|♌ Leo
+sun=6:54a|6:20p|11h 26m|♎ Libra
+season=Tamaracks turn gold|Western larch, the conifer that drops its needles, glows orange on eastern hillsides.
+note=Pay period ends
+ev=2:00p Test appointment
+fact=2021 — Windows 11 is released to the public.
+pioneer=Alan Turing|1912–1954|Defined the “universal machine” in 1936, led the Bletchley Park bombe work against Enigma, and proposed the Turing test in 1950. Prosecuted in 1952 for being gay; pardoned in 2013, and on the £50 note since 2021.|In hay fever season he cycled to Bletchley wearing a gas mask to keep the pollen out.
+prompt=What made you laugh?
+@2026-10-06
+wd=Tuesday
+planet=♂ Mars
+moon=312|17|Waning Crescent|♌ Leo
+moonin=♍ Virgo 7:52p
+sun=6:56a|6:18p|11h 22m|♎ Libra
+season=Tamaracks turn gold|Western larch, the conifer that drops its needles, glows orange on eastern hillsides.
+note=Pay period starts: P10 Weeks 1 & 2
+rt=9:00a Weekly thing
+fact=1995 — 51 Pegasi b is announced: the first confirmed planet orbiting a sun-like star.
+pioneer=Alan Turing|1912–1954|Defined the “universal machine” in 1936, led the Bletchley Park bombe work against Enigma, and proposed the Turing test in 1950. Prosecuted in 1952 for being gay; pardoned in 2013, and on the £50 note since 2021.|In hay fever season he cycled to Bletchley wearing a gas mask to keep the pollen out.
+prompt=What made you laugh?
+@2026-10-07
+wd=Wednesday
+planet=☿ Mercury
+moon=324.6|9|Waning Crescent|♍ Virgo
+sun=6:57a|6:16p|11h 19m|♎ Libra
+season=Tamaracks turn gold|Western larch, the conifer that drops its needles, glows orange on eastern hillsides.
+newseason=11:29p
+fact=1959 — Luna 3 sends back the first-ever photos of the far side of the Moon.
+pioneer=Alan Turing|1912–1954|Defined the “universal machine” in 1936, led the Bletchley Park bombe work against Enigma, and proposed the Turing test in 1950. Prosecuted in 1952 for being gay; pardoned in 2013, and on the £50 note since 2021.|In hay fever season he cycled to Bletchley wearing a gas mask to keep the pollen out.
+prompt=What made you laugh?
+@2026-10-08
+wd=Thursday
+planet=♃ Jupiter
+moon=337.1|4|Waning Crescent|♍ Virgo
+sun=6:59a|6:14p|11h 15m|♎ Libra
+season=First frost on the lawns|Spokane's median first 32°F night falls around October 7.
+note=Draconid meteors (peak, approx.)
+fact=1996 — A special US stamp honors ENIAC, the room-sized computer.
+pioneer=Alan Turing|1912–1954|Defined the “universal machine” in 1936, led the Bletchley Park bombe work against Enigma, and proposed the Turing test in 1950. Prosecuted in 1952 for being gay; pardoned in 2013, and on the £50 note since 2021.|In hay fever season he cycled to Bletchley wearing a gas mask to keep the pollen out.
+prompt=What made you laugh?
+@2026-10-09
+wd=Friday
+planet=♀ Venus
+moon=349.5|1|Waning Crescent|♎ Libra
+moonin=♎ Libra 1:10a
+sun=7:00a|6:12p|11h 12m|♎ Libra
+season=First frost on the lawns|Spokane's median first 32°F night falls around October 7.
+fact=1947 — The contract is signed to build BINAC, an early stored-program computer.
+pioneer=Alan Turing|1912–1954|Defined the “universal machine” in 1936, led the Bletchley Park bombe work against Enigma, and proposed the Turing test in 1950. Prosecuted in 1952 for being gay; pardoned in 2013, and on the £50 note since 2021.|In hay fever season he cycled to Bletchley wearing a gas mask to keep the pollen out.
+prompt=What made you laugh?
+@2026-10-10
+wd=Saturday
+planet=♄ Saturn
+moon=1.6|0|New Moon|♎ Libra
+sun=7:01a|6:10p|11h 09m|♎ Libra
+season=First frost on the lawns|Spokane's median first 32°F night falls around October 7.
+note=New Moon 8:50a
+fact=1995 — “A Day in the Life of Cyberspace” is published.
+pioneer=Alan Turing|1912–1954|Defined the “universal machine” in 1936, led the Bletchley Park bombe work against Enigma, and proposed the Turing test in 1950. Prosecuted in 1952 for being gay; pardoned in 2013, and on the £50 note since 2021.|In hay fever season he cycled to Bletchley wearing a gas mask to keep the pollen out.
+prompt=What made you laugh?
+@2026-10-11
+wd=Sunday
+planet=☉ Sun
+moon=13.5|2|Waxing Crescent|♏ Scorpio
+moonin=♏ Scorpio 8:21a
+sun=7:03a|6:08p|11h 05m|♎ Libra
+season=First frost on the lawns|Spokane's median first 32°F night falls around October 7.
+fact=1887 — Dorr Felt is granted a patent for the Comptometer, a key-driven adding machine.
+pioneer=Alan Turing|1912–1954|Defined the “universal machine” in 1936, led the Bletchley Park bombe work against Enigma, and proposed the Turing test in 1950. Prosecuted in 1952 for being gay; pardoned in 2013, and on the £50 note since 2021.|In hay fever season he cycled to Bletchley wearing a gas mask to keep the pollen out.
+prompt=What made you laugh?
+@2026-10-12
+wd=Monday
+planet=☽ Moon
+moon=25.1|5|Waxing Crescent|♏ Scorpio
+sun=7:04a|6:06p|11h 02m|♎ Libra
+season=First frost on the lawns|Spokane's median first 32°F night falls around October 7.
+note=!Indigenous Peoples’ Day / Columbus Day
+fact=1988 — Steve Jobs unveils the NeXT Computer, the machine the first web browser was later written on.
+pioneer=Katherine Johnson|1918–2020|NASA mathematician who computed trajectories for Alan Shepard’s 1961 flight. John Glenn refused to fly in 1962 until she checked the computer’s numbers. Presidential Medal of Freedom, 2015.|She started high school at 10 and graduated college at 18.
+prompt=A song that fits this week.
+@2026-10-13
+wd=Tuesday
+planet=♂ Mars
+moon=36.5|10|Waxing Crescent|♏ Scorpio
+moonin=♐ Sagittarius 5:59p
+sun=7:06a|6:04p|10h 59m|♎ Libra
+season=Ducks and geese crowd Turnbull|Up to 30,000 ducks and geese stop over on Cheney's marshes in fall migration.
+newseason=12:52a
+note=Payday
+rt=9:00a Weekly thing
+fact=1915 — Arthur Burks, who helped build ENIAC, is born.
+pioneer=Katherine Johnson|1918–2020|NASA mathematician who computed trajectories for Alan Shepard’s 1961 flight. John Glenn refused to fly in 1962 until she checked the computer’s numbers. Presidential Medal of Freedom, 2015.|She started high school at 10 and graduated college at 18.
+prompt=A song that fits this week.
+@2026-10-14
+wd=Wednesday
+planet=☿ Mercury
+moon=47.7|17|Waxing Crescent|♐ Sagittarius
+sun=7:07a|6:02p|10h 55m|♎ Libra
+season=Ducks and geese crowd Turnbull|Up to 30,000 ducks and geese stop over on Cheney's marshes in fall migration.
+fact=1947 — Chuck Yeager breaks the sound barrier in the Bell X-1. (1888: the first motion picture is filmed.)
+pioneer=Katherine Johnson|1918–2020|NASA mathematician who computed trajectories for Alan Shepard’s 1961 flight. John Glenn refused to fly in 1962 until she checked the computer’s numbers. Presidential Medal of Freedom, 2015.|She started high school at 10 and graduated college at 18.
+prompt=A song that fits this week.
+@2026-10-15
+wd=Thursday
+planet=♃ Jupiter
+moon=58.7|24|Waxing Crescent|♐ Sagittarius
+sun=7:09a|6:00p|10h 52m|♎ Libra
+season=Ducks and geese crowd Turnbull|Up to 30,000 ducks and geese stop over on Cheney's marshes in fall migration.
+note=Pluto stations direct
+fact=1956 — The first FORTRAN reference manual is released.
+pioneer=Katherine Johnson|1918–2020|NASA mathematician who computed trajectories for Alan Shepard’s 1961 flight. John Glenn refused to fly in 1962 until she checked the computer’s numbers. Presidential Medal of Freedom, 2015.|She started high school at 10 and graduated college at 18.
+prompt=A song that fits this week.
+@2026-10-16
+wd=Friday
+planet=♀ Venus
+moon=69.5|33|Waxing Crescent|♑ Capricorn
+moonin=♑ Capricorn 5:56a
+sun=7:10a|5:59p|10h 49m|♎ Libra
+season=Ducks and geese crowd Turnbull|Up to 30,000 ducks and geese stop over on Cheney's marshes in fall migration.
+fact=1959 — Control Data introduces the CDC 1604, one of the first fully transistorized computers.
+pioneer=Katherine Johnson|1918–2020|NASA mathematician who computed trajectories for Alan Shepard’s 1961 flight. John Glenn refused to fly in 1962 until she checked the computer’s numbers. Presidential Medal of Freedom, 2015.|She started high school at 10 and graduated college at 18.
+prompt=A song that fits this week.
+@2026-10-17
+wd=Saturday
+planet=♄ Saturn
+moon=80.4|42|Waxing Crescent|♑ Capricorn
+sun=7:11a|5:57p|10h 45m|♎ Libra
+season=Ducks and geese crowd Turnbull|Up to 30,000 ducks and geese stop over on Cheney's marshes in fall migration.
+fact=1994 — IBM cuts back its personal computer line.
+pioneer=Katherine Johnson|1918–2020|NASA mathematician who computed trajectories for Alan Shepard’s 1961 flight. John Glenn refused to fly in 1962 until she checked the computer’s numbers. Presidential Medal of Freedom, 2015.|She started high school at 10 and graduated college at 18.
+prompt=A song that fits this week.
+@2026-10-18
+wd=Sunday
+planet=☉ Sun
+moon=91.3|51|First Quarter|♑ Capricorn
+moonin=♒ Aquarius 6:39p
+sun=7:13a|5:55p|10h 42m|♎ Libra
+season=Rough-legged hawks come south|Arctic-nesting hawks arrive to hunt Palouse and West Plains fields all winter.
+newseason=1:54a
+note=First Quarter 9:13a
+fact=2012 — Newsweek announces it will stop printing and go online-only.
+pioneer=Katherine Johnson|1918–2020|NASA mathematician who computed trajectories for Alan Shepard’s 1961 flight. John Glenn refused to fly in 1962 until she checked the computer’s numbers. Presidential Medal of Freedom, 2015.|She started high school at 10 and graduated college at 18.
+prompt=A song that fits this week.
+@2026-10-19
+wd=Monday
+planet=☽ Moon
+moon=102.3|61|Waxing Gibbous|♒ Aquarius
+sun=7:14a|5:53p|10h 39m|♎ Libra
+season=Rough-legged hawks come south|Arctic-nesting hawks arrive to hunt Palouse and West Plains fields all winter.
+note=Pay period ends
+fact=1973 — A US court names John Atanasoff the official inventor of the electronic digital computer.
+pioneer=Margaret Hamilton|b. 1936|Led the MIT team that wrote the Apollo flight software, and coined “software engineering.” Her priority system kept Apollo 11’s landing going through the 1202 alarms.|LEGO made her a minifigure next to her famous stack of code printouts as tall as she was.
+prompt=Ask me one question.
+@2026-10-20
+wd=Tuesday
+planet=♂ Mars
+moon=113.5|70|Waxing Gibbous|♒ Aquarius
+sun=7:16a|5:51p|10h 35m|♎ Libra
+season=Rough-legged hawks come south|Arctic-nesting hawks arrive to hunt Palouse and West Plains fields all winter.
+note=Pay period starts: P10 Weeks 3 & 4
+rt=9:00a Weekly thing
+fact=2004 — The first Ubuntu Linux release, 4.10 “Warty Warthog,” comes out.
+pioneer=Margaret Hamilton|b. 1936|Led the MIT team that wrote the Apollo flight software, and coined “software engineering.” Her priority system kept Apollo 11’s landing going through the 1202 alarms.|LEGO made her a minifigure next to her famous stack of code printouts as tall as she was.
+prompt=Ask me one question.
+@2026-10-21
+wd=Wednesday
+planet=☿ Mercury
+moon=125|79|Waxing Gibbous|♓ Pisces
+moonin=♓ Pisces 5:35a
+sun=7:17a|5:49p|10h 32m|♎ Libra
+season=Rough-legged hawks come south|Arctic-nesting hawks arrive to hunt Palouse and West Plains fields all winter.
+note=Orionid meteors (peak, approx.)
+fact=1983 — The metre is redefined as the distance light travels in 1/299,792,458 of a second.
+pioneer=Margaret Hamilton|b. 1936|Led the MIT team that wrote the Apollo flight software, and coined “software engineering.” Her priority system kept Apollo 11’s landing going through the 1202 alarms.|LEGO made her a minifigure next to her famous stack of code printouts as tall as she was.
+prompt=Ask me one question.
+@2026-10-22
+wd=Thursday
+planet=♃ Jupiter
+moon=136.8|87|Waxing Gibbous|♓ Pisces
+sun=7:19a|5:48p|10h 29m|♎ Libra
+season=Rough-legged hawks come south|Arctic-nesting hawks arrive to hunt Palouse and West Plains fields all winter.
+fact=1941 — Stan Mazor, co-inventor of the microprocessor, is born.
+pioneer=Margaret Hamilton|b. 1936|Led the MIT team that wrote the Apollo flight software, and coined “software engineering.” Her priority system kept Apollo 11’s landing going through the 1202 alarms.|LEGO made her a minifigure next to her famous stack of code printouts as tall as she was.
+prompt=Ask me one question.
+@2026-10-23
+wd=Friday
+planet=♀ Venus
+moon=149.1|93|Waxing Gibbous|♓ Pisces
+moonin=♈ Aries 12:53p
+sun=7:20a|5:46p|10h 26m|♏ Scorpio
+season=Tundra swans pass over|Swans rest on eastern Washington wetlands on their way to winter grounds.
+newseason=2:38a
+fact=2001 — Apple releases the iPod: “1,000 songs in your pocket.”
+pioneer=Margaret Hamilton|b. 1936|Led the MIT team that wrote the Apollo flight software, and coined “software engineering.” Her priority system kept Apollo 11’s landing going through the 1202 alarms.|LEGO made her a minifigure next to her famous stack of code printouts as tall as she was.
+prompt=Ask me one question.
+@2026-10-24
+wd=Saturday
+planet=♄ Saturn
+moon=161.8|97|Waxing Gibbous|♈ Aries
+sun=7:22a|5:44p|10h 22m|♏ Scorpio
+season=Tundra swans pass over|Swans rest on eastern Washington wetlands on their way to winter grounds.
+note=Mercury stations retrograde
+fact=1922 — Werner Buchholz is born. He later coined the word “byte.”
+pioneer=Margaret Hamilton|b. 1936|Led the MIT team that wrote the Apollo flight software, and coined “software engineering.” Her priority system kept Apollo 11’s landing going through the 1202 alarms.|LEGO made her a minifigure next to her famous stack of code printouts as tall as she was.
+prompt=Ask me one question.
+@2026-10-25
+wd=Sunday
+planet=☉ Sun
+moon=174.9|100|Full Moon|♈ Aries
+moonin=♉ Taurus 4:34p
+sun=7:23a|5:42p|10h 19m|♏ Scorpio
+season=Tundra swans pass over|Swans rest on eastern Washington wetlands on their way to winter grounds.
+note=Full Moon 9:12p
+fact=2001 — Microsoft releases Windows XP.
+pioneer=Margaret Hamilton|b. 1936|Led the MIT team that wrote the Apollo flight software, and coined “software engineering.” Her priority system kept Apollo 11’s landing going through the 1202 alarms.|LEGO made her a minifigure next to her famous stack of code printouts as tall as she was.
+prompt=Ask me one question.
+@2026-10-26
+wd=Monday
+planet=☽ Moon
+moon=188.3|99|Waning Gibbous|♉ Taurus
+sun=7:25a|5:41p|10h 16m|♏ Scorpio
+season=Tundra swans pass over|Swans rest on eastern Washington wetlands on their way to winter grounds.
+fact=1961 — A silent computer-animated western is created on MIT’s TX-0 computer.
+pioneer=Sophie Wilson|b. 1957|Wrote BBC BASIC and designed the ARM instruction set in 1983 with Steve Furber. ARM chips now run nearly every smartphone. She transitioned in 1994.|She debugged the BBC Micro prototype while watching the 1981 royal wedding on a tiny portable TV.
+prompt=Describe the sky the last time you looked up.
+@2026-10-27
+wd=Tuesday
+planet=♂ Mars
+moon=201.9|96|Waning Gibbous|♉ Taurus
+moonin=♊ Gemini 6:01p
+sun=7:26a|5:39p|10h 13m|♏ Scorpio
+season=Tundra swans pass over|Swans rest on eastern Washington wetlands on their way to winter grounds.
+note=Payday
+fact=1980 — The ARPANET suffers its first major crash, a four-hour network-wide collapse.
+pioneer=Sophie Wilson|b. 1957|Wrote BBC BASIC and designed the ARM instruction set in 1983 with Steve Furber. ARM chips now run nearly every smartphone. She transitioned in 1994.|She debugged the BBC Micro prototype while watching the 1981 royal wedding on a tiny portable TV.
+prompt=Describe the sky the last time you looked up.
+@2026-10-28
+wd=Wednesday
+planet=☿ Mercury
+moon=215.6|91|Waning Gibbous|♊ Gemini
+sun=7:28a|5:37p|10h 10m|♏ Scorpio
+season=Clocks fall back|Daylight saving time ends Sunday, November 1, and evenings go dark early.
+newseason=3:04a
+fact=1955 — Bill Gates is born in Seattle.
+pioneer=Sophie Wilson|b. 1957|Wrote BBC BASIC and designed the ARM instruction set in 1983 with Steve Furber. ARM chips now run nearly every smartphone. She transitioned in 1994.|She debugged the BBC Micro prototype while watching the 1981 royal wedding on a tiny portable TV.
+prompt=Describe the sky the last time you looked up.
+@2026-10-29
+wd=Thursday
+planet=♃ Jupiter
+moon=229.3|83|Waning Gibbous|♊ Gemini
+moonin=♋ Cancer 7:05p
+sun=7:29a|5:36p|10h 06m|♏ Scorpio
+season=Clocks fall back|Daylight saving time ends Sunday, November 1, and evenings go dark early.
+fact=1969 — The first computer-to-computer ARPANET link. (1675: Leibniz first writes the integral sign ∫.)
+pioneer=Sophie Wilson|b. 1957|Wrote BBC BASIC and designed the ARM instruction set in 1983 with Steve Furber. ARM chips now run nearly every smartphone. She transitioned in 1994.|She debugged the BBC Micro prototype while watching the 1981 royal wedding on a tiny portable TV.
+prompt=Describe the sky the last time you looked up.
+@2026-10-30
+wd=Friday
+planet=♀ Venus
+moon=242.8|73|Waning Gibbous|♋ Cancer
+sun=7:31a|5:34p|10h 03m|♏ Scorpio
+season=Clocks fall back|Daylight saving time ends Sunday, November 1, and evenings go dark early.
+fact=2000 — The last Multics system, which inspired Unix, is shut down.
+pioneer=Sophie Wilson|b. 1957|Wrote BBC BASIC and designed the ARM instruction set in 1983 with Steve Furber. ARM chips now run nearly every smartphone. She transitioned in 1994.|She debugged the BBC Micro prototype while watching the 1981 royal wedding on a tiny portable TV.
+prompt=Describe the sky the last time you looked up.
+@2026-10-31
+wd=Saturday
+planet=♄ Saturn
+moon=256.1|62|Waning Gibbous|♋ Cancer
+moonin=♌ Leo 9:18p
+sun=7:32a|5:33p|10h 00m|♏ Scorpio
+season=Clocks fall back|Daylight saving time ends Sunday, November 1, and evenings go dark early.
+note=!Halloween
+ev=Halloween (all day)
+fact=1945 — MIT hosts the first conference on digital computer technique.
+pioneer=Sophie Wilson|b. 1957|Wrote BBC BASIC and designed the ARM instruction set in 1983 with Steve Furber. ARM chips now run nearly every smartphone. She transitioned in 1994.|She debugged the BBC Micro prototype while watching the 1981 royal wedding on a tiny portable TV.
+prompt=Describe the sky the last time you looked up.
