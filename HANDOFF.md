@@ -22,7 +22,7 @@
   - Two builds: GitHub Pages (commits `content/daypage.json`) and a Claude Artifact.
 - **X4 firmware:** compiles (RAM 53 KB, flash 1.47 MB), and every screen renders in the host preview.
   - Today on the sleep screen, with a 4:31 a.m. redraw (the day starts at 4 a.m.).
-  - Button check-ins and month stats for the Keeper.
+  - Button check-ins (spoons left, sleep, anxiety, care ticks) and month stats for the Keeper.
   - Hold Back for Support.
   - Wi-Fi hotspot page: set the clock, download books and logs, edit the safety plan, upload packs.
   - Books library on the SD card.
@@ -48,7 +48,7 @@
    - deep-sleep current
    - timer-wake drift over a few nights
    - web upload speed
-   - after that: dual boot with CrossPoint, a Closing-the-month walkthrough, and tickable routines
+   - after that: dual boot with CrossPoint and a Closing-the-month walkthrough
 5. **X4 ↔ editor:** optionally let custom Checkboxes/Scale blocks become X4 check-in items. Ask Shelbee first.
 6. **Each edition:** re-check the phone numbers in `content/support.json`, `trans.json` and `clinic.json`.
    Refresh the 2027 pay periods once they're confirmed. Order one KDP proof per size before buying copies.
@@ -57,5 +57,10 @@
 - **Paperback first**, hardcover later (`HARDCOVER=1` pads to 76+). No tear-out pages: KDP can't perforate.
 - **Two books:** the monthly book goes out with her, and the Keeper stays home (monthly handoff = the dual system).
 - **Day page care row:** "Did something I enjoy" replaced "Went outside", because she's outside daily for work.
+- **The care split (approved 2026-09-28, built in the `claude/care-split` PR):** paper = meds, meals, water, mood (dots numbered −3…+3,
+  middle marked), work shift, routines, events, writing, safety plan (source of truth). X4 = spoons *left*, sleep, anxiety, shower, teeth,
+  joy, texted, snack; custom check-ins on both. The day page's default layout changed on purpose (see the PR). The six month-end boxes
+  (Avg mood, Meds taken, Avg meals, Work hours from the paper tracker; Avg sleep, Good-spoon days from X4 This month) are defined once in
+  `journal/handoff.mjs` and printed identically on the Closing page and the Keeper. Old X4 logs keep their keys and still read.
 - **Firmware** holds the battery latch through deep sleep. That means weeks per charge rather than months, in exchange
   for keeping the clock and the midnight redraw.

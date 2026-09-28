@@ -45,13 +45,19 @@ enum class Kind { Toggle, Scale, Count, Stamp, Dots, Choice };  // Dots: 0 empty
 static const int CHOICE_MAX = 8, CHOICE_LEN = 12, OPT_BYTES = 49;
 struct Item {
   const char* key; const char* label; int icon; Kind kind; int lo, hi, def; const char* group;  // icon -1 = generic dot
+  bool hidden = false;  // paper-owned (the care split): kept so old logs still read, never shown on Check in or Today
   // Scale: lo..hi is what is stored (1..N, 0..N-1 or -k..+k, as printed on the paper block). Count: 0..hi.
   // Choice: lo = 0, hi = nopts - 1; the CSV log holds the option's TEXT, so history survives reordering the words.
   int nopts = 0; const char (*opts)[OPT_BYTES] = nullptr;
 };
-// The 15 built-ins (same order as the paper page), then up to 16 custom items from /kw/checkins.txt.
-// Static storage: loadCheckins() only rewrites fixed arrays, it never allocates for the list.
-static const int BUILTIN_COUNT = 15, MAX_CUSTOM = 16, MAX_ITEMS = BUILTIN_COUNT + MAX_CUSTOM;
+// The care split: paper keeps meds, meals, water and mood; the X4 keeps spoons left, sleep, anxiety and the care ticks.
+// The 8 X4 built-ins come first, in the order the paper page reads (D5: spoons, sleep, anxiety, care ticks). The 7
+// paper-owned keys (med_am, med_pm, prn, meal1-3, mood) stay in the table, hidden, so logs written before the split
+// keep their keys and are still read for history and This month; nothing is renamed or migrated on the card.
+// Then up to 16 custom items from /kw/checkins.txt. Static storage: loadCheckins() only rewrites fixed arrays.
+enum BuiltinItem { I_SPOONS, I_SLEEP, I_ANXIETY, I_SHOWER, I_TEETH, I_JOY, I_TEXTED, I_SNACK,
+                   I_MED_AM, I_MED_PM, I_PRN, I_MEAL1, I_MEAL2, I_MEAL3, I_MOOD };
+static const int SHOWN_BUILTINS = 8, BUILTIN_COUNT = 15, MAX_CUSTOM = 16, MAX_ITEMS = BUILTIN_COUNT + MAX_CUSTOM;
 extern Item ITEMS[MAX_ITEMS];
 extern int ITEM_COUNT;
 // Reads /kw/checkins.txt (one "@group" line per group, "key|label|kind|lo|hi|def[|opt1;opt2;...]" per item).
@@ -66,17 +72,21 @@ struct DayLog {
   int orphans = 0;          // distinct keys logged this day that no longer match any item (layout changed)
   bool has(int i) const;
   int get(int i) const;     // falls back to the item's default
-  int doneCount() const;    // how many built-in care items are done today (Today strip, month dots)
+  int doneCount() const;    // how many care ticks (shower, teeth, joy, texted, snack) are done today (Today strip, month dots)
 };
 void loadDayLog(const std::string& date, DayLog& out);
 void saveItem(const std::string& date, int item, int value, time_t when);
 void saveStamp(const std::string& date, time_t when);
 
 // ---------- month totals for the Keeper handoff ----------
+// What the X4 records now: spoons left (average, good-spoon days = 4+ left), sleep, anxiety, and the care ticks.
+// Mood, meds and meals belong to the paper tracker; older logs may still hold them, so they are read too (moodN,
+// avgMood, medsBoth, medsAny) for a quiet "earlier entries" line, never as Keeper boxes.
 struct MonthStats {
   int days = 0, loggedDays = 0;
-  float avgMood = 0, avgSleep = 0; int moodN = 0, sleepN = 0;
-  int showers = 0, medsBoth = 0, medsAny = 0, goodSpoonDays = 0, joy = 0, texted = 0;
-  int doneByDay[32] = {0};  // care items done, per day of month
+  float avgSpoons = 0, avgSleep = 0, avgAnxiety = 0; int spoonsN = 0, sleepN = 0, anxietyN = 0;
+  int goodSpoonDays = 0, showers = 0, teeth = 0, joy = 0, texted = 0;
+  float avgMood = 0; int moodN = 0, medsBoth = 0, medsAny = 0;  // from logs written before the split
+  int doneByDay[32] = {0};  // care ticks done, per day of month
 };
 void monthStats(int year, int month, MonthStats& out);

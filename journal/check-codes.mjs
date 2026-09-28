@@ -3,7 +3,8 @@
 //   DECODE=none|sample|all node check-codes.mjs    default sample (first, last and every 7th page); all = every page
 // Fails (exit 1) when, in any book: two pages share a code; a code isn't KW2|<edition>|<yymm>|<size><NNN> for its own
 // page number, book, size and edition; a page has no data-zone map or a duplicate zone name; a page lacks type/section;
-// the code needs more than a 16x16 Data Matrix; a code doesn't decode from the rendered PDF at 200 dpi. Across books:
+// the code needs more than a 16x16 Data Matrix; a code doesn't decode from the rendered PDF at 200 dpi; manifest.json
+// (code -> page id) disagrees with layout.json, or a decoded code doesn't map to that page's id. Across books:
 // any code shared by two book variants.
 import fs from 'fs';
 import os from 'os';
@@ -35,6 +36,11 @@ for (const dir of dirs) {
   const letter = dir.endsWith('-letter');
   const yymm = L.book.slice(2).replace('-', '');
   const seen = new Set();
+  const mf = path.join(dir, 'manifest.json');
+  const M = fs.existsSync(mf) ? JSON.parse(fs.readFileSync(mf, 'utf8')) : null;
+  if (!M) fail(dir, 'no manifest.json');
+  const idOf = new Map((M ? M.pages : []).map((p) => [p.code, p.id])); // code -> page id, as a printed book is read back
+  if (M && (M.pages.length !== L.pages.length || M.book !== L.book || M.size !== L.size || M.edition !== L.edition)) fail(dir, 'manifest.json is for a different build than layout.json');
   if (!['S', 'L', 'H'].includes(L.size) || (letter ? L.size !== 'L' : L.size === 'L')) fail(dir, `size ${L.size} doesn't fit the folder`);
   if (L.edition !== EDITION) fail(dir, `edition ${L.edition} is not the current ${EDITION}`);
   L.pages.forEach((p, i) => {
@@ -46,6 +52,7 @@ for (const dir of dirs) {
     if (m[2] !== yymm) fail(dir, `p.${i + 1}: code ${p.code} names book ${m[2]}, not ${yymm}`);
     if (m[3] !== L.size) fail(dir, `p.${i + 1}: code ${p.code} names size ${m[3]}, book is ${L.size}`);
     if (+m[1] !== EDITION) fail(dir, `p.${i + 1}: code ${p.code} names edition ${m[1]}`);
+    if (M && idOf.get(p.code) !== p.id) fail(dir, `p.${i + 1}: manifest maps ${p.code} to "${idOf.get(p.code)}", layout.json says "${p.id}"`);
     if (seen.has(p.code)) fail(dir, `p.${i + 1}: code ${p.code} repeats inside the book`);
     seen.add(p.code);
     if (owner.has(p.code)) fail(dir, `p.${i + 1}: code ${p.code} is also ${owner.get(p.code)}`);
@@ -83,7 +90,9 @@ for (const dir of dirs) {
     const res = await readBarcodes({ data, width: w, height: rows, colorSpace: 'srgb' }, { formats: ['DataMatrix'], maxNumberOfSymbols: 4, tryHarder: true });
     const want = L.pages[+/(\d+)\.pgm$/.exec(files[i])[1] - 1].code;
     const got = res.filter((r) => r.isValid).map((r) => r.text);
-    if (got.length === 1 && got[0] === want) ok++;
+    const wantId = L.pages[+/(\d+)\.pgm$/.exec(files[i])[1] - 1].id;
+    if (got.length === 1 && got[0] === want && idOf.get(got[0]) === wantId) ok++;
+    else if (got.length === 1 && got[0] === want) fail(dir, `p.${i + 1}: code ${want} decodes but the manifest gives page id "${idOf.get(got[0])}", not "${wantId}"`);
     else fail(dir, `p.${i + 1}: expected ${want}, decoded ${JSON.stringify(got)}`);
   }
   fs.rmSync(tmp, { recursive: true, force: true });

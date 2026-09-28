@@ -305,7 +305,7 @@ function rowItem(bu, r) {
   const o = ROW_OPTS[r.id].map((x) => optControl(x, r[x.k], `${bu}/rows/${r.id}/${x.k}`)).join(''), k = 'r:' + r.id;
   return `<li class="blk ${r.on ? '' : 'off'} ${openIds.has(k) ? 'open' : ''}" data-row="${r.id}">
     <div class="row"><span class="grip" aria-label="Drag to reorder">${GRIP}</span>${icon(CARE_ROWS[r.id].icon, 'bico')}
-      <span class="txt" data-open="${k}"><span class="name">${CARE_ROWS[r.id].name}</span></span>
+      <span class="txt" data-open="${k}"><span class="name">${CARE_ROWS[r.id].name}</span>${CARE_ROWS[r.id].x4 ? '<span class="hint">X4 has this · off on paper by default</span>' : ''}</span>
       <button class="icon-btn more" ${o ? '' : 'hidden'} data-open="${k}" aria-label="Options" aria-expanded="${openIds.has(k)}">${CHEV}</button>
       <button class="sw" role="switch" aria-checked="${r.on}" aria-label="${CARE_ROWS[r.id].name}" data-bool="${bu}/rows/${r.id}/on"></button></div>
     ${o ? `<div class="opts">${o}</div>` : ''}</li>`;
