@@ -90,13 +90,18 @@ Needs the months built first (it reads `out/m<YYYY-MM>/data.json`).
 
     python3 ../x4/tools/export_pack.py . out/sd-card 2026-10    # no months = every built month
 
-Writes `out/sd-card/kw/`: one day pack per month (`2026-10.txt`), `support.txt`, a starter `me.txt` (safety plan,
-kept if it exists), `log/`, and `library/` (the book PDFs and EPUBs; `KW_NO_LIBRARY=1` skips it).
+Writes `out/sd-card/kw-update/`: one day pack per month (`2026-10.txt`), `support.txt`, `checkins.txt`, `library/` (the
+book PDFs and EPUBs; `KW_NO_LIBRARY=1` skips it) and `me.example.txt` (a reference safety plan the X4 ignores).
+It never writes `me.txt` or `log/`: those live only on the card, and a blank copy would wipe her plan.
 
 It also writes `checkins.txt` from `content/daypage.json`, so your editor blocks show up on the X4 check-in screen:
 Checkboxes become ticks, Scale becomes a 1–steps scale, Habits become dots, and Fill-in blanks become counts (0–99).
 Care, spoons and sleep are already built in. The X4 holds **16 custom items** at most; extras are dropped with a warning.
-Copy the `kw` folder to the root of the X4's SD card.
+
+**Update the card:** copy the whole `kw-update` folder to the card's root (Replace is fine), eject, and turn the X4 on.
+It moves the files into `/kw` and deletes `/kw-update`. Your safety plan (`/kw/me.txt`) and check-in log (`/kw/log/`)
+are never touched. Never copy or replace a `kw` folder. **Closing the month:** download that month's log first
+(X4 Menu → Wi-Fi sync → Check-in log). The card holds the only copy.
 
 ## Content you edit
 | File | What |
