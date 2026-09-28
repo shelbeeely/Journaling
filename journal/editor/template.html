@@ -241,9 +241,10 @@ function change(fn, { list = true, hist = true } = {}) {
   drawPalette(); drawPreview(); queueSave();
 }
 $('#undo').onclick = () => { if (!history.length) return; layout = normalize(JSON.parse(history.pop())); $('#undo').disabled = !history.length; drawList(); drawPalette(); drawPreview(); queueSave(); };
-// Block types that export_pack.py turns into X4 check-ins (/kw/checkins.txt).
+// Blocks that export_pack.py turns into X4 check-ins (/kw/checkins.txt): on, and with at least one item.
 const X4_TYPES = new Set(['checks', 'scale', 'habits', 'fields']);
-const X4_MARK = '<span class="x4" aria-label="Also on X4 as check-ins" title="Also on X4 as check-ins after the next Books build"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" aria-hidden="true"><rect x="2.4" y="1" width="7.2" height="10" rx="1.2"/><path d="M4.4 3.4h3.2M4.4 5.4h3.2M4.4 7.4h1.8"/></svg><span aria-hidden="true">also on X4</span></span>';
+const onX4 = (b) => X4_TYPES.has(b.type) && b.on && (b.type === 'scale' || (b.labels || []).length > 0);
+const X4_MARK = '<span class="x4" title="Also on X4 as check-ins after the next Books build"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" aria-hidden="true"><rect x="2.4" y="1" width="7.2" height="10" rx="1.2"/><path d="M4.4 3.4h3.2M4.4 5.4h3.2M4.4 7.4h1.8"/></svg><span>also on X4</span></span>';
 const find = (uid) => layout.blocks.find((b) => b.uid === uid);
 const icon = (k, cls = '') => `<svg class="${cls}" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k] || IC.box}</svg>`;
 
@@ -316,7 +317,7 @@ function drawList() {
     const o = b.type === 'care' ? `<ul class="sub" data-care="${b.uid}">${b.rows.map((r) => rowItem(b.uid, r)).join('')}</ul>` : t.opts.map((x) => optControl(x, b[x.k], `${b.uid}/${x.k}`)).join('');
     return `<li class="blk ${b.on ? '' : 'off'} ${open ? 'open' : ''} ${selected === b.uid ? 'sel' : ''}" data-uid="${b.uid}">
       <div class="row"><span class="grip" aria-label="Drag to reorder">${GRIP}</span>${icon(t.icon, 'bico')}
-        <span class="txt" data-open="${b.uid}"><span class="name">${escH(t.name)}</span>${X4_TYPES.has(b.type) && b.on ? X4_MARK : ''}<span class="hint">${escH(summary(b))}</span></span>
+        <span class="txt" data-open="${b.uid}"><span class="name">${escH(t.name)}</span>${onX4(b) ? X4_MARK : ''}<span class="hint">${escH(summary(b))}</span></span>
         <button class="icon-btn more" ${o ? '' : 'hidden'} data-open="${b.uid}" aria-label="Options for ${escH(t.name)}" aria-expanded="${open}">${CHEV}</button>
         <button class="icon-btn del" ${t.locked ? 'hidden' : ''} data-del="${b.uid}" aria-label="Remove ${escH(t.name)}">${BIN}</button>
         <button class="sw" role="switch" aria-checked="${b.on}" aria-label="Show ${escH(t.name)}" data-bool="${b.uid}/on" ${t.locked ? 'disabled title="The writing space always stays"' : ''}></button></div>

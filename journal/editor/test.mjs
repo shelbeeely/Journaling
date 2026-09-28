@@ -59,7 +59,7 @@ for (const [i, m] of methods.entries()) {
   ok((await p.evaluate(() => JSON.stringify(layout))) === before, `${m.id}: undo restores`);
   await p.evaluate((id) => { layout = normalize(METHOD_LAYOUTS.find((x) => x.id === id).layout); drawList(); drawPreview(); }, m.id);
 }
-ok((await p.locator('#list > li[data-uid="ts-habits"] .x4').count()) === 1 && (await p.locator('#list > li[data-uid="body"] .x4').count()) === 0, 'also-on-X4 mark on exported blocks only');
+ok((await p.locator('#list > li[data-uid="ts-habits"] .x4').count()) === 1 && (await p.locator('#list > li[data-uid="body"] .x4, #list > li[data-uid="ts-where"] .x4').count()) === 0, 'also-on-X4 mark on exported blocks only');
 await p.screenshot({ path: `${OUT}/desktop-method.png` });
 await p.evaluate(() => { layout = normalize({ v: 2, blocks: ['sky', 'notes', 'events', 'care', 'spoons', 'timeline', 'sketch', 'body', 'actions', 'review', 'fact'].map((type) => ({ type })) }); drawList(); drawPreview(); });
 ok((await p.textContent('#meter')).includes('Too full'), 'overflow meter warns on a crowded page');

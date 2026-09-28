@@ -26,21 +26,22 @@ export const METHOD_LAYOUTS = [
   },
   {
     id: 'hobonichi', name: 'Hobonichi',
-    blurb: 'Time blocks over a quiet 4 mm grid, one line of history.',
+    blurb: 'Time blocks over a quiet 4 mm grid, a line of history at the foot.',
     layout: methodLayout([
-      ['sky', 'sky'], ['fact', 'fact'],
+      ['sky', 'sky'],
       ['timeline', 'timeline', { from: 8, to: 22, every: 2 }],
       ['body', 'body', { style: 'grid' }],
       ['good', 'gratitude', { n: 2 }],
+      ['fact', 'fact'], // at the foot, like Hobonichi's daily quote
     ]),
   },
   {
     id: 'fiveminute', name: 'Five Minute (AM/PM)',
-    blurb: 'Gratitude and intention in the morning, good things at night.',
+    blurb: 'Gratitude, intention and what you care about; good things at night.',
     layout: methodLayout([
       ['lines', 'fm-grateful', { title: "I'm grateful for", n: 3 }],
       ['lines', 'fm-good', { title: 'What would make today good', n: 2 }],
-      ['lines', 'fm-iam', { title: 'I am…', n: 1 }],
+      ['lines', 'fm-care', { title: 'Something I care about today', n: 1 }], // a values line, not an "I am" affirmation (Wood et al. 2009)
       ['body', 'body', { style: 'dots' }],
       ['lines', 'fm-three', { title: 'Three good things today', n: 3 }],
       ['lines', 'fm-better', { title: 'What could have gone better', n: 1 }],
@@ -50,7 +51,7 @@ export const METHOD_LAYOUTS = [
     id: 'theme', name: 'Theme System day',
     blurb: 'Where you are, two gratitudes, one goal and half-fill habit dots.',
     layout: methodLayout([
-      ['fields', 'ts-where', { title: 'Where I am', labels: ['Energy', 'Focus'] }],
+      ['lines', 'ts-where', { title: 'Where I am', n: 1 }], // stays on paper
       ['lines', 'ts-grat-personal', { title: 'Grateful: personal', n: 1 }],
       ['lines', 'ts-grat-work', { title: 'Grateful: work', n: 1 }],
       ['lines', 'ts-goal', { title: 'One goal', n: 1 }],
