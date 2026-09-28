@@ -43,6 +43,8 @@ export const IC = {
   sprout: '<path d="M6 11V5.6"/><path d="M6 6.4C6 3.8 4.2 2.4 1.6 2.4c0 2.6 1.8 4 4.4 4ZM6 5.6c0-2.2 1.6-3.6 4.4-3.6 0 2.4-1.8 3.6-4.4 3.6Z"/>',
   flag: '<path d="M2.4 11V1.4M2.4 1.8h7l-1.6 2.6 1.6 2.6h-7"/>',
   box: '<rect x="1.4" y="1.4" width="9.2" height="9.2" rx="1"/>',
+  log: '<circle cx="2" cy="2.6" r=".6" fill="currentColor"/><circle cx="2" cy="6" r="1.1"/><path d="M1 9.4h2M4.8 2.6h6M4.8 6h6M4.8 9.4h6"/>',
+  dots: '<circle cx="3.2" cy="3.2" r="2"/><circle cx="8.8" cy="3.2" r="2"/><circle cx="3.2" cy="8.8" r="2"/><circle cx="8.8" cy="8.8" r="2"/><circle cx="3.2" cy="3.2" r="2" fill="currentColor"/><path d="M8.8 6.8a2 2 0 0 1 0 4Z" fill="currentColor"/>',
 };
 export const ic = (k, t = '') => `<svg class="ic" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="${t || k}">${IC[k]}</svg>`;
 export const box = (label) => `<span class="ck"><i></i>${label ? `<span>${label}</span>` : ''}</span>`;
@@ -111,10 +113,12 @@ export const TYPES = {
   words: { name: 'Words to circle', group: 'Check-ins', icon: 'list', hint: 'Circle the ones that fit today', opts: [T('Label', 'Feeling', 18), LST('words', 'Words', ['calm', 'tired', 'anxious', 'content', 'flat', 'overwhelmed', 'hopeful', 'irritable', 'proud', 'lonely'], 14)] },
   sensory: { name: 'Sensory load', group: 'Check-ins', icon: 'ear', hint: 'How loud was the world today, 0–3', opts: [{ k: 'items', kind: 'flags', label: 'Senses', items: { sound: 'Sound', light: 'Light', crowd: 'Crowds', touch: 'Touch', smell: 'Smell', social: 'Social' }, def: { sound: true, light: true, crowd: true, touch: true, smell: false, social: false } }] },
   sleeptimes: { name: 'Sleep times', group: 'Check-ins', icon: 'sleep', single: true, hint: 'Bed, wake and how it felt', opts: [B('quality', 'Quality scale')] },
+  habits: { name: 'Habit dots', group: 'Check-ins', icon: 'dots', hint: 'One circle each: leave empty, half-fill or fill', opts: [T('Label', 'Habits', 24), LST('labels', 'Habits', ['Stretch', 'Outside', 'Read', 'Water'], 8)] },
   fields: { name: 'Fill-in blanks', group: 'Check-ins', icon: 'pen', hint: 'Label + a blank to write a number or word', opts: [T('Label', 'Outside', 18), LST('labels', 'Blanks', ['Minutes outside', 'Steps'], 6)] },
   weather: { name: 'Weather & air', group: 'Check-ins', icon: 'cloud', single: true, hint: 'Circle the sky; high, low and air quality', opts: [B('aqi', 'Air quality (smoke season)')] },
   // ---- writing ----
   lines: { name: 'Lined notes', group: 'Writing', icon: 'pen', hint: 'A label and a few lines', opts: [T('Label', 'Notes'), N('n', 'Lines', 1, 8, 2)] },
+  bullets: { name: 'Quick bullets', group: 'Writing', icon: 'log', hint: 'Ruled rows with a bullet spot; optional key', opts: [T('Label', 'Log', 24), N('n', 'Rows', 2, 10, 5), B('key', 'Key strip')] },
   good: { name: 'Small good things', group: 'Writing', icon: 'heart', hint: 'Short lines for good moments', opts: [N('n', 'Lines', 1, 5, 3)] },
   split: { name: 'Two columns', group: 'Writing', icon: 'list', hint: 'Two labelled columns side by side', opts: [{ k: 'left', kind: 'text', label: 'Left', def: 'Morning', max: 18 }, { k: 'right', kind: 'text', label: 'Right', def: 'Evening', max: 18 }, N('n', 'Lines', 1, 8, 3)] },
   top: { name: 'Top priorities', group: 'Writing', icon: 'flag', hint: 'Numbered lines', opts: [T('Label', 'Top 3', 18), N('n', 'How many', 1, 5, 3)] },
@@ -232,6 +236,14 @@ function careRow(r) {
   return '';
 }
 const spoonRow = (b) => `<div class="cr sp" data-zone="spoons">${ic('spoon', 'Spoons')}${Array(b.count).fill(spoon()).join('')}</div>`;
+// Bullet and habit marks drawn as SVG (never font glyphs, so no Type 3 fonts in the PDF).
+const MK = {
+  task: '<circle cx="4" cy="4" r="1.5" fill="currentColor" stroke="none"/>', event: '<circle cx="4" cy="4" r="2.2"/>', note: '<path d="M1.8 4h4.4"/>',
+  moved: '<path d="M2.8 1.8 5.2 4 2.8 6.2"/>', done: '<path d="M2.2 2.2l3.6 3.6M5.8 2.2 2.2 5.8"/>',
+  half: '<circle cx="4" cy="4" r="3"/><path d="M4 1a3 3 0 0 1 0 6Z" fill="currentColor"/>', full: '<circle cx="4" cy="4" r="3" fill="currentColor"/>',
+};
+const mk = (k) => `<svg class="bmk" width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="${k}">${MK[k]}</svg>`;
+const mkKey = (ks) => `<span class="mkey">${ks.map((k) => `<span>${mk(k)}${k}</span>`).join('')}</span>`;
 const hour = (h) => { const x = h % 24, ap = x < 12 ? 'a' : 'p'; return `${x % 12 || 12}${ap}`; };
 
 function renderBlock(b, parts, zone) {
@@ -254,9 +266,11 @@ function renderBlock(b, parts, zone) {
       return it.length ? `<div class="xb xrow wr" ${Z}>${lbl('ear', 'Sensory')}${it.map((k) => `<span class="sn">${S[k]} ${bubs(4)}</span>`).join('')}</div>` : '';
     }
     case 'sleeptimes': return `<div class="xb xrow" ${Z}>${lbl('sleep', 'Sleep')}<span class="f">bed <span class="blank"></span></span><span class="f">up <span class="blank"></span></span>${b.quality ? `<span class="end">rough</span>${bubs(5)}<span class="end">rested</span>` : ''}</div>`;
+    case 'habits': return b.labels.length ? `<div class="xb xrow wr xhab" ${Z}>${lbl('', b.title)}${b.labels.map((t) => `<span class="hd"><span class="t">${esc(t)}</span><i></i></span>`).join('')}${mkKey(['half', 'full'])}</div>` : '';
     case 'fields': return `<div class="xb xrow wr" ${Z}>${lbl('', b.title)}${b.labels.map((t) => `<span class="f">${esc(t)} <span class="blank"></span></span>`).join('')}</div>`;
     case 'weather': return `<div class="xb xrow" ${Z}>${['am', 'cloud', 'rain', 'snow', ...(b.aqi ? ['smoke'] : [])].map((k) => `<span class="cir">${ic(k, k === 'am' ? 'Sun' : k)}</span>`).join('')}<span class="f">hi <span class="blank xs"></span></span><span class="f">lo <span class="blank xs"></span></span>${b.aqi ? '<span class="f">AQI <span class="blank xs"></span></span>' : ''}</div>`;
     case 'lines': return `<div class="xb" ${Z}>${lbl('', b.title)}${ruled(b.n)}</div>`;
+    case 'bullets': return `<div class="xb xbul" ${Z}>${b.title || b.key ? `<div class="xrow">${b.title ? lbl('', b.title) : ''}${b.key ? mkKey(['task', 'event', 'note', 'moved', 'done']) : ''}</div>` : ''}${Array(b.n).fill('<div class="bl"><i></i><span></span></div>').join('')}</div>`;
     case 'split': return `<div class="xb xsplit" ${Z}><div>${lbl('', b.left)}${ruled(b.n)}</div><div>${lbl('', b.right)}${ruled(b.n)}</div></div>`;
     case 'top': return `<div class="xb" ${Z}>${lbl('', b.title)}${Array.from({ length: b.n }, (_, i) => `<div class="num"><span>${i + 1}</span>${ruled(1)}</div>`).join('')}</div>`;
     case 'sketch': return `<div class="xb" ${Z}>${b.title ? lbl('', b.title) : ''}<div class="sk-box" style="height:${(b.h / 10).toFixed(1)}in"></div></div>`;
@@ -319,5 +333,8 @@ export const DAYPAGE_CSS = `
 .sk-box { border: 1px solid #999; border-radius: 2px; margin-top: 2px; }
 .xtl { display: grid; grid-template-columns: 1fr 1fr; column-gap: 10px; } .xtl > div { display: grid; grid-template-columns: 0.26in 1fr; align-items: end; } .xtl .hr { font: 500 6.5pt Inter, sans-serif; color: #444; padding-bottom: 2px; }
 .xmoney { display: grid; grid-template-columns: 1fr 1fr; column-gap: 10px; row-gap: 3px; padding-top: 2px; } .xmoney .f { display: flex; } .xmoney .blank.long { flex: 1; }
+.bmk { width: 8px; height: 8px; flex: none; } .mkey { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; font: 500 6pt Inter, sans-serif; color: #555; white-space: nowrap; } .mkey > span { display: inline-flex; align-items: center; gap: 2px; }
+.xbul .bl { display: grid; grid-template-columns: 9px 1fr; align-items: end; } .xbul .bl span { height: 0.22in; border-bottom: 1px solid #999; } .xbul .bl i { width: 3px; height: 3px; border-radius: 50%; background: #999; margin-bottom: 4px; }
+.xhab .hd { display: inline-flex; align-items: center; gap: 3px; margin-right: 5px; font: 500 7pt Inter, sans-serif; white-space: nowrap; } .xhab .hd i { width: 10px; height: 10px; border: 1.1px solid #000; border-radius: 50%; }
 .xdiv { border-top: 1px solid #777; margin: 4px 0 2px; flex: none; } .xsp { flex: none; }
 `;
