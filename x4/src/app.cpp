@@ -28,6 +28,7 @@ struct State {
   int monthOffset = 0;    // Month screen
   int changes = 0;        // fast refreshes since the last full one (ghosting control)
   Scr prev = Scr::Today;  // where Back goes from Support
+  int scroll = 0;         // Check in: list offset in pixels
   int field = 0;          // Clock editor
   struct tm edit;
 };
@@ -186,23 +187,77 @@ static void drawToday(bool sleeping) {
 // ---------------------------------------------------------------------------------------------
 // CHECK IN — the paper page's care block, one button press per box.
 // ---------------------------------------------------------------------------------------------
-static const int ROW_H = 43, LIST_Y = 100;
+static const int ROW_H = 43, LIST_Y = 100, HEAD_H = 36, VIEW_H = HINT_Y - LIST_Y;
+
+// A custom group starts a new section; built-ins keep their original separators.
+static bool newGroup(int i) {
+  if (i == 0) return false;
+  if (i < BUILTIN_COUNT) return strcmp(ITEMS[i - 1].group, ITEMS[i].group) != 0;
+  return i == BUILTIN_COUNT || ITEMS[i - 1].group != ITEMS[i].group;
+}
+static bool hasHeading(int i) { return i >= BUILTIN_COUNT && newGroup(i) && ITEMS[i].group[0]; }
+// Top of row i in list coordinates (before scrolling); headings sit above their first row.
+static int rowTop(int i) {
+  int y = 0;
+  for (int k = 0; k <= i; k++) { if (hasHeading(k)) y += HEAD_H; if (k < i) y += ROW_H; }
+  return y;
+}
+
+// One line, cut with "…" to fit `w` (wrap() lets a single long word run over).
+static void fitText(const Font& f, int x, int baseline, int w, const char* s) {
+  if (C->width(f, s) <= w) { C->text(f, x, baseline, s); return; }
+  char b[64]; int n = (int)strlen(s); if (n > 60) n = 60;
+  for (; n > 0; n--) {
+    if (((unsigned char)s[n] & 0xC0) == 0x80) continue;  // never cut inside a UTF-8 sequence
+    memcpy(b, s, n); strcpy(b + n, "…");
+    if (C->width(f, b) <= w) break;
+  }
+  if (n > 0) C->text(f, x, baseline, b);
+}
+
+// Dots item: an empty, half-filled or full circle (1-bit).
+static void dotState(int cx, int cy, int r, int v) {
+  if (v >= 2) { C->fillCircle(cx, cy, r); return; }
+  C->circle(cx, cy, r, 2);
+  if (v == 1) for (int dx = -r; dx <= 0; dx++) {
+    int h = 0; while ((h + 1) * (h + 1) + dx * dx <= r * r) h++;
+    C->vline(cx + dx, cy - h, 2 * h + 1);
+  }
+}
+
 static void drawCheckin() {
   const std::string date = addDays(today(), S.dayOffset);
   DayLog log; loadDayLog(date, log);
   C->clear();
   header("Check in", prettyDate(date).c_str(), IC_CHECK);
-  const char* lastGroup = "";
+  // Scroll only when the list is taller than the screen (never with the built-ins alone).
+  const int total = rowTop(ITEM_COUNT - 1) + ROW_H;
+  if (total <= VIEW_H) S.scroll = 0;
+  else {
+    const int top = rowTop(S.sel) - (hasHeading(S.sel) ? HEAD_H : 0), bottom = rowTop(S.sel) + ROW_H;
+    if (top < S.scroll) S.scroll = top;
+    if (bottom > S.scroll + VIEW_H) S.scroll = bottom - VIEW_H;
+    if (S.sel == 0) S.scroll = 0;
+  }
   for (int i = 0; i < ITEM_COUNT; i++) {
     const Item& it = ITEMS[i];
-    const int y = LIST_Y + i * ROW_H;
-    if (strcmp(lastGroup, it.group)) { if (i) C->hline(M, y, CW); lastGroup = it.group; }
+    const int ry = rowTop(i) - S.scroll;
+    if (hasHeading(i) && ry - HEAD_H >= 0 && ry <= VIEW_H) {
+      std::string H = it.group; for (auto& ch : H) if (ch >= 'a' && ch <= 'z') ch -= 32;
+      C->hline(M, LIST_Y + ry - HEAD_H, CW);
+      C->wrap(F_UI_S, M, LIST_Y + ry - HEAD_H + 27, CW, H.c_str(), 1);
+    }
+    if (ry < 0 || ry + ROW_H > VIEW_H) continue;  // off screen: rows are drawn whole or not at all
+    const int y = LIST_Y + ry;
+    if (newGroup(i) && !hasHeading(i)) C->hline(M, y, CW);
     const int base = y + 29;
-    C->icon(it.icon, M + 4, y + 9);
-    C->text(F_UI, M + 40, base, it.label);
+    if (it.icon >= 0) C->icon(it.icon, M + 4, y + 9);
+    else C->fillCircle(M + 16, y + 21, 4);  // custom items: a neutral dot
     const int R = Canvas::W - M - 8;
+    int ctrl = 0;  // width of the control on the right, so long custom labels can be cut short
     switch (it.kind) {
-      case Kind::Toggle: C->checkbox(R - 24, y + 9, 26, log.get(i)); break;
+      case Kind::Toggle: C->checkbox(R - 24, y + 9, 26, log.get(i)); ctrl = 26; break;
+      case Kind::Dots: dotState(R - 12, y + 21, 12, log.get(i)); ctrl = 26; break;
       case Kind::Stamp: {
         std::string t = log.stamps.empty() ? "tap to log time" : log.stamps.back();
         if (log.stamps.size() > 1) t += " (" + std::to_string(log.stamps.size()) + ")";
@@ -212,6 +267,7 @@ static void drawCheckin() {
       case Kind::Scale: {
         const int n = it.hi - it.lo + 1, r = 9, gap = 7, w = n * (2 * r) + (n - 1) * gap;
         C->bubbles(R - w, y + 21, n, log.has(i) ? log.get(i) - it.lo : -1, r, gap);
+        ctrl = w;
         break;
       }
       case Kind::Count: {
@@ -224,15 +280,24 @@ static void drawCheckin() {
           }
         } else {
           C->textRight(F_UI_B, R, base, log.has(i) ? b : "–");
+          ctrl = C->width(F_UI_B, "999");
         }
         break;
       }
     }
+    if (i < BUILTIN_COUNT) C->text(F_UI, M + 40, base, it.label);
+    else fitText(F_UI, M + 40, base, R - ctrl - 16 - (M + 40), it.label);
     if (i == S.sel) C->invert(M - 8, y + 2, CW + 16, ROW_H - 4);
   }
+  if (total > VIEW_H) {  // a quiet scroll bar in the right margin
+    const int barH = VIEW_H * VIEW_H / total, barY = LIST_Y + (VIEW_H - barH) * S.scroll / (total - VIEW_H);
+    C->vline(Canvas::W - 10, LIST_Y, VIEW_H);
+    C->fill(Canvas::W - 12, barY, 5, barH);
+  }
   const Item& cur = ITEMS[S.sel];
-  const bool adjustable = cur.kind == Kind::Scale || cur.kind == Kind::Count;
-  hintBar("Done", cur.kind == Kind::Stamp ? "Log now" : cur.kind == Kind::Toggle ? "Tick" : "Set", adjustable ? "−" : "", adjustable ? "+" : "");
+  const bool adjustable = cur.kind == Kind::Scale || cur.kind == Kind::Count || cur.kind == Kind::Dots;
+  const char* ok = cur.kind == Kind::Stamp ? "Log now" : cur.kind == Kind::Toggle ? "Tick" : cur.kind == Kind::Dots ? "Fill" : "Set";
+  hintBar("Done", ok, adjustable ? "−" : "", adjustable ? "+" : "");
 }
 
 static void checkinPress(Btn b) {
@@ -243,8 +308,9 @@ static void checkinPress(Btn b) {
   if (b == Btn::Confirm) {
     if (it.kind == Kind::Toggle) saveItem(date, S.sel, log.get(S.sel) ? 0 : 1, now);
     else if (it.kind == Kind::Stamp) saveStamp(date, now);
+    else if (it.kind == Kind::Dots) saveItem(date, S.sel, (log.get(S.sel) + 1) % 3, now);  // empty → half → full
     else if (!log.has(S.sel)) saveItem(date, S.sel, it.def, now);  // "Set" confirms the default value
-  } else if ((b == Btn::Left || b == Btn::Right) && (it.kind == Kind::Scale || it.kind == Kind::Count)) {
+  } else if ((b == Btn::Left || b == Btn::Right) && (it.kind == Kind::Scale || it.kind == Kind::Count || it.kind == Kind::Dots)) {
     int v = log.get(S.sel) + (b == Btn::Right ? 1 : -1);
     if (v < it.lo) v = it.lo;
     if (v > it.hi) v = it.hi;
@@ -509,7 +575,7 @@ static void render(bool sameScreen, bool sleeping = false) {
   hal::sleepUntil(nextLocalMidnight(hal::now(), 31));  // 12:31 a.m. leaves room for RTC drift
 }
 
-static void go(Scr s) { S.prev = S.scr; S.scr = s; S.sel = 0; S.page = 0; render(false); }
+static void go(Scr s) { S.prev = S.scr; S.scr = s; S.sel = 0; S.page = 0; S.scroll = 0; render(false); }
 
 void appMain() {
   hal::begin();
@@ -517,6 +583,7 @@ void appMain() {
   FB = hal::framebuffer();
   static Canvas canvas(FB); C = &canvas;
   if (hal::woke_by_timer()) goToSleep();  // midnight: redraw today's page and go straight back to sleep
+  loadCheckins();  // custom check-ins from the day page layout, if the card has them
 
   render(false);
   for (;;) {
@@ -526,7 +593,11 @@ void appMain() {
       goToSleep();
     }
     if (b == Btn::Power || b == Btn::PowerHold) goToSleep();
-    if (b == Btn::BackHold) { if (S.scr != Scr::Support) { hal::wifiStop(); go(Scr::Support); } continue; }
+    if (b == Btn::BackHold) {
+      if (S.scr == Scr::Sync) { SSID[0] = 0; loadCheckins(); }
+      if (S.scr != Scr::Support) { hal::wifiStop(); go(Scr::Support); }
+      continue;
+    }
 
     switch (S.scr) {
       case Scr::Today:
@@ -578,7 +649,7 @@ void appMain() {
         else if (b == Btn::Confirm) { S.prev = Scr::Plan; S.scr = Scr::Support; S.page = 0; render(false); }
         break;
       case Scr::Sync:
-        if (b == Btn::Back) { hal::wifiStop(); SSID[0] = 0; S.scr = Scr::Menu; S.sel = 5; render(false); }
+        if (b == Btn::Back) { hal::wifiStop(); SSID[0] = 0; loadCheckins(); S.scr = Scr::Menu; S.sel = 5; render(false); }
         break;
       case Scr::Clock:
         if (b == Btn::Back) { S.scr = Scr::Menu; S.sel = 6; render(false); }

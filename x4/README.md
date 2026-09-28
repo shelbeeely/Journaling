@@ -21,7 +21,7 @@ check-in logs, edit your safety plan, and upload new month packs. Nothing goes t
 | Screen | Back | Confirm | Left / Right | Up / Down |
 | --- | --- | --- | --- | --- |
 | Today | Menu (or back to today) | Check in | previous / next day | Menu |
-| Check in | Done | tick, or log the time | − / + for mood, anxiety, spoons, sleep | move |
+| Check in | Done | tick, log the time, or fill a habit dot | − / + for scales, counts and dots | move |
 | Menu | close | open | | move |
 | This month | back | | previous / next month | |
 | Support | back | safety plan | pages | pages |
@@ -32,12 +32,37 @@ Power: press to sleep now. Idle for 90 s: sleeps by itself. **Hold Back 1.2 s an
 
 ```
 /kw/2026-10.txt … 2027-09.txt   day packs (made by tools/export_pack.py from the journal build)
+/kw/checkins.txt                your own check-ins from the day page layout (optional)
 /kw/support.txt                 Support screen (from the journal's support/trans/clinic content)
 /kw/me.txt                      your safety plan (edit on the Wi-Fi page)
 /kw/log/2026-10.csv …           check-ins, one line per tap: 2026-10-14T13:05,med_am,1
 /kw/library/*.pdf, *.epub       your journals, downloadable from the Wi-Fi page
 /kw/clock.txt                   last known time (used after the battery runs flat)
 ```
+
+### Custom check-ins (`/kw/checkins.txt`)
+
+The Check in list is the 15 built-ins, then up to 16 items of your own, loaded at startup and when
+you leave the Wi-Fi page (you can upload a new `checkins.txt` there). `export_pack.py` writes the file from the day page layout (checks, scale,
+habits and fields blocks). One `@` line per group heading, one line per item:
+
+```
+# Custom check-ins from the day page layout
+@Little wins
+c_checks_k3f_bed|Made the bed|toggle|0|1|0
+@Pain
+c_scale_p2a|Pain|scale|1|5|3
+@Habits
+c_habits_h7d_stretch|Stretch|dots|0|2|0
+@Notes
+c_fields_f4b_water|Glasses of water|count|0|99|0
+```
+
+Fields: `key|label|kind|lo|hi|default`. Kinds: `toggle` (tick), `scale` (lo..hi, up to 10 steps),
+`count` (0..hi, hi up to 999), `dots` (empty, half, full; Confirm cycles). Keys are opaque (up
+to 64 characters, no spaces or commas) and are what the log stores (`2026-10-14T08:40,c_checks_k3f_bed,1`). Bad lines,
+duplicate keys and items past 16 are skipped; with no file the list is the built-ins only. Custom
+items don't change **This month**. See `host/sample/kw/checkins.txt`.
 
 Make the card contents from the journal project:
 

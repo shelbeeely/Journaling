@@ -89,7 +89,7 @@ bool loadDay(const std::string& date, Day& d) {
 }
 
 // ---------- check-in items (same order and icons as the paper day page) ----------
-const Item ITEMS[] = {
+Item ITEMS[MAX_ITEMS] = {
   {"med_am", "Morning meds", IC_AM, Kind::Toggle, 0, 1, 0, "Meds"},
   {"med_pm", "Evening meds", IC_PM, Kind::Toggle, 0, 1, 0, "Meds"},
   {"prn", "As-needed dose", IC_PRN, Kind::Stamp, 0, 0, 0, "Meds"},
@@ -106,13 +106,83 @@ const Item ITEMS[] = {
   {"spoons", "Spoons left", IC_SPOON, Kind::Count, 0, 12, 12, "Energy"},
   {"sleep", "Sleep (hours)", IC_SLEEP, Kind::Count, 0, 14, 7, "Energy"},
 };
-const int ITEM_COUNT = sizeof(ITEMS) / sizeof(ITEMS[0]);
+int ITEM_COUNT = BUILTIN_COUNT;
+
+// ---------- custom check-ins (/kw/checkins.txt, written by tools/export_pack.py) ----------
+static char CKEY[MAX_CUSTOM][65], CLABEL[MAX_CUSTOM][48], CGROUP[MAX_CUSTOM][40];
+
+// Copies at most n-1 bytes without cutting a UTF-8 sequence in half.
+static void copyField(char* dst, int n, const char* s, int len) {
+  if (len > n - 1) { len = n - 1; while (len > 0 && ((unsigned char)s[len] & 0xC0) == 0x80) len--; }
+  memcpy(dst, s, len); dst[len] = 0;
+}
+static bool parseInt(const char* s, int len, int& out) {
+  if (len <= 0 || len > 6) return false;
+  char b[8]; memcpy(b, s, len); b[len] = 0;
+  char* e; const long v = strtol(b, &e, 10);
+  if (*e) return false;
+  out = (int)v; return true;
+}
+static bool keyTaken(const char* k, int upto) {
+  if (!strcmp(k, "prn_undo")) return true;
+  for (int i = 0; i < upto; i++) if (!strcmp(k, ITEMS[i].key)) return true;
+  return false;
+}
+
+int loadCheckins() {
+  ITEM_COUNT = BUILTIN_COUNT;
+  std::string f;
+  if (!hal::readFile("/kw/checkins.txt", f)) return 0;
+  const char* group = "";  // items before any @line get a separator but no heading
+  const char* pending = nullptr; int pendingLen = 0, groups = 0;
+  size_t a = 0;
+  while (a < f.size() && ITEM_COUNT < MAX_ITEMS) {
+    size_t b = f.find('\n', a); if (b == std::string::npos) b = f.size();
+    const char* line = f.c_str() + a; int len = (int)(b - a); a = b + 1;
+    while (len > 0 && (line[len - 1] == '\r' || line[len - 1] == ' ')) len--;
+    if (len == 0 || line[0] == '#') continue;
+    if (line[0] == '@') { pending = line + 1; pendingLen = len - 1; continue; }
+    // key|label|kind|lo|hi|def
+    const char* fs[6]; int fl[6], nf = 0; const char* p = line; const char* end = line + len;
+    while (nf < 6) {
+      const char* q = (const char*)memchr(p, '|', end - p); if (!q) q = end;
+      fs[nf] = p; fl[nf] = (int)(q - p); nf++;
+      if (q == end) break;
+      p = q + 1;
+    }
+    if (nf < 3 || fl[0] < 1 || fl[0] > 64 || fl[1] < 1) continue;
+    bool ok = true;
+    // Keys are opaque, but they go into the CSV log: printable ASCII with no comma or space.
+    for (int i = 0; i < fl[0]; i++) { const char c = fs[0][i]; ok &= c > ' ' && c < 127 && c != ','; }
+    const int n = ITEM_COUNT - BUILTIN_COUNT;
+    copyField(CKEY[n], sizeof CKEY[n], fs[0], fl[0]);
+    if (!ok || keyTaken(CKEY[n], ITEM_COUNT)) continue;
+    const std::string kind(fs[2], fl[2]);
+    int lo = 0, hi = 1, def = 0;
+    const bool hasLo = nf > 3 && parseInt(fs[3], fl[3], lo), hasHi = nf > 4 && parseInt(fs[4], fl[4], hi);
+    if (nf > 5 && !parseInt(fs[5], fl[5], def)) def = 0;
+    Item it = {CKEY[n], CLABEL[n], -1, Kind::Toggle, 0, 1, 0, group};
+    if (kind == "toggle") { it.kind = Kind::Toggle; lo = 0; hi = 1; }
+    else if (kind == "dots") { it.kind = Kind::Dots; lo = 0; hi = 2; }
+    else if (kind == "count") { it.kind = Kind::Count; lo = 0; if (!hasHi) hi = 99; if (hi < 1 || hi > 999) continue; }
+    else if (kind == "scale") { it.kind = Kind::Scale; if (!hasLo || !hasHi || hi <= lo || hi - lo > 9) continue; }
+    else continue;
+    it.lo = lo; it.hi = hi; it.def = def < lo ? lo : def > hi ? hi : def;
+    if (pending) {  // the group heading is stored once, when its first item arrives
+      copyField(CGROUP[groups], sizeof CGROUP[groups], pending, pendingLen);
+      group = CGROUP[groups++]; it.group = group; pending = nullptr;
+    }
+    copyField(CLABEL[n], sizeof CLABEL[n], fs[1], fl[1]);
+    ITEMS[ITEM_COUNT++] = it;
+  }
+  return ITEM_COUNT - BUILTIN_COUNT;
+}
 
 bool DayLog::has(int i) const { return value[i] != INT_MIN; }
 int DayLog::get(int i) const { return has(i) ? value[i] : ITEMS[i].def; }
 int DayLog::doneCount() const {
   int n = 0;
-  for (int i = 0; i < ITEM_COUNT; i++) if (ITEMS[i].kind == Kind::Toggle && has(i) && value[i]) n++;
+  for (int i = 0; i < BUILTIN_COUNT; i++) if (ITEMS[i].kind == Kind::Toggle && has(i) && value[i]) n++;
   return n;
 }
 

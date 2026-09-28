@@ -1,0 +1,13 @@
+# Custom check-ins from the day page layout
+@Little wins
+c_checks_k3f_bed|Made the bed|toggle|0|1|0
+c_checks_k3f_outside|Went outside|toggle|0|1|0
+c_checks_k3f_water|Drank water|toggle|0|1|0
+@Pain
+c_scale_p2a|Pain|scale|1|5|3
+@Habits
+c_habits_h7d_stretch|Stretch|dots|0|2|0
+c_habits_h7d_read|Read a few pages|dots|0|2|0
+c_habits_h7d_tidy|Tidy one thing|dots|0|2|0
+@Notes
+c_fields_f4b_water|Glasses of water|count|0|99|0
