@@ -1,0 +1,2547 @@
+{
+ "facts": [
+  {
+   "date": "01-04",
+   "text": "1972 — HP introduces the HP-35, the first handheld scientific calculator. Price: $395.",
+   "source_url": "https://www.computerhistory.org/tdih/january/4/",
+   "evidence": "january 4, 1972 Hewlett-Packard Introduces the HP-35 ... the first scientific handheld calculator ... sold for $395",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/HP-35"
+  },
+  {
+   "date": "01-05",
+   "text": "2005 — Astronomers discover dwarf planet Eris, which pushed astronomers to finally define 'planet.'",
+   "source_url": "https://en.wikipedia.org/wiki/January_5",
+   "evidence": "2005 – The dwarf planet Eris is discovered by Palomar Observatory-based astronomers, later motivating the International Astronomical Union (IAU) to define the term planet",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/Eris_(dwarf_planet)"
+  },
+  {
+   "date": "01-06",
+   "text": "1838 — Alfred Vail demos the dot-and-dash telegraph. First message: \"A patient waiter is no loser.\"",
+   "source_url": "https://en.wikipedia.org/wiki/January_6",
+   "evidence": "1838 – Alfred Vail and colleagues demonstrate a telegraph system using dots and dashes (this is the forerunner of Morse code).",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/Alfred_Vail"
+  },
+  {
+   "date": "01-07",
+   "text": "1894 — Edison's studio films \"Fred Ott's Sneeze,\" an employee sneezing on camera. Early movie magic.",
+   "source_url": "https://en.wikipedia.org/wiki/January_7",
+   "evidence": "1894 – Thomas Edison makes a kinetoscopic film of someone sneezing.",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/Fred_Ott%27s_Sneeze"
+  },
+  {
+   "date": "01-08",
+   "text": "1889 — Herman Hollerith patents his punch-card tabulating machine, a forerunner of IBM.",
+   "source_url": "https://www.computerhistory.org/tdih/january/8/",
+   "evidence": "january 8, 1889 Herman Hollerith Receives a Patent for the Hollerith Tabulating Machine",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/January_8"
+  },
+  {
+   "date": "01-09",
+   "text": "2007 — Steve Jobs introduces the original iPhone at Macworld in San Francisco.",
+   "source_url": "https://en.wikipedia.org/wiki/January_9",
+   "evidence": "2007 – Apple CEO Steve Jobs introduces the original iPhone at a Macworld keynote in San Francisco.",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/IPhone_(1st_generation)"
+  },
+  {
+   "date": "01-10",
+   "text": "1938 — Donald Knuth, author of The Art of Computer Programming and creator of TeX, is born.",
+   "source_url": "https://www.computerhistory.org/tdih/january/10/",
+   "evidence": "january 10, 1938 Donald Knuth Born",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/Donald_Knuth"
+  },
+  {
+   "date": "01-11",
+   "text": "1934 — Tony Hoare, inventor of the Quicksort algorithm and 1980 Turing Award winner, is born.",
+   "source_url": "https://www.computerhistory.org/tdih/january/11/",
+   "evidence": "january 11, 1934 C.A.R. Hoare ... Born ... He received the 1980 ACM Turing Award.",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/Tony_Hoare"
+  },
+  {
+   "date": "01-12",
+   "text": "1997 — HAL 9000 becomes operational in Urbana, Illinois, according to Arthur C. Clarke's novel 2001.",
+   "source_url": "https://www.computerhistory.org/tdih/january/12/",
+   "evidence": "january 12, 1997 The Fictional HAL 9000 Computer Becomes Operational ... according to Arthur C. Clarke's 2001: A Space Odyssey",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/HAL_9000"
+  },
+  {
+   "date": "01-13",
+   "text": "1942 — Henry Ford patents a plastic car frame for his experimental \"soybean car.\"",
+   "source_url": "https://en.wikipedia.org/wiki/Soybean_car",
+   "evidence": "Plastic car frame patent 2,269,452 (January 13, 1942)",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/January_13"
+  },
+  {
+   "date": "01-14",
+   "text": "1943 — Astronaut and biochemist Shannon Lucid is born. She flew in space five times.",
+   "source_url": "https://en.wikipedia.org/wiki/Shannon_Lucid",
+   "evidence": "January 14, 1943) is an American biochemist and retired NASA astronaut. She has flown in space five times",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/January_14"
+  },
+  {
+   "date": "01-15",
+   "text": "2001 — Wikipedia launches. (Happy Wikipedia Day!)",
+   "source_url": "https://en.wikipedia.org/wiki/Wikipedia",
+   "evidence": "Wikipedia was launched on January 15, 2001 (sometimes referred to as \"Wikipedia Day\")",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/January_15"
+  },
+  {
+   "date": "01-16",
+   "text": "1944 — SETI astronomer Jill Tarter is born; she inspired Ellie Arroway in Carl Sagan's Contact.",
+   "source_url": "https://en.wikipedia.org/wiki/Jill_Tarter",
+   "evidence": "January 16, 1944) is an American astronomer who works on the search for extraterrestrial intelligence (SETI) ... Arroway was \"largely based\" on Tarter's work",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/January_16"
+  },
+  {
+   "date": "01-17",
+   "text": "1706 — Benjamin Franklin, inventor of the lightning rod and bifocals, is born.",
+   "source_url": "https://en.wikipedia.org/wiki/Benjamin_Franklin",
+   "evidence": "birth_date January 17, 1706 [O.S. January 6, 1705] ... His numerous important inventions include the lightning rod, bifocals",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/January_17"
+  },
+  {
+   "date": "01-18",
+   "text": "1911 — Eugene Ely makes the first airplane landing on a ship, in San Francisco Bay.",
+   "source_url": "https://en.wikipedia.org/wiki/January_18",
+   "evidence": "1911 – Eugene B. Ely lands on the deck of the USS Pennsylvania anchored in San Francisco Bay, the first time an aircraft landed on a ship.",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/Eugene_Burton_Ely"
+  },
+  {
+   "date": "01-19",
+   "text": "1983 — Apple unveils the Lisa, a GUI computer named after Steve Jobs's daughter. Price: about $10,000.",
+   "source_url": "https://www.computerhistory.org/tdih/january/19/",
+   "evidence": "january 19, 1983 Apple Computer Introduces the Lisa ... named for his daughter ... The Lisa sold for ten thousand dollars",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/Apple_Lisa"
+  },
+  {
+   "date": "01-20",
+   "text": "1930 — Buzz Aldrin, astronaut and second person to walk on the Moon, is born.",
+   "source_url": "https://en.wikipedia.org/wiki/Buzz_Aldrin",
+   "evidence": "January 20, 1930) is an American former astronaut ... second person to walk on the Moon",
+   "confidence": "high"
+  },
+  {
+   "date": "01-21",
+   "text": "1976 — Concorde enters commercial service, from London and Paris.",
+   "source_url": "https://en.wikipedia.org/wiki/January_21",
+   "evidence": "1976 – Commercial service of Concorde begins with the London-Bahrain and Paris-Rio routes.",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/Concorde"
+  },
+  {
+   "date": "01-22",
+   "text": "1984 — Apple's \"1984\" ad airs during Super Bowl XVIII, teasing the new Macintosh.",
+   "source_url": "https://www.computerhistory.org/tdih/january/22/",
+   "evidence": "january 22, 1984 Apple Computer Launches the Macintosh ... with a single $1.5 million commercial during the Super Bowl",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/1984_(advertisement)"
+  },
+  {
+   "date": "01-23",
+   "text": "1957 — Walter Morrison sells his flying-disc design to Wham-O, which later names it the Frisbee.",
+   "source_url": "https://en.wikipedia.org/wiki/January_23",
+   "evidence": "1957 – American inventor Walter Frederick Morrison sells the rights to his flying disc to the Wham-O toy company, which later renames it the \"Frisbee\".",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/Frisbee"
+  },
+  {
+   "date": "01-24",
+   "text": "1984 — The Apple Macintosh goes on sale for $2,495, with a mouse and 128K of RAM.",
+   "source_url": "https://www.computerhistory.org/tdih/january/24/",
+   "evidence": "january 24, 1984 Apple Macintosh is released ... Selling for about 2,500 dollars ... had 128k of RAM",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/Macintosh_128K"
+  },
+  {
+   "date": "01-25",
+   "text": "1947 — A patent is filed for the \"Cathode Ray Tube Amusement Device,\" the first electronic game patent.",
+   "source_url": "https://en.wikipedia.org/wiki/Cathode-ray_tube_amusement_device",
+   "evidence": "The patent for the device was filed on January 25, 1947, and issued on December 14, 1948. The patent, the first for an electronic game",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/January_25"
+  },
+  {
+   "date": "01-26",
+   "text": "1926 — John Logie Baird demonstrates the world's first working television system.",
+   "source_url": "https://en.wikipedia.org/wiki/John_Logie_Baird",
+   "evidence": "demonstrated the world's first mechanical television system on 26 January 1926",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/January_26"
+  },
+  {
+   "date": "01-27",
+   "text": "1880 — Thomas Edison receives his patent for the carbon-filament incandescent light bulb.",
+   "source_url": "https://en.wikipedia.org/wiki/January_27",
+   "evidence": "1880 – Thomas Edison receives a patent for his incandescent lamp.",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/Incandescent_light_bulb"
+  },
+  {
+   "date": "01-28",
+   "text": "1958 — Lego files its patent for the modern Lego brick design.",
+   "source_url": "https://en.wikipedia.org/wiki/Lego",
+   "evidence": "A patent application for the modern Lego brick design was filed in Denmark on 28 January 1958",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/January_28"
+  },
+  {
+   "date": "01-29",
+   "text": "1886 — Karl Benz applies for a patent on his Motorwagen, the first practical gasoline-powered car.",
+   "source_url": "https://en.wikipedia.org/wiki/Benz_Patent-Motorwagen",
+   "evidence": "Benz's patent application was filed on 29 January 1886",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/January_29"
+  },
+  {
+   "date": "01-30",
+   "text": "1925 — Douglas Engelbart, inventor of the computer mouse, is born.",
+   "source_url": "https://www.computerhistory.org/tdih/january/30/",
+   "evidence": "january 30, 1925 Douglas Engelbart Born. Doug Engelbart, best known for inventing the mouse, is born.",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/Douglas_Engelbart"
+  },
+  {
+   "date": "01-31",
+   "text": "1956 — Guido van Rossum, creator of Python, is born. (1961: Ham the chimp flies into space.)",
+   "source_url": "https://en.wikipedia.org/wiki/January_31",
+   "evidence": "1956 – Guido van Rossum, Dutch programmer, creator of the Python programming language; 1961 – Mercury-Redstone 2: The chimpanzee Ham travels into outer space.",
+   "confidence": "high",
+   "second_source_url": "https://en.wikipedia.org/wiki/Ham_(chimpanzee)"
+  },
+  {
+   "date": "02-01",
+   "text": "1884 — The first part of the Oxford English Dictionary is published. It covers A to Ant.",
+   "source_url": "https://en.wikipedia.org/wiki/Oxford_English_Dictionary",
+   "second_source_url": "https://en.wikipedia.org/wiki/February_1",
+   "evidence": "The first dictionary fascicle was published on 1 February 1884 / 1884 – The first volume (A to Ant) of the Oxford English Dictionary is published.",
+   "confidence": "high"
+  },
+  {
+   "date": "02-02",
+   "text": "1897 — Gertrude Blanch is born; she led the human computers of the Mathematical Tables Project.",
+   "source_url": "https://en.wikipedia.org/wiki/Gertrude_Blanch",
+   "second_source_url": "https://en.wikipedia.org/wiki/February_2",
+   "evidence": "Gertrude Blanch (February 2, 1897 – January 1, 1996)... She was a leader of the Mathematical Tables Project in New York from its beginning.",
+   "confidence": "high"
+  },
+  {
+   "date": "02-03",
+   "text": "1995 — Eileen Collins becomes the first woman to pilot a Space Shuttle, on mission STS-63.",
+   "source_url": "https://en.wikipedia.org/wiki/February_3",
+   "second_source_url": "https://en.wikipedia.org/wiki/STS-63",
+   "evidence": "1995 – Astronaut Eileen Collins becomes the first woman to pilot the Space Shuttle as mission STS-63 gets underway; STS-63 launch_date February 3, 1995",
+   "confidence": "high"
+  },
+  {
+   "date": "02-04",
+   "text": "2004 — Mark Zuckerberg and Eduardo Saverin launch Facebook from a Harvard dorm.",
+   "source_url": "https://en.wikipedia.org/wiki/February_4",
+   "second_source_url": "https://en.wikipedia.org/wiki/Facebook",
+   "evidence": "2004 – Facebook, a mainstream online social networking site, is founded by Mark Zuckerberg and Eduardo Saverin. / On February 4, 2004",
+   "confidence": "high"
+  },
+  {
+   "date": "02-05",
+   "text": "1943 — Nolan Bushnell, the Atari founder behind the hit arcade game Pong, is born.",
+   "source_url": "https://en.wikipedia.org/wiki/Nolan_Bushnell",
+   "second_source_url": "https://en.wikipedia.org/wiki/February_5",
+   "evidence": "birth_date = {{Birth date and age|1943|2|5}} Nolan Kay Bushnell (born February 5, 1943); 1943 – Nolan Bushnell, American engineer and businessman, founded Atari, Inc.",
+   "confidence": "high"
+  },
+  {
+   "date": "02-06",
+   "text": "2018 — Falcon Heavy's first flight sends a Tesla Roadster driven by a dummy named Starman into space.",
+   "source_url": "https://en.wikipedia.org/wiki/Falcon_Heavy_test_flight",
+   "second_source_url": "https://en.wikipedia.org/wiki/February_6",
+   "evidence": "the first attempt by SpaceX to launch a Falcon Heavy rocket on February 6, 2018... Sitting in the driver's seat of the Roadster is \"Starman\", a dummy astronaut",
+   "confidence": "high"
+  },
+  {
+   "date": "02-07",
+   "text": "1979 — Pluto slips inside Neptune's orbit, making Neptune the farthest planet until 1999.",
+   "source_url": "https://en.wikipedia.org/wiki/Pluto",
+   "second_source_url": "https://en.wikipedia.org/wiki/February_7",
+   "evidence": "was last closer to the Sun than Neptune between February 7, 1979, and February 11, 1999.",
+   "confidence": "high"
+  },
+  {
+   "date": "02-08",
+   "text": "1943 — Valerie Thomas is born; the NASA scientist invented the 3D illusion transmitter.",
+   "source_url": "https://en.wikipedia.org/wiki/Valerie_Thomas",
+   "second_source_url": "https://en.wikipedia.org/wiki/February_8",
+   "evidence": "Valerie L. Thomas (born February 8, 1943)... known_for = Inventor of the illusion transmitter",
+   "confidence": "high"
+  },
+  {
+   "date": "02-09",
+   "text": "1960 — Peggy Whitson is born; she would log more days in space than any other American.",
+   "source_url": "https://en.wikipedia.org/wiki/Peggy_Whitson",
+   "second_source_url": "https://en.wikipedia.org/wiki/February_9",
+   "evidence": "Peggy Annette Whitson (born February 9, 1960)... accumulated a total of 695 days in space",
+   "confidence": "high"
+  },
+  {
+   "date": "02-10",
+   "text": "1996 — IBM's Deep Blue beats world chess champion Garry Kasparov in a game for the first time.",
+   "source_url": "https://www.computerhistory.org/tdih/february/10/",
+   "second_source_url": "https://en.wikipedia.org/wiki/Deep_Blue_versus_Garry_Kasparov",
+   "evidence": "february 10, 1996 Deep Blue Defeats Kasparov: In the first game of a six game match, IBM's Deep Blue chess computer defeated world champion Garry Kasparov.",
+   "confidence": "high"
+  },
+  {
+   "date": "02-11",
+   "text": "1938 — The BBC airs R.U.R., the play that coined \"robot\", as the first TV science fiction.",
+   "source_url": "https://en.wikipedia.org/wiki/R.U.R.",
+   "second_source_url": "https://en.wikipedia.org/wiki/February_11",
+   "evidence": "On 11 February 1938... BBC Television — the first piece of television science-fiction ever to be broadcast.",
+   "confidence": "high"
+  },
+  {
+   "date": "02-12",
+   "text": "2001 — NEAR Shoemaker touches down on asteroid 433 Eros, the first landing on an asteroid.",
+   "source_url": "https://en.wikipedia.org/wiki/NEAR_Shoemaker",
+   "second_source_url": "https://en.wikipedia.org/wiki/February_12",
+   "evidence": "The mission ended with a touchdown in Eros's \"saddle\" region on February 12, 2001",
+   "confidence": "high"
+  },
+  {
+   "date": "02-13",
+   "text": "1961 — Rock hunters find the 'Coso artifact', a supposed ancient geode that held a 1920s spark plug.",
+   "source_url": "https://en.wikipedia.org/wiki/Coso_artifact",
+   "second_source_url": "https://en.wikipedia.org/wiki/February_13",
+   "evidence": "The Coso artifact is an object falsely claimed by its discoverers to be a spark plug encased in a geode. Discovered on February 13, 1961",
+   "confidence": "high"
+  },
+  {
+   "date": "02-14",
+   "text": "1876 — Alexander Graham Bell and Elisha Gray file telephone paperwork on the very same day.",
+   "source_url": "https://en.wikipedia.org/wiki/Invention_of_the_telephone",
+   "second_source_url": "https://en.wikipedia.org/wiki/February_14",
+   "evidence": "On February 14, 1876, at the US Patent Office, Gray's lawyer filed a patent caveat for a telephone on the very same day that Bell's lawyer filed Bell's patent application",
+   "confidence": "high"
+  },
+  {
+   "date": "02-15",
+   "text": "1934 — Niklaus Wirth, creator of the Pascal programming language, is born in Switzerland.",
+   "source_url": "https://www.computerhistory.org/tdih/february/15/",
+   "second_source_url": "https://en.wikipedia.org/wiki/Niklaus_Wirth",
+   "evidence": "february 15, 1934 Niklaus Wirth Born: Niklaus Wirth, the inventor of the programming language Pascal, is born in Winterhur, Switzerland.",
+   "confidence": "high"
+  },
+  {
+   "date": "02-16",
+   "text": "1978 — CBBS goes live in Chicago, the first computer bulletin board system.",
+   "source_url": "https://en.wikipedia.org/wiki/CBBS",
+   "second_source_url": "https://en.wikipedia.org/wiki/February_16",
+   "evidence": "Time and tradition have settled that date to be February 16, 1978.",
+   "confidence": "high"
+  },
+  {
+   "date": "02-17",
+   "text": "1905 — Rózsa Péter is born; the Hungarian mathematician is the founding mother of recursion theory.",
+   "source_url": "https://en.wikipedia.org/wiki/R%C3%B3zsa_P%C3%A9ter",
+   "second_source_url": "https://en.wikipedia.org/wiki/February_17",
+   "evidence": "(17 February 1905 – 16 February 1977) was a Hungarian mathematician and logician. She is best known as the \"founding mother of recursion theory\"",
+   "confidence": "high"
+  },
+  {
+   "date": "02-18",
+   "text": "1930 — Clyde Tombaugh discovers Pluto. (Same day, Elm Farm Ollie becomes the first cow to fly.)",
+   "source_url": "https://en.wikipedia.org/wiki/Clyde_Tombaugh",
+   "second_source_url": "https://en.wikipedia.org/wiki/Elm_Farm_Ollie",
+   "evidence": "The discovery was made on Tuesday, February 18, 1930 / became the first cow to fly in an airplane on February 18, 1930",
+   "confidence": "high"
+  },
+  {
+   "date": "02-19",
+   "text": "1949 — Danielle Bunten Berry is born; the trans game designer made M.U.L.E., a multiplayer pioneer.",
+   "source_url": "https://en.wikipedia.org/wiki/Danielle_Bunten_Berry",
+   "second_source_url": "https://en.wikipedia.org/wiki/February_19",
+   "evidence": "birth_date 1949|02|19 ... American game designer and programmer, known for the 1983 game M.U.L.E. ... transitioned to living as a woman",
+   "confidence": "high"
+  },
+  {
+   "date": "02-20",
+   "text": "1962 — John Glenn orbits Earth three times in Friendship 7, the first American to do so.",
+   "source_url": "https://en.wikipedia.org/wiki/John_Glenn",
+   "second_source_url": "https://en.wikipedia.org/wiki/February_20",
+   "evidence": "On February 20, 1962, Glenn flew the Friendship 7 mission, becoming the first American to orbit the Earth.",
+   "confidence": "high"
+  },
+  {
+   "date": "02-21",
+   "text": "1947 — Edwin Land demonstrates the first instant camera, the Polaroid Land Camera.",
+   "source_url": "https://en.wikipedia.org/wiki/Edwin_H._Land",
+   "second_source_url": "https://en.wikipedia.org/wiki/February_21",
+   "evidence": "on February 21, 1947, Land demonstrated an instant camera and associated film to the Optical Society of America.",
+   "confidence": "high"
+  },
+  {
+   "date": "02-22",
+   "text": "1928 — Thomas Kurtz, co-creator of the BASIC programming language, is born.",
+   "source_url": "https://www.computerhistory.org/tdih/february/22/",
+   "second_source_url": "https://en.wikipedia.org/wiki/Thomas_E._Kurtz",
+   "evidence": "february 22, 1928 BASIC Co-Inventor Thomas Kurtz Born",
+   "confidence": "high"
+  },
+  {
+   "date": "02-23",
+   "text": "1941 — Glenn Seaborg's team first identifies plutonium, element 94, at Berkeley.",
+   "source_url": "https://en.wikipedia.org/wiki/Plutonium",
+   "second_source_url": "https://en.wikipedia.org/wiki/February_23",
+   "evidence": "the new element was first identified through oxidation on the night of February 23... 1941 – Plutonium is first produced and isolated by Dr. Glenn T. Seaborg.",
+   "confidence": "high"
+  },
+  {
+   "date": "02-24",
+   "text": "1955 — Steve Jobs, co-founder of Apple and Pixar, is born in San Francisco.",
+   "source_url": "https://www.computerhistory.org/tdih/february/24/",
+   "second_source_url": "https://en.wikipedia.org/wiki/Steve_Jobs",
+   "evidence": "february 24, 1955 Apple Co-Founder Steve Jobs Born",
+   "confidence": "high"
+  },
+  {
+   "date": "02-25",
+   "text": "1896 — Ida Noddack is born; she co-discovered rhenium and first suggested nuclear fission.",
+   "source_url": "https://en.wikipedia.org/wiki/Ida_Noddack",
+   "second_source_url": "https://en.wikipedia.org/wiki/February_25",
+   "evidence": "birth_date = 25 February 1896 ... known_for = Rhenium, nuclear fission ... In 1934 she was the first to mention the idea later named nuclear fission",
+   "confidence": "high"
+  },
+  {
+   "date": "02-26",
+   "text": "1935 — The Daventry Experiment bounces BBC radio waves off a plane, leading to British radar.",
+   "source_url": "https://en.wikipedia.org/wiki/Radar",
+   "second_source_url": "https://en.wikipedia.org/wiki/Chain_Home",
+   "evidence": "This revelation led to the Daventry Experiment of 26 February 1935",
+   "confidence": "high"
+  },
+  {
+   "date": "02-27",
+   "text": "1940 — Martin Kamen and Sam Ruben discover carbon-14, the key to radiocarbon dating.",
+   "source_url": "https://en.wikipedia.org/wiki/Carbon-14",
+   "second_source_url": "https://en.wikipedia.org/wiki/February_27",
+   "evidence": "Carbon-14 was discovered on February 27, 1940, by Martin Kamen and Sam Ruben",
+   "confidence": "high"
+  },
+  {
+   "date": "02-28",
+   "text": "1956 — MIT's Jay Forrester is granted a patent for magnetic-core memory, the ancestor of RAM.",
+   "source_url": "https://www.computerhistory.org/tdih/february/28/",
+   "second_source_url": "https://en.wikipedia.org/wiki/Jay_Wright_Forrester",
+   "evidence": "february 28, 1956 MIT's Forrester Receives Patent on \"Core\" Memory: Jay Forrester at MIT is awarded a patent for his coincident current magnetic core memory... Patent No. 2,736,880",
+   "confidence": "high"
+  },
+  {
+   "date": "03-01",
+   "text": "2006 — English Wikipedia reaches 1 million articles; No. 1,000,000 is Jordanhill railway station.",
+   "source_url": "https://en.wikipedia.org/wiki/March_1",
+   "evidence": "2006 – English-language Wikipedia reaches its one millionth article, Jordanhill railway station.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Jordanhill_railway_station",
+   "confidence": "high"
+  },
+  {
+   "date": "03-02",
+   "text": "1983 — CDs and CD players go on sale in the US and Europe, after launching first in Japan.",
+   "source_url": "https://en.wikipedia.org/wiki/March_2",
+   "evidence": "1983 – Compact discs and players are released for the first time in the United States and other markets. They had previously been available only in Japan.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Compact_disc",
+   "confidence": "high"
+  },
+  {
+   "date": "03-03",
+   "text": "1949 — Bonnie J. Dunbar, engineer and astronaut who flew in space five times, is born.",
+   "source_url": "https://en.wikipedia.org/wiki/Bonnie_J._Dunbar",
+   "evidence": "Bonnie Jeanne Dunbar (born March 3, 1949) is an American engineer and retired NASA astronaut. She flew on five",
+   "second_source_url": "https://en.wikipedia.org/wiki/March_3",
+   "confidence": "high"
+  },
+  {
+   "date": "03-04",
+   "text": "1877 — Garrett Morgan is born; he invented a smoke safety hood and an early traffic signal.",
+   "source_url": "https://en.wikipedia.org/wiki/Garrett_Morgan",
+   "evidence": "Garrett Augustus Morgan Sr. (March 4, 1877 – July 27, 1963) was an American inventor... His most notable inventions were a protective \"smoke hood\"... traffic light invented in 1923",
+   "second_source_url": "https://en.wikipedia.org/wiki/March_4",
+   "confidence": "high"
+  },
+  {
+   "date": "03-05",
+   "text": "1981 — Sinclair launches the ZX81 home computer; it goes on to sell over 1.5 million units.",
+   "source_url": "https://en.wikipedia.org/wiki/March_5",
+   "evidence": "1981 – The ZX81, a pioneering British home computer, is launched by Sinclair Research and would go on to sell over 1½ million units",
+   "second_source_url": "https://en.wikipedia.org/wiki/ZX81",
+   "confidence": "high"
+  },
+  {
+   "date": "03-06",
+   "text": "1937 — Valentina Tereshkova, the first woman in space, is born.",
+   "source_url": "https://en.wikipedia.org/wiki/Valentina_Tereshkova",
+   "evidence": "Valentina Tereshkova was born on 6 March 1937",
+   "second_source_url": "https://en.wikipedia.org/wiki/March_6",
+   "confidence": "high"
+  },
+  {
+   "date": "03-07",
+   "text": "1876 — Alexander Graham Bell is granted a patent for the telephone.",
+   "source_url": "https://en.wikipedia.org/wiki/March_7",
+   "evidence": "1876 – Alexander Graham Bell is granted a patent for an invention he calls the \"telephone\".",
+   "confidence": "high"
+  },
+  {
+   "date": "03-08",
+   "text": "1910 — Raymonde de Laroche of France becomes the world's first licensed female pilot.",
+   "source_url": "https://en.wikipedia.org/wiki/March_8",
+   "evidence": "1910 – French aviatrix Raymonde de Laroche becomes the first woman to receive a pilot's license.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Raymonde_de_Laroche",
+   "confidence": "high"
+  },
+  {
+   "date": "03-09",
+   "text": "1959 — The Barbie doll debuts at the American International Toy Fair in New York.",
+   "source_url": "https://en.wikipedia.org/wiki/Barbie",
+   "evidence": "The doll made its debut at the American International Toy Fair in New York City on March 9, 1959.",
+   "second_source_url": "https://en.wikipedia.org/wiki/March_9",
+   "confidence": "high"
+  },
+  {
+   "date": "03-10",
+   "text": "1977 — A team including trans astronomer Jessica Mink discovers the rings of Uranus.",
+   "source_url": "https://en.wikipedia.org/wiki/Rings_of_Uranus",
+   "evidence": "definitive discovery of the Uranian rings was made by astronomers James L. Elliot, Edward W. Dunham, and Jessica Mink (known at the time as Douglas Mink) on March 10, 1977",
+   "second_source_url": "https://en.wikipedia.org/wiki/Jessica_Mink",
+   "confidence": "high"
+  },
+  {
+   "date": "03-11",
+   "text": "1890 — Vannevar Bush is born; his imagined \"memex\" machine foreshadowed hypertext.",
+   "source_url": "https://www.computerhistory.org/tdih/march/11/",
+   "evidence": "march 11, 1890 — Hypertext Pioneer Vannevar Bush Is Born... imagine a machine he called \"memex\"... anticipated hypertext research",
+   "second_source_url": "https://en.wikipedia.org/wiki/Vannevar_Bush",
+   "confidence": "high"
+  },
+  {
+   "date": "03-12",
+   "text": "1989 — Tim Berners-Lee submits the proposal at CERN that becomes the World Wide Web.",
+   "source_url": "https://en.wikipedia.org/wiki/March_12",
+   "evidence": "1989 – Tim Berners-Lee submits his proposal to CERN for an information management system, which subsequently develops into the World Wide Web.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Tim_Berners-Lee",
+   "confidence": "high"
+  },
+  {
+   "date": "03-13",
+   "text": "1930 — Lowell Observatory announces Pluto's discovery. (1781: William Herschel discovers Uranus.)",
+   "source_url": "https://en.wikipedia.org/wiki/March_13",
+   "evidence": "1781 – William Herschel discovers Uranus. / 1930 – The news of the discovery of Pluto is announced by Lowell Observatory.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Pluto",
+   "confidence": "high"
+  },
+  {
+   "date": "03-14",
+   "text": "1879 — Albert Einstein is born in Ulm, Germany.",
+   "source_url": "https://en.wikipedia.org/wiki/Albert_Einstein",
+   "evidence": "Einstein was born in Ulm... on 14 March 1879.",
+   "second_source_url": "https://en.wikipedia.org/wiki/March_14",
+   "confidence": "high"
+  },
+  {
+   "date": "03-15",
+   "text": "1985 — Symbolics.com is registered, becoming the world's first .com domain name.",
+   "source_url": "https://en.wikipedia.org/wiki/Symbolics",
+   "evidence": "The symbolics.com domain was originally registered on 15 March 1985, making it the first .com-domain in the world.",
+   "confidence": "high"
+  },
+  {
+   "date": "03-16",
+   "text": "1926 — Robert Goddard launches the first liquid-fuelled rocket. (1750: astronomer Caroline Herschel is born.)",
+   "source_url": "https://en.wikipedia.org/wiki/Robert_H._Goddard",
+   "evidence": "Goddard launched the world's first liquid-fueled (gasoline and liquid oxygen) rocket on March 16, 1926, in Auburn, Massachusetts.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Caroline_Herschel",
+   "confidence": "high"
+  },
+  {
+   "date": "03-17",
+   "text": "1958 — Vanguard 1 launches; it is still the oldest human-made object orbiting Earth.",
+   "source_url": "https://en.wikipedia.org/wiki/March_17",
+   "evidence": "1958 – The United States launches the first solar-powered satellite, which is also the first satellite to achieve a long-term orbit.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Vanguard_1",
+   "confidence": "high"
+  },
+  {
+   "date": "03-18",
+   "text": "1965 — Alexei Leonov makes the first spacewalk, spending about 12 minutes outside Voskhod 2.",
+   "source_url": "https://en.wikipedia.org/wiki/March_18",
+   "evidence": "1965 – Cosmonaut Alexei Leonov, leaving his spacecraft Voskhod 2 for 12 minutes, becomes the first person to walk in space.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Alexei_Leonov",
+   "confidence": "high"
+  },
+  {
+   "date": "03-19",
+   "text": "2008 — A gamma-ray burst whose light traveled 7.5 billion years is briefly visible to the naked eye.",
+   "source_url": "https://en.wikipedia.org/wiki/GRB_080319B",
+   "evidence": "...satellite at 06:12 UTC on March 19, 2008. The burst set a new record for the farthest object that was observable with the naked eye... the explosion occurred about 7.5 billion years ago",
+   "second_source_url": "https://en.wikipedia.org/wiki/March_19",
+   "confidence": "high"
+  },
+  {
+   "date": "03-20",
+   "text": "1879 — Maud Menten is born; the Michaelis–Menten equation of enzyme kinetics bears her name.",
+   "source_url": "https://en.wikipedia.org/wiki/Maud_Menten",
+   "evidence": "Maud Leonora Menten (March 20, 1879 ... known_for = Michaelis-Menten equation",
+   "second_source_url": "https://en.wikipedia.org/wiki/March_20",
+   "confidence": "high"
+  },
+  {
+   "date": "03-21",
+   "text": "2006 — Jack Dorsey sends the first tweet: \"just setting up my twttr.\"",
+   "source_url": "https://www.computerhistory.org/tdih/march/21/",
+   "evidence": "Jack Dorsey ... sent the first message at 9:50am on March 21st, 2006 - \"just setting up my twttr.\"",
+   "second_source_url": "https://en.wikipedia.org/wiki/March_21",
+   "confidence": "high"
+  },
+  {
+   "date": "03-22",
+   "text": "1960 — Arthur Schawlow and Charles Townes receive the first patent for a laser.",
+   "source_url": "https://en.wikipedia.org/wiki/March_22",
+   "evidence": "1960 – Arthur Leonard Schawlow and Charles Hard Townes receive the first patent for a laser.",
+   "confidence": "high"
+  },
+  {
+   "date": "03-23",
+   "text": "1882 — Mathematician Emmy Noether is born. (1928: programming-language pioneer Jean Sammet is born.)",
+   "source_url": "https://en.wikipedia.org/wiki/Emmy_Noether",
+   "evidence": "Amalie Emmy Noether was born on 23 March 1882",
+   "second_source_url": "https://www.computerhistory.org/tdih/march/23/",
+   "confidence": "high"
+  },
+  {
+   "date": "03-24",
+   "text": "1882 — Robert Koch announces he has found the bacterium that causes tuberculosis.",
+   "source_url": "https://en.wikipedia.org/wiki/March_24",
+   "evidence": "1882 – Robert Koch announces the discovery of Mycobacterium tuberculosis, the bacterium responsible for tuberculosis.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Robert_Koch",
+   "confidence": "high"
+  },
+  {
+   "date": "03-25",
+   "text": "1655 — Christiaan Huygens discovers Titan, Saturn's largest moon.",
+   "source_url": "https://en.wikipedia.org/wiki/March_25",
+   "evidence": "1655 – Saturn's largest moon, Titan, is discovered by Christiaan Huygens.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Titan_(moon)",
+   "confidence": "high"
+  },
+  {
+   "date": "03-26",
+   "text": "1973 — Larry Page, co-founder of Google, is born.",
+   "source_url": "https://en.wikipedia.org/wiki/Larry_Page",
+   "evidence": "Lawrence Edward Page was born on March 26, 1973",
+   "second_source_url": "https://en.wikipedia.org/wiki/March_26",
+   "confidence": "high"
+  },
+  {
+   "date": "03-27",
+   "text": "1845 — Wilhelm Röntgen, who discovered X-rays, is born.",
+   "source_url": "https://en.wikipedia.org/wiki/Wilhelm_R%C3%B6ntgen",
+   "evidence": "Wilhelm Conrad Röntgen was born on 27 March 1845 in Lennep",
+   "second_source_url": "https://en.wikipedia.org/wiki/March_27",
+   "confidence": "high"
+  },
+  {
+   "date": "03-28",
+   "text": "1802 — Heinrich Olbers discovers Pallas, only the second asteroid ever found.",
+   "source_url": "https://en.wikipedia.org/wiki/March_28",
+   "evidence": "1802 – Heinrich Wilhelm Matthäus Olbers discovers 2 Pallas, the second asteroid ever to be discovered.",
+   "second_source_url": "https://en.wikipedia.org/wiki/2_Pallas",
+   "confidence": "high"
+  },
+  {
+   "date": "03-29",
+   "text": "1989 — Pixar's Tin Toy becomes the first computer-animated film to win an Oscar.",
+   "source_url": "https://www.computerhistory.org/tdih/march/29/",
+   "evidence": "march 29, 1989 — Pixar wins an Academy Award for Tin Toy, the first entirely computer-animated work to win in the best animated short film category.",
+   "second_source_url": "https://en.wikipedia.org/wiki/61st_Academy_Awards",
+   "confidence": "high"
+  },
+  {
+   "date": "03-30",
+   "text": "2017 — SpaceX re-flies a used Falcon 9 booster, the first reflight of an orbital-class rocket.",
+   "source_url": "https://en.wikipedia.org/wiki/March_30",
+   "evidence": "2017 – SpaceX conducts the world's first reflight of an orbital class rocket.",
+   "second_source_url": "https://en.wikipedia.org/wiki/SES-10",
+   "confidence": "high"
+  },
+  {
+   "date": "03-31",
+   "text": "1889 — The Eiffel Tower officially opens. (1998: Netscape releases the Mozilla source code.)",
+   "source_url": "https://en.wikipedia.org/wiki/March_31",
+   "evidence": "1889 – The Eiffel Tower is officially opened. / 1998 – Netscape releases Mozilla source code under an open source license.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Mozilla",
+   "confidence": "high"
+  },
+  {
+   "date": "04-01",
+   "text": "2004 — Google launches Gmail on April Fools' Day. (1976: Jobs and Wozniak found Apple Computer.)",
+   "source_url": "https://en.wikipedia.org/wiki/April_1",
+   "evidence": "2004 – Google launches its Email service Gmail. / 1976 – Steve Jobs and Steve Wozniak found Apple Computer, Inc.",
+   "confidence": "high"
+  },
+  {
+   "date": "04-02",
+   "text": "1980 — Microsoft announces the Z80 SoftCard for the Apple II, its first hardware product.",
+   "source_url": "https://www.computerhistory.org/tdih/april/2/",
+   "evidence": "april 2, 1980 — Microsoft Corporation announces the Z80 SoftCard--their first and (for many years) only hardware product",
+   "second_source_url": "https://en.wikipedia.org/wiki/Z-80_SoftCard",
+   "confidence": "high"
+  },
+  {
+   "date": "04-03",
+   "text": "1973 — Motorola's Martin Cooper makes the first handheld cellphone call, to a rival at Bell Labs.",
+   "source_url": "https://en.wikipedia.org/wiki/April_3",
+   "evidence": "1973 – Martin Cooper of Motorola makes the first handheld mobile phone call to Joel S. Engel of Bell Labs.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Martin_Cooper_(inventor)",
+   "confidence": "high"
+  },
+  {
+   "date": "04-04",
+   "text": "1975 — Bill Gates and Paul Allen found Microsoft in Albuquerque. (1994: Netscape is founded.)",
+   "source_url": "https://en.wikipedia.org/wiki/April_4",
+   "evidence": "1975 – Microsoft is founded as a partnership between Bill Gates and Paul Allen in Albuquerque, New Mexico.",
+   "second_source_url": "https://www.computerhistory.org/tdih/april/4/",
+   "confidence": "high"
+  },
+  {
+   "date": "04-05",
+   "text": "1949 — Engineer Judith Resnik is born; she became the second American woman in space.",
+   "source_url": "https://en.wikipedia.org/wiki/Judith_Resnik",
+   "evidence": "Judith Arlene Resnik was born in Akron, Ohio, on April 5, 1949 ... Resnik became the second American woman in space.",
+   "second_source_url": "https://en.wikipedia.org/wiki/April_5",
+   "confidence": "high"
+  },
+  {
+   "date": "04-06",
+   "text": "1965 — Early Bird, the first commercial geosynchronous communications satellite, launches.",
+   "source_url": "https://en.wikipedia.org/wiki/April_6",
+   "evidence": "1965 – Launch of Early Bird, the first commercial communications satellite to be placed in geosynchronous orbit.",
+   "confidence": "high"
+  },
+  {
+   "date": "04-07",
+   "text": "1969 — RFC 1 is published, the Internet's symbolic birthday. (1964: IBM announces the System/360.)",
+   "source_url": "https://en.wikipedia.org/wiki/April_7",
+   "evidence": "1969 – The Internet's symbolic birth date: Publication of RFC 1. / 1964 – IBM announces the System/360.",
+   "second_source_url": "https://www.computerhistory.org/tdih/april/7/",
+   "confidence": "high"
+  },
+  {
+   "date": "04-08",
+   "text": "1959 — A meeting led by Grace Hopper starts work on the programming language that becomes COBOL.",
+   "source_url": "https://en.wikipedia.org/wiki/April_8",
+   "evidence": "1959 – A team of computer manufacturers, users, and university people led by Grace Hopper meets to discuss the creation of a new programming language that would be called COBOL.",
+   "confidence": "high"
+  },
+  {
+   "date": "04-09",
+   "text": "1921 — Mary Jackson is born; she became NASA's first Black female engineer.",
+   "source_url": "https://en.wikipedia.org/wiki/Mary_Jackson_(engineer)",
+   "evidence": "Mary Jackson was born on April 9, 1921 ... became NASA's first black female engineer",
+   "second_source_url": "https://en.wikipedia.org/wiki/April_9",
+   "confidence": "high"
+  },
+  {
+   "date": "04-10",
+   "text": "1710 — The Statute of Anne, the first law regulating copyright, takes effect in Great Britain.",
+   "source_url": "https://en.wikipedia.org/wiki/April_10",
+   "evidence": "1710 – The Statute of Anne, the first law regulating copyright, comes into force in Great Britain.",
+   "confidence": "high"
+  },
+  {
+   "date": "04-11",
+   "text": "1936 — Konrad Zuse files a patent for automatic calculation while building his Z1 computer.",
+   "source_url": "https://www.computerhistory.org/tdih/april/11/",
+   "evidence": "april 11, 1936 — German computer pioneer Konrad Zuse files for a patent for the automatic execution of calculations, a process he invents while working on what would become the Z-1",
+   "second_source_url": "https://en.wikipedia.org/wiki/Konrad_Zuse",
+   "confidence": "high"
+  },
+  {
+   "date": "04-12",
+   "text": "1961 — Yuri Gagarin becomes the first human in space. (1981: The first Space Shuttle launches.)",
+   "source_url": "https://en.wikipedia.org/wiki/April_12",
+   "evidence": "1961 – Yuri Gagarin becomes the first human to travel into outer space ... 1981 – The first launch of a Space Shuttle (Columbia) takes place: The STS-1 mission.",
+   "confidence": "high"
+  },
+  {
+   "date": "04-13",
+   "text": "1899 — Alfred Mosher Butts, the architect who invented Scrabble, is born.",
+   "source_url": "https://en.wikipedia.org/wiki/April_13",
+   "evidence": "1899 – Alfred Mosher Butts, American architect and game designer, created Scrabble (died 1993)",
+   "second_source_url": "https://en.wikipedia.org/wiki/Alfred_Mosher_Butts",
+   "confidence": "high"
+  },
+  {
+   "date": "04-14",
+   "text": "1894 — The first commercial movie house opens in New York, with ten peep-show Kinetoscopes.",
+   "source_url": "https://en.wikipedia.org/wiki/April_14",
+   "evidence": "1894 – The first ever commercial motion picture house opens in New York City ... It uses ten Kinetoscopes, devices for peep-show viewing of films.",
+   "confidence": "high"
+  },
+  {
+   "date": "04-15",
+   "text": "1707 — Leonhard Euler is born. (1961: Carol Greider, Nobel-winning telomerase co-discoverer, is born.)",
+   "source_url": "https://en.wikipedia.org/wiki/April_15",
+   "evidence": "1707 – Leonhard Euler, Swiss mathematician and physicist (died 1783) / 1961 – Carol W. Greider, American molecular biologist",
+   "confidence": "high"
+  },
+  {
+   "date": "04-16",
+   "text": "1867 — Wilbur Wright, who with brother Orville built the first successful airplane, is born.",
+   "source_url": "https://en.wikipedia.org/wiki/April_16",
+   "evidence": "1867 – Wilbur Wright, American inventor (died 1912)",
+   "confidence": "high"
+  },
+  {
+   "date": "04-17",
+   "text": "2014 — NASA's Kepler confirms the first Earth-size planet in another star's habitable zone.",
+   "source_url": "https://en.wikipedia.org/wiki/April_17",
+   "evidence": "2014 – NASA's Kepler space telescope confirms the discovery of the first Earth-size planet in the habitable zone of another star.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Kepler-186f",
+   "confidence": "high"
+  },
+  {
+   "date": "04-18",
+   "text": "1981 — Audrey Tang, free-software programmer and Taiwan's first Minister of Digital Affairs, is born.",
+   "source_url": "https://en.wikipedia.org/wiki/Audrey_Tang",
+   "evidence": "born 18 April 1981 ... a Taiwanese politician and free software programmer who served as the first Minister of Digital Affairs of Taiwan",
+   "second_source_url": "https://en.wikipedia.org/wiki/April_18",
+   "confidence": "high"
+  },
+  {
+   "date": "04-19",
+   "text": "2021 — NASA's Ingenuity helicopter makes the first powered flight on another planet.",
+   "source_url": "https://en.wikipedia.org/wiki/April_19",
+   "evidence": "2021 – The Ingenuity helicopter becomes the first aircraft to achieve flight on another planet.",
+   "confidence": "high"
+  },
+  {
+   "date": "04-20",
+   "text": "1865 — Angelo Secchi demos his Secchi disk, still used to gauge water clarity, on the Pope's yacht.",
+   "source_url": "https://en.wikipedia.org/wiki/April_20",
+   "evidence": "1865 – Astronomer Angelo Secchi demonstrates the Secchi disk, which measures water clarity, aboard Pope Pius IX's yacht",
+   "second_source_url": "https://en.wikipedia.org/wiki/Secchi_disk",
+   "confidence": "high"
+  },
+  {
+   "date": "04-21",
+   "text": "1934 — The Daily Mail runs the famous Loch Ness \"Surgeon's Photograph,\" revealed as a hoax in 1994.",
+   "source_url": "https://en.wikipedia.org/wiki/April_21",
+   "evidence": "1934 – The \"Surgeon's Photograph\", the most famous photo allegedly showing the Loch Ness Monster, is published in the Daily Mail (in 1994, it is revealed to be a hoax).",
+   "second_source_url": "https://en.wikipedia.org/wiki/Loch_Ness_Monster",
+   "confidence": "high"
+  },
+  {
+   "date": "04-22",
+   "text": "1977 — Optical fiber carries live telephone traffic for the first time.",
+   "source_url": "https://en.wikipedia.org/wiki/April_22",
+   "evidence": "1977 – Optical fiber is first used to carry live telephone traffic.",
+   "confidence": "high"
+  },
+  {
+   "date": "04-23",
+   "text": "2005 — \"Me at the zoo,\" the first YouTube video, is uploaded. (1933: NASA's Annie Easley is born.)",
+   "source_url": "https://en.wikipedia.org/wiki/April_23",
+   "evidence": "2005 – The first YouTube video, titled \"Me at the zoo\", is published by co-founder Jawed Karim. / 1933 – Annie Easley, American computer scientist, mathematician, and engineer",
+   "second_source_url": "https://en.wikipedia.org/wiki/Annie_Easley",
+   "confidence": "high"
+  },
+  {
+   "date": "04-24",
+   "text": "1990 — The Hubble Space Telescope is launched from Space Shuttle Discovery.",
+   "source_url": "https://en.wikipedia.org/wiki/April_24",
+   "evidence": "1990 – STS-31: The Hubble Space Telescope is launched from the Space Shuttle Discovery.",
+   "confidence": "high"
+  },
+  {
+   "date": "04-25",
+   "text": "1954 — Bell Labs publicly demonstrates the first practical solar cell.",
+   "source_url": "https://en.wikipedia.org/wiki/April_25",
+   "evidence": "1954 – The first practical solar cell is publicly demonstrated by Bell Telephone Laboratories.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Solar_cell",
+   "confidence": "high"
+  },
+  {
+   "date": "04-26",
+   "text": "1803 — Thousands of stones fall on L'Aigle, France, finally convincing scientists meteorites are real.",
+   "source_url": "https://en.wikipedia.org/wiki/April_26",
+   "evidence": "1803 – Thousands of meteor fragments fall from the skies of L'Aigle, France; the event convinces European scientists that meteors exist.",
+   "second_source_url": "https://en.wikipedia.org/wiki/L'Aigle_(meteorite)",
+   "confidence": "high"
+  },
+  {
+   "date": "04-27",
+   "text": "1791 — Samuel Morse, the painter who co-invented Morse code, is born.",
+   "source_url": "https://en.wikipedia.org/wiki/April_27",
+   "evidence": "1791 – Samuel Morse, American painter and inventor, co-invented the Morse code (died 1872)",
+   "confidence": "high"
+  },
+  {
+   "date": "04-28",
+   "text": "1854 — Hertha Ayrton is born; she became the first woman member of the Institution of Electrical Engineers.",
+   "source_url": "https://en.wikipedia.org/wiki/Hertha_Ayrton",
+   "evidence": "Ayrton was born Phoebe Sarah Marks in Portsea ... on 28 April 1854 ... Ayrton was elected the first female member of the IEE",
+   "second_source_url": "https://en.wikipedia.org/wiki/April_28",
+   "confidence": "high"
+  },
+  {
+   "date": "04-29",
+   "text": "1953 — The first U.S. experimental 3D TV broadcast airs an episode of Space Patrol in Los Angeles.",
+   "source_url": "https://en.wikipedia.org/wiki/April_29",
+   "evidence": "1953 – The first U.S. experimental 3D television broadcast shows an episode of Space Patrol on Los Angeles ABC affiliate KECA-TV.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Space_Patrol_(1950_TV_series)",
+   "confidence": "high"
+  },
+  {
+   "date": "04-30",
+   "text": "1993 — CERN announces the World Wide Web protocols will be free. (1916: Claude Shannon is born.)",
+   "source_url": "https://en.wikipedia.org/wiki/April_30",
+   "evidence": "1993 – CERN announces World Wide Web protocols will be free. / 1916 – Claude Shannon, American mathematician and engineer",
+   "second_source_url": "https://www.computerhistory.org/tdih/april/30/",
+   "confidence": "high"
+  },
+  {
+   "date": "05-01",
+   "text": "1964 — BASIC debuts on Dartmouth's new timesharing system. (1924: computer scientist Evelyn Boyd Granville born.)",
+   "source_url": "https://www.computerhistory.org/tdih/may/1/",
+   "second_source_url": "https://en.wikipedia.org/wiki/May_1",
+   "evidence": "may 1, 1964 | Dartmouth Professors Launch \"Timesharing\" System ... using their simple, user-friendly language, BASIC. / 1924 – Evelyn Boyd Granville, American mathematician, computer scientist",
+   "confidence": "high"
+  },
+  {
+   "date": "05-02",
+   "text": "1983 — Microsoft announces its first mouse, a two-button model sold alongside Microsoft Word.",
+   "source_url": "https://www.computerhistory.org/tdih/may/2/",
+   "evidence": "may 2, 1983 | Microsoft Introduces 2-Button Mouse | Microsoft Corp. announced the two-button Microsoft Mouse, which it introduced to go along with its new Microsoft Word processor.",
+   "confidence": "high"
+  },
+  {
+   "date": "05-03",
+   "text": "1978 — DEC marketer Gary Thuerk sends the first spam email, over ARPANET. (2000: the first geocache is hidden.)",
+   "source_url": "https://www.computerhistory.org/tdih/may/3/",
+   "second_source_url": "https://en.wikipedia.org/wiki/May_3",
+   "evidence": "may 3, 1978 | Earliest Known Case of Spam ... Gary Thuerk, a Digital Equipment Corporation marketer / 2000 – The sport of geocaching begins, with the first cache placed",
+   "confidence": "high"
+  },
+  {
+   "date": "05-04",
+   "text": "1989 — Space Shuttle Atlantis launches the Magellan probe to map Venus.",
+   "source_url": "https://en.wikipedia.org/wiki/May_4",
+   "second_source_url": "https://en.wikipedia.org/wiki/Magellan_(spacecraft)",
+   "evidence": "1989 – Space Shuttle Atlantis launches on mission STS-30 to deploy the Venus-bound Magellan space probe. / launched by NASA on May 4, 1989. Its mission objectives were to map the surface of Venus",
+   "confidence": "high"
+  },
+  {
+   "date": "05-05",
+   "text": "1809 — Mary Kies becomes the first woman granted a U.S. patent. (1961: Alan Shepard is first American in space.)",
+   "source_url": "https://en.wikipedia.org/wiki/May_5",
+   "evidence": "1809 – Mary Kies becomes the first woman awarded a U.S. patent ... 1961 – Project Mercury: Alan Shepard becomes the first American to travel into outer space",
+   "confidence": "high"
+  },
+  {
+   "date": "05-06",
+   "text": "1949 — Cambridge's EDSAC performs its first calculation. (1998: Steve Jobs unveils the first iMac.)",
+   "source_url": "https://www.computerhistory.org/tdih/may/6/",
+   "second_source_url": "https://en.wikipedia.org/wiki/May_6",
+   "evidence": "may 6, 1949 | British Computer EDSAC Performs First Calculation / 1998 – Steve Jobs of Apple Inc. unveils the first iMac.",
+   "confidence": "high"
+  },
+  {
+   "date": "05-07",
+   "text": "1946 — Sony is founded in Tokyo as Tokyo Telecommunications Engineering.",
+   "source_url": "https://en.wikipedia.org/wiki/May_7",
+   "second_source_url": "https://en.wikipedia.org/wiki/Sony",
+   "evidence": "1946 – Tokyo Telecommunications Engineering (later renamed Sony) is founded. / On 7 May 1946, Ibuka was joined by Akio Morita to establish a company",
+   "confidence": "high"
+  },
+  {
+   "date": "05-08",
+   "text": "1980 — The World Health Organization confirms smallpox has been eradicated.",
+   "source_url": "https://en.wikipedia.org/wiki/May_8",
+   "evidence": "1980 – The World Health Organization confirms the eradication of smallpox.",
+   "confidence": "high"
+  },
+  {
+   "date": "05-09",
+   "text": "1960 — The FDA says it will approve Enovid, the world's first oral contraceptive pill.",
+   "source_url": "https://en.wikipedia.org/wiki/May_9",
+   "evidence": "1960 – The Food and Drug Administration announces it will approve birth control as an additional indication for Searle's Enovid, making Enovid the world's first approved oral contraceptive pill.",
+   "confidence": "high"
+  },
+  {
+   "date": "05-10",
+   "text": "1954 — Texas Instruments announces the first commercial silicon transistors. (1975: Sony launches Betamax.)",
+   "source_url": "https://www.computerhistory.org/tdih/may/10/",
+   "second_source_url": "https://en.wikipedia.org/wiki/May_10",
+   "evidence": "A Texas Instruments news release from May 10, 1954 ... first commercial production of silicon transistors / 1975 – Sony introduces the Betamax videocassette recorder.",
+   "confidence": "high"
+  },
+  {
+   "date": "05-11",
+   "text": "1997 — IBM's Deep Blue beats world chess champion Garry Kasparov. (1930: Edsger Dijkstra born.)",
+   "source_url": "https://en.wikipedia.org/wiki/May_11",
+   "second_source_url": "https://www.computerhistory.org/tdih/may/11/",
+   "evidence": "1997 – Deep Blue, a chess-playing supercomputer, defeats Garry Kasparov in the last game of the rematch / 1930 – Edsger W. Dijkstra, Dutch computer scientist",
+   "confidence": "high"
+  },
+  {
+   "date": "05-12",
+   "text": "1941 — Konrad Zuse presents the Z3, the first working programmable computer. (1910: Dorothy Hodgkin born.)",
+   "source_url": "https://en.wikipedia.org/wiki/May_12",
+   "second_source_url": "https://www.computerhistory.org/tdih/may/12/",
+   "evidence": "1941 – Konrad Zuse presents the Z3, the world's first working programmable, fully automatic computer, in Berlin. / 1910 – Dorothy Hodgkin, English biochemist, crystallographer",
+   "confidence": "high"
+  },
+  {
+   "date": "05-13",
+   "text": "1888 — Inge Lehmann is born; the Danish seismologist discovered Earth's solid inner core.",
+   "source_url": "https://en.wikipedia.org/wiki/May_13",
+   "second_source_url": "https://en.wikipedia.org/wiki/Inge_Lehmann",
+   "evidence": "1888 – Inge Lehmann, Danish seismologist and geophysicist / known for her discovery in 1936 of the solid inner core",
+   "confidence": "high"
+  },
+  {
+   "date": "05-14",
+   "text": "1973 — Skylab, the first U.S. space station, is launched.",
+   "source_url": "https://en.wikipedia.org/wiki/May_14",
+   "second_source_url": "https://en.wikipedia.org/wiki/Skylab",
+   "evidence": "1973 – Skylab, the United States' first space station, is launched. / Skylab was launched on May 14, 1973",
+   "confidence": "high"
+  },
+  {
+   "date": "05-15",
+   "text": "1900 — Programming pioneer Ida Rhodes is born. (1940: the first McDonald's restaurant opens.)",
+   "source_url": "https://en.wikipedia.org/wiki/May_15",
+   "evidence": "1900 – Ida Rhodes, American mathematician, pioneer in computer programming / 1940 – Richard and Maurice McDonald open the first McDonald's restaurant.",
+   "confidence": "high"
+  },
+  {
+   "date": "05-16",
+   "text": "1960 — Theodore Maiman fires the first laser. (1938: Sketchpad creator Ivan Sutherland born.)",
+   "source_url": "https://en.wikipedia.org/wiki/May_16",
+   "second_source_url": "https://www.computerhistory.org/tdih/may/16/",
+   "evidence": "1960 – Theodore Maiman operates the first optical laser (a ruby laser) / may 16, 1938 | Birthday of Ivan Sutherland ... inventor and developer of MIT's Sketchpad",
+   "confidence": "high"
+  },
+  {
+   "date": "05-17",
+   "text": "1902 — The Antikythera mechanism, an ancient analog computer, is discovered. (1940: Alan Kay born.)",
+   "source_url": "https://en.wikipedia.org/wiki/May_17",
+   "second_source_url": "https://en.wikipedia.org/wiki/Antikythera_mechanism",
+   "evidence": "1902 – Greek archaeologist Valerios Stais discovers the Antikythera mechanism, an ancient mechanical analog computer. / 1940 – Alan Kay, American computer scientist",
+   "confidence": "high"
+  },
+  {
+   "date": "05-18",
+   "text": "1953 — Jacqueline Cochran becomes the first woman to break the sound barrier.",
+   "source_url": "https://en.wikipedia.org/wiki/May_18",
+   "evidence": "1953 – Jacqueline Cochran becomes the first woman to break the sound barrier.",
+   "confidence": "high"
+  },
+  {
+   "date": "05-19",
+   "text": "1955 — Java creator James Gosling is born. (1942: Digital Research founder Gary Kildall born.)",
+   "source_url": "https://en.wikipedia.org/wiki/May_19",
+   "evidence": "1942 – Gary Kildall, American computer scientist, founded Digital Research Inc. / 1955 – James Gosling, Canadian-American computer scientist, created Java",
+   "confidence": "high"
+  },
+  {
+   "date": "05-20",
+   "text": "1873 — Levi Strauss and Jacob Davis get a U.S. patent for blue jeans with copper rivets.",
+   "source_url": "https://en.wikipedia.org/wiki/May_20",
+   "evidence": "1873 – Levi Strauss and Jacob Davis receive a U.S. patent for blue jeans with copper rivets.",
+   "confidence": "high"
+  },
+  {
+   "date": "05-21",
+   "text": "1952 — IBM announces the 701, its first commercial scientific computer. (2010: IKAROS solar sail launches.)",
+   "source_url": "https://www.computerhistory.org/tdih/may/21/",
+   "second_source_url": "https://en.wikipedia.org/wiki/IBM_701",
+   "evidence": "may 21, 1952 | IBM Announces Its First Electronic Computer, the Model 701 / announced to the public on May 21, 1952 / 2010 – JAXA ... launches the solar-sail spacecraft IKAROS (May 21 page)",
+   "confidence": "high"
+  },
+  {
+   "date": "05-22",
+   "text": "1973 — Bob Metcalfe writes the memo proposing Ethernet. (1906: the Wright brothers get their airplane patent.)",
+   "source_url": "https://www.computerhistory.org/tdih/may/22/",
+   "second_source_url": "https://en.wikipedia.org/wiki/May_22",
+   "evidence": "may 22, 1973 | Xerox Researcher Proposes \"Ethernet\" | Robert Metcalfe ... writes his original memo / 1906 – The Wright brothers are granted U.S. patent number 821,393 for their \"Flying-Machine\".",
+   "confidence": "high"
+  },
+  {
+   "date": "05-23",
+   "text": "1995 — Sun releases the first version of Java. (1908: transistor co-inventor John Bardeen born.)",
+   "source_url": "https://en.wikipedia.org/wiki/May_23",
+   "second_source_url": "https://en.wikipedia.org/wiki/John_Bardeen",
+   "evidence": "1995 – The first version of the Java programming language is released. / 1908 – John Bardeen, American physicist and engineer, Nobel Prize laureate",
+   "confidence": "high"
+  },
+  {
+   "date": "05-24",
+   "text": "1844 — Samuel Morse telegraphs \"What hath God wrought\" from Washington to Baltimore.",
+   "source_url": "https://en.wikipedia.org/wiki/May_24",
+   "evidence": "1844 – Samuel Morse sends the message \"What hath God wrought\" ... from a committee room in the United States Capitol to his assistant, Alfred Vail, in Baltimore",
+   "confidence": "high"
+  },
+  {
+   "date": "05-25",
+   "text": "2012 — SpaceX Dragon becomes the first commercial spacecraft to berth with the ISS.",
+   "source_url": "https://en.wikipedia.org/wiki/May_25",
+   "evidence": "2012 – The SpaceX Dragon 1 becomes the first commercial spacecraft to successfully rendezvous and berth with the International Space Station.",
+   "confidence": "high"
+  },
+  {
+   "date": "05-26",
+   "text": "1951 — Sally Ride, the first American woman in space, is born. (1949: wiki inventor Ward Cunningham born.)",
+   "source_url": "https://en.wikipedia.org/wiki/May_26",
+   "second_source_url": "https://en.wikipedia.org/wiki/Sally_Ride",
+   "evidence": "1951 – Sally Ride, American physicist and astronaut / 1949 – Ward Cunningham, American computer programmer, developed the first wiki / in 1983, became the first American woman ... to fly in space",
+   "confidence": "high"
+  },
+  {
+   "date": "05-27",
+   "text": "1999 — Discovery launches STS-96, the first shuttle mission to dock with the ISS.",
+   "source_url": "https://en.wikipedia.org/wiki/May_27",
+   "evidence": "1999 – Space Shuttle Discovery is launched on STS-96, the first shuttle mission to dock with the International Space Station.",
+   "confidence": "high"
+  },
+  {
+   "date": "05-28",
+   "text": "1936 — Alan Turing submits \"On Computable Numbers\" for publication. (1959: the COBOL committee forms.)",
+   "source_url": "https://en.wikipedia.org/wiki/May_28",
+   "second_source_url": "https://www.computerhistory.org/tdih/may/28/",
+   "evidence": "1936 – Alan Turing submits On Computable Numbers for publication. / may 28, 1959 | Committee Forms to Develop New Language | A committee formed to develop COBOL",
+   "confidence": "high"
+  },
+  {
+   "date": "05-29",
+   "text": "1886 — Pharmacist John Pemberton places the first newspaper ad for Coca-Cola.",
+   "source_url": "https://en.wikipedia.org/wiki/May_29",
+   "evidence": "1886 – The pharmacist John Pemberton places his first advertisement for Coca-Cola, which appeared in The Atlanta Journal.",
+   "confidence": "high"
+  },
+  {
+   "date": "05-30",
+   "text": "2020 — Crew Dragon Demo-2 launches: the first commercial crewed flight to the ISS. (1975: ESA is founded.)",
+   "source_url": "https://en.wikipedia.org/wiki/May_30",
+   "evidence": "2020 – Crew Dragon Demo-2 launches from Kennedy Space Center ... the first commercial flight to the International Space Station. / 1975 – The European Space Agency is established.",
+   "confidence": "high"
+  },
+  {
+   "date": "05-31",
+   "text": "1912 — Physicist Chien-Shiung Wu is born. (1926: BASIC co-creator John Kemeny born.)",
+   "source_url": "https://en.wikipedia.org/wiki/Chien-Shiung_Wu",
+   "second_source_url": "https://www.computerhistory.org/tdih/may/31/",
+   "evidence": "Chien-Shiung Wu (May 31, 1912 – February 16, 1997) / may 31, 1926 | BASIC Language Co-Inventor Born | BASIC co-developer John Kemeny was born in Budapest",
+   "confidence": "high"
+  },
+  {
+   "date": "06-01",
+   "text": "1907 — Frank Whittle, English engineer who developed the jet engine, is born.",
+   "source_url": "https://en.wikipedia.org/wiki/June_1",
+   "second_source_url": "https://en.wikipedia.org/wiki/Frank_Whittle",
+   "evidence": "Sir Frank Whittle (1 June 1907 – 8 August 1996) was an English engineer, inventor",
+   "confidence": "high"
+  },
+  {
+   "date": "06-02",
+   "text": "1966 — Surveyor 1 lands on the Moon, the first US spacecraft to soft-land on another world.",
+   "source_url": "https://en.wikipedia.org/wiki/June_2",
+   "second_source_url": "https://en.wikipedia.org/wiki/Surveyor_1",
+   "evidence": "it landed on the Moon on June 2, 1966",
+   "confidence": "high"
+  },
+  {
+   "date": "06-03",
+   "text": "1965 — Ed White makes the first American spacewalk during NASA's Gemini 4 mission.",
+   "source_url": "https://en.wikipedia.org/wiki/June_3",
+   "second_source_url": "https://en.wikipedia.org/wiki/Gemini_4",
+   "evidence": "Ed White - EVA - June 3, 1965",
+   "confidence": "high"
+  },
+  {
+   "date": "06-04",
+   "text": "1896 — Henry Ford test-drives his Quadricycle, his first gasoline-powered car, in Detroit.",
+   "source_url": "https://en.wikipedia.org/wiki/June_4",
+   "second_source_url": "https://en.wikipedia.org/wiki/Ford_Quadricycle",
+   "evidence": "Ford test drove it on June 4, 1896, after various test drives, achieving a top speed of 20 mph",
+   "confidence": "high"
+  },
+  {
+   "date": "06-05",
+   "text": "1833 — 17-year-old Ada Byron (later Ada Lovelace) first meets Charles Babbage at one of his soirées.",
+   "source_url": "https://www.computerhistory.org/tdih/june/5/",
+   "second_source_url": "https://en.wikipedia.org/wiki/Ada_Lovelace",
+   "evidence": "Lovelace first met him on 5 June 1833, when she and her mother attended one of Charles Babbage's Saturday night soirées",
+   "confidence": "high"
+  },
+  {
+   "date": "06-06",
+   "text": "1933 — The first drive-in movie theater opens in New Jersey.",
+   "source_url": "https://en.wikipedia.org/wiki/June_6",
+   "second_source_url": "https://en.wikipedia.org/wiki/Drive-in_theater",
+   "evidence": "Hollingshead's drive-in opened in New Jersey on June 6, 1933",
+   "confidence": "high"
+  },
+  {
+   "date": "06-07",
+   "text": "1900 — Frederick Terman, the \"father of Silicon Valley,\" is born.",
+   "source_url": "https://en.wikipedia.org/wiki/June_7",
+   "second_source_url": "https://en.wikipedia.org/wiki/Frederick_Terman",
+   "evidence": "Frederick Emmons Terman (June 7, 1900 – December 19, 1982)",
+   "confidence": "high"
+  },
+  {
+   "date": "06-08",
+   "text": "1955 — Tim Berners-Lee, inventor of the World Wide Web, is born in London.",
+   "source_url": "https://en.wikipedia.org/wiki/June_8",
+   "second_source_url": "https://en.wikipedia.org/wiki/Tim_Berners-Lee",
+   "evidence": "Berners-Lee was born in London on 8 June 1955",
+   "confidence": "high"
+  },
+  {
+   "date": "06-09",
+   "text": "1915 — Les Paul is born; he pioneered the solid-body electric guitar and multitrack recording.",
+   "source_url": "https://en.wikipedia.org/wiki/June_9",
+   "second_source_url": "https://en.wikipedia.org/wiki/Les_Paul",
+   "evidence": "Lester William Polsfuss (June 9, 1915 – August 12, 2009), known as Les Paul",
+   "confidence": "high"
+  },
+  {
+   "date": "06-10",
+   "text": "1977 — The Apple II goes on sale: $1,298 with 4KB of RAM, color graphics and BASIC built in.",
+   "source_url": "https://www.computerhistory.org/tdih/june/10/",
+   "second_source_url": "https://en.wikipedia.org/wiki/Apple_II",
+   "evidence": "june 10, 1977 | Apple II Shipped Today ... the original model cost $1,298 and came with 4KB of RAM",
+   "confidence": "high"
+  },
+  {
+   "date": "06-11",
+   "text": "1978 — Texas Instruments unveils the Speak & Spell, the talking toy with a speech-synthesis chip.",
+   "source_url": "https://www.computerhistory.org/tdih/june/11/",
+   "second_source_url": "https://en.wikipedia.org/wiki/Speak_%26_Spell_(toy)",
+   "evidence": "june 11, 1978 | TI Announces \"Speak & Spell\" | Texas Instruments Inc. introduced Speak & Spell, a talking learning aid",
+   "confidence": "high"
+  },
+  {
+   "date": "06-12",
+   "text": "1817 — Karl Drais takes the first ride on his \"running machine,\" the pedal-less ancestor of the bicycle.",
+   "source_url": "https://en.wikipedia.org/wiki/June_12",
+   "second_source_url": "https://en.wikipedia.org/wiki/Karl_Drais",
+   "evidence": "Karl Drais's first run of his \"running machine\" on 12 June 1817",
+   "confidence": "high"
+  },
+  {
+   "date": "06-13",
+   "text": "1983 — Pioneer 10 crosses Neptune's orbit, the first human-made object to pass the outer planets.",
+   "source_url": "https://en.wikipedia.org/wiki/June_13",
+   "second_source_url": "https://en.wikipedia.org/wiki/Pioneer_10",
+   "evidence": "On June 13, 1983, it crossed Neptune's orbit, becoming the first human-made object to pass beyond the orbits of the Solar System's",
+   "confidence": "high"
+  },
+  {
+   "date": "06-14",
+   "text": "1822 — Charles Babbage announces his Difference Engine in a paper to the Royal Astronomical Society.",
+   "source_url": "https://en.wikipedia.org/wiki/June_14",
+   "second_source_url": "https://en.wikipedia.org/wiki/Difference_engine",
+   "evidence": "He announced his invention on 14 June 1822, in a paper to the Royal Astronomical Society",
+   "confidence": "high"
+  },
+  {
+   "date": "06-15",
+   "text": "1949 — MIT's Jay Forrester sketches the idea for magnetic core memory in his notebook.",
+   "source_url": "https://www.computerhistory.org/tdih/june/15/",
+   "evidence": "june 15, 1949 | MIT's Forrester Records \"Core Memory\" Idea | Jay Forrester recorded a proposal for core memory in his notebook.",
+   "confidence": "high"
+  },
+  {
+   "date": "06-16",
+   "text": "1963 — Valentina Tereshkova becomes the first woman in space aboard Vostok 6.",
+   "source_url": "https://en.wikipedia.org/wiki/June_16",
+   "second_source_url": "https://en.wikipedia.org/wiki/Valentina_Tereshkova",
+   "evidence": "She was the first woman in space, having flown a solo mission on Vostok 6 on 16 June 1963",
+   "confidence": "high"
+  },
+  {
+   "date": "06-17",
+   "text": "1943 — Burt Rutan is born; he later designed SpaceShipOne and the round-the-world Voyager plane.",
+   "source_url": "https://en.wikipedia.org/wiki/June_17",
+   "second_source_url": "https://en.wikipedia.org/wiki/Burt_Rutan",
+   "evidence": "Elbert Leander \"Burt\" Rutan (born June 17, 1943) is an American retired aerospace engineer",
+   "confidence": "high"
+  },
+  {
+   "date": "06-18",
+   "text": "1983 — Sally Ride becomes the first American woman in space aboard Space Shuttle Challenger.",
+   "source_url": "https://en.wikipedia.org/wiki/June_18",
+   "second_source_url": "https://en.wikipedia.org/wiki/Sally_Ride",
+   "evidence": "When the Challenger lifted off from the Kennedy Space Center (KSC) on June 18, 1983, Ride became the first American woman to fly in space",
+   "confidence": "high"
+  },
+  {
+   "date": "06-19",
+   "text": "1926 — Erna Schneider Hoover is born; she invented computerized telephone call switching.",
+   "source_url": "https://en.wikipedia.org/wiki/June_19",
+   "second_source_url": "https://en.wikipedia.org/wiki/Erna_Schneider_Hoover",
+   "evidence": "Erna Schneider Hoover (born June 19, 1926) is an American mathematician who invented a computerized telephone switching method",
+   "confidence": "high"
+  },
+  {
+   "date": "06-20",
+   "text": "1840 — Samuel Morse receives a patent for the telegraph. (2003: The Wikimedia Foundation is founded.)",
+   "source_url": "https://en.wikipedia.org/wiki/June_20",
+   "second_source_url": "https://en.wikipedia.org/wiki/Wikimedia_Foundation",
+   "evidence": "1840 – Samuel Morse receives the patent for the telegraph. / The Wikimedia Foundation was incorporated in St. Petersburg, Florida, on June 20, 2003.",
+   "confidence": "high"
+  },
+  {
+   "date": "06-21",
+   "text": "2004 — SpaceShipOne makes the first privately funded human spaceflight.",
+   "source_url": "https://en.wikipedia.org/wiki/June_21",
+   "second_source_url": "https://en.wikipedia.org/wiki/SpaceShipOne_flight_15P",
+   "evidence": "Flight 15P of SpaceShipOne was the first privately funded human spaceflight. It took place on June 21, 2004.",
+   "confidence": "high"
+  },
+  {
+   "date": "06-22",
+   "text": "1978 — James Christy discovers Charon, Pluto's largest moon. (1910: Konrad Zuse is born.)",
+   "source_url": "https://en.wikipedia.org/wiki/June_22",
+   "second_source_url": "https://www.computerhistory.org/tdih/june/22/",
+   "evidence": "1978 – Charon ... was first seen at the United States Naval Observatory by James W. Christy. / CHM: june 22, 1910 | Konrad Zuse Born",
+   "confidence": "high"
+  },
+  {
+   "date": "06-23",
+   "text": "1912 — Alan Turing, father of theoretical computer science and AI, is born in London.",
+   "source_url": "https://www.computerhistory.org/tdih/june/23/",
+   "second_source_url": "https://en.wikipedia.org/wiki/Alan_Turing",
+   "evidence": "june 23, 1912 | Computer Pioneer Alan Turing Born / Alan Turing was born on 23 June 1912 (Maida Vale, London)",
+   "confidence": "high"
+  },
+  {
+   "date": "06-24",
+   "text": "1947 — Pilot Kenneth Arnold reports nine shiny objects near Mount Rainier, sparking the \"flying saucer\" craze.",
+   "source_url": "https://en.wikipedia.org/wiki/June_24",
+   "second_source_url": "https://en.wikipedia.org/wiki/Kenneth_Arnold_UFO_sighting",
+   "evidence": "On June 24, 1947, private pilot Kenneth Arnold saw what he described as a string of nine shiny unidentified flying objects",
+   "confidence": "high"
+  },
+  {
+   "date": "06-25",
+   "text": "1981 — Microsoft is incorporated, six years after Bill Gates and Paul Allen founded it.",
+   "source_url": "https://www.computerhistory.org/tdih/june/25/",
+   "second_source_url": "https://en.wikipedia.org/wiki/June_25",
+   "evidence": "june 25, 1981 | Microsoft Incorporated | Microsoft is incorporated. Founded six years earlier by Bill Gates and Paul Allen",
+   "confidence": "high"
+  },
+  {
+   "date": "06-26",
+   "text": "1974 — The first product barcode is scanned at a store: a pack of Wrigley's gum in Troy, Ohio.",
+   "source_url": "https://en.wikipedia.org/wiki/June_26",
+   "second_source_url": "https://en.wikipedia.org/wiki/Universal_Product_Code",
+   "evidence": "chewing gum, purchased at the Marsh supermarket in Troy, Ohio, at 8:01 a.m. on 26 June 1974",
+   "confidence": "high"
+  },
+  {
+   "date": "06-27",
+   "text": "1954 — Obninsk, USSR, becomes the first nuclear power plant connected to an electric grid.",
+   "source_url": "https://en.wikipedia.org/wiki/June_27",
+   "second_source_url": "https://en.wikipedia.org/wiki/Obninsk_Nuclear_Power_Plant",
+   "evidence": "First criticality was achieved on 2 May 1954, and the first grid connection was made on 27 June 1954.",
+   "confidence": "high"
+  },
+  {
+   "date": "06-28",
+   "text": "1906 — Maria Goeppert Mayer, Nobel-winning physicist of the nuclear shell model, is born.",
+   "source_url": "https://en.wikipedia.org/wiki/June_28",
+   "second_source_url": "https://en.wikipedia.org/wiki/Maria_Goeppert_Mayer",
+   "evidence": "Maria Göppert was born on June 28, 1906, in Kattowitz",
+   "confidence": "high"
+  },
+  {
+   "date": "06-29",
+   "text": "2007 — Apple releases the first iPhone in the United States.",
+   "source_url": "https://en.wikipedia.org/wiki/June_29",
+   "second_source_url": "https://en.wikipedia.org/wiki/IPhone_(1st_generation)",
+   "evidence": "officially announced on January 9, 2007, and was released in the United States on June 29, 2007",
+   "confidence": "high"
+  },
+  {
+   "date": "06-30",
+   "text": "1972 — The world's first leap second is added: clocks read 23:59:60 for the first time.",
+   "source_url": "https://en.wikipedia.org/wiki/June_30",
+   "second_source_url": "https://en.wikipedia.org/wiki/Leap_second",
+   "evidence": "1972 – The first leap second is added to the UTC time system. / Leap second table: 1972 | 30 Jun +1",
+   "confidence": "high"
+  },
+  {
+   "date": "07-01",
+   "text": "1979 — Sony's Walkman goes on sale in Japan. (1646: calculus pioneer Gottfried Leibniz is born.)",
+   "source_url": "https://en.wikipedia.org/wiki/Walkman",
+   "evidence": "the world's first low-cost personal stereo, went on sale in Japan on 1 July 1979",
+   "second_source_url": "https://www.computerhistory.org/tdih/july/1/",
+   "confidence": "high"
+  },
+  {
+   "date": "07-02",
+   "text": "1953 — IBM announces the 650, a magnetic-drum computer that became a 1950s bestseller.",
+   "source_url": "https://www.computerhistory.org/tdih/july/2/",
+   "evidence": "july 2, 1953 IBM Announces the Model 650 Computer",
+   "second_source_url": "https://en.wikipedia.org/wiki/IBM_650",
+   "confidence": "high"
+  },
+  {
+   "date": "07-03",
+   "text": "1886 — Karl Benz publicly unveils the Benz Patent-Motorwagen, the first purpose-built automobile.",
+   "source_url": "https://en.wikipedia.org/wiki/July_3",
+   "evidence": "1886 – Karl Benz officially unveils the Benz Patent-Motorwagen, the first purpose-built automobile.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Benz_Patent-Motorwagen",
+   "confidence": "high"
+  },
+  {
+   "date": "07-04",
+   "text": "2012 — CERN announces it has found a particle consistent with the Higgs boson. (1868: Henrietta Leavitt born.)",
+   "source_url": "https://en.wikipedia.org/wiki/July_4",
+   "evidence": "2012 – The discovery of particles consistent with the Higgs boson at the Large Hadron Collider is announced at CERN.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Henrietta_Swan_Leavitt",
+   "confidence": "high"
+  },
+  {
+   "date": "07-05",
+   "text": "1994 — Jeff Bezos founds Amazon. Its original name was Cadabra.",
+   "source_url": "https://en.wikipedia.org/wiki/Amazon_(company)",
+   "evidence": "On July 5, 1994, Amazon was founded as \"Cadabra\" by Jeff Bezos",
+   "second_source_url": "https://en.wikipedia.org/wiki/July_5",
+   "confidence": "high"
+  },
+  {
+   "date": "07-06",
+   "text": "2003 — The Yevpatoria radar telescope beams the Cosmic Call 2 message toward five nearby stars.",
+   "source_url": "https://en.wikipedia.org/wiki/July_6",
+   "evidence": "2003 – The 70-metre Yevpatoria Planetary Radar sends a METI message (Cosmic Call 2) to five stars",
+   "second_source_url": "https://en.wikipedia.org/wiki/Cosmic_Call",
+   "confidence": "high"
+  },
+  {
+   "date": "07-07",
+   "text": "1928 — Pre-sliced bread goes on sale for the first time, in Chillicothe, Missouri.",
+   "source_url": "https://en.wikipedia.org/wiki/Sliced_bread",
+   "evidence": "Chillicothe Baking Company of Chillicothe, Missouri, who sold their first slices on July 7, 1928",
+   "second_source_url": "https://en.wikipedia.org/wiki/July_7",
+   "confidence": "high"
+  },
+  {
+   "date": "07-08",
+   "text": "2011 — Atlantis lifts off on STS-135, the final mission of the Space Shuttle program.",
+   "source_url": "https://en.wikipedia.org/wiki/July_8",
+   "evidence": "2011 – Space Shuttle Atlantis is launched in the final mission of the U.S. Space Shuttle program.",
+   "confidence": "high"
+  },
+  {
+   "date": "07-09",
+   "text": "1922 — Kathleen Booth, co-author of the first assembly language, is born. (1982: Disney's CGI-heavy Tron opens.)",
+   "source_url": "https://en.wikipedia.org/wiki/Kathleen_Booth",
+   "evidence": "Kathleen Hylda Valerie Booth (née Britten, 9 July 1922 ... co-wrote the first assembly language",
+   "second_source_url": "https://www.computerhistory.org/tdih/july/9/",
+   "confidence": "high"
+  },
+  {
+   "date": "07-10",
+   "text": "1962 — Telstar, the first satellite to relay live TV across the Atlantic, is launched.",
+   "source_url": "https://www.computerhistory.org/tdih/july/10/",
+   "evidence": "july 10, 1962 Telstar Satellite Launched",
+   "second_source_url": "https://en.wikipedia.org/wiki/Telstar_1",
+   "confidence": "high"
+  },
+  {
+   "date": "07-11",
+   "text": "1918 — Venetia Burney is born. At age 11 she suggested the name \"Pluto\" for the new planet.",
+   "source_url": "https://en.wikipedia.org/wiki/Venetia_Burney",
+   "evidence": "Venetia Katharine Douglas Burney (married name Phair, 11 July 1918",
+   "second_source_url": "https://en.wikipedia.org/wiki/July_11",
+   "confidence": "high"
+  },
+  {
+   "date": "07-12",
+   "text": "1879 — Margherita Beloch is born. She showed paper folding can solve cubic equations.",
+   "source_url": "https://en.wikipedia.org/wiki/Margherita_Piazzola_Beloch",
+   "evidence": "Margherita Piazzola Beloch (née Beloch; 12 July 1879 ... known for her contribution to the mathematics of paper folding",
+   "second_source_url": "https://en.wikipedia.org/wiki/July_12",
+   "confidence": "high"
+  },
+  {
+   "date": "07-13",
+   "text": "1944 — Ernő Rubik, inventor of the Rubik's Cube, is born in Budapest.",
+   "source_url": "https://en.wikipedia.org/wiki/Ern%C5%91_Rubik",
+   "evidence": "Ernő Rubik was born in Budapest, Hungary, on 13 July 1944",
+   "second_source_url": "https://en.wikipedia.org/wiki/July_13",
+   "confidence": "high"
+  },
+  {
+   "date": "07-14",
+   "text": "2015 — New Horizons makes the first flyby of Pluto. (1965: Mariner 4 sends first close-ups of Mars.)",
+   "source_url": "https://en.wikipedia.org/wiki/July_14",
+   "evidence": "2015 – NASA's New Horizons probe performs the first flyby of Pluto; 1965 – Mariner 4 flyby of Mars takes the first close-up photos of another planet.",
+   "second_source_url": "https://en.wikipedia.org/wiki/New_Horizons",
+   "confidence": "high"
+  },
+  {
+   "date": "07-15",
+   "text": "1943 — Jocelyn Bell Burnell, discoverer of pulsars, is born. (1983: Nintendo's Famicom launches.)",
+   "source_url": "https://en.wikipedia.org/wiki/Jocelyn_Bell_Burnell",
+   "evidence": "Dame Susan Jocelyn Bell Burnell ... born 15 July 1943",
+   "second_source_url": "https://en.wikipedia.org/wiki/Nintendo_Entertainment_System",
+   "confidence": "high"
+  },
+  {
+   "date": "07-16",
+   "text": "1969 — Apollo 11 launches toward the Moon. (1951: VisiCalc co-creator Dan Bricklin is born.)",
+   "source_url": "https://en.wikipedia.org/wiki/July_16",
+   "evidence": "1969 – The Apollo 11 lunar landing mission is launched from Cape Kennedy in Florida, USA.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Dan_Bricklin",
+   "confidence": "high"
+  },
+  {
+   "date": "07-17",
+   "text": "1850 — Vega becomes the first star other than the Sun ever to be photographed.",
+   "source_url": "https://en.wikipedia.org/wiki/Vega",
+   "evidence": "On 17 July 1850, Vega became the first star (other than the Sun) to be photographed",
+   "second_source_url": "https://en.wikipedia.org/wiki/July_17",
+   "confidence": "high"
+  },
+  {
+   "date": "07-18",
+   "text": "1968 — Robert Noyce and Gordon Moore incorporate the company that becomes Intel.",
+   "source_url": "https://en.wikipedia.org/wiki/Intel",
+   "evidence": "they founded the company as NM Electronics on July 18, 1968, but by the end of the month had changed the name to Intel",
+   "second_source_url": "https://www.computerhistory.org/tdih/july/18/",
+   "confidence": "high"
+  },
+  {
+   "date": "07-19",
+   "text": "1977 — The first GPS satellite signal is sent from NTS-2 and received in Cedar Rapids, Iowa.",
+   "source_url": "https://en.wikipedia.org/wiki/July_19",
+   "evidence": "1977 – The world's first Global Positioning System (GPS) signal is transmitted from Navigation Technology Satellite 2 (NTS-2) and received at Rockwell Collins in Cedar Rapids, Iowa",
+   "confidence": "medium"
+  },
+  {
+   "date": "07-20",
+   "text": "1969 — Apollo 11's lunar module Eagle lands on the Moon. (1976: Viking 1 lands on Mars.)",
+   "source_url": "https://en.wikipedia.org/wiki/July_20",
+   "evidence": "1969 – Apollo 11's crew successfully makes the first human landing on the Moon; 1976 – The American Viking 1 lander successfully lands on Mars.",
+   "second_source_url": "https://www.computerhistory.org/tdih/july/20/",
+   "confidence": "high"
+  },
+  {
+   "date": "07-21",
+   "text": "1983 — Vostok Station, Antarctica, records Earth's coldest measured temperature: -89.2 °C.",
+   "source_url": "https://en.wikipedia.org/wiki/Vostok_Station",
+   "evidence": "The lowest reliably measured temperature on Earth of -89.2 C was in Vostok on 21 July 1983",
+   "second_source_url": "https://en.wikipedia.org/wiki/July_21",
+   "confidence": "high"
+  },
+  {
+   "date": "07-22",
+   "text": "1951 — Dezik and Tsygan become the first dogs to fly into space and return safely.",
+   "source_url": "https://en.wikipedia.org/wiki/Dezik_and_Tsygan",
+   "evidence": "during their suborbital flight on July 22, 1951, the first dogs to fly into space",
+   "second_source_url": "https://en.wikipedia.org/wiki/July_22",
+   "confidence": "high"
+  },
+  {
+   "date": "07-23",
+   "text": "1999 — Eileen Collins becomes the first woman to command a Space Shuttle. (1928: Vera Rubin born.)",
+   "source_url": "https://en.wikipedia.org/wiki/July_23",
+   "evidence": "1999 – Space Shuttle Columbia launches on STS-93, with Eileen Collins becoming the first female space shuttle commander.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Vera_Rubin",
+   "confidence": "high"
+  },
+  {
+   "date": "07-24",
+   "text": "1950 — Cape Canaveral sees its first rocket launch, a two-stage Bumper rocket.",
+   "source_url": "https://en.wikipedia.org/wiki/July_24",
+   "evidence": "1950 – Cape Canaveral Air Force Station begins operations with the launch of a Bumper rocket.",
+   "second_source_url": "https://en.wikipedia.org/wiki/RTV-G-4_Bumper",
+   "confidence": "high"
+  },
+  {
+   "date": "07-25",
+   "text": "1920 — Rosalind Franklin, whose X-ray images helped reveal DNA's structure, is born.",
+   "source_url": "https://en.wikipedia.org/wiki/Rosalind_Franklin",
+   "evidence": "Franklin was born on 25 July 1920 at 50 Chepstow Villas",
+   "second_source_url": "https://en.wikipedia.org/wiki/July_25",
+   "confidence": "high"
+  },
+  {
+   "date": "07-26",
+   "text": "1963 — Syncom 2, the first geosynchronous communications satellite, is launched.",
+   "source_url": "https://en.wikipedia.org/wiki/Syncom",
+   "evidence": "Syncom 2 was launched by NASA on July 26, 1963 with the Delta B #20 launch vehicle from Cape Canaveral.",
+   "second_source_url": "https://en.wikipedia.org/wiki/July_26",
+   "confidence": "high"
+  },
+  {
+   "date": "07-27",
+   "text": "1940 — Bugs Bunny makes his official debut in the cartoon \"A Wild Hare.\"",
+   "source_url": "https://en.wikipedia.org/wiki/A_Wild_Hare",
+   "evidence": "A Wild Hare is a 1940 American animated comedy short film directed by Fred Avery. It was released on July 27, 1940.",
+   "second_source_url": "https://en.wikipedia.org/wiki/July_27",
+   "confidence": "high"
+  },
+  {
+   "date": "07-28",
+   "text": "1915 — Charles Townes, inventor of the maser (the laser's microwave ancestor), is born.",
+   "source_url": "https://en.wikipedia.org/wiki/Charles_H._Townes",
+   "evidence": "Charles Hard Townes was born on July 28, 1915, in Greenville, South Carolina",
+   "second_source_url": "https://en.wikipedia.org/wiki/July_28",
+   "confidence": "high"
+  },
+  {
+   "date": "07-29",
+   "text": "1958 — The act creating NASA is signed into law. (2005: dwarf planet Eris is announced.)",
+   "source_url": "https://en.wikipedia.org/wiki/National_Aeronautics_and_Space_Act",
+   "evidence": "on July 29, 1958 was signed by President Eisenhower",
+   "second_source_url": "https://en.wikipedia.org/wiki/Eris_(dwarf_planet)",
+   "confidence": "high"
+  },
+  {
+   "date": "07-30",
+   "text": "2020 — NASA launches the Perseverance rover to Mars on an Atlas V rocket.",
+   "source_url": "https://en.wikipedia.org/wiki/Mars_2020",
+   "evidence": "Mars 2020 was launched on an Atlas V rocket at 11:50:01 UTC on July 30, 2020",
+   "second_source_url": "https://en.wikipedia.org/wiki/July_30",
+   "confidence": "high"
+  },
+  {
+   "date": "07-31",
+   "text": "1790 — The first US patent is granted, for a potash process. (1923: Kevlar inventor Stephanie Kwolek born.)",
+   "source_url": "https://en.wikipedia.org/wiki/Samuel_Hopkins_(inventor)",
+   "evidence": "On July 31, 1790, he was granted the first U.S. patent",
+   "second_source_url": "https://en.wikipedia.org/wiki/Stephanie_Kwolek",
+   "confidence": "high"
+  },
+  {
+   "date": "08-01",
+   "text": "1967 — The US Navy recalls Grace Hopper to active duty to help develop COBOL.",
+   "source_url": "https://www.computerhistory.org/tdih/august/1/",
+   "evidence": "august 1, 1967 US Navy Recalls Hopper to Head COBOL Effort",
+   "confidence": "high"
+  },
+  {
+   "date": "08-02",
+   "text": "1902 — Mina Rees, computing pioneer and first woman to lead the AAAS, is born.",
+   "source_url": "https://www.computerhistory.org/tdih/august/2/",
+   "evidence": "august 2, 1902 Computer Pioneer Mina Rees Born ... In 1970, she became the first female president of the American Association for the Advancement of Science",
+   "second_source_url": "https://en.wikipedia.org/wiki/Mina_Rees",
+   "confidence": "high"
+  },
+  {
+   "date": "08-03",
+   "text": "1977 — Radio Shack announces the TRS-80, one of the first mass-market PCs.",
+   "source_url": "https://www.computerhistory.org/tdih/august/3/",
+   "evidence": "august 3, 1977 Radio Shack Announces TRS-80 Computer",
+   "second_source_url": "https://en.wikipedia.org/wiki/August_3",
+   "confidence": "high"
+  },
+  {
+   "date": "08-04",
+   "text": "1932 — Frances E. Allen, compiler pioneer and first woman to win the Turing Award, is born.",
+   "source_url": "https://en.wikipedia.org/wiki/August_4",
+   "evidence": "1932 – Frances E. Allen, American computer scientist and academic (died 2020)",
+   "second_source_url": "https://en.wikipedia.org/wiki/Frances_Allen",
+   "confidence": "high"
+  },
+  {
+   "date": "08-05",
+   "text": "1914 — The first electric traffic light is installed, in Cleveland, Ohio. (1930: Neil Armstrong is born.)",
+   "source_url": "https://en.wikipedia.org/wiki/August_5",
+   "evidence": "1914 – In Cleveland, Ohio, the first electric traffic light is installed. / 1930 – Neil Armstrong, American pilot, engineer, and astronaut",
+   "second_source_url": "https://en.wikipedia.org/wiki/Traffic_light",
+   "confidence": "medium"
+  },
+  {
+   "date": "08-06",
+   "text": "1991 — Tim Berners-Lee releases files describing the World Wide Web, its first public appearance online.",
+   "source_url": "https://en.wikipedia.org/wiki/August_6",
+   "evidence": "1991 – Tim Berners-Lee releases files describing his idea for the World Wide Web. WWW makes its first appearance as a publicly available service on the Internet.",
+   "confidence": "high"
+  },
+  {
+   "date": "08-07",
+   "text": "1944 — IBM presents the ASCC, known as the Harvard Mark I, to Harvard University.",
+   "source_url": "https://www.computerhistory.org/tdih/august/7/",
+   "evidence": "august 7, 1944 IBM presents ASCC Giant Brain to Harvard",
+   "second_source_url": "https://en.wikipedia.org/wiki/August_7",
+   "confidence": "high"
+  },
+  {
+   "date": "08-08",
+   "text": "1995 — Netscape goes public; its shares jump from $28 to $75 on the first day.",
+   "source_url": "https://www.computerhistory.org/tdih/august/8/",
+   "evidence": "august 8, 1995 Netscape Communications Goes Public ... Shares jumped from $28 to $75 before closing at $58 the first day.",
+   "confidence": "high"
+  },
+  {
+   "date": "08-09",
+   "text": "1991 — Shannon Lucid and James Adamson send the first email from space, from a Mac Portable.",
+   "source_url": "https://www.computerhistory.org/tdih/august/9/",
+   "evidence": "august 9, 1991 First E-mail Sent from Space ... Using a Mac Portable aboard the Space Shuttle Atlantis",
+   "second_source_url": "https://en.wikipedia.org/wiki/STS-43",
+   "confidence": "high"
+  },
+  {
+   "date": "08-10",
+   "text": "1990 — NASA's Magellan probe reaches Venus. (1948: Candid Camera makes its TV debut.)",
+   "source_url": "https://en.wikipedia.org/wiki/August_10",
+   "evidence": "1948 – Candid Camera makes its television debut ... 1990 – The Magellan space probe reaches Venus.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Magellan_(spacecraft)",
+   "confidence": "high"
+  },
+  {
+   "date": "08-11",
+   "text": "1942 — Hedy Lamarr and George Antheil get a patent for frequency hopping. (1950: Steve Wozniak is born.)",
+   "source_url": "https://en.wikipedia.org/wiki/August_11",
+   "evidence": "1942 – Actress Hedy Lamarr and composer George Antheil receive a patent for a Frequency-hopping spread spectrum communication system",
+   "second_source_url": "https://www.computerhistory.org/tdih/august/11/",
+   "confidence": "high"
+  },
+  {
+   "date": "08-12",
+   "text": "1981 — IBM introduces its Personal Computer, the Model 5150, running MS-DOS.",
+   "source_url": "https://www.computerhistory.org/tdih/august/12/",
+   "evidence": "august 12, 1981 IBM Introduces Personal Computer ... also known as the IBM Model 5150",
+   "second_source_url": "https://en.wikipedia.org/wiki/August_12",
+   "confidence": "high"
+  },
+  {
+   "date": "08-13",
+   "text": "1889 — William Gray gets a patent for a coin-operated telephone, the payphone.",
+   "source_url": "https://en.wikipedia.org/wiki/August_13",
+   "evidence": "1889 – William Gray of Hartford, Connecticut is granted United States Patent Number 408,709 for \"Coin-controlled apparatus for telephones.\"",
+   "second_source_url": "https://en.wikipedia.org/wiki/Payphone",
+   "confidence": "high"
+  },
+  {
+   "date": "08-14",
+   "text": "1885 — Japan grants its first patent, to lacquer craftsman Hotta Zuisho for a rust-proof paint.",
+   "source_url": "https://en.wikipedia.org/wiki/August_14",
+   "evidence": "1885 – Japan's first patent is issued to the inventor of a rust-proof paint.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Japan_Patent_Office",
+   "confidence": "high"
+  },
+  {
+   "date": "08-15",
+   "text": "1977 — The Big Ear radio telescope detects the \"Wow!\" signal. (1998: Apple's iMac goes on sale.)",
+   "source_url": "https://en.wikipedia.org/wiki/Wow!_signal",
+   "evidence": "The Wow! signal was a strong narrowband radio signal detected on August 15, 1977, by Ohio State University's Big Ear radio telescope",
+   "second_source_url": "https://en.wikipedia.org/wiki/IMac_G3",
+   "confidence": "high"
+  },
+  {
+   "date": "08-16",
+   "text": "1890 — The US Census announces its count, the first tallied by Herman Hollerith's punched-card machine.",
+   "source_url": "https://www.computerhistory.org/tdih/august/16/",
+   "evidence": "august 16, 1890 Census Bureau Announces Results Using Herman Hollerith's Machine",
+   "confidence": "high"
+  },
+  {
+   "date": "08-17",
+   "text": "1936 — Margaret Hamilton, who led the Apollo flight software team, is born.",
+   "source_url": "https://en.wikipedia.org/wiki/August_17",
+   "evidence": "1936 – Margaret Heafield Hamilton, American computer scientist, systems engineer, and business owner",
+   "second_source_url": "https://en.wikipedia.org/wiki/Margaret_Hamilton_(software_engineer)",
+   "confidence": "high"
+  },
+  {
+   "date": "08-18",
+   "text": "1911 — Klára Dán von Neumann, one of the first computer programmers, is born. (1947: HP incorporates.)",
+   "source_url": "https://en.wikipedia.org/wiki/August_18",
+   "evidence": "1911 – Klara Dan von Neumann, Hungarian computer scientist and programmer (died 1963)",
+   "second_source_url": "https://www.computerhistory.org/tdih/august/18/",
+   "confidence": "high"
+  },
+  {
+   "date": "08-19",
+   "text": "1960 — Dogs Belka and Strelka orbit Earth with 40 mice and two rats, and return safely the next day.",
+   "source_url": "https://en.wikipedia.org/wiki/August_19",
+   "evidence": "1960 – Korabl-Sputnik 2: The Soviet Union launches the satellite with the dogs Belka and Strelka, 40 mice, two rats",
+   "second_source_url": "https://en.wikipedia.org/wiki/Korabl-Sputnik_2",
+   "confidence": "high"
+  },
+  {
+   "date": "08-20",
+   "text": "1977 — NASA launches Voyager 2. (1920: Detroit's 8MK, now WWJ, begins daily radio broadcasts.)",
+   "source_url": "https://en.wikipedia.org/wiki/Voyager_2",
+   "evidence": "Voyager 2 is a space probe launched by NASA on August 20, 1977",
+   "second_source_url": "https://en.wikipedia.org/wiki/WWJ_(AM)",
+   "confidence": "high"
+  },
+  {
+   "date": "08-21",
+   "text": "1973 — Google co-founder Sergey Brin is born. (1888: William S. Burroughs patents his calculating machine.)",
+   "source_url": "https://en.wikipedia.org/wiki/Sergey_Brin",
+   "evidence": "Brin was born into a Russian-Jewish family on August 21, 1973, in Moscow",
+   "second_source_url": "https://www.computerhistory.org/tdih/august/21/",
+   "confidence": "high"
+  },
+  {
+   "date": "08-22",
+   "text": "1955 — IBM 704 users meet at RAND and form SHARE, the first computer user group.",
+   "source_url": "https://www.computerhistory.org/tdih/august/22/",
+   "evidence": "august 22, 1955 The First Computer User Group Is Founded ... The outcome of the meeting was the first computer user's group, SHARE.",
+   "second_source_url": "https://en.wikipedia.org/wiki/SHARE_(computing)",
+   "confidence": "high"
+  },
+  {
+   "date": "08-23",
+   "text": "1966 — Lunar Orbiter 1 takes the first photo of Earth from the Moon. (1904: Tire snow chains patented.)",
+   "source_url": "https://en.wikipedia.org/wiki/August_23",
+   "evidence": "1966 – Lunar Orbiter 1 takes the first photograph of Earth from orbit around the Moon. / 1904 – The automobile tire chain is patented.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Snow_chains",
+   "confidence": "high"
+  },
+  {
+   "date": "08-24",
+   "text": "1995 — Microsoft releases Windows 95 with one of the biggest launch campaigns in history.",
+   "source_url": "https://www.computerhistory.org/tdih/august/24/",
+   "evidence": "august 24, 1995 Microsoft Ships Windows 95 ... possibly the largest product launch campaign in history",
+   "second_source_url": "https://en.wikipedia.org/wiki/August_24",
+   "confidence": "high"
+  },
+  {
+   "date": "08-25",
+   "text": "1991 — Linus Torvalds announces the project that becomes Linux. (1835: The \"Great Moon Hoax\" begins.)",
+   "source_url": "https://en.wikipedia.org/wiki/August_25",
+   "evidence": "1991 – Linus Torvalds announces the first version of what will become Linux. / 1835 – The first Great Moon Hoax article is published in The New York Sun",
+   "second_source_url": "https://en.wikipedia.org/wiki/Great_Moon_Hoax",
+   "confidence": "high"
+  },
+  {
+   "date": "08-26",
+   "text": "1918 — NASA mathematician Katherine Johnson is born. (1935: Search pioneer Karen Spärck Jones is born.)",
+   "source_url": "https://en.wikipedia.org/wiki/Katherine_Johnson",
+   "evidence": "Katherine Johnson was born Creola Katherine Coleman on August 26, 1918",
+   "second_source_url": "https://en.wikipedia.org/wiki/Karen_Sp%C3%A4rck_Jones",
+   "confidence": "high"
+  },
+  {
+   "date": "08-27",
+   "text": "1955 — The first Guinness Book of Records is published. (1939: The He 178, the first jet plane, flies.)",
+   "source_url": "https://en.wikipedia.org/wiki/August_27",
+   "evidence": "1955 – The first edition of the Guinness Book of Records is published in Great Britain. / 1939 – First flight of the turbojet-powered Heinkel He 178, the world's first jet aircraft.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Heinkel_He_178",
+   "confidence": "high"
+  },
+  {
+   "date": "08-28",
+   "text": "1845 — The first issue of Scientific American is published. (1965: Pokémon creator Satoshi Tajiri born.)",
+   "source_url": "https://en.wikipedia.org/wiki/Scientific_American",
+   "evidence": "The first issue of the large-format New York City newspaper was released on August 28, 1845.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Satoshi_Tajiri",
+   "confidence": "high"
+  },
+  {
+   "date": "08-29",
+   "text": "1831 — Michael Faraday discovers electromagnetic induction. (1997: Netflix is founded as a DVD rental service.)",
+   "source_url": "https://en.wikipedia.org/wiki/August_29",
+   "evidence": "1831 – Michael Faraday discovers electromagnetic induction. / 1997 – Netflix is launched as an internet DVD rental service.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Netflix",
+   "confidence": "high"
+  },
+  {
+   "date": "08-30",
+   "text": "1983 — Guion Bluford becomes the first African American in space, on the shuttle's first night launch.",
+   "source_url": "https://en.wikipedia.org/wiki/Guion_Bluford",
+   "evidence": "Bluford's first mission was STS-8, which launched from Kennedy Space Center, Florida, on August 30, 1983 ... the first mission with a night launch",
+   "second_source_url": "https://en.wikipedia.org/wiki/August_30",
+   "confidence": "high"
+  },
+  {
+   "date": "08-31",
+   "text": "1895 — Count Ferdinand von Zeppelin patents his \"navigable balloon,\" the airship.",
+   "source_url": "https://en.wikipedia.org/wiki/August_31",
+   "evidence": "1895 – German Count Ferdinand von Zeppelin patents his navigable balloon.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Ferdinand_von_Zeppelin",
+   "confidence": "high"
+  },
+  {
+   "date": "09-01",
+   "text": "1878 — Emma Nutt becomes the world's first female telephone operator, hired in Boston.",
+   "source_url": "https://en.wikipedia.org/wiki/September_1",
+   "evidence": "1878 – Emma Nutt becomes the world's first female telephone operator when she is recruited by Alexander Graham Bell to the Boston Telephone Dispatch Company.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Emma_Nutt",
+   "confidence": "high"
+  },
+  {
+   "date": "09-02",
+   "text": "2008 — Google launches its Chrome web browser.",
+   "source_url": "https://en.wikipedia.org/wiki/September_2",
+   "evidence": "2008 – Google launches its Google Chrome web browser.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Google_Chrome",
+   "confidence": "high"
+  },
+  {
+   "date": "09-03",
+   "text": "1982 — Steve Wozniak's US Festival, a rock concert plus technology expo, opens in California.",
+   "source_url": "https://www.computerhistory.org/tdih/september/3/",
+   "evidence": "september 3, 1982 — Steve Wozniak's US Festival Begins ... an outdoor concert and technology expo held in San Bernadino",
+   "second_source_url": "https://en.wikipedia.org/wiki/US_Festival",
+   "confidence": "high"
+  },
+  {
+   "date": "09-04",
+   "text": "1927 — John McCarthy, AI pioneer and creator of the LISP language, is born in Boston.",
+   "source_url": "https://www.computerhistory.org/tdih/september/4/",
+   "evidence": "september 4, 1927 — AI Pioneer McCarthy Born ... is born in Boston",
+   "second_source_url": "https://en.wikipedia.org/wiki/September_4",
+   "confidence": "high"
+  },
+  {
+   "date": "09-05",
+   "text": "1977 — NASA launches Voyager 1, now the most distant human-made object.",
+   "source_url": "https://en.wikipedia.org/wiki/September_5",
+   "evidence": "1977 – Voyager Program: NASA launches the Voyager 1 spacecraft.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Voyager_1",
+   "confidence": "high"
+  },
+  {
+   "date": "09-06",
+   "text": "1997 — The US Navy commissions the USS Hopper, named for computing pioneer Grace Hopper.",
+   "source_url": "https://www.computerhistory.org/tdih/september/6/",
+   "evidence": "september 6, 1997 — The USS Grace Murray Hopper was commissioned by the US Navy in San Francisco.",
+   "second_source_url": "https://en.wikipedia.org/wiki/USS_Hopper",
+   "confidence": "high"
+  },
+  {
+   "date": "09-07",
+   "text": "1912 — David Packard, co-founder of Hewlett-Packard, is born.",
+   "source_url": "https://en.wikipedia.org/wiki/September_7",
+   "evidence": "1912 – David Packard, American engineer and businessman, co-founded Hewlett-Packard (died 1996)",
+   "second_source_url": "https://en.wikipedia.org/wiki/David_Packard",
+   "confidence": "high"
+  },
+  {
+   "date": "09-08",
+   "text": "1966 — Star Trek premieres on NBC; its gadgets inspired a generation of engineers.",
+   "source_url": "https://www.computerhistory.org/tdih/september/8/",
+   "evidence": "september 8, 1966 — The First Episode of Star Trek Airs",
+   "second_source_url": "https://en.wikipedia.org/wiki/Star_Trek:_The_Original_Series",
+   "confidence": "high"
+  },
+  {
+   "date": "09-09",
+   "text": "1947 — A moth is taped into the Harvard Mark II log: \"First actual case of bug being found.\"",
+   "source_url": "https://www.computerhistory.org/tdih/september/9/",
+   "evidence": "On September 9, 1947, a team ... reported a moth caught between the relay contacts of the Harvard Mark II computer",
+   "confidence": "high"
+  },
+  {
+   "date": "09-10",
+   "text": "1941 — Gunpei Yokoi, Nintendo designer who invented the Game Boy, is born.",
+   "source_url": "https://en.wikipedia.org/wiki/September_10",
+   "evidence": "1941 – Gunpei Yokoi, Japanese video game designer, invented Game Boy (died 1997)",
+   "second_source_url": "https://en.wikipedia.org/wiki/Gunpei_Yokoi",
+   "confidence": "high"
+  },
+  {
+   "date": "09-11",
+   "text": "1997 — NASA's Mars Global Surveyor arrives at Mars.",
+   "source_url": "https://en.wikipedia.org/wiki/September_11",
+   "evidence": "1997 – NASA's Mars Global Surveyor reaches Mars.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Mars_Global_Surveyor",
+   "confidence": "high"
+  },
+  {
+   "date": "09-12",
+   "text": "1992 — Mae Jemison becomes the first African-American woman in space. (1958: Kilby tests the first IC.)",
+   "source_url": "https://en.wikipedia.org/wiki/September_12",
+   "evidence": "1992 – NASA launches Space Shuttle Endeavour on STS-47 ... On board are Mae Carol Jemison, the first African-American woman in space; CHM: september 12, 1958 Successful Test of the First Integrated Circuit",
+   "second_source_url": "https://www.computerhistory.org/tdih/september/12/",
+   "confidence": "high"
+  },
+  {
+   "date": "09-13",
+   "text": "1985 — Super Mario Bros. is released in Japan for the NES.",
+   "source_url": "https://en.wikipedia.org/wiki/September_13",
+   "evidence": "1985 – Super Mario Bros. is released in Japan for the NES",
+   "second_source_url": "https://en.wikipedia.org/wiki/Super_Mario_Bros.",
+   "confidence": "high"
+  },
+  {
+   "date": "09-14",
+   "text": "2015 — LIGO makes the first direct detection of gravitational waves.",
+   "source_url": "https://en.wikipedia.org/wiki/September_14",
+   "evidence": "2015 – The first observation of gravitational waves is made, announced by the LIGO and Virgo collaborations on 11 February 2016.",
+   "second_source_url": "https://en.wikipedia.org/wiki/First_observation_of_gravitational_waves",
+   "confidence": "high"
+  },
+  {
+   "date": "09-15",
+   "text": "1947 — The Association for Computing Machinery (ACM) is founded at Columbia University.",
+   "source_url": "https://www.computerhistory.org/tdih/september/15/",
+   "evidence": "september 15, 1947 — The Association for Computing Machinery is Founded",
+   "second_source_url": "https://en.wikipedia.org/wiki/Association_for_Computing_Machinery",
+   "confidence": "high"
+  },
+  {
+   "date": "09-16",
+   "text": "1959 — The Xerox 914, the first successful photocopier, is demonstrated live on TV.",
+   "source_url": "https://en.wikipedia.org/wiki/September_16",
+   "evidence": "1959 – The first successful photocopier, the Xerox 914, is introduced in a demonstration on live television from New York City.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Xerox_914",
+   "confidence": "high"
+  },
+  {
+   "date": "09-17",
+   "text": "1991 — Linus Torvalds uploads Linux 0.01 to an FTP server.",
+   "source_url": "https://en.wikipedia.org/wiki/September_17",
+   "evidence": "1991 – The first version of the Linux kernel (0.01) is released to the Internet.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Linux_kernel",
+   "confidence": "high"
+  },
+  {
+   "date": "09-18",
+   "text": "1819 — Léon Foucault, whose pendulum showed Earth spinning, is born. (1926: FFT co-creator James Cooley born.)",
+   "source_url": "https://en.wikipedia.org/wiki/L%C3%A9on_Foucault",
+   "evidence": "Foucault was born in Paris on 18 September 1819; CHM: september 18, 1926 James Cooley Born",
+   "second_source_url": "https://www.computerhistory.org/tdih/september/18/",
+   "confidence": "high"
+  },
+  {
+   "date": "09-19",
+   "text": "1982 — Scott Fahlman posts the first documented emoticons, :-) and :-(, at Carnegie Mellon.",
+   "source_url": "https://en.wikipedia.org/wiki/September_19",
+   "evidence": "1982 – Scott Fahlman posts the first documented emoticons :-) and :-( on the Carnegie Mellon University bulletin board system.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Scott_Fahlman",
+   "confidence": "high"
+  },
+  {
+   "date": "09-20",
+   "text": "1983 — MIT is granted the patent for RSA encryption. (1954: The first FORTRAN program runs.)",
+   "source_url": "https://www.computerhistory.org/tdih/september/20/",
+   "evidence": "september 20, 1954 First FORTRAN Program Runs; september 20, 1983 RSA Algorithm Patent Is Awarded",
+   "second_source_url": "https://en.wikipedia.org/wiki/RSA_cryptosystem",
+   "confidence": "high"
+  },
+  {
+   "date": "09-21",
+   "text": "1853 — Heike Kamerlingh Onnes, who discovered superconductivity, is born.",
+   "source_url": "https://en.wikipedia.org/wiki/September_21",
+   "evidence": "1853 – Heike Kamerlingh Onnes, Dutch physicist and academic, Nobel Prize laureate (died 1926)",
+   "second_source_url": "https://en.wikipedia.org/wiki/Heike_Kamerlingh_Onnes",
+   "confidence": "high"
+  },
+  {
+   "date": "09-22",
+   "text": "1791 — Michael Faraday, pioneer of electromagnetism and the electric motor, is born.",
+   "source_url": "https://en.wikipedia.org/wiki/September_22",
+   "evidence": "1791 – Michael Faraday, English physicist and chemist (died 1867)",
+   "second_source_url": "https://en.wikipedia.org/wiki/Michael_Faraday",
+   "confidence": "high"
+  },
+  {
+   "date": "09-23",
+   "text": "1785 — Georg Scheutz, who built a calculating engine based on Babbage's Difference Engine, is born.",
+   "source_url": "https://www.computerhistory.org/tdih/september/23/",
+   "evidence": "september 23, 1785 — Difference Engine Builder Scheutz Born ... is born in Stockholm",
+   "second_source_url": "https://en.wikipedia.org/wiki/Per_Georg_Scheutz",
+   "confidence": "high"
+  },
+  {
+   "date": "09-24",
+   "text": "2014 — India's Mars Orbiter Mission reaches Mars orbit on its first attempt.",
+   "source_url": "https://en.wikipedia.org/wiki/September_24",
+   "evidence": "2014 – The Mars Orbiter Mission makes India the first Asian nation to reach Mars orbit, and the first nation in the world to do so in its first attempt.",
+   "second_source_url": "https://en.wikipedia.org/wiki/Mars_Orbiter_Mission",
+   "confidence": "high"
+  },
+  {
+   "date": "09-25",
+   "text": "1937 — Mary Allen Wilkes is born; she is often called the first person to use a personal computer at home.",
+   "source_url": "https://en.wikipedia.org/wiki/Mary_Allen_Wilkes",
+   "evidence": "Mary Allen Wilkes (born September 25, 1937) ... is usually considered to be the first user of a personal computer in the home.",
+   "second_source_url": "https://en.wikipedia.org/wiki/September_25",
+   "confidence": "high"
+  },
+  {
+   "date": "09-26",
+   "text": "1924 — Jean Hoerni, inventor of the planar process behind modern microchips, is born.",
+   "source_url": "https://www.computerhistory.org/tdih/september/26/",
+   "evidence": "september 26, 1924 — IC Pioneer Jean Hoerni Born ... in 1959 invented the planar process",
+   "second_source_url": "https://en.wikipedia.org/wiki/Jean_Hoerni",
+   "confidence": "high"
+  },
+  {
+   "date": "09-27",
+   "text": "1954 — Larry Wall, creator of the Perl programming language, is born.",
+   "source_url": "https://en.wikipedia.org/wiki/September_27",
+   "evidence": "1954 – Larry Wall, American computer programmer and author",
+   "second_source_url": "https://en.wikipedia.org/wiki/Larry_Wall",
+   "confidence": "high"
+  }
+ ],
+ "gaps": [],
+ "pioneers": [
+  {
+   "name": "Jean Bartik",
+   "birth_date": "1924-12-27",
+   "years": "1924–2011",
+   "what": "One of the six original programmers of ENIAC, she co-led the team that taught itself to program the machine from diagrams. She later worked on BINAC and UNIVAC.",
+   "fact": "Drupal's default theme, Bartik, is named in her honor.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Jean_Bartik",
+   "evidence": "Content-management framework Drupal's default theme, Bartik, is named in her honor."
+  },
+  {
+   "name": "Betty Holberton",
+   "birth_date": "1917-03-07",
+   "years": "1917–2001",
+   "what": "An original ENIAC programmer, she wrote the SORT/MERGE generator, the first program that wrote a program. She also invented breakpoints for debugging.",
+   "fact": "She persuaded engineers to swap UNIVAC's black exterior for the gray-beige that became the standard computer color.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Betty_Holberton",
+   "evidence": "Holberton invented breakpoints in computer debugging."
+  },
+  {
+   "name": "Kathleen Booth",
+   "birth_date": "1922-07-09",
+   "years": "1922–2022",
+   "what": "A British mathematician, she co-wrote the first assembly language. At Birkbeck College she helped design the ARC, SEC and APE(X)C computers.",
+   "fact": "In 1955 her group publicly demonstrated a machine translating a sentence from French to English.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Kathleen_Booth",
+   "evidence": "co-wrote the first assembly language and co-designed the assembler and autocode for the first computer systems at Birkbeck College"
+  },
+  {
+   "name": "Mary Kenneth Keller",
+   "birth_date": "1913-12-17",
+   "years": "1913–1985",
+   "what": "A Catholic sister, she was the first woman in the US to earn a PhD in computer science (1965). She then founded and ran Clarke College's computer science department for 20 years.",
+   "fact": "In 1961 she worked at Dartmouth with Thomas Kurtz, helping in the development of the BASIC language.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Mary_Kenneth_Keller",
+   "evidence": "She was one of the first people, and the first woman to earn a Ph.D. in computer science in the United States."
+  },
+  {
+   "name": "Jean E. Sammet",
+   "birth_date": "1928-03-23",
+   "years": "1928–2017",
+   "what": "She developed FORMAC, the first widely used language for symbolic math, and helped create COBOL. In 1974 she became the first female president of the ACM.",
+   "fact": "Her first programming task, a 20-line loader, took three days to toggle into the computer by hand in binary.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Jean_E._Sammet",
+   "evidence": "She was the first female president of the ACM, from 1974 to 1976."
+  },
+  {
+   "name": "Evelyn Berezin",
+   "birth_date": "1925-04-12",
+   "years": "1925–2018",
+   "what": "She led logic design on the Reservisor, an early airline reservation system for United Airlines. In 1969 she founded Redactron to sell her Data Secretary word processor.",
+   "fact": "Her Data Secretary word processor was about the size of a small refrigerator.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Evelyn_Berezin",
+   "evidence": "She created the first computerized word processor and dubbed it the Data Secretary."
+  },
+  {
+   "name": "Carol Shaw",
+   "birth_date": "1955",
+   "years": "b. 1955",
+   "what": "At Atari she designed 3-D Tic-Tac-Toe and Video Checkers for the 2600. At Activision she created River Raid (1982), a major hit vertically scrolling shooter.",
+   "fact": "Her first Atari project was a promo game tied to a Ralph Lauren cologne. Atari never published it.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Carol_Shaw",
+   "evidence": "She is best known for creating the Atari 2600 vertically scrolling shooter game River Raid (1982) for Activision."
+  },
+  {
+   "name": "Joan Clarke",
+   "birth_date": "1917-06-24",
+   "years": "1917–1996",
+   "what": "An English cryptanalyst in Bletchley Park's Hut 8, she worked on breaking German naval Enigma messages. She became deputy head of Hut 8 in 1944.",
+   "fact": "To be paid for a promotion she was classed as a linguist, and enjoyed writing 'languages: none' on forms.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Joan_Clarke",
+   "evidence": "Clarke became deputy head of Hut 8 in 1944, although she was prevented from progressing because she was female"
+  },
+  {
+   "name": "Christopher Strachey",
+   "birth_date": "1916-11-16",
+   "years": "1916–1975",
+   "what": "A British pioneer of programming language design, he helped found denotational semantics and created CPL, an early influence on C. His 1951–52 draughts program may be the first video game.",
+   "fact": "In 1952 he programmed a love letter generator, called the first example of computer-generated literature.",
+   "group": "LGBTQ+",
+   "pronouns": "he/him",
+   "source_url": "https://en.wikipedia.org/wiki/Christopher_Strachey",
+   "evidence": "He created the programming language CPL, which was an early influence on C. He is credited as possibly the first developer of a video game"
+  },
+  {
+   "name": "Kateryna Yushchenko",
+   "birth_date": "1919-12-08",
+   "years": "1919–2001",
+   "what": "A Ukrainian computer scientist, in 1955 she created the Address programming language, an early high-level language using indirect addressing, akin to pointers.",
+   "fact": "Over her academic career she supervised 47 PhD students.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Kateryna_Yushchenko_(scientist)",
+   "evidence": "She developed one of the world's first high-level languages with indirect address in programming (Pointers are analogous to this addressing), called the Address programming language."
+  },
+  {
+   "name": "Anita Borg",
+   "birth_date": "1949-01-17",
+   "years": "1949–2003",
+   "what": "In 1987 she founded Systers, the first email network for women in technology. In 1994 she co-founded the Grace Hopper Celebration of Women in Computing.",
+   "fact": "Protests begun on her Systers list helped get Mattel to drop a Barbie doll's 'math class is tough' phrase.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Anita_Borg",
+   "evidence": "In 1987, Borg founded Systers, the first email network for women in technology."
+  },
+  {
+   "name": "Adele Goldberg",
+   "birth_date": "1945-07-22",
+   "years": "b. 1945",
+   "what": "At Xerox PARC she co-developed Smalltalk-80, an early object-oriented language that influenced Python, Objective-C and Java. She was ACM president from 1984 to 1986.",
+   "fact": "With Alan Kay she described the Dynabook, a portable personal computer, in the 1976 article 'Personal Dynamic Media'.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Adele_Goldberg_(computer_scientist)",
+   "evidence": "She was a co-developer of the programming language Smalltalk-80, an early object-oriented programming language that influenced the design of languages such as Python, Objective-C, and Java"
+  },
+  {
+   "name": "Susan Kare",
+   "birth_date": "1954-02-05",
+   "years": "b. 1954",
+   "what": "An artist, she designed icons and typefaces for the original Apple Macintosh, including the Chicago font. She later designed the card deck for Windows 3.0 Solitaire.",
+   "fact": "She sketched her first Mac icons in a $2.50 notebook of the smallest graph paper she could find.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Susan_Kare",
+   "evidence": "contributed interface elements and typefaces for the first Apple Macintosh personal computer from 1983 to 1986"
+  },
+  {
+   "name": "Karen Spärck Jones",
+   "birth_date": "1935-08-26",
+   "years": "1935–2007",
+   "what": "A self-taught British programmer, she introduced inverse document frequency (IDF) in a 1972 paper. IDF weighting underlies most modern search engines.",
+   "fact": "Her slogan was 'Computing is too important to be left to men.'",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Karen_Sp%C3%A4rck_Jones",
+   "evidence": "responsible for the concept of inverse document frequency (IDF), a technology that underlies most modern search engines"
+  },
+  {
+   "name": "Barbara Liskov",
+   "birth_date": "1939-11-07",
+   "years": "b. 1939",
+   "what": "She introduced abstract data types and the Liskov substitution principle, and designed the CLU and Argus languages. She won the 2008 Turing Award.",
+   "fact": "Her PhD thesis was a chess endgame program, for which she developed the killer heuristic.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Barbara_Liskov",
+   "evidence": "Her notable work includes the introduction of abstract data types and the accompanying principle of data abstraction, along with the Liskov substitution principle"
+  },
+  {
+   "name": "Shafi Goldwasser",
+   "birth_date": "1959-11-14",
+   "years": "b. 1959",
+   "what": "With Silvio Micali she introduced probabilistic encryption, and with Micali and Charles Rackoff, zero-knowledge proofs. She shared the 2012 Turing Award.",
+   "fact": "She is a lead on Project CETI, an effort to translate the communication of sperm whales.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Shafi_Goldwasser",
+   "evidence": "In 1985, Goldwasser, Silvio Micali, and Charles Rackoff introduced zero-knowledge proofs"
+  },
+  {
+   "name": "Elizabeth \"Jake\" Feinler",
+   "birth_date": "1931-03-02",
+   "years": "b. 1931",
+   "what": "She directed the ARPANET's Network Information Center at SRI. Her group created the WHOIS directory and the top-level domain convention (.com, .org, .gov).",
+   "fact": "Her nickname 'Jake' came from her toddler sister saying 'Betty Jo' as 'Baby Jake'.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Elizabeth_J._Feinler",
+   "evidence": "she and her team created the Host Naming Registry (WHOIS) and the top-level domain naming convention (.com, .gov, .org… etc)"
+  },
+  {
+   "name": "Dame Stephanie \"Steve\" Shirley",
+   "birth_date": "1933-09-16",
+   "years": "1933–2025",
+   "what": "A Kindertransport child refugee, she founded Freelance Programmers with £6, hiring mostly women working part time from home. Her team programmed Concorde's black box.",
+   "fact": "She signed letters 'Steve' because company letters signed with her real name went unanswered.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Steve_Shirley",
+   "evidence": "Shirley founded the software company Freelance Programmers with a capital of £6."
+  },
+  {
+   "name": "Danielle Bunten Berry",
+   "birth_date": "1949-02-19",
+   "years": "1949–1998",
+   "what": "She designed M.U.L.E. (1983), one of the first influential multiplayer video games, and The Seven Cities of Gold. Ten of her 12 games were built around multiplayer.",
+   "fact": "Her first game, a 1978 Apple II auction game called Wheeler Dealers, sold only 50 copies.",
+   "group": "both",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Danielle_Bunten_Berry",
+   "evidence": "known for the 1983 game M.U.L.E., one of the first influential multiplayer video games, and 1984's The Seven Cities of Gold"
+  },
+  {
+   "name": "Mary Ann Horton",
+   "birth_date": "1955-11-21",
+   "years": "b. 1955",
+   "what": "A Usenet and Internet pioneer, she worked on Berkeley UNIX and vi, created uuencode for binary email attachments, and led Usenet's growth in the 1980s.",
+   "fact": "In 1997 she got Lucent to become the first large company with transgender-inclusive equal opportunity language.",
+   "group": "both",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Mary_Ann_Horton",
+   "evidence": "created the first email binary attachment tool uuencode, and led the growth of Usenet in the 1980s"
+  },
+  {
+   "name": "Sophie Germain",
+   "birth_date": "1776-04-01",
+   "years": "1776–1831",
+   "what": "French mathematician and physicist, one of the pioneers of elasticity theory. She won the Paris Academy of Sciences grand prize, and her work on Fermat's Last Theorem shaped the field for centuries.",
+   "fact": "She wrote to Lagrange, Legendre and Gauss under the pen name Monsieur Le Blanc, borrowed from a former student.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Sophie_Germain",
+   "evidence": "correspondence under the pseudonym of Monsieur Le Blanc with famous mathematicians, such as Lagrange, Legendre, and Gauss"
+  },
+  {
+   "name": "Henrietta Swan Leavitt",
+   "birth_date": "1868-07-04",
+   "years": "1868–1921",
+   "what": "American astronomer who worked at Harvard College Observatory. She found the period-luminosity relation of Cepheid variable stars, giving astronomers the first standard candle for measuring distances to other galaxies.",
+   "fact": "Leavitt was deaf; asteroid 5383 Leavitt and a Moon crater honor her and other deaf astronomers.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Henrietta_Swan_Leavitt",
+   "evidence": "The asteroid 5383 Leavitt and the crater Leavitt on the Moon are named after her to honor deaf men and women who have worked as astronomers."
+  },
+  {
+   "name": "Lise Meitner",
+   "birth_date": "1878-11-07",
+   "years": "1878–1968",
+   "what": "Austrian-Swedish nuclear physicist who, with her nephew Otto Frisch, worked out the physics of nuclear fission in 1938. She was the first woman to become a full professor of physics in Germany.",
+   "fact": "Element 109, meitnerium, was named after her in 1997.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Lise_Meitner",
+   "evidence": "In 1997, element 109 was named meitnerium."
+  },
+  {
+   "name": "Emmy Noether",
+   "birth_date": "1882-03-23",
+   "years": "1882–1935",
+   "what": "German mathematician who helped build modern abstract algebra. Her theorems link symmetry to conservation laws, a cornerstone of mathematical physics.",
+   "fact": "An asteroid, 7001 Noether, is named after her, along with many mathematical objects.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Emmy_Noether",
+   "evidence": "Several things now bear her name, including many mathematical objects, and an asteroid, 7001 Noether."
+  },
+  {
+   "name": "Edith Clarke",
+   "birth_date": "1883-02-10",
+   "years": "1883–1959",
+   "what": "American electrical engineer who specialized in power system analysis. She was the first woman employed as an electrical engineer in the US and the first female professor of electrical engineering there.",
+   "fact": "She invented the Clarke calculator, an early graphing calculator for power-line equations, patented in 1925.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Edith_Clarke",
+   "evidence": "she invented the Clarke calculator, an early graphing calculator"
+  },
+  {
+   "name": "Beatrice Shilling",
+   "birth_date": "1909-03-08",
+   "years": "1909–1990",
+   "what": "English aeronautical engineer who designed the RAE Restrictor in the Second World War. The simple device stopped Rolls-Royce Merlin engines losing power during negative-g manoeuvres.",
+   "fact": "She lapped the Brooklands circuit at over 100 mph on a motorcycle and later helped build an RAF Olympic bobsled.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Beatrice_Shilling",
+   "evidence": "On 24 August 1934 she  lapped the Brooklands circuit at over 100 miles per hour"
+  },
+  {
+   "name": "Chien-Shiung Wu",
+   "birth_date": "1912-05-31",
+   "years": "1912–1997",
+   "what": "Chinese-American experimental physicist whose Wu experiment proved that parity is not conserved. She also worked on uranium isotope separation for the Manhattan Project.",
+   "fact": "She sewed her own qipao dresses and always wore one under her lab coat.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Chien-Shiung_Wu",
+   "evidence": "buy fabric to make her own qipao, which she always wore under her lab coat"
+  },
+  {
+   "name": "Stephanie Kwolek",
+   "birth_date": "1923-07-31",
+   "years": "1923–2014",
+   "what": "Polish-American chemist at DuPont who invented Kevlar. She became the fourth woman added to the National Inventors Hall of Fame.",
+   "fact": "Kevlar came from a cloudy polymer solution, the kind that was usually thrown away.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Stephanie_Kwolek",
+   "evidence": "This sort of cloudy solution was usually thrown away."
+  },
+  {
+   "name": "Daphne Oram",
+   "birth_date": "1925-12-31",
+   "years": "1925–2003",
+   "what": "British composer who co-founded the BBC Radiophonic Workshop. She created the Oramics technique for drawing sound, and was the first woman to design and build an electronic musical instrument.",
+   "fact": "She set up her own electronic music studio in Tower Folly, a converted oast house in Kent.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Daphne_Oram",
+   "evidence": "established the Oramics Studios for Electronic Composition in Tower Folly, a converted oast house at Fairseat, Kent"
+  },
+  {
+   "name": "Vera Rubin",
+   "birth_date": "1928-07-23",
+   "years": "1928–2016",
+   "what": "American astronomer who studied how fast galaxies rotate. Her rotation-curve measurements were a key piece of evidence for dark matter.",
+   "fact": "Vera Rubin Ridge on Mars and asteroid 5726 Rubin are named after her.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Vera_Rubin",
+   "evidence": "An area on Mars, Vera Rubin Ridge, is named after her, as well as the asteroid 5726 Rubin."
+  },
+  {
+   "name": "Pauline Oliveros",
+   "birth_date": "1932-05-30",
+   "years": "1932–2016",
+   "what": "American composer and accordionist, a central figure in post-war experimental and electronic music. She co-founded and directed the San Francisco Tape Music Center and developed the idea of deep listening.",
+   "fact": "In 1987 she had her accordion retuned from equal temperament to just intonation.",
+   "group": "both",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Pauline_Oliveros",
+   "evidence": "Oliveros was openly lesbian."
+  },
+  {
+   "name": "Delia Derbyshire",
+   "birth_date": "1937-05-05",
+   "years": "1937–2001",
+   "what": "English composer at the BBC Radiophonic Workshop. Her 1963 electronic realisation of the Doctor Who theme was one of the first TV themes made entirely with electronics.",
+   "fact": "Hearing her version, composer Ron Grainer asked, \"Did I really write this?\" She replied, \"Most of it.\"",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Delia_Derbyshire",
+   "evidence": "he asked: \"Did I really write this?\", to which Derbyshire replied: \"Most of it\"."
+  },
+  {
+   "name": "Valentina Tereshkova",
+   "birth_date": "1937-03-06",
+   "years": "b. 1937",
+   "what": "Soviet cosmonaut and engineer who became the first woman in space on Vostok 6 in 1963. She orbited Earth 48 times and is the only woman to fly a solo space mission.",
+   "fact": "Her call sign was Chaika (Seagull), and an asteroid, 1671 Chaika, was later named for it.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Valentina_Tereshkova",
+   "evidence": "Her call sign on this flight was Chaika."
+  },
+  {
+   "name": "Patricia Bath",
+   "birth_date": "1942-11-04",
+   "years": "1942–2019",
+   "what": "American ophthalmologist who developed the laserphaco probe for safer, more precise cataract surgery. She was the first African-American woman doctor to receive a patent for a medical purpose.",
+   "fact": "She coined the term \"laser phaco\", short for laser photoablative cataract surgery.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Patricia_Bath",
+   "evidence": "Bath coined the term \"laser phaco\" for the process, short for laser photoablative cataract surgery"
+  },
+  {
+   "name": "Jocelyn Bell Burnell",
+   "birth_date": "1943-07-15",
+   "years": "b. 1943",
+   "what": "Northern Irish astrophysicist who discovered the first pulsar in 1967 as a doctoral student. She gave her $3 million Breakthrough Prize to fund students from under-represented groups in physics.",
+   "fact": "The first pulsar was nicknamed \"Little Green Man 1\" and first showed up as a \"bit of scruff\" on chart paper.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Jocelyn_Bell_Burnell",
+   "evidence": "Temporarily dubbed \"Little Green Man 1\" (LGM-1)"
+  },
+  {
+   "name": "Laurie Spiegel",
+   "birth_date": "1945-09-20",
+   "years": "b. 1945",
+   "what": "American composer and software engineer who worked at Bell Labs. She created Music Mouse, an algorithmic \"intelligent instrument\" released in 1986.",
+   "fact": "Her version of Kepler's Harmonice Mundi is on the Voyager Golden Record, now heading out of the solar system.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Laurie_Spiegel",
+   "evidence": "Spiegel's musical interpretation of Johannes Kepler's Harmonice Mundi appeared on the \"Sounds of Earth\" section of the Voyager Golden Record."
+  },
+  {
+   "name": "Ben Barres",
+   "birth_date": "1954-09-13",
+   "years": "1954–2017",
+   "what": "American neurobiologist at Stanford who studied how glial cells interact with neurons. In 2013 he became the first openly transgender scientist in the National Academy of Sciences.",
+   "fact": "He left a neurology residency to research glial cells after spotting patterns in pathology reports.",
+   "group": "LGBTQ+",
+   "pronouns": "he/him",
+   "source_url": "https://en.wikipedia.org/wiki/Ben_Barres",
+   "evidence": "became the first openly transgender scientist in the National Academy of Sciences in 2013"
+  },
+  {
+   "name": "Mae Jemison",
+   "birth_date": "1956-10-17",
+   "years": "b. 1956",
+   "what": "American engineer, physician and NASA astronaut. In 1992 she became the first African-American woman in space, aboard Space Shuttle Endeavour.",
+   "fact": "She opened her shifts in orbit with \"Hailing frequencies open\" and later appeared on Star Trek: The Next Generation.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Mae_Jemison",
+   "evidence": "she began communications on her shift with the salute \"Hailing frequencies open\", a quote from Star Trek."
+  },
+  {
+   "name": "Ellen Ochoa",
+   "birth_date": "1958-05-10",
+   "years": "b. 1958",
+   "what": "American engineer and astronaut who became the first Latina in space in 1993. She later became the first Latina director of NASA's Johnson Space Center.",
+   "fact": "A classical flutist, she took a flute with her on her first mission to space.",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Ellen_Ochoa",
+   "evidence": "She took a flute with her on her first mission to space."
+  },
+  {
+   "name": "Maryam Mirzakhani",
+   "birth_date": "1977-05-12",
+   "years": "1977–2017",
+   "what": "Iranian mathematician and Stanford professor who studied the geometry of Riemann surfaces. In 2014 she became the first woman and first Iranian to win the Fields Medal.",
+   "fact": "She solved problems by doodling on big sheets of paper; her daughter called her work \"painting\".",
+   "group": "woman",
+   "pronouns": "she/her",
+   "source_url": "https://en.wikipedia.org/wiki/Maryam_Mirzakhani",
+   "evidence": "To solve problems, Mirzakhani would draw doodles on sheets of paper and write mathematical formulas around the drawings."
+  }
+ ],
+ "failedMonths": []
+}

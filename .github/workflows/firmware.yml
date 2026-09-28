@@ -1,0 +1,52 @@
+# Builds the X4 firmware (FreeInk SDK, pinned) and the host previews of every screen.
+# Push a tag like x4-v0.2.0 to attach the flashable image to a GitHub release.
+name: Firmware
+on:
+  push:
+    paths: ['x4/**', '.github/workflows/firmware.yml']
+    tags: ['x4-v*']
+  pull_request:
+    paths: ['x4/**']
+  workflow_dispatch:
+env:
+  FREEINK_REPO: Free-Ink/freeink-sdk
+  FREEINK_SHA: 111fdcc7f0176c3ee38391a160ee296bf492dbd8   # the commit this firmware was written against
+permissions: { contents: write }
+jobs:
+  device:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with: { repository: '${{ env.FREEINK_REPO }}', ref: '${{ env.FREEINK_SHA }}', path: freeink-sdk }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - uses: actions/cache@v4
+        with: { path: ~/.platformio, key: 'pio-${{ hashFiles(''x4/platformio.ini'') }}' }
+      - run: pip install platformio "esptool>=4.7,<5"
+      - name: Build
+        run: pio run -d x4 -e x4
+      - name: Merge a single flashable image (offset 0x0)
+        run: |
+          B=x4/.pio/build/x4
+          python -m esptool --chip esp32c3 merge_bin -o keeping-watch-x4-merged.bin --flash_mode dio --flash_size 16MB \
+            0x0 $B/bootloader.bin 0x8000 $B/partitions.bin \
+            0xe000 ~/.platformio/packages/framework-arduinoespressif32/tools/partitions/boot_app0.bin 0x10000 $B/firmware.bin
+          ls -la keeping-watch-x4-merged.bin $B/firmware.bin
+      - uses: actions/upload-artifact@v4
+        with: { name: keeping-watch-x4-firmware, path: 'keeping-watch-x4-merged.bin' }
+      - if: startsWith(github.ref, 'refs/tags/x4-v')
+        uses: softprops/action-gh-release@v2
+        with: { files: keeping-watch-x4-merged.bin, generate_release_notes: true }
+  previews:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install pillow
+      - name: Render every screen from the sample card
+        run: cd x4/host && ./preview.sh
+      - uses: actions/upload-artifact@v4
+        with: { name: keeping-watch-x4-screens, path: x4/host/out/ }
