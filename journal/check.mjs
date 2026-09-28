@@ -9,8 +9,10 @@ const res = await p.evaluate(() => [...document.querySelectorAll('.page')].map((
   const box = { l: r.left + parseFloat(cs.paddingLeft), r: r.right - parseFloat(cs.paddingRight), t: r.top + parseFloat(cs.paddingTop), b: r.bottom - parseFloat(cs.paddingBottom) };
   let out = 0;
   pg.querySelectorAll('*').forEach((el) => { if (el.closest('.folio') || el.closest('.frame') || el.closest('.strip')) return; const e = el.getBoundingClientRect(); if (e.width && (e.left < box.l - 1 || e.right > box.r + 1 || e.bottom > box.b + 1)) out++; });
-  return { n: i + 1, over, out };
-}).filter((x) => x.over || x.out));
+  // bus grid / summary cells whose text is wider than their column (overflow:hidden would clip it silently)
+  const cell = [...pg.querySelectorAll('.hg td, .net td:not(.rname)')].filter((td) => td.scrollWidth > td.clientWidth + 1).length;
+  return { n: i + 1, over, out, cell };
+}).filter((x) => x.over || x.out || x.cell));
 console.log(JSON.stringify(res.slice(0, 20)), res.length);
 if (res.length) process.exitCode = 1; // CI fails on any overflow
 await b.close();

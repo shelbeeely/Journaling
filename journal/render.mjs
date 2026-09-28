@@ -3,7 +3,7 @@
 // Usage: node render.mjs month <YYYY-MM> [a.ics,b.ics]      (SIZE=letter for 8.5x11, HARDCOVER=1 to pad to 76+ pages)
 import fs from 'node:fs';
 import { launch } from './browser.mjs';
-import { build } from './data.mjs';
+import { build, busCoverage } from './data.mjs';
 import bwipjs from 'bwip-js';
 import { IC, ic, box, spoon, actionZone, dayBlocks, normalize, DAYPAGE_CSS } from './daypage.mjs';
 // Day page layout from the page editor (content/daypage.json); defaults reproduce the original page.
@@ -18,6 +18,8 @@ const monthName = new Date(Date.UTC(yr, mo - 1, 1)).toLocaleDateString('en-US', 
 // globalContent is kept only so data.json (read by epub.py) stays byte-identical.
 const VOL = { n: bookNo, start: [yr, mo, 1], days: new Date(Date.UTC(yr, mo, 0)).getUTCDate(), label: `${monthName} ${yr}`, short: `${monthName.slice(0, 3)} ${yr}`, globalContent: true, id: `${yr}-${String(mo).padStart(2, '0')}`, month: mo, year: yr };
 const ICS = process.argv[4];
+// STA bus pages: 'full' (feed covers the whole month), 'partial' (feed ends mid-month) or 'none' (no schedule to print).
+const BUS_COV = busCoverage(VOL.id);
 const OUT = `out/m${VOL.id}${process.env.SIZE === 'letter' ? '-letter' : ''}`;
 const { FACTS, PIONEERS, WORDS, PROMPTS } = await import('./content/year.mjs');
 const D = build(ICS, VOL, WORDS);
@@ -106,7 +108,7 @@ function lineagePage() {
   <p class="lead">Every part of this journal is borrowed from a method people used for centuries. The history shows one lesson: methods die when they get complicated. <b>Skip anything, any day.</b> A blank box is data too.</p>
   <table class="lin">${LINEAGE.map(([a, b]) => `<tr><th>${a}</th><td>${b}</td></tr>`).join('')}</table>
   <p class="small">Daily “On this day” facts come from the Computer History Museum’s This Day in History and Wikipedia’s date pages. Pioneer profiles are checked against each person’s Wikipedia article.</p>
-  <p class="small">Astrology here is a reflection prompt, not a forecast. The astronomy (sunrise, sunset, moon phase, solstice) is real and calculated for ${esc(D.config.place)}.</p>`;
+  <p class="small">Astrology here is a reflection prompt, not a forecast. The astronomy (sunrise, sunset, moon phase, solstice) is real and calculated for ${esc(D.config.place)}.</p>${busLine()}`;
 }
 
 function anatomyPage() {
@@ -118,7 +120,7 @@ function anatomyPage() {
     <div><h3>Each day</h3><p>A full page. Header is pre-filled with the sky. Circle your mood and spoons. Rapid-log anything. Answer three evening questions.</p></div>
   </div>
   <h3 class="h3b">Anatomy of a day</h3>
-  <div class="anat"><div><b class="zl">DATE / TITLE / TAGS</b> printed date; write a title and tags in the boxes</div><div><b class="zl">SKY + CHECK-IN</b> moon, sun, season; circle mood, cross off spoons</div><div class="a3"><b class="zl">BODY</b> faint 5 mm dots: write anything</div><div><b class="zl">ACTION ITEMS</b> one task per checkbox</div><div><b class="zl">REVIEW</b> went well · was hard · tomorrow</div></div><p class="small" style="margin-top:5px"><b>At the back:</b> Support p. {{P_SUPPORT}} · Safety plan p. {{P_SAFETY}} · Bus times p. {{P_BUS}} · Where each piece comes from p. {{P_LINEAGE}}</p><h3 class="h3b">Scanning pages</h3><p class="small">Every page has a black frame, seven “send to” bubbles and a small square page code (a Data Matrix) that says which book and page it is. Fill a bubble to route the scan (you choose what each shape means in your scanning app). Keep the frame and the page code clear of ink. These markers are made for your own app; the Rocketbook app won’t read them.</p>`;
+  <div class="anat"><div><b class="zl">DATE / TITLE / TAGS</b> printed date; write a title and tags in the boxes</div><div><b class="zl">SKY + CHECK-IN</b> moon, sun, season; circle mood, cross off spoons</div><div class="a3"><b class="zl">BODY</b> faint 5 mm dots: write anything</div><div><b class="zl">ACTION ITEMS</b> one task per checkbox</div><div><b class="zl">REVIEW</b> went well · was hard · tomorrow</div></div><p class="small" style="margin-top:5px"><b>At the back:</b> Support p. {{P_SUPPORT}} · Safety plan p. {{P_SAFETY}} · ${BUS_COV === 'none' ? '' : 'Bus times p. {{P_BUS}} · '}Where each piece comes from p. {{P_LINEAGE}}</p><h3 class="h3b">Scanning pages</h3><p class="small">Every page has a black frame, seven “send to” bubbles and a small square page code (a Data Matrix) that says which book and page it is. Fill a bubble to route the scan (you choose what each shape means in your scanning app). Keep the frame and the page code clear of ink. These markers are made for your own app; the Rocketbook app won’t read them.</p>`;
 }
 
 function keyPage() {
@@ -180,19 +182,24 @@ function packGrids(E) {
 }
 const DAY3 = [['weekday', 'WKDY'], ['saturday', 'SAT'], ['sunday', 'SUN']];
 const shortStop = (n) => tc(n || '').replace('K Street Station', 'Cheney').replace('Eagle Station', 'EWU').replace('West Plains TC', 'W Plains').replace(/ \(.*?\)/g, '').replace('Spokane International Airport Concourse ', 'Airport ');
+let busWarned = false;
 function busMeta() {
   const E = NET.months[VOL.id];
   const ymd = (s) => `${s.slice(4, 6).replace(/^0/, '')}/${s.slice(6).replace(/^0/, '')}/${s.slice(2, 4)}`;
-  if (E.stale) console.warn(`! STA schedule ends ${NET.valid_to}; refresh gtfs before printing ${VOL.id}`);
-  return { E, note: `STA schedule ${ymd(NET.valid_from)}–${ymd(NET.valid_to)}.${E.stale ? ' <b>May have changed: check spokanetransit.com.</b>' : ''}` };
+  if (BUS_COV === 'partial' && !busWarned && (busWarned = true)) console.warn(`! STA schedule ends ${NET.valid_to}; ${VOL.id} is only partly covered (pages say so). Refresh gtfs before printing.`);
+  const until = new Date(Date.UTC(+NET.valid_to.slice(0, 4), +NET.valid_to.slice(4, 6) - 1, +NET.valid_to.slice(6))).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+  const from = new Date(Date.UTC(+NET.valid_from.slice(0, 4), +NET.valid_from.slice(4, 6) - 1, +NET.valid_from.slice(6))).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+  const startsLate = `${NET.valid_from.slice(0, 4)}-${NET.valid_from.slice(4, 6)}` === VOL.id && NET.valid_from.slice(6) !== '01';
+  const valid = BUS_COV === 'partial' ? `<p class="busvalid">${startsLate ? `Schedule starts ${from} · check spokanetransit.com before` : `Schedule valid through ${until} · check spokanetransit.com after`}</p>` : '';
+  return { E, valid, note: `STA schedule ${ymd(NET.valid_from)}–${ymd(NET.valid_to)}.` };
 }
 function netPage(part) {
-  const { E, note } = busMeta();
+  const { E, note, valid } = busMeta();
   const ids = Object.keys(E.summary).filter((r) => NET.routes[r]).sort((a, b) => parseInt(NET.routes[a].n) - parseInt(NET.routes[b].n));
   const half = Math.ceil(ids.length / 2), mine = part === 0 ? ids.slice(0, half) : ids.slice(half);
   const cell = (x) => x ? `${x.span.replace(/:00/g, '')}${x.every ? ` <b>${x.every === 7.5 ? '7–8' : x.every}</b>` : ''}` : '<span class="dim">no service</span>';
   const rows = mine.map((r) => `<tr><td class="rn">${esc(NET.routes[r].n)}</td><td class="rname">${esc(NET.routes[r].name)}</td>${DAY3.map(([k]) => `<td>${cell(E.summary[r][k])}</td>`).join('')}</tr>`).join('');
-  return `<h2 class="pt">${part === 0 ? 'STA at a glance' : 'STA at a glance, cont.'}</h2><p class="small">First–last bus, then <b>minutes between buses</b> at midday.</p>
+  return `<h2 class="pt">${part === 0 ? 'STA at a glance' : 'STA at a glance, cont.'}</h2>${valid}<p class="small">First–last bus, then <b>minutes between buses</b> at midday.</p>
   <table class="net"><colgroup><col class="c1"><col class="c2"><col><col><col></colgroup><tr><th></th><th>Route</th>${DAY3.map(([, l]) => `<th>${l}</th>`).join('')}</tr>${rows}</table>
   ${part === 1 ? `<p class="small">${note} Gaps are typical 7a–6p. Holidays run the Sunday schedule. Next pages: minutes past the hour at the first stop named, → where the bus is headed. Weekday times are from ${E.samples.weekday.slice(5).replace('-', '/')}; EWU break days can differ.</p>` : ''}`;
 }
@@ -231,8 +238,8 @@ function gridTable(E, r) {
 ${partial ? '<p class="small">* starts partway along the route.</p>' : ''}`;
 }
 function gridPage(routeIds) {
-  const { E, note } = busMeta();
-  return `<div class="xh"><h2 class="pt">Bus times</h2><span class="dim">minutes past the hour</span></div>
+  const { E, note, valid } = busMeta();
+  return `<div class="xh"><h2 class="pt">Bus times</h2><span class="dim">minutes past the hour</span></div>${valid}
   ${routeIds.map((r) => gridTable(E, r)).join('')}
   <p class="small">Shaded rows like <b>8–10a</b> repeat the same minutes each hour. ${note}</p>`;
 }
@@ -264,6 +271,7 @@ function dirPage(title, intro, data) {
   return `<h2 class="pt">${title}</h2><p class="small">${intro}</p>
   ${data.map(([h, items]) => `<h3 class="sh">${h}</h3>${items.map(([n, d, c]) => `<div class="sup"><div class="sn"><b>${n}</b>${chip(c)}</div><div class="sd">${d}</div></div>`).join('')}`).join('')}`;
 }
+const busLine = () => BUS_COV === 'none' ? '<div class="busbox"><b>Bus times:</b> spokanetransit.com or the STA app</div>' : '';
 const supportPage = () => dirPage('Support', '<span class="chip tx">TEXT</span> means you can text instead of talking. Emergency: <b>911</b>. 988’s LGBTQ+ “press 3” option ended July 2025. Checked Sep 2026.', SUPPORT);
 const transPage = () => dirPage('Trans support', 'For trans people in Spokane and Washington. <span class="chip tx">TEXT</span> means you can message instead of calling. Checked Sep 2026.', TRANS);
 // Last page of each monthly book: the handoff to the Keeper (page numbers from out/keeper/index.json).
@@ -472,7 +480,7 @@ add('', closingPage());
 const REF = { theme: REF_THEME };
 REF.support = pages.length + 1; add('', supportPage()); add('', transPage());
 REF.safety = pages.length + 1; add('', safetyPage());
-if (NET && NET.months[VOL.id]) { alignToVerso(); REF.bus = pages.length + 1; add('', netPage(0)); add('', netPage(1)); for (const g of packGrids(NET.months[VOL.id])) add('', gridPage(g)); }
+if (NET && BUS_COV !== 'none') { alignToVerso(); REF.bus = pages.length + 1; add('', netPage(0)); add('', netPage(1)); for (const g of packGrids(NET.months[VOL.id])) add('', gridPage(g)); }
 REF.lineage = pages.length + 1; add('', lineagePage());
 for (const p of pages) p.html = p.html.replace(/\{\{P_(\w+)\}\}/g, (_, k) => REF[k.toLowerCase()] ?? '?');
 while (pages.length % 2) add('notes', notesPage('Notes'));
@@ -701,11 +709,12 @@ table { border-collapse: collapse; }
 .sky1 { display: flex; gap: 4px; align-items: center; font-size: 7pt; line-height: 1.25; margin: 2px 0; } .sky1 .season { margin-left: auto; font-style: italic; color: #333; text-align: right; } .sky2l { font-size: 7pt; color: #333; margin: 1px 0 3px; }
 .net { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 7pt; font-variant-numeric: tabular-nums; margin-top: 4px; }
 .net th { font: 600 7pt Inter, sans-serif; text-align: left; border-bottom: 1px solid #000; padding: 1px 3px; }
-.net td { padding: 1.6px 1.5px; overflow: hidden; letter-spacing: -0.015em; border-bottom: 1px solid #e3e3e3; white-space: nowrap; } .net .rn { font: 700 7.5pt Inter, sans-serif; text-align: right; padding-right: 4px; } .net col.c1 { width: 0.22in; } .net col.c2 { width: 0.66in; }
+.net td { padding: 1.6px 1.5px; overflow: hidden; letter-spacing: -0.015em; border-bottom: 1px solid #e3e3e3; white-space: nowrap; } .net .rn { font: 700 7.5pt Inter, sans-serif; text-align: right; padding-right: 4px; } .net col.c1 { width: 0.3in; } .net col.c2 { width: 0.66in; }
 .net .rname { text-overflow: ellipsis; }
 .hg { width: 100%; border-collapse: collapse; font-size: 7pt; font-variant-numeric: tabular-nums; margin-top: 4px; table-layout: fixed; }
 .hg th { font: 600 7pt Inter, sans-serif; padding: 1px 2px; text-align: left; } .hg th.gh { border-bottom: 1px solid #000; line-height: 1.15; vertical-align: bottom; } .hg th.gh .dim { font-weight: 400; }
-.hg tr.rng td { background: #f1f1f1; } .hg td { padding: 0.4px 2px; line-height: 1.1; border-bottom: 1px solid #e3e3e3; white-space: nowrap; overflow: hidden; } .hg td.hl { font: 600 7pt Inter, sans-serif; text-align: right; padding-right: 5px; } .hg td.hl.pm { font-weight: 800; }
+.hg tr.rng td { background: #f1f1f1; } .hg td { padding: 0.4px 2px; line-height: 1.1; border-bottom: 1px solid #e3e3e3; overflow: hidden; letter-spacing: -0.02em; } .hg td.hl { white-space: nowrap; font: 600 7pt Inter, sans-serif; text-align: right; padding-right: 5px; } .hg td.hl.pm { font-weight: 800; }
+.busvalid { font: 600 7pt Inter, sans-serif; margin: 3px 0 0; border: 1px solid #000; padding: 2px 5px; display: inline-block; } .busbox { margin-top: 8px; border: 1px solid #000; padding: 4px 7px; font-size: 8pt; }
 .rt { font: 600 7.5pt Inter, sans-serif; text-transform: uppercase; margin: 6px 0 0; } .hg .gs { border-left: 1px solid #9a9a9a; padding-left: 4px; }
 .az { margin-top: 4px; } .cb { display: flex; align-items: center; gap: 6px; height: 0.24in; } .cb i { width: 10px; height: 10px; border: 1.2px solid #000; flex: none; } .cb span { flex: 1; border-bottom: 1px solid #DCDCDC; height: 100%; display: flex; align-items: flex-end; font-size: 7.5pt; padding-bottom: 1px; }
 .m .chk .zl, .m .spn .zl { margin-right: 3px; }

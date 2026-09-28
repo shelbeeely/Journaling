@@ -79,7 +79,7 @@ Possible later improvements (don't change now):
   - the `epub.py` Support body
   - `x4/tools/export_pack.py` `'# Support · checked Sep 2026'`
 - [ ] **STA feed.** `gtfs/network.json` covers only the months listed in `network.py`.
-  - A month that isn't in it gets **no bus pages, silently**. A month past the feed's end prints "May have changed".
+  - Bus pages follow the feed's dates (`busCoverage()` in `data.mjs`): a month fully inside `valid_from`–`valid_to` prints them; the month the feed ends in prints them with "Schedule valid through … · check spokanetransit.com after" (and a build warning); later months get **no bus pages and no SUN BUS tags**, only "Bus times: spokanetransit.com or the STA app" on the last back page. Refreshing the feed lights up later months by itself.
   - Run the **STA schedules** workflow, or run it by hand (see `journal/README.md`), after updating `months`.
   - Check that the `render.mjs` `GRID_PRIORITY` routes still exist.
   - `gtfs/build.py` hard-codes service ids `'672.8.1'`, `'672.6.1'` and `'672.0.4'` from the Sep 2026 feed. Re-check them against the new `calendar.txt`.
