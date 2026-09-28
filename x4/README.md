@@ -14,7 +14,7 @@ the three things paper can't:
 
 Plus a **Wi-Fi page** (Menu → Wi-Fi sync): the X4 makes its own hotspot, shows a QR code to join, and
 serves a page at 192.168.4.1 to set the clock from your phone, download your books (PDF/EPUB) and
-check-in logs, edit your safety plan, and upload new month packs. Nothing goes to the internet.
+check-in logs (download this month's when you close it), edit your safety plan, and upload new month packs. Nothing goes to the internet.
 
 ## Buttons
 
@@ -35,11 +35,29 @@ Power: press to sleep now. Idle for 90 s: sleeps by itself. **Hold Back 1.2 s an
 /kw/2026-10.txt … 2027-09.txt   day packs (made by tools/export_pack.py from the journal build)
 /kw/checkins.txt                your own check-ins from the day page layout (optional)
 /kw/support.txt                 Support screen (from the journal's support/trans/clinic content)
-/kw/me.txt                      your safety plan (edit on the Wi-Fi page)
+/kw/me.txt                      your safety plan (edit on the Wi-Fi page; missing = empty)
 /kw/log/2026-10.csv …           check-ins, one line per tap: 2026-10-14T13:05,med_am,1
 /kw/library/*.pdf, *.epub       your journals, downloadable from the Wi-Fi page
 /kw/clock.txt                   last known time (used after the battery runs flat)
+/kw-update/                     the update inbox (below); empty and deleted after each boot
 ```
+
+**Your safety plan and check-in log exist only on the card.** Back the log up (Wi-Fi page, Check-in log)
+each time you close a month.
+
+### Updating the card
+
+`export_pack.py` never writes `/kw`. It writes a `kw-update` folder:
+
+1. Copy the whole **`kw-update`** folder to the card's root. Replacing it is fine.
+2. Put the card back and turn the X4 on. It moves `YYYY-MM.txt`, `support.txt`, `checkins.txt` and
+   `library/*.pdf|epub` into `/kw`, replacing old copies, then deletes `/kw-update`. A file that fails to move stays for the next boot.
+3. `/kw/log/` is never listed. `/kw/me.txt` is never replaced (a `me.txt` in the update is used only when the card has none).
+   Anything else in the folder (`me.example.txt`, `.DS_Store`) is thrown away.
+
+Don't copy or replace a `kw` folder by hand: a folder "Replace" (Finder's default) deletes what isn't in the new folder, log included.
+The Wi-Fi page also refuses to take `me.txt` as an upload; only its safety-plan box writes the plan, and no upload can reach `log/`.
+`host/test_update.sh` (run by `preview.sh`) checks all of this.
 
 ### Custom check-ins (`/kw/checkins.txt`)
 
@@ -67,7 +85,7 @@ items don't change **This month**. See `host/sample/kw/checkins.txt`.
 
 Make the card contents from the journal project:
 
-    python3 tools/export_pack.py ../journal /path/to/sdcard
+    python3 tools/export_pack.py ../journal /path/to/out    # writes /path/to/out/kw-update
 
 ## Build and flash
 

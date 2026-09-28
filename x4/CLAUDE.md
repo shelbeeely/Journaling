@@ -14,7 +14,7 @@ the sibling `journal/` project). Target: Xteink X4 (ESP32-C3, no PSRAM, ~380 KB 
 - `src/hal/hal.h` — the only hardware boundary. `hal_x4.cpp` (FreeInk, Wi-Fi AP + WebServer, deep
   sleep with timer wake) and `host/hal_host.cpp` (PC preview) implement it.
 - `src/net/webpage.h` — the self-contained page served at 192.168.4.1.
-- `tools/export_pack.py` — journal `out/m*/data.json` + content JSON → SD card files.
+- `tools/export_pack.py` — journal `out/m*/data.json` + content JSON → `sd/kw-update/` (never `kw/`, `me.txt` or `log/`). `src/core/update.cpp` moves it into `/kw` on boot.
 
 ## Rules that matter here
 - Pixel changes: run `host/preview.sh` and look at the PNGs before and after. The host build is the
@@ -25,6 +25,8 @@ the sibling `journal/` project). Target: Xteink X4 (ESP32-C3, no PSRAM, ~380 KB 
   so the RTC and the 12:31 a.m. timer keep working. Don't copy CrossPoint's power-off path.
 - Privacy: packs contain her calendar events and the log holds health check-ins. Nothing leaves the
   device except over its own hotspot, on request. No cloud, no analytics, no generative AI features.
+- Data safety: the safety plan (`/kw/me.txt`) and the log (`/kw/log/`) exist only on the card. Nothing exported, uploaded or
+  updated may overwrite or delete them (`host/test_update.sh` guards it).
 - Scope: calm and low-stimulation. No notifications, feeds or badges. Ask before adding a feature.
 
 ## Open work (in order)
