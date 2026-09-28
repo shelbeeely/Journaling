@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 #include <sys/stat.h>
+#include <dirent.h>
+#include <unistd.h>
 
 static uint8_t fb[800 * 480 / 8];
 static std::string sd = "host/sd", outDir = "host/out";
@@ -74,6 +76,19 @@ bool readFile(const char* path, std::string& out) {
 bool writeFile(const char* path, const std::string& data) { std::ofstream f(full(path), std::ios::binary); f << data; return (bool)f; }
 bool appendLine(const char* path, const std::string& line) { std::ofstream f(full(path), std::ios::app); f << line << "\n"; return (bool)f; }
 bool exists(const char* path) { struct stat st; return stat(full(path).c_str(), &st) == 0; }
+int listFiles(const char* dir, char (*names)[48], int max) {
+  DIR* d = opendir(full(dir).c_str()); if (!d) return 0;
+  int n = 0;
+  while (dirent* e = readdir(d)) {
+    struct stat st; if (stat(full((std::string(dir) + "/" + e->d_name).c_str()).c_str(), &st) != 0 || S_ISDIR(st.st_mode)) continue;
+    if (n < max && strlen(e->d_name) <= 47) strcpy(names[n++], e->d_name);
+  }
+  closedir(d); return n;
+}
+bool removeFile(const char* path) { return unlink(full(path).c_str()) == 0; }
+bool renameFile(const char* from, const char* to) { return !exists(to) && rename(full(from).c_str(), full(to).c_str()) == 0; }
+bool makeDir(const char* path) { return mkdir(full(path).c_str(), 0755) == 0 || exists(path); }
+bool removeEmptyDir(const char* path) { return rmdir(full(path).c_str()) == 0; }
 int batteryPercent() { return 82; }
 bool woke_by_timer() { return timerWake; }
 bool wifiStart(const char*, const char*) { return true; }
