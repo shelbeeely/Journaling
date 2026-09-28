@@ -79,9 +79,9 @@ function phaseName(deg, quarterToday) {
   return ['Waxing Crescent', 'Waxing Gibbous', 'Waning Gibbous', 'Waning Crescent'][Math.floor(norm(deg) / 90)];
 }
 
-// Approximate peaks of major meteor showers (IMO typical dates; ±1 day year to year).
-// Peak nights (first date of the night) match the AMS 2026/2027 calendar, which also gives the moon that night.
-const METEORS = { '04-21': 'Lyrid meteors (peak, approx.; bright moon)', '05-05': 'Eta Aquariid meteors (peak, approx.)', '07-30': 'Southern Delta Aquariid meteors (peak, approx.)', '08-12': 'Perseid meteors (peak, approx.; bright moon)', '10-08': 'Draconid meteors (peak, approx.)', '10-21': 'Orionid meteors (peak, approx.)', '11-17': 'Leonid meteors (peak, approx.)', '12-14': 'Geminid meteors (peak, approx.)', '12-22': 'Ursid meteors (peak, approx.)', '01-03': 'Quadrantid meteors (peak, approx.)' };
+// Meteor shower peaks. Apr-Sep 2027 dates from the IMO 2027 Meteor Shower Calendar (imo.net, checked 2026-09-28; UT converted to
+// Spokane time, keyed by the first date of the night). Moon phases: full Apr 20 and Aug 17, first quarter Aug 9. Oct-Jan entries are approximate (+/-1 day).
+const METEORS = { '04-22': 'Lyrid meteors (peak night Apr 22–23; bright moon)', '05-05': 'Eta Aquariid meteors (peak before dawn May 6)', '07-31': 'Southern Delta Aquariid meteors (peak around Jul 31)', '08-12': 'Perseid meteors (peak night Aug 12–13; bright moon)', '10-08': 'Draconid meteors (peak, approx.)', '10-21': 'Orionid meteors (peak, approx.)', '11-17': 'Leonid meteors (peak, approx.)', '12-14': 'Geminid meteors (peak, approx.)', '12-22': 'Ursid meteors (peak, approx.)', '01-03': 'Quadrantid meteors (peak, approx.)' };
 
 // ---- iCal import ----
 function loadEvents(paths, t0, t1) {
