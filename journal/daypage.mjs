@@ -94,6 +94,7 @@ const T = (label, def, max = 40) => ({ k: 'title', kind: 'text', label, def, max
 const N = (k, label, lo, hi, def) => ({ k, kind: 'num', label, lo, hi, def });
 const B = (k, label, def = true) => ({ k, kind: 'bool', label, def });
 const LST = (k, label, def, max = 10) => ({ k, kind: 'list', label, def, max });
+const PAPER = { k: 'paper', kind: 'choice', label: 'Paper', choices: [['lines', 'Lines'], ['dots', 'Dot grid'], ['grid', '4 mm grid']], def: 'lines' };
 
 // group: where the block sits in the "Add blocks" palette.
 export const TYPES = {
@@ -104,7 +105,7 @@ export const TYPES = {
   actions: { name: 'Action items', group: 'From your day', icon: 'well', single: true, hint: 'Routines from your calendar fill in first', opts: [N('count', 'Lines', 1, 6, 3), B('routines', 'Pre-fill routines')] },
   fact: { name: 'On this day', group: 'From your day', icon: 'pen', single: true, hint: 'One line of history', opts: [] },
   review: { name: 'Went well · Was hard · Tomorrow', group: 'From your day', icon: 'next', single: true, hint: 'Short review columns', opts: [{ k: 'items', kind: 'flags', label: 'Columns', items: REVIEW_ITEMS, icons: true }] },
-  body: { name: 'Writing space', group: 'Writing', icon: 'pen', single: true, locked: true, hint: 'Takes whatever room is left', opts: [{ k: 'style', kind: 'choice', label: 'Paper', choices: [['dots', 'Dot grid'], ['lines', 'Lines'], ['blank', 'Blank']], def: 'dots' }] },
+  body: { name: 'Writing space', group: 'Writing', icon: 'pen', single: true, locked: true, hint: 'Takes whatever room is left', opts: [{ k: 'style', kind: 'choice', label: 'Paper', choices: [['dots', 'Dot grid'], ['lines', 'Lines'], ['grid', '4 mm grid'], ['blank', 'Blank']], def: 'dots' }] },
   // ---- check-ins ----
   care: { name: 'Care check-in', group: 'Check-ins', icon: 'pill', single: true, hint: 'Meds, meals, self-care, mood: two columns', opts: [] },
   spoons: { name: 'Spoons', group: 'Check-ins', icon: 'spoon', single: true, hint: 'Cross off as you use them', opts: [N('count', 'How many', 6, 16, 12)] },
@@ -117,11 +118,11 @@ export const TYPES = {
   fields: { name: 'Fill-in blanks', group: 'Check-ins', icon: 'pen', hint: 'Label + a blank to write a number or word', opts: [T('Label', 'Outside', 18), LST('labels', 'Blanks', ['Minutes outside', 'Steps'], 6)] },
   weather: { name: 'Weather & air', group: 'Check-ins', icon: 'cloud', single: true, hint: 'Circle the sky; high, low and air quality', opts: [B('aqi', 'Air quality (smoke season)')] },
   // ---- writing ----
-  lines: { name: 'Lined notes', group: 'Writing', icon: 'pen', hint: 'A label and a few lines', opts: [T('Label', 'Notes'), N('n', 'Lines', 1, 8, 2)] },
+  lines: { name: 'Lined notes', group: 'Writing', icon: 'pen', hint: 'A label and a few lines', opts: [T('Label', 'Notes'), N('n', 'Lines', 1, 8, 2), PAPER] },
   bullets: { name: 'Quick bullets', group: 'Writing', icon: 'log', hint: 'Ruled rows with a bullet spot; optional key', opts: [T('Label', 'Log', 24), N('n', 'Rows', 2, 10, 5), B('key', 'Key strip')] },
   good: { name: 'Small good things', group: 'Writing', icon: 'heart', hint: 'Short lines for good moments', opts: [N('n', 'Lines', 1, 5, 3)] },
-  split: { name: 'Two columns', group: 'Writing', icon: 'list', hint: 'Two labelled columns side by side', opts: [{ k: 'left', kind: 'text', label: 'Left', def: 'Morning', max: 18 }, { k: 'right', kind: 'text', label: 'Right', def: 'Evening', max: 18 }, N('n', 'Lines', 1, 8, 3)] },
-  top: { name: 'Top priorities', group: 'Writing', icon: 'flag', hint: 'Numbered lines', opts: [T('Label', 'Top 3', 18), N('n', 'How many', 1, 5, 3)] },
+  split: { name: 'Two columns', group: 'Writing', icon: 'list', hint: 'Two labelled columns side by side', opts: [{ k: 'left', kind: 'text', label: 'Left', def: 'Morning', max: 18 }, { k: 'right', kind: 'text', label: 'Right', def: 'Evening', max: 18 }, N('n', 'Lines', 1, 8, 3), PAPER] },
+  top: { name: 'Top priorities', group: 'Writing', icon: 'flag', hint: 'Numbered lines', opts: [T('Label', 'Top 3', 18), N('n', 'How many', 1, 5, 3), N('bubbles', 'Time circles (each circle = 15 min)', 0, 8, 0)] },
   sketch: { name: 'Sketch box', group: 'Writing', icon: 'box', hint: 'An empty frame to draw or stick things in', opts: [T('Label', ''), N('h', 'Height (tenths of an inch)', 5, 30, 12)] },
   // ---- planning ----
   timeline: { name: 'Time blocks', group: 'Planning', icon: 'clock', single: true, hint: 'Hours down the side to plan the day', opts: [N('from', 'From (hour, 24h)', 5, 14, 8), N('to', 'To (hour, 24h)', 12, 24, 22), { k: 'every', kind: 'choice', label: 'Every', choices: [[1, '1 hour'], [2, '2 hours']], def: 2 }] },
@@ -210,6 +211,7 @@ export function normalize(L) {
 // ---------- rendering ----------
 const bubs = (n) => Array(n).fill('<span class="bub"><i></i></span>').join('');
 const lbl = (icon, t) => `<b class="xl">${icon ? ic(icon, t) : ''}${t ? `<span>${esc(t)}</span>` : ''}</b>`;
+const PAPER_CLS = { lines: '', dots: 'pd', grid: 'pg' }; // lines = today's ruling, byte for byte
 const ruled = (n, cls = '') => `<span class="ru ${cls}" style="height:${(n * 0.22).toFixed(2)}in"></span>`;
 function careRow(r) {
   switch (r.id) {
@@ -252,7 +254,7 @@ function renderBlock(b, parts, zone) {
     case 'sky': case 'notes': case 'events': case 'fact': return parts[b.type] || '';
     case 'spoons': return `<div class="care solo">${spoonRow(b)}</div>`;
     case 'good': return `<div class="grat" ${Z}><b class="zl">${ic('heart', 'Small good things')}</b><span class="lines" data-pitch="0.2" style="height:${(b.n * 0.2 + 0.02).toFixed(2)}in"></span></div>`;
-    case 'body': return b.style === 'lines' ? `<div class="ruled log" data-zone="body"></div>` : `<div class="${b.style === 'blank' ? 'plain' : 'dots'} log" data-zone="body"></div>`;
+    case 'body': return b.style === 'lines' ? `<div class="ruled log" data-zone="body"></div>` : `<div class="${b.style === 'blank' ? 'plain' : b.style === 'grid' ? 'grid' : 'dots'} log" data-zone="body"></div>`;
     case 'actions': return actionZone(b.count, b.routines ? parts.routines || [] : []);
     case 'review': {
       const it = Object.keys(REVIEW_ITEMS).filter((k) => b.items[k]);
@@ -269,10 +271,10 @@ function renderBlock(b, parts, zone) {
     case 'habits': return b.labels.length ? `<div class="xb xrow wr xhab" ${Z}>${lbl('', b.title)}${b.labels.map((t) => `<span class="hd"><span class="t">${esc(t)}</span><i></i></span>`).join('')}${mkKey(['half', 'full'])}</div>` : '';
     case 'fields': return `<div class="xb xrow wr" ${Z}>${lbl('', b.title)}${b.labels.map((t) => `<span class="f">${esc(t)} <span class="blank"></span></span>`).join('')}</div>`;
     case 'weather': return `<div class="xb xrow" ${Z}>${['am', 'cloud', 'rain', 'snow', ...(b.aqi ? ['smoke'] : [])].map((k) => `<span class="cir">${ic(k, k === 'am' ? 'Sun' : k)}</span>`).join('')}<span class="f">hi <span class="blank xs"></span></span><span class="f">lo <span class="blank xs"></span></span>${b.aqi ? '<span class="f">AQI <span class="blank xs"></span></span>' : ''}</div>`;
-    case 'lines': return `<div class="xb" ${Z}>${lbl('', b.title)}${ruled(b.n)}</div>`;
+    case 'lines': return `<div class="xb" ${Z}>${lbl('', b.title)}${ruled(b.n, PAPER_CLS[b.paper] || '')}</div>`;
     case 'bullets': return `<div class="xb xbul" ${Z}>${b.title || b.key ? `<div class="xrow">${b.title ? lbl('', b.title) : ''}${b.key ? mkKey(['task', 'event', 'note', 'moved', 'done']) : ''}</div>` : ''}${Array(b.n).fill('<div class="bl"><i></i><span></span></div>').join('')}</div>`;
-    case 'split': return `<div class="xb xsplit" ${Z}><div>${lbl('', b.left)}${ruled(b.n)}</div><div>${lbl('', b.right)}${ruled(b.n)}</div></div>`;
-    case 'top': return `<div class="xb" ${Z}>${lbl('', b.title)}${Array.from({ length: b.n }, (_, i) => `<div class="num"><span>${i + 1}</span>${ruled(1)}</div>`).join('')}</div>`;
+    case 'split': return `<div class="xb xsplit" ${Z}><div>${lbl('', b.left)}${ruled(b.n, PAPER_CLS[b.paper] || '')}</div><div>${lbl('', b.right)}${ruled(b.n, PAPER_CLS[b.paper] || '')}</div></div>`;
+    case 'top': return `<div class="xb" ${Z}>${lbl('', b.title)}${Array.from({ length: b.n }, (_, i) => b.bubbles ? `<div class="num tb"><span>${i + 1}</span>${ruled(1)}<span class="tbub">${bubs(b.bubbles)}</span></div>` : `<div class="num"><span>${i + 1}</span>${ruled(1)}</div>`).join('')}</div>`;
     case 'sketch': return `<div class="xb" ${Z}>${b.title ? lbl('', b.title) : ''}<div class="sk-box" style="height:${(b.h / 10).toFixed(1)}in"></div></div>`;
     case 'timeline': {
       const hrs = []; for (let h = b.from; h < Math.max(b.to, b.from + 1); h += b.every) hrs.push(h);
@@ -337,4 +339,9 @@ export const DAYPAGE_CSS = `
 .xbul .bl { display: grid; grid-template-columns: 9px 1fr; align-items: end; } .xbul .bl span { height: 0.22in; border-bottom: 1px solid #999; } .xbul .bl i { width: 3px; height: 3px; border-radius: 50%; background: #999; margin-bottom: 4px; }
 .xhab .hd { display: inline-flex; align-items: center; gap: 3px; margin-right: 5px; font: 500 7pt Inter, sans-serif; white-space: nowrap; } .xhab .hd i { width: 10px; height: 10px; border: 1.1px solid #000; border-radius: 50%; }
 .xdiv { border-top: 1px solid #777; margin: 4px 0 2px; flex: none; } .xsp { flex: none; }
+/* paper: a quiet 4 mm dashed grid (Hobonichi style), lighter than the dot grid; dots on the ruling's baselines */
+.grid.log, .ru.pg { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4mm' height='4mm' viewBox='0 0 40 40'%3E%3Cpath d='M0 .5H40M.5 0V40' stroke='%23d6d6d6' stroke-width='1' stroke-dasharray='2 3' fill='none'/%3E%3C/svg%3E"); background-size: 4mm 4mm; }
+.ru.pd { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'%3E%3Ccircle cx='11' cy='11' r='1.2' fill='%23999'/%3E%3C/svg%3E"); background-size: 0.22in 0.22in; background-position: 0 0.09in; }
+/* top priorities: time circles at the line's end, each = 15 min (estimate, then fill) */
+.xb .num.tb { grid-template-columns: 10px 1fr auto; } .xb .tbub { display: inline-flex; gap: 2px; padding: 0 0 2px 4px; } .xb .tbub .bub i { width: 7px; height: 7px; border-width: 0.8px; }
 `;
