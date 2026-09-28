@@ -10,9 +10,15 @@ export function drawRulings() {
   const IN = 96, MM = 96 / 25.4;
   const SPECS = [ // first match wins; lines: 1px band at the bottom of each pitch; dots: centres ox + i·pitch, oy + j·pitch
     // Print weights (KDP: lines >= 0.75 pt, grey fills >= 10%; see KDP.md section 8): rules 1 pt (1.333 px), grid 0.75 pt, dots 0.7-0.8 mm across.
+    ['.ru.pd.p26', { dots: 0.26 * IN, ox: 0.13 * IN, oy: 0.2364 * IN, r: 0.014 * IN, c: '#808080' }], // line spacing: standard 6.6 mm and wide 8.5 mm (dots at 0.909 x the pitch down)
+    ['.ru.pd.p33', { dots: 0.335 * IN, ox: 0.1675 * IN, oy: 0.3045 * IN, r: 0.014 * IN, c: '#808080' }],
     ['.ru.pd', { dots: 0.22 * IN, ox: 0.11 * IN, oy: 0.2 * IN, r: 0.014 * IN, c: '#808080' }],
+    ['.grid.g37.log', { grid: 3.7 * MM, w: 1, dash: [0.555 * MM, 0.37 * MM], c: '#c8c8c8' }], // Hobonichi 3.7 mm grid, 4 dashes per cell
     ['.ru.pg, .grid.log', { grid: 4 * MM, w: 1, dash: [0.6 * MM, 0.4 * MM], c: '#c8c8c8' }],
+    ['.ruled.log.bold', { lines: 0.5625 * IN, w: 2, c: '#000' }], // bold-line (large print): 1.5 pt black at 9/16 in
     ['.ruled.log', { lines: 0.26 * IN, w: 4 / 3, c: '#a0a0a0' }],
+    ['.ru.p26', { lines: 0.26 * IN, w: 4 / 3, c: '#a0a0a0' }],
+    ['.ru.p33', { lines: 0.335 * IN, w: 4 / 3, c: '#a0a0a0' }],
     ['.ru', { lines: 0.22 * IN, w: 4 / 3, c: '#a0a0a0' }],
     ['.m .dots', { dots: 5 * MM, ox: 0, oy: 0, r: 0.4 * MM, c: '#c8c8c8' }],
     ['.dots', { dots: 0.17 * IN, ox: 0, oy: 0, r: 0.014 * IN, c: '#606060' }],

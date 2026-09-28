@@ -105,6 +105,8 @@ const T = (label, def, max = 40) => ({ k: 'title', kind: 'text', label, def, max
 const N = (k, label, lo, hi, def) => ({ k, kind: 'num', label, lo, hi, def });
 const B = (k, label, def = true) => ({ k, kind: 'bool', label, def });
 const LST = (k, label, def, max = 10) => ({ k, kind: 'list', label, def, max });
+const PITCH = { k: 'pitch', kind: 'choice', label: 'Line spacing', choices: [[5.6, 'Tight 5.6 mm'], [6.6, 'Standard 6.6 mm'], [8.5, 'Wide 8.5 mm']], def: 5.6 };
+const OMR = B('omr', 'Scan-ready (larger marks)', false);
 export const X4_MAXES = [5, 10, 20, 50, 99, 200, 999]; // "fields": the most the X4 counts up to (paper is unaffected)
 const PAPER = { k: 'paper', kind: 'choice', label: 'Paper', choices: [['lines', 'Lines'], ['dots', 'Dot grid'], ['grid', '4 mm grid']], def: 'lines' };
 
@@ -117,33 +119,33 @@ export const TYPES = {
   actions: { name: 'Action items', group: 'From your day', icon: 'well', single: true, hint: 'Routines from your calendar fill in first', opts: [N('count', 'Lines', 1, 6, 3), B('routines', 'Pre-fill routines')] },
   fact: { name: 'On this day', group: 'From your day', icon: 'pen', single: true, hint: 'One line of history', opts: [] },
   review: { name: 'Went well · Was hard · Tomorrow', group: 'From your day', icon: 'next', single: true, hint: 'Short review columns', opts: [{ k: 'items', kind: 'flags', label: 'Columns', items: REVIEW_ITEMS, icons: true }] },
-  body: { name: 'Writing space', group: 'Writing', icon: 'pen', single: true, locked: true, hint: 'Takes whatever room is left', opts: [{ k: 'style', kind: 'choice', label: 'Paper', choices: [['dots', 'Dot grid'], ['lines', 'Lines'], ['grid', '4 mm grid'], ['blank', 'Blank']], def: 'dots' }] },
+  body: { name: 'Writing space', group: 'Writing', icon: 'pen', single: true, locked: true, hint: 'Takes whatever room is left', opts: [{ k: 'style', kind: 'choice', label: 'Paper', choices: [['dots', 'Dot grid'], ['lines', 'Lines'], ['bold', 'Bold lines'], ['grid', '4 mm grid'], ['grid37', '3.7 mm grid'], ['blank', 'Blank']], def: 'dots' }, B('secretLine', 'Secret line', false)] },
   // ---- check-ins ----
   care: { name: 'Care check-in', group: 'Check-ins', icon: 'pill', single: true, hint: 'Meds, meals, work shift, mood, water: two columns', opts: [] },
   spoons: { name: 'Spoons left', group: 'Check-ins', icon: 'spoon', single: true, hint: 'Off by default: the X4 counts spoons left', opts: [N('count', 'How many', 6, 16, 12)] },
   checks: { name: 'Checkboxes', group: 'Check-ins', icon: 'box', hint: 'Your own tick boxes · also on X4', opts: [T('Label', 'Habits', 24), LST('labels', 'Boxes', ['Stretch', 'Outside', 'Read'], 8)] },
   scale: { name: 'Scale', group: 'Check-ins', icon: 'bolt', hint: 'Circle a number between two words · also on X4', opts: [T('Label', 'Energy', 18), N('steps', 'Steps', 3, 11, 5), B('zero', 'Number from 0', false), B('signed', 'Signed (−3 … +3)', false), { k: 'lo', kind: 'text', label: 'Left word', def: 'low', max: 10 }, { k: 'hi', kind: 'text', label: 'Right word', def: 'high', max: 10 }] },
   words: { name: 'Words to circle', group: 'Check-ins', icon: 'list', hint: 'Circle the ones that fit today', opts: [T('Label', 'Feeling', 18), LST('words', 'Words', ['calm', 'tired', 'anxious', 'content', 'flat', 'overwhelmed', 'hopeful', 'irritable', 'proud', 'lonely'], 14), B('x4', 'Pick one on X4 (first 8 words)', false)] },
-  sensory: { name: 'Sensory load', group: 'Check-ins', icon: 'ear', hint: 'How loud was the world today, 0–3', opts: [{ k: 'items', kind: 'flags', label: 'Senses', items: { sound: 'Sound', light: 'Light', crowd: 'Crowds', touch: 'Touch', smell: 'Smell', social: 'Social' }, def: { sound: true, light: true, crowd: true, touch: true, smell: false, social: false } }] },
+  sensory: { name: 'Sensory load', group: 'Check-ins', icon: 'ear', hint: 'How loud was the world today, 0–3', opts: [{ k: 'items', kind: 'flags', label: 'Senses', items: { sound: 'Sound', light: 'Light', crowd: 'Crowds', touch: 'Touch', smell: 'Smell', social: 'Social', temp: 'Temperature', move: 'Movement' }, def: { sound: true, light: true, crowd: true, touch: true, smell: false, social: false, temp: false, move: false } }] },
   sleeptimes: { name: 'Sleep times', group: 'Check-ins', icon: 'sleep', single: true, hint: 'Bed, wake and how it felt', opts: [B('quality', 'Quality scale')] },
-  habits: { name: 'Habit dots', group: 'Check-ins', icon: 'dots', hint: 'One circle each: leave empty, half-fill or fill · also on X4', opts: [T('Label', 'Habits', 24), LST('labels', 'Habits', ['Stretch', 'Outside', 'Read', 'Water'], 8)] },
+  habits: { name: 'Habit dots', group: 'Check-ins', icon: 'dots', hint: 'One circle each: leave empty, half-fill or fill · also on X4', opts: [T('Label', 'Habits', 24), LST('labels', 'Habits', ['Stretch', 'Outside', 'Read', 'Water'], 8), B('tiny', 'Legend: half = tiny', false)] },
   fields: { name: 'Fill-in blanks', group: 'Check-ins', icon: 'pen', hint: 'Label + a blank to write a number or word · also on X4', opts: [T('Label', 'Outside', 18), LST('labels', 'Blanks', ['Minutes outside', 'Steps'], 6), { k: 'max', kind: 'choice', label: 'Highest count on X4', choices: X4_MAXES.map((m) => [m, String(m)]), def: 99 }] },
   weather: { name: 'Weather & air', group: 'Check-ins', icon: 'cloud', single: true, hint: 'Circle the sky; high, low and air quality', opts: [B('aqi', 'Air quality (smoke season)')] },
   // ---- writing ----
-  lines: { name: 'Lined notes', group: 'Writing', icon: 'pen', hint: 'A label and a few lines', opts: [T('Label', 'Notes'), N('n', 'Lines', 1, 8, 2), PAPER] },
+  lines: { name: 'Lined notes', group: 'Writing', icon: 'pen', hint: 'A label and a few lines', opts: [T('Label', 'Notes'), N('n', 'Lines', 1, 8, 2), PAPER, PITCH] },
   bullets: { name: 'Quick bullets', group: 'Writing', icon: 'log', hint: 'Ruled rows with a bullet spot; optional key', opts: [T('Label', 'Log', 24), N('n', 'Rows', 2, 10, 5), B('key', 'Key strip')] },
-  good: { name: 'Small good things', group: 'Writing', icon: 'heart', hint: 'Short lines for good moments', opts: [N('n', 'Lines', 1, 5, 3)] },
-  split: { name: 'Two columns', group: 'Writing', icon: 'list', hint: 'Two labelled columns side by side', opts: [{ k: 'left', kind: 'text', label: 'Left', def: 'Morning', max: 18 }, { k: 'right', kind: 'text', label: 'Right', def: 'Evening', max: 18 }, N('n', 'Lines', 1, 8, 3), PAPER] },
-  top: { name: 'Top priorities', group: 'Writing', icon: 'flag', hint: 'Numbered lines', opts: [T('Label', 'Top 3', 18), N('n', 'How many', 1, 5, 3), N('bubbles', 'Time circles (each circle = 15 min)', 0, 8, 0)] },
-  sketch: { name: 'Sketch box', group: 'Writing', icon: 'box', hint: 'An empty frame to draw or stick things in', opts: [T('Label', ''), N('h', 'Height (tenths of an inch)', 5, 30, 12)] },
+  good: { name: 'Small good things', group: 'Writing', icon: 'heart', hint: 'Short lines for good moments', opts: [{ k: 'label', kind: 'text', label: 'Label', def: 'Small good things', max: 24 }, N('n', 'Lines', 1, 5, 3), B('because', 'Add "because"', false)] },
+  split: { name: 'Two columns', group: 'Writing', icon: 'list', hint: 'Two labelled columns side by side', opts: [{ k: 'left', kind: 'text', label: 'Left', def: 'Morning', max: 18 }, { k: 'right', kind: 'text', label: 'Right', def: 'Evening', max: 18 }, N('n', 'Lines', 1, 8, 3), PAPER, PITCH] },
+  top: { name: 'Top priorities', group: 'Writing', icon: 'flag', hint: 'Numbered lines', opts: [T('Label', 'Top 3', 18), N('n', 'How many', 1, 6, 3), N('bubbles', 'Time circles (each circle = 15 min)', 0, 8, 0), B('est', 'Guess / took columns', false), B('carried', 'Carried column', false)] },
+  sketch: { name: 'Sketch box', group: 'Writing', icon: 'box', hint: 'An empty frame to draw or stick things in', opts: [T('Label', ''), N('h', 'Height (tenths of an inch)', 5, 30, 12), B('corners', 'Tape marks', false), { k: 'caption', kind: 'text', label: 'Caption', def: '', max: 30 }] },
   // ---- planning ----
-  timeline: { name: 'Time blocks', group: 'Planning', icon: 'clock', single: true, hint: 'Hours down the side to plan the day', opts: [N('from', 'From (hour, 24h)', 5, 14, 8), N('to', 'To (hour, 24h)', 12, 24, 22), { k: 'every', kind: 'choice', label: 'Every', choices: [[1, '1 hour'], [2, '2 hours']], def: 2 }] },
+  timeline: { name: 'Time blocks', group: 'Planning', icon: 'clock', single: true, hint: 'Hours down the side to plan the day', opts: [N('from', 'From (hour, 24h)', 0, 14, 8), N('to', 'To (hour, 24h)', 1, 24, 22), { k: 'every', kind: 'choice', label: 'Every', choices: [[1, '1 hour'], [2, '2 hours']], def: 2 }, B('actual', 'Actual column', false), N('replan', 'Re-plan columns', 0, 2, 0)] },
   shift: { name: 'Work shift', group: 'Planning', icon: 'work', single: true, hint: 'In, out, break and a line for notes', opts: [N('n', 'Note lines', 0, 3, 1)] },
   bus: { name: 'Bus plan', group: 'Planning', icon: 'bus', single: true, hint: 'Route, stop, leave and back', opts: [N('n', 'Trips', 1, 3, 1)] },
   money: { name: 'Spending', group: 'Planning', icon: 'coin', single: true, hint: 'What and how much', opts: [N('n', 'Rows', 2, 8, 4)] },
   reach: { name: 'Reach out', group: 'Planning', icon: 'people', single: true, hint: 'People to text or check on', opts: [N('n', 'Names', 1, 4, 2)] },
   // ---- layout ----
-  divider: { name: 'Divider', group: 'Layout', icon: 'calm', hint: 'A thin line', opts: [] },
+  divider: { name: 'Divider', group: 'Layout', icon: 'calm', hint: 'A thin line', opts: [{ k: 'icon', kind: 'choice', label: 'Icon', choices: [['none', 'None'], ['sun', 'Sun'], ['moon', 'Moon']], def: 'none' }] },
   spacer: { name: 'Space', group: 'Layout', icon: 'box', hint: 'Empty room', opts: [N('h', 'Height (tenths of an inch)', 1, 10, 2)] },
 };
 
@@ -158,6 +160,34 @@ export const PRESETS = [
   { type: 'scale', name: 'Dysphoria', opts: { title: 'Dysphoria', steps: 5, lo: 'quiet', hi: 'loud' }, group: 'Check-ins' },
   { type: 'fields', name: 'Outside & moving', opts: { title: 'Outside', labels: ['Minutes outside', 'Steps'] }, group: 'Check-ins' },
 ];
+// Tier 1 presets (docs/journaling/BUILD-PLAN.md section 5): plain blocks with starting options, labels from the method docs.
+// checks / scale / habits / fields presets are also X4 check-ins after the next Books build.
+const P1 = (type, name, opts, group) => PRESETS.push({ type, name, opts, group });
+P1('checks', 'Rituals', { title: 'Rituals', labels: ['Morning', 'Start', 'Shut down', 'Evening'] }, 'Planning');
+P1('checks', "Today's 3", { title: "Today's 3", labels: ['#1', '#2', '#3'] }, 'Planning');
+P1('checks', 'One Q2 thing', { title: 'Q2', labels: ['Did one Q2 thing'] }, 'Planning');
+P1('checks', 'Inbox cleared', { title: 'GTD', labels: ['Inbox cleared'] }, 'Planning');
+P1('habits', 'Weekly review', { title: 'Review', labels: ['Weekly review'] }, 'Planning');
+P1('checks', 'Shutdown', { title: 'Shutdown', labels: ['Lists captured', "Tomorrow's first block", 'Work closed'] }, 'Planning');
+P1('fields', 'Deep blocks', { title: 'Deep blocks', labels: ['Deep blocks planned', 'Deep blocks done'] }, 'Planning');
+P1('fields', 'Focus rounds count', { title: 'Focus rounds', labels: ['Focus rounds'] }, 'Planning');
+P1('checks', 'Supports', { title: 'Supports', labels: ['Headphones', 'Hood', 'Dark room', 'Alone time'] }, 'Check-ins');
+P1('scale', 'Masking', { title: 'Masking', steps: 4, lo: 'none', hi: 'all day' }, 'Check-ins');
+P1('habits', 'Overload', { title: 'Overload', labels: ['Overload'] }, 'Check-ins');
+P1('scale', 'Felt like me', { title: 'Felt like me', steps: 5, lo: 'not today', hi: 'so me' }, 'Check-ins');
+P1('fields', 'Voice minutes', { title: 'Voice', labels: ['Voice min'] }, 'Check-ins');
+P1('checks', 'Cycle & dose', { title: 'Cycle & dose', labels: ['Period', 'Dose day'] }, 'Check-ins');
+P1('checks', 'Deposits done', { title: 'Deposits', labels: ['Rest', 'Alone time', 'Outside'] }, 'Check-ins');
+P1('checks', 'Sharpen the saw', { title: 'Renew', labels: ['Body', 'Mind', 'Heart', 'Spirit'] }, 'Check-ins');
+P1('fields', 'Places', { title: 'Places', labels: ['Places visited'] }, 'Check-ins');
+P1('checks', 'Something new', { title: 'Firsts', labels: ['Something new', 'Went outside', 'Talked to someone'] }, 'Check-ins');
+P1('checks', 'Made something', { title: 'Made', labels: ['Made something', 'Went outside'] }, 'Check-ins');
+P1('checks', 'Good today', { title: 'Good today', labels: ['Warmth', 'Food', 'Rest', 'People', 'Outside'] }, 'Check-ins');
+P1('checks', 'Device-free hour', { title: 'Device-free', labels: ['Phone away 1 h'] }, 'Check-ins');
+P1('habits', 'Outside & light', { title: 'Outside & light', labels: ['Outside', 'Daylight on face', 'Moved'] }, 'Check-ins');
+P1('fields', 'One small good thing', { title: 'One good thing', labels: ['Good thing'] }, 'Check-ins');
+// scan-ready marks (optical mark reading): added here so the scale block's own option list stays untouched
+TYPES.checks.opts.push(OMR); TYPES.scale.opts.push(OMR);
 
 const defOf = (o) => (o.def !== undefined ? structuredClone(o.def) : o.kind === 'flags' ? Object.fromEntries(Object.keys(o.items).map((k) => [k, true])) : o.kind === 'bool' ? true : o.kind === 'num' ? o.lo : '');
 export function newBlock(type, opts = {}, uid) {
@@ -239,7 +269,9 @@ const bubs = (n) => Array(n).fill('<span class="bub"><i></i></span>').join('');
 const nbubs = (n, lo, mid = false) => Array.from({ length: n }, (_, i) => { const v = lo + i; return `<span class="bub nb${mid && v === 0 ? ' mid' : ''}"><i>${v > 0 && mid ? '+' : v < 0 ? '−' : ''}${Math.abs(v)}</i></span>`; }).join('');
 const lbl = (icon, t) => `<b class="xl">${icon ? ic(icon, t) : ''}${t ? `<span>${esc(t)}</span>` : ''}</b>`;
 const PAPER_CLS = { lines: '', dots: 'pd', grid: 'pg' }; // lines = today's ruling, byte for byte
-const ruled = (n, cls = '') => `<span class="ru ${cls}" style="height:${(n * 0.22).toFixed(2)}in"></span>`;
+// Line spacing (mm -> class): tight 5.6 mm is today's 0.22 in and adds nothing; standard 6.6 mm = 0.26 in, wide 8.5 mm = 0.335 in.
+export const PITCH_IN = { 5.6: 0.22, 6.6: 0.26, 8.5: 0.335 }, PITCH_CLS = { 5.6: '', 6.6: 'p26', 8.5: 'p33' };
+const ruled = (n, cls = '', pitch = 5.6) => `<span class="ru ${cls}${PITCH_CLS[pitch] ? (cls ? ' ' : '') + PITCH_CLS[pitch] : ''}" style="height:${(n * PITCH_IN[pitch]).toFixed(2)}in"></span>`;
 function careRow(r) {
   switch (r.id) {
     case 'meds': {
@@ -279,7 +311,7 @@ const MK = {
   half: '<circle cx="4" cy="4" r="3"/><path d="M4 1a3 3 0 0 1 0 6Z" fill="currentColor"/>', full: '<circle cx="4" cy="4" r="3" fill="currentColor"/>',
 };
 const mk = (k) => `<svg class="bmk" width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="${k}">${MK[k]}</svg>`;
-const mkKey = (ks) => `<span class="mkey">${ks.map((k) => `<span>${mk(k)}${k}</span>`).join('')}</span>`;
+const mkKey = (ks, names = {}) => `<span class="mkey">${ks.map((k) => `<span>${mk(k)}${names[k] || k}</span>`).join('')}</span>`;
 const hour = (h) => { const x = h % 24, ap = x < 12 ? 'a' : 'p'; return `${x % 12 || 12}${ap}`; };
 
 function renderBlock(b, parts, zone) {
@@ -287,38 +319,49 @@ function renderBlock(b, parts, zone) {
   switch (b.type) {
     case 'sky': case 'notes': case 'events': case 'fact': return parts[b.type] || '';
     case 'spoons': return `<div class="care solo">${spoonRow(b)}</div>`;
-    case 'good': return `<div class="grat" ${Z}><b class="zl">${ic('heart', 'Small good things')}</b><span class="lines" data-pitch="0.2" style="height:${(b.n * 0.2 + 0.02).toFixed(2)}in"></span></div>`;
-    case 'body': return b.style === 'lines' ? `<div class="ruled log" data-zone="body"></div>` : `<div class="${b.style === 'blank' ? 'plain' : b.style === 'grid' ? 'grid' : 'dots'} log" data-zone="body"></div>`;
+    case 'good': return `<div class="grat" ${Z}><b class="zl">${ic('heart', esc(b.label || 'Small good things'))}</b>${b.because ? `<div class="gbs">${Array(b.n).fill('<div class="gb"><span class="lines" data-pitch="0.2" style="height:0.22in"></span><i>because</i><span class="lines" data-pitch="0.2" style="height:0.22in"></span></div>').join('')}</div>` : `<span class="lines" data-pitch="0.2" style="height:${(b.n * 0.2 + 0.02).toFixed(2)}in"></span>`}</div>`;
+    case 'body': return `<div class="${{ lines: 'ruled', bold: 'ruled bold', blank: 'plain', grid: 'grid', grid37: 'grid g37' }[b.style] || 'dots'} log${b.secretLine ? ' sl' : ''}" data-zone="body"></div>`;
     case 'actions': return actionZone(b.count, b.routines ? parts.routines || [] : []);
     case 'review': {
       const it = Object.keys(REVIEW_ITEMS).filter((k) => b.items[k]);
       return it.length ? `<div class="rev${it.length < 3 ? ` c${it.length}` : ''}" data-zone="review">${it.map((k) => `<div><b class="zl">${ic(k, REVIEW_ITEMS[k])}<i>${REVIEW_ITEMS[k]}</i></b><span class="lines" data-pitch="0.22"></span></div>`).join('')}</div>` : '';
     }
-    case 'checks': return b.labels.length ? `<div class="xb xrow" ${Z}>${lbl('', b.title)}${b.labels.map((t) => box(`<span class="t">${esc(t)}</span>`)).join('')}</div>` : '';
-    case 'scale': return `<div class="xb xrow" ${Z}>${lbl('', b.title)}<span class="end">${esc(b.lo)}</span>${scaleBubs(b)}<span class="end">${esc(b.hi)}</span></div>`;
+    case 'checks': return b.labels.length ? `<div class="xb xrow${b.omr ? ' omr' : ''}" ${Z}>${lbl('', b.title)}${b.labels.map((t) => box(`<span class="t">${esc(t)}</span>`)).join('')}</div>` : '';
+    case 'scale': return `<div class="xb xrow${b.omr ? ' omr' : ''}" ${Z}>${lbl('', b.title)}<span class="end">${esc(b.lo)}</span>${scaleBubs(b)}<span class="end">${esc(b.hi)}</span></div>`;
     case 'words': return b.words.length ? `<div class="xb xrow wr" ${Z}>${lbl('', b.title)}${b.words.map((w) => `<span class="w">${esc(w)}</span>`).join('')}</div>` : '';
     case 'sensory': {
       const S = TYPES.sensory.opts[0].items, it = Object.keys(S).filter((k) => b.items[k]);
       return it.length ? `<div class="xb xrow wr" ${Z}>${lbl('ear', 'Sensory')}${it.map((k) => `<span class="sn">${S[k]} ${bubs(4)}</span>`).join('')}</div>` : '';
     }
     case 'sleeptimes': return `<div class="xb xrow" ${Z}>${lbl('sleep', 'Sleep')}<span class="f">bed <span class="blank"></span></span><span class="f">up <span class="blank"></span></span>${b.quality ? `<span class="end">rough</span>${bubs(5)}<span class="end">rested</span>` : ''}</div>`;
-    case 'habits': return b.labels.length ? `<div class="xb xrow wr xhab" ${Z}>${lbl('', b.title)}${b.labels.map((t) => `<span class="hd"><span class="t">${esc(t)}</span><i></i></span>`).join('')}${mkKey(['half', 'full'])}</div>` : '';
+    case 'habits': return b.labels.length ? `<div class="xb xrow wr xhab" ${Z}>${lbl('', b.title)}${b.labels.map((t) => `<span class="hd"><span class="t">${esc(t)}</span><i></i></span>`).join('')}${b.tiny ? mkKey(['half', 'full'], { half: 'tiny', full: 'done' }) : mkKey(['half', 'full'])}</div>` : '';
     case 'fields': return `<div class="xb xrow wr" ${Z}>${lbl('', b.title)}${b.labels.map((t) => `<span class="f">${esc(t)} <span class="blank"></span></span>`).join('')}</div>`;
     case 'weather': return `<div class="xb xrow" ${Z}>${['am', 'cloud', 'rain', 'snow', ...(b.aqi ? ['smoke'] : [])].map((k) => `<span class="cir">${ic(k, k === 'am' ? 'Sun' : k)}</span>`).join('')}<span class="f">hi <span class="blank xs"></span></span><span class="f">lo <span class="blank xs"></span></span>${b.aqi ? '<span class="f">AQI <span class="blank xs"></span></span>' : ''}</div>`;
-    case 'lines': return `<div class="xb" ${Z}>${lbl('', b.title)}${ruled(b.n, PAPER_CLS[b.paper] || '')}</div>`;
+    case 'lines': return `<div class="xb" ${Z}>${lbl('', b.title)}${ruled(b.n, PAPER_CLS[b.paper] || '', b.pitch)}</div>`;
     case 'bullets': return `<div class="xb xbul" ${Z}>${b.title || b.key ? `<div class="xrow">${b.title ? lbl('', b.title) : ''}${b.key ? mkKey(['task', 'event', 'note', 'moved', 'done']) : ''}</div>` : ''}${Array(b.n).fill('<div class="bl"><i></i><span></span></div>').join('')}</div>`;
-    case 'split': return `<div class="xb xsplit" ${Z}><div>${lbl('', b.left)}${ruled(b.n, PAPER_CLS[b.paper] || '')}</div><div>${lbl('', b.right)}${ruled(b.n, PAPER_CLS[b.paper] || '')}</div></div>`;
-    case 'top': return `<div class="xb" ${Z}>${lbl('', b.title)}${Array.from({ length: b.n }, (_, i) => b.bubbles ? `<div class="num tb"><span>${i + 1}</span>${ruled(1)}<span class="tbub">${bubs(b.bubbles)}</span></div>` : `<div class="num"><span>${i + 1}</span>${ruled(1)}</div>`).join('')}</div>`;
-    case 'sketch': return `<div class="xb" ${Z}>${b.title ? lbl('', b.title) : ''}<div class="sk-box" style="height:${(b.h / 10).toFixed(1)}in"></div></div>`;
+    case 'split': return `<div class="xb xsplit" ${Z}><div>${lbl('', b.left)}${ruled(b.n, PAPER_CLS[b.paper] || '', b.pitch)}</div><div>${lbl('', b.right)}${ruled(b.n, PAPER_CLS[b.paper] || '', b.pitch)}</div></div>`;
+    case 'top': {
+      if (b.est || b.carried) { // extra columns after the line: bubbles, guess, took, carried; a header row names them
+        const cols = (b.bubbles ? ['auto'] : []).concat(b.est ? ['0.5in', '0.5in'] : [], b.carried ? ['0.42in'] : []), g = `style="grid-template-columns:10px 1fr ${cols.join(' ')}"`;
+        const head = `<div class="num te th" ${g}><span></span><span>${lbl('', b.title)}</span>${b.bubbles ? `<span class="tbub" style="visibility:hidden">${bubs(b.bubbles)}</span>` : ''}${b.est ? '<span class="tc">guess</span><span class="tc">took</span>' : ''}${b.carried ? '<span class="tc">carried</span>' : ''}</div>`;
+        return `<div class="xb" ${Z}>${head}${Array.from({ length: b.n }, (_, i) => `<div class="num te" ${g}><span>${i + 1}</span>${ruled(1)}${b.bubbles ? `<span class="tbub">${bubs(b.bubbles)}</span>` : ''}${b.est ? `${ruled(1, 'tcl')}${ruled(1, 'tcl')}` : ''}${b.carried ? '<span class="tck"><i></i></span>' : ''}</div>`).join('')}</div>`;
+      }
+      return `<div class="xb" ${Z}>${lbl('', b.title)}${Array.from({ length: b.n }, (_, i) => b.bubbles ? `<div class="num tb"><span>${i + 1}</span>${ruled(1)}<span class="tbub">${bubs(b.bubbles)}</span></div>` : `<div class="num"><span>${i + 1}</span>${ruled(1)}</div>`).join('')}</div>`;
+    }
+    case 'sketch': return `<div class="xb" ${Z}>${b.caption ? `<div class="xrow">${b.title ? lbl('', b.title) : ''}<span class="cap">${esc(b.caption)}</span></div>` : b.title ? lbl('', b.title) : ''}<div class="sk-box${b.corners ? ' tp' : ''}" style="height:${(b.h / 10).toFixed(1)}in">${b.corners ? '<i class="tm a"></i><i class="tm b"></i><i class="tm c"></i><i class="tm d"></i>' : ''}</div></div>`;
     case 'timeline': {
       const hrs = []; for (let h = b.from; h < Math.max(b.to, b.from + 1); h += b.every) hrs.push(h);
-      return `<div class="xb xtl" ${Z}>${hrs.map((h) => `<div><span class="hr">${hour(h)}</span>${ruled(1)}</div>`).join('')}</div>`;
+      const cols = ['plan'].concat(b.actual ? ['actual'] : [], Array.from({ length: b.replan }, (_, i) => (b.replan > 1 ? `re-plan ${i + 1}` : 're-plan')));
+      if (cols.length === 1) return `<div class="xb xtl" ${Z}>${hrs.map((h) => `<div><span class="hr">${hour(h)}</span>${ruled(1)}</div>`).join('')}</div>`;
+      // plan + actual / re-plan columns: two halves side by side, or one wide list from three columns up
+      const head = `<div class="xth"><span></span>${cols.map((c) => `<span>${c}</span>`).join('')}</div>`;
+      return `<div class="xb xtl xtc${cols.length > 2 ? ' w1' : ''}" style="--tc:${cols.length}" ${Z}>${head}${cols.length > 2 ? '' : head}${hrs.map((h) => `<div><span class="hr">${hour(h)}</span>${cols.map(() => ruled(1)).join('')}</div>`).join('')}</div>`;
     }
     case 'shift': return `<div class="xb" ${Z}><div class="xrow">${lbl('work', 'Shift')}<span class="f">in <span class="blank"></span></span><span class="f">out <span class="blank"></span></span><span class="f">break <span class="blank"></span></span></div>${b.n ? ruled(b.n) : ''}</div>`;
     case 'bus': return `<div class="xb" ${Z}>${Array.from({ length: b.n }, (_, i) => `<div class="xrow">${i ? '<b class="xl"></b>' : lbl('bus', 'Bus')}<span class="f">route <span class="blank xs"></span></span><span class="f">stop <span class="blank"></span></span><span class="f">leave <span class="blank xs"></span></span><span class="f">back <span class="blank xs"></span></span></div>`).join('')}</div>`;
     case 'money': return `<div class="xb" ${Z}>${lbl('coin', 'Spent')}<div class="xmoney">${Array(b.n).fill('<span class="f"><span class="blank long"></span> $<span class="blank xs"></span></span>').join('')}</div></div>`;
     case 'reach': return `<div class="xb xrow wr" ${Z}>${lbl('people', 'Reach out')}${Array(b.n).fill(box('<span class="blank"></span>')).join('')}</div>`;
-    case 'divider': return `<div class="xdiv"></div>`;
+    case 'divider': return b.icon === 'sun' || b.icon === 'moon' ? `<div class="xdiv xdi"><i></i>${ic(b.icon === 'sun' ? 'am' : 'pm', b.icon === 'sun' ? 'Sun' : 'Moon')}<i></i></div>` : `<div class="xdiv"></div>`;
     case 'spacer': return `<div class="xsp" style="height:${(b.h / 10).toFixed(1)}in"></div>`;
   }
   return '';
@@ -385,6 +428,22 @@ export const DAYPAGE_CSS = `
 /* paper: a quiet 4 mm dashed grid (Hobonichi style), lighter than the dot grid; dots on the ruling's baselines */
 .grid.log, .ru.pg { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4mm' height='4mm' viewBox='0 0 40 40'%3E%3Cpath d='M0 1.3H40M1.3 0V40' stroke='%23c8c8c8' stroke-width='2.65' stroke-dasharray='6 4' fill='none'/%3E%3C/svg%3E"); background-size: 4mm 4mm; }
 .ru.pd { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'%3E%3Ccircle cx='11' cy='11' r='1.4' fill='%23808080'/%3E%3C/svg%3E"); background-size: 0.22in 0.22in; background-position: 0 0.09in; }
+/* Tier 1 options (see journal/README.md, "Day page presets and options"): every one is off by default and adds nothing to today's page */
+.ru.p26:not(.pg):not(.pd) { background: repeating-linear-gradient(to bottom, transparent 0 calc(0.26in - 1pt), #a0a0a0 calc(0.26in - 1pt) 0.26in); }
+.ru.p33:not(.pg):not(.pd) { background: repeating-linear-gradient(to bottom, transparent 0 calc(0.335in - 1pt), #a0a0a0 calc(0.335in - 1pt) 0.335in); }
+.ru.pd.p26 { background-size: 0.26in 0.26in; background-position: 0 0.106in; }
+.ru.pd.p33 { background-size: 0.335in 0.335in; background-position: 0 0.137in; }
+.ruled.log.bold { background: repeating-linear-gradient(to bottom, transparent 0 calc(0.5625in - 1.5pt), #000 calc(0.5625in - 1.5pt) 0.5625in); }
+.grid.g37.log { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='3.7mm' height='3.7mm' viewBox='0 0 40 40'%3E%3Cpath d='M0 1.3H40M1.3 0V40' stroke='%23c8c8c8' stroke-width='2.65' stroke-dasharray='6 4' fill='none'/%3E%3C/svg%3E"); background-size: 3.7mm 3.7mm; }
+.log.sl { position: relative; } .log.sl::before { content: ''; position: absolute; left: 0.9in; top: 0; bottom: 0; width: 1pt; background: #c0c0c0; }
+.grat .gbs { display: grid; } .grat .gb { display: grid; grid-template-columns: 1.3fr auto 1fr; gap: 5px; align-items: end; } .grat .gb span { height: 0.22in; } .grat .gb i { font: 500 6.5pt Inter, sans-serif; font-style: normal; color: #555; padding-bottom: 2px; }
+.xb .num.te { column-gap: 4px; align-items: end; } .xb .tc { font: 600 5.5pt Inter, sans-serif; text-transform: uppercase; letter-spacing: 0.4px; color: #555; text-align: center; padding: 0 0 1px; white-space: nowrap; }
+.xb .tck { display: flex; justify-content: center; padding: 0 0 3px; } .xb .tck i { width: 9px; height: 9px; border: 1.1px solid #000; display: block; }
+.sk-box.tp { position: relative; } .tm { position: absolute; width: 9px; height: 9px; border: 0 solid #555; } .tm.a { left: 5px; top: 5px; border-top-width: 1px; border-left-width: 1px; } .tm.b { right: 5px; top: 5px; border-top-width: 1px; border-right-width: 1px; } .tm.c { left: 5px; bottom: 5px; border-bottom-width: 1px; border-left-width: 1px; } .tm.d { right: 5px; bottom: 5px; border-bottom-width: 1px; border-right-width: 1px; }
+.xb .cap { font: italic 500 6.5pt Inter, sans-serif; color: #666; }
+.xdi { display: flex; align-items: center; gap: 6px; border-top: 0; } .xdi i { flex: 1; border-top: 1px solid #777; } .xdi .ic { width: 11px; height: 11px; color: #555; flex: none; }
+.xtc > div, .xtc .xth { grid-template-columns: 0.26in repeat(var(--tc), 1fr); column-gap: 3px; } .xtc .xth { display: grid; font: 600 5.5pt Inter, sans-serif; text-transform: uppercase; letter-spacing: 0.4px; color: #555; text-align: center; } .xtc.w1 { grid-template-columns: 1fr; }
+.xb.omr { gap: 8px; } .xb.omr .bub i { width: 12px; height: 12px; border-width: 1.3px; } .xb.omr .ck i { width: 12px; height: 12px; border-width: 1.3px; } .xb.omr .ck .t { margin-right: 4px; }
 /* top priorities: time circles at the line's end, each = 15 min (estimate, then fill) */
 .xb .num.tb { grid-template-columns: 10px 1fr auto; } .xb .tbub { display: inline-flex; gap: 2px; padding: 0 0 2px 4px; } .xb .tbub .bub i { width: 7px; height: 7px; border-width: 0.8px; }
 `;
