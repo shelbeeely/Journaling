@@ -39,6 +39,28 @@ const inp = p.locator('#list input[data-text]').first();
 await inp.fill('Things I noticed'); await inp.blur();
 ok(await p.evaluate(() => layout.blocks.find((x) => x.type === 'lines').title === 'Things I noticed'), 'text option');
 ok(await p.evaluate(() => !!localStorage.getItem('kw-daypage')), 'saves in the browser');
+// Method layouts: apply each from More > Start from a method, check blocks + preview, undo restores.
+await p.evaluate(() => { layout = normalize(null); history = []; drawList(); drawPalette(); drawPreview(); });
+const methods = await p.evaluate(() => METHOD_LAYOUTS.map((m) => ({ id: m.id, types: m.layout.blocks.map((x) => x.type).join(' ') })));
+ok(methods.length === 5, 'five method layouts');
+for (const [i, m] of methods.entries()) {
+  const before = await p.evaluate(() => JSON.stringify(layout));
+  await p.click('#menubtn'); await p.click('#m-method');
+  if (i === 1) await p.locator('#methods').screenshot({ path: `${OUT}/methods.png` });
+  await p.click(`#methods [data-method="${m.id}"]`);
+  const asked = await p.isVisible('#methods-confirm');
+  ok(asked === (i > 1), `${m.id}: ${i > 1 ? 'asks before replacing a changed page' : 'no question on the original page'}`);
+  if (asked) await p.click('#methods-go');
+  ok((await types()).join(' ') === m.types, `${m.id}: blocks match`);
+  const pv = await p.evaluate(() => ({ n: document.querySelectorAll('#pv [data-b]').length, m: document.querySelector('#meter').textContent }));
+  ok(pv.n >= 1 && !pv.m.includes('overflows'), `${m.id}: preview renders and fits (${pv.m.trim()})`);
+  await p.locator('.paper').screenshot({ path: `${OUT}/method-${m.id}.png` });
+  await p.click('#undo');
+  ok((await p.evaluate(() => JSON.stringify(layout))) === before, `${m.id}: undo restores`);
+  await p.evaluate((id) => { layout = normalize(METHOD_LAYOUTS.find((x) => x.id === id).layout); drawList(); drawPreview(); }, m.id);
+}
+ok((await p.locator('#list > li[data-uid="ts-habits"] .x4').count()) === 1 && (await p.locator('#list > li[data-uid="body"] .x4').count()) === 0, 'also-on-X4 mark on exported blocks only');
+await p.screenshot({ path: `${OUT}/desktop-method.png` });
 await p.evaluate(() => { layout = normalize({ v: 2, blocks: ['sky', 'notes', 'events', 'care', 'spoons', 'timeline', 'sketch', 'body', 'actions', 'review', 'fact'].map((type) => ({ type })) }); drawList(); drawPreview(); });
 ok((await p.textContent('#meter')).includes('Too full'), 'overflow meter warns on a crowded page');
 await p.click('#sz-l');
@@ -49,6 +71,13 @@ m.on('pageerror', (e) => errs.push('phone: ' + e.message));
 await m.goto(URL0, { waitUntil: 'networkidle' });
 for (const t of ['edit', 'add', 'preview']) { await m.click(`.tabs [data-tab="${t}"]`); await m.screenshot({ path: `${OUT}/phone-${t}.png` }); }
 ok(await m.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'no sideways scroll on a phone');
+await m.click('.tabs [data-tab="edit"]'); await m.click('#menubtn'); await m.click('#m-method');
+await m.screenshot({ path: `${OUT}/phone-methods.png` });
+const small = await m.evaluate(() => [...document.querySelectorAll('#methods button')].filter((x) => x.offsetParent && x.getBoundingClientRect().height < 44).length);
+ok(small === 0, 'method dialog: 44px targets on a phone');
+await m.click('#methods [data-method="theme"]');
+ok(await m.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'no sideways scroll with a method layout');
+await m.screenshot({ path: `${OUT}/phone-theme.png` });
 ok(!errs.length, 'no page errors ' + errs.join(' | '));
 await b.close(); srv.close();
 if (fails.length) { console.log(`\n${fails.length} failed`); process.exit(1); }

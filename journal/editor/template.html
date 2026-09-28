@@ -61,7 +61,7 @@ li.pi .add { flex: none; width: 30px; height: 30px; border-radius: 8px; border: 
 li.pi.used { opacity: .5; cursor: default; }
 li.pi.used .add { display: none; }
 li.pi.used::after { content: "on page"; font-size: 11.5px; color: var(--muted); }
-ul.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; min-height: 60px; }
+ul.list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; min-height: 60px; }
 li.blk { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
 li.blk.off { box-shadow: none; background: transparent; }
 li.blk.off .name { color: var(--muted); }
@@ -94,7 +94,7 @@ li.open > .opts { display: grid; }
 .step button { border: 0; background: var(--bg); width: 36px; height: 32px; cursor: pointer; font-size: 17px; }
 .step button:disabled { opacity: .35; }
 .step output { min-width: 34px; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; }
-ul.sub { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+ul.sub { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
 ul.sub li.blk { box-shadow: none; background: var(--bg); }
 ul.sub .row { min-height: 44px; padding: 4px 6px 4px 0; }
 ul.sub .opts { padding-left: 40px; }
@@ -123,6 +123,15 @@ dialog label { display: grid; gap: 4px; font-size: 13px; margin-bottom: 10px; }
 dialog input[type=text], dialog input[type=password] { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 8px 10px; font-size: 14px; }
 dialog .check { display: flex; gap: 8px; align-items: center; }
 dialog .acts { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 6px; }
+.x4 { display: inline-flex; align-items: center; gap: 3px; margin-left: 6px; font-size: 11.5px; font-weight: 500; color: var(--muted); white-space: nowrap; vertical-align: 1px; }
+.x4 svg { width: 12px; height: 12px; flex: none; }
+ul.methods { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 6px; }
+ul.methods button { width: 100%; text-align: left; border: 1px solid var(--line); background: var(--bg); border-radius: 10px; padding: 9px 12px; min-height: 44px; cursor: pointer; display: grid; gap: 1px; }
+ul.methods button:hover { border-color: var(--focus); }
+ul.methods b { font-size: 14.5px; font-weight: 600; }
+ul.methods span { font-size: 12.5px; color: var(--muted); }
+dialog .fine { font-size: 12.5px; margin: 4px 0 0; }
+dialog .btn { min-height: 44px; }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 @media (max-width: 1180px) { main { grid-template-columns: 220px minmax(0, 1fr) auto; } }
 @media (max-width: 960px) {
@@ -145,6 +154,7 @@ dialog .acts { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wr
     <button class="btn" id="undo" disabled aria-label="Undo">↶<span class="lab"> Undo</span></button>
     <div class="menu" id="menu"><button class="btn" aria-haspopup="true" aria-expanded="false" id="menubtn">More</button>
       <div role="menu">
+        <button role="menuitem" id="m-method">Start from a method…</button>
         <button role="menuitem" id="m-gh" hidden>Save to GitHub…</button>
         <button role="menuitem" id="m-ghload" hidden>Load from GitHub</button>
         <button role="menuitem" id="m-dl">Download daypage.json</button>
@@ -184,11 +194,28 @@ dialog .acts { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wr
   <form method="dialog">
     <h3>Save to GitHub</h3>
     <p>Commits <code>journal/content/daypage.json</code>; the Books workflow then rebuilds every month. Use a fine-grained token limited to this one repository with <b>Contents: read and write</b>.</p>
+    <p><b>Also on X4:</b> Checkboxes, Scale, Habit dots and Fill-in blanks become X4 check-ins after the next Books build.</p>
     <label>Repository <input type="text" id="gh-repo" placeholder="owner/repo" autocomplete="off"></label>
     <label>Branch <input type="text" id="gh-branch" value="main" autocomplete="off"></label>
     <label>Token <input type="password" id="gh-token" autocomplete="off"></label>
     <label class="check"><input type="checkbox" id="gh-remember"> Remember the token in this browser</label>
     <div class="acts"><button class="btn" value="cancel">Cancel</button><button class="btn primary" value="save">Commit layout</button></div>
+  </form>
+</dialog>
+<dialog id="methods" aria-labelledby="methods-h">
+  <form method="dialog">
+    <div id="methods-pick">
+      <h3 id="methods-h">Start from a method</h3>
+      <p>A ready-made day page. Pick one, then change anything. Undo brings your page back.</p>
+      <ul class="methods" id="methods-list"></ul>
+      <p class="fine">Blocks marked <b>also on X4</b> become X4 check-ins after the next Books build.</p>
+      <div class="acts"><button class="btn" value="cancel">Cancel</button></div>
+    </div>
+    <div id="methods-confirm" hidden>
+      <h3>Replace your current page?</h3>
+      <p id="methods-what"></p>
+      <div class="acts"><button class="btn" type="button" id="methods-back">Back</button><button class="btn primary" type="button" id="methods-go">Replace</button></div>
+    </div>
   </form>
 </dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -214,6 +241,9 @@ function change(fn, { list = true, hist = true } = {}) {
   drawPalette(); drawPreview(); queueSave();
 }
 $('#undo').onclick = () => { if (!history.length) return; layout = normalize(JSON.parse(history.pop())); $('#undo').disabled = !history.length; drawList(); drawPalette(); drawPreview(); queueSave(); };
+// Block types that export_pack.py turns into X4 check-ins (/kw/checkins.txt).
+const X4_TYPES = new Set(['checks', 'scale', 'habits', 'fields']);
+const X4_MARK = '<span class="x4" aria-label="Also on X4 as check-ins" title="Also on X4 as check-ins after the next Books build"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" aria-hidden="true"><rect x="2.4" y="1" width="7.2" height="10" rx="1.2"/><path d="M4.4 3.4h3.2M4.4 5.4h3.2M4.4 7.4h1.8"/></svg><span aria-hidden="true">also on X4</span></span>';
 const find = (uid) => layout.blocks.find((b) => b.uid === uid);
 const icon = (k, cls = '') => `<svg class="${cls}" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k] || IC.box}</svg>`;
 
@@ -286,7 +316,7 @@ function drawList() {
     const o = b.type === 'care' ? `<ul class="sub" data-care="${b.uid}">${b.rows.map((r) => rowItem(b.uid, r)).join('')}</ul>` : t.opts.map((x) => optControl(x, b[x.k], `${b.uid}/${x.k}`)).join('');
     return `<li class="blk ${b.on ? '' : 'off'} ${open ? 'open' : ''} ${selected === b.uid ? 'sel' : ''}" data-uid="${b.uid}">
       <div class="row"><span class="grip" aria-label="Drag to reorder">${GRIP}</span>${icon(t.icon, 'bico')}
-        <span class="txt" data-open="${b.uid}"><span class="name">${escH(t.name)}</span><span class="hint">${escH(summary(b))}</span></span>
+        <span class="txt" data-open="${b.uid}"><span class="name">${escH(t.name)}</span>${X4_TYPES.has(b.type) && b.on ? X4_MARK : ''}<span class="hint">${escH(summary(b))}</span></span>
         <button class="icon-btn more" ${o ? '' : 'hidden'} data-open="${b.uid}" aria-label="Options for ${escH(t.name)}" aria-expanded="${open}">${CHEV}</button>
         <button class="icon-btn del" ${t.locked ? 'hidden' : ''} data-del="${b.uid}" aria-label="Remove ${escH(t.name)}">${BIN}</button>
         <button class="sw" role="switch" aria-checked="${b.on}" aria-label="Show ${escH(t.name)}" data-bool="${b.uid}/on" ${t.locked ? 'disabled title="The writing space always stays"' : ''}></button></div>
@@ -408,6 +438,26 @@ async function save(retry = true) {
   }
 }
 $('#m-reset').onclick = () => { if (!confirm('Put the day page back to the original layout?')) return; change((L) => { L.blocks = structuredClone(DEFAULT_LAYOUT.blocks); }); toast('Back to the original page. Undo is still there.'); };
+// Method layouts (content/layouts.mjs): replace the page, one undo step; confirm first if it isn't the original page.
+const sameBlocks = (a, c) => JSON.stringify(normalize({ v: 2, blocks: a }).blocks) === JSON.stringify(normalize({ v: 2, blocks: c }).blocks);
+let pickedMethod = null;
+function methodPane(confirmStep) { $('#methods-pick').hidden = confirmStep; $('#methods-confirm').hidden = !confirmStep; }
+$('#methods-list').innerHTML = METHOD_LAYOUTS.map((m) => `<li><button type="button" data-method="${m.id}"><b>${escH(m.name)}</b><span>${escH(m.blurb)}</span></button></li>`).join('');
+$('#m-method').onclick = () => { methodPane(false); $('#methods').showModal(); };
+function applyMethod(m) {
+  selected = null;
+  change((L) => { L.blocks = structuredClone(m.layout.blocks); });
+  $('#methods').close(); toast(`Now: ${m.name}. Undo brings your page back.`);
+}
+$('#methods-list').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-method]'); if (!btn) return;
+  const m = METHOD_LAYOUTS.find((x) => x.id === btn.dataset.method);
+  if (sameBlocks(layout.blocks, DEFAULT_LAYOUT.blocks) || sameBlocks(layout.blocks, m.layout.blocks)) return applyMethod(m);
+  pickedMethod = m; $('#methods-what').textContent = `Your page has changes. ${m.name} replaces every block; Undo brings them back.`;
+  methodPane(true); $('#methods-go').focus();
+});
+$('#methods-back').onclick = () => methodPane(false);
+$('#methods-go').onclick = () => { if (pickedMethod) applyMethod(pickedMethod); };
 $('#m-copy').onclick = async () => { try { await navigator.clipboard.writeText(json()); toast('Layout copied'); } catch { toast('Couldn’t copy here. Use Download instead.'); } };
 $('#m-dl').onclick = async () => {
   if (dl) { try { await dl.save({ filename: 'daypage.json', data: json() }); } catch (e) { if (e && e.code !== 'declined') toast('Couldn’t save the file.'); } return; }
