@@ -21,4 +21,5 @@ for m in $MONTHS; do
   done
 done
 unset SIZE
+node proof-test.mjs || fail=1   # KDP proof test sheet (both sizes), not part of the books
 exit $fail

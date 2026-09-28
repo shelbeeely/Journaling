@@ -120,10 +120,47 @@ upload, Previewer, **Save as Draft**, **Request printed proofs**). Never publish
 - No-bleed margins: outside, top and bottom ≥ 0.25 in; inside ≥ 0.375 in (24–150 pages).
   Monthly books use 0.3 in outside and 0.5 in inside (×1.294 on the big book). The Keeper uses 0.45 in and 0.6 in.
 
+## 8. Print weights and the proof test sheet
+
+KDP asks for lines of at least **0.75 pt (0.01 in, 0.3 mm)** and, for grey backgrounds on black-ink books, a fill of
+at least **10%**. It says nothing about dots, so those are judged on a proof. Rulings are drawn by `drawRulings()`
+(`rulings.mjs`, SPECS table); the screen CSS in `daypage.mjs` / `render.mjs` mirrors it.
+
+| Ruling | Before | Now |
+| --- | --- | --- |
+| Body lines, block lines, writing lines, priority/bullet rules | 0.75 pt, `#999` (40%) | **1 pt**, `#a0a0a0` (37%) (the print build draws these as vectors, because Chromium snaps a CSS `1pt` border down to 0.75 pt) |
+| 4 mm grid | 0.28 pt dashes 0.2/0.3 mm, `#d6d6d6` (16%) | **0.75 pt** dashes 0.6/0.4 mm, `#c8c8c8` (22%) |
+| Body dot grid (5.6 mm) | 0.6 mm dot, `#999` | **0.71 mm** dot, `#808080` (50%) |
+| Month dots (5 mm) | 0.6 mm dot, `#dcdcdc` (14%) | **0.8 mm** dot, `#c8c8c8` (22%) |
+| Small dots (4.3 mm) | 0.5 mm dot, `#555` | **0.7 mm** dot, `#606060` |
+| Genko cross guide | 0.5 px `#ddd` | 1 px (0.75 pt) `#ccc` |
+
+Lines stay a quiet mid-grey, so they read as guides, not ink. Other 1 px borders (tables, boxes) are exactly
+0.75 pt and stay as they are.
+
+**8.5 x 11.** The page is laid out at 6.57 x 8.5 in and zoomed 1.294x, so every weight scales with it: 0.75 pt
+becomes 0.97 pt, 1 pt becomes 1.29 pt, a 0.71 mm dot becomes 0.92 mm. Greys don't change. All weights stay at or
+above the minimum on both sizes.
+
+**Proof test sheet.** `node proof-test.mjs` (also run by `build-all.sh`) writes
+`out/proof/keeping-watch-proof-test-5.5x8.5.pdf` and `...-8.5x11.pdf`: one sheet, two pages (front and back).
+Front: every ruling at its real weight, a line-weight ladder (0.25 to 1.5 pt), grey tones, dot sizes and tones, grid
+weights. Back: pen test areas (fine liner, ballpoint, gel, pencil), a 5 cm / 1 in ruler and a 5 mm / 1 in square to
+check scale, the page code at real size (scan it: it reads `KW1|TEST|001`), and a dashed line at KDP's minimum margin.
+The black frame and code strip sit where they do in the books. It has no calendar data.
+
+It is not a book (KDP needs 24+ pages), so **order it with the first proof**: append it to the proof manuscript with
+`pdfunite <interior>.pdf out/proof/keeping-watch-proof-test-5.5x8.5.pdf proof-manuscript.pdf` and upload that to the
+private draft (proof only; never the published manuscript). The page count stays even. On the proof, check: dashes
+and dots even and unbroken, 1 pt lines solid, 0.25 pt line missing or broken (expected), pens don't feather, ruler
+reads true (1 in = 25.4 mm; on 8.5 x 11 the 1 in square is 1.294 in), nothing crosses the dashed margin line, the
+code scans. If dots vanish or the grid breaks up, raise the tone one step (or the dot size to 0.8 mm) and re-proof.
+
 ## Sources (checked 2026-09-28)
 
 - Trim sizes, page counts, margins: https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6
 - Print options (ink, paper, finish, hardcover sizes): https://kdp.amazon.com/en_US/help/topic/G201834180
+- Paperback submission guidelines (line weight 0.75 pt, grey fill 10%): https://kdp.amazon.com/en_US/help/topic/G201857950
 - Paperback cover (spine formula, bleed, spine text): https://kdp.amazon.com/en_US/help/topic/G201953020
 - Hardcover cover (wrap, hinge, safe area): https://kdp.amazon.com/en_US/help/topic/GDTKFJPNQCBTMRV6
 - Hardcover build (case laminate): https://kdp.amazon.com/en_US/help/topic/GKZVNAAFYWVKZWL8

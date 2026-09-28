@@ -318,7 +318,7 @@ export const DAYPAGE_CSS = `
 .care.solo { padding: 3px 0; } .care.solo .cr.sp { margin-top: 0; }
 .plain.log { border-top: 1px solid #bbb; }
 /* ruling backgrounds (.ruled/.ru/.pd/.pg/.grid) are for the screen; print redraws them as vectors: drawRulings() in render.mjs, keep its SPECS in sync */
-.ruled.log { background: repeating-linear-gradient(to bottom, transparent 0 calc(0.26in - 1px), #999 calc(0.26in - 1px) 0.26in); }
+.ruled.log { background: repeating-linear-gradient(to bottom, transparent 0 calc(0.26in - 1pt), #a0a0a0 calc(0.26in - 1pt) 0.26in); }
 .grat { display: grid; grid-template-columns: auto 1fr; gap: 6px; align-items: start; border-top: 1px solid #9a9a9a; padding-top: 2px; margin-top: 2px; } .grat span { height: 0.62in; }
 .care [data-zone="water"] { gap: 3px; }
 .xb { border-top: 1px solid #bbb; padding: 2px 0 1px; margin-top: 2px; font-size: 7pt; flex: none; }
@@ -330,19 +330,19 @@ export const DAYPAGE_CSS = `
 .xb .w { padding: 0 4px; } .xb .sn { display: inline-flex; align-items: center; gap: 2px; margin-right: 4px; } .xb .sn .bub i { width: 7px; height: 7px; }
 .xb .f { display: inline-flex; align-items: baseline; gap: 2px; white-space: nowrap; } .xb .blank { height: 8px; }
 .xb .cir { display: inline-flex; width: 15px; height: 15px; align-items: center; justify-content: center; } .xb .cir .ic { width: 11px; height: 11px; }
-.ru { display: block; background: repeating-linear-gradient(to bottom, transparent 0 calc(0.22in - 1px), #999 calc(0.22in - 1px) 0.22in); }
+.ru { display: block; background: repeating-linear-gradient(to bottom, transparent 0 calc(0.22in - 1pt), #a0a0a0 calc(0.22in - 1pt) 0.22in); }
 .xsplit { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .xb .num { display: grid; grid-template-columns: 10px 1fr; align-items: end; font-weight: 600; } .xb .num span:first-child { padding-bottom: 2px; }
 .sk-box { border: 1px solid #999; border-radius: 2px; margin-top: 2px; }
 .xtl { display: grid; grid-template-columns: 1fr 1fr; column-gap: 10px; } .xtl > div { display: grid; grid-template-columns: 0.26in 1fr; align-items: end; } .xtl .hr { font: 500 6.5pt Inter, sans-serif; color: #444; padding-bottom: 2px; }
 .xmoney { display: grid; grid-template-columns: 1fr 1fr; column-gap: 10px; row-gap: 3px; padding-top: 2px; } .xmoney .f { display: flex; } .xmoney .blank.long { flex: 1; }
 .bmk { width: 8px; height: 8px; flex: none; } .mkey { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; font: 500 6pt Inter, sans-serif; color: #555; white-space: nowrap; } .mkey > span { display: inline-flex; align-items: center; gap: 2px; }
-.xbul .bl { display: grid; grid-template-columns: 9px 1fr; align-items: end; } .xbul .bl span { height: 0.22in; border-bottom: 1px solid #999; } .xbul .bl i { width: 3px; height: 3px; border-radius: 50%; background: #999; margin-bottom: 4px; }
+.xbul .bl { display: grid; grid-template-columns: 9px 1fr; align-items: end; } .xbul .bl span { height: 0.22in; border-bottom: 1px solid #a0a0a0; } .xbul .bl i { width: 3px; height: 3px; border-radius: 50%; background: #999; margin-bottom: 4px; }
 .xhab .hd { display: inline-flex; align-items: center; gap: 3px; margin-right: 5px; font: 500 7pt Inter, sans-serif; white-space: nowrap; } .xhab .hd i { width: 10px; height: 10px; border: 1.1px solid #000; border-radius: 50%; }
 .xdiv { border-top: 1px solid #777; margin: 4px 0 2px; flex: none; } .xsp { flex: none; }
 /* paper: a quiet 4 mm dashed grid (Hobonichi style), lighter than the dot grid; dots on the ruling's baselines */
-.grid.log, .ru.pg { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4mm' height='4mm' viewBox='0 0 40 40'%3E%3Cpath d='M0 .5H40M.5 0V40' stroke='%23d6d6d6' stroke-width='1' stroke-dasharray='2 3' fill='none'/%3E%3C/svg%3E"); background-size: 4mm 4mm; }
-.ru.pd { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'%3E%3Ccircle cx='11' cy='11' r='1.2' fill='%23999'/%3E%3C/svg%3E"); background-size: 0.22in 0.22in; background-position: 0 0.09in; }
+.grid.log, .ru.pg { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4mm' height='4mm' viewBox='0 0 40 40'%3E%3Cpath d='M0 1.3H40M1.3 0V40' stroke='%23c8c8c8' stroke-width='2.65' stroke-dasharray='6 4' fill='none'/%3E%3C/svg%3E"); background-size: 4mm 4mm; }
+.ru.pd { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'%3E%3Ccircle cx='11' cy='11' r='1.4' fill='%23808080'/%3E%3C/svg%3E"); background-size: 0.22in 0.22in; background-position: 0 0.09in; }
 /* top priorities: time circles at the line's end, each = 15 min (estimate, then fill) */
 .xb .num.tb { grid-template-columns: 10px 1fr auto; } .xb .tbub { display: inline-flex; gap: 2px; padding: 0 0 2px 4px; } .xb .tbub .bub i { width: 7px; height: 7px; border-width: 0.8px; }
 `;

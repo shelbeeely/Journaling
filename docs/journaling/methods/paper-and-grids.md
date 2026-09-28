@@ -208,10 +208,13 @@ Keeping Watch's current rulings, measured from the source:
 
 | Ruling | Where | Pitch | Mark | Grey | Against KDP |
 |---|---|---|---|---|---|
-| Body dot grid | Writing space (default) | 5 mm | dot 0.6 mm across | `#DCDCDC` ≈ 14% | Grey is above the 10% fill minimum, but a dot this small and pale may print unevenly: **confirm on a proof** |
-| Body lines | Writing space → Lines | 0.26 in (6.6 mm) | 1 CSS px = 0.75 pt | `#999` = 40% | Exactly at the 0.75 pt minimum |
-| Block lines | Lined notes, Two columns, etc. | 0.22 in (5.6 mm) | 1 px = 0.75 pt | `#999` = 40% | At the minimum |
-| 4 mm grid | Writing space → 4 mm grid, block Paper option | 4 mm | dashed, about 0.1 mm (≈ 0.28 pt) | `#D6D6D6` ≈ 16% | **Below** the 0.75 pt line minimum; see section 26 |
+| Body dot grid | Writing space (default) | 5.6 mm | dot 0.71 mm across | `#808080` = 50% | Fixed in the print-weights update (was 0.6 mm, `#999`); confirm on the proof test sheet |
+| Month dots | Month pages | 5 mm | dot 0.8 mm across | `#C8C8C8` = 22% | Fixed (was 0.6 mm, 14%) |
+| Body lines | Writing space → Lines | 0.26 in (6.6 mm) | 1 pt | `#A0A0A0` = 37% | Above the 0.75 pt minimum (was exactly 0.75 pt) |
+| Block lines | Lined notes, Two columns, etc. | 0.22 in (5.6 mm) | 1 pt | `#A0A0A0` = 37% | Above the minimum |
+| 4 mm grid | Writing space → 4 mm grid, block Paper option | 4 mm | dashed 0.75 pt (0.6/0.4 mm) | `#C8C8C8` = 22% | At the minimum (was 0.28 pt at 16%) |
+
+Weights and the proof test sheet are in `journal/KDP.md` section 8.
 
 Note that 5.6 mm is tighter than US narrow rule (6.4 mm). It works for short labelled notes in a 5.5 × 8.5 book but is small for large handwriting.
 
