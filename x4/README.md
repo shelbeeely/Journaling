@@ -125,6 +125,9 @@ CrossPoint's two app slots, so a later version can live beside CrossPoint instea
 
     cd host && ./preview.sh     # renders every screen to host/out/*.png from host/sample
 
+The sample card (`host/sample/kw/2026-10.txt`, `2026-11.txt`, `support.txt`) is generic: it comes from the `test.ics` books via
+`export_pack.py` (rebuild the Keeper and both months first so the `keeper=` and `page=` lines are filled). `checkins.txt` and `me.txt` are hand-kept.
+
 The host build compiles the same app, drawing and data code as the device; only `hal_host.cpp`
 differs (a folder for the SD card, PNG frames for the panel, scripted buttons).
 

@@ -190,7 +190,7 @@ newseason=12:26a
 note=First Quarter 3:48a
 note=Pay period starts: P11 Weeks 3 & 4
 note=Leonid meteors (peak, approx.)
-fact=1929 — Herman Hollerith dies. His tabulating company grew into IBM.
+fact=1970 — Douglas Engelbart is granted the patent for the computer mouse.
 pioneer=Sally Ride|1951–2012|First American woman in space, on STS-7 in 1983, and at 32 the youngest American astronaut to fly. She ran the shuttle’s robotic arm. Her obituary named her partner of 27 years, Tam O’Shaughnessy, making her the first astronaut known to be LGBTQ.|She was a ranked junior tennis player before physics won.
 prompt=What drained your spoons, and what refilled them?
 @2026-11-18
@@ -300,7 +300,7 @@ planet=♀ Venus
 moon=225|85|Waning Gibbous|♋ Cancer
 sun=7:12a|4:01p|8h 49m|♐ Sagittarius
 season=Waxwing flocks descend|Bohemian waxwings from the north pass through towns eating berries.
-fact=1852 — Ada Lovelace dies at 36. (1995: Internet Explorer 2.0 ships.)
+fact=1995 — Microsoft ships Internet Explorer 2.0.
 pioneer=Audrey Tang|b. 1981|Civic hacker from the g0v movement who became Taiwan’s first Digital Minister and first transgender cabinet member. Known for radical transparency and “humour over rumour.”|Started programming at 8, on paper, before having a computer.
 prompt=Draw something. Anything.
 @2026-11-28
