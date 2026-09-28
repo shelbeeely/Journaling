@@ -110,7 +110,7 @@ for mid in months:
         out.append(f"@{d['date']}")
         out.append(f"wd={d['weekdayName']}")
         out.append(f"planet={g} {pn}")
-        out.append(f"moon={mo['phaseDeg']}|{mo['lit']}|{mo['phase']}|{mo['glyph']} {mo['sign']}")
+        out.append(f"moon={mo['phaseDeg']}|{mo['lit']}|{mo['phase']}|{mo.get('phaseGlyph', mo['glyph'])} {mo.get('phaseSign', mo['sign'])}")
         for i in mo['ingress']: out.append(f"moonin={D['glyphs'][i['sign']]} {i['sign']} {i['time']}")
         out.append(f"sun={su['rise']}|{su['set']}|{dur(su['lengthMin'])}|{su['glyph']} {su['sign']}")
         out.append(f"season={jp['ko']['en']}|{jp['ko'].get('note', '')}")

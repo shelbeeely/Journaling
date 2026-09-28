@@ -30,6 +30,8 @@ jobs:
           npx playwright-core install --with-deps chromium
           pip install pillow
           sudo apt-get install -y -q poppler-utils p7zip-full >/dev/null
+      - name: Data checks (event order, moon signs, eclipses, meteors)
+        run: node test-data.mjs
       - name: Calendars (from the ICS_URLS secret, never committed)
         env: { ICS_URLS: '${{ secrets.ICS_URLS }}' }
         run: |
