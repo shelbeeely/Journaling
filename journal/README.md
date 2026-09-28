@@ -109,7 +109,7 @@ Copy the `kw` folder to the root of the X4's SD card.
 | render.mjs `GRID_PRIORITY` | Which bus routes get full hour grids |
 
 ## Bus schedules (STA)
-STA's feed ends 2027-01-16. Before printing later books:
+STA's feed ends 2027-01-16. Books print bus pages by the feed's dates: fully covered months as usual, the month it ends in with a "valid through" label, and later months with no bus pages (just a "spokanetransit.com or the STA app" line on the last back page). To print bus times for later books:
 
     curl -L -o gtfs/sta.zip https://www.spokanetransit.com/gtfs && unzip -o gtfs/sta.zip -d gtfs
     python3 gtfs/network.py && python3 gtfs/build.py

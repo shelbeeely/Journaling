@@ -1,6 +1,21 @@
 import { SPOKANE } from './spokane.mjs';
 import fsBus from 'node:fs';
 const BUS = fsBus.existsSync(new URL('./gtfs/route6.json', import.meta.url)) ? JSON.parse(fsBus.readFileSync(new URL('./gtfs/route6.json', import.meta.url))) : null;
+// How much of a month the STA feed covers, from the feed's own dates (gtfs/network.json):
+// 'full' = every day inside valid_from..valid_to and the month is in network.json; 'partial' = the feed starts or ends
+// mid-month; 'none' = outside the feed. A refreshed feed lights up later months by itself.
+const NETJ = fsBus.existsSync(new URL('./gtfs/network.json', import.meta.url)) ? JSON.parse(fsBus.readFileSync(new URL('./gtfs/network.json', import.meta.url))) : null;
+const FEED = NETJ; // no network.json = no bus pages
+export const BUS_START = FEED ? `${FEED.valid_from.slice(0, 4)}-${FEED.valid_from.slice(4, 6)}-${FEED.valid_from.slice(6)}` : null;
+export const BUS_END = FEED ? `${FEED.valid_to.slice(0, 4)}-${FEED.valid_to.slice(4, 6)}-${FEED.valid_to.slice(6)}` : null;
+export function busCoverage(monthId) {
+  if (!FEED || (NETJ && NETJ.months && !NETJ.months[monthId])) return 'none';
+  const [y, m] = monthId.split('-').map(Number);
+  const first = `${monthId}-01`, last = `${monthId}-${String(new Date(Date.UTC(y, m, 0)).getUTCDate()).padStart(2, '0')}`;
+  const from = BUS_START;
+  if (last < from || first > BUS_END) return 'none';
+  return first >= from && last <= BUS_END ? 'full' : 'partial';
+}
 // Builds journal data (sky, astrology, Japanese calendar, iCal events) as JSON.
 // Usage: node data.mjs [events.ics] > data.json
 import * as A from 'astronomy-engine';
@@ -139,7 +154,7 @@ export function build(icsPath, vol, words = []) {
     const mm = key.slice(5);
     for (const h of (HOL[y] ||= holidays(y))[mm] || []) notes.unshift({ kind: 'holiday', text: h.name, federal: h.federal });
     for (const t of PAY[key] || []) notes.push({ kind: 'pay', text: t });
-    if (BUS && BUS.holiday_service.includes(key)) notes.push({ kind: 'bus', text: 'STA: Sunday bus schedule' });
+    if (BUS && BUS.holiday_service.includes(key) && key >= BUS_START && key <= BUS_END && busCoverage(vol.id) !== 'none') notes.push({ kind: 'bus', text: 'STA: Sunday bus schedule' });
     if (METEORS[mm]) notes.push({ kind: 'sky', text: METEORS[mm] });
 
     // Retrogrades + stations
