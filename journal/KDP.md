@@ -8,7 +8,7 @@ The monthly books print your calendar. The Keeper holds password hints and recov
     cd journal
     ICS=private/main.ics,private/birthdays.ics MONTHS=2026-10 ./build-all.sh   # one month, both sizes, + the Keeper
 
-Or one piece at a time (run the cover right after its interior: the cover reads the page count from `pages.txt`):
+Or one piece at a time (each cover reads its interior's page count: `pages.txt`, or `pages-hardcover.txt` for hardcover):
 
     node render.mjs month 2026-10 private/main.ics,private/birthdays.ics && node cover.mjs month 2026-10
     SIZE=letter node render.mjs month 2026-10 private/main.ics,private/birthdays.ics && SIZE=letter node cover.mjs month 2026-10
@@ -102,9 +102,8 @@ or `HARDCOVER=1 SIZES=small ./build-all.sh`.
 | Interior | `out/m2026-10/keeping-watch-2026-10-interior-hardcover-5.5x8.5.pdf` |
 | Cover | `out/m2026-10/keeping-watch-2026-10-hardcover-cover.pdf` |
 
-The hardcover files sit in the same folder as the paperback ones. The hardcover cover counts the pages of the hardcover
-interior itself, but the paperback cover reads `pages.txt`, which the last interior build wrote. So after a hardcover
-build, rebuild the paperback interior before its cover.
+The hardcover files sit in the same folder as the paperback ones. Each keeps its own page count (`pages.txt` and
+`pages-hardcover.txt`), so you can build them in any order.
 
 The hardcover cover isn't the paperback cover: it wraps 0.591 in (15 mm) around the board and has a 0.394 in
 (10 mm) hinge beside the spine. (KDP's help page prints the wrap as "0.51", but its calculator uses 15 mm.) Check its size in the [cover calculator](https://kdp.amazon.com/cover-calculator) set to **Hardcover**.

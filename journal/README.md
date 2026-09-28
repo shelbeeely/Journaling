@@ -53,10 +53,10 @@ It writes out/keeper/index.json, which the monthly books use to point their "Clo
 | `journal.html` | The interior as HTML: open it to debug a page |
 | `cover.html` | The cover as HTML |
 | `layout.json` | Scan-zone map for every page: type, date, page code, zones in mm from the frame's inner edge |
-| `pages.txt` | Page count (cover.mjs reads it for the spine) |
+| `pages.txt` | Page count (cover.mjs reads it for the spine). `HARDCOVER=1` writes `pages-hardcover.txt` instead |
 | `data.json` | Everything computed for the month (days, moon, sun, events). epub.py and the X4 pack read it |
 
-HARDCOVER=1 covers are named `keeping-watch-<YYYY-MM>[-8.5x11]-hardcover-cover.pdf`.
+HARDCOVER=1 covers are named `keeping-watch-<YYYY-MM>-hardcover-cover.pdf` (5.5×8.5 only: KDP has no 8.5×11 hardcover).
 
 `out/keeper/`: `keeper-interior-5.5x8.5.pdf`, `keeping-watch-keeper-cover.pdf`, `keeper.html`, `cover.html`,
 `pages.txt`, and `index.json` (the Keeper page each month's "Closing the month" points to).

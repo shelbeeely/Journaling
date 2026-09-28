@@ -10,7 +10,7 @@ on:
     inputs:
       months: { description: 'Months, e.g. "2026-10 2026-11" (blank = all 12)', required: false, default: '' }
       sizes: { description: 'small, letter, or both', required: false, default: 'small letter' }
-      hardcover: { description: 'Pad to 76+ pages for KDP hardcover', type: boolean, default: false }
+      hardcover: { description: 'KDP hardcover: pad to 76+ pages and build hardcover covers (5.5x8.5 only)', type: boolean, default: false }
 concurrency: { group: 'books-${{ github.ref }}', cancel-in-progress: true }
 permissions: { contents: read }
 jobs:

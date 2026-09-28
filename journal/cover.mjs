@@ -19,10 +19,11 @@ else {
   VN = (y - 2026) * 12 + m - 9; VOL = { label: `${name} ${y}`, short: `${name.slice(0, 3)} ${y}` }; OUT = `out/m${process.argv[3]}${LETTER ? '-letter' : ''}`;
 }
 if (HC && LETTER) { console.error('KDP hardcover trims are 5.5x8.5, 6x9, 6.14x9.21, 7x10 and 8.25x11 (not 8.5x11): build the hardcover without SIZE=letter.'); process.exit(1); }
-// Hardcover: count the hardcover interior's own pages (pages.txt is shared with the paperback render).
-const HC_PDF = HC && `${OUT}/keeping-watch-${process.argv[3]}-interior-hardcover-5.5x8.5.pdf`;
-const PAGES = HC ? (fs.existsSync(HC_PDF) ? fs.readFileSync(HC_PDF, 'latin1').match(/\/Type\s*\/Page(?![\w])/g)?.length ?? 0 : 0) : +fs.readFileSync(`${OUT}/pages.txt`, 'utf8');
-if (HC && PAGES < 76) { console.error(`KDP hardcover needs 76+ pages, ${HC_PDF} has ${PAGES}: rebuild the interior with HARDCOVER=1 node render.mjs month ${process.argv[3]} <ics>.`); process.exit(1); }
+// render.mjs writes pages.txt for the paperback interior and pages-hardcover.txt for the hardcover one.
+const PAGES_TXT = `${OUT}/pages${HC ? '-hardcover' : ''}.txt`;
+const PAGES = fs.existsSync(PAGES_TXT) ? +fs.readFileSync(PAGES_TXT, 'utf8') : 0;
+if (!HC && !PAGES) { console.error(`No ${PAGES_TXT}: build the interior first (node render.mjs month ${process.argv[3]} <ics>).`); process.exit(1); }
+if (HC && PAGES < 76) { console.error(`KDP hardcover needs 76+ pages, ${PAGES_TXT} says ${PAGES}: rebuild the interior with HARDCOVER=1 node render.mjs month ${process.argv[3]} <ics>.`); process.exit(1); }
 const TRIM_W = LETTER ? 8.5 : 5.5, TRIM_H = LETTER ? 11 : 8.5;
 // EDGE: bleed or wrap outside the trim/board. BW/BH: visible front (trim or board). IN_B/IN_F: spine-side padding, clear of the hinge.
 const MM = 1 / 25.4, BLEED = 0.125, EDGE = HC ? 15 * MM : BLEED, HINGE = 10 * MM, BW = HC ? TRIM_W + 5 * MM : TRIM_W, BH = HC ? TRIM_H + 6 * MM : TRIM_H;
