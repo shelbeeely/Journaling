@@ -2,17 +2,23 @@
 """Export the paper journal's generated data into SD-card packs for the X4 firmware.
 
 Reads journal/out/m<YYYY-MM>/data.json (written by render.mjs) plus content/support.json,
-trans.json and clinic.json, and writes:
-  sd/kw/<YYYY-MM>.txt   one section per day ("@YYYY-MM-DD"), key=value lines, UTF-8
-  sd/kw/support.txt     the Support screen (sections "#", entries "name|detail|how")
-  sd/kw/checkins.txt    custom check-ins from content/daypage.json ("@group", "key|label|kind|lo|hi|def")
+trans.json and clinic.json, and writes an UPDATE folder, never the card's own kw/ folder:
+  sd/kw-update/<YYYY-MM>.txt   one section per day ("@YYYY-MM-DD"), key=value lines, UTF-8
+  sd/kw-update/support.txt     the Support screen (sections "#", entries "name|detail|how")
+  sd/kw-update/checkins.txt    custom check-ins from content/daypage.json ("@group", "key|label|kind|lo|hi|def")
+  sd/kw-update/library/*.pdf, *.epub   the books
+  sd/kw-update/me.example.txt  a starter safety plan to read or copy from (the X4 ignores it)
+Copy the kw-update folder to the card root. On boot the X4 moves these files into /kw and deletes /kw-update.
+It never touches /kw/log (her check-ins) or an existing /kw/me.txt (her safety plan), so this tool writes neither
+a me.txt nor a log folder: a copy, a "Replace" of the folder or a half-finished copy can't destroy them.
 Usage: python3 tools/export_pack.py <journal dir> <sd dir> [YYYY-MM ...]   (default: every built month)
 """
 import json, os, sys, glob, re, math
 
 J, SD = sys.argv[1], sys.argv[2]
 months = sys.argv[3:] or sorted(os.path.basename(p)[1:] for p in glob.glob(f'{J}/out/m20??-??') if os.path.isdir(p))
-os.makedirs(f'{SD}/kw/log', exist_ok=True)
+OUT = f'{SD}/kw-update'  # the card's own /kw is never an export target
+os.makedirs(OUT, exist_ok=True)
 strip = lambda s: re.sub(r'<[^>]+>', '', s).replace('&amp;', '&').replace('\n', ' ').strip()
 
 # Custom check-ins: the day page editor's own blocks, so what's on paper is also on the X4.
@@ -84,7 +90,7 @@ def checkins(path):
     return lines, items
 
 ck, n = checkins(f'{J}/content/daypage.json')
-open(f'{SD}/kw/checkins.txt', 'w', encoding='utf-8').write('\n'.join(ck) + '\n')
+open(f'{OUT}/checkins.txt', 'w', encoding='utf-8').write('\n'.join(ck) + '\n')
 print('checkins', n, 'items')
 
 PLANET = {0: ('☉', 'Sun'), 1: ('☽', 'Moon'), 2: ('♂', 'Mars'), 3: ('☿', 'Mercury'), 4: ('♃', 'Jupiter'), 5: ('♀', 'Venus'), 6: ('♄', 'Saturn')}
@@ -126,13 +132,13 @@ for mid in months:
             P = W.get('pioneer')
             if P: out.append('pioneer=' + '|'.join(strip(x) for x in (list(P) + ['', '', '', ''])[:4]))
             if W.get('prompt'): out.append(f"prompt={strip(W['prompt'])}")
-    open(f'{SD}/kw/{mid}.txt', 'w').write('\n'.join(out) + '\n')
-    print('pack', mid, sum(1 for l in out if l.startswith('@')), 'days', os.path.getsize(f'{SD}/kw/{mid}.txt') // 1024, 'KB')
+    open(f'{OUT}/{mid}.txt', 'w').write('\n'.join(out) + '\n')
+    print('pack', mid, sum(1 for l in out if l.startswith('@')), 'days', os.path.getsize(f'{OUT}/{mid}.txt') // 1024, 'KB')
 
 # Library: the books themselves, so the X4's web page can hand them to any phone or computer
 import shutil
 if not os.environ.get('KW_NO_LIBRARY'):  # previews and CI sample cards skip the 57 MB of books
-    lib = f'{SD}/kw/library'; os.makedirs(lib, exist_ok=True)
+    lib = f'{OUT}/library'; os.makedirs(lib, exist_ok=True)
     for mid in months:
         for src in glob.glob(f'{J}/out/m{mid}/keeping-watch-*') + glob.glob(f'{J}/out/m{mid}-letter/keeping-watch-*'):
             if src.endswith(('.pdf', '.epub')): shutil.copy(src, lib)
@@ -150,9 +156,11 @@ for fname in ('support.json', 'trans.json'):
 lines.append('#My clinic')
 lines.append(f"{strip(C['name'])}|{strip(C['address'])}|VISIT")
 for k, dsc, c in C['lines']: lines.append(f'{strip(k)}|{strip(dsc)}|{c}')
-open(f'{SD}/kw/support.txt', 'w').write('\n'.join(lines) + '\n')
-if not os.path.exists(f'{SD}/kw/me.txt'):
-    open(f'{SD}/kw/me.txt', 'w').write('''# Your safety plan and people. Edit here or from the Wi-Fi page (hold Down on the menu → Sync).
+open(f'{OUT}/support.txt', 'w').write('\n'.join(lines) + '\n')
+# Never me.txt: the X4 holds the real safety plan, and a blank one in an update would replace it. This is a reference copy only.
+open(f'{OUT}/me.example.txt', 'w').write('''# Example safety plan. The X4 ignores this file and never replaces your real plan with it.
+# To write your plan: on the X4 open Menu, then Wi-Fi sync, join its Wi-Fi, and use "My safety plan" on the page.
+# Lines starting with # are headings. Write under each one.
 #Signs a hard time is starting
 #Things I can do on my own
 #People or places that help

@@ -26,6 +26,12 @@ bool readFile(const char* path, std::string& out);
 bool writeFile(const char* path, const std::string& data);
 bool appendLine(const char* path, const std::string& line);
 bool exists(const char* path);
+// Folder helpers for the card-update step (core/update.cpp). File names only, no path, UTF-8; folders are skipped.
+int listFiles(const char* dir, char (*names)[48], int max);  // returns how many were stored (names over 47 bytes are skipped)
+bool removeFile(const char* path);
+bool renameFile(const char* from, const char* to);            // fails if `to` exists
+bool makeDir(const char* path);
+bool removeEmptyDir(const char* path);                        // fails if the folder still holds anything
 
 int batteryPercent();                   // -1 if unknown
 bool woke_by_timer();                   // this boot came from the midnight timer, not a button
