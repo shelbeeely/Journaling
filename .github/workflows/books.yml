@@ -1,0 +1,69 @@
+# Builds every book: the Keeper, then each month at 5.5x8.5 and 8.5x11 (interior + cover), EPUBs, and the X4 SD card.
+# With the ICS_URLS secret set, books include your calendar and are uploaded ONLY inside a password-protected 7z
+# (BOOKS_PASSWORD secret). Without it, the build uses test.ics and uploads a plain sample zip.
+name: Books
+on:
+  push:
+    branches: [main]
+    paths: ['journal/**', '.github/workflows/books.yml']
+  workflow_dispatch:
+    inputs:
+      months: { description: 'Months, e.g. "2026-10 2026-11" (blank = all 12)', required: false, default: '' }
+      sizes: { description: 'small, letter, or both', required: false, default: 'small letter' }
+      hardcover: { description: 'Pad to 76+ pages for KDP hardcover', type: boolean, default: false }
+concurrency: { group: 'books-${{ github.ref }}', cancel-in-progress: true }
+permissions: { contents: read }
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults: { run: { working-directory: journal } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: journal/package-lock.json }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Install
+        run: |
+          npm ci
+          npx playwright-core install --with-deps chromium
+          pip install pillow
+          sudo apt-get install -y -q poppler-utils p7zip-full >/dev/null
+      - name: Calendars (from the ICS_URLS secret, never committed)
+        env: { ICS_URLS: '${{ secrets.ICS_URLS }}' }
+        run: |
+          if [ -z "$ICS_URLS" ]; then echo "ICS=test.ics" >> "$GITHUB_ENV"; echo "No ICS_URLS secret: building sample books."; exit 0; fi
+          mkdir -p private; i=0; list=""
+          for u in $(printf '%s' "$ICS_URLS" | tr ',\n' '  '); do
+            echo "::add-mask::$u"; i=$((i+1)); curl -fsSL --retry 3 "$u" -o "private/cal$i.ics"; list="$list,private/cal$i.ics"
+          done
+          echo "ICS=${list#,}" >> "$GITHUB_ENV"; echo "PERSONAL=1" >> "$GITHUB_ENV"; echo "Fetched $i calendar(s)."
+      - name: Build
+        env:
+          MONTHS: ${{ inputs.months }}
+          SIZES: ${{ inputs.sizes || 'small letter' }}
+          HARDCOVER: ${{ inputs.hardcover && '1' || '' }}
+        run: |
+          [ -n "$MONTHS" ] || unset MONTHS
+          [ -n "$HARDCOVER" ] || unset HARDCOVER
+          ./build-all.sh
+      - name: No Type 3 fonts (KDP rejects them)
+        run: |
+          bad=0; for f in out/*/*interior*.pdf out/keeper/*.pdf; do if pdffonts "$f" | grep -q "Type 3"; then echo "::error::Type 3 font in $f"; bad=1; fi; done; exit $bad
+      - name: X4 SD card
+        run: python3 ../x4/tools/export_pack.py . out/sd-card
+      - name: Package
+        env: { BOOKS_PASSWORD: '${{ secrets.BOOKS_PASSWORD }}' }
+        run: |
+          mkdir -p ../dist
+          files=$(ls out/*/*.pdf out/*/*.epub out/*/layout.json 2>/dev/null)
+          if [ "${PERSONAL:-}" = 1 ]; then
+            if [ -z "$BOOKS_PASSWORD" ]; then echo "::error::Set the BOOKS_PASSWORD secret: personal books are never uploaded unencrypted."; exit 1; fi
+            7z a -t7z -mhe=on -p"$BOOKS_PASSWORD" ../dist/keeping-watch-books.7z $files out/sd-card >/dev/null
+          else
+            7z a -tzip ../dist/keeping-watch-sample-books.zip $files out/sd-card >/dev/null
+          fi
+          ls -la ../dist
+      - uses: actions/upload-artifact@v4
+        with: { name: keeping-watch-books, path: dist/, retention-days: 14, compression-level: 0 }

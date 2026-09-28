@@ -1,0 +1,308 @@
+# Keeping Watch day pack 2026-11 · generated from the paper journal build
+keeper=26
+@2026-11-01
+wd=Sunday
+planet=☉ Sun
+moon=269.5|51|Last Quarter|♌ Leo
+sun=6:34a|4:31p|9h 57m|♏ Scorpio
+season=Clocks fall back|Daylight saving time ends Sunday, November 1, and evenings go dark early.
+note=!Daylight saving time ends (clocks back)
+note=Last Quarter 12:28p
+fact=2005 — A software error during an upgrade halts trading on the Tokyo Stock Exchange until 1:30 p.m.
+prompt=Describe the sky the last time you looked up.
+@2026-11-02
+wd=Monday
+planet=☽ Moon
+moon=282.5|39|Waning Crescent|♌ Leo
+sun=6:35a|4:29p|9h 54m|♏ Scorpio
+season=Nights stay below freezing|November's normal low is 30°F, so most nights now freeze.
+newseason=2:08a
+note=Pay period ends
+fact=1815 — George Boole is born. Every if/else you write runs on his logic.
+pioneer=Hedy Lamarr|1914–2000|Hollywood star who co-invented frequency hopping with composer George Antheil (patent 1942), inspired by synchronized player-piano rolls. The idea is an ancestor of Wi-Fi and Bluetooth.|An asteroid, 32730 Lamarr, is named after her. Born Nov 9 — next Monday.
+prompt=What are you looking forward to?
+@2026-11-03
+wd=Tuesday
+planet=♂ Mars
+moon=295.1|29|Waning Crescent|♍ Virgo
+moonin=♍ Virgo 12:27a
+sun=6:37a|4:28p|9h 51m|♏ Scorpio
+season=Nights stay below freezing|November's normal low is 30°F, so most nights now freeze.
+note=Pay period starts: P11 Weeks 1 & 2
+fact=1957 — Sputnik 2 carries Laika, the first animal to orbit Earth.
+pioneer=Hedy Lamarr|1914–2000|Hollywood star who co-invented frequency hopping with composer George Antheil (patent 1942), inspired by synchronized player-piano rolls. The idea is an ancestor of Wi-Fi and Bluetooth.|An asteroid, 32730 Lamarr, is named after her. Born Nov 9 — next Monday.
+prompt=What are you looking forward to?
+@2026-11-04
+wd=Wednesday
+planet=☿ Mercury
+moon=307.4|20|Waning Crescent|♍ Virgo
+sun=6:38a|4:26p|9h 48m|♏ Scorpio
+season=Nights stay below freezing|November's normal low is 30°F, so most nights now freeze.
+fact=1952 — CBS uses a UNIVAC computer to predict Eisenhower’s election win; the anchors hesitate to believe it.
+pioneer=Hedy Lamarr|1914–2000|Hollywood star who co-invented frequency hopping with composer George Antheil (patent 1942), inspired by synchronized player-piano rolls. The idea is an ancestor of Wi-Fi and Bluetooth.|An asteroid, 32730 Lamarr, is named after her. Born Nov 9 — next Monday.
+prompt=What are you looking forward to?
+@2026-11-05
+wd=Thursday
+planet=♃ Jupiter
+moon=319.5|12|Waning Crescent|♎ Libra
+moonin=♎ Libra 6:38a
+sun=6:40a|4:25p|9h 45m|♏ Scorpio
+season=Nights stay below freezing|November's normal low is 30°F, so most nights now freeze.
+fact=2006 — The web passes 100 million websites.
+pioneer=Hedy Lamarr|1914–2000|Hollywood star who co-invented frequency hopping with composer George Antheil (patent 1942), inspired by synchronized player-piano rolls. The idea is an ancestor of Wi-Fi and Bluetooth.|An asteroid, 32730 Lamarr, is named after her. Born Nov 9 — next Monday.
+prompt=What are you looking forward to?
+@2026-11-06
+wd=Friday
+planet=♀ Venus
+moon=331.4|6|Waning Crescent|♎ Libra
+sun=6:41a|4:24p|9h 42m|♏ Scorpio
+season=Nights stay below freezing|November's normal low is 30°F, so most nights now freeze.
+fact=1980 — Microsoft signs with IBM to supply the operating system that becomes MS-DOS.
+pioneer=Hedy Lamarr|1914–2000|Hollywood star who co-invented frequency hopping with composer George Antheil (patent 1942), inspired by synchronized player-piano rolls. The idea is an ancestor of Wi-Fi and Bluetooth.|An asteroid, 32730 Lamarr, is named after her. Born Nov 9 — next Monday.
+prompt=What are you looking forward to?
+@2026-11-07
+wd=Saturday
+planet=♄ Saturn
+moon=343.2|2|Waning Crescent|♎ Libra
+moonin=♏ Scorpio 2:39p
+sun=6:43a|4:22p|9h 39m|♏ Scorpio
+season=Whitetail bucks in rut|Deer move all day during the rut and cross roads at dusk, so drive with care.
+newseason=1:52a
+fact=1960 — RAND’s JOSS time-sharing system goes live, letting people debug programs interactively.
+pioneer=Hedy Lamarr|1914–2000|Hollywood star who co-invented frequency hopping with composer George Antheil (patent 1942), inspired by synchronized player-piano rolls. The idea is an ancestor of Wi-Fi and Bluetooth.|An asteroid, 32730 Lamarr, is named after her. Born Nov 9 — next Monday.
+prompt=What are you looking forward to?
+@2026-11-08
+wd=Sunday
+planet=☉ Sun
+moon=354.7|0|New Moon|♏ Scorpio
+sun=6:45a|4:21p|9h 36m|♏ Scorpio
+season=Whitetail bucks in rut|Deer move all day during the rut and cross roads at dusk, so drive with care.
+note=New Moon 11:02p
+fact=1895 — Wilhelm Röntgen discovers X-rays. (1923: Jack Kilby, inventor of the integrated circuit, is born.)
+pioneer=Hedy Lamarr|1914–2000|Hollywood star who co-invented frequency hopping with composer George Antheil (patent 1942), inspired by synchronized player-piano rolls. The idea is an ancestor of Wi-Fi and Bluetooth.|An asteroid, 32730 Lamarr, is named after her. Born Nov 9 — next Monday.
+prompt=What are you looking forward to?
+@2026-11-09
+wd=Monday
+planet=☽ Moon
+moon=6.1|0|Waxing Crescent|♏ Scorpio
+sun=6:46a|4:19p|9h 33m|♏ Scorpio
+season=Whitetail bucks in rut|Deer move all day during the rut and cross roads at dusk, so drive with care.
+fact=1914 — Hedy Lamarr, actress and co-inventor of frequency hopping, is born. (2004: Firefox 1.0.)
+pioneer=Wendy Carlos|b. 1939|Her 1968 album Switched-On Bach made the Moog synthesizer famous and won three Grammys. Scored A Clockwork Orange, The Shining and Tron. She came out publicly as trans in 1979.|She is also a serious solar-eclipse photographer, published by NASA and Sky & Telescope. Born Nov 14 — this Saturday.
+prompt=A thing you want to remember from this month.
+@2026-11-10
+wd=Tuesday
+planet=♂ Mars
+moon=17.3|2|Waxing Crescent|♐ Sagittarius
+moonin=♐ Sagittarius 12:35a
+sun=6:48a|4:18p|9h 31m|♏ Scorpio
+season=Whitetail bucks in rut|Deer move all day during the rut and cross roads at dusk, so drive with care.
+note=Payday
+fact=1983 — Microsoft announces Windows. It doesn’t ship until 1985.
+pioneer=Wendy Carlos|b. 1939|Her 1968 album Switched-On Bach made the Moog synthesizer famous and won three Grammys. Scored A Clockwork Orange, The Shining and Tron. She came out publicly as trans in 1979.|She is also a serious solar-eclipse photographer, published by NASA and Sky & Telescope. Born Nov 14 — this Saturday.
+prompt=A thing you want to remember from this month.
+@2026-11-11
+wd=Wednesday
+planet=☿ Mercury
+moon=28.4|6|Waxing Crescent|♐ Sagittarius
+sun=6:49a|4:17p|9h 28m|♏ Scorpio
+season=Whitetail bucks in rut|Deer move all day during the rut and cross roads at dusk, so drive with care.
+note=!Veterans Day
+fact=1917 — Robert Fano, who led MIT’s Project MAC for time-sharing, is born.
+pioneer=Wendy Carlos|b. 1939|Her 1968 album Switched-On Bach made the Moog synthesizer famous and won three Grammys. Scored A Clockwork Orange, The Shining and Tron. She came out publicly as trans in 1979.|She is also a serious solar-eclipse photographer, published by NASA and Sky & Telescope. Born Nov 14 — this Saturday.
+prompt=A thing you want to remember from this month.
+@2026-11-12
+wd=Thursday
+planet=♃ Jupiter
+moon=39.3|11|Waxing Crescent|♐ Sagittarius
+moonin=♑ Capricorn 12:27p
+sun=6:51a|4:16p|9h 25m|♏ Scorpio
+season=First snow in the city|Spokane's first measurable snow usually comes by mid-November.
+newseason=1:17a
+fact=1980 — Voyager 1 makes its closest pass of Saturn. (1990: Tim Berners-Lee proposes the World Wide Web.)
+pioneer=Wendy Carlos|b. 1939|Her 1968 album Switched-On Bach made the Moog synthesizer famous and won three Grammys. Scored A Clockwork Orange, The Shining and Tron. She came out publicly as trans in 1979.|She is also a serious solar-eclipse photographer, published by NASA and Sky & Telescope. Born Nov 14 — this Saturday.
+prompt=A thing you want to remember from this month.
+@2026-11-13
+wd=Friday
+planet=♀ Venus
+moon=50.1|18|Waxing Crescent|♑ Capricorn
+sun=6:52a|4:14p|9h 22m|♏ Scorpio
+season=First snow in the city|Spokane's first measurable snow usually comes by mid-November.
+note=Mercury stations direct
+note=Venus stations direct
+fact=1983 — MIT’s TX-0, an early transistorized computer, is powered on for the last time.
+pioneer=Wendy Carlos|b. 1939|Her 1968 album Switched-On Bach made the Moog synthesizer famous and won three Grammys. Scored A Clockwork Orange, The Shining and Tron. She came out publicly as trans in 1979.|She is also a serious solar-eclipse photographer, published by NASA and Sky & Telescope. Born Nov 14 — this Saturday.
+prompt=A thing you want to remember from this month.
+@2026-11-14
+wd=Saturday
+planet=♄ Saturn
+moon=60.9|26|Waxing Crescent|♑ Capricorn
+sun=6:54a|4:13p|9h 20m|♏ Scorpio
+season=First snow in the city|Spokane's first measurable snow usually comes by mid-November.
+fact=1939 — Wendy Carlos, who made the Moog synthesizer famous, is born. (1943: Peter Norton is born in Aberdeen, WA.)
+pioneer=Wendy Carlos|b. 1939|Her 1968 album Switched-On Bach made the Moog synthesizer famous and won three Grammys. Scored A Clockwork Orange, The Shining and Tron. She came out publicly as trans in 1979.|She is also a serious solar-eclipse photographer, published by NASA and Sky & Telescope. Born Nov 14 — this Saturday.
+prompt=A thing you want to remember from this month.
+@2026-11-15
+wd=Sunday
+planet=☉ Sun
+moon=71.8|34|Waxing Crescent|♒ Aquarius
+moonin=♒ Aquarius 1:24a
+sun=6:55a|4:12p|9h 17m|♏ Scorpio
+season=First snow in the city|Spokane's first measurable snow usually comes by mid-November.
+fact=1971 — The first microprocessor ad runs: Intel’s 4004, with 2,250 transistors.
+pioneer=Wendy Carlos|b. 1939|Her 1968 album Switched-On Bach made the Moog synthesizer famous and won three Grammys. Scored A Clockwork Orange, The Shining and Tron. She came out publicly as trans in 1979.|She is also a serious solar-eclipse photographer, published by NASA and Sky & Telescope. Born Nov 14 — this Saturday.
+prompt=A thing you want to remember from this month.
+@2026-11-16
+wd=Monday
+planet=☽ Moon
+moon=82.7|44|Waxing Crescent|♒ Aquarius
+sun=6:57a|4:11p|9h 14m|♏ Scorpio
+season=First snow in the city|Spokane's first measurable snow usually comes by mid-November.
+note=Pay period ends
+fact=1974 — The Arecibo message is beamed toward star cluster M13. (1922: Gene Amdahl is born.)
+pioneer=Sally Ride|1951–2012|First American woman in space, on STS-7 in 1983, and at 32 the youngest American astronaut to fly. She ran the shuttle’s robotic arm. Her obituary named her partner of 27 years, Tam O’Shaughnessy, making her the first astronaut known to be LGBTQ.|She was a ranked junior tennis player before physics won.
+prompt=What drained your spoons, and what refilled them?
+@2026-11-17
+wd=Tuesday
+planet=♂ Mars
+moon=93.8|53|First Quarter|♒ Aquarius
+moonin=♓ Pisces 1:19p
+sun=6:58a|4:10p|9h 12m|♏ Scorpio
+season=Inversion fog settles in|Cold air gets trapped in the valley, bringing gray days and freezing fog.
+newseason=12:26a
+note=First Quarter 3:48a
+note=Pay period starts: P11 Weeks 3 & 4
+note=Leonid meteors (peak, approx.)
+fact=1929 — Herman Hollerith dies. His tabulating company grew into IBM.
+pioneer=Sally Ride|1951–2012|First American woman in space, on STS-7 in 1983, and at 32 the youngest American astronaut to fly. She ran the shuttle’s robotic arm. Her obituary named her partner of 27 years, Tam O’Shaughnessy, making her the first astronaut known to be LGBTQ.|She was a ranked junior tennis player before physics won.
+prompt=What drained your spoons, and what refilled them?
+@2026-11-18
+wd=Wednesday
+planet=☿ Mercury
+moon=105.3|63|Waxing Gibbous|♓ Pisces
+sun=6:59a|4:09p|9h 09m|♏ Scorpio
+season=Inversion fog settles in|Cold air gets trapped in the valley, bringing gray days and freezing fog.
+fact=1928 — Steamboat Willie premieres. (1883: North America adopts four standard time zones.)
+pioneer=Sally Ride|1951–2012|First American woman in space, on STS-7 in 1983, and at 32 the youngest American astronaut to fly. She ran the shuttle’s robotic arm. Her obituary named her partner of 27 years, Tam O’Shaughnessy, making her the first astronaut known to be LGBTQ.|She was a ranked junior tennis player before physics won.
+prompt=What drained your spoons, and what refilled them?
+@2026-11-19
+wd=Thursday
+planet=♃ Jupiter
+moon=117.1|73|Waxing Gibbous|♓ Pisces
+moonin=♈ Aries 9:52p
+sun=7:01a|4:08p|9h 07m|♏ Scorpio
+season=Inversion fog settles in|Cold air gets trapped in the valley, bringing gray days and freezing fog.
+fact=1992 — Sega releases Sonic the Hedgehog 2 for the Genesis.
+pioneer=Sally Ride|1951–2012|First American woman in space, on STS-7 in 1983, and at 32 the youngest American astronaut to fly. She ran the shuttle’s robotic arm. Her obituary named her partner of 27 years, Tam O’Shaughnessy, making her the first astronaut known to be LGBTQ.|She was a ranked junior tennis player before physics won.
+prompt=What drained your spoons, and what refilled them?
+@2026-11-20
+wd=Friday
+planet=♀ Venus
+moon=129.4|82|Waxing Gibbous|♈ Aries
+sun=7:02a|4:07p|9h 05m|♏ Scorpio
+season=Inversion fog settles in|Cold air gets trapped in the valley, bringing gray days and freezing fog.
+fact=1955 — Ray Ozzie, creator of Lotus Notes, is born.
+pioneer=Sally Ride|1951–2012|First American woman in space, on STS-7 in 1983, and at 32 the youngest American astronaut to fly. She ran the shuttle’s robotic arm. Her obituary named her partner of 27 years, Tam O’Shaughnessy, making her the first astronaut known to be LGBTQ.|She was a ranked junior tennis player before physics won.
+prompt=What drained your spoons, and what refilled them?
+@2026-11-21
+wd=Saturday
+planet=♄ Saturn
+moon=142.1|89|Waxing Gibbous|♈ Aries
+sun=7:04a|4:06p|9h 02m|♏ Scorpio
+season=Inversion fog settles in|Cold air gets trapped in the valley, bringing gray days and freezing fog.
+newseason=11:23p
+fact=1969 — The first ARPANET link goes into service, between UCLA and SRI.
+pioneer=Sally Ride|1951–2012|First American woman in space, on STS-7 in 1983, and at 32 the youngest American astronaut to fly. She ran the shuttle’s robotic arm. Her obituary named her partner of 27 years, Tam O’Shaughnessy, making her the first astronaut known to be LGBTQ.|She was a ranked junior tennis player before physics won.
+prompt=What drained your spoons, and what refilled them?
+@2026-11-22
+wd=Sunday
+planet=☉ Sun
+moon=155.4|95|Waxing Gibbous|♉ Taurus
+moonin=♉ Taurus 2:09a
+sun=7:05a|4:05p|9h 00m|♐ Sagittarius
+season=Kokanee gather to spawn|Kokanee, a landlocked sockeye, crowd Wolf Lodge Bay on Lake Coeur d'Alene to spawn.
+fact=2005 — The Xbox 360 launches in North America.
+pioneer=Sally Ride|1951–2012|First American woman in space, on STS-7 in 1983, and at 32 the youngest American astronaut to fly. She ran the shuttle’s robotic arm. Her obituary named her partner of 27 years, Tam O’Shaughnessy, making her the first astronaut known to be LGBTQ.|She was a ranked junior tennis player before physics won.
+prompt=What drained your spoons, and what refilled them?
+@2026-11-23
+wd=Monday
+planet=☽ Moon
+moon=169|99|Waxing Gibbous|♉ Taurus
+sun=7:07a|4:04p|8h 58m|♐ Sagittarius
+season=Kokanee gather to spawn|Kokanee, a landlocked sockeye, crowd Wolf Lodge Bay on Lake Coeur d'Alene to spawn.
+fact=1992 — IBM shows the Simon, the first smartphone, at COMDEX.
+pioneer=Audrey Tang|b. 1981|Civic hacker from the g0v movement who became Taiwan’s first Digital Minister and first transgender cabinet member. Known for radical transparency and “humour over rumour.”|Started programming at 8, on paper, before having a computer.
+prompt=Draw something. Anything.
+@2026-11-24
+wd=Tuesday
+planet=♂ Mars
+moon=183|100|Full Moon|♊ Gemini
+moonin=♊ Gemini 3:09a
+sun=7:08a|4:04p|8h 56m|♐ Sagittarius
+season=Kokanee gather to spawn|Kokanee, a landlocked sockeye, crowd Wolf Lodge Bay on Lake Coeur d'Alene to spawn.
+note=Full Moon 6:54a
+note=Payday
+fact=1998 — AOL agrees to buy Netscape for $4.2 billion in stock.
+pioneer=Audrey Tang|b. 1981|Civic hacker from the g0v movement who became Taiwan’s first Digital Minister and first transgender cabinet member. Known for radical transparency and “humour over rumour.”|Started programming at 8, on paper, before having a computer.
+prompt=Draw something. Anything.
+@2026-11-25
+wd=Wednesday
+planet=☿ Mercury
+moon=197.1|98|Waning Gibbous|♊ Gemini
+sun=7:09a|4:03p|8h 54m|♐ Sagittarius
+season=Kokanee gather to spawn|Kokanee, a landlocked sockeye, crowd Wolf Lodge Bay on Lake Coeur d'Alene to spawn.
+fact=1915 — Einstein presents the field equations of general relativity.
+pioneer=Audrey Tang|b. 1981|Civic hacker from the g0v movement who became Taiwan’s first Digital Minister and first transgender cabinet member. Known for radical transparency and “humour over rumour.”|Started programming at 8, on paper, before having a computer.
+prompt=Draw something. Anything.
+@2026-11-26
+wd=Thursday
+planet=♃ Jupiter
+moon=211.2|93|Waning Gibbous|♋ Cancer
+moonin=♋ Cancer 2:51a
+sun=7:11a|4:02p|8h 51m|♐ Sagittarius
+season=Kokanee gather to spawn|Kokanee, a landlocked sockeye, crowd Wolf Lodge Bay on Lake Coeur d'Alene to spawn.
+newseason=10:07p
+note=!Thanksgiving
+note=STA: Sunday bus schedule
+fact=1894 — Norbert Wiener, founder of cybernetics, is born.
+pioneer=Audrey Tang|b. 1981|Civic hacker from the g0v movement who became Taiwan’s first Digital Minister and first transgender cabinet member. Known for radical transparency and “humour over rumour.”|Started programming at 8, on paper, before having a computer.
+prompt=Draw something. Anything.
+@2026-11-27
+wd=Friday
+planet=♀ Venus
+moon=225|85|Waning Gibbous|♋ Cancer
+sun=7:12a|4:01p|8h 49m|♐ Sagittarius
+season=Waxwing flocks descend|Bohemian waxwings from the north pass through towns eating berries.
+fact=1852 — Ada Lovelace dies at 36. (1995: Internet Explorer 2.0 ships.)
+pioneer=Audrey Tang|b. 1981|Civic hacker from the g0v movement who became Taiwan’s first Digital Minister and first transgender cabinet member. Known for radical transparency and “humour over rumour.”|Started programming at 8, on paper, before having a computer.
+prompt=Draw something. Anything.
+@2026-11-28
+wd=Saturday
+planet=♄ Saturn
+moon=238.6|76|Waning Gibbous|♌ Leo
+moonin=♌ Leo 3:20a
+sun=7:13a|4:01p|8h 48m|♐ Sagittarius
+season=Waxwing flocks descend|Bohemian waxwings from the north pass through towns eating berries.
+fact=1964 — NASA launches Mariner 4, which sends back the first close-up photos of Mars.
+pioneer=Audrey Tang|b. 1981|Civic hacker from the g0v movement who became Taiwan’s first Digital Minister and first transgender cabinet member. Known for radical transparency and “humour over rumour.”|Started programming at 8, on paper, before having a computer.
+prompt=Draw something. Anything.
+@2026-11-29
+wd=Sunday
+planet=☉ Sun
+moon=251.8|66|Waning Gibbous|♌ Leo
+sun=7:15a|4:00p|8h 46m|♐ Sagittarius
+season=Waxwing flocks descend|Bohemian waxwings from the north pass through towns eating berries.
+fact=1972 — Atari releases Pong. (1877: Edison first demonstrates the phonograph.)
+pioneer=Audrey Tang|b. 1981|Civic hacker from the g0v movement who became Taiwan’s first Digital Minister and first transgender cabinet member. Known for radical transparency and “humour over rumour.”|Started programming at 8, on paper, before having a computer.
+prompt=Draw something. Anything.
+@2026-11-30
+wd=Monday
+planet=☽ Moon
+moon=264.7|55|Last Quarter|♍ Virgo
+moonin=♍ Virgo 6:12a
+sun=7:16a|4:00p|8h 44m|♐ Sagittarius
+season=Waxwing flocks descend|Bohemian waxwings from the north pass through towns eating berries.
+note=Last Quarter 10:09p
+note=Pay period ends
+fact=2022 — OpenAI launches ChatGPT.
+prompt=A small win nobody saw.

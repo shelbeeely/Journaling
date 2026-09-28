@@ -1,0 +1,28 @@
+# Monthly: fetch STA's GTFS feed, rebuild journal/gtfs/network.json, and open a pull request if the buses changed.
+# Needs Settings → Actions → General → "Allow GitHub Actions to create and approve pull requests".
+name: STA schedules
+on:
+  schedule: [{ cron: '23 14 3 * *' }]   # the 3rd of each month
+  workflow_dispatch:
+permissions: { contents: write, pull-requests: write }
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Download and rebuild
+        working-directory: journal/gtfs
+        run: |
+          curl -fsSL --retry 3 -o sta.zip https://www.spokanetransit.com/gtfs
+          unzip -o -q sta.zip
+          python3 network.py && python3 build.py
+          python3 -c "import csv;f=next(csv.DictReader(open('feed_info.txt',encoding='utf-8-sig')));print('feed',f['feed_start_date'],'→',f['feed_end_date'])" | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          add-paths: journal/gtfs/network.json journal/gtfs/route6.json
+          branch: gtfs-refresh
+          title: Refresh STA schedules
+          commit-message: Refresh STA schedules from the latest GTFS feed
+          body: The monthly STA feed changed. Merge to rebuild the books with the new times. Check the feed dates in the run summary.

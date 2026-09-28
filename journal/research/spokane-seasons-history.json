@@ -1,0 +1,1205 @@
+{
+ "seasons": [
+  {
+   "n": 48,
+   "start": "2026-10-02",
+   "name": "Tamaracks turn gold",
+   "note": "Western larch, the conifer that drops its needles, glows orange on eastern hillsides.",
+   "kind": "plant",
+   "source_url": "https://parks.wa.gov/about/news-center/field-guide-blog/tree-id-larch-tree",
+   "evidence": "In late September, they begin turning greenish gold. By early October, they're orange.",
+   "confidence": "high"
+  },
+  {
+   "n": 49,
+   "start": "2026-10-07",
+   "name": "First frost on the lawns",
+   "note": "Spokane's median first 32°F night falls around October 7.",
+   "kind": "weather",
+   "source_url": "https://www.weather.gov/otx/otxclifirstlast",
+   "evidence": "NWS Spokane sorted first-freeze dates (143 years): median 10-07, range 09-10 to 11-11",
+   "confidence": "high"
+  },
+  {
+   "n": 50,
+   "start": "2026-10-13",
+   "name": "Ducks and geese crowd Turnbull",
+   "note": "Up to 30,000 ducks and geese stop over on Cheney's marshes in fall migration.",
+   "kind": "bird",
+   "source_url": "https://birdweb.org/birdweb/site/turnbull_national_wildlife_refuge",
+   "evidence": "Up to 30,000 ducks and geese and several hundred Tundra Swans stop over during both spring and fall migration. (FWS: fall migration from September through November)",
+   "confidence": "medium"
+  },
+  {
+   "n": 51,
+   "start": "2026-10-18",
+   "name": "Rough-legged hawks come south",
+   "note": "Arctic-nesting hawks arrive to hunt Palouse and West Plains fields all winter.",
+   "kind": "bird",
+   "source_url": "https://www.birdweb.org/birdweb/bird/rough-legged_hawk",
+   "evidence": "A few southbound birds are seen as early as mid-August, but they are not common until mid-October.",
+   "confidence": "high"
+  },
+  {
+   "n": 52,
+   "start": "2026-10-23",
+   "name": "Tundra swans pass over",
+   "note": "Swans rest on eastern Washington wetlands on their way to winter grounds.",
+   "kind": "bird",
+   "source_url": "https://www.birdweb.org/birdweb/bird/tundra_swan",
+   "evidence": "autumn migration in eastern Washington ... mid-October to mid-November",
+   "confidence": "high"
+  },
+  {
+   "n": 53,
+   "start": "2026-10-28",
+   "name": "Clocks fall back",
+   "note": "Daylight saving time ends Sunday, November 1, and evenings go dark early.",
+   "kind": "people",
+   "source_url": "https://en.wikipedia.org/wiki/Daylight_saving_time_in_the_United_States",
+   "evidence": "daylight saving time ... ends on the first Sunday in November",
+   "confidence": "high"
+  },
+  {
+   "n": 54,
+   "start": "2026-11-02",
+   "name": "Nights stay below freezing",
+   "note": "November's normal low is 30°F, so most nights now freeze.",
+   "kind": "weather",
+   "source_url": "https://www.currentresults.com/Weather/Washington/Places/spokane-temperatures-by-month-average.php",
+   "evidence": "November: High 42°F / Low 30°F (1991-2020 averages)",
+   "confidence": "medium"
+  },
+  {
+   "n": 55,
+   "start": "2026-11-07",
+   "name": "Whitetail bucks in rut",
+   "note": "Deer move all day during the rut and cross roads at dusk, so drive with care.",
+   "kind": "animal",
+   "source_url": "https://wdfw.medium.com/the-rut-is-on-watch-for-deer-on-the-move-bf50551765a1",
+   "evidence": "deer are especially active in November as the rut (mating season) is at its peak",
+   "confidence": "high"
+  },
+  {
+   "n": 56,
+   "start": "2026-11-12",
+   "name": "First snow in the city",
+   "note": "Spokane's first measurable snow usually comes by mid-November.",
+   "kind": "weather",
+   "source_url": "https://www.spokesman.com/stories/2021/nov/11/weathercatch-will-first-snow-of-the-season-arrive-/",
+   "evidence": "it typically it arrives in Spokane by Nov. 15",
+   "confidence": "high"
+  },
+  {
+   "n": 57,
+   "start": "2026-11-17",
+   "name": "Inversion fog settles in",
+   "note": "Cold air gets trapped in the valley, bringing gray days and freezing fog.",
+   "kind": "weather",
+   "source_url": "https://www.spokesman.com/stories/2016/dec/07/inland-northwest-in-the-thick-of-peak-fog-season/",
+   "evidence": "November through January is peak season for this atmospheric marvel",
+   "confidence": "high"
+  },
+  {
+   "n": 58,
+   "start": "2026-11-21",
+   "name": "Kokanee gather to spawn",
+   "note": "Kokanee, a landlocked sockeye, crowd Wolf Lodge Bay on Lake Coeur d'Alene to spawn.",
+   "kind": "water",
+   "source_url": "https://visitnorthidaho.com/activity/bald-eagles-lake-coeur-dalene/",
+   "evidence": "Each winter from November as late as February, the landlocked small sockeye salmon called kokanee gather by the thousands to spawn.",
+   "confidence": "medium"
+  },
+  {
+   "n": 59,
+   "start": "2026-11-26",
+   "name": "Waxwing flocks descend",
+   "note": "Bohemian waxwings from the north pass through towns eating berries.",
+   "kind": "bird",
+   "source_url": "https://www.birdweb.org/birdweb/bird/bohemian_waxwing",
+   "evidence": "Most Bohemian Waxwings in Washington are northern breeders that come down into Washington in winter. (Uncommon Oct, Fairly Common Dec)",
+   "confidence": "medium"
+  },
+  {
+   "n": 60,
+   "start": "2026-12-01",
+   "name": "December snows deepen",
+   "note": "December is Spokane's snowiest month, averaging 13.8 inches.",
+   "kind": "weather",
+   "source_url": "https://www.currentresults.com/Weather/Washington/Places/spokane-snowfall-totals-snow-accumulation-averages.php",
+   "evidence": "December is Spokane's snowiest month with an average of 13.8 inches of snow (1991-2020)",
+   "confidence": "medium"
+  },
+  {
+   "n": 61,
+   "start": "2026-12-06",
+   "name": "Lifts turn on Mount Spokane",
+   "note": "The ski park aims to open in early December if the snow allows.",
+   "kind": "people",
+   "source_url": "https://www.spokesman.com/stories/2024/nov/25/mt-spokane-ski-and-snowboard-park-to-open-friday/",
+   "evidence": "Officials at Mount Spokane planned to open Dec. 7 with the caveat that the hill could open sooner if enough snow arrived.",
+   "confidence": "medium"
+  },
+  {
+   "n": 62,
+   "start": "2026-12-11",
+   "name": "Birders count the winter",
+   "note": "The Christmas Bird Count opens December 14, and Spokane and Cheney groups count in the field.",
+   "kind": "people",
+   "source_url": "https://www.fws.gov/story/tis-season-christmas-bird-count",
+   "evidence": "The count takes place from December 14 to January 5",
+   "confidence": "high"
+  },
+  {
+   "n": 63,
+   "start": "2026-12-16",
+   "name": "Eagles crowd Wolf Lodge Bay",
+   "note": "Bald eagles feeding on the kokanee reach their peak count in late December.",
+   "kind": "bird",
+   "source_url": "https://www.blm.gov/programs/fish-and-wildlife/wildlife/about/idaho/lake-coeurdalene-eagle-watch",
+   "evidence": "from November through February, a migrating population of bald eagles visits the Lake Coeur d' Alene area ... December 20, 2023 ... RECORD COUNT of 409 eagles",
+   "confidence": "high"
+  },
+  {
+   "n": 64,
+   "start": "2026-12-21",
+   "name": "Longest night",
+   "note": "The winter solstice falls on December 21. After it, the days slowly lengthen.",
+   "kind": "sky",
+   "source_url": "https://en.wikipedia.org/wiki/December_solstice",
+   "evidence": "2026 | 21 | 20:50 (UT)",
+   "confidence": "high"
+  },
+  {
+   "n": 65,
+   "start": "2026-12-26",
+   "name": "Goldeneyes on open water",
+   "note": "Diving ducks from the north spend the winter on rivers and lakes that stay unfrozen.",
+   "kind": "bird",
+   "source_url": "https://www.birdweb.org/birdweb/bird/common_goldeneye",
+   "evidence": "From November to April, however, Common Goldeneyes are fairly common on both fresh water ... in both the eastern and western lowlands.",
+   "confidence": "medium"
+  },
+  {
+   "n": 66,
+   "start": "2026-12-31",
+   "name": "Eagles crowd Wolf Lodge Bay",
+   "note": "Wintering bald eagles feast on spent kokanee at the north end of Lake Coeur d'Alene.",
+   "kind": "bird",
+   "source_url": "https://idfg.idaho.gov/press/bald-eagles-are-back-watching-eagle-watching-week-events-dec-26-jan-1",
+   "evidence": "\"Eagle numbers will peak between Christmas and New Year's.\" (Wolf Lodge Bay, Lake Coeur d'Alene)",
+   "confidence": "high"
+  },
+  {
+   "n": 67,
+   "start": "2027-01-05",
+   "name": "Windstorms rattle the pines",
+   "note": "Early January has brought some of the region's fiercest wind events, with gusts of 70 mph and more.",
+   "kind": "weather",
+   "source_url": "https://www.weather.gov/otx/January-WeatherHistory",
+   "evidence": "NWS Spokane January history lists high-wind events on January 6, 2007 and January 6, 2009, with gusts of 70 and 78 mph",
+   "confidence": "medium"
+  },
+  {
+   "n": 68,
+   "start": "2027-01-10",
+   "name": "Snowiest weeks of winter",
+   "note": "January is Spokane's snowiest month, averaging about a foot of snow at the airport.",
+   "kind": "weather",
+   "source_url": "https://www.weather.gov/otx/otxclinormals",
+   "evidence": "Spokane January normals: precipitation 1.97 in, snowfall 12.3 in, the highest of Jan-Mar",
+   "confidence": "medium"
+  },
+  {
+   "n": 69,
+   "start": "2027-01-15",
+   "name": "Freezing fog rimes the trees",
+   "note": "Winter inversions trap fog in the valley and coat branches with rime.",
+   "kind": "weather",
+   "source_url": "https://www.weather.gov/otx/January-WeatherHistory",
+   "evidence": "NWS Spokane January history: \"Extended Freezing Fog\" January 16, 2014; \"Rime in North Columbia Basin\" January 13, 2009",
+   "confidence": "medium"
+  },
+  {
+   "n": 70,
+   "start": "2027-01-19",
+   "name": "Great horned owls hoot",
+   "note": "Male owls hoot at dusk to court mates and claim nest sites in midwinter.",
+   "kind": "bird",
+   "source_url": "https://wdfw.wa.gov/species-habitats/living/species-facts/owls",
+   "evidence": "WDFW: great horned owls begin pair formation and courtship from mid-January to mid-March; \"the male... attempts to attract a female by frequent hooting\"",
+   "confidence": "high"
+  },
+  {
+   "n": 71,
+   "start": "2027-01-24",
+   "name": "Nights still in the twenties",
+   "note": "Late January nights still drop to the mid-20s, the coldest stretch of Spokane's year.",
+   "kind": "weather",
+   "source_url": "https://www.weather.gov/otx/otxclinormals",
+   "evidence": "Spokane January normal lows 23-26°F; January is the coldest period, with highs near freezing",
+   "confidence": "medium"
+  },
+  {
+   "n": 72,
+   "start": "2027-01-29",
+   "name": "Willow tips blush with color",
+   "note": "Willow and cottonwood twigs brighten along creeks weeks before any leaves open.",
+   "kind": "plant",
+   "source_url": "https://www.spokesman.com/stories/2022/feb/02/harbingers-of-spring-eastern-washington-biologists/",
+   "evidence": "Feb 2, 2022: willow and poplar trees \"start to take color onto the tips of their branches\" happening now",
+   "confidence": "high"
+  },
+  {
+   "n": 1,
+   "start": "2027-02-03",
+   "name": "Highs climb past forty",
+   "note": "Normal afternoon highs in Spokane pass 40°F in early February.",
+   "kind": "weather",
+   "source_url": "https://www.weather.gov/otx/otxclinormals",
+   "evidence": "Spokane normals: the normal high rises above 40°F beginning in early February (Feb highs 37-44°F)",
+   "confidence": "high"
+  },
+  {
+   "n": 2,
+   "start": "2027-02-08",
+   "name": "Red-winged blackbirds flock",
+   "note": "Red-winged blackbirds flock back to Spokane-area cattail marshes in early February.",
+   "kind": "bird",
+   "source_url": "https://www.spokesman.com/stories/1997/mar/02/winter-wings-the-subtle-coming-and-going-of-birds/",
+   "evidence": "\"Red-winged blackbirds flocked in the first week of February.\" - Kristin Stewart, Spokane Audubon Society",
+   "confidence": "high"
+  },
+  {
+   "n": 3,
+   "start": "2027-02-13",
+   "name": "Snow fleas on thawing snow",
+   "note": "Tiny springtails speckle the snow surface on mild late-winter afternoons.",
+   "kind": "animal",
+   "source_url": "https://www.spokesman.com/stories/2022/feb/02/harbingers-of-spring-eastern-washington-biologists/",
+   "evidence": "Springtails (snow fleas) \"can be seen atop the snow on warm spring days\" (eastern WA harbingers, Feb 2022)",
+   "confidence": "medium"
+  },
+  {
+   "n": 4,
+   "start": "2027-02-18",
+   "name": "Goldfinches turn gold",
+   "note": "American goldfinches start trading drab winter feathers for bright yellow, and birdsong picks up.",
+   "kind": "bird",
+   "source_url": "https://www.spokesman.com/stories/1997/mar/02/winter-wings-the-subtle-coming-and-going-of-birds/",
+   "evidence": "Late winter in Spokane: goldfinches transition from dull winter plumage to bright yellow; \"The birds are starting to sing more\"",
+   "confidence": "medium"
+  },
+  {
+   "n": 5,
+   "start": "2027-02-23",
+   "name": "Sagebrush buttercups bloom",
+   "note": "The first wild buttercups open on sunny basalt slopes as the snow pulls back.",
+   "kind": "plant",
+   "source_url": "http://www.spokesman.com/blogs/outdoors/2017/mar/06/how-many-blooming-buttercups-did-you-count-saturday/",
+   "evidence": "Mar 6, 2017: \"10 Facebook friends who've seen their first blooms of 2017 in the past two weeks in Spokane County wild areas\"",
+   "confidence": "high"
+  },
+  {
+   "n": 6,
+   "start": "2027-02-28",
+   "name": "Ground squirrels wake",
+   "note": "Washington ground squirrels and yellow-bellied marmots come out of hibernation.",
+   "kind": "animal",
+   "source_url": "https://www.spokesman.com/stories/2022/feb/02/harbingers-of-spring-eastern-washington-biologists/",
+   "evidence": "Ground squirrels and yellow-bellied marmots \"wake up in March or even late February if it's a mild winter\"",
+   "confidence": "high"
+  },
+  {
+   "n": 7,
+   "start": "2027-03-05",
+   "name": "Sandhill cranes arrive",
+   "note": "Cranes from California stop in eastern Washington to refuel, often passing high over Spokane.",
+   "kind": "bird",
+   "source_url": "https://www.spokesman.com/stories/2026/mar/22/cool-critters-lords-of-the-dance-have-landed-in-ea/",
+   "evidence": "Sandhill cranes \"start to arrive in Eastern Washington in early March to refuel before flying north\"",
+   "confidence": "high"
+  },
+  {
+   "n": 8,
+   "start": "2027-03-10",
+   "name": "Bluebirds come home",
+   "note": "Western and mountain bluebirds return to claim nest boxes on the Spokane prairies.",
+   "kind": "bird",
+   "source_url": "https://www.spokesman.com/stories/2022/feb/02/harbingers-of-spring-eastern-washington-biologists/",
+   "evidence": "Western bluebirds \"tend to return in March\" (eastern Washington biologists, Feb 2022)",
+   "confidence": "high"
+  },
+  {
+   "n": 9,
+   "start": "2027-03-15",
+   "name": "Afternoons reach fifty",
+   "note": "By mid-March, Spokane's normal daily high passes 50°F.",
+   "kind": "weather",
+   "source_url": "https://www.weather.gov/otx/otxclinormals",
+   "evidence": "Spokane normals: the normal high \"exceeds 50°F by mid-March\" (March highs 44-53°F)",
+   "confidence": "high"
+  },
+  {
+   "n": 10,
+   "start": "2027-03-20",
+   "name": "Tundra swans pass north",
+   "note": "Hundreds of tundra swans rest on Turnbull and Inland Northwest lakes on their way to Alaska.",
+   "kind": "bird",
+   "source_url": "https://www.spokesman.com/stories/2010/mar/08/tundra-swans-migration-make-inland-northwest-stops/",
+   "evidence": "Swans migrate north along inland routes \"at the end of winter\"; annual Tundra Swan Day held March 20",
+   "confidence": "high"
+  },
+  {
+   "n": 11,
+   "start": "2027-03-25",
+   "name": "Tree swallows return",
+   "note": "The first swallows of the year skim over the ponds at Turnbull and along the river.",
+   "kind": "bird",
+   "source_url": "https://birdweb.org/birdweb/bird/tree_swallow",
+   "evidence": "Tree Swallows \"arrive in March, quite early in the spring\"; fairly common by March on the Columbia Plateau",
+   "confidence": "medium"
+  },
+  {
+   "n": 12,
+   "start": "2027-03-30",
+   "name": "Grass widows open",
+   "note": "Purple grass widows are among the first wildflowers on rocky Spokane-area slopes.",
+   "kind": "plant",
+   "source_url": "https://s3.wp.wsu.edu/uploads/sites/2076/2017/07/C197-Native-Plants-for-Spokane-Area-Gardens.pdf",
+   "evidence": "WSU Extension, Native Plants for Spokane Area Gardens: Grass Widows (Olsynium douglasii) \"Blooms early April—June\"",
+   "confidence": "medium"
+  },
+  {
+   "n": 13,
+   "start": "2027-04-04",
+   "name": "Ospreys return to the river",
+   "note": "Ospreys come back from their wintering grounds to nest along the Spokane River.",
+   "kind": "bird",
+   "source_url": "https://www.spokesman.com/stories/2012/mar/30/ospreys-migrating-back-spokane-area/",
+   "evidence": "\"Brad & I found our first osprey of the year on the dike road between Silver and North Silver Lake in Spokane County on March 28.\"",
+   "confidence": "medium"
+  },
+  {
+   "n": 14,
+   "start": "2027-04-09",
+   "name": "Swallows skim the ponds",
+   "note": "Violet-green and tree swallows hawk insects over Turnbull's wetlands during spring migration.",
+   "kind": "bird",
+   "source_url": "https://birdweb.org/birdweb/bird/violet-green_swallow",
+   "evidence": "BirdWeb: they \"arrive early in spring, especially in eastern Washington, and are one of the first returning migrants\"; Turnbull NWR (FWS) spring migration runs \"mid-March through mid-May\"",
+   "confidence": "medium"
+  },
+  {
+   "n": 15,
+   "start": "2027-04-14",
+   "name": "Shooting stars nod",
+   "note": "Magenta shooting stars bloom in moist meadows and on scabland slopes.",
+   "kind": "plant",
+   "source_url": "https://s3.wp.wsu.edu/uploads/sites/2076/2017/07/C197-Native-Plants-for-Spokane-Area-Gardens.pdf",
+   "evidence": "WSU Extension, Native Plants for Spokane Area Gardens: Shooting Star (Dodecatheon pulchellum) \"Blooms April-May\"",
+   "confidence": "medium"
+  },
+  {
+   "n": 16,
+   "start": "2027-04-20",
+   "name": "Serviceberry in white spray",
+   "note": "Serviceberry shrubs flower white across Dishman Hills and Riverside State Park.",
+   "kind": "plant",
+   "source_url": "https://www.spokesman.com/stories/2000/apr/27/bloomsday-arrives-early-for-nature-lovers/",
+   "evidence": "Spokesman-Review, Apr 27: \"NOW is the peak in the golden bloom of arrowleaf balsamroot and the white spray of serviceberry in natural areas around Spokane.\"",
+   "confidence": "high"
+  },
+  {
+   "n": 17,
+   "start": "2027-04-25",
+   "name": "Balsamroot gilds the hills",
+   "note": "Arrowleaf balsamroot is in full golden bloom on the sunny slopes below High Drive.",
+   "kind": "plant",
+   "source_url": "https://www.spokesman.com/stories/2000/apr/27/bloomsday-arrives-early-for-nature-lovers/",
+   "evidence": "Spokesman-Review, Apr 27: \"NOW is the peak in the golden bloom of arrowleaf balsamroot ... in natural areas around Spokane.\"",
+   "confidence": "high"
+  },
+  {
+   "n": 18,
+   "start": "2027-04-30",
+   "name": "Last frost",
+   "note": "Spokane's average last spring freeze falls in the first week of May, around May 4.",
+   "kind": "weather",
+   "source_url": "https://www.spokesman.com/stories/2022/may/05/weathercatch-is-the-last-freeze-behind-us-a-cooler/",
+   "evidence": "Spokesman-Review Weathercatch: average last freeze is \"the first week in May,\" with May 4 given as the average date",
+   "confidence": "high"
+  },
+  {
+   "n": 19,
+   "start": "2027-05-05",
+   "name": "Camas turns meadows blue",
+   "note": "Blue camas floods wet prairies and Turnbull's meadows, a traditional food of the region's tribes.",
+   "kind": "plant",
+   "source_url": "https://www.spokesman.com/stories/2007/may/10/camas-flower-blooms-blue-on-the-prairie/",
+   "evidence": "Spokesman-Review (May 10) on camas near Rathdrum: \"It blooms from the middle of April to the middle of June, depending on altitude.\"",
+   "confidence": "medium"
+  },
+  {
+   "n": 20,
+   "start": "2027-05-10",
+   "name": "Spokane Falls at full roar",
+   "note": "Snowmelt pushes the Spokane River toward its yearly peak through downtown.",
+   "kind": "water",
+   "source_url": "https://www.spokesman.com/stories/2023/may/09/peak-snowmelt-creates-dramatic-flows-on-spokane-ri/",
+   "evidence": "River peaked May 9, 2023, \"close to the average peak\"; \"The river usually peaks in April or May\"",
+   "confidence": "high"
+  },
+  {
+   "n": 21,
+   "start": "2027-05-15",
+   "name": "Lilacs crown the Lilac City",
+   "note": "Manito's lilacs bloom as the Lilac Festival Torchlight Parade lights up downtown.",
+   "kind": "people",
+   "source_url": "https://my.spokanecity.org/parks/gardens/lilac/",
+   "evidence": "City of Spokane: \"The lilacs are typically in bloom between mid-May and early June.\" The Torchlight Parade falls on the third Saturday of May.",
+   "confidence": "high"
+  },
+  {
+   "n": 22,
+   "start": "2027-05-20",
+   "name": "Wild roses open",
+   "note": "Pink Nootka and Woods roses start to open along creeks and fencerows.",
+   "kind": "plant",
+   "source_url": "https://www.nativeplantsociety.org/plant-notes-blog/nootka-rose-rosa-nutkana",
+   "evidence": "Kinnikinnick Native Plant Society (north Idaho): \"In May through July, large, solitary flowers appear on branch tips.\"",
+   "confidence": "medium"
+  },
+  {
+   "n": 23,
+   "start": "2027-05-26",
+   "name": "Syringa scents the canyons",
+   "note": "Mock orange, Idaho's state flower, fills basalt draws with a sweet smell.",
+   "kind": "plant",
+   "source_url": "https://s3.wp.wsu.edu/uploads/sites/2076/2017/07/C197-Native-Plants-for-Spokane-Area-Gardens.pdf",
+   "evidence": "WSU Extension, Native Plants for Spokane Area Gardens: Mock Orange (Philadelphus lewisii) \"flowers from late May into July\"",
+   "confidence": "high"
+  },
+  {
+   "n": 24,
+   "start": "2027-05-31",
+   "name": "Cottonwood fluff drifts",
+   "note": "Black cottonwoods along the river release clouds of downy seed.",
+   "kind": "plant",
+   "source_url": "https://www.spokesman.com/stories/2010/may/29/cottonwood-fluff-filling-skies-again/",
+   "evidence": "Spokesman-Review: cottonwoods release seeds \"usually from the last week of May into about the first two weeks of June\"",
+   "confidence": "high"
+  },
+  {
+   "n": 25,
+   "start": "2027-06-05",
+   "name": "Strawberries redden on Green Bluff",
+   "note": "U-pick strawberry fields open on the Green Bluff farms north of Spokane.",
+   "kind": "plant",
+   "source_url": "https://www.visitspokane.com/blog/green-bluff/",
+   "evidence": "Visit Spokane: Green Bluff has \"strawberries late May through June\"",
+   "confidence": "high"
+  },
+  {
+   "n": 26,
+   "start": "2027-06-10",
+   "name": "Hail rides the thunderheads",
+   "note": "Mid-June thunderstorms often bring large hail and downpours to the Inland Northwest.",
+   "kind": "weather",
+   "source_url": "https://www.weather.gov/otx/June-WeatherHistory",
+   "evidence": "NWS Spokane June Weather History: June 10, 2003 \"Large Hail Event\"; June 13, 2006 \"A severe thunderstorm moved through eastern washington and northern Idaho... Large hail was reported\"",
+   "confidence": "medium"
+  },
+  {
+   "n": 27,
+   "start": "2027-06-16",
+   "name": "Ninebark flowers the slopes",
+   "note": "Mallow ninebark lays white flower clusters across shady north slopes and forest edges.",
+   "kind": "plant",
+   "source_url": "https://s3.wp.wsu.edu/uploads/sites/2076/2017/07/C197-Native-Plants-for-Spokane-Area-Gardens.pdf",
+   "evidence": "WSU Extension, Native Plants for Spokane Area Gardens: Ninebark (Physocarpus malvaceus) \"Blooms in June\"",
+   "confidence": "medium"
+  },
+  {
+   "n": 28,
+   "start": "2027-06-21",
+   "name": "Sixteen hours of light",
+   "note": "At the solstice Spokane gets about 16 hours of daylight, twice December's.",
+   "kind": "sky",
+   "source_url": "https://www.spokesman.com/stories/2018/jun/21/longest-day-of-the-year-summer-solstice-arrives-to/",
+   "evidence": "\"Here in Spokane, the solstice means a day of around 16 hours of sunlight.\"",
+   "confidence": "high"
+  },
+  {
+   "n": 29,
+   "start": "2027-06-26",
+   "name": "Hoopfest fills the streets",
+   "note": "The world's largest 3-on-3 basketball tournament takes over downtown courts.",
+   "kind": "people",
+   "source_url": "https://en.wikipedia.org/wiki/Spokane_Hoopfest",
+   "evidence": "Wikipedia: Hoopfest is \"traditionally on the last weekend in June\" (June 26–27 in 2027)",
+   "confidence": "high"
+  },
+  {
+   "n": 30,
+   "start": "2027-07-01",
+   "name": "Cherries ripen on Green Bluff",
+   "note": "U-pick cherry season on Green Bluff runs from late June through July.",
+   "kind": "plant",
+   "source_url": "https://www.visitspokane.com/blog/green-bluff/",
+   "evidence": "cherries late June through July",
+   "confidence": "high"
+  },
+  {
+   "n": 31,
+   "start": "2027-07-07",
+   "name": "Clearest skies of the year",
+   "note": "July is Spokane's clearest month, and its skies stay mostly clear about three days in four.",
+   "kind": "sky",
+   "source_url": "https://weatherspark.com/y/2022/Average-Weather-in-Spokane-Washington-United-States-Year-Round",
+   "evidence": "July offers the best visibility, with the sky clear, mostly clear, or partly cloudy 75% of the time",
+   "confidence": "medium"
+  },
+  {
+   "n": 32,
+   "start": "2027-07-12",
+   "name": "Huckleberries purple on Mount Spokane",
+   "note": "Huckleberries ripen on the lower slopes first and on the high ridges later in the summer.",
+   "kind": "plant",
+   "source_url": "https://www.spokesman.com/stories/2019/jul/29/huckleberry-season-sending-berry-hounds-to-the-hil/",
+   "evidence": "Two weeks into July ... berries at the Lower Selkirk parking lot were starting to get purple and sweet",
+   "confidence": "high"
+  },
+  {
+   "n": 33,
+   "start": "2027-07-17",
+   "name": "Lightning sparks the hills",
+   "note": "Dry thunderstorms in midsummer start wildfires across eastern Washington and north Idaho.",
+   "kind": "weather",
+   "source_url": "https://www.weather.gov/otx/July-WeatherHistory",
+   "evidence": "Lightning ignites the Tin Pan Fire ... Excessively hot and dry conditions (NWS Spokane July weather history)",
+   "confidence": "medium"
+  },
+  {
+   "n": 34,
+   "start": "2027-07-22",
+   "name": "Sunsets slip earlier",
+   "note": "Spokane loses nearly an hour of daylight in July, and sunset moves from 8:51 to 8:25.",
+   "kind": "sky",
+   "source_url": "https://weatherspark.com/m/2022/7/Average-Weather-in-July-in-Spokane-Washington-United-States",
+   "evidence": "the length of the day decreases by 56 minutes ... 8:51 PM on July 1 ... 8:25 PM by July 31",
+   "confidence": "medium"
+  },
+  {
+   "n": 35,
+   "start": "2027-07-27",
+   "name": "Height of summer heat",
+   "note": "Normal highs peak near 88°F around August 2, which is the hottest point of Spokane's year.",
+   "kind": "weather",
+   "source_url": "https://weatherspark.com/m/2022/7/Average-Weather-in-July-in-Spokane-Washington-United-States",
+   "evidence": "Hottest Day of Year: August 2 reaches 88°F high",
+   "confidence": "high"
+  },
+  {
+   "n": 36,
+   "start": "2027-08-02",
+   "name": "Combines roll on the Palouse",
+   "note": "Wheat harvest is in full swing across the Palouse's rolling hills in early August.",
+   "kind": "people",
+   "source_url": "https://www.spokesman.com/stories/2024/aug/09/its-very-tough-to-make-a-living-lowest-wheat-price/",
+   "evidence": "combines are chewing through the amber fields ... The rolling hills of the Palouse are buzzing this time of year (early August)",
+   "confidence": "high"
+  },
+  {
+   "n": 37,
+   "start": "2027-08-07",
+   "name": "Smoke veils the sun",
+   "note": "Regional wildfire smoke often hangs over Spokane in August and turns the sun orange.",
+   "kind": "weather",
+   "source_url": "https://www.krem.com/article/weather/wildfire-smoke-season-is-here-in-spokane-what-you-need-to-know/293-2397034f-6171-474c-b7b7-9cc3fbd4aa28",
+   "evidence": "Wildfire smoke typically blankets the Spokane area throughout the month of August.",
+   "confidence": "medium"
+  },
+  {
+   "n": 38,
+   "start": "2027-08-12",
+   "name": "Perseids streak the night",
+   "note": "The Perseid meteor shower peaks August 12–13, 2027, and the sky goes dark after moonset.",
+   "kind": "sky",
+   "source_url": "https://earthsky.org/astronomy-essentials/everything-you-need-to-know-perseid-meteor-shower/",
+   "evidence": "the peak is expected on August 12-13, 2027",
+   "confidence": "high"
+  },
+  {
+   "n": 39,
+   "start": "2027-08-17",
+   "name": "Young ospreys take wing",
+   "note": "Osprey chicks in the Inland Northwest leave the nest about 60 days after hatching.",
+   "kind": "bird",
+   "source_url": "https://www.umt.edu/osprey/timeline/default.php",
+   "evidence": "Fledging occurs about 60 days after hatching ... August 6-17 (2010), August 7 (2011), mid-August (2012-2013) [western Montana]",
+   "confidence": "medium"
+  },
+  {
+   "n": 40,
+   "start": "2027-08-23",
+   "name": "Rabbitbrush turns gold",
+   "note": "Rubber rabbitbrush covers dry scablands and roadsides with pungent yellow blooms.",
+   "kind": "plant",
+   "source_url": "https://en.wikipedia.org/wiki/Ericameria_nauseosa",
+   "evidence": "It blooms from August to October and produces pungent-smelling, golden-yellow flowers.",
+   "confidence": "medium"
+  },
+  {
+   "n": 41,
+   "start": "2027-08-28",
+   "name": "Nighthawks go quiet",
+   "note": "Common nighthawks leave eastern Washington at the end of August, with a few lingering.",
+   "kind": "bird",
+   "source_url": "https://www.birdweb.org/birdweb/bird/common_nighthawk",
+   "evidence": "from mid-May through August, but some birds remain into early September",
+   "confidence": "high"
+  },
+  {
+   "n": 42,
+   "start": "2027-09-02",
+   "name": "Apples redden on Green Bluff",
+   "note": "Green Bluff orchards move into apple harvest, and weekend apple picking runs into October.",
+   "kind": "plant",
+   "source_url": "https://www.greenbluffgrowers.com/apples",
+   "evidence": "Harvest season on Green Bluff is generally between August through September.",
+   "confidence": "medium"
+  },
+  {
+   "n": 43,
+   "start": "2027-09-07",
+   "name": "Summer heat breaks",
+   "note": "Spokane's warm season, with daily highs above 78°F, ends around September 12.",
+   "kind": "weather",
+   "source_url": "https://weatherspark.com/y/2022/Average-Weather-in-Spokane-Washington-United-States-Year-Round",
+   "evidence": "The warm period runs from June 19 to September 12",
+   "confidence": "high"
+  },
+  {
+   "n": 44,
+   "start": "2027-09-12",
+   "name": "Interstate Fair lights up",
+   "note": "The Spokane County Interstate Fair runs September 10–19, 2027, in Spokane Valley.",
+   "kind": "people",
+   "source_url": "https://thespokanefair.com/",
+   "evidence": "2027 Spokane Fair dates are: September 10-19",
+   "confidence": "high"
+  },
+  {
+   "n": 45,
+   "start": "2027-09-17",
+   "name": "Last swallows pass south",
+   "note": "Local swallows leave by early September, and the final northern migrants move through late in the month.",
+   "kind": "bird",
+   "source_url": "https://birdweb.org/birdweb/bird/violet-green_swallow",
+   "evidence": "birds that have bred in Washington leaving the state in late July or early August ... a second wave ... in late September",
+   "confidence": "medium"
+  },
+  {
+   "n": 46,
+   "start": "2027-09-22",
+   "name": "Elk bugle at dawn",
+   "note": "Bull elk bugle most around dawn and dusk during the late-September rut.",
+   "kind": "animal",
+   "source_url": "https://wdfw.wa.gov/species-habitats/species/cervus-canadensis",
+   "evidence": "This peak activity window happens in late September and October ... near dawn and dusk",
+   "confidence": "high"
+  },
+  {
+   "n": 47,
+   "start": "2027-09-28",
+   "name": "Ducks crowd Turnbull ponds",
+   "note": "Fall waterfowl migration fills the wetlands along the Turnbull auto tour route.",
+   "kind": "bird",
+   "source_url": "https://www.fws.gov/refuge/turnbull/visit-us/activities/wildlife-watching",
+   "evidence": "Fall migration from September through November ... Most waterfowl can be found on wetlands along the auto tour route",
+   "confidence": "medium"
+  }
+ ],
+ "fixes": [
+  {
+   "n": 66,
+   "start": "2026-12-31",
+   "problem": "Exact duplicate of n=63 (2026-12-16), which has the same name, 'Eagles crowd Wolf Lodge Bay', and the same phenomenon. Keep n=63, because the late-December eagle peak falls in its window, and replace n=66.",
+   "name": "Snow buntings on the Palouse fields",
+   "note": "Suggested replacement. It still needs a source: I could not fetch a page to confirm how often snow buntings winter on West Plains and Palouse stubble. If that can't be verified, a feeder-flock window (chickadees and juncos) would be a safe choice.",
+   "source_url": "https://www.blm.gov/programs/fish-and-wildlife/wildlife/about/idaho/lake-coeurdalene-eagle-watch",
+   "evidence": "NOT FETCHED. WebFetch returned a session-limit error and Bash curl was blocked. This URL (BLM Lake Coeur d'Alene Eagle Watch) is given only as the source for the duplicated eagle phenomenon. A search result title, 'Wolf Lodge Bay About To Hit Peak Of Bald Eagle-Watching' (spokesman.com, Dec 24, 2000), supports keeping the peak at n=63. There is no quote yet for the replacement."
+  },
+  {
+   "n": 68,
+   "start": "2027-01-10",
+   "problem": "Contradicts n=60, which says December is Spokane's snowiest month, averaging 13.8 inches. n=68 says January is the snowiest month. Both cannot be true, and the list's own December figure makes the January claim wrong. The name 'Snowiest weeks of winter' also repeats n=60.",
+   "name": "Old snow lingers on the ground",
+   "note": "Change the framing to snow cover lasting through January, not January being the snowiest month. Before publishing, check the monthly averages (Dec vs Jan) on the source page.",
+   "source_url": "https://www.currentresults.com/Weather/Washington/Places/spokane-snowfall-totals-snow-accumulation-averages.php",
+   "evidence": "NOT FETCHED because of the session limit, so there is no quote. The URL came from a search for Spokane monthly snowfall averages. n=60 in the list itself states 'December is Spokane's snowiest month, averaging 13.8 inches.'"
+  },
+  {
+   "n": 14,
+   "start": "2027-04-09",
+   "problem": "Near-duplicate of n=11 (2027-03-25, 'Tree swallows return'). Both are about swallows over the Turnbull ponds, and n=14 even names tree swallows again.",
+   "name": "Yellow-headed blackbirds claim the cattails",
+   "note": "Suggested replacement for an April marsh arrival at Turnbull. The arrival timing still needs to be confirmed on the FWS species page.",
+   "source_url": "https://www.fws.gov/refuge/turnbull/species",
+   "evidence": "NOT FETCHED because of the session limit, so there is no quote. Search also turned up 'Turnbull NWR - Tree Swallow | FWS.gov' (https://www.fws.gov/media/turnbull-nwr-tree-swallow), which confirms that the swallow topic is already covered by n=11."
+  },
+  {
+   "n": 47,
+   "start": "2027-09-28",
+   "problem": "Near-duplicate of n=50 (2026-10-13, 'Ducks and geese crowd Turnbull'). The two are about the same fall waterfowl buildup at Turnbull, only 15 days apart in the cycle.",
+   "name": "Sumac flames on the basalt",
+   "note": "Suggested replacement: smooth sumac on the scabland and river-canyon slopes turns red in late September. It still needs a source.",
+   "source_url": "https://www.fws.gov/refuge/turnbull/visit-us/activities/wildlife-watching",
+   "evidence": "NOT FETCHED because of the session limit, so there is no quote. This URL is only the source for the duplicated Turnbull waterfowl phenomenon. There is no fetched evidence for the replacement yet."
+  },
+  {
+   "n": 69,
+   "start": "2027-01-15",
+   "problem": "Near-duplicate of n=57 (2026-11-17, 'Inversion fog settles in'). Both describe valley inversions trapping freezing fog, and n=69's description repeats n=57's cause almost word for word.",
+   "name": "Chickadee flocks work the feeders",
+   "note": "Suggested replacement for a midwinter bird window. Another option is to keep n=69 as rime ice and change n=57 to 'Gray inversion days begin', but one of the two must change. It still needs a source.",
+   "source_url": "https://www.krem.com/article/news/why-does-spokane-get-so-foggy/293-618445900",
+   "evidence": "NOT FETCHED because of the session limit, so there is no quote. This URL is only the source for the shared inversion-fog phenomenon. There is no fetched evidence for the replacement."
+  },
+  {
+   "n": 1,
+   "start": "2027-02-03",
+   "problem": "Possible date mismatch. From memory of NOAA 1991-2020 normals, Spokane's normal daily high in early February is in the upper 30s °F and reaches 40°F closer to mid-February. This needs checking, and the same applies to n=9 ('passes 50°F by mid-March'), which may actually happen around March 20.",
+   "name": "Afternoon thaws return",
+   "note": "Only change this if the NOAA daily normals show the 40°F crossing after about Feb 7. Otherwise leave the name and move the claim.",
+   "source_url": "https://usclimatedata.com/climate/spokane/washington/united-states/uswa0422",
+   "evidence": "NOT FETCHED because of the session limit, so there is no quote. This one is unverified and based on memory. Confirm it against the NOAA daily normals before changing."
+  }
+ ],
+ "history": [
+  {
+   "name": "Open Diary (online diary community)",
+   "arose": "October 20, 1998, United States; founded by Bruce Ableson",
+   "who": "Amateur diarists sharing personal, often anonymous, diaries; by October 2008 more than 561,000 diaries from 77 countries",
+   "sustained": "Early web community with comments and friend-only or public diaries; a first mover among hosted diary sites (the causes are my interpretation; the sourced facts are the founding date and user counts)",
+   "status": "Declined, with two closures: offline February 7, 2014; relaunched January 26, 2018 as a subscription service ($3.99 a month); shutdown announced for January 31, 2026, later extended to February 28, 2026",
+   "why": "The site owners gave financial difficulties as the reason for the 2014 closure. The paid relaunch never won back its earlier scale, and the site was set to close for good in early 2026.",
+   "sources": [
+    {
+     "url": "https://en.wikipedia.org/wiki/Open_Diary",
+     "evidence": "\"It was founded on October 20, 1998\" ... \"On February 7, 2014, the site went offline.\" ... \"Open Diary re-launched publicly on January 26, 2018\" ... \"In late 2025, it was announced the site would be shut down on January 31, 2026. This deadline was later extended to February 28.\""
+    }
+   ]
+  },
+  {
+   "name": "Diaryland (hosted web journal)",
+   "arose": "1999, Canada; created by programmer Andrew Smales",
+   "who": "Teen and young-adult online diarists of the late 1990s and 2000s",
+   "sustained": "Free, simple hosted diary pages with customizable templates (general characterization; the fetched source gives only the founding facts)",
+   "status": "Niche or dormant (not documented). The fetched source gives no user numbers or decline data.",
+   "why": "No sourced decline data. It was probably overtaken by LiveJournal, blogs and social networks, but that is my inference and has no source.",
+   "sources": [
+    {
+     "url": "https://en.wikipedia.org/wiki/Diaryland",
+     "evidence": "\"Diaryland is an Internet journal service created by Canadian programmer Andrew Smales in 1999.\""
+    }
+   ]
+  },
+  {
+   "name": "LiveJournal",
+   "arose": "April 15, 1999, United States; started by Brad Fitzpatrick",
+   "who": "Friend groups, fandoms and LGBTQ communities, and later a large Russian-speaking user base. As of 2014 it had 10 million monthly uniques in the US.",
+   "sustained": "Friends-list journaling, communities and privacy levels; started \"as a way of keeping his high school friends updated\"",
+   "status": "Transformed and declined in the West: sold to Russia's SUP Media in 2007; servers moved to Russia in December 2016; terms of service changed to follow Russian law in April 2017. It still runs, mainly in Russia.",
+   "why": "Ownership changes, mass account suspensions in 2007 and security breaches, then the April 2017 terms of service. Those terms banned \"political solicitation materials\" and \"prompted an 'exodus' to alternate platforms\" (for example Dreamwidth), especially among LGBTQ users.",
+   "sources": [
+    {
+     "url": "https://en.wikipedia.org/wiki/LiveJournal",
+     "evidence": "\"Brad Fitzpatrick started LiveJournal on April 15, 1999\" ... \"Six Apart sold LiveJournal to Russian media company SUP Media in 2007\" ... \"In December 2016, the service relocated its servers to Russia, and in April 2017, LiveJournal changed its terms of service to conform to Russian law.\""
+    }
+   ]
+  },
+  {
+   "name": "Xanga (weblog/diary site)",
+   "arose": "1999 in the US as a site for book and music reviews; opened to the public in 2000",
+   "who": "Mostly teenagers. In 2006 there were 1.7 million accounts belonging to users under 13, which led to an FTC fine.",
+   "sustained": "Recruitment by email and through GeoCities; free personal blogs popular with teens",
+   "status": "Declined. It failed to raise $60k for 'Xanga 2.0' by mid-July 2013 and \"became an un-navigable page in late 2013\".",
+   "why": "It lost its money and its users (to Facebook and similar sites, which is my inference). The 2013 crowdfunding drive to save it failed.",
+   "sources": [
+    {
+     "url": "https://en.wikipedia.org/wiki/Xanga",
+     "evidence": "\"Xanga began in 1999 as a site for sharing book and music reviews. It became public in 2000\" ... \"In 2013, Xanga was under threat of shutting down unless it raised $60k by mid-July ... Xanga became an un-navigable page in late 2013.\""
+    }
+   ]
+  },
+  {
+   "name": "Blogger and the blogging boom",
+   "arose": "Launched August 23, 1999 by Pyra Labs (San Francisco); Google bought Pyra, and co-founder Evan Williams left Google in October 2004",
+   "who": "Personal bloggers, diarists and hobbyists; the core of the early-2000s blogging boom",
+   "sustained": "Free, easy publishing, then Google's backing and hosting (moved onto Google servers in 2006)",
+   "status": "Still running with no documented decline in the fetched source. It had redesigns through 2020. Its cultural importance has faded compared with social media (my interpretation, no source).",
+   "why": "The fetched source shows it still operating; no sourced decline figures",
+   "sources": [
+    {
+     "url": "https://en.wikipedia.org/wiki/Blogger_(service)",
+     "evidence": "\"Pyra Labs launched Blogger on August 23, 1999.\" ... \"Evan Williams, a co-founder of Pyra Labs, left Google in October 2004\""
+    }
+   ]
+  },
+  {
+   "name": "MySpace personal profiles and blogs",
+   "arose": "August 1, 2003, United States",
+   "who": "Teens, young adults and musicians; peaked at 115 million monthly visitors in April 2008",
+   "sustained": "Customizable profiles, profile blogs and music; bought by News Corp for $580 million in July 2005",
+   "status": "Declined sharply from 2008. Facebook overtook it in the Alexa rankings on April 19, 2008. It sold for about $35 million in 2011, and in March 2019 it lost all content from before 2016.",
+   "why": "Competition from Facebook. The 2019 server migration also destroyed 12 years of user content, more than 50 million songs, which shows how fragile platform-hosted personal archives are.",
+   "sources": [
+    {
+     "url": "https://en.wikipedia.org/wiki/Myspace",
+     "evidence": "\"At its peak in April 2008, Myspace had 115 million monthly visitors\" ... \"On April 19, 2008, Facebook overtook MySpace in Alexa rankings.\" ... \"In March 2019, Myspace lost all content before 2016 after a faulty server migration.\""
+    }
+   ]
+  },
+  {
+   "name": "Tumblr (personal microblogging)",
+   "arose": "February 2007, New York; 75,000 users within two weeks",
+   "who": "Young users and fandom and art communities posting personal reblog-style journals",
+   "sustained": "Easy multimedia posting and reblogging. Yahoo bought it for $1.1 billion (agreed May 20, 2013; closed June 20, 2013).",
+   "status": "Declined but survives. The adult-content ban announced December 3, 2018 (effective December 17) was followed by a 30% loss of traffic (Similarweb). Verizon sold it to Automattic on August 12, 2019 for under $3 million.",
+   "why": "The 2018 content-policy change drove users away; corporate owners also mismanaged it (my interpretation). The sale price was below 0.3% of what Yahoo paid.",
+   "sources": [
+    {
+     "url": "https://en.wikipedia.org/wiki/Tumblr",
+     "evidence": "\"Tumblr was launched in February 2007\" ... \"Similarweb estimated Tumblr had lost 30% of its user traffic since December 2018\" ... \"the sale price was less than $3 million, less than 0.3% of Yahoo's original purchase price\""
+    }
+   ]
+  },
+  {
+   "name": "PalmPilot / Palm PDAs as planners",
+   "arose": "March 10, 1997, United States; Palm Inc (then a subsidiary of USRobotics, later 3Com)",
+   "who": "Professionals using a digital calendar, contacts and to-do list; more than 1 million units sold by 1998",
+   "sustained": "A pocket digital organizer that synced with a desktop PC; followed by the Palm III (1998) and later models",
+   "status": "Declined and discontinued. After the 2000 IPO the shares lost 90% of their value in just over a year and were at $6.50 by June 2001. HP bought Palm for $1.2 billion (completed July 1, 2010), then on August 18, 2011 announced it would immediately end all Palm/webOS devices.",
+   "why": "Smartphones absorbed the PDA's planner functions (my interpretation), and Palm's finances collapsed. HP dropped webOS in 2011, and HP's own shares then fell 45.4%.",
+   "sources": [
+    {
+     "url": "https://en.wikipedia.org/wiki/Palm_Pilot",
+     "evidence": "\"These devices were launched on March 10, 1997.\" ... \"PalmPilot had reportedly sold over 1 million units by 1998.\""
+    },
+    {
+     "url": "https://en.wikipedia.org/wiki/Palm,_Inc.",
+     "evidence": "\"lost 90% of their value in just over a year\" ... \"The acquisition was completed on 1 July 2010.\" ... \"HP announced that it would immediately end the production and support of all Palm and WebOS devices.\""
+    }
+   ]
+  },
+  {
+   "name": "BlackBerry as a mobile planner and organizer",
+   "arose": "Late 1990s in Canada (RIM, later BlackBerry Limited); the fetched page gives no founding date",
+   "who": "Business and government professionals using email, calendar and tasks on the go; US users peaked at about 21 million in fall 2010, with 79 million worldwide by December 2012",
+   "sustained": "Push email and synced corporate calendars; enterprise security",
+   "status": "Declined and discontinued. The stock fell 87% from 2010 to 2013. By February 2016 only 0.8% of US smartphone users had a BlackBerry. In-house hardware ended September 28, 2016; the last phone was the Key2 LE (2018); the legacy OS was shut down January 4, 2022.",
+   "why": "The iPhone and Android: \"The 87% drop in BlackBerry's stock price between 2010 and 2013 was primarily attributed to the performance of the iPhone handset.\"",
+   "sources": [
+    {
+     "url": "https://en.wikipedia.org/wiki/BlackBerry_Limited",
+     "evidence": "\"the BlackBerry user base peaked at approximately 21 million users in the fall of 2010\" ... \"On September 28, 2016, BlackBerry announced that it would cease in-house hardware development\" ... \"On January 4, 2022, BlackBerry decommissioned the infrastructure and operating system used by their non-Android phones\""
+    }
+   ]
+  },
+  {
+   "name": "Cloud calendar apps (Google Calendar)",
+   "arose": "Beta released April 13, 2006; general release July 2009 (Google, US)",
+   "who": "Consumers and workplaces planning schedules across web and phone (general characterization; no user counts in the source)",
+   "sustained": "Free web sync across devices, sharing, and integration with Gmail and Android (my interpretation)",
+   "status": "Thriving, no decline (the source shows it still operating; no user figures)",
+   "why": "No decline. It replaced the PDA and paper-diary calendar function.",
+   "sources": [
+    {
+     "url": "https://en.wikipedia.org/wiki/Google_Calendar",
+     "evidence": "\"became available in beta release April 13, 2006, and in general release in July 2009.\""
+    }
+   ]
+  },
+  {
+   "name": "Evernote (note-taking as a digital commonplace book or journal)",
+   "arose": "Founded 2007 by Stepan Pachikov; public web version June 24, 2008",
+   "who": "Knowledge workers and people who keep notes or journals; 4 million users by August 2010",
+   "sustained": "Cross-device sync, web clipping and a free tier",
+   "status": "Transformed and declined in goodwill. In June 2016 the free plan was cut to 2 devices and prices rose. Bending Spoons bought it in November 2022. In December 2023 the free plan was cut to 50 editable notes, effective the same day.",
+   "why": "Monetization pressure. Free-tier cuts with no transition period were \"received unfavorably by longtime users\"; rival tools such as Notion and Obsidian drew users away (my interpretation, no source).",
+   "sources": [
+    {
+     "url": "https://en.wikipedia.org/wiki/Evernote",
+     "evidence": "\"Evernote was founded in 2007 by Russian entrepreneur Stepan Pachikov.\" ... \"In June 2016, Evernote introduced a new limitation to just 2 devices on the free plan\" ... \"In December 2023, Evernote reduced its free plan drastically (to a maximum of 50 editable notes)\""
+    }
+   ]
+  },
+  {
+   "name": "Dedicated journaling apps (Day One)",
+   "arose": "March 2011, United States; Bloom Built LLC",
+   "who": "iPhone and Mac users keeping private daily journals with photos and location metadata",
+   "sustained": "Polished design and Apple recognition (Mac App of the Year 2012, Apple Design Award 2014); bought by Automattic in 2021",
+   "status": "Thriving, no decline documented; now owned by Automattic",
+   "why": "No decline in the source. The category grew from 2023 as Apple's own Journal app arrived (see the AI-assisted journaling entry).",
+   "sources": [
+    {
+     "url": "https://en.wikipedia.org/wiki/Day_One_(app)",
+     "evidence": "\"Day One was first released by Bloom Built in March 2011.\" ... \"Mac App of the Year award in 2012\" ... \"an Apple Design Award in 2014\" ... \"The app was acquired by Automattic in 2021.\""
+    }
+   ]
+  },
+  {
+   "name": "AI-assisted journaling (Apple Journal suggestions, Rosebud)",
+   "arose": "2023 onward. Apple's Journal app shipped with iOS 17.2 on December 11, 2023, offering 'journaling suggestions'. Rosebud (founders Chrys Bader and Sean Dadashi) raised $6M in June 2025.",
+   "who": "Smartphone users wanting prompts, reflection and AI-guided self-reflection",
+   "sustained": "Built-in operating-system distribution (Apple) and interest in LLM-based reflective coaching (my interpretation)",
+   "status": "Thriving and emerging as of 2025–2026, no decline. Caveat: these pages could not be fetched because of a session limit, so the evidence is only the titles and URLs from search results.",
+   "why": "No decline so far",
+   "sources": [
+    {
+     "url": "https://www.macrumors.com/2023/12/11/apple-releases-ios-17-2-and-ipados-17-2/",
+     "evidence": "Search-result title only, not fetched: \"Apple Releases iOS 17.2 With Journal App and More - MacRumors\" (URL dated 2023/12/11)"
+    },
+    {
+     "url": "https://techcrunch.com/2025/06/04/rosebud-lands-6m-to-scale-its-interactive-ai-journaling-app",
+     "evidence": "Search-result title only, not fetched: \"Rosebud lands $6M to scale its interactive AI journaling app\" (URL dated 2025/06/04)"
+    }
+   ]
+  },
+  {
+   "name": "Moleskine notebook (relaunched brand)",
+   "arose": "1997, Milan, Italy: Modo & Modo, after Maria Sebregondi pitched reviving the notebook Bruce Chatwin described in The Songlines (1987)",
+   "who": "Travelers, writers, designers and creative professionals. The brand is sold as a premium 'legendary notebook' at airports, bookshops and design stores worldwide",
+   "sustained": "Chatwin/Hemingway/Picasso story marketing, the 'analog revival' among digital workers, and investment and growth: Société Générale Capital bought it in 2006, it listed on Borsa Italiana in 2013, and D'Ieteren took 41% in 2016 and later full control. Revenue went from about €20M in 2000 to €122.3M in 2024",
+   "status": "Thriving and mature, 1997–2026. A pandemic dip in 2020 appears in D'Ieteren/OPI headlines, but I could not fetch the figures",
+   "why": "No lasting decline. The fetched Wikipedia page reports no sales decline. An OPI headline 'Moleskine returns to profitability in 2021' suggests a loss in 2020, probably from COVID-era retail and travel closures, but I could not fetch the numbers",
+   "sources": [
+    {
+     "url": "https://en.wikipedia.org/wiki/Moleskine",
+     "evidence": "\"began production of 5,000 notebooks, officially reintroducing them in 1997\"; \"In August 2006, the French investment fund Société Générale Capital purchased Modo & Modo SpA\"; \"In March 2013 the company announced an IPO at the Borsa Italiana\"; \"At the end of September 2016, the Belgian investment group D'Ieteren acquired a 41% stake in Moleskine\"; revenue \"122,300,000 euro (2024)\""
+    },
+    {
+     "url": "https://www.opi.net/news/region/002-europe/moleskine-returns-to-profitability-in-2021/",
+     "evidence": "Search-result title only (fetch blocked): 'Moleskine returns to profitability in 2021'. UNVERIFIED, treat as a lead"
+    }
+   ]
+  },
+  {
+   "name": "Hobonichi Techo (one-page-per-day planner)",
+   "arose": "First sold October 5, 2001 (the 2002 edition), Tokyo, Japan, by Shigesato Itoi's website company Hobonichi (1101.com)",
+   "who": "Japanese daily diarists at first, then an international community of illustrated-diary, sticker and 'techo' journalers. There has been an English edition since 2013 and a Simplified Chinese edition since 2019",
+   "sustained": "Thin Tomoe River paper, a page for every day, collectible covers, fan meet-ups ('Meeting Caravan', 2017) and expansion abroad",
+   "status": "Thriving, 2001–2026. Published copies rose every year shown: 12,000 (2002), 350,000 (2010), 550,000 (2015), 780,000 (2018), 850,000 (2019)",
+   "why": "No decline in the figures. The company changed paper suppliers (Tomoe River) around 2020, but it kept growing and in 2024–25 described a 'wave of global popularity'",
+   "sources": [
+    {
+     "url": "https://www.1101.com/store/techo/en/2022/pc/about/history.html",
+     "evidence": "\"Release date: October 5, 2001\"; \"Published copies: 12,000\" (2002); 2010 \"Published copies: 350,000\"; 2015 \"550,000\"; 2018 \"780,000\"; 2019 \"850,000\"; English version 2013; Simplified Chinese version 2019"
+    },
+    {
+     "url": "https://en.wikipedia.org/wiki/Hobonichi_Techo",
+     "evidence": "\"In 2013, Hobonichi collaborated with designer brand ARTS&SCIENCE to release an English-language version of the planner for the first time.\""
+    }
+   ]
+  },
+  {
+   "name": "Traveler's Notebook (refillable leather-cover system)",
+   "arose": "2006, Japan: Midori (Designphil), with covers handmade in Chiang Mai, Thailand, and MD Paper refills made in Japan",
+   "who": "Travel journalers, scrapbookers, 'fauxdori' DIY makers and people who mix modular inserts",
+   "sustained": "Modular refills people customize, leather that ages with use, and a brand culture that became Traveler's Company",
+   "status": "Niche but thriving, 2006–2026",
+   "why": "No decline found in the sources I fetched",
+   "sources": [
+    {
+     "url": "https://travelerscompanyusa.com/travelers-notebook-story/",
+     "evidence": "\"Since the birth of TRAVELER'S notebook in 2006, TRAVELER'S COMPANY has continued to design products\"; covers \"made by hand in Chiang Mai, Thailand\"; refill \"crafted in Japan and has our original MD Paper\""
+    }
+   ]
+  },
+  {
+   "name": "Bullet Journal (BuJo)",
+   "arose": "Shared publicly in 2013, Brooklyn, USA, by digital product designer Ryder Carroll",
+   "who": "Students, knowledge workers and people with ADHD at first. It then became a large decorative 'bujo' community on Instagram, Pinterest and later TikTok",
+   "sustained": "Free, adaptable method (rapid logging, index, migration); social-media spread; an $80,000 Kickstarter for an online community; the 2018 book The Bullet Journal Method; branded notebooks (Leuchtturm1917 partnership)",
+   "status": "Transformed and still thriving, 2013–2026. It began as a minimalist productivity system and shifted toward artistic journaling, which now blends into junk and collage journaling",
+   "why": "The fetched Wikipedia page reports no decline. What changed is how people use it, which moved from minimal productivity logs to decorative spreads on social media. Wikipedia credits it with lifting sales of notebooks and pens",
+   "sources": [
+    {
+     "url": "https://en.wikipedia.org/wiki/Bullet_journal",
+     "evidence": "\"It was shared in public in 2013.\"; \"earning $80,000 in Kickstarter funding\"; \"Carroll also published a book on the system, The Bullet Journal Method, in 2018.\"; \"its growing popularity has contributed to an increase in sales of traditional stationery products, such as notebooks and pens.\""
+    }
+   ]
+  },
+  {
+   "name": "Filofax ring-bound organizer (decline and revival)",
+   "arose": "The brand dates to 1921 in the UK. Its 1980s yuppie boom came before 1992. The period covered here is its 1990s collapse and its 2000s–2010s revival",
+   "who": "1980s businesspeople, then planner hobbyists (e.g. the Philofaxy community) and 'analog' fans",
+   "sustained": "Nostalgia, customizable inserts, and the planner community",
+   "status": "Declined in the 1990s and 2000s, then revived as a niche from the 2010s to 2026. Ownership changed often: Day Runner 1998, sold 2001, Letts Group, Phoenix Equity 2006, HSGP 2012",
+   "why": "Electronic organizers (PDAs) in the 1990s, then smartphones. ABC: 'Sales plummeted when electronic organisers were released in the 1990s, and the smartphone almost dealt the killer blow.' I found no exact sales figures",
+   "sources": [
+    {
+     "url": "https://www.abc.net.au/news/2017-05-07/filofax-design-icon-of-the-1980s-business-world/8485410",
+     "evidence": "\"Sales plummeted when electronic organisers were released in the 1990s, and the smartphone almost dealt the killer blow thereafter.\"; \"The Filofax is making a comeback, as people yearn for a simpler time\" (2017)"
+    },
+    {
+     "url": "https://en.wikipedia.org/wiki/Filofax",
+     "evidence": "\"grew enormously during the early 1980s due to its association with Yuppie culture\"; Day Runner acquired it in 1998 and sold it in 2001; Phoenix Equity Partners \"secondary buyout\" 2006; \"In 2012, the company was acquired by HSGP Investments.\""
+    }
+   ]
+  },
+  {
+   "name": "Hipster PDA (index-card organizer)",
+   "arose": "2004, San Francisco: Merlin Mann (43 Folders), a GTD-era joke aimed at expensive PDAs",
+   "who": "Getting Things Done (GTD) followers and tech workers",
+   "sustained": "It was cheap, a parody of pricey gadgets, and spread through productivity blogs",
+   "status": "Faded to niche after the late 2000s (dating inferred)",
+   "why": "It worked as a reaction to PDAs, and its successors were paper products such as BuJo and Moleskine. The fading is my inference and is not backed by a source",
+   "sources": [
+    {
+     "url": "https://www.abc.net.au/news/2017-05-07/filofax-design-icon-of-the-1980s-business-world/8485410",
+     "evidence": "\"a San Francisco writer, Merlin Mann, launched the Hipster PDA\" in 2004, conceived as humorous pushback against digital devices, which \"became a surprising success\""
+    }
+   ]
+  },
+  {
+   "name": "Rocketbook reusable smart notebook",
+   "arose": "2014, Boston, USA: founded by Joe Lemay and Jake Epstein (crowdfunded Wave notebook; turned down on Shark Tank Season 8)",
+   "who": "Students and professionals who want handwriting that syncs to the cloud (scan-and-erase with Pilot FriXion pens)",
+   "sustained": "Crowdfunding, Amazon sales, and demand for hybrid paper and digital notes. Net sales were $32M in 2020, up 35% year on year, as remote school and work kept demand up",
+   "status": "Absorbed into BIC (deal closed December 15, 2020). Still selling in 2026",
+   "why": "No decline found. It was acquired by a large pen maker, and trade press put the price at about $40M (search-result titles only)",
+   "sources": [
+    {
+     "url": "https://www.prnewswire.com/news-releases/bic-and-rocketbook-join-forces-bringing-together-analog-and-digital-writing-301194051.html",
+     "evidence": "\"Rocketbook was founded in 2014 by Joe Lemay and Jake Epstein\"; \"$32 million Net Sales in 2020\", \"+35% year-on-year\"; closed Dec 15, 2020"
+    },
+    {
+     "url": "https://www.ppai.org/media-hub/rocketbook-acquired-by-bic-in-40-million-deal/",
+     "evidence": "Search-result title only (fetch blocked): 'Rocketbook Acquired By BIC In $40 Million Deal'. UNVERIFIED"
+    },
+    {
+     "url": "https://www.ctpost.com/business/article/As-pandemic-pinches-sales-Bic-buys-startup-that-15809162.php",
+     "evidence": "Search-result title only: 'As pandemic pinches sales, Bic buys startup that...' This points to a 2020 slump in BIC's core stationery sales. UNVERIFIED"
+    }
+   ]
+  },
+  {
+   "name": "Happy Planner and the sticker-planner community",
+   "arose": "Me & My Big Ideas (MAMBI), Fountain Valley, California: a scrapbook-sticker company founded about 1998 by mother and daughter Terri Gick and Stephanie Fleming. The Happy Planner disc-bound planner came later (about 2015, not confirmed on a fetched page)",
+   "who": "Mostly women, about 98% of customers. They are crafters and former scrapbookers who decorate weekly spreads with stickers, washi tape and 'plan with me' videos",
+   "sustained": "It grew out of the scrapbooking market, with mass retail (Walmart, Michaels), disc-bound customization, and YouTube and Instagram communities",
+   "status": "Thriving through at least 2018, when Walmart profiled it; I did not fetch a later source",
+   "why": "No decline found in the fetched sources",
+   "sources": [
+    {
+     "url": "https://corporate.walmart.com/news/2018/08/15/meet-the-mother-daughter-team-behind-the-seasons-happiest-planner",
+     "evidence": "Mother-daughter duo Terri Gick and Stephanie Fleming created Me & My Big Ideas; \"we saw that scrapbooking was on the rise and there was a need for a product – fun, decorative stickers\"; customer base approximately 98% female"
+    }
+   ]
+  },
+  {
+   "name": "Erin Condren LifePlanner",
+   "arose": "Mid-2000s, Los Angeles area, USA: Erin Condren's personalized stationery business, with the LifePlanner as its main product (founding year not confirmed on a fetched page)",
+   "who": "Mostly women, teachers (Teacher Planner) and sticker planners",
+   "sustained": "Personalized covers, colorful layouts, a sticker ecosystem, and influencer and YouTube unboxing culture. Fox Business called it a '$10M paper planner empire'",
+   "status": "Active in 2021–2026 (a Q4 2021 CEO update exists). Its growth path after the 2010s peak is unclear",
+   "why": "No verified decline figures",
+   "sources": [
+    {
+     "url": "https://www.foxbusiness.com/features/mompreneur-erin-condrens-10m-paper-planner-empire",
+     "evidence": "Search-result title only (fetch blocked): 'Mompreneur Erin Condren's $10M Paper Planner Empire'. UNVERIFIED"
+    },
+    {
+     "url": "https://www.erincondren.com/blog/q4-2021-update-message-from-our-ceo/",
+     "evidence": "Search-result title only: 'Q4 2021 Update: Message from Erin Condren CEO'. UNVERIFIED"
+    }
+   ]
+  },
+  {
+   "name": "Passion Planner (goal-oriented planner)",
+   "arose": "2014 Kickstarter by Angelia Trinidad, Los Angeles, USA (an earlier campaign ran in late 2013)",
+   "who": "Students and young professionals setting goals",
+   "sustained": "Several Kickstarter campaigns, including later Daily editions, a free printable PDF, and 'passion roadmap' goal-mapping",
+   "status": "Active (unverified)",
+   "why": "No decline data found",
+   "sources": [
+    {
+     "url": "https://tech.co/news/passion-planner-kickstarter-2014-11",
+     "evidence": "Search-result title only (fetch blocked): 'The Passion Planner: More Than a Calendar', dated 2014-11 in the URL. UNVERIFIED"
+    },
+    {
+     "url": "https://davidseah.com/2013/11/angelia-trinidads-passion-planner-kickstarter/",
+     "evidence": "Search-result title only: 'Angelia Trinidad's Passion Planner Kickstarter' (Nov 2013). UNVERIFIED"
+    }
+   ]
+  },
+  {
+   "name": "Five Minute Journal (guided gratitude journal)",
+   "arose": "2013, Toronto, Canada: Alex Ikonn and UJ Ramdas (Intelligent Change)",
+   "who": "Self-improvement and 'productivity podcast' audiences (heavily promoted by Tim Ferriss), and positive-psychology followers",
+   "sustained": "Positive-psychology prompts (gratitude and daily affirmations), a short time commitment, an app version and influencer endorsement",
+   "status": "Active (unverified)",
+   "why": "No decline data found. It spawned a whole genre of prompted journals",
+   "sources": [
+    {
+     "url": "https://www.abebooks.com/Five-Minute-Journal-Happier-Minutes-Day/22686721721/bd",
+     "evidence": "Search-result title only (fetch blocked): 'The Five Minute Journal: A Happier You in 5 Minutes a Day by Alex Ikonn; UJ Ramdas ... (2013)'. UNVERIFIED"
+    }
+   ]
+  },
+  {
+   "name": "Theme System Journal",
+   "arose": "2019: CGP Grey and Myke Hurley's Cortex podcast (Relay FM), sold as Cortex Brand merchandise",
+   "who": "Podcast listeners and knowledge workers who pick a yearly 'theme' instead of New Year's resolutions",
+   "sustained": "The podcast audience, an annual 'yearly themes' episode, and a limited-run merchandise model",
+   "status": "Niche, active (unverified)",
+   "why": "No decline data found",
+   "sources": [
+    {
+     "url": "https://www.cgpgrey.com/blog/cortex-87-the-theme-system-journal",
+     "evidence": "Search-result title only (the fetch returned 404): 'Cortex #87: The Theme System Journal'. A 2019 review exists at casabona.org/2019/07. UNVERIFIED"
+    }
+   ]
+  },
+  {
+   "name": "Junk journaling",
+   "arose": "Grew out of scrapbooking and mixed-media art. It surged on TikTok around 2024",
+   "who": "Gen Z and millennials collaging receipts, tickets and ephemera",
+   "sustained": "TikTok, low cost (found materials) and presented as a cure for digital fatigue",
+   "status": "Thriving, 2024–2026 (unverified)",
+   "why": "No decline reported. The coverage treats it as a rising trend",
+   "sources": [
+    {
+     "url": "https://www.rollingstone.com/culture/culture-news/junk-journal-tiktok-craft-trend-1235226883/",
+     "evidence": "Search-result title only (the fetch returned 402): 'Can Junk Journaling Be an Answer To Digital Fatigue?'. UNVERIFIED"
+    },
+    {
+     "url": "https://www.cbc.ca/arts/junk-journal-trend-page-ideas-from-collage-artists-1.7449291",
+     "evidence": "Search-result title only: 'Curious about TikTok's junk journal trend?'. UNVERIFIED"
+    }
+   ]
+  },
+  {
+   "name": "Commonplace book revival",
+   "arose": "Renaissance practice, revived in the 2010s–2020s",
+   "who": "Readers, students and knowledge workers",
+   "sustained": "The 'second brain' and personal-knowledge-management movement, and interest in classical education",
+   "status": "Transformed into a hybrid of paper and digital note-taking (unverified)",
+   "why": "Its function moved partly into digital note apps",
+   "sources": [
+    {
+     "url": "https://evernote.com/learn/the-commonplace-book-is-back-and-knowledge-workers-are-leading-the-revival",
+     "evidence": "Search-result title only: 'The commonplace book is back and knowledge workers are leading the revival'. UNVERIFIED"
+    },
+    {
+     "url": "https://www.mentalfloss.com/literature/reading/what-is-a-commonplace-book",
+     "evidence": "Search-result title only: 'The Renaissance-Era Practice That's Making a Comeback'. UNVERIFIED"
+    }
+   ]
+  }
+ ],
+ "failedSeasonChunks": []
+}

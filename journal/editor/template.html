@@ -1,0 +1,487 @@
+<!--__HEAD__-->
+<title>Day Page Editor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Serif+JP:wght@400;600&family=Noto+Sans+Symbols+2&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+<style>
+:root {
+  --bg: #f4f1ea; --panel: #fbfaf6; --ink: #1f1d1a; --muted: #6b665d; --line: #dcd6ca; --soft: #ece7dc;
+  --accent: #3f5f5a; --accent-ink: #fff; --warn: #8a4b12; --warn-bg: #f7e9d6; --ok: #3f6b45; --focus: #7aa39b; --danger: #9a3b30;
+  --shadow: 0 1px 2px rgba(40, 30, 10, .08), 0 6px 20px rgba(40, 30, 10, .08);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #171715; --panel: #201f1c; --ink: #ebe7df; --muted: #a39d92; --line: #36342f; --soft: #2a2925;
+  --accent: #8fb8b0; --accent-ink: #11201d; --warn: #f0b77a; --warn-bg: #3a2b1a; --ok: #9cc9a2; --focus: #8fb8b0; --danger: #f09a8e;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+} }
+:root[data-theme="dark"] {
+  --bg: #171715; --panel: #201f1c; --ink: #ebe7df; --muted: #a39d92; --line: #36342f; --soft: #2a2925;
+  --accent: #8fb8b0; --accent-ink: #11201d; --warn: #f0b77a; --warn-bg: #3a2b1a; --ok: #9cc9a2; --focus: #8fb8b0; --danger: #f09a8e;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 Inter, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+button, input, select { font: inherit; color: inherit; }
+.top { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); }
+.bar { max-width: 1440px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.bar h1 { font: 600 17px/1.2 Lora, Georgia, serif; margin: 0; flex: 1; min-width: 140px; }
+.bar h1 small { display: block; font: 400 12px Inter, sans-serif; color: var(--muted); margin-top: 2px; }
+.status { font-size: 12px; color: var(--muted); }
+.status.ok { color: var(--ok); } .status.bad { color: var(--warn); }
+.btn { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 7px 13px; font-size: 13px; font-weight: 500; cursor: pointer; min-height: 36px; white-space: nowrap; }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.seg button { border: 0; background: var(--panel); padding: 7px 11px; font-size: 12.5px; cursor: pointer; min-height: 34px; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.menu { position: relative; }
+.menu > div { position: absolute; right: 0; top: calc(100% + 6px); background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); padding: 6px; min-width: 210px; display: none; z-index: 9; }
+.menu.open > div { display: grid; }
+.menu > div button { text-align: left; border: 0; background: none; padding: 9px 10px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+.menu > div button:hover { background: var(--soft); }
+.menu > div button[hidden] { display: none; }
+.tabs { display: none; max-width: 1440px; margin: 0 auto; padding: 0 16px 10px; gap: 6px; }
+.tabs button { flex: 1; border: 1px solid var(--line); background: var(--panel); padding: 8px 4px; border-radius: 10px; font-size: 14px; font-weight: 500; }
+.tabs button[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+main { max-width: 1440px; margin: 0 auto; padding: 16px; display: grid; grid-template-columns: 250px minmax(0, 1fr) auto; gap: 20px; align-items: start; }
+h2.sec { font: 600 12px Inter, sans-serif; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin: 0 0 8px; }
+.note { font-size: 13px; color: var(--muted); margin: 0 0 12px; }
+.fixed { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); font-size: 13px; margin: 8px 0; }
+.fixed svg { flex: none; }
+.pal { position: sticky; top: 84px; max-height: calc(100vh - 100px); overflow: auto; padding-right: 4px; }
+.pal h3 { font: 600 12.5px Inter, sans-serif; color: var(--muted); margin: 14px 0 6px; }
+.pal h3:first-of-type { margin-top: 0; }
+ul.pg { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+li.pi { display: flex; align-items: center; gap: 8px; padding: 7px 8px 7px 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; cursor: grab; font-size: 13.5px; font-weight: 500; }
+li.pi .ico { width: 18px; height: 18px; color: var(--muted); flex: none; }
+li.pi span.n { flex: 1; min-width: 0; }
+li.pi .add { flex: none; width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); cursor: pointer; font-size: 18px; line-height: 1; }
+li.pi.used { opacity: .5; cursor: default; }
+li.pi.used .add { display: none; }
+li.pi.used::after { content: "on page"; font-size: 11.5px; color: var(--muted); }
+ul.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; min-height: 60px; }
+li.blk { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
+li.blk.off { box-shadow: none; background: transparent; }
+li.blk.off .name { color: var(--muted); }
+li.blk.sel { outline: 2px solid var(--focus); outline-offset: 1px; }
+.row { display: flex; align-items: center; gap: 6px; padding: 8px 8px 8px 4px; min-height: 52px; }
+.grip { flex: none; width: 34px; height: 40px; display: grid; place-items: center; color: var(--muted); cursor: grab; touch-action: none; border-radius: 8px; }
+.grip:active { cursor: grabbing; background: var(--soft); }
+.bico { width: 18px; height: 18px; color: var(--muted); flex: none; }
+.txt { flex: 1; min-width: 0; cursor: pointer; }
+.name { font-weight: 600; font-size: 14.5px; }
+.hint { font-size: 12.5px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+.icon-btn { flex: none; width: 34px; height: 34px; border: 0; background: none; border-radius: 8px; cursor: pointer; color: var(--muted); display: grid; place-items: center; }
+.icon-btn:hover { background: var(--soft); }
+.icon-btn[hidden] { display: none; }
+.icon-btn.del:hover { color: var(--danger); }
+.more svg { transition: transform .15s; } li.open > .row .more svg { transform: rotate(180deg); }
+.sw { position: relative; flex: none; width: 44px; height: 26px; border-radius: 999px; background: var(--line); border: 0; cursor: pointer; transition: background .15s; }
+.sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.25); transition: left .15s; }
+.sw[aria-checked="true"] { background: var(--accent); } .sw[aria-checked="true"]::after { left: 21px; }
+.sw:disabled { opacity: .5; cursor: default; }
+.opts { display: none; padding: 2px 12px 12px 44px; gap: 10px; }
+li.open > .opts { display: grid; }
+.opt { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 13px; }
+.opt > label { color: var(--muted); min-width: 92px; }
+.opt input[type=text] { flex: 1; min-width: 160px; border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 7px 10px; font-size: 14px; }
+.chip { border: 1px solid var(--line); background: var(--bg); border-radius: 999px; padding: 5px 11px; font-size: 13px; cursor: pointer; min-height: 32px; display: inline-flex; align-items: center; gap: 5px; }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.chip svg { width: 14px; height: 14px; }
+.step { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.step button { border: 0; background: var(--bg); width: 36px; height: 32px; cursor: pointer; font-size: 17px; }
+.step button:disabled { opacity: .35; }
+.step output { min-width: 34px; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; }
+ul.sub { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+ul.sub li.blk { box-shadow: none; background: var(--bg); }
+ul.sub .row { min-height: 44px; padding: 4px 6px 4px 0; }
+ul.sub .opts { padding-left: 40px; }
+.ghost { opacity: .35; }
+.chosen { box-shadow: 0 10px 30px rgba(0,0,0,.18) !important; }
+.prev { position: sticky; top: 84px; }
+.meter { font-size: 12.5px; color: var(--muted); margin: 0 0 8px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; min-height: 24px; }
+.meter b { color: var(--ink); font-weight: 600; }
+.meter .warn { color: var(--warn); background: var(--warn-bg); padding: 2px 8px; border-radius: 999px; }
+.paper { background: #fff; box-shadow: var(--shadow); border-radius: 3px; overflow: hidden; position: relative; }
+#pv { transform-origin: 0 0; position: absolute; top: 0; left: 0; color: #111; }
+#pv [data-b] { cursor: grab; transition: background .12s, outline-color .12s; outline: 1.5px dashed transparent; outline-offset: 1px; }
+#pv [data-b]:hover { outline-color: #9bb8b2; }
+#pv [data-b].hl { outline-color: #3f5f5a; background: rgba(63, 95, 90, .06); }
+#pv .ghost { opacity: .3; }
+#pv li.pi { font: 600 11px Inter, sans-serif; padding: 6px; border: 1.5px dashed #3f5f5a; background: #eef4f2; color: #3f5f5a; border-radius: 4px; list-style: none; }
+#pv li.pi .add, #pv li.pi .ico { display: none; }
+.dragtip { font-size: 12px; color: var(--muted); margin: 8px 0 0; text-align: center; }
+.toast { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 9px 14px; border-radius: 10px; font-size: 13px; opacity: 0; pointer-events: none; transition: opacity .2s; max-width: calc(100% - 32px); z-index: 20; }
+.toast.show { opacity: 1; }
+dialog { border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--ink); padding: 18px; width: min(460px, calc(100% - 32px)); box-shadow: var(--shadow); }
+dialog::backdrop { background: rgba(0,0,0,.35); }
+dialog h3 { margin: 0 0 6px; font: 600 17px Lora, serif; }
+dialog p { font-size: 13px; color: var(--muted); margin: 0 0 12px; }
+dialog label { display: grid; gap: 4px; font-size: 13px; margin-bottom: 10px; }
+dialog input[type=text], dialog input[type=password] { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 8px 10px; font-size: 14px; }
+dialog .check { display: flex; gap: 8px; align-items: center; }
+dialog .acts { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 6px; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+@media (max-width: 1180px) { main { grid-template-columns: 220px minmax(0, 1fr) auto; } }
+@media (max-width: 960px) {
+  .tabs { display: flex; }
+  main { grid-template-columns: minmax(0, 1fr); padding-top: 12px; }
+  main:not([data-tab="edit"]) .edit, main:not([data-tab="add"]) .pal, main:not([data-tab="preview"]) .prev { display: none; }
+  .pal, .prev { position: static; max-height: none; }
+  .bar h1 { flex-basis: 100%; }
+  .status { flex: 1; }
+  .btn .lab { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header class="top">
+  <div class="bar">
+    <h1>Day page<small>Keeping Watch · every monthly book</small></h1>
+    <span class="status" id="status" role="status">Loading…</span>
+    <span class="seg" role="group" aria-label="Preview size"><button id="sz-s" aria-pressed="true">5.5×8.5</button><button id="sz-l" aria-pressed="false">8.5×11</button></span>
+    <button class="btn" id="undo" disabled aria-label="Undo">↶<span class="lab"> Undo</span></button>
+    <div class="menu" id="menu"><button class="btn" aria-haspopup="true" aria-expanded="false" id="menubtn">More</button>
+      <div role="menu">
+        <button role="menuitem" id="m-gh" hidden>Save to GitHub…</button>
+        <button role="menuitem" id="m-ghload" hidden>Load from GitHub</button>
+        <button role="menuitem" id="m-dl">Download daypage.json</button>
+        <button role="menuitem" id="m-copy">Copy layout JSON</button>
+        <button role="menuitem" id="m-import">Import a layout…</button>
+        <button role="menuitem" id="m-reset">Reset to the original page</button>
+      </div></div>
+  </div>
+  <div class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="edit">Blocks</button>
+    <button role="tab" aria-selected="false" data-tab="add">+ Add</button>
+    <button role="tab" aria-selected="false" data-tab="preview">Preview</button>
+  </div>
+</header>
+
+<main id="main" data-tab="edit">
+  <aside class="pal" aria-label="Add blocks">
+    <h2 class="sec">Add blocks</h2>
+    <p class="note">Drag onto your list or the page, or tap +.</p>
+    <div id="pal"></div>
+  </aside>
+  <section class="edit" aria-label="Blocks on the page">
+    <h2 class="sec">On the page</h2>
+    <p class="note">Drag <b>⋮⋮</b> to reorder, or drag right on the preview. Switch a block off to hide it for now, or remove it.</p>
+    <div class="fixed"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>Date · Title · Tags stay at the top for scanning</div>
+    <ul class="list" id="list"></ul>
+    <div class="fixed"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>Scan frame, Send-to symbols and page code stay put</div>
+  </section>
+  <section class="prev" aria-label="Page preview">
+    <p class="meter" id="meter"></p>
+    <div class="paper" id="paper"><div id="pv"></div></div>
+    <p class="dragtip">A busy sample day. Tap a block to find it; hold and drag to move it.</p>
+  </section>
+</main>
+<input type="file" id="file" accept=".json,application/json" hidden>
+<dialog id="gh">
+  <form method="dialog">
+    <h3>Save to GitHub</h3>
+    <p>Commits <code>journal/content/daypage.json</code>; the Books workflow then rebuilds every month. Use a fine-grained token limited to this one repository with <b>Contents: read and write</b>.</p>
+    <label>Repository <input type="text" id="gh-repo" placeholder="owner/repo" autocomplete="off"></label>
+    <label>Branch <input type="text" id="gh-branch" value="main" autocomplete="off"></label>
+    <label>Token <input type="password" id="gh-token" autocomplete="off"></label>
+    <label class="check"><input type="checkbox" id="gh-remember"> Remember the token in this browser</label>
+    <div class="acts"><button class="btn" value="cancel">Cancel</button><button class="btn primary" value="save">Commit layout</button></div>
+  </form>
+</dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/*__DAYPAGE__*/
+/*__KIT__*/
+const MODE = '__MODE__';
+
+const $ = (s, el = document) => el.querySelector(s);
+const escH = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const SIZES = { small: 5.5, letter: +(8.5 / (11 / 8.5)).toFixed(4) };
+let size = 'small', layout = normalize(null), history = [], selected = null, openIds = new Set(['care']);
+let db = null, dl = null, saveTimer = null, readOnly = false, dirty = false;
+const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} } };
+
+// ---------- state ----------
+function snapshot() { history.push(JSON.stringify(layout)); if (history.length > 60) history.shift(); $('#undo').disabled = false; }
+function change(fn, { list = true, hist = true } = {}) {
+  if (hist) snapshot();
+  fn(layout); layout = normalize(layout);
+  if (list) drawList();
+  drawPalette(); drawPreview(); queueSave();
+}
+$('#undo').onclick = () => { if (!history.length) return; layout = normalize(JSON.parse(history.pop())); $('#undo').disabled = !history.length; drawList(); drawPalette(); drawPreview(); queueSave(); };
+const find = (uid) => layout.blocks.find((b) => b.uid === uid);
+const icon = (k, cls = '') => `<svg class="${cls}" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k] || IC.box}</svg>`;
+
+// ---------- palette ----------
+const PAL_GROUPS = ['From your day', 'Check-ins', 'Writing', 'Planning', 'Layout'];
+function paletteItems() {
+  const items = Object.entries(TYPES).filter(([t]) => t !== 'body').map(([t, d]) => ({ key: 't:' + t, type: t, name: d.name, group: d.group, icon: d.icon }));
+  PRESETS.forEach((p, i) => items.push({ key: 'p:' + i, type: p.type, name: p.name, group: p.group, icon: TYPES[p.type].icon, preset: p }));
+  return items;
+}
+function drawPalette() {
+  const used = new Set(layout.blocks.map((b) => b.type)), items = paletteItems();
+  $('#pal').innerHTML = PAL_GROUPS.map((g) => `<h3>${g}</h3><ul class="pg">${items.filter((it) => it.group === g).map((it) => {
+    const u = TYPES[it.type].single && used.has(it.type);
+    return `<li class="pi ${u ? 'used' : ''}" data-key="${it.key}">${icon(it.icon, 'ico')}<span class="n">${escH(it.name)}</span><button class="add" data-add="${it.key}" aria-label="Add ${escH(it.name)}">+</button></li>`;
+  }).join('')}</ul>`).join('');
+  document.querySelectorAll('#pal ul.pg').forEach((ul) => Sortable.create(ul, { group: { name: 'blocks', pull: 'clone', put: false }, sort: false, filter: '.used, .add', preventOnFilter: false, animation: 150, delay: 160, delayOnTouchOnly: true, fallbackTolerance: 4 }));
+}
+function blockFromKey(key) {
+  const it = paletteItems().find((x) => x.key === key); if (!it) return null;
+  if (TYPES[it.type].single && layout.blocks.some((b) => b.type === it.type)) return null;
+  return newBlock(it.type, it.preset ? it.preset.opts : {});
+}
+function insertBlock(b, beforeUid) {
+  selected = b.uid; openIds.add(b.uid);
+  change((L) => { const i = beforeUid ? L.blocks.findIndex((x) => x.uid === beforeUid) : -1; L.blocks.splice(i < 0 ? L.blocks.length : i, 0, b); });
+}
+$('#pal').addEventListener('click', (e) => {
+  const k = e.target.closest('[data-add]'); if (!k) return;
+  const b = blockFromKey(k.dataset.add); if (!b) return;
+  const i = selected ? layout.blocks.findIndex((x) => x.uid === selected) : -1; // after the selected block, else above the writing space
+  insertBlock(b, i >= 0 ? (layout.blocks[i + 1] || {}).uid : 'body');
+  toast(`Added ${TYPES[b.type].name.toLowerCase()}`);
+});
+
+// ---------- list ----------
+const GRIP = '<svg width="14" height="18" viewBox="0 0 14 18" fill="currentColor"><circle cx="4" cy="4" r="1.5"/><circle cx="10" cy="4" r="1.5"/><circle cx="4" cy="9" r="1.5"/><circle cx="10" cy="9" r="1.5"/><circle cx="4" cy="14" r="1.5"/><circle cx="10" cy="14" r="1.5"/></svg>';
+const CHEV = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 5l4 4 4-4"/></svg>';
+const BIN = '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5"/></svg>';
+function optControl(o, v, path) {
+  const P = escH(path);
+  switch (o.kind) {
+    case 'num': return `<div class="opt"><label>${o.label}</label><span class="step" role="group" aria-label="${o.label}"><button data-num="${P}" data-d="-1" ${v <= o.lo ? 'disabled' : ''} aria-label="Fewer">−</button><output>${v}</output><button data-num="${P}" data-d="1" ${v >= o.hi ? 'disabled' : ''} aria-label="More">+</button></span></div>`;
+    case 'bool': return `<div class="opt"><button class="chip" aria-pressed="${!!v}" data-bool="${P}">${o.label}</button></div>`;
+    case 'choice': return `<div class="opt"><label>${o.label}</label>${o.choices.map(([c, t]) => `<button class="chip" aria-pressed="${c == v}" data-choice="${P}" data-v="${escH(c)}">${t}</button>`).join('')}</div>`;
+    case 'flags': return `<div class="opt"><label>${o.label}</label>${Object.entries(o.items).map(([k, t]) => `<button class="chip" aria-pressed="${!!v[k]}" data-flag="${P}" data-k="${k}">${o.icons && IC[k] ? icon(k) : ''}${t}</button>`).join('')}</div>`;
+    case 'text': return `<div class="opt"><label>${o.label}</label><input type="text" maxlength="${o.max || 40}" value="${escH(v)}" data-text="${P}"></div>`;
+    case 'list': return `<div class="opt"><label>${o.label}</label><input type="text" value="${escH(v.join(', '))}" data-list="${P}" placeholder="comma, separated"></div>`;
+  }
+  return '';
+}
+function summary(b) {
+  if (b.title) return b.title + (b.labels ? ': ' + b.labels.join(', ') : b.words ? ': ' + b.words.slice(0, 4).join(', ') + '…' : '');
+  if (b.type === 'split') return `${b.left} · ${b.right}`;
+  return TYPES[b.type].hint;
+}
+function rowItem(bu, r) {
+  const o = ROW_OPTS[r.id].map((x) => optControl(x, r[x.k], `${bu}/rows/${r.id}/${x.k}`)).join(''), k = 'r:' + r.id;
+  return `<li class="blk ${r.on ? '' : 'off'} ${openIds.has(k) ? 'open' : ''}" data-row="${r.id}">
+    <div class="row"><span class="grip" aria-label="Drag to reorder">${GRIP}</span>${icon(CARE_ROWS[r.id].icon, 'bico')}
+      <span class="txt" data-open="${k}"><span class="name">${CARE_ROWS[r.id].name}</span></span>
+      <button class="icon-btn more" ${o ? '' : 'hidden'} data-open="${k}" aria-label="Options" aria-expanded="${openIds.has(k)}">${CHEV}</button>
+      <button class="sw" role="switch" aria-checked="${r.on}" aria-label="${CARE_ROWS[r.id].name}" data-bool="${bu}/rows/${r.id}/on"></button></div>
+    ${o ? `<div class="opts">${o}</div>` : ''}</li>`;
+}
+function drawList() {
+  const ul = $('#list');
+  ul.innerHTML = layout.blocks.map((b) => {
+    const t = TYPES[b.type], open = openIds.has(b.uid);
+    const o = b.type === 'care' ? `<ul class="sub" data-care="${b.uid}">${b.rows.map((r) => rowItem(b.uid, r)).join('')}</ul>` : t.opts.map((x) => optControl(x, b[x.k], `${b.uid}/${x.k}`)).join('');
+    return `<li class="blk ${b.on ? '' : 'off'} ${open ? 'open' : ''} ${selected === b.uid ? 'sel' : ''}" data-uid="${b.uid}">
+      <div class="row"><span class="grip" aria-label="Drag to reorder">${GRIP}</span>${icon(t.icon, 'bico')}
+        <span class="txt" data-open="${b.uid}"><span class="name">${escH(t.name)}</span><span class="hint">${escH(summary(b))}</span></span>
+        <button class="icon-btn more" ${o ? '' : 'hidden'} data-open="${b.uid}" aria-label="Options for ${escH(t.name)}" aria-expanded="${open}">${CHEV}</button>
+        <button class="icon-btn del" ${t.locked ? 'hidden' : ''} data-del="${b.uid}" aria-label="Remove ${escH(t.name)}">${BIN}</button>
+        <button class="sw" role="switch" aria-checked="${b.on}" aria-label="Show ${escH(t.name)}" data-bool="${b.uid}/on" ${t.locked ? 'disabled title="The writing space always stays"' : ''}></button></div>
+      ${o ? `<div class="opts">${o}</div>` : ''}</li>`;
+  }).join('');
+  const old = Sortable.get(ul); if (old) old.destroy();
+  Sortable.create(ul, { group: { name: 'blocks', pull: false, put: true }, handle: '.grip', animation: 150, ghostClass: 'ghost', chosenClass: 'chosen', fallbackTolerance: 3,
+    onAdd: (e) => { const key = e.item.dataset.key, next = e.item.nextElementSibling; e.item.remove(); const b = blockFromKey(key); if (b) insertBlock(b, next && next.dataset.uid); else drawList(); },
+    onEnd: (e) => { if (e.from !== e.to || e.oldIndex === e.newIndex) return; const order = [...ul.children].map((li) => li.dataset.uid); change((L) => { L.blocks = order.map((u) => L.blocks.find((b) => b.uid === u)); }); } });
+  ul.querySelectorAll('ul.sub').forEach((sub) => Sortable.create(sub, { handle: '.grip', animation: 150, ghostClass: 'ghost', chosenClass: 'chosen', fallbackTolerance: 3,
+    onEnd: (e) => { if (e.oldIndex === e.newIndex) return; const order = [...sub.children].map((li) => li.dataset.row), u = sub.dataset.care; change((L) => { const c = L.blocks.find((b) => b.uid === u); c.rows = order.map((id) => c.rows.find((r) => r.id === id)); }); } }));
+}
+// path "uid/key" or "uid/rows/rowId/key"
+function target(L, path) {
+  const p = path.split('/'), b = L.blocks.find((x) => x.uid === p[0]);
+  if (!b) return [null];
+  if (p[1] === 'rows') return [b.rows.find((x) => x.id === p[2]), p[3]];
+  return [b, p[1]];
+}
+$('#list').addEventListener('click', (e) => {
+  const t = e.target.closest('[data-open],[data-del],[data-num],[data-bool],[data-choice],[data-flag]'); if (!t) return;
+  const d = t.dataset;
+  if (d.open) { const k = d.open; openIds.has(k) ? openIds.delete(k) : openIds.add(k); if (!k.startsWith('r:')) select(k, false); drawList(); return; }
+  if (d.del) { const name = TYPES[find(d.del).type].name; change((L) => { L.blocks = L.blocks.filter((b) => b.uid !== d.del); }); toast(`Removed ${name.toLowerCase()}. Undo brings it back.`); return; }
+  change((L) => {
+    const [o, k] = target(L, d.num || d.bool || d.choice || d.flag); if (!o) return;
+    if (d.num) o[k] += +d.d;
+    else if (d.bool) o[k] = !o[k];
+    else if (d.choice) o[k] = isNaN(+d.v) ? d.v : +d.v;
+    else if (d.flag) o[k][d.k] = !o[k][d.k];
+  });
+});
+// Text boxes: live preview while typing, one undo step per edit, list redrawn when you leave the box.
+$('#list').addEventListener('focusin', (e) => { if (e.target.matches('[data-text],[data-list]')) snapshot(); });
+$('#list').addEventListener('input', (e) => {
+  const el = e.target, path = el.dataset.text || el.dataset.list; if (!path) return;
+  change((L) => { const [o, k] = target(L, path); if (o) o[k] = el.dataset.list ? el.value.split(',') : el.value; }, { list: false, hist: false });
+});
+$('#list').addEventListener('change', (e) => { if (e.target.matches('[data-text],[data-list]')) drawList(); });
+
+// ---------- preview ----------
+const pv = $('#pv'), paper = $('#paper');
+function drawPreview() {
+  const day = dayBlocks(KIT, layout, { tag: true });
+  pv.innerHTML = `<style>${KIT.css}#pv .page { width: ${SIZES[size]}in; }</style><div class="page verso dayp m">${day}${KIT.strip}</div>`;
+  pv.querySelectorAll('.lines').forEach((el) => { // same rule-drawing as the print build
+    const pitch = parseFloat(el.dataset.pitch || '0.26') * 96, n = Math.floor((el.clientHeight - 1) / pitch);
+    for (let i = 0; i < n; i++) { const d = document.createElement('div'); d.className = 'rule'; d.style.height = pitch + 'px'; el.appendChild(d); }
+  });
+  fit(); meter(); hl(selected);
+  const dayEl = pv.querySelector('.day.full');
+  Sortable.create(dayEl, { group: { name: 'blocks', pull: false, put: true }, draggable: '[data-b]', animation: 150, ghostClass: 'ghost', delay: 180, delayOnTouchOnly: true, fallbackTolerance: 4,
+    onAdd: (e) => { const key = e.item.dataset.key; let n = e.item.nextElementSibling; while (n && !n.dataset.b) n = n.nextElementSibling; e.item.remove(); const b = blockFromKey(key); if (b) insertBlock(b, n ? n.dataset.b : afterLastVisible()); else drawPreview(); },
+    onEnd: (e) => { if (e.from !== e.to || e.oldIndex === e.newIndex) return; movedOnPage([...dayEl.querySelectorAll(':scope > [data-b]')].map((el) => el.dataset.b)); } });
+}
+const afterLastVisible = () => { const vis = [...pv.querySelectorAll('.day.full > [data-b]')], last = vis[vis.length - 1]; if (!last) return undefined; const i = layout.blocks.findIndex((b) => b.uid === last.dataset.b); return (layout.blocks[i + 1] || {}).uid; };
+// The preview shows only blocks that are on (spoons ride inside care). Hidden blocks keep their slots.
+function movedOnPage(shown) {
+  change((L) => {
+    const uids = L.blocks.map((b) => b.uid), vis = [];
+    for (const u of shown) { vis.push(u); const i = uids.indexOf(u), b = L.blocks[i], nx = L.blocks[i + 1]; if (b.type === 'care' && nx && nx.type === 'spoons' && nx.on) vis.push(nx.uid); }
+    let k = 0; const order = uids.map((u) => (vis.includes(u) ? vis[k++] : u));
+    L.blocks = order.map((u) => L.blocks.find((b) => b.uid === u));
+  });
+}
+function fit() {
+  const W = SIZES[size] * 96, H = 8.5 * 96, narrow = matchMedia('(max-width: 960px)').matches;
+  const avail = narrow ? Math.min(paper.parentElement.clientWidth || 360, 600) : Math.min(430, (window.innerHeight - 150) / H * W);
+  const s = Math.max(0.4, avail / W);
+  pv.style.transform = `scale(${s})`; paper.style.width = W * s + 'px'; paper.style.height = H * s + 'px';
+}
+function meter() {
+  const page = pv.querySelector('.page'), body = pv.querySelector('[data-zone="body"]');
+  const day = pv.querySelector('.day.full'), h = body ? body.offsetHeight / 96 : 0, over = page.scrollHeight > page.clientHeight + 1 || day.scrollHeight > day.clientHeight + 1;
+  $('#meter').innerHTML = over ? `<span class="warn">Too full: the page overflows. Switch something off or shorten a block.</span>`
+    : `Writing space <b>${h.toFixed(1)} in</b> <span>· ${(h * 2.54).toFixed(1)} cm</span>${h < 1.3 ? '<span class="warn">Too full for busy days</span>' : h < 1.7 ? '<span class="warn">Getting tight</span>' : ''}`;
+}
+function hl(uid) {
+  const b = uid && find(uid), prev = b ? (layout.blocks[layout.blocks.indexOf(b) - 1] || {}).uid : null;
+  pv.querySelectorAll('[data-b]').forEach((el) => el.classList.toggle('hl', el.dataset.b === uid || (b && b.type === 'spoons' && el.dataset.b === prev)));
+}
+function select(uid, scroll = true) {
+  selected = uid; hl(uid);
+  document.querySelectorAll('#list > li').forEach((li) => li.classList.toggle('sel', li.dataset.uid === uid));
+  if (scroll) { const li = $(`#list > li[data-uid="${uid}"]`); if (li) li.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+}
+pv.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-b]'); if (!el) return;
+  if (matchMedia('(max-width: 960px)').matches) { tab('edit'); openIds.add(el.dataset.b); drawList(); }
+  select(el.dataset.b);
+});
+addEventListener('resize', () => fit());
+function setSize(s) { size = s; $('#sz-s').setAttribute('aria-pressed', s === 'small'); $('#sz-l').setAttribute('aria-pressed', s === 'letter'); store.set('kw-size', s); drawPreview(); }
+$('#sz-s').onclick = () => setSize('small'); $('#sz-l').onclick = () => setSize('letter');
+
+// ---------- tabs & menu ----------
+function tab(t) { $('#main').dataset.tab = t; document.querySelectorAll('.tabs button').forEach((b) => b.setAttribute('aria-selected', b.dataset.tab === t)); if (t === 'preview') { fit(); meter(); } }
+document.querySelectorAll('.tabs button').forEach((b) => (b.onclick = () => tab(b.dataset.tab)));
+const menu = $('#menu');
+$('#menubtn').onclick = (e) => { e.stopPropagation(); menu.classList.toggle('open'); $('#menubtn').setAttribute('aria-expanded', menu.classList.contains('open')); };
+document.addEventListener('click', (e) => { if (!menu.contains(e.target)) menu.classList.remove('open'); });
+menu.addEventListener('click', (e) => { if (e.target.closest('[role=menuitem]')) menu.classList.remove('open'); });
+
+// ---------- save / load ----------
+const setStatus = (t, cls = '') => { const s = $('#status'); s.textContent = t; s.className = 'status ' + cls; };
+function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('show'), 2600); }
+const json = () => JSON.stringify(layout, null, 2) + '\n';
+function queueSave() {
+  if (MODE === 'pages') { store.set('kw-daypage', JSON.stringify(layout)); dirty = true; setStatus('Saved in this browser · not on GitHub yet'); return; }
+  if (!db || readOnly) { setStatus(db ? 'View only' : 'Preview only: changes aren’t saved here', 'bad'); return; }
+  setStatus('Saving…'); clearTimeout(saveTimer); saveTimer = setTimeout(save, 600);
+}
+async function save(retry = true) {
+  try { await db.doc('layouts/day').set({ layout, savedAt: new Date().toISOString() }); setStatus('Saved', 'ok'); }
+  catch (e) {
+    if (e && e.code === 'unavailable' && retry) return setTimeout(() => save(false), 800 + Math.random() * 800);
+    if (e && e.code === 'invalid_argument') { readOnly = true; setStatus('View only', 'bad'); return; }
+    setStatus('Couldn’t save. Try again in a moment', 'bad');
+  }
+}
+$('#m-reset').onclick = () => { if (!confirm('Put the day page back to the original layout?')) return; change((L) => { L.blocks = structuredClone(DEFAULT_LAYOUT.blocks); }); toast('Back to the original page. Undo is still there.'); };
+$('#m-copy').onclick = async () => { try { await navigator.clipboard.writeText(json()); toast('Layout copied'); } catch { toast('Couldn’t copy here. Use Download instead.'); } };
+$('#m-dl').onclick = async () => {
+  if (dl) { try { await dl.save({ filename: 'daypage.json', data: json() }); } catch (e) { if (e && e.code !== 'declined') toast('Couldn’t save the file.'); } return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([json()], { type: 'application/json' })); a.download = 'daypage.json'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+};
+$('#m-import').onclick = () => $('#file').click();
+$('#file').onchange = async () => {
+  const f = $('#file').files[0]; $('#file').value = ''; if (!f) return;
+  try { const L = JSON.parse(await f.text()); change((X) => { X.blocks = normalize(L).blocks; }); toast('Layout imported'); } catch { toast('That file isn’t a day page layout.'); }
+};
+
+// GitHub (Pages mode): commit journal/content/daypage.json with a fine-grained token.
+const GH_PATH = 'journal/content/daypage.json';
+function ghRepo() {
+  const saved = store.get('kw-gh-repo'); if (saved) return saved;
+  const m = location.hostname.match(/^([\w-]+)\.github\.io$/), seg = location.pathname.split('/').filter(Boolean)[0];
+  return m ? `${m[1]}/${seg || m[1] + '.github.io'}` : '';
+}
+const b64 = (s) => { const u = new TextEncoder().encode(s); let t = ''; u.forEach((c) => (t += String.fromCharCode(c))); return btoa(t); };
+const unb64 = (s) => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\n/g, '')), (c) => c.charCodeAt(0)));
+let sessionToken = '';
+async function gh(method, repo, token, path, body) {
+  const r = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, { method, cache: 'no-store', headers: { Accept: 'application/vnd.github+json', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(body ? { 'Content-Type': 'application/json' } : {}) }, body: body ? JSON.stringify(body) : undefined });
+  if (r.status === 404 && method === 'GET') return null;
+  if (!r.ok) throw new Error(r.status === 401 ? 'GitHub refused the token.' : r.status === 403 || r.status === 404 ? 'That token can’t write to this repository.' : r.status === 409 || r.status === 422 ? 'The file changed on GitHub. Load from GitHub, then save again.' : `GitHub said ${r.status}.`);
+  return r.json();
+}
+$('#m-gh').onclick = () => {
+  $('#gh-repo').value = ghRepo(); $('#gh-branch').value = store.get('kw-gh-branch') || 'main';
+  $('#gh-token').value = store.get('kw-gh-token') || sessionToken; $('#gh-remember').checked = !!store.get('kw-gh-token');
+  $('#gh').showModal();
+};
+$('#gh').addEventListener('close', async () => {
+  if ($('#gh').returnValue !== 'save') return;
+  const repo = $('#gh-repo').value.trim(), branch = $('#gh-branch').value.trim() || 'main', token = $('#gh-token').value.trim();
+  if (!/^[\w.-]+\/[\w.-]+$/.test(repo) || !token) { toast('Add the repository (owner/repo) and a token.'); return; }
+  store.set('kw-gh-repo', repo); store.set('kw-gh-branch', branch); sessionToken = token; store.set('kw-gh-token', $('#gh-remember').checked ? token : null);
+  setStatus('Committing…');
+  try {
+    const cur = await gh('GET', repo, token, `${GH_PATH}?ref=${encodeURIComponent(branch)}`);
+    await gh('PUT', repo, token, GH_PATH, { message: 'Day page layout from the editor', content: b64(json()), branch, ...(cur ? { sha: cur.sha } : {}) });
+    dirty = false; setStatus('Saved to GitHub · books rebuilding', 'ok'); toast('Committed. The Books workflow rebuilds every month.');
+  } catch (e) { setStatus('Not saved to GitHub', 'bad'); toast(e.message || 'Couldn’t reach GitHub.'); }
+});
+$('#m-ghload').onclick = async () => {
+  const repo = ghRepo(), branch = store.get('kw-gh-branch') || 'main', token = store.get('kw-gh-token') || sessionToken;
+  if (!repo) { $('#m-gh').click(); return; }
+  try {
+    const f = await gh('GET', repo, token, `${GH_PATH}?ref=${encodeURIComponent(branch)}`);
+    if (!f) { toast('No layout on GitHub yet: the books use the original page.'); return; }
+    const L = JSON.parse(unb64(f.content)); change((X) => { X.blocks = normalize(L).blocks; }); dirty = false; setStatus('Loaded from GitHub', 'ok');
+  } catch (e) { toast(e.message || 'Couldn’t reach GitHub.'); }
+};
+addEventListener('beforeunload', (e) => { if (MODE === 'pages' && dirty) { e.preventDefault(); e.returnValue = ''; } });
+
+(async function init() {
+  if (store.get('kw-size') === 'letter') { size = 'letter'; $('#sz-s').setAttribute('aria-pressed', false); $('#sz-l').setAttribute('aria-pressed', true); }
+  drawPalette(); drawList(); drawPreview();
+  if (MODE === 'pages') {
+    $('#m-gh').hidden = false; $('#m-ghload').hidden = false;
+    const local = store.get('kw-daypage');
+    let ok = false;
+    if (local) { try { layout = normalize(JSON.parse(local)); ok = true; setStatus('Saved in this browser'); } catch {} }
+    if (!ok) { try { const r = await fetch('daypage.json', { cache: 'no-store' }); if (r.ok) { layout = normalize(await r.json()); setStatus('The layout the books use now', 'ok'); } else setStatus('Original layout'); } catch { setStatus('Original layout'); } }
+    drawPalette(); drawList(); drawPreview();
+  } else {
+    try { db = window.claude ? await window.claude.use('db') : null; } catch { db = null; }
+    try { dl = window.claude ? await window.claude.use('downloads') : null; } catch { dl = null; }
+    if (db) {
+      try { const snap = await db.doc('layouts/day').get(); const d = snap.data && snap.data(); if (d && d.layout) { layout = normalize(d.layout); drawPalette(); drawList(); drawPreview(); } setStatus(d ? 'Saved' : 'Original layout', d ? 'ok' : ''); }
+      catch { setStatus('Couldn’t load your saved layout', 'bad'); }
+    } else setStatus('Preview only: changes aren’t saved here', 'bad');
+  }
+  if (document.fonts) document.fonts.ready.then(() => drawPreview());
+})();
+</script>
+<!--__FOOT__-->

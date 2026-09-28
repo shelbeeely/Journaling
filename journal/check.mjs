@@ -1,0 +1,16 @@
+import { launch } from './browser.mjs';
+const b = await launch();
+const p = await b.newPage();
+await p.goto('file://' + process.cwd() + `/out/${process.argv[2] || 'v1'}/journal.html`, { waitUntil: 'networkidle' });
+await p.evaluate(() => document.fonts.ready);
+const res = await p.evaluate(() => [...document.querySelectorAll('.page')].map((pg, i) => {
+  const over = pg.scrollHeight > pg.clientHeight + 1 || pg.scrollWidth > pg.clientWidth + 1;
+  const r = pg.getBoundingClientRect(); const cs = getComputedStyle(pg);
+  const box = { l: r.left + parseFloat(cs.paddingLeft), r: r.right - parseFloat(cs.paddingRight), t: r.top + parseFloat(cs.paddingTop), b: r.bottom - parseFloat(cs.paddingBottom) };
+  let out = 0;
+  pg.querySelectorAll('*').forEach((el) => { if (el.closest('.folio') || el.closest('.frame') || el.closest('.strip')) return; const e = el.getBoundingClientRect(); if (e.width && (e.left < box.l - 1 || e.right > box.r + 1 || e.bottom > box.b + 1)) out++; });
+  return { n: i + 1, over, out };
+}).filter((x) => x.over || x.out));
+console.log(JSON.stringify(res.slice(0, 20)), res.length);
+if (res.length) process.exitCode = 1; // CI fails on any overflow
+await b.close();
