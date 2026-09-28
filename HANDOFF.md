@@ -7,7 +7,7 @@
   - Back matter: Looking back, Closing the month (points at the Keeper handoff page), Support, Trans support,
     Safety plan, STA buses (summary + hour grids, 4-page budget), Lineage.
   - Unify Spokane clinic box.
-- **Keeper** (50 pages, no scan codes): accounts (hints only), recovery codes, contacts, monthly handoff spreads.
+- **Keeper** (50 pages, no scan codes): accounts (hints only), where recovery codes are kept, contacts, monthly handoff spreads.
 - **Day page editor**, layout v2, with 28 block types + 8 presets, in 5 groups:
   - From your day
   - Check-ins: care grid, spoons, checkboxes, scales, words to circle, sensory load, sleep times, blanks, weather and air
@@ -20,7 +20,7 @@
   - Live preview at both sizes, with a writing-space meter.
   - Two builds: GitHub Pages (commits `content/daypage.json`) and a Claude Artifact.
 - **X4 firmware:** compiles (RAM 53 KB, flash 1.47 MB), and every screen renders in the host preview.
-  - Today on the sleep screen, with a 12:31 a.m. redraw.
+  - Today on the sleep screen, with a 4:31 a.m. redraw (the day starts at 4 a.m.).
   - Button check-ins and month stats for the Keeper.
   - Hold Back for Support.
   - Wi-Fi hotspot page: set the clock, download books and logs, edit the safety plan, upload packs.

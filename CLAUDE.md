@@ -24,7 +24,7 @@ Shelbee's year-long journaling system. Read README.md, then HANDOFF.md (status +
 - **Privacy.** Calendars (`journal/private/*.ics`, `ICS_URLS` secret) never get committed or uploaded unencrypted.
   - Personal book builds leave CI only inside the password 7z.
   - KDP proofs stay private: never a public listing.
-  - The Keeper holds password hints and recovery codes, so it never gets scan codes.
+  - The Keeper holds password hints and where recovery codes are kept (never the codes), so it never gets scan codes.
   - The editor and the X4 sample card use generic sample data only (`test.ics`).
 - **KDP.**
   - Trims are 5.5×8.5 and 8.5×11 (A5 isn't offered on KDP US).

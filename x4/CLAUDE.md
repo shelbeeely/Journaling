@@ -22,7 +22,7 @@ the sibling `journal/` project). Target: Xteink X4 (ESP32-C3, no PSRAM, ~380 KB 
 - RAM: one 48 KB framebuffer (single-buffer mode). Keep big buffers static, never on the 16 KB loop
   stack. No exceptions (`qrcodegen` was patched to abort instead of throw).
 - Sleep: CrossPoint's "off" drops GPIO13 and cuts the battery. We hold GPIO13 high through deep sleep
-  so the RTC and the 12:31 a.m. timer keep working. Don't copy CrossPoint's power-off path.
+  so the RTC and the 4:31 a.m. timer keep working. Don't copy CrossPoint's power-off path.
 - Privacy: packs contain her calendar events and the log holds health check-ins. Nothing leaves the
   device except over its own hotspot, on request. No cloud, no analytics, no generative AI features.
 - Data safety: the safety plan (`/kw/me.txt`) and the log (`/kw/log/`) exist only on the card. Nothing exported, uploaded or

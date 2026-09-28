@@ -1,7 +1,7 @@
 # Getting the books onto KDP
 
 Paperback first, hardcover later. Every book stays a **private draft**: you order proofs, you never publish.
-The monthly books print your calendar. The Keeper holds password hints and recovery codes.
+The monthly books print your calendar. The Keeper holds password hints and where recovery codes are kept (never the codes themselves).
 
 ## 1. Build and check
 
@@ -146,7 +146,7 @@ above the minimum on both sizes.
 `out/proof/keeping-watch-proof-test-5.5x8.5.pdf` and `...-8.5x11.pdf`: one sheet, two pages (front and back).
 Front: every ruling at its real weight, a line-weight ladder (0.25 to 1.5 pt), grey tones, dot sizes and tones, grid
 weights. Back: pen test areas (fine liner, ballpoint, gel, pencil), a 5 cm / 1 in ruler and a 5 mm / 1 in square to
-check scale, the page code at real size (scan it: it reads `KW1|TEST|001`), and a dashed line at KDP's minimum margin.
+check scale, the page code at real size (scan it: it reads `KW2|T|TEST|S001`), and a dashed line at KDP's minimum margin.
 The black frame and code strip sit where they do in the books. It has no calendar data.
 
 It is not a book (KDP needs 24+ pages), so **order it with the first proof**: append it to the proof manuscript with

@@ -412,7 +412,7 @@ function weekRight(W) {
   <h3>Mood line</h3>
   <table class="mline" data-zone="mood_line">${[3, 2, 1, 0, -1, -2, -3].map((v) => `<tr class="${v === 0 ? 'zero' : ''}"><td class="hl">${v > 0 ? '+' + v : v}</td>${days.map(() => '<td><i></i></td>').join('')}</tr>`).join('')}<tr><td></td>${days.map((x) => `<td class="dl">${x}</td>`).join('')}</tr></table>
   ${pioneerCard(W)}
-  ${W.pioneer ? '' : '<h3>Notes</h3><div class="dots fill" data-zone="notes"></div>'}`;
+  ${W.pioneer && process.env.SIZE !== 'letter' ? '' : '<h3>Notes</h3><div class="dots fill" data-zone="notes"></div>'}`;  // letter has room under the pioneer card; the small page is full
 }
 
 function pioneerCard(W) {
