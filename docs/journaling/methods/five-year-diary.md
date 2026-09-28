@@ -62,7 +62,7 @@ years: a small, calm block that shows past entries for the same date.
 | 2010s | Dozens of spin-offs: *One Line a Day* for mothers, gratitude, travel, pets; *Q&A a Day* for kids, couples, moms, and patterned covers |
 | Aug 2017 | Hobonichi announces the *5-Year Techo* |
 | Dec 2017 | First Hobonichi 5-Year Techo (2018–2022) goes on sale |
-| 2020s | A5 "Large" Hobonichi 5-Year Techo; later editions cover 2021–2025, …, 2026–2030, 2027–2031 |
+| Later | New five-year spans every autumn (e.g. 2026–2030, 2027–2031); an A5 "Large" size joins the A6 (**uncertain:** first year of the A5) |
 | 2024 | Hobonichi 5-Year paper changes to Tomoe River S |
 | 2025 | Hobonichi adds a 5-Year "Gift Edition" (first new one in six years, per official timeline) |
 | 2024– | *Q&A a Day* keeps getting new covers (e.g. *Bright Botanicals*, May 2024) |
