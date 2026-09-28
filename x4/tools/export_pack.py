@@ -25,6 +25,9 @@ CHECKIN_TYPES = {  # type: (kind, hi, default title, title max, default labels, 
     'scale': ('scale', None, 'Energy', 18, None, 0),  # one item, 1..steps
 }
 
+def slugify(label):  # key part: lowercase, runs outside [a-z0-9] -> _, max 24, never empty
+    return re.sub(r'[^a-z0-9]+', '_', label.lower()).strip('_')[:24].strip('_') or 'item'
+
 def clean(v): return ' '.join(str(v).replace('|', ' ').split())  # no pipes or newlines inside a field
 
 def opt_text(b, k, d, mx):
@@ -48,7 +51,7 @@ def checkins(path):
     if not isinstance(L, dict) or L.get('v') != 2 or not isinstance(L.get('blocks'), list):
         print(f'checkins: {path} is not a v2 layout (open and save it in the editor); no custom check-ins')
         return lines, 0
-    items, dropped, uids = 0, 0, set()
+    items, dropped, uids, keys = 0, 0, set(), set()
     for b in L['blocks']:
         if not isinstance(b, dict) or b.get('type') not in CHECKIN_TYPES or not b.get('on', True): continue
         t = b['type']; kind, hi, dtitle, tmax, dlabels, lmax = CHECKIN_TYPES[t]
@@ -59,14 +62,23 @@ def checkins(path):
         title = clean(opt_text(b, 'title', dtitle, tmax)) or dtitle
         if t == 'scale':
             steps = opt_num(b, 'steps', 3, 10, 5)
-            rows = [(title, kind, 1, steps, (1 + steps) // 2)]
+            rows = [(None, title, kind, 1, steps, (1 + steps) // 2)]  # one item, keyed c_<uid>
         else:
-            rows = [(clean(x), kind, 0, hi, 0) for x in opt_list(b, 'labels', dlabels, lmax)]
+            rows, slugs = [], set()
+            for x in opt_list(b, 'labels', dlabels, lmax):
+                label = clean(x)
+                if not label: continue
+                slug = slugify(label); base_s, n = slug, 2
+                while slug in slugs: slug, n = f'{base_s}_{n}', n + 1
+                slugs.add(slug)
+                rows.append((slug, label, kind, 0, hi, 0))
         out = []
-        for i, (label, k, lo, h, d) in enumerate(rows):  # i = position in the block, so keys survive label edits
-            if not label: continue
+        for slug, label, k, lo, h, d in rows:  # keys follow the label, so deleting one leaves the others (except same-slug labels, numbered in order)
             if items >= CHECKIN_MAX: dropped += 1; continue
-            out.append(f'c_{uid}_{i}|{label}|{k}|{lo}|{h}|{d}'); items += 1
+            key = f'c_{uid}' if slug is None else f'c_{uid}_{slug}'; base_k, n = key, 2
+            while key in keys: key, n = f'{base_k}_{n}', n + 1  # e.g. scale uid "a_b" vs checks uid "a" + label "b"
+            keys.add(key)
+            out.append(f'{key}|{label}|{k}|{lo}|{h}|{d}'); items += 1
         if out: lines += [f'@{title}'] + out
     if dropped: print(f'checkins: WARNING {dropped} item(s) dropped; the X4 holds at most {CHECKIN_MAX} custom check-ins')
     return lines, items
