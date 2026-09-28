@@ -17,6 +17,7 @@ for m in $MONTHS; do
     node render.mjs month "$m" "$ICS"
     node cover.mjs month "$m"
     node check.mjs "$dir" || { echo "::error::overflow in $dir"; fail=1; }
+    node check-spreads.mjs "out/$dir" || { echo "::error::Exchange/Reply not facing in $dir"; fail=1; }
     [ "$s" = small ] && python3 epub.py "m$m"
   done
 done

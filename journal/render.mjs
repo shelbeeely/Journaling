@@ -332,7 +332,9 @@ function monthCalendar(M) {
   const firstWd = new Date(Date.UTC(M.y, M.m - 1, 1)).getUTCDay(), dim = new Date(Date.UTC(M.y, M.m, 0)).getUTCDate();
   const lead = (firstWd + 6) % 7;
   const cells = Array(lead).fill('<td class="out"></td>');
-  const maxEv = Math.ceil((lead + dim) / 7) > 5 ? 1 : 2;
+  const nRows = Math.ceil((lead + dim) / 7), maxEv = nRows > 5 ? 1 : nRows < 5 ? 3 : 2;
+  const soft = (t) => t.replace(/[\p{L}’']{9,}/gu, (w) => w.slice(0, Math.ceil(w.length / 2)) + '\u00ad' + w.slice(Math.ceil(w.length / 2))); // soft hyphen so long words break inside a 0.5in cell
+  const calHol = (t) => t.replace(' (clocks forward)', ' ').replace(' (clocks back)', ' ').replace('Daylight saving time', 'DST').replace('Martin Luther King Jr. Day', 'MLK Day').replace('Indigenous Peoples’ Day / Columbus Day', 'Indig. Peoples’ / Columbus Day').trim();
   for (let n = 1; n <= dim; n++) {
     const d = M.days.find((x) => x.d === n);
     if (!d) { cells.push(`<td class="out other"><div class="cd"><span class="n">${n}</span></div><div class="ev">in Vol ${n < 15 ? VOL.n - 1 : VOL.n + 1}</div></td>`); continue; }
@@ -340,10 +342,11 @@ function monthCalendar(M) {
     if (d.moon.quarter != null) marks.push(`${moon(d.moon.phaseDeg, 10)}`);
     
     const payTag = d.notes.filter((n) => n.kind === 'pay').map((n) => n.text.startsWith('Payday') ? 'PAYDAY' : n.text.startsWith('Pay period starts') ? 'NEW PERIOD' : 'PERIOD ENDS').filter((t) => t !== 'PERIOD ENDS').map((t) => `<div class="pay">${t}</div>`).join('');
-    const evs = d.events.filter((e) => !e.routine); // weekly/daily routines live on the day pages as checkboxes
+    const holTxt = d.notes.filter((n) => n.kind === 'holiday').map((n) => n.text.toLowerCase());
+    const evs = d.events.filter((e) => !e.routine && !(e.allDay && holTxt.includes(e.title.replace(/\s*\(.*\)$/, '').toLowerCase()))); // weekly/daily routines live on the day pages as checkboxes
     const shown = evs.filter((e) => e.allDay).concat(evs.filter((e) => !e.allDay)).slice(0, maxEv);
-    const ev = shown.map((e) => `<div class="ev">${e.time ? e.time + ' ' : ''}${esc(e.title)}</div>`).join('') + (evs.length > maxEv ? `<div class="ev dim">+${evs.length - maxEv} more</div>` : '');
-    cells.push(`<td><div class="cd"><span class="n">${d.d}</span><span class="mk">${marks.join('')}</span></div>${d.notes.filter((n) => n.kind === 'holiday').map((n) => `<div class="hol${n.federal ? ' fed' : ''}">${esc(n.text.replace(' (clocks forward)', '').replace(' (clocks back)', '').replace('Daylight saving time', 'DST'))}</div>`).join('')}${payTag}${d.notes.some((n) => n.kind === 'bus') ? '<div class="pay">SUN BUS</div>' : ''}${ev}</td>`);
+    const ev = shown.map((e) => `<div class="ev">${e.time ? e.time + ' ' : ''}${esc(soft(e.title))}</div>`).join('') + (evs.length > maxEv ? `<div class="ev dim">+${evs.length - maxEv} more</div>` : '');
+    cells.push(`<td><div class="cd"><span class="n">${d.d}</span><span class="mk">${marks.join('')}</span></div>${d.notes.filter((n) => n.kind === 'holiday').map((n) => `<div class="hol${n.federal ? ' fed' : ''}">${esc(soft(calHol(n.text)))}</div>`).join('')}${payTag}${d.notes.some((n) => n.kind === 'bus') ? '<div class="pay">SUN BUS</div>' : ''}${ev}</td>`);
   }
   while (cells.length % 7) cells.push('<td class="out"></td>');
   const rows = []; for (let i = 0; i < cells.length; i += 7) rows.push(`<tr>${cells.slice(i, i + 7).join('')}</tr>`);
@@ -374,8 +377,8 @@ function monthSky(M) {
 function monthTracker(M) {
   const rows = M.days.map((d) => `<tr><td class="dn">${d.d}</td><td class="kj">${DAY_LETTERS[(d.weekday + 6) % 7]}</td><td class="mc">${moon(d.moon.phaseDeg, 8)}</td><td class="mood">${[-3, -2, -1, 0, 1, 2, 3].map(() => '<i></i>').join('')}</td><td class="bx"></td><td class="bx"></td><td class="bx"></td><td class="bx"></td><td class="bx"></td><td class="bx"></td></tr>`).join('');
   return `<h2 class="pt">${M.name} · tracker</h2>
-  <table class="trk"><tr><th colspan="3"></th><th>${ic('low')} mood ${ic('high')}</th><th>${ic('sleep', 'Sleep')}</th><th>${ic('pill', 'Meds')}</th><th>${ic('meal', 'Meals')}</th><th>${ic('shower', 'Shower')}</th><th>${ic('work', 'Work')}</th><th>${ic('spoon', 'Spoons')}</th></tr>${rows}</table>
-  <p class="small">Fill a dot per day; in the spoons box write the number you had left at bedtime. After a few weeks, look for patterns: sleep before mood shifts, spoons vs. moon phase, busy days vs. spoons.</p>`;
+  <table class="trk"><tr><th colspan="3"></th><th>${ic('low')} mood ${ic('high')}</th><th>${ic('sleep', 'Sleep')}</th><th>${ic('pill', 'Meds')}</th><th>${ic('meal', 'Meals')}</th><th>${ic('shower', 'Shower')}</th><th>${ic('work', 'Work')}</th><th>${ic('spoon', 'Spoons')}</th></tr><tr class="un"><th colspan="3"></th><th>−3 … +3</th><th>hrs</th><th>tick</th><th>0–3</th><th>tick</th><th>hrs</th><th>left</th></tr>${rows}</table>
+  <p class="small">Fill one mood dot (−3 to +3). Hours for sleep and work, meals 0–3, spoons left at bedtime. X4: Menu → This month.</p>`;
 }
 
 function monthMoonPage(M) {
@@ -391,7 +394,7 @@ function monthMoonPage(M) {
 function weekLeft(W) {
   const f = W.days[0], l = W.days[W.days.length - 1];
   const lead = (f.weekday + 6) % 7, tail = 6 - ((l.weekday + 6) % 7);
-  const other = (label) => `<div class="wrow other"><div class="wd"><span class="dt">${label}</span></div><div></div><div class="wev dim">in the ${lead ? 'previous' : 'next'} book</div></div>`;
+  const other = (label) => `<div class="wrow other"><div class="wd"><span class="dt">${label}</span></div><div></div><div class="wev dim">${lead ? (VOL.n === 1 ? 'before this journal starts' : 'in the previous book') : (VOL.n === 12 ? 'after this journal ends' : 'in the next book')}</div></div>`;
   const rows = Array(lead).fill(0).map(() => other('—')).join('') + W.days.map((d) => `<div class="wrow"><div class="wd"><span class="wdn">${d.weekdayName.slice(0, 3)}</span><span class="dt">${MONTHS[d.m - 1].slice(0, 3)} ${d.d}</span></div><div class="wsky"><span class="ms">${moon(d.moon.phaseDeg, 11)} ${G(d.moon.glyph)} ${d.moon.lit}%</span><span class="dim">${G('☀')} ${d.sun.rise}–${d.sun.set}</span><span class="wk-shift">work ____–____</span></div><div class="wev" data-pitch="0.22"><div class="rules lines" data-pitch="0.22"></div>${d.events.filter((e) => !e.routine).map((e) => `<div class="ev">${e.time ? e.time + ' ' : ''}${esc(e.title)}</div>`).join('')}${d.notes.filter((n) => n.kind !== 'astro').map((n) => `<div class="evs">${esc(n.text)}</div>`).join('')}</div></div>`).join('') + Array(tail).fill(0).map(() => other('—')).join('');
   return `<div class="whead"><h2 class="pt">${W.label}</h2><span class="dim">${MONTHS[f.m - 1].slice(0, 3)} ${f.d} – ${MONTHS[l.m - 1].slice(0, 3)} ${l.d}</span></div>${rows}`;
 }
@@ -471,7 +474,7 @@ for (const W of D.weeks) {
   // so it gets its review and exchange here instead of never being printed.
   const endsHere = W.days[W.days.length - 1].weekday === 0 || (W === D.weeks[D.weeks.length - 1] && W.gi === 52);
   for (const d of W.days) add('dayp', dayFull(d), d.date);
-  if (endsHere) { add('', weekReview(W)); add('', exchange(W, 'L')); add('', exchange(W, 'R')); }
+  if (endsHere) { add('', weekReview(W)); alignToVerso(); add('', exchange(W, 'L')); add('', exchange(W, 'R')); } // Exchange (verso) and Reply (recto) must face each other
 }
 alignToVerso();
 add('', `<h2 class="pt">Looking back on the month</h2><div class="boxline">My theme was</div><div class="lines l2"></div><div class="boxline">What the trackers showed me</div><div class="lines l6"></div><div class="boxline">Which parts of this journal I actually used</div><div class="lines l4"></div><div class="boxline">What to change in the next edition</div><div class="lines l6"></div>`);
@@ -632,8 +635,9 @@ table { border-collapse: collapse; }
 .sky2 { width: 100%; columns: 2; }
 .mhead { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; } .jp.big { font-size: 16pt; }
 .cal { width: 100%; flex: 1; table-layout: fixed; } .cal th { font-size: 7pt; font-weight: 700; padding: 3px 0; text-align: left; border-bottom: 1px solid #333; }
-.cal td { border: 1px solid #888; vertical-align: top; padding: 2px 3px; font-size: 7pt; }
-.cal.rows5 td { height: 1.3in; } .cal.rows6 td { height: 1.08in; } .cal td.out { background: #dedede; }
+.cal td { border: 1px solid #888; vertical-align: top; padding: 2px 3px; font-size: 7pt; overflow: hidden; overflow-wrap: anywhere; }
+.cal .hol, .cal .ev, .cal .pay { font-size: 5.8pt; overflow-wrap: anywhere; } .cal .ev { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; } .cal .pay { letter-spacing: 0.1px; } .cal.rows6 .ev { -webkit-line-clamp: 2; }
+.cal.rows4 td { height: 1.62in; } .cal.rows5 td { height: 1.3in; } .cal.rows6 td { height: 1.08in; } .cal td.out { background: #dedede; }
 .cd { display: flex; justify-content: space-between; align-items: center; } .cd .n { font-size: 10pt; font-weight: 600; } .mk { display: flex; gap: 2px; align-items: center; } .sk { font-size: 7pt; border: 1px solid #555; padding: 0 1px; }
 .ev { font-size: 7pt; line-height: 1.2; } .evs { font-size: 7pt; color: #444; font-style: italic; }
 .daylen { display: flex; align-items: center; gap: 10px; border: 1px solid #333; padding: 6px 8px; margin-bottom: 8px; font-size: 8.4pt; } .daylen .arrow { font-size: 12pt; } .daylen .chg { margin-left: auto; font-weight: 700; }
@@ -722,11 +726,11 @@ table { border-collapse: collapse; }
 .m .steps { gap: 0.06in; } .m .steps p { font-size: 7.4pt; } .m .anat .a3 { height: 0.45in; } .m .anat div { font-size: 7pt; padding: 3px 5px; }
 .m .cal.rows5 td { height: 0.8in; } .m .cal.rows6 td { height: 0.67in; } .m .trk td { height: 0.14in; } .m .trk th { white-space: nowrap; } .m .trk { font-size: 7pt; } .m .trk .mood i, .m .trk .en i { width: 6px; height: 6px; margin: 0 0.5px; } .m .trk .mood { white-space: nowrap; } .m .trk .bx { width: 0.34in; }
 .m .keycols { gap: 0.08in; } .m .phases, .m .gl-list { font-size: 7pt; }
-.m .cal + .small, .m .trk + .small { display: none; } .m .mline td { height: 0.12in; } .m .hab td { height: 0.2in; } .m .fill { min-height: 0.25in; } .m .genko { grid-template-columns: repeat(6, 0.22in); } .m .genko span { width: 0.22in; height: 0.22in; } .m .pio { margin-top: 0.06in; }
+.m .cal + .small { display: none; } .trk .un th { font: 500 5.6pt Inter, sans-serif; color: #444; padding: 0 1px 1px; text-align: left; } .m .mline td { height: 0.12in; } .m .hab td { height: 0.2in; } .m .fill { min-height: 0.25in; } .m .genko { grid-template-columns: repeat(6, 0.22in); } .m .genko span { width: 0.22in; height: 0.22in; } .m .pio { margin-top: 0.06in; }
 .m .wrow.other { flex: 0 0 0.22in; } .m .wrow.other .wev { background: none; }
 .day.full .log { min-height: 1.2in; } .day.full .rev { margin-top: 4px; } .day.full .rev span { height: 0.44in; }
 .wrow.other { color: #777; }
-.m .cal.rows5 td { height: 1.0in; } .m .cal.rows6 td { height: 0.84in; } .m .trk td { height: 0.172in; } .m .cal { flex: 0 0 auto; }
+.m .cal.rows4 td { height: 1.26in; } .m .cal.rows5 td { height: 1.0in; } .m .cal.rows6 td { height: 0.84in; } .m .trk td { height: 0.16in; } .m .cal { flex: 0 0 auto; }
 .review .rvh { margin-top: 0.02in; font-size: 10pt; text-transform: none; letter-spacing: 0; } .rq { margin-top: 4px; font-size: 7.6pt; }
 .xh { display: flex; justify-content: space-between; align-items: baseline; } .xft { display: flex; gap: 5px; align-items: flex-end; font-size: 7.4pt; margin: 4px 0; } .xft i { flex: 1; border-bottom: 1px solid #333; height: 12px; }
 .xp { font-size: 8pt; margin: 4px 0 6px; }
