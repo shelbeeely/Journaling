@@ -374,7 +374,7 @@ confirmed; commonly cited as about 5–6 mm lines and 5 mm grid, uncertain).
 | Multi-elastic covers | Small makers | 2–5 spine cords sewn or threaded in, no connecting bands needed |
 | Wallet or folio TNs | Makers | Cover with card slots and pockets built in |
 | Spiral ring notebook | TRC (2010) | Different product line; not elastic |
-| Junk journal hybrid | Community | TN inserts made from scrap paper, envelopes and ephemera. See [junk-journal.md](junk-journal.md) |
+| Junk journal hybrid | Community | TN inserts made from scrap paper, envelopes and ephemera. See [junk-journal.md](art-and-junk-journaling.md) |
 
 ## 12. Community practice
 
@@ -508,7 +508,7 @@ No studies test the TRAVELER'S notebook or elastic-cover systems. What you write
 - **Jibun Techo:** a B6 slim Jibun DIARY fits some B6 elastic covers; or print a 24-hour weekly insert. See
   [jibun-techo.md](jibun-techo.md).
 - **Commonplace book:** one insert per year for quotes and ideas. See [commonplace-book.md](commonplace-book.md).
-- **Junk journal:** ephemera insert. See [junk-journal.md](junk-journal.md).
+- **Junk journal:** ephemera insert. See [junk-journal.md](art-and-junk-journaling.md).
 - **Habit tracking:** a thin tracker insert that stays in all year. See [habit-tracking.md](habit-tracking.md).
 
 (Sibling docs are being written in parallel; these paths assume their planned names in `docs/journaling/methods/` and may need a fix once they land.)
