@@ -36,7 +36,7 @@ textarea{width:100%;min-height:260px;font:15px/1.45 ui-monospace,Menlo,monospace
 <textarea id="me" spellcheck="true"></textarea>
 <div class="row"><button id="saveMe">Save to the X4</button></div><p class="msg" id="meMsg"></p></section>
 
-<section><h2>Add files</h2><p class="note">Month packs (like 2026-11.txt), support.txt, or book PDFs and EPUBs.</p>
+<section><h2>Add files</h2><p class="note">Month packs (like 2026-11.txt), checkins.txt, support.txt, or book PDFs and EPUBs.</p>
 <div class="row"><input type="file" id="files" multiple accept=".txt,.pdf,.epub"><button id="upload">Upload</button></div><p class="msg" id="upMsg"></p></section>
 </main>
 <script>

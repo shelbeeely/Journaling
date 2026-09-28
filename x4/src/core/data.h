@@ -28,20 +28,26 @@ std::string prettyDate(const std::string& date); // "Thu, Oct 1"
 std::string monthName(int m);                    // 1..12
 
 // ---------- check-ins (/kw/log/YYYY-MM.csv, one line per change, last value wins) ----------
-enum class Kind { Toggle, Scale, Count, Stamp };
+enum class Kind { Toggle, Scale, Count, Stamp, Dots };  // Dots: 0 empty, 1 half, 2 full
 struct Item {
-  const char* key; const char* label; int icon; Kind kind; int lo, hi, def; const char* group;
+  const char* key; const char* label; int icon; Kind kind; int lo, hi, def; const char* group;  // icon -1 = generic dot
 };
-extern const Item ITEMS[];
-extern const int ITEM_COUNT;
+// The 15 built-ins (same order as the paper page), then up to 16 custom items from /kw/checkins.txt.
+// Static storage: loadCheckins() only rewrites fixed arrays, it never allocates for the list.
+static const int BUILTIN_COUNT = 15, MAX_CUSTOM = 16, MAX_ITEMS = BUILTIN_COUNT + MAX_CUSTOM;
+extern Item ITEMS[MAX_ITEMS];
+extern int ITEM_COUNT;
+// Reads /kw/checkins.txt (one "@group" line per group, "key|label|kind|lo|hi|def" per item).
+// Missing file or bad lines: those items are skipped, the built-ins always stay. Returns custom count.
+int loadCheckins();
 
 struct DayLog {
   std::string date;
-  int value[32];            // per ITEMS index; INT32_MIN = not set
+  int value[32];            // per ITEMS index (MAX_ITEMS <= 32); INT32_MIN = not set
   std::vector<std::string> stamps;  // as-needed dose times
   bool has(int i) const;
   int get(int i) const;     // falls back to the item's default
-  int doneCount() const;    // how many care items are done today (for the Today strip)
+  int doneCount() const;    // how many built-in care items are done today (Today strip, month dots)
 };
 void loadDayLog(const std::string& date, DayLog& out);
 void saveItem(const std::string& date, int item, int value, time_t when);

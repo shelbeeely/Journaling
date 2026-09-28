@@ -128,11 +128,11 @@ int batteryPercent() { static const BatteryMonitor battery; return battery.readP
 bool woke_by_timer() { return esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_TIMER; }
 
 // ---------- Wi-Fi hotspot + local web page ----------
-// Where an uploaded file may go: month packs, support list and safety plan in /kw; books in
+// Where an uploaded file may go: month packs, check-ins, support list and safety plan in /kw; books in
 // /kw/library. Anything else is refused, and names can't climb out of those folders.
 static String uploadDir(const String& n) {
   if (n.indexOf('/') >= 0 || n.indexOf('\\') >= 0 || n.startsWith(".")) return "";
-  if (n == "support.txt" || n == "me.txt") return "/kw/";
+  if (n == "support.txt" || n == "me.txt" || n == "checkins.txt") return "/kw/";
   if (n.length() == 11 && n.endsWith(".txt") && n[4] == '-' && isDigit(n[0]) && isDigit(n[5])) return "/kw/";
   if (n.endsWith(".pdf") || n.endsWith(".epub")) return "/kw/library/";
   return "";

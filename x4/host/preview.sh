@@ -7,6 +7,8 @@ run() { name=$1; shift; mkdir -p out/$name; rm -rf /tmp/kwsd; cp -r sample /tmp/
 run sleep KW_NOW="2026-10-14 00:31" KW_TIMER=1
 run today KW_NOW="2026-10-14 13:10" KW_KEYS="back"
 run checkin KW_NOW="2026-10-14 13:10" KW_KEYS="confirm down down down down down down down confirm down down down down right right"
+# custom check-ins (sample/kw/checkins.txt): scroll past the built-ins, tick, set, fill dots, count
+run custom KW_NOW="2026-10-14 13:10" KW_KEYS="confirm down down down down down down down down down down down down down down down confirm down down down right right down confirm confirm down confirm down down right right right up"
 run menu KW_NOW="2026-10-14 13:10" KW_KEYS="back"
 run month KW_NOW="2026-10-14 13:10" KW_KEYS="back down down confirm"
 run support KW_NOW="2026-10-14 13:10" KW_KEYS="backhold right right"
