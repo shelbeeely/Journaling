@@ -61,7 +61,7 @@ h1 { font-size: 40pt; font-weight: 600; margin: 0.35in 0 0.05in; }
 <div class="panel back">
 ${KEEPER ? `<h2>The book that stays home.</h2>
   <p>The companion to the Keeping Watch monthly journals: the people, numbers and accounts worth keeping close, on paper and offline.</p>
-  <ul><li>Important info, health and home</li><li>Contacts and birthdays</li><li>Account hints (never passwords) and 2FA recovery codes</li><li>Devices and Wi-Fi</li><li>Support and trans support numbers</li></ul>
+  <ul><li>Important info, health and home</li><li>Contacts and birthdays</li><li>Account hints (never passwords) and where recovery codes are kept</li><li>Devices and Wi-Fi</li><li>Support and trans support numbers</li></ul>
   <p style="font-size:8pt;opacity:.75">Keeper · ${VOL.label} · Private: do not scan</p>` : `
   <h2>Keep watch over the sky, the season and yourself.</h2>
   <p>Babylonian astronomers wrote the night sky next to the price of barley. Seneca reviewed each day by lamplight. Old calendars named the seasons in five-day steps. This journal borrows from all of them.</p>

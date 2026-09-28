@@ -1,5 +1,5 @@
 // The Keeper: a yearly reference book that stays home (5.5 x 8.5 in, KDP paperback).
-// Important info, contacts, birthdays, password HINTS, 2FA recovery codes, devices, and support numbers.
+// Important info, contacts, birthdays, password HINTS, where 2FA recovery codes are kept (never the codes), devices, and support numbers.
 // No scan markers on purpose: these pages should never be photographed or sent to an app.
 // Usage: node keeper.mjs [label]      -> out/keeper/keeper-interior-5.5x8.5.pdf + pages.txt
 import fs from 'node:fs';

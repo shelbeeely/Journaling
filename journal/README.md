@@ -124,7 +124,7 @@ Your calendar files (private/*.ics) are also left out; put them back in private/
 
 ## Privacy
 Printed books show your calendar events: keep KDP proofs private (never a public listing).
-The Keeper holds hints and recovery codes: never scan it.
+The Keeper holds hints and where things are kept (never passwords or recovery codes): never scan it.
 
 ## Day page editor
 `daypage.mjs` is the block library: order, on/off and options for every day page block. `content/daypage.json`
