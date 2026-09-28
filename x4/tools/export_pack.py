@@ -5,7 +5,7 @@ Reads journal/out/m<YYYY-MM>/data.json (written by render.mjs) plus content/supp
 trans.json and clinic.json, and writes an UPDATE folder, never the card's own kw/ folder:
   sd/kw-update/<YYYY-MM>.txt   one section per day ("@YYYY-MM-DD"), key=value lines, UTF-8
   sd/kw-update/support.txt     the Support screen (sections "#", entries "name|detail|how")
-  sd/kw-update/checkins.txt    custom check-ins from content/daypage.json ("@group", "key|label|kind|lo|hi|def")
+  sd/kw-update/checkins.txt    custom check-ins from content/daypage.json ("@group", "key|label|kind|lo|hi|def[|options]")
   sd/kw-update/library/*.pdf, *.epub   the books
   sd/kw-update/me.example.txt  a starter safety plan to read or copy from (the X4 ignores it)
 Copy the kw-update folder to the card root. On boot the X4 moves these files into /kw and deletes /kw-update.
@@ -29,14 +29,20 @@ CHECKIN_MAX = 16  # the firmware has 32 slots; the built-ins use 15
 CHECKIN_TYPES = {  # type: (kind, hi, default title, title max, default labels, labels max)
     'checks': ('toggle', 1, 'Habits', 24, ['Stretch', 'Outside', 'Read'], 8),
     'habits': ('dots', 2, 'Habits', 24, ['Stretch', 'Outside', 'Read', 'Water'], 8),
-    'fields': ('count', 99, 'Outside', 18, ['Minutes outside', 'Steps'], 6),
-    'scale': ('scale', None, 'Energy', 18, None, 0),  # one item, 1..steps
+    'fields': ('count', 99, 'Outside', 18, ['Minutes outside', 'Steps'], 6),  # hi = the block's "max" option
+    'scale': ('scale', None, 'Energy', 18, None, 0),  # one item: 1..steps, or 0..steps-1 (zero), or -k..+k (signed)
+    'words': ('choice', None, 'Feeling', 18, None, 0),  # only when the block's "x4" option is on: pick one word
 }
+CHOICE_MAX, CHOICE_LEN = 8, 12  # options per choice, characters per option (the firmware's limits)
+X4_MAXES = (5, 10, 20, 50, 99, 200, 999)  # journal/daypage.mjs X4_MAXES; anything else falls back to 99
 
 def slugify(label):  # key part: lowercase, runs outside [a-z0-9] -> _, max 24, never empty
     return re.sub(r'[^a-z0-9]+', '_', label.lower()).strip('_')[:24].strip('_') or 'item'
 
 def clean(v): return ' '.join(str(v).replace('|', ' ').split())  # no pipes or newlines inside a field
+
+def choice_opt(w):  # one option of a choice: no separators (; | ,), max 12 characters
+    return ' '.join(re.sub(r'[;|,]', ' ', str(w)).split())[:CHOICE_LEN].strip()
 
 def opt_text(b, k, d, mx):
     v = b.get(k)
@@ -46,6 +52,10 @@ def opt_list(b, k, d, mx):
     v = b.get(k)
     v = v if isinstance(v, list) else v.split(',') if isinstance(v, str) else d
     return [x for x in (str(x).strip()[:24] for x in v) if x][:mx]
+
+def opt_bool(b, k, d=False):
+    v = b.get(k)
+    return d if v is None else bool(v)
 
 def opt_num(b, k, lo, hi, d):
     try: return min(hi, max(lo, math.floor(float(b.get(k)) + 0.5)))  # JS Math.round
@@ -59,19 +69,40 @@ def checkins(path):
     if not isinstance(L, dict) or L.get('v') != 2 or not isinstance(L.get('blocks'), list):
         print(f'checkins: {path} is not a v2 layout (open and save it in the editor); no custom check-ins')
         return lines, 0
-    items, dropped, uids, keys = 0, 0, set(), set()
+    items, dropped, uids, keys = 0, [], set(), set()
     for b in L['blocks']:
         if not isinstance(b, dict) or b.get('type') not in CHECKIN_TYPES or not b.get('on', True): continue
         t = b['type']; kind, hi, dtitle, tmax, dlabels, lmax = CHECKIN_TYPES[t]
+        if t == 'words' and not opt_bool(b, 'x4'): continue  # words print only, unless "Also on X4" is on
         uid = b.get('uid') if isinstance(b.get('uid'), str) and re.fullmatch(r'[\w-]{1,40}', b.get('uid')) else t
         uid = re.sub(r'[^a-z0-9_]', '_', uid.lower()); base, n = uid, 2
         while uid in uids: uid, n = f'{base}_{n}', n + 1
         uids.add(uid)
         title = clean(opt_text(b, 'title', dtitle, tmax)) or dtitle
         if t == 'scale':
-            steps = opt_num(b, 'steps', 3, 10, 5)
-            rows = [(None, title, kind, 1, steps, (1 + steps) // 2)]  # one item, keyed c_<uid>
+            steps = opt_num(b, 'steps', 3, 11, 5)
+            # mirrors scaleRange() in journal/daypage.mjs: what is printed under the bubbles is what the X4 stores
+            if opt_bool(b, 'signed'): k = (steps - 1) // 2; lo, h, d = -k, k, 0
+            elif opt_bool(b, 'zero'): lo, h, d = 0, steps - 1, (steps - 1) // 2
+            else: lo, h, d = 1, steps, (1 + steps) // 2
+            rows = [(None, title, kind, lo, h, d, '')]  # one item, keyed c_<uid>
+        elif t == 'words':
+            opts = []
+            for w in opt_list(b, 'words', [], 20):
+                o = choice_opt(w)
+                if not o: continue
+                if o in opts: print(f'checkins: "{title}" lists "{o}" twice; the X4 keeps one'); continue
+                if len(' '.join(str(w).split())) > CHOICE_LEN: print(f'checkins: "{title}": "{w}" is cut to "{o}" on the X4 ({CHOICE_LEN} characters at most)')
+                opts.append(o)
+            if len(opts) < 2: print(f'checkins: WARNING "{title}" has fewer than 2 words, so it is not sent to the X4'); continue
+            if len(opts) > CHOICE_MAX: print(f'checkins: WARNING "{title}" has {len(opts)} words; the X4 takes the first {CHOICE_MAX} ({", ".join(opts[CHOICE_MAX:])} stay on paper only)')
+            opts = opts[:CHOICE_MAX]
+            rows = [(None, title, kind, 0, len(opts) - 1, 0, ';'.join(opts))]
         else:
+            h = hi
+            if t == 'fields':
+                h = opt_num(b, 'max', 1, 999, 99)
+                if h not in X4_MAXES: h = 99
             rows, slugs = [], set()
             for x in opt_list(b, 'labels', dlabels, lmax):
                 label = clean(x)
@@ -79,16 +110,16 @@ def checkins(path):
                 slug = slugify(label); base_s, n = slug, 2
                 while slug in slugs: slug, n = f'{base_s}_{n}', n + 1
                 slugs.add(slug)
-                rows.append((slug, label, kind, 0, hi, 0))
+                rows.append((slug, label, kind, 0, h, 0, ''))
         out = []
-        for slug, label, k, lo, h, d in rows:  # keys follow the label, so deleting one leaves the others (except same-slug labels, numbered in order)
-            if items >= CHECKIN_MAX: dropped += 1; continue
+        for slug, label, k, lo, h, d, extra in rows:  # keys follow the label, so deleting one leaves the others (except same-slug labels, numbered in order)
+            if items >= CHECKIN_MAX: dropped.append(label); continue
             key = f'c_{uid}' if slug is None else f'c_{uid}_{slug}'; base_k, n = key, 2
             while key in keys: key, n = f'{base_k}_{n}', n + 1  # e.g. scale uid "a_b" vs checks uid "a" + label "b"
             keys.add(key)
-            out.append(f'{key}|{label}|{k}|{lo}|{h}|{d}'); items += 1
+            out.append(f'{key}|{label}|{k}|{lo}|{h}|{d}' + (f'|{extra}' if extra else '')); items += 1
         if out: lines += [f'@{title}'] + out
-    if dropped: print(f'checkins: WARNING {dropped} item(s) dropped; the X4 holds at most {CHECKIN_MAX} custom check-ins')
+    if dropped: print(f'checkins: WARNING {len(dropped)} item(s) dropped ({", ".join(dropped[:6])}{"..." if len(dropped) > 6 else ""}); the X4 holds at most {CHECKIN_MAX} custom check-ins, taken in layout order (each checkbox, dot and blank is one; a scale or a words choice is one)')
     return lines, items
 
 # Build stamp: the journal build's own date (data.json "generated"), the same day the book's title page prints

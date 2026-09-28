@@ -40,10 +40,15 @@ std::string prettyDate(const std::string& date); // "Thu, Oct 1"
 std::string monthName(int m);                    // 1..12
 
 // ---------- check-ins (/kw/log/YYYY-MM.csv, one line per change, last value wins) ----------
-enum class Kind { Toggle, Scale, Count, Stamp, Dots };  // Dots: 0 empty, 1 half, 2 full
+enum class Kind { Toggle, Scale, Count, Stamp, Dots, Choice };  // Dots: 0 empty, 1 half, 2 full; Choice: index of the picked option
+// Choice options: at most CHOICE_MAX per item, at most CHOICE_LEN characters each (4 bytes of UTF-8 each at most, so OPT_BYTES holds 12 whole characters).
+static const int CHOICE_MAX = 8, CHOICE_LEN = 12, OPT_BYTES = 49;
 struct Item {
   const char* key; const char* label; int icon; Kind kind; int lo, hi, def; const char* group;  // icon -1 = generic dot
   bool hidden = false;  // paper-owned (the care split): kept so old logs still read, never shown on Check in or Today
+  // Scale: lo..hi is what is stored (1..N, 0..N-1 or -k..+k, as printed on the paper block). Count: 0..hi.
+  // Choice: lo = 0, hi = nopts - 1; the CSV log holds the option's TEXT, so history survives reordering the words.
+  int nopts = 0; const char (*opts)[OPT_BYTES] = nullptr;
 };
 // The care split: paper keeps meds, meals, water and mood; the X4 keeps spoons left, sleep, anxiety and the care ticks.
 // The 8 X4 built-ins come first, in the order the paper page reads (D5: spoons, sleep, anxiety, care ticks). The 7
@@ -55,7 +60,8 @@ enum BuiltinItem { I_SPOONS, I_SLEEP, I_ANXIETY, I_SHOWER, I_TEETH, I_JOY, I_TEX
 static const int SHOWN_BUILTINS = 8, BUILTIN_COUNT = 15, MAX_CUSTOM = 16, MAX_ITEMS = BUILTIN_COUNT + MAX_CUSTOM;
 extern Item ITEMS[MAX_ITEMS];
 extern int ITEM_COUNT;
-// Reads /kw/checkins.txt (one "@group" line per group, "key|label|kind|lo|hi|def" per item).
+// Reads /kw/checkins.txt (one "@group" line per group, "key|label|kind|lo|hi|def[|opt1;opt2;...]" per item).
+// Columns after the 7th and kinds it doesn't know are ignored (older firmware, newer file).
 // Missing file or bad lines: those items are skipped, the built-ins always stay. Returns custom count.
 int loadCheckins();
 

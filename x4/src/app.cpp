@@ -305,9 +305,19 @@ static void drawCheckin() {
         break;
       }
       case Kind::Scale: {
-        const int n = it.hi - it.lo + 1, r = 9, gap = 7, w = n * (2 * r) + (n - 1) * gap;
+        const int n = it.hi - it.lo + 1, r = n > 8 ? 7 : 9, gap = n > 8 ? 4 : 7, w = n * (2 * r) + (n - 1) * gap;
         C->bubbles(R - w, y + 21, n, log.has(i) ? log.get(i) - it.lo : -1, r, gap);
         ctrl = w;
+        if (i >= BUILTIN_COUNT) {  // custom scales can start at 0 or run -k..+k, so say the number: "+2", "-1", "0", "–" when unset
+          char nb[12]; if (log.has(i)) snprintf(nb, sizeof nb, it.lo < 0 && log.get(i) > 0 ? "+%d" : "%d", log.get(i)); else strcpy(nb, "–");
+          C->textRight(F_UI_B, R - w - 10, base, nb, &F_SYM);
+          ctrl += 10 + C->width(F_UI_B, "+00", &F_SYM);
+        }
+        break;
+      }
+      case Kind::Choice: {  // the chosen word (–  when unset); the label gives way to the longest option so it never jumps as you cycle
+        C->textRight(F_UI_B, R, base, log.has(i) ? it.opts[log.get(i)] : "–", &F_SYM);
+        for (int k = 0; k < it.nopts; k++) { const int cw = C->width(F_UI_B, it.opts[k], &F_SYM); if (cw > ctrl) ctrl = cw; }
         break;
       }
       case Kind::Count: {
@@ -319,8 +329,14 @@ static void drawCheckin() {
             else { C->circle(sx + 5, y + 16, 5, 2); C->vline(sx + 5, y + 21, 10); }
           }
         } else {
-          C->textRight(F_UI_B, R, base, log.has(i) ? b : "–");
-          ctrl = C->width(F_UI_B, "999");
+          if (i >= BUILTIN_COUNT && it.hi < 99) {  // a capped count says its cap: "3 / 10"
+            char cb[24]; snprintf(cb, sizeof cb, "%s / %d", log.has(i) ? b : "–", it.hi);
+            C->textRight(F_UI_B, R, base, cb);
+            ctrl = C->width(F_UI_B, "99 / 99");
+          } else {
+            C->textRight(F_UI_B, R, base, log.has(i) ? b : "–");
+            ctrl = C->width(F_UI_B, "999");
+          }
         }
         break;
       }
@@ -335,9 +351,11 @@ static void drawCheckin() {
     C->fill(Canvas::W - 12, barY, 5, barH);
   }
   const Item& cur = ITEMS[S.sel];
-  const bool adjustable = cur.kind == Kind::Scale || cur.kind == Kind::Count || cur.kind == Kind::Dots;
-  const char* ok = cur.kind == Kind::Stamp ? "Log now" : cur.kind == Kind::Toggle ? "Tick" : cur.kind == Kind::Dots ? "Fill" : "Set";
-  hintBar("Done", ok, adjustable ? "−" : "", adjustable ? "+" : "");
+  const bool adjustable = cur.kind == Kind::Scale || cur.kind == Kind::Count || cur.kind == Kind::Dots || cur.kind == Kind::Choice;
+  const char* ok = cur.kind == Kind::Stamp ? "Log now" : cur.kind == Kind::Toggle ? "Tick" : cur.kind == Kind::Dots ? "Fill"
+                   : cur.kind == Kind::Choice ? (log.has(S.sel) ? "Next" : "Set") : "Set";
+  const bool ch = cur.kind == Kind::Choice;
+  hintBar("Done", ok, adjustable ? (ch ? "◀" : "−") : "", adjustable ? (ch ? "▶" : "+") : "");
 }
 
 static void checkinPress(Btn b) {
@@ -349,7 +367,10 @@ static void checkinPress(Btn b) {
     if (it.kind == Kind::Toggle) saveItem(date, S.sel, log.get(S.sel) ? 0 : 1, now);
     else if (it.kind == Kind::Stamp) saveStamp(date, now);
     else if (it.kind == Kind::Dots) saveItem(date, S.sel, (log.get(S.sel) + 1) % 3, now);  // empty → half → full
+    else if (it.kind == Kind::Choice) saveItem(date, S.sel, log.has(S.sel) ? (log.get(S.sel) + 1) % it.nopts : it.def, now);  // first press sets the default, then next word
     else if (!log.has(S.sel)) saveItem(date, S.sel, it.def, now);  // "Set" confirms the default value
+  } else if ((b == Btn::Left || b == Btn::Right) && it.kind == Kind::Choice) {
+    saveItem(date, S.sel, (log.get(S.sel) + (b == Btn::Right ? 1 : it.nopts - 1)) % it.nopts, now);  // wraps round the words
   } else if ((b == Btn::Left || b == Btn::Right) && (it.kind == Kind::Scale || it.kind == Kind::Count || it.kind == Kind::Dots)) {
     int v = log.get(S.sel) + (b == Btn::Right ? 1 : -1);
     if (v < it.lo) v = it.lo;

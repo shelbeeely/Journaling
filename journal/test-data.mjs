@@ -70,5 +70,11 @@ const months = Array.from({ length: 12 }, (_, i) => [2026 + Math.floor((8 + i) /
   const all = [];
   for (const [y, m] of months.filter(([y, m]) => y === 2027 && m >= 4)) for (const d of build('test.ics', vol(y, m)).days) for (const x of d.notes) if (/meteor/.test(x.text)) all.push(x.text);
   for (const s of ['Lyrid', 'Eta Aquariid', 'Southern Delta Aquariid', 'Perseid']) ok(all.some((t) => t.startsWith(s)), s);
+  // IMO 2027 calendar (UT peaks: Lyrids Apr 23 01:40, Eta Aquariids May 6 09:00, S. Delta Aquariids Jul 31, Perseids Aug 12 23:46 / Aug 13)
+  const on = (y, m, d) => build('test.ics', vol(y, m)).days.find((x) => x.d === d).notes.map((x) => x.text).join('|');
+  ok(/Lyrid.*Apr 22–23.*bright moon/.test(on(2027, 4, 22)), 'Lyrids Apr 22-23 bright moon');
+  ok(/Eta Aquariid.*May 6/.test(on(2027, 5, 5)), 'Eta Aquariids May 5-6');
+  ok(/Southern Delta Aquariid/.test(on(2027, 7, 31)), 'SDA Jul 31');
+  ok(/Perseid.*Aug 12–13.*bright moon/.test(on(2027, 8, 12)), 'Perseids Aug 12-13 bright moon');
 }
 console.log(`data checks passed (${n})`);

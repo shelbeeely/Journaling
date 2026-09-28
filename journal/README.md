@@ -31,6 +31,7 @@ It writes out/keeper/index.json, which the monthly books use to point their "Clo
     node cover.mjs month 2026-10          # (SIZE=letter for the big one) wrap cover sized to the page count
     python3 epub.py m2026-10              # X4 / CrossPoint EPUB
     node check.mjs m2026-10               # overflow check: must print "[] 0"
+    node test-busy.mjs                    # same check on a synthetic busy calendar (7 events a day, all-day, long titles): every page must fit
 
 ## Settings
 | Variable | Read by | Default | What |

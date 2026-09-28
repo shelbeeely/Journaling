@@ -2,6 +2,7 @@
 
 ## Done
 - **Monthly books** for Oct 2026 – Sep 2027, in 5.5×8.5 and 8.5×11 (74–86 pages each), with 0 overflow and no Type 3 fonts.
+  - Busy days degrade instead of spilling: month cells and week rows cap at a few lines with "+N more". `node test-busy.mjs` (CI) checks it.
   - Front matter: key and icon key, care plan, quick contacts, month theme.
   - Each month: calendar, sky, tracker and moon pages, week spreads, day pages, weekly review, exchange pages.
   - Back matter: Looking back, Closing the month (points at the Keeper handoff page), Support, Trans support,
