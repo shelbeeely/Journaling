@@ -59,7 +59,7 @@ def dur(m): return f'{m//60}h {m%60:02d}m'
 
 def day_html(d):
     jp = d['jp']; mo = d['moon']; su = d['sun']
-    moon_line = ' · '.join(f"enters {i['sign']} {i['time']}" for i in mo['ingress']) or f"in {mo['sign']}"
+    moon_line = ' · '.join(f"enters {i['sign']} {i['time']}" for i in mo['ingress']) or f"in {mo.get('phaseSign', mo['sign'])}"
     notes = [n['text'] for n in d['notes']]
     for c in jp['koChange']:
         notes.insert(0, f"New Spokane season {c['time']}: {c['en']}")

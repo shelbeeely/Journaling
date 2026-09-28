@@ -371,7 +371,7 @@ function monthTracker(M) {
 
 function monthMoonPage(M) {
   const nm = M.days.find((d) => d.moon.quarter === 0), fm = M.days.find((d) => d.moon.quarter === 2);
-  const block = (d, title, prompt) => d ? `<div class="mp"><div class="mph">${moon(d.moon.phaseDeg, 26)}<div><h3>${title} · ${M.name.slice(0, 3)} ${d.d}</h3><p class="dim">in ${G(d.moon.glyph)} ${d.moon.sign} · ${esc(d.notes.find((n) => n.kind === 'moon')?.text || '')}</p></div></div><p class="small">${prompt}</p><div class="lines l7"></div></div>` : '';
+  const block = (d, title, prompt) => d ? `<div class="mp"><div class="mph">${moon(d.moon.phaseDeg, 26)}<div><h3>${title} · ${M.name.slice(0, 3)} ${d.d}</h3><p class="dim">in ${G(d.moon.phaseGlyph || d.moon.glyph)} ${d.moon.phaseSign || d.moon.sign} · ${esc(d.notes.find((n) => n.kind === 'moon')?.text || '')}</p></div></div><p class="small">${prompt}</p><div class="lines l7"></div></div>` : '';
   return `<h2 class="pt">${M.name} · moon pages</h2>
   <div class="boxline">Theme check-in: how is my season theme going?</div><div class="lines l3"></div>
   ${block(nm, 'New moon', 'Set an intention for the next four weeks. What do you want to start, or tend?')}
@@ -458,7 +458,9 @@ for (const W of D.weeks) {
   if (M) { alignToVerso(); add('', monthCalendar(M)); add('', monthSky(M)); add('', monthTracker(M)); add('', monthMoonPage(M)); }
   alignToVerso();
   add('', weekLeft(W)); add('', weekRight(W));
-  const endsHere = W.days[W.days.length - 1].weekday === 0; // the week's Sunday is in this book
+  // The week's Sunday is in this book. The year's last week (Sep 27–Oct 3 2027, week 53) ends after the final book,
+  // so it gets its review and exchange here instead of never being printed.
+  const endsHere = W.days[W.days.length - 1].weekday === 0 || (W === D.weeks[D.weeks.length - 1] && W.gi === 52);
   for (const d of W.days) add('dayp', dayFull(d), d.date);
   if (endsHere) { add('', weekReview(W)); add('', exchange(W, 'L')); add('', exchange(W, 'R')); }
 }
