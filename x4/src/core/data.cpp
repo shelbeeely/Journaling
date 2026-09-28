@@ -3,10 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include <algorithm>
 #include "../hal/hal.h"
 #include "../gen/assets.h"
 
 // ---------- time ----------
+std::string addDays(const std::string& date, int n);
 void timeInit() {
   setenv("TZ", "PST8PDT,M3.2.0,M11.1.0", 1);  // Pacific, US DST rules
   tzset();
@@ -24,6 +26,14 @@ time_t nextLocalMidnight(time_t t, int minutesAfter) {
   tm.tm_mday += 1; tm.tm_hour = 0; tm.tm_min = minutesAfter; tm.tm_sec = 0; tm.tm_isdst = -1;
   return mktime(&tm);
 }
+bool dayRolled(time_t t) { return local(t).tm_hour < DAY_STARTS_HOUR; }
+std::string logDay(time_t t) { return dayRolled(t) ? addDays(dateStr(t), -1) : dateStr(t); }
+time_t nextDayStart(time_t t, int minutesAfter) {
+  struct tm tm = local(t);
+  if (tm.tm_hour * 60 + tm.tm_min >= DAY_STARTS_HOUR * 60 + minutesAfter) tm.tm_mday += 1;
+  tm.tm_hour = DAY_STARTS_HOUR; tm.tm_min = minutesAfter; tm.tm_sec = 0; tm.tm_isdst = -1;
+  return mktime(&tm);
+}
 static bool parseDate(const std::string& d, struct tm& tm) {
   memset(&tm, 0, sizeof tm);
   if (sscanf(d.c_str(), "%d-%d-%d", &tm.tm_year, &tm.tm_mon, &tm.tm_mday) != 3) return false;
@@ -33,6 +43,10 @@ static bool parseDate(const std::string& d, struct tm& tm) {
 std::string addDays(const std::string& date, int n) {
   struct tm tm; if (!parseDate(date, tm)) return date;
   tm.tm_mday += n; time_t t = mktime(&tm); return dateStr(t);
+}
+time_t dateNoon(const std::string& date) {
+  struct tm tm; if (!parseDate(date, tm)) return 0;
+  return mktime(&tm);
 }
 std::string monthName(int m) {
   static const char* M[] = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
@@ -51,6 +65,22 @@ static std::vector<std::string> split(const std::string& s, char sep) {
   std::vector<std::string> v; size_t a = 0;
   for (;;) { size_t b = s.find(sep, a); v.push_back(s.substr(a, b == std::string::npos ? std::string::npos : b - a)); if (b == std::string::npos) break; a = b + 1; }
   return v;
+}
+
+// "# ... · built 2026-09-28" on the first line of a card file.
+static std::string stampOf(const char* path) {
+  std::string f; if (!hal::readFile(path, f)) return "";
+  const size_t nl = f.find('\n'), p = f.find(" built ");
+  if (p == std::string::npos || p > nl || p + 17 > f.size()) return "";
+  std::string s = f.substr(p + 7, 10);
+  return (s.size() == 10 && s[4] == '-' && s[7] == '-') ? s : "";
+}
+std::string builtStamp(const std::string& ym) {
+  std::string s;
+  if (ym.size() == 7) s = stampOf(("/kw/" + ym + ".txt").c_str());
+  if (s.empty()) s = stampOf("/kw/support.txt");
+  if (s.empty()) s = stampOf("/kw/checkins.txt");
+  return s;
 }
 
 bool loadDay(const std::string& date, Day& d) {
@@ -81,6 +111,7 @@ bool loadDay(const std::string& date, Day& d) {
     else if (k == "note") d.notes.push_back(v);
     else if (k == "ev") d.events.push_back(v);
     else if (k == "rt") d.routines.push_back(v);
+    else if (k == "page") d.page = atoi(v.c_str());
     else if (k == "fact") d.fact = v;
     else if (k == "prompt") d.prompt = v;
     else if (k == "pioneer") { auto f = split(v, '|'); for (int i = 0; i < 4 && i < (int)f.size(); i++) d.pioneer[i] = f[i]; }
@@ -206,14 +237,18 @@ template <typename F> static void scanLog(const std::string& ym, F&& f) {
 }
 
 void loadDayLog(const std::string& date, DayLog& out) {
-  out.date = date; out.stamps.clear();
+  out.date = date; out.stamps.clear(); out.orphans = 0;
   for (int i = 0; i < 32; i++) out.value[i] = INT_MIN;
+  std::vector<std::string> old;  // keys from an earlier layout: kept in the log, counted so they are never invisible
   scanLog(date.substr(0, 7), [&](const std::string& d, const std::string& ts, const std::string& k, const std::string& v) {
     if (d != date) return;
     if (k == "prn") { out.stamps.push_back(v); return; }
     if (k == "prn_undo") { if (!out.stamps.empty()) out.stamps.pop_back(); return; }
-    const int i = itemIndex(k); if (i >= 0) out.value[i] = atoi(v.c_str());
+    const int i = itemIndex(k);
+    if (i >= 0) out.value[i] = atoi(v.c_str());
+    else if (std::find(old.begin(), old.end(), k) == old.end()) old.push_back(k);
   });
+  out.orphans = (int)old.size();
 }
 
 void saveItem(const std::string& date, int item, int value, time_t when) {

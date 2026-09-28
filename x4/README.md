@@ -5,7 +5,8 @@ the three things paper can't:
 
 - **Today on the sleep screen.** E-ink holds an image with no power, so the X4 sleeps showing today's
   page (moon, sunrise/sunset, Spokane season, events, routines, today's care, "on this day"). It wakes
-  itself at 12:31 a.m. to draw the new day, then goes straight back to sleep.
+  itself at 4:31 a.m. to draw the new day (see "The day starts when you wake"), then goes straight back to sleep.
+  A quiet "book p. 26" under the date says which page of the paper book is today's.
 - **Button check-ins.** Meds (AM/PM, as-needed with the time), meals, snack, shower, teeth, did something I enjoy,
   texted someone, mood, anxiety, spoons, sleep. One press per box, saved to the SD card.
   **This month** adds them up into the numbers your Keeper's "Closing" page asks for.
@@ -16,6 +17,22 @@ Plus a **Wi-Fi page** (Menu → Wi-Fi sync): the X4 makes its own hotspot, shows
 serves a page at 192.168.4.1 to set the clock from your phone, download your books (PDF/EPUB) and
 check-in logs (download this month's when you close it), edit your safety plan, and upload new month packs. Nothing goes to the internet.
 
+## The day starts when you wake
+
+The paper day is the one you're still living, so the X4 rolls over at **4 a.m., not midnight**. Between
+00:00 and 04:00 Today and Check in stay on the day you just lived: a 00:40 "Evening meds" on Nov 1 is filed
+under **Oct 31** (in October's log), and the sleep screen only flips to the new day at 4:31 a.m. While it's
+"last night" the corner says "last night · ▶ Nov 1" (Today) or "Oct 31 · last night" (Check in). Press
+**▶ day** on Today to switch to the new calendar day, **◀ day** to come back. This holds for shift work too:
+if you wake at 6 p.m., the day's check-ins simply start when the paper page does.
+
+## Which build am I on?
+
+Every pack, `support.txt` and `checkins.txt` carries the journal build date on its first line
+(`... · built 2026-09-28`), and each printed book shows the same date on its title page ("Built 2026-09-28").
+This month and the Wi-Fi page show `pack 2026-09-28`. The printed book is fixed; the pack may be newer
+and that's fine for events, but if the dates differ and page numbers look off, re-export.
+
 ## Buttons
 
 | Screen | Back | Confirm | Left / Right | Up / Down |
@@ -24,6 +41,8 @@ check-in logs (download this month's when you close it), edit your safety plan, 
 | Check in | Done | tick, log the time, or fill a habit dot | − / + for scales, counts and dots | move |
 | Menu | close | open | | move |
 | This month | back | | previous / next month | |
+
+**This month** opens on the month just finished during the first 3 days of a new month (the Closing page is for that one); ▶ reaches the new month.
 | Support | back | safety plan | pages | pages |
 | Safety plan | menu | Support | pages (opens on page 1, "1 / 3" top right) | pages |
 
@@ -37,7 +56,7 @@ Power: press to sleep now. Idle for 90 s: sleeps by itself. **Hold Back 1.2 s an
 /kw/support.txt                 Support screen (from the journal's support/trans/clinic content)
 /kw/me.txt                      your safety plan (edit on the Wi-Fi page; missing = empty)
 /kw/log/2026-10.csv …           check-ins, one line per tap: 2026-10-14T13:05,med_am,1
-/kw/library/*.pdf, *.epub       your journals, downloadable from the Wi-Fi page
+/kw/library/*.pdf, *.epub       your books (not the KDP covers), downloadable from the Wi-Fi page
 /kw/clock.txt                   last known time (used after the battery runs flat)
 /kw-update/                     the update inbox (below); empty and deleted after each boot
 ```
@@ -83,6 +102,10 @@ to 64 characters, no spaces or commas) and are what the log stores (`2026-10-14T
 duplicate keys and items past 16 are skipped; with no file the list is the built-ins only. Custom
 items don't change **This month**. See `host/sample/kw/checkins.txt`.
 
+Change custom check-ins at the start of a month. If you change them mid-month, that month's earlier lines
+keep their old keys: they stay in the CSV, Today shows "N older custom entries kept in the log", and
+`export_pack.py` warns when the log on the card holds keys no longer in the layout. Nothing is deleted.
+
 Make the card contents from the journal project:
 
     python3 tools/export_pack.py ../journal /path/to/out    # writes /path/to/out/kw-update
@@ -112,6 +135,10 @@ differs (a folder for the SD card, PNG frames for the panel, scripted buttons).
 - **Battery:** to keep the clock and midnight redraw, it deep-sleeps with the battery latch held on
   instead of CrossPoint's full power-off. Expect weeks per charge, not months.
 - **Clock drift:** the C3's sleep timer runs on an internal oscillator and can drift minutes per day.
-  The redraw is scheduled for 12:31 a.m. to absorb that; set the clock from the Wi-Fi page now and then.
-- **After a flat battery** the time falls back to the last saved time and the Today screen says
-  "Clock not set" until you set it.
+  The redraw is scheduled for 4:31 a.m. to absorb that; set the clock from the Wi-Fi page now and then.
+- **After a flat battery** the time falls back to the last saved time. Check in won't open until the
+  clock is set: it goes to the Clock screen with a plain message (also when the date is earlier than
+  your books' build date), so nothing is filed under a wrong day.
+- **Unlogged is "-".** Today shows a dash for mood, anxiety and spoons you haven't logged, never a default;
+  This month averages and counts only days you logged.
+- Today lists up to 6 calendar lines and says "+N more on paper" for the rest.
