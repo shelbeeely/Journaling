@@ -1,7 +1,8 @@
-# Keeping Watch day pack 2026-10 · generated from the paper journal build
+# Keeping Watch day pack 2026-10 · generated from the paper journal build · built 2026-09-28
 keeper=24
 @2026-10-01
 wd=Thursday
+page=16
 planet=♃ Jupiter
 moon=246.6|70|Waning Gibbous|♊ Gemini
 sun=6:49a|6:28p|11h 39m|♎ Libra
@@ -11,6 +12,7 @@ pioneer=Ada Lovelace|1815–1852|Her 1843 “Note G” on Babbage’s Analytical
 prompt=Something small you noticed this week.
 @2026-10-02
 wd=Friday
+page=17
 planet=♀ Venus
 moon=259.9|59|Waning Gibbous|♊ Gemini
 moonin=♋ Cancer 12:54p
@@ -22,6 +24,7 @@ pioneer=Ada Lovelace|1815–1852|Her 1843 “Note G” on Babbage’s Analytical
 prompt=Something small you noticed this week.
 @2026-10-03
 wd=Saturday
+page=18
 planet=♄ Saturn
 moon=273.1|47|Last Quarter|♋ Cancer
 sun=6:52a|6:24p|11h 32m|♎ Libra
@@ -33,6 +36,7 @@ pioneer=Ada Lovelace|1815–1852|Her 1843 “Note G” on Babbage’s Analytical
 prompt=Something small you noticed this week.
 @2026-10-04
 wd=Sunday
+page=19
 planet=☉ Sun
 moon=286.1|36|Waning Crescent|♋ Cancer
 moonin=♌ Leo 3:54p
@@ -43,6 +47,7 @@ pioneer=Ada Lovelace|1815–1852|Her 1843 “Note G” on Babbage’s Analytical
 prompt=Something small you noticed this week.
 @2026-10-05
 wd=Monday
+page=26
 planet=☽ Moon
 moon=299.1|26|Waning Crescent|♌ Leo
 sun=6:54a|6:20p|11h 26m|♎ Libra
@@ -54,6 +59,7 @@ pioneer=Alan Turing|1912–1954|Defined the “universal machine” in 1936, led
 prompt=What made you laugh?
 @2026-10-06
 wd=Tuesday
+page=27
 planet=♂ Mars
 moon=312|17|Waning Crescent|♌ Leo
 moonin=♍ Virgo 7:52p
@@ -66,6 +72,7 @@ pioneer=Alan Turing|1912–1954|Defined the “universal machine” in 1936, led
 prompt=What made you laugh?
 @2026-10-07
 wd=Wednesday
+page=28
 planet=☿ Mercury
 moon=324.6|9|Waning Crescent|♍ Virgo
 sun=6:57a|6:16p|11h 19m|♎ Libra
@@ -76,6 +83,7 @@ pioneer=Alan Turing|1912–1954|Defined the “universal machine” in 1936, led
 prompt=What made you laugh?
 @2026-10-08
 wd=Thursday
+page=29
 planet=♃ Jupiter
 moon=337.1|4|Waning Crescent|♍ Virgo
 sun=6:59a|6:14p|11h 15m|♎ Libra
@@ -86,6 +94,7 @@ pioneer=Alan Turing|1912–1954|Defined the “universal machine” in 1936, led
 prompt=What made you laugh?
 @2026-10-09
 wd=Friday
+page=30
 planet=♀ Venus
 moon=349.5|1|Waning Crescent|♎ Libra
 moonin=♎ Libra 1:10a
@@ -96,6 +105,7 @@ pioneer=Alan Turing|1912–1954|Defined the “universal machine” in 1936, led
 prompt=What made you laugh?
 @2026-10-10
 wd=Saturday
+page=31
 planet=♄ Saturn
 moon=1.6|0|New Moon|♎ Libra
 sun=7:01a|6:10p|11h 09m|♎ Libra
@@ -106,6 +116,7 @@ pioneer=Alan Turing|1912–1954|Defined the “universal machine” in 1936, led
 prompt=What made you laugh?
 @2026-10-11
 wd=Sunday
+page=32
 planet=☉ Sun
 moon=13.5|2|Waxing Crescent|♏ Scorpio
 moonin=♏ Scorpio 8:21a
@@ -116,6 +127,7 @@ pioneer=Alan Turing|1912–1954|Defined the “universal machine” in 1936, led
 prompt=What made you laugh?
 @2026-10-12
 wd=Monday
+page=38
 planet=☽ Moon
 moon=25.1|5|Waxing Crescent|♏ Scorpio
 sun=7:04a|6:06p|11h 02m|♎ Libra
@@ -126,6 +138,7 @@ pioneer=Katherine Johnson|1918–2020|NASA mathematician who computed trajectori
 prompt=A song that fits this week.
 @2026-10-13
 wd=Tuesday
+page=39
 planet=♂ Mars
 moon=36.5|10|Waxing Crescent|♏ Scorpio
 moonin=♐ Sagittarius 5:59p
@@ -139,6 +152,7 @@ pioneer=Katherine Johnson|1918–2020|NASA mathematician who computed trajectori
 prompt=A song that fits this week.
 @2026-10-14
 wd=Wednesday
+page=40
 planet=☿ Mercury
 moon=47.7|17|Waxing Crescent|♐ Sagittarius
 sun=7:07a|6:02p|10h 55m|♎ Libra
@@ -148,6 +162,7 @@ pioneer=Katherine Johnson|1918–2020|NASA mathematician who computed trajectori
 prompt=A song that fits this week.
 @2026-10-15
 wd=Thursday
+page=41
 planet=♃ Jupiter
 moon=58.7|24|Waxing Crescent|♐ Sagittarius
 sun=7:09a|6:00p|10h 52m|♎ Libra
@@ -158,6 +173,7 @@ pioneer=Katherine Johnson|1918–2020|NASA mathematician who computed trajectori
 prompt=A song that fits this week.
 @2026-10-16
 wd=Friday
+page=42
 planet=♀ Venus
 moon=69.5|33|Waxing Crescent|♑ Capricorn
 moonin=♑ Capricorn 5:56a
@@ -168,6 +184,7 @@ pioneer=Katherine Johnson|1918–2020|NASA mathematician who computed trajectori
 prompt=A song that fits this week.
 @2026-10-17
 wd=Saturday
+page=43
 planet=♄ Saturn
 moon=80.4|42|Waxing Crescent|♑ Capricorn
 sun=7:11a|5:57p|10h 45m|♎ Libra
@@ -177,6 +194,7 @@ pioneer=Katherine Johnson|1918–2020|NASA mathematician who computed trajectori
 prompt=A song that fits this week.
 @2026-10-18
 wd=Sunday
+page=44
 planet=☉ Sun
 moon=91.3|51|First Quarter|♑ Capricorn
 moonin=♒ Aquarius 6:39p
@@ -189,6 +207,7 @@ pioneer=Katherine Johnson|1918–2020|NASA mathematician who computed trajectori
 prompt=A song that fits this week.
 @2026-10-19
 wd=Monday
+page=50
 planet=☽ Moon
 moon=102.3|61|Waxing Gibbous|♒ Aquarius
 sun=7:14a|5:53p|10h 39m|♎ Libra
@@ -199,6 +218,7 @@ pioneer=Margaret Hamilton|b. 1936|Led the MIT team that wrote the Apollo flight 
 prompt=Ask me one question.
 @2026-10-20
 wd=Tuesday
+page=51
 planet=♂ Mars
 moon=113.5|70|Waxing Gibbous|♒ Aquarius
 sun=7:16a|5:51p|10h 35m|♎ Libra
@@ -210,6 +230,7 @@ pioneer=Margaret Hamilton|b. 1936|Led the MIT team that wrote the Apollo flight 
 prompt=Ask me one question.
 @2026-10-21
 wd=Wednesday
+page=52
 planet=☿ Mercury
 moon=125|79|Waxing Gibbous|♓ Pisces
 moonin=♓ Pisces 5:35a
@@ -221,6 +242,7 @@ pioneer=Margaret Hamilton|b. 1936|Led the MIT team that wrote the Apollo flight 
 prompt=Ask me one question.
 @2026-10-22
 wd=Thursday
+page=53
 planet=♃ Jupiter
 moon=136.8|87|Waxing Gibbous|♓ Pisces
 sun=7:19a|5:48p|10h 29m|♎ Libra
@@ -230,6 +252,7 @@ pioneer=Margaret Hamilton|b. 1936|Led the MIT team that wrote the Apollo flight 
 prompt=Ask me one question.
 @2026-10-23
 wd=Friday
+page=54
 planet=♀ Venus
 moon=149.1|93|Waxing Gibbous|♓ Pisces
 moonin=♈ Aries 12:53p
@@ -241,6 +264,7 @@ pioneer=Margaret Hamilton|b. 1936|Led the MIT team that wrote the Apollo flight 
 prompt=Ask me one question.
 @2026-10-24
 wd=Saturday
+page=55
 planet=♄ Saturn
 moon=161.8|97|Waxing Gibbous|♈ Aries
 sun=7:22a|5:44p|10h 22m|♏ Scorpio
@@ -251,6 +275,7 @@ pioneer=Margaret Hamilton|b. 1936|Led the MIT team that wrote the Apollo flight 
 prompt=Ask me one question.
 @2026-10-25
 wd=Sunday
+page=56
 planet=☉ Sun
 moon=174.9|100|Full Moon|♈ Aries
 moonin=♉ Taurus 4:34p
@@ -262,6 +287,7 @@ pioneer=Margaret Hamilton|b. 1936|Led the MIT team that wrote the Apollo flight 
 prompt=Ask me one question.
 @2026-10-26
 wd=Monday
+page=62
 planet=☽ Moon
 moon=188.3|99|Waning Gibbous|♉ Taurus
 sun=7:25a|5:41p|10h 16m|♏ Scorpio
@@ -271,6 +297,7 @@ pioneer=Sophie Wilson|b. 1957|Wrote BBC BASIC and designed the ARM instruction s
 prompt=Describe the sky the last time you looked up.
 @2026-10-27
 wd=Tuesday
+page=63
 planet=♂ Mars
 moon=201.9|96|Waning Gibbous|♉ Taurus
 moonin=♊ Gemini 6:01p
@@ -282,6 +309,7 @@ pioneer=Sophie Wilson|b. 1957|Wrote BBC BASIC and designed the ARM instruction s
 prompt=Describe the sky the last time you looked up.
 @2026-10-28
 wd=Wednesday
+page=64
 planet=☿ Mercury
 moon=215.6|91|Waning Gibbous|♊ Gemini
 sun=7:28a|5:37p|10h 10m|♏ Scorpio
@@ -292,6 +320,7 @@ pioneer=Sophie Wilson|b. 1957|Wrote BBC BASIC and designed the ARM instruction s
 prompt=Describe the sky the last time you looked up.
 @2026-10-29
 wd=Thursday
+page=65
 planet=♃ Jupiter
 moon=229.3|83|Waning Gibbous|♊ Gemini
 moonin=♋ Cancer 7:05p
@@ -302,6 +331,7 @@ pioneer=Sophie Wilson|b. 1957|Wrote BBC BASIC and designed the ARM instruction s
 prompt=Describe the sky the last time you looked up.
 @2026-10-30
 wd=Friday
+page=66
 planet=♀ Venus
 moon=242.8|73|Waning Gibbous|♋ Cancer
 sun=7:31a|5:34p|10h 03m|♏ Scorpio
@@ -311,6 +341,7 @@ pioneer=Sophie Wilson|b. 1957|Wrote BBC BASIC and designed the ARM instruction s
 prompt=Describe the sky the last time you looked up.
 @2026-10-31
 wd=Saturday
+page=67
 planet=♄ Saturn
 moon=256.1|62|Waning Gibbous|♋ Cancer
 moonin=♌ Leo 9:18p

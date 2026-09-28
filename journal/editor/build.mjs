@@ -17,7 +17,7 @@ const kit = {
   css,
   header: pick(/<div class="hz">.*?TAGS:<\/span><\/div><\/div>/s),
   sky: pick(/<div class="sky1".*?<\/span><\/div>/s),
-  notes: pick(/<div class="sky2l">.*?<\/div>/s),
+  notes: pick(/<div class="sky2l"[^>]*>.*?<\/div>/s),
   events: '<div class="dev" data-zone="events">○ 10:00a Clinic appointment · ○ 2:00p Pick up prescription · ○ 6:30p Dinner with a friend downtown</div>',
   fact: pick(/<div class="fact".*?<\/div>/s),
   routines: ['7:30a Morning routine', '8:00p Evening routine'], // a busy day, so the meter errs on the safe side

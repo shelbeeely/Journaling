@@ -37,7 +37,21 @@ static uint8_t* FB;
 static Canvas* C;
 static State S;
 
-static std::string today() { return dateStr(hal::now()); }
+// The day she is living: before 4 a.m. that is still yesterday (README: "day rolls over at 4 a.m."),
+// so a 00:40 "Evening meds" lands on the page she has open on paper. Today's Left/Right steps from here.
+static std::string baseDay() { return logDay(hal::now()); }
+static bool rolledBack() { return dayRolled(hal::now()); }
+
+// The clock must be right before anything is saved: entries are filed under its date. It is wrong
+// after a flat battery (device: not trusted) or when it says a date before the books were built.
+static std::string clockProblem() {  // "" = fine
+  if (!hal::timeValid()) return "The clock isn't set. Check-ins are filed under today's date, so set it first.";
+  const std::string built = builtStamp(dateStr(hal::now()).substr(0, 7));
+  if (!built.empty() && dateStr(hal::now()) < addDays(built, -1))
+    return "The clock is behind your books (built " + built + "). Set the right date before checking in.";
+  return "";
+}
+static bool clockOk() { return clockProblem().empty(); }
 
 // ---------------------------------------------------------------------------------------------
 // Shared pieces
@@ -91,7 +105,7 @@ static void battery(int x, int baseline) {
 // TODAY — also the sleep screen. Everything a glance needs, nothing to operate.
 // ---------------------------------------------------------------------------------------------
 static void drawToday(bool sleeping) {
-  const std::string date = addDays(today(), S.dayOffset);
+  const std::string date = addDays(baseDay(), S.dayOffset);
   Day d; loadDay(date, d);
   DayLog log; loadDayLog(date, log);
   C->clear();
@@ -99,7 +113,7 @@ static void drawToday(bool sleeping) {
   if (!d.ok) {
     header("Keeping Watch", prettyDate(date).c_str());
     C->wrap(F_BODY, M, 150, CW, ("No day pack for " + date.substr(0, 7) + " on the card. Copy the kw-update folder "
-                                 "from the journal build to the SD card, or upload it from the Wi-Fi page (Menu → Wi-Fi sync).").c_str());
+                                 "from the journal build to the SD card, or upload it from the Wi-Fi page (Menu, then Wi-Fi sync).").c_str());
     hintBar("Menu", "Check in", "◀ day", "day ▶");
     return;
   }
@@ -115,7 +129,10 @@ static void drawToday(bool sleeping) {
   C->moon(Canvas::W - M - 50, 104, 46, d.moonDeg);
   char mp[64]; snprintf(mp, sizeof mp, "%d%% · %s", d.lit, d.moonSign.c_str());
   C->textRight(F_UI_S, Canvas::W - M, 176, mp, &F_SYM);
-  if (S.dayOffset) C->textRight(F_UI_S, Canvas::W - M, 36, S.dayOffset > 0 ? "future day" : "past day");
+  if (rolledBack() && S.dayOffset == 0) C->textRight(F_UI_S, Canvas::W - M, 36, ("last night · ▶ " + prettyDate(addDays(date, 1)).substr(5)).c_str(), &F_SYM);
+  else if (rolledBack() && S.dayOffset == 1) C->textRight(F_UI_S, Canvas::W - M, 36, "new day · ◀ back", &F_SYM);
+  else if (S.dayOffset) C->textRight(F_UI_S, Canvas::W - M, 36, S.dayOffset > 0 ? "future day" : "past day");
+  if (d.page > 0) { char pgs[24]; snprintf(pgs, sizeof pgs, "book p. %d", d.page); C->text(F_UI_S, nx + 10, 184, pgs); }
   C->fill(M, 192, CW, 3);
 
   // Sun and season.
@@ -132,6 +149,7 @@ static void drawToday(bool sleeping) {
 
   // Notes (holidays bold), one-off events, routines as checkboxes.
   int shown = 0;
+  const int total = (int)(d.notes.size() + d.events.size() + d.routines.size());
   for (auto& n : d.notes) {
     if (shown >= 3) break;
     const bool hol = n[0] == '!';
@@ -146,6 +164,7 @@ static void drawToday(bool sleeping) {
     C->rect(M, y - 16, 16, 16, 2); C->wrap(F_UI, M + 24, y, CW - 24, r.c_str(), 1); y += 30; shown++;
   }
   if (!shown) { C->text(F_BODY_I, M, y, "Nothing on the calendar."); y += 30; }
+  else if (total > shown) { C->text(F_UI_S, M + 24, y - 6, ("+" + std::to_string(total - shown) + " more on paper").c_str()); y += 26; }
   y += 4;
   C->hline(M, y, CW); y += 14;
 
@@ -160,11 +179,15 @@ static void drawToday(bool sleeping) {
     else { C->roundRect(tx, y, 40, 40, 6, 2); C->icon(ITEMS[idx].icon, tx + 8, y + 8, 24, true); }
   }
   y += 70;
-  char feel[96];
-  const int mood = log.get(11), anx = log.get(12), spoons = log.get(13);
-  snprintf(feel, sizeof feel, "Mood %s%d  ·  Anxiety %d  ·  %d spoons", mood > 0 ? "+" : "", mood, anx, spoons);
+  // Only what was actually logged shows as a value; anything else is "–" (never a guessed default).
+  char feel[96], mv[8] = "–", av[8] = "–", sv[8] = "–";
+  if (log.has(11)) snprintf(mv, sizeof mv, "%s%d", log.get(11) > 0 ? "+" : "", log.get(11));
+  if (log.has(12)) snprintf(av, sizeof av, "%d", log.get(12));
+  if (log.has(13)) snprintf(sv, sizeof sv, "%d", log.get(13));
+  snprintf(feel, sizeof feel, "Mood %s  ·  Anxiety %s  ·  %s spoons", mv, av, sv);
   C->text(F_UI, M, y, (log.has(11) || log.has(12) || log.has(13)) ? feel : "No check-in yet today.");
   y += 22;
+  if (log.orphans) { C->text(F_UI_S, M, y + 6, (std::to_string(log.orphans) + " older custom entr" + (log.orphans == 1 ? "y" : "ies") + " kept in the log").c_str()); y += 26; }
 
   // On this day (the footer fact from the paper page).
   if (!d.fact.empty()) {
@@ -179,7 +202,7 @@ static void drawToday(bool sleeping) {
     C->hline(0, HINT_Y, Canvas::W);
     battery(M, HINT_Y + 28);
     C->textRight(F_UI_S, Canvas::W - M, HINT_Y + 28,
-                 hal::timeValid() ? ("Updated " + clockStr(hal::now()) + " · press power to wake").c_str() : "Clock not set · press power");
+                 clockOk() ? ("Updated " + clockStr(hal::now()) + " · press power to wake").c_str() : "Clock not set · press power");
   } else {
     hintBar(S.dayOffset ? "Today" : "Menu", "Check in", "◀ day", "day ▶");
   }
@@ -227,10 +250,13 @@ static void dotState(int cx, int cy, int r, int v) {
 }
 
 static void drawCheckin() {
-  const std::string date = addDays(today(), S.dayOffset);
+  const std::string date = addDays(baseDay(), S.dayOffset);
   DayLog log; loadDayLog(date, log);
   C->clear();
-  header("Check in", prettyDate(date).c_str(), IC_CHECK);
+  // The date it will log to, always in the corner; "last night" when it is after midnight but before 4 a.m.
+  std::string sub = prettyDate(date);
+  if (rolledBack() && S.dayOffset == 0) sub += " · last night";
+  header("Check in", sub.c_str(), IC_CHECK);
   // Scroll only when the list is taller than the screen (never with the built-ins alone).
   const int total = rowTop(ITEM_COUNT - 1) + ROW_H;
   if (total <= VIEW_H) S.scroll = 0;
@@ -275,7 +301,7 @@ static void drawCheckin() {
         char b[16]; snprintf(b, sizeof b, "%d", log.get(i));
         if (i == 13) {  // spoons: draw them, filled = left
           for (int k = 0; k < 12; k++) {
-            const int sx = R - (12 - k) * 15, on = k < log.get(i);
+            const int sx = R - (12 - k) * 15, on = log.has(i) && k < log.get(i);  // unset: all outlines, not 12 full
             if (on) { C->fillCircle(sx + 5, y + 16, 5); C->fill(sx + 4, y + 20, 3, 11); }
             else { C->circle(sx + 5, y + 16, 5, 2); C->vline(sx + 5, y + 21, 10); }
           }
@@ -302,7 +328,7 @@ static void drawCheckin() {
 }
 
 static void checkinPress(Btn b) {
-  const std::string date = addDays(today(), S.dayOffset);
+  const std::string date = addDays(baseDay(), S.dayOffset);
   DayLog log; loadDayLog(date, log);
   const Item& it = ITEMS[S.sel];
   const time_t now = hal::now();
@@ -335,7 +361,7 @@ static const MenuEntry MENU[] = {
 static const int MENU_N = sizeof(MENU) / sizeof(MENU[0]);
 static void drawMenu() {
   C->clear();
-  header("Keeping Watch", prettyDate(today()).c_str());
+  header("Keeping Watch", prettyDate(baseDay()).c_str());
   for (int i = 0; i < MENU_N; i++) {
     const int y = 110 + i * 86;
     C->icon(MENU[i].icon, M + 4, y + 14, 36);
@@ -352,14 +378,17 @@ static void drawMenu() {
 // THIS MONTH — the numbers the Keeper's "Closing <month>" page asks for, already added up.
 // ---------------------------------------------------------------------------------------------
 static void drawMonth() {
-  time_t t = hal::now(); struct tm tm; localtime_r(&t, &tm);
-  int y0 = tm.tm_year + 1900, m0 = tm.tm_mon + 1 + S.monthOffset;
+  const std::string bd = baseDay();
+  int y0 = atoi(bd.c_str()), m0 = atoi(bd.c_str() + 5) + S.monthOffset;
   while (m0 < 1) { m0 += 12; y0--; }
   while (m0 > 12) { m0 -= 12; y0++; }
   MonthStats s; monthStats(y0, m0, s);
-  char sub[32]; snprintf(sub, sizeof sub, "%d", y0);
+  char ym[8]; snprintf(ym, sizeof ym, "%04d-%02d", y0, m0);
+  const std::string built = builtStamp(ym);  // which build the pack on the card comes from (the book prints the same date)
+  char sub[16]; snprintf(sub, sizeof sub, "%d", y0);
   C->clear();
   header(monthName(m0).c_str(), sub, IC_CHART);
+  if (!built.empty()) C->textRight(F_UI_S, Canvas::W - M, 36, ("pack " + built).c_str());
   struct Stat { const char* label; char val[16]; const char* unit; };
   Stat st[6];
   auto set = [&](int i, const char* l, const char* u, const char* fmt, double v, bool have) {
@@ -403,7 +432,8 @@ static void drawMonth() {
   if (kp) snprintf(foot, sizeof foot, "Copy these to your Keeper, page %d.", kp);
   else snprintf(foot, sizeof foot, "Copy these to your Keeper's handoff page.");
   C->text(F_BODY_I, M, HINT_Y - 18, foot);
-  hintBar("Back", "", "◀ month", "month ▶");
+  // First days of a month open on the month just finished (its totals go to the Keeper); ▶ reaches the new one.
+  hintBar("Back", "", "◀ month", S.monthOffset == -1 && atoi(bd.c_str() + 8) <= 3 ? "this month ▶" : "month ▶");
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -604,6 +634,8 @@ static void drawSync(bool up) {
   C->textCenter(F_UI_S, Canvas::W / 2, y, "2. OPEN"); y += 40;
   C->textCenter(F_TITLE, Canvas::W / 2, y, "192.168.4.1"); y += 44;
   C->wrap(F_UI_S, M, y, CW, "Upload month packs, download your check-in log, edit your safety plan, and set the clock from your phone. Nothing leaves this device.", 4);
+  const std::string built = builtStamp(baseDay().substr(0, 7));
+  if (!built.empty()) C->text(F_UI_S, M, HINT_Y - 10, ("pack " + built).c_str());  // compare with "Built" on the book's title page
   char cl[32]; snprintf(cl, sizeof cl, "%d connected", hal::wifiClients());
   C->textRight(F_UI_S, Canvas::W - M, HINT_Y - 10, cl);
   hintBar("Stop", "", "", "");
@@ -614,7 +646,8 @@ static void drawSync(bool up) {
 // ---------------------------------------------------------------------------------------------
 static void drawClock() {
   C->clear();
-  header("Clock", hal::timeValid() ? "running" : "not set", IC_GEAR);
+  const std::string problem = clockProblem();
+  header("Clock", problem.empty() ? "running" : "not set", IC_GEAR);
   char f[5][16];
   snprintf(f[0], 16, "%04d", S.edit.tm_year + 1900); snprintf(f[1], 16, "%02d", S.edit.tm_mon + 1);
   snprintf(f[2], 16, "%02d", S.edit.tm_mday); snprintf(f[3], 16, "%02d", S.edit.tm_hour); snprintf(f[4], 16, "%02d", S.edit.tm_min);
@@ -626,7 +659,8 @@ static void drawClock() {
     if (i == S.field) C->fill(xs[i], ys[i] + 12, C->width(F_UI_XL, f[i]), 4);
   }
   C->text(F_UI_XL, M + 150, 420, ":");
-  C->wrap(F_BODY_I, M, 520, CW, "Pacific time; daylight saving is handled for you. The Wi-Fi page can also set this from your phone in one tap.", 3);
+  if (!problem.empty()) C->wrap(F_BODY, M, 500, CW, problem.c_str(), 4);
+  C->wrap(F_BODY_I, M, problem.empty() ? 520 : 640, CW, "Pacific time; daylight saving is handled for you. The Wi-Fi page can also set this from your phone in one tap.", 3);
   hintBar("Cancel", "Save", "◀ field", "field ▶");
 }
 
@@ -658,9 +692,17 @@ static void render(bool sameScreen, bool sleeping = false) {
   hal::wifiStop();
   S.scr = Scr::Today; S.dayOffset = 0;
   render(false, true);
-  hal::sleepUntil(nextLocalMidnight(hal::now(), 31));  // 12:31 a.m. leaves room for RTC drift
+  hal::sleepUntil(nextDayStart(hal::now()));  // 4:31 a.m., when the new day starts; leaves room for RTC drift
 }
 
+// Opens the Clock editor on the current time, or on the day the books were built when the clock is wrong.
+static void go(Scr s);
+static void openClock() {
+  time_t t = clockOk() ? hal::now() : dateNoon(builtStamp(dateStr(hal::now()).substr(0, 7)));
+  if (!t) t = 1790000000;
+  localtime_r(&t, &S.edit); S.field = 0;
+  go(Scr::Clock);
+}
 static void go(Scr s) { S.prev = S.scr; S.scr = s; S.sel = 0; S.page = 0; S.scroll = 0; render(false); }
 
 void appMain() {
@@ -688,7 +730,7 @@ void appMain() {
 
     switch (S.scr) {
       case Scr::Today:
-        if (b == Btn::Confirm) go(Scr::Checkin);
+        if (b == Btn::Confirm) { if (clockOk()) go(Scr::Checkin); else openClock(); }
         else if (b == Btn::Left || b == Btn::Right) { S.dayOffset += (b == Btn::Right) ? 1 : -1; render(true); }
         else if (b == Btn::Back) { if (S.dayOffset) { S.dayOffset = 0; render(true); } else go(Scr::Menu); }
         else if (b == Btn::Up || b == Btn::Down) go(Scr::Menu);
@@ -706,7 +748,7 @@ void appMain() {
         else if (b == Btn::Confirm) {
           const Scr to = MENU[S.sel].to;
           if (to == Scr::Today) S.dayOffset = 0;
-          if (to == Scr::Month) S.monthOffset = 0;
+          if (to == Scr::Month) S.monthOffset = atoi(baseDay().c_str() + 8) <= 3 ? -1 : 0;
           if (to == Scr::Sync) {
             uint32_t r = (uint32_t)hal::now() * 2654435761u ^ hal::millis();
             snprintf(SSID, sizeof SSID, "KeepingWatch-%04X", (unsigned)(r & 0xFFFF));
@@ -716,7 +758,8 @@ void appMain() {
             render(false);
             break;
           }
-          if (to == Scr::Clock) { time_t t = hal::timeValid() ? hal::now() : (time_t)1790000000; localtime_r(&t, &S.edit); S.field = 0; }
+          if (to == Scr::Clock) { openClock(); break; }
+          if (to == Scr::Checkin && !clockOk()) { openClock(); break; }  // never save under a guessed date
           go(to);
         }
         break;

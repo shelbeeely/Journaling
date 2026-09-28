@@ -3,7 +3,7 @@
 // Usage: node render.mjs month <YYYY-MM> [a.ics,b.ics]      (SIZE=letter for 8.5x11, HARDCOVER=1 to pad to 76+ pages)
 import fs from 'node:fs';
 import { launch } from './browser.mjs';
-import { build } from './data.mjs';
+import { build, busCoverage } from './data.mjs';
 import bwipjs from 'bwip-js';
 import { EDITION } from './content/edition.mjs';
 import { IC, ic, box, spoon, actionZone, dayBlocks, normalize, DAYPAGE_CSS } from './daypage.mjs';
@@ -19,6 +19,8 @@ const monthName = new Date(Date.UTC(yr, mo - 1, 1)).toLocaleDateString('en-US', 
 // globalContent is kept only so data.json (read by epub.py) stays byte-identical.
 const VOL = { n: bookNo, start: [yr, mo, 1], days: new Date(Date.UTC(yr, mo, 0)).getUTCDate(), label: `${monthName} ${yr}`, short: `${monthName.slice(0, 3)} ${yr}`, globalContent: true, id: `${yr}-${String(mo).padStart(2, '0')}`, month: mo, year: yr };
 const ICS = process.argv[4];
+// STA bus pages: 'full' (feed covers the whole month), 'partial' (feed ends mid-month) or 'none' (no schedule to print).
+const BUS_COV = busCoverage(VOL.id);
 const OUT = `out/m${VOL.id}${process.env.SIZE === 'letter' ? '-letter' : ''}`;
 const { FACTS, PIONEERS, WORDS, PROMPTS } = await import('./content/year.mjs');
 const D = build(ICS, VOL, WORDS);
@@ -56,7 +58,7 @@ function moon(deg, size = 18) {
 }
 
 // ---------- icons (monoline, 12x12, stroke 1.15 = 0.8pt at print size) ----------
-const ICON_KEY = [['pill', 'Meds'], ['am', 'Morning dose'], ['pm', 'Evening dose'], ['prn', 'As needed (write the time)'], ['meal', 'Meals'], ['snack', 'Snack'], ['shower', 'Shower'], ['teeth', 'Teeth'], ['joy', 'Did something I enjoy'], ['text', 'Texted someone'], ['low', 'Mood low … high'], ['anx', 'Anxiety 0–3'], ['sleep', 'Sleep hours'], ['work', 'Work shift'], ['spoon', 'Spoons: cross off as you use them'], ['well', 'Went well'], ['hard', 'Was hard'], ['next', 'Tomorrow']];
+const ICON_KEY = [['pill', 'Meds'], ['am', 'Morning dose'], ['pm', 'Evening dose'], ['prn', 'As needed (write the time)'], ['meal', 'Meals'], ['snack', 'Snack'], ['shower', 'Shower'], ['teeth', 'Teeth'], ['joy', 'Did something I enjoy'], ['text', 'Texted someone'], ['low', 'Mood low … high'], ['anx', 'Anxiety 0–3'], ['sleep', 'Sleep hours'], ['work', 'Work shift'], ['spoon', 'Spoons: cross off as you use them'], ['coin', 'Payday'], ['well', 'Went well'], ['hard', 'Was hard'], ['next', 'Tomorrow']];
 const bubbles = (labels, lo, hi) => `<span class="end">${lo}</span>` + labels.map(() => `<span class="bub"><i></i></span>`).join('') + `<span class="end">${hi}</span>`;
 const dur = (min) => `${Math.floor(min / 60)}h ${String(min % 60).padStart(2, '0')}m`;
 const ruby = (k, r) => `<ruby>${k}<rt>${r}</rt></ruby>`;
@@ -98,6 +100,7 @@ function titlePage() {
     <p class="sub">A sky, season &amp; self journal</p>
     <p class="range">Book ${VOL.n} of 12 · ${VOL.label}</p>
     <p class="place">Sky data for ${esc(D.config.place)} · ${D.config.lat.toFixed(2)}° N, ${Math.abs(D.config.lon).toFixed(2)}° W · Pacific Time</p>
+    <p class="built">Built ${D.generated.slice(0, 10)}</p>
     <p class="owner">This journal belongs to<br><span class="line"></span></p>
   </div>`;
 }
@@ -107,7 +110,7 @@ function lineagePage() {
   <p class="lead">Every part of this journal is borrowed from a method people used for centuries. The history shows one lesson: methods die when they get complicated. <b>Skip anything, any day.</b> A blank box is data too.</p>
   <table class="lin">${LINEAGE.map(([a, b]) => `<tr><th>${a}</th><td>${b}</td></tr>`).join('')}</table>
   <p class="small">Daily “On this day” facts come from the Computer History Museum’s This Day in History and Wikipedia’s date pages. Pioneer profiles are checked against each person’s Wikipedia article.</p>
-  <p class="small">Astrology here is a reflection prompt, not a forecast. The astronomy (sunrise, sunset, moon phase, solstice) is real and calculated for ${esc(D.config.place)}.</p>`;
+  <p class="small">Astrology here is a reflection prompt, not a forecast. The astronomy (sunrise, sunset, moon phase, solstice) is real and calculated for ${esc(D.config.place)}.</p>${busLine()}`;
 }
 
 function anatomyPage() {
@@ -119,7 +122,7 @@ function anatomyPage() {
     <div><h3>Each day</h3><p>A full page. Header is pre-filled with the sky. Circle your mood and spoons. Rapid-log anything. Answer three evening questions.</p></div>
   </div>
   <h3 class="h3b">Anatomy of a day</h3>
-  <div class="anat"><div><b class="zl">DATE / TITLE / TAGS</b> printed date; write a title and tags in the boxes</div><div><b class="zl">SKY + CHECK-IN</b> moon, sun, season; circle mood, cross off spoons</div><div class="a3"><b class="zl">BODY</b> faint 5 mm dots: write anything</div><div><b class="zl">ACTION ITEMS</b> one task per checkbox</div><div><b class="zl">REVIEW</b> went well · was hard · tomorrow</div></div><p class="small" style="margin-top:5px"><b>At the back:</b> Support p. {{P_SUPPORT}} · Safety plan p. {{P_SAFETY}} · Bus times p. {{P_BUS}} · Where each piece comes from p. {{P_LINEAGE}}</p><h3 class="h3b">Scanning pages</h3><p class="small">Every page has a black frame, seven “send to” bubbles and a small square page code (a Data Matrix) that says which book and page it is. Fill a bubble to route the scan (you choose what each shape means in your scanning app). Keep the frame and the page code clear of ink. These markers are made for your own app; the Rocketbook app won’t read them.</p>`;
+  <div class="anat"><div><b class="zl">DATE / TITLE / TAGS</b> printed date; write a title and tags in the boxes</div><div><b class="zl">SKY + CHECK-IN</b> moon, sun, season; circle mood, cross off spoons</div><div class="a3"><b class="zl">BODY</b> faint 5 mm dots: write anything</div><div><b class="zl">ACTION ITEMS</b> one task per checkbox</div><div><b class="zl">REVIEW</b> went well · was hard · tomorrow</div></div><p class="small" style="margin-top:5px"><b>At the back:</b> Support p. {{P_SUPPORT}} · Safety plan p. {{P_SAFETY}} · ${BUS_COV === 'none' ? '' : 'Bus times p. {{P_BUS}} · '}Where each piece comes from p. {{P_LINEAGE}}</p><h3 class="h3b">Scanning pages</h3><p class="small">Every page has a black frame, seven “send to” bubbles and a small square page code (a Data Matrix) that says which book and page it is. Fill a bubble to route the scan (you choose what each shape means in your scanning app). Keep the frame and the page code clear of ink. These markers are made for your own app; the Rocketbook app won’t read them.</p>`;
 }
 
 function keyPage() {
@@ -136,7 +139,7 @@ function keyPage() {
     <div><h3>Signs</h3><div class="gl-list">${signs}</div>
       <h3>Planets</h3><div class="gl-list">${planets}</div>
       <h3>Check-in</h3>
-      <p class="small"><b>Mood</b> −3 very low · 0 steady · +3 very high/wired<br><b>Energy</b> 1 empty … 5 full<br><b>Spoons</b> ${spoon()} cross one out per spoon spent. Start with the number you woke up with.</p>
+      <p class="small"><b>Mood</b> −3 very low · 0 steady · +3 very high/wired<br><b>Spoons</b> ${spoon()} cross one out per spoon spent. Start with the number you woke up with. A <b>good-spoon day</b> ends with 4 or more left.</p>
     </div>
   </div>
   `;
@@ -181,19 +184,24 @@ function packGrids(E) {
 }
 const DAY3 = [['weekday', 'WKDY'], ['saturday', 'SAT'], ['sunday', 'SUN']];
 const shortStop = (n) => tc(n || '').replace('K Street Station', 'Cheney').replace('Eagle Station', 'EWU').replace('West Plains TC', 'W Plains').replace(/ \(.*?\)/g, '').replace('Spokane International Airport Concourse ', 'Airport ');
+let busWarned = false;
 function busMeta() {
   const E = NET.months[VOL.id];
   const ymd = (s) => `${s.slice(4, 6).replace(/^0/, '')}/${s.slice(6).replace(/^0/, '')}/${s.slice(2, 4)}`;
-  if (E.stale) console.warn(`! STA schedule ends ${NET.valid_to}; refresh gtfs before printing ${VOL.id}`);
-  return { E, note: `STA schedule ${ymd(NET.valid_from)}–${ymd(NET.valid_to)}.${E.stale ? ' <b>May have changed: check spokanetransit.com.</b>' : ''}` };
+  if (BUS_COV === 'partial' && !busWarned && (busWarned = true)) console.warn(`! STA schedule ends ${NET.valid_to}; ${VOL.id} is only partly covered (pages say so). Refresh gtfs before printing.`);
+  const until = new Date(Date.UTC(+NET.valid_to.slice(0, 4), +NET.valid_to.slice(4, 6) - 1, +NET.valid_to.slice(6))).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+  const from = new Date(Date.UTC(+NET.valid_from.slice(0, 4), +NET.valid_from.slice(4, 6) - 1, +NET.valid_from.slice(6))).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+  const startsLate = `${NET.valid_from.slice(0, 4)}-${NET.valid_from.slice(4, 6)}` === VOL.id && NET.valid_from.slice(6) !== '01';
+  const valid = BUS_COV === 'partial' ? `<p class="busvalid">${startsLate ? `Schedule starts ${from} · check spokanetransit.com before` : `Schedule valid through ${until} · check spokanetransit.com after`}</p>` : '';
+  return { E, valid, note: `STA schedule ${ymd(NET.valid_from)}–${ymd(NET.valid_to)}.` };
 }
 function netPage(part) {
-  const { E, note } = busMeta();
+  const { E, note, valid } = busMeta();
   const ids = Object.keys(E.summary).filter((r) => NET.routes[r]).sort((a, b) => parseInt(NET.routes[a].n) - parseInt(NET.routes[b].n));
   const half = Math.ceil(ids.length / 2), mine = part === 0 ? ids.slice(0, half) : ids.slice(half);
   const cell = (x) => x ? `${x.span.replace(/:00/g, '')}${x.every ? ` <b>${x.every === 7.5 ? '7–8' : x.every}</b>` : ''}` : '<span class="dim">no service</span>';
   const rows = mine.map((r) => `<tr><td class="rn">${esc(NET.routes[r].n)}</td><td class="rname">${esc(NET.routes[r].name)}</td>${DAY3.map(([k]) => `<td>${cell(E.summary[r][k])}</td>`).join('')}</tr>`).join('');
-  return `<h2 class="pt">${part === 0 ? 'STA at a glance' : 'STA at a glance, cont.'}</h2><p class="small">First–last bus, then <b>minutes between buses</b> at midday.</p>
+  return `<h2 class="pt">${part === 0 ? 'STA at a glance' : 'STA at a glance, cont.'}</h2>${valid}<p class="small">First–last bus, then <b>minutes between buses</b> at midday.</p>
   <table class="net"><colgroup><col class="c1"><col class="c2"><col><col><col></colgroup><tr><th></th><th>Route</th>${DAY3.map(([, l]) => `<th>${l}</th>`).join('')}</tr>${rows}</table>
   ${part === 1 ? `<p class="small">${note} Gaps are typical 7a–6p. Holidays run the Sunday schedule. Next pages: minutes past the hour at the first stop named, → where the bus is headed. Weekday times are from ${E.samples.weekday.slice(5).replace('-', '/')}; EWU break days can differ.</p>` : ''}`;
 }
@@ -232,8 +240,8 @@ function gridTable(E, r) {
 ${partial ? '<p class="small">* starts partway along the route.</p>' : ''}`;
 }
 function gridPage(routeIds) {
-  const { E, note } = busMeta();
-  return `<div class="xh"><h2 class="pt">Bus times</h2><span class="dim">minutes past the hour</span></div>
+  const { E, note, valid } = busMeta();
+  return `<div class="xh"><h2 class="pt">Bus times</h2><span class="dim">minutes past the hour</span></div>${valid}
   ${routeIds.map((r) => gridTable(E, r)).join('')}
   <p class="small">Shaded rows like <b>8–10a</b> repeat the same minutes each hour. ${note}</p>`;
 }
@@ -260,12 +268,12 @@ function carePage() {
 // ---------- support pages (checked Sep 2026; numbers and hours change, so re-check each edition) ----------
 const SUPPORT = JSON.parse(fs.readFileSync('content/support.json', 'utf8')); // shared with epub.py
 const TRANS = JSON.parse(fs.readFileSync('content/trans.json', 'utf8'));
-const CUT = `<div class="cutnote"><svg width="9" height="8" viewBox="0 0 12 10" style="vertical-align:-1px"><circle cx="2.5" cy="2.5" r="1.8" fill="none" stroke="#444" stroke-width="1"/><circle cx="2.5" cy="7.5" r="1.8" fill="none" stroke="#444" stroke-width="1"/><path d="M4 3.4 L11.5 8.5 M4 6.6 L11.5 1.5" stroke="#444" stroke-width="1"/></svg> To remove this page, cut along the inside edge of the black frame.</div>`;
 function dirPage(title, intro, data) {
   const chip = (t) => t.split(' ').filter(Boolean).map((x) => `<span class="chip${x === 'TEXT' ? ' tx' : ''}">${x}</span>`).join('');
-  return `${CUT}<h2 class="pt">${title}</h2><p class="small">${intro}</p>
+  return `<h2 class="pt">${title}</h2><p class="small">${intro}</p>
   ${data.map(([h, items]) => `<h3 class="sh">${h}</h3>${items.map(([n, d, c]) => `<div class="sup"><div class="sn"><b>${n}</b>${chip(c)}</div><div class="sd">${d}</div></div>`).join('')}`).join('')}`;
 }
+const busLine = () => BUS_COV === 'none' ? '<div class="busbox"><b>Bus times:</b> spokanetransit.com or the STA app</div>' : '';
 const supportPage = () => dirPage('Support', '<span class="chip tx">TEXT</span> means you can text instead of talking. Emergency: <b>911</b>. 988’s LGBTQ+ “press 3” option ended July 2025. Checked Sep 2026.', SUPPORT);
 const transPage = () => dirPage('Trans support', 'For trans people in Spokane and Washington. <span class="chip tx">TEXT</span> means you can message instead of calling. Checked Sep 2026.', TRANS);
 // Last page of each monthly book: the handoff to the Keeper (page numbers from out/keeper/index.json).
@@ -280,8 +288,9 @@ function closingPage() {
   <p class="small">Do this with your Keeper open${kp ? ` to <b>page ${kp}</b>` : ''}, before starting ${nextName}. About 15 minutes.</p>
   <h3 class="sh">1 · Total the tracker</h3>
   <div class="qg">${st('Avg mood', '−3…+3')}${st('Avg sleep', 'h')}${st('Showers', '/' + dim)}${st('Meds taken', 'days')}${st('Good-spoon days', 'days')}${st('Work hours', 'h')}</div>
+  <p class="small">Good-spoon day: 4 or more spoons left at bedtime. In the tracker’s spoons box, write the number left.</p>
   <h3 class="sh">2 · Hand off to the Keeper${kp ? ` (p. ${kp}–${kp + 1})` : ''}</h3>
-  ${step('Copy the totals, highs, lows and health notes')}${step('Add new contacts and birthdays')}${step('Update account hints; cross out used recovery codes')}${step('Index pages worth finding later (this is <b>Book ' + VOL.n + '</b>)')}${step('Back up the X4 log: Wi-Fi sync → download')}
+  ${step('Copy the totals, highs, lows and health notes')}${step('Add new contacts and birthdays')}${step('Update account hints and where recovery codes are kept')}${step('Index pages worth finding later (this is <b>Book ' + VOL.n + '</b>)')}${step('Back up the X4 log: Wi-Fi sync → download')}
   <h3 class="sh">3 · Carry forward</h3>
   ${step('Mark unfinished tasks in this book with &gt; and copy them to the Keeper')}${step('Scan any pages you still want in your app')}
   <h3 class="sh">4 · Start fresh</h3>
@@ -296,13 +305,14 @@ function contactsPage() {
 }
 function safetyPage() {
   const q = (n, t, h = 'l2') => `<div class="sq" data-zone="safety_${n}"><b>${n}. ${t}</b><div class="lines ${h}"></div></div>`;
-  return `${CUT}<h2 class="pt">My safety plan</h2>
+  const person = () => `<div class="pn"><div class="qf"><span>Name</span><i></i></div><div class="qf"><span>Phone</span><i></i></div><span class="qt"><i></i> TEXT OK</span></div>`;
+  return `<div class="sph"><h2 class="pt">My safety plan</h2><div class="qf"><span>Last reviewed</span><i></i></div></div>
   <p class="small">Fill this in on a good day, so it is ready on a hard one. Work down the list until you feel safer.</p>
   ${q(1, 'Signs a hard time is starting (thoughts, moods, situations)')}
   ${q(2, 'Things I can do on my own to feel a little better')}
   ${q(3, 'People or places that help me get my mind off it')}
-  ${q(4, 'People I can text for help')}
-  ${q(5, 'Professionals: my therapist, my prescriber, 988, crisis line 1-877-266-1818')}
+  <div class="sq" style="margin-bottom:5px"><b>4. People I can text or call for help</b>${person()}${person()}${person()}</div>
+  ${q(5, 'Professionals and crisis lines: my therapist, my prescriber; 988 (call or text); text HOME to 741741; Frontier crisis line 1-877-266-1818; Trans Lifeline (877) 565-8860 (call, weekdays 10–6 PT)')}
   ${q(6, 'How I can make my space safer (meds, other things)')}
   ${q(7, 'What matters to me, worth staying for', 'l2')}
   <div class="script"><b>A text I can send when talking is too hard:</b><br>“Hey, I’m having a hard time. I’m not up for a call. Can you text with me for a bit?”</div>`;
@@ -324,7 +334,9 @@ function monthCalendar(M) {
   const firstWd = new Date(Date.UTC(M.y, M.m - 1, 1)).getUTCDay(), dim = new Date(Date.UTC(M.y, M.m, 0)).getUTCDate();
   const lead = (firstWd + 6) % 7;
   const cells = Array(lead).fill('<td class="out"></td>');
-  const maxEv = Math.ceil((lead + dim) / 7) > 5 ? 1 : 2;
+  const nRows = Math.ceil((lead + dim) / 7), maxEv = nRows > 5 ? 1 : nRows < 5 ? 3 : 2;
+  const soft = (t) => t.replace(/[\p{L}’']{9,}/gu, (w) => w.slice(0, Math.ceil(w.length / 2)) + '\u00ad' + w.slice(Math.ceil(w.length / 2))); // soft hyphen so long words break inside a 0.5in cell
+  const calHol = (t) => t.replace(' (clocks forward)', ' ').replace(' (clocks back)', ' ').replace('Daylight saving time', 'DST').replace('Martin Luther King Jr. Day', 'MLK Day').replace('Indigenous Peoples’ Day / Columbus Day', 'Indig. Peoples’ / Columbus Day').trim();
   for (let n = 1; n <= dim; n++) {
     const d = M.days.find((x) => x.d === n);
     if (!d) { cells.push(`<td class="out other"><div class="cd"><span class="n">${n}</span></div><div class="ev">in Vol ${n < 15 ? VOL.n - 1 : VOL.n + 1}</div></td>`); continue; }
@@ -332,10 +344,11 @@ function monthCalendar(M) {
     if (d.moon.quarter != null) marks.push(`${moon(d.moon.phaseDeg, 10)}`);
     
     const payTag = d.notes.filter((n) => n.kind === 'pay').map((n) => n.text.startsWith('Payday') ? 'PAYDAY' : n.text.startsWith('Pay period starts') ? 'NEW PERIOD' : 'PERIOD ENDS').filter((t) => t !== 'PERIOD ENDS').map((t) => `<div class="pay">${t}</div>`).join('');
-    const evs = d.events.filter((e) => !e.routine); // weekly/daily routines live on the day pages as checkboxes
+    const holTxt = d.notes.filter((n) => n.kind === 'holiday').map((n) => n.text.toLowerCase());
+    const evs = d.events.filter((e) => !e.routine && !(e.allDay && holTxt.includes(e.title.replace(/\s*\(.*\)$/, '').toLowerCase()))); // weekly/daily routines live on the day pages as checkboxes
     const shown = evs.filter((e) => e.allDay).concat(evs.filter((e) => !e.allDay)).slice(0, maxEv);
-    const ev = shown.map((e) => `<div class="ev">${e.time ? e.time + ' ' : ''}${esc(e.title)}</div>`).join('') + (evs.length > maxEv ? `<div class="ev dim">+${evs.length - maxEv} more</div>` : '');
-    cells.push(`<td><div class="cd"><span class="n">${d.d}</span><span class="mk">${marks.join('')}</span></div>${d.notes.filter((n) => n.kind === 'holiday').map((n) => `<div class="hol${n.federal ? ' fed' : ''}">${esc(n.text.replace(' (clocks forward)', '').replace(' (clocks back)', '').replace('Daylight saving time', 'DST'))}</div>`).join('')}${payTag}${d.notes.some((n) => n.kind === 'bus') ? '<div class="pay">SUN BUS</div>' : ''}${ev}</td>`);
+    const ev = shown.map((e) => `<div class="ev">${e.time ? e.time + ' ' : ''}${esc(soft(e.title))}</div>`).join('') + (evs.length > maxEv ? `<div class="ev dim">+${evs.length - maxEv} more</div>` : '');
+    cells.push(`<td><div class="cd"><span class="n">${d.d}</span><span class="mk">${marks.join('')}</span></div>${d.notes.filter((n) => n.kind === 'holiday').map((n) => `<div class="hol${n.federal ? ' fed' : ''}">${esc(soft(calHol(n.text)))}</div>`).join('')}${payTag}${d.notes.some((n) => n.kind === 'bus') ? '<div class="pay">SUN BUS</div>' : ''}${ev}</td>`);
   }
   while (cells.length % 7) cells.push('<td class="out"></td>');
   const rows = []; for (let i = 0; i < cells.length; i += 7) rows.push(`<tr>${cells.slice(i, i + 7).join('')}</tr>`);
@@ -366,13 +379,13 @@ function monthSky(M) {
 function monthTracker(M) {
   const rows = M.days.map((d) => `<tr><td class="dn">${d.d}</td><td class="kj">${DAY_LETTERS[(d.weekday + 6) % 7]}</td><td class="mc">${moon(d.moon.phaseDeg, 8)}</td><td class="mood">${[-3, -2, -1, 0, 1, 2, 3].map(() => '<i></i>').join('')}</td><td class="bx"></td><td class="bx"></td><td class="bx"></td><td class="bx"></td><td class="bx"></td><td class="bx"></td></tr>`).join('');
   return `<h2 class="pt">${M.name} · tracker</h2>
-  <table class="trk" data-zone="tracker_grid"><tr><th colspan="3"></th><th>${ic('low')} mood ${ic('high')}</th><th>${ic('sleep', 'Sleep')}</th><th>${ic('pill', 'Meds')}</th><th>${ic('meal', 'Meals')}</th><th>${ic('shower', 'Shower')}</th><th>${ic('work', 'Work')}</th><th>${ic('spoon', 'Spoons')}</th></tr>${rows}</table>
-  <p class="small">Fill a dot per day. After a few weeks, look for patterns: sleep before mood shifts, spoons vs. moon phase, busy days vs. spoons.</p>`;
+  <table class="trk" data-zone="tracker_grid"><tr><th colspan="3"></th><th>${ic('low')} mood ${ic('high')}</th><th>${ic('sleep', 'Sleep')}</th><th>${ic('pill', 'Meds')}</th><th>${ic('meal', 'Meals')}</th><th>${ic('shower', 'Shower')}</th><th>${ic('work', 'Work')}</th><th>${ic('spoon', 'Spoons')}</th></tr><tr class="un"><th colspan="3"></th><th>−3 … +3</th><th>hrs</th><th>tick</th><th>0–3</th><th>tick</th><th>hrs</th><th>left</th></tr>${rows}</table>
+  <p class="small">Fill one mood dot (−3 to +3). Hours for sleep and work, meals 0–3, spoons left at bedtime. X4: Menu → This month.</p>`;
 }
 
 function monthMoonPage(M) {
   const nm = M.days.find((d) => d.moon.quarter === 0), fm = M.days.find((d) => d.moon.quarter === 2);
-  const block = (d, title, prompt, z) => d ? `<div class="mp" data-zone="${z}"><div class="mph">${moon(d.moon.phaseDeg, 26)}<div><h3>${title} · ${M.name.slice(0, 3)} ${d.d}</h3><p class="dim">in ${G(d.moon.glyph)} ${d.moon.sign} · ${esc(d.notes.find((n) => n.kind === 'moon')?.text || '')}</p></div></div><p class="small">${prompt}</p><div class="lines l7"></div></div>` : '';
+  const block = (d, title, prompt, z) => d ? `<div class="mp" data-zone="${z}"><div class="mph">${moon(d.moon.phaseDeg, 26)}<div><h3>${title} · ${M.name.slice(0, 3)} ${d.d}</h3><p class="dim">in ${G(d.moon.phaseGlyph || d.moon.glyph)} ${d.moon.phaseSign || d.moon.sign} · ${esc(d.notes.find((n) => n.kind === 'moon')?.text || '')}</p></div></div><p class="small">${prompt}</p><div class="lines l7"></div></div>` : '';
   return `<h2 class="pt">${M.name} · moon pages</h2>
   <div class="boxline">Theme check-in: how is my season theme going?</div><div class="lines l3" data-zone="theme_check"></div>
   ${block(nm, 'New moon', 'Set an intention for the next four weeks. What do you want to start, or tend?', 'new_moon')}
@@ -383,7 +396,7 @@ function monthMoonPage(M) {
 function weekLeft(W) {
   const f = W.days[0], l = W.days[W.days.length - 1];
   const lead = (f.weekday + 6) % 7, tail = 6 - ((l.weekday + 6) % 7);
-  const other = (label) => `<div class="wrow other"><div class="wd"><span class="dt">${label}</span></div><div></div><div class="wev dim">in the ${lead ? 'previous' : 'next'} book</div></div>`;
+  const other = (label) => `<div class="wrow other"><div class="wd"><span class="dt">${label}</span></div><div></div><div class="wev dim">${lead ? (VOL.n === 1 ? 'before this journal starts' : 'in the previous book') : (VOL.n === 12 ? 'after this journal ends' : 'in the next book')}</div></div>`;
   const rows = Array(lead).fill(0).map(() => other('—')).join('') + W.days.map((d) => `<div class="wrow" data-zone="week_day_${(d.weekday + 6) % 7 + 1}"><div class="wd"><span class="wdn">${d.weekdayName.slice(0, 3)}</span><span class="dt">${MONTHS[d.m - 1].slice(0, 3)} ${d.d}</span></div><div class="wsky"><span class="ms">${moon(d.moon.phaseDeg, 11)} ${G(d.moon.glyph)} ${d.moon.lit}%</span><span class="dim">${G('☀')} ${d.sun.rise}–${d.sun.set}</span><span class="wk-shift">work ____–____</span></div><div class="wev" data-pitch="0.22"><div class="rules lines" data-pitch="0.22"></div>${d.events.filter((e) => !e.routine).map((e) => `<div class="ev">${e.time ? e.time + ' ' : ''}${esc(e.title)}</div>`).join('')}${d.notes.filter((n) => n.kind !== 'astro').map((n) => `<div class="evs">${esc(n.text)}</div>`).join('')}</div></div>`).join('') + Array(tail).fill(0).map(() => other('—')).join('');
   return `<div class="whead" data-zone="week_header"><h2 class="pt">${W.label}</h2><span class="dim">${MONTHS[f.m - 1].slice(0, 3)} ${f.d} – ${MONTHS[l.m - 1].slice(0, 3)} ${l.d}</span></div>${rows}`;
 }
@@ -411,16 +424,20 @@ function dayFull(d) {
   const moonTxt = d.moon.ingress.length ? d.moon.ingress.map((i) => `→ ${G(D.glyphs[i.sign])} ${i.time}`).join(' ') : `in ${G(d.moon.glyph)}`;
   const retro = d.retro.length ? ` · ${G('℞')} ${d.retro.map((p) => G(PLANET_GLYPH[p])).join('')}` : '';
   const hol = d.notes.filter((n) => n.kind === 'holiday').map((n) => `<b>${esc(n.text)}</b>`);
-  const other = d.notes.filter((n) => n.kind !== 'holiday').map((n) => esc(n.text));
-  const oneOff = d.events.filter((e) => !e.routine);
+  // Pay periods: only payday gets a mark (a quiet coin in the sky line); period start/end live on the month calendar.
+  const other = d.notes.filter((n) => n.kind !== 'holiday' && n.kind !== 'pay').map((n) => esc(n.text));
+  const payday = d.notes.some((n) => n.kind === 'pay' && n.text.startsWith('Payday'));
+  // Busy days: show 4 events then "+N more"; 3+ routines collapse to one row (daypage.mjs); the fact yields before the writing space does.
+  const oneOff = d.events.filter((e) => !e.routine), EV_MAX = 4;
   const routines = d.events.filter((e) => e.routine).map((e) => `${e.time ? e.time + ' ' : ''}${e.title}`);
-  const ev = oneOff.length ? `<div class="dev" data-zone="events">${oneOff.map((e) => `○ ${e.time ? e.time + ' ' : ''}${esc(e.title)}`).join(' · ')}</div>` : '';
+  const evShown = oneOff.slice(0, EV_MAX), evMore = oneOff.length - evShown.length;
+  const ev = oneOff.length ? `<div class="dev" data-zone="events">${evShown.map((e) => `○ ${e.time ? e.time + ' ' : ''}${esc(e.title)}`).join(' · ')}${evMore > 0 ? ` · <i class="more">+${evMore} more</i>` : ''}</div>` : '';
   const dateText = `${d.weekdayName.slice(0, 3).toUpperCase()} · ${d.date} · ${G(DAY_PLANET[d.weekday][1])}`;
   const extra = [...hol, ...other];
   const parts = {
     header: headerZone(dateText),
-    sky: `<div class="sky1" data-zone="sky">${moon(d.moon.phaseDeg, 14)}<span>${d.moon.lit}% · ${moonTxt} · ${G('☀')} ${d.sun.rise}–${d.sun.set}</span><span class="season">${esc(d.jp.ko.en)}</span></div>`,
-    notes: extra.length ? `<div class="sky2l">${extra.join(' · ')}</div>` : '',
+    sky: `<div class="sky1" data-zone="sky">${moon(d.moon.phaseDeg, 14)}<span>${d.moon.lit}% · ${moonTxt} · ${G('☀')} ${d.sun.rise}–${d.sun.set}</span>${payday ? `<span class="pay-mk">${ic('coin', 'Payday')}</span>` : ''}<span class="season">${esc(d.jp.ko.en)}</span></div>`,
+    notes: extra.length ? `<div class="sky2l" data-zone="notes">${extra.join(' · ')}</div>` : '',
     events: ev,
     fact: d.fact ? `<div class="fact" data-zone="fact"><b>On this day</b> ${esc(d.fact)}</div>` : '',
     routines,
@@ -460,9 +477,11 @@ for (const W of D.weeks) {
   SEC = 'week'; SPAN = [W.days[0].date, W.days[W.days.length - 1].date];
   alignToVerso();
   add('', weekLeft(W), '', 'week_left'); add('', weekRight(W), '', 'week_right');
-  const endsHere = W.days[W.days.length - 1].weekday === 0; // the week's Sunday is in this book
+  // The week's Sunday is in this book. The year's last week (Sep 27–Oct 3 2027, week 53) ends after the final book,
+  // so it gets its review and exchange here instead of never being printed.
+  const endsHere = W.days[W.days.length - 1].weekday === 0 || (W === D.weeks[D.weeks.length - 1] && W.gi === 52);
   for (const d of W.days) add('dayp', dayFull(d), d.date, 'dayp');
-  if (endsHere) { add('', weekReview(W), '', 'week_review'); add('', exchange(W, 'L'), '', 'exchange_l'); add('', exchange(W, 'R'), '', 'exchange_r'); }
+  if (endsHere) { add('', weekReview(W), '', 'week_review'); alignToVerso(); add('', exchange(W, 'L'), '', 'exchange_l'); add('', exchange(W, 'R'), '', 'exchange_r'); } // Exchange (verso) and Reply (recto) must face each other
 }
 SEC = 'back'; SPAN = null;
 alignToVerso();
@@ -472,7 +491,7 @@ add('', closingPage(), '', 'closing');
 const REF = { theme: REF_THEME };
 REF.support = pages.length + 1; add('', supportPage(), '', 'support'); add('', transPage(), '', 'trans');
 REF.safety = pages.length + 1; add('', safetyPage(), '', 'safety');
-if (NET && NET.months[VOL.id]) { alignToVerso(); REF.bus = pages.length + 1; add('', netPage(0), '', 'bus'); add('', netPage(1), '', 'bus'); for (const g of packGrids(NET.months[VOL.id])) add('', gridPage(g), '', 'bus_grid'); }
+if (NET && BUS_COV !== 'none') { alignToVerso(); REF.bus = pages.length + 1; add('', netPage(0), '', 'bus'); add('', netPage(1), '', 'bus'); for (const g of packGrids(NET.months[VOL.id])) add('', gridPage(g), '', 'bus_grid'); }
 REF.lineage = pages.length + 1; add('', lineagePage(), '', 'lineage');
 for (const p of pages) p.html = p.html.replace(/\{\{P_(\w+)\}\}/g, (_, k) => REF[k.toLowerCase()] ?? '?');
 while (pages.length % 2) add('notes', notesPage('Notes'), '', 'notes');
@@ -602,7 +621,7 @@ h4 { margin: 0 0 2px; font-size: 8.5pt; }
 .title { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%; }
 .tmoon { display: flex; gap: 14px; margin-bottom: 0.2in; }
 .sub { font-style: italic; font-size: 12pt; margin: 0; } .jp-title { font-size: 16pt; margin: 0.12in 0; } .range { font-size: 11pt; letter-spacing: 2px; text-transform: uppercase; margin: 0.1in 0; }
-.place { font-size: 7.5pt; color: #444; } .owner { margin-top: 0.6in; font-size: 8pt; color: #444; } .owner .line { display: inline-block; width: 3in; border-bottom: 1px solid #333; height: 0.3in; }
+.place { font-size: 7.5pt; color: #444; } .built { font-size: 6pt; line-height: 9pt; margin: 0; color: #666; } .owner { margin-top: calc(0.6in - 9pt); font-size: 8pt; color: #444; } .owner .line { display: inline-block; width: 3in; border-bottom: 1px solid #333; height: 0.3in; }
 table { border-collapse: collapse; }
 .lin th { text-align: left; vertical-align: top; padding: 4px 8px 4px 0; width: 1.45in; font-size: 8pt; }
 .lin td { padding: 4px 0; font-size: 8pt; border-bottom: 1px solid #bbb; line-height: 1.35; }
@@ -629,8 +648,9 @@ table { border-collapse: collapse; }
 .sky2 { width: 100%; columns: 2; }
 .mhead { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; } .jp.big { font-size: 16pt; }
 .cal { width: 100%; flex: 1; table-layout: fixed; } .cal th { font-size: 7pt; font-weight: 700; padding: 3px 0; text-align: left; border-bottom: 1px solid #333; }
-.cal td { border: 1px solid #888; vertical-align: top; padding: 2px 3px; font-size: 7pt; }
-.cal.rows5 td { height: 1.3in; } .cal.rows6 td { height: 1.08in; } .cal td.out { background: #dedede; }
+.cal td { border: 1px solid #888; vertical-align: top; padding: 2px 3px; font-size: 7pt; overflow: hidden; overflow-wrap: anywhere; }
+.cal .hol, .cal .ev, .cal .pay { font-size: 5.8pt; overflow-wrap: anywhere; } .cal .ev { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; } .cal .pay { letter-spacing: 0.1px; } .cal.rows6 .ev { -webkit-line-clamp: 2; }
+.cal.rows4 td { height: 1.62in; } .cal.rows5 td { height: 1.3in; } .cal.rows6 td { height: 1.08in; } .cal td.out { background: #dedede; }
 .cd { display: flex; justify-content: space-between; align-items: center; } .cd .n { font-size: 10pt; font-weight: 600; } .mk { display: flex; gap: 2px; align-items: center; } .sk { font-size: 7pt; border: 1px solid #555; padding: 0 1px; }
 .ev { font-size: 7pt; line-height: 1.2; } .evs { font-size: 7pt; color: #444; font-style: italic; }
 .daylen { display: flex; align-items: center; gap: 10px; border: 1px solid #333; padding: 6px 8px; margin-bottom: 8px; font-size: 8.4pt; } .daylen .arrow { font-size: 12pt; } .daylen .chg { margin-left: auto; font-weight: 700; }
@@ -655,13 +675,14 @@ table { border-collapse: collapse; }
 .dnum { font-size: 26pt; font-weight: 600; line-height: 1; } .dname { font-size: 9.5pt; font-weight: 700; } .djp { font-size: 7pt; } .djp .kj { font-size: 12pt; }
 .dsky { display: flex; gap: 5px; align-items: center; font-size: 7pt; line-height: 1.35; justify-content: flex-end; text-align: right; } .dsky svg { order: 2; }
 .dko { font-size: 7pt; padding: 3px 0 2px; border-bottom: 1px solid #999; } .dko .jp { font-size: 8pt; } .dn2 { font-style: italic; } .rt { float: right; }
-.dev { font-size: 7pt; padding: 2px 0; border-bottom: 1px solid #999; }
+.dev { font-size: 7pt; padding: 2px 0; border-bottom: 1px solid #999; max-height: calc(3 * 1.2em + 4px); overflow: hidden; } .dev .more { color: #444; }
+.sky1 .pay-mk { display: inline-flex; margin-left: 4px; color: #555; } .sky1 .pay-mk .ic { width: 11px; height: 11px; }
 .chk, .spn { display: flex; align-items: center; gap: 3px; font-size: 7pt; padding: 3px 0 1px; } .lbl { font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; font-size: 7pt; margin: 0 2px 0 5px; } .lbl:first-child { margin-left: 0; }
 .bub { display: inline-flex; } .bub i { width: 9px; height: 9px; border: 1px solid #333; border-radius: 50%; } .bub:nth-child(5) i { border-width: 1.6px; } .end { font-size: 7pt; color: #444; }
 .blank { display: inline-block; width: 0.35in; border-bottom: 1px solid #333; height: 9px; } .blank.long { flex: 1; } .spoon { margin: 0 0.5px; } .sp2 { margin-left: 8px; }
 .log { flex: 1; min-height: 0.8in; margin-top: 3px; }
 .rev { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; border-top: 1px solid #333; padding-top: 2px; } .rev div { font-size: 7pt; display: flex; flex-direction: column; } .rev b { text-transform: uppercase; letter-spacing: 0.5px; font-size: 7pt; } .rev span { height: 0.42in; overflow: hidden; }
-.fact { font-size: 7pt; line-height: 1.25; padding-top: 3px; margin-top: 2px; border-top: 1px dotted #777; font-style: italic; color: #222; } .fact b { font-style: normal; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 3px; }
+.fact { font-size: 8pt; line-height: 1.25; padding-top: 3px; margin-top: 2px; border-top: 1px dotted #777; font-style: italic; color: #222; } .fact b { font-style: normal; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 3px; }
 .pio { border: 1px solid #333; padding: 5px 7px; margin-top: 0.1in; font-size: 7.4pt; line-height: 1.32; } .pio p { margin: 2px 0 0; } .pio-h { display: flex; align-items: baseline; gap: 5px; } .pio-h b { font-size: 9.5pt; } .pio-k { font-size: 7pt; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700; margin-right: 3px; } .pio-f { font-style: italic; } .pio-f b { font-style: normal; font-size: 7pt; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 3px; }
 
 .page.m { padding: ${TOP + FRAME_PAD}in ${OUTSIDE + FRAME_PAD}in ${BOTTOM + FRAME_PAD + STRIP + 0.08}in ${INSIDE + FRAME_PAD}in; }
@@ -700,17 +721,18 @@ table { border-collapse: collapse; }
 .rev .zl .ic { width: 12px; height: 12px; }
 .trk th .ic { width: 10px; height: 10px; }
 .ikey { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 12px; font-size: 7.5pt; margin-bottom: 6px; } .ikey span { display: flex; align-items: center; gap: 5px; } .ikey .ic { width: 11px; height: 11px; }
-.cutnote { font: 600 7pt Inter, sans-serif; color: #444; margin: -4px 0 0; line-height: 1.1; } .sq { margin-top: 3px; } .sq .lines.l2 { height: 0.46in; } .sq b { font-size: 7.5pt; } .script { margin-top: 3px; border: 1px solid #000; padding: 5px 7px; font-size: 7.5pt; line-height: 1.35; }
+.sq { margin-top: 3px; } .sph { display: flex; align-items: flex-end; gap: 10px; } .sph .pt { flex: none; } .sph .qf { max-width: 2.1in; } .pn { display: flex; gap: 8px; align-items: flex-end; } .pn .qf:first-child { flex: 1.2; } .sq .lines.l2 { height: 0.36in; } .sq + .sq { margin-top: 5px; } .sq b { font-size: 7.5pt; } .script { margin-top: 3px; border: 1px solid #000; padding: 5px 7px; font-size: 7.5pt; line-height: 1.35; }
 .carep { width: 100%; } .carep th { text-align: left; font-size: 7.5pt; border-bottom: 1px solid #333; } .carep td { height: 0.28in; border-bottom: 1px solid #bbb; } .wd .wdn { font-size: 11pt; font-weight: 600; display: block; line-height: 1.1; } .cal .sk { font-size: 7pt; font-style: italic; color: #333; line-height: 1.1; border: none; padding: 0; }
 .ztags { grid-column: 1 / -1; }
-.sky1 { display: flex; gap: 4px; align-items: center; font-size: 7pt; line-height: 1.25; margin: 2px 0; } .sky1 .season { margin-left: auto; font-style: italic; color: #333; text-align: right; } .sky2l { font-size: 7pt; color: #333; margin: 1px 0 3px; }
+.sky1 { display: flex; flex-wrap: wrap; gap: 0 4px; align-items: center; font-size: 8pt; line-height: 1.25; margin: 2px 0; } .sky1 > span:not(.season) { white-space: nowrap; } .sky1 .season { margin-left: auto; font-style: italic; color: #333; text-align: right; } .sky2l { font-size: 8pt; color: #333; margin: 1px 0 3px; }
 .net { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 7pt; font-variant-numeric: tabular-nums; margin-top: 4px; }
 .net th { font: 600 7pt Inter, sans-serif; text-align: left; border-bottom: 1px solid #000; padding: 1px 3px; }
-.net td { padding: 1.6px 1.5px; overflow: hidden; letter-spacing: -0.015em; border-bottom: 1px solid #e3e3e3; white-space: nowrap; } .net .rn { font: 700 7.5pt Inter, sans-serif; text-align: right; padding-right: 4px; } .net col.c1 { width: 0.22in; } .net col.c2 { width: 0.66in; }
+.net td { padding: 1.6px 1.5px; overflow: hidden; letter-spacing: -0.015em; border-bottom: 1px solid #e3e3e3; white-space: nowrap; } .net .rn { font: 700 7.5pt Inter, sans-serif; text-align: right; padding-right: 4px; } .net col.c1 { width: 0.3in; } .net col.c2 { width: 0.66in; }
 .net .rname { text-overflow: ellipsis; }
 .hg { width: 100%; border-collapse: collapse; font-size: 7pt; font-variant-numeric: tabular-nums; margin-top: 4px; table-layout: fixed; }
 .hg th { font: 600 7pt Inter, sans-serif; padding: 1px 2px; text-align: left; } .hg th.gh { border-bottom: 1px solid #000; line-height: 1.15; vertical-align: bottom; } .hg th.gh .dim { font-weight: 400; }
-.hg tr.rng td { background: #f1f1f1; } .hg td { padding: 0.4px 2px; line-height: 1.1; border-bottom: 1px solid #e3e3e3; white-space: nowrap; overflow: hidden; } .hg td.hl { font: 600 7pt Inter, sans-serif; text-align: right; padding-right: 5px; } .hg td.hl.pm { font-weight: 800; }
+.hg tr.rng td { background: #f1f1f1; } .hg td { padding: 0.4px 2px; line-height: 1.1; border-bottom: 1px solid #e3e3e3; overflow: hidden; letter-spacing: -0.02em; } .hg td.hl { white-space: nowrap; font: 600 7pt Inter, sans-serif; text-align: right; padding-right: 5px; } .hg td.hl.pm { font-weight: 800; }
+.busvalid { font: 600 7pt Inter, sans-serif; margin: 3px 0 0; border: 1px solid #000; padding: 2px 5px; display: inline-block; } .busbox { margin-top: 8px; border: 1px solid #000; padding: 4px 7px; font-size: 8pt; }
 .rt { font: 600 7.5pt Inter, sans-serif; text-transform: uppercase; margin: 6px 0 0; } .hg .gs { border-left: 1px solid #9a9a9a; padding-left: 4px; }
 .az { margin-top: 4px; } .cb { display: flex; align-items: center; gap: 6px; height: 0.24in; } .cb i { width: 10px; height: 10px; border: 1.2px solid #000; flex: none; } .cb span { flex: 1; border-bottom: 1px solid #DCDCDC; height: 100%; display: flex; align-items: flex-end; font-size: 7.5pt; padding-bottom: 1px; }
 .m .chk .zl, .m .spn .zl { margin-right: 3px; }
@@ -718,11 +740,11 @@ table { border-collapse: collapse; }
 .m .steps { gap: 0.06in; } .m .steps p { font-size: 7.4pt; } .m .anat .a3 { height: 0.45in; } .m .anat div { font-size: 7pt; padding: 3px 5px; }
 .m .cal.rows5 td { height: 0.8in; } .m .cal.rows6 td { height: 0.67in; } .m .trk td { height: 0.14in; } .m .trk th { white-space: nowrap; } .m .trk { font-size: 7pt; } .m .trk .mood i, .m .trk .en i { width: 6px; height: 6px; margin: 0 0.5px; } .m .trk .mood { white-space: nowrap; } .m .trk .bx { width: 0.34in; }
 .m .keycols { gap: 0.08in; } .m .phases, .m .gl-list { font-size: 7pt; }
-.m .cal + .small, .m .trk + .small { display: none; } .m .mline td { height: 0.12in; } .m .hab td { height: 0.2in; } .m .fill { min-height: 0.25in; } .m .genko { grid-template-columns: repeat(6, 0.22in); } .m .genko span { width: 0.22in; height: 0.22in; } .m .pio { margin-top: 0.06in; }
+.m .cal + .small { display: none; } .trk .un th { font: 500 5.6pt Inter, sans-serif; color: #444; padding: 0 1px 1px; text-align: left; } .m .mline td { height: 0.12in; } .m .hab td { height: 0.2in; } .m .fill { min-height: 0.25in; } .m .genko { grid-template-columns: repeat(6, 0.22in); } .m .genko span { width: 0.22in; height: 0.22in; } .m .pio { margin-top: 0.06in; }
 .m .wrow.other { flex: 0 0 0.22in; } .m .wrow.other .wev { background: none; }
-.day.full .log { min-height: 1.2in; } .day.full .rev { margin-top: 4px; } .day.full .rev span { height: 0.44in; }
+.day.full .log { min-height: 1.6in; } /* writing space is never below 40 mm (1.6 in = 40.6 mm) */ .day.full .rev { margin-top: 4px; } .day.full .rev span { height: 0.44in; }
 .wrow.other { color: #777; }
-.m .cal.rows5 td { height: 1.0in; } .m .cal.rows6 td { height: 0.84in; } .m .trk td { height: 0.172in; } .m .cal { flex: 0 0 auto; }
+.m .cal.rows4 td { height: 1.26in; } .m .cal.rows5 td { height: 1.0in; } .m .cal.rows6 td { height: 0.84in; } .m .trk td { height: 0.16in; } .m .cal { flex: 0 0 auto; }
 .review .rvh { margin-top: 0.02in; font-size: 10pt; text-transform: none; letter-spacing: 0; } .rq { margin-top: 4px; font-size: 7.6pt; }
 .xh { display: flex; justify-content: space-between; align-items: baseline; } .xft { display: flex; gap: 5px; align-items: flex-end; font-size: 7.4pt; margin: 4px 0; } .xft i { flex: 1; border-bottom: 1px solid #333; height: 12px; }
 .xp { font-size: 8pt; margin: 4px 0 6px; }

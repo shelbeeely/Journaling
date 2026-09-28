@@ -19,6 +19,7 @@ for m in $MONTHS; do
     node cover.mjs month "$m"
     dirs+=("out/$dir")
     node check.mjs "$dir" || { echo "::error::overflow in $dir"; fail=1; }
+    node check-spreads.mjs "out/$dir" || { echo "::error::Exchange/Reply not facing in $dir"; fail=1; }
     [ "$s" = small ] && python3 epub.py "m$m"
   done
 done
