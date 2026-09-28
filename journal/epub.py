@@ -1,18 +1,20 @@
 import os
 """Build an EPUB 3 companion for the Xteink X4 (CrossPoint reader, 480x800 e-ink).
-Reads out/data.json (from render.mjs). Plain HTML only: no tables, no astro glyph fonts, English only."""
-import json, zipfile, io, uuid, datetime, html, sys
+Reads out/m<YYYY-MM>/data.json (from render.mjs). Plain HTML only: no tables, no astro glyph fonts, English only.
+Usage: python3 epub.py m<YYYY-MM>   (e.g. m2026-10; run `node render.mjs month 2026-10 ...` first)"""
+import json, zipfile, io, uuid, datetime, html, sys, re
 from PIL import Image, ImageDraw
 
-ARG = sys.argv[1] if len(sys.argv) > 1 else '1'
-MONTHLY = ARG.startswith('m')
-VN = ARG if MONTHLY else int(ARG)
-OUT = f'out/{ARG}' if MONTHLY else f'out/v{VN}'
+ARG = sys.argv[1] if len(sys.argv) > 1 else ''
+if not re.fullmatch(r'm\d{4}-\d{2}', ARG):
+    sys.exit('Usage: python3 epub.py m<YYYY-MM>   (e.g. m2026-10)')
+OUT = f'out/{ARG}'
 D = json.load(open(f'{OUT}/data.json'))
 VOL = D['volume']
 MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
 e = html.escape
-BOOK_ID = 'urn:uuid:' + str(uuid.uuid5(uuid.NAMESPACE_URL, f'keeping-watch-vol{VN}-' + VOL['short']))
+# EPUB identifier: keep this exact seed (e.g. "keeping-watch-volm2026-10-Oct 2026") so readers don't see an existing book as new.
+BOOK_ID = 'urn:uuid:' + str(uuid.uuid5(uuid.NAMESPACE_URL, f'keeping-watch-vol{ARG}-' + VOL['short']))
 
 def moon_png(deg, size=96):
     """Grayscale moon icon, 8 bits, e-ink friendly (lit white, dark black, thin ring)."""
@@ -84,7 +86,7 @@ def pio_html(W):
 
 VOL_MONTHS = [M['m'] for M in D['months']]
 def week_month(W):
-    # A week belongs to the month of its Thursday (ISO rule); edge weeks fall back to a month inside this volume.
+    # A week belongs to the month of its Thursday (ISO rule); edge weeks fall back to a month inside this book.
     thu = [d for d in W['days'] if d['weekday'] == 4]
     for d in thu + [W['days'][0], W['days'][-1]]:
         if d['m'] in VOL_MONTHS: return d['m']
@@ -96,7 +98,7 @@ spine = []
 nav = []
 
 intro = page('Keeping Watch', f'''<h1>Keeping Watch</h1>
-<p>Companion almanac for the paper journal, {"" if MONTHLY else "Volume " + str(VN) + ":"} {e(VOL["label"])}. Sky data for {e(D['config']['place'])}, Pacific time.</p>
+<p>Companion almanac for the paper journal,  {e(VOL["label"])}. Sky data for {e(D['config']['place'])}, Pacific time.</p>
 <h3>How to use it</h3><ul><li>Open a week from the contents (each day is listed under its week): each day has its moon, sunrise and sunset, micro-season and events.</li><li>Write in the paper book; use this for reference away from it.</li></ul>
 <p class="dim">Astrology is included as a reflection prompt, not a forecast. Astronomy is calculated with astronomy-engine. Daily facts: Computer History Museum “This Day in History” and Wikipedia date pages.</p>''')
 files['intro.xhtml'] = (intro, 'application/xhtml+xml'); spine.append('intro.xhtml')
@@ -120,8 +122,8 @@ if os.path.exists('content/support.json'):
 
 # STA schedules (gtfs/network.json): network summary + hour grids
 if os.path.exists('gtfs/network.json'):
-    N = json.load(open('gtfs/network.json')); key = f"{VOL['year']}-{VOL['month']:02d}" if MONTHLY else None
-    E = N['months'].get(key) if key else None
+    N = json.load(open('gtfs/network.json'))
+    E = N['months'].get(f"{VOL['year']}-{VOL['month']:02d}")
     if E:
         DAYS = [('weekday', 'Wkdy'), ('saturday', 'Sat'), ('sunday', 'Sun')]
         num = lambda r: int(''.join(c for c in N['routes'][r]['n'] if c.isdigit()) or 0)
@@ -187,11 +189,11 @@ manifest += ''.join(f'<item id="{n.split(".")[0]}" href="{n}" media-type="image/
 manifest += '<item id="css" href="style.css" media-type="text/css"/><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/><item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>'
 opf = f'''<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="bookid" xml:lang="en">
-<metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="bookid">{BOOK_ID}</dc:identifier><dc:title>Keeping Watch — {e(VOL['label'] if MONTHLY else 'Vol. ' + str(VN) + ' ' + VOL['short'])} Almanac</dc:title><dc:language>en</dc:language><dc:creator>Shelbee</dc:creator><meta property="dcterms:modified">{now}</meta></metadata>
+<metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="bookid">{BOOK_ID}</dc:identifier><dc:title>Keeping Watch — {e(VOL['label'])} Almanac</dc:title><dc:language>en</dc:language><dc:creator>Shelbee</dc:creator><meta property="dcterms:modified">{now}</meta></metadata>
 <manifest>{manifest}</manifest>
 <spine toc="ncx"><itemref idref="nav"/>{''.join(f'<itemref idref="{s.split(".")[0]}"/>' for s in spine)}</spine></package>'''
 
-with zipfile.ZipFile(f'{OUT}/keeping-watch-{ARG[1:] if MONTHLY else "v" + str(VN)}-x4.epub', 'w') as z:
+with zipfile.ZipFile(f'{OUT}/keeping-watch-{ARG[1:]}-x4.epub', 'w') as z:
     z.writestr(zipfile.ZipInfo('mimetype'), 'application/epub+zip', compress_type=zipfile.ZIP_STORED)
     z.writestr('META-INF/container.xml', '<?xml version="1.0"?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>', compress_type=zipfile.ZIP_DEFLATED)
     z.writestr('OEBPS/content.opf', opf, compress_type=zipfile.ZIP_DEFLATED)
