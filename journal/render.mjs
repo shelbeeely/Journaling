@@ -55,7 +55,7 @@ function moon(deg, size = 18) {
 }
 
 // ---------- icons (monoline, 12x12, stroke 1.15 = 0.8pt at print size) ----------
-const ICON_KEY = [['pill', 'Meds'], ['am', 'Morning dose'], ['pm', 'Evening dose'], ['prn', 'As needed (write the time)'], ['meal', 'Meals'], ['snack', 'Snack'], ['shower', 'Shower'], ['teeth', 'Teeth'], ['joy', 'Did something I enjoy'], ['text', 'Texted someone'], ['low', 'Mood low … high'], ['anx', 'Anxiety 0–3'], ['sleep', 'Sleep hours'], ['work', 'Work shift'], ['spoon', 'Spoons: cross off as you use them'], ['well', 'Went well'], ['hard', 'Was hard'], ['next', 'Tomorrow']];
+const ICON_KEY = [['pill', 'Meds'], ['am', 'Morning dose'], ['pm', 'Evening dose'], ['prn', 'As needed (write the time)'], ['meal', 'Meals'], ['snack', 'Snack'], ['shower', 'Shower'], ['teeth', 'Teeth'], ['joy', 'Did something I enjoy'], ['text', 'Texted someone'], ['low', 'Mood low … high'], ['anx', 'Anxiety 0–3'], ['sleep', 'Sleep hours'], ['work', 'Work shift'], ['spoon', 'Spoons: cross off as you use them'], ['coin', 'Payday'], ['well', 'Went well'], ['hard', 'Was hard'], ['next', 'Tomorrow']];
 const bubbles = (labels, lo, hi) => `<span class="end">${lo}</span>` + labels.map(() => `<span class="bub"><i></i></span>`).join('') + `<span class="end">${hi}</span>`;
 const dur = (min) => `${Math.floor(min / 60)}h ${String(min % 60).padStart(2, '0')}m`;
 const ruby = (k, r) => `<ruby>${k}<rt>${r}</rt></ruby>`;
@@ -409,16 +409,20 @@ function dayFull(d) {
   const moonTxt = d.moon.ingress.length ? d.moon.ingress.map((i) => `→ ${G(D.glyphs[i.sign])} ${i.time}`).join(' ') : `in ${G(d.moon.glyph)}`;
   const retro = d.retro.length ? ` · ${G('℞')} ${d.retro.map((p) => G(PLANET_GLYPH[p])).join('')}` : '';
   const hol = d.notes.filter((n) => n.kind === 'holiday').map((n) => `<b>${esc(n.text)}</b>`);
-  const other = d.notes.filter((n) => n.kind !== 'holiday').map((n) => esc(n.text));
-  const oneOff = d.events.filter((e) => !e.routine);
+  // Pay periods: only payday gets a mark (a quiet coin in the sky line); period start/end live on the month calendar.
+  const other = d.notes.filter((n) => n.kind !== 'holiday' && n.kind !== 'pay').map((n) => esc(n.text));
+  const payday = d.notes.some((n) => n.kind === 'pay' && n.text.startsWith('Payday'));
+  // Busy days: show 4 events then "+N more"; 3+ routines collapse to one row (daypage.mjs); the fact yields before the writing space does.
+  const oneOff = d.events.filter((e) => !e.routine), EV_MAX = 4;
   const routines = d.events.filter((e) => e.routine).map((e) => `${e.time ? e.time + ' ' : ''}${e.title}`);
-  const ev = oneOff.length ? `<div class="dev" data-zone="events">${oneOff.map((e) => `○ ${e.time ? e.time + ' ' : ''}${esc(e.title)}`).join(' · ')}</div>` : '';
+  const evShown = oneOff.slice(0, EV_MAX), evMore = oneOff.length - evShown.length;
+  const ev = oneOff.length ? `<div class="dev" data-zone="events">${evShown.map((e) => `○ ${e.time ? e.time + ' ' : ''}${esc(e.title)}`).join(' · ')}${evMore > 0 ? ` · <i class="more">+${evMore} more</i>` : ''}</div>` : '';
   const dateText = `${d.weekdayName.slice(0, 3).toUpperCase()} · ${d.date} · ${G(DAY_PLANET[d.weekday][1])}`;
   const extra = [...hol, ...other];
   const parts = {
     header: headerZone(dateText),
-    sky: `<div class="sky1" data-zone="sky">${moon(d.moon.phaseDeg, 14)}<span>${d.moon.lit}% · ${moonTxt} · ${G('☀')} ${d.sun.rise}–${d.sun.set}</span><span class="season">${esc(d.jp.ko.en)}</span></div>`,
-    notes: extra.length ? `<div class="sky2l">${extra.join(' · ')}</div>` : '',
+    sky: `<div class="sky1" data-zone="sky">${moon(d.moon.phaseDeg, 14)}<span>${d.moon.lit}% · ${moonTxt} · ${G('☀')} ${d.sun.rise}–${d.sun.set}</span>${payday ? `<span class="pay-mk">${ic('coin', 'Payday')}</span>` : ''}<span class="season">${esc(d.jp.ko.en)}</span></div>`,
+    notes: extra.length ? `<div class="sky2l" data-zone="notes">${extra.join(' · ')}</div>` : '',
     events: ev,
     fact: d.fact ? `<div class="fact" data-zone="fact"><b>On this day</b> ${esc(d.fact)}</div>` : '',
     routines,
@@ -646,13 +650,14 @@ table { border-collapse: collapse; }
 .dnum { font-size: 26pt; font-weight: 600; line-height: 1; } .dname { font-size: 9.5pt; font-weight: 700; } .djp { font-size: 7pt; } .djp .kj { font-size: 12pt; }
 .dsky { display: flex; gap: 5px; align-items: center; font-size: 7pt; line-height: 1.35; justify-content: flex-end; text-align: right; } .dsky svg { order: 2; }
 .dko { font-size: 7pt; padding: 3px 0 2px; border-bottom: 1px solid #999; } .dko .jp { font-size: 8pt; } .dn2 { font-style: italic; } .rt { float: right; }
-.dev { font-size: 7pt; padding: 2px 0; border-bottom: 1px solid #999; }
+.dev { font-size: 7pt; padding: 2px 0; border-bottom: 1px solid #999; max-height: calc(3 * 1.2em + 4px); overflow: hidden; } .dev .more { color: #444; }
+.sky1 .pay-mk { display: inline-flex; margin-left: 4px; color: #555; } .sky1 .pay-mk .ic { width: 11px; height: 11px; }
 .chk, .spn { display: flex; align-items: center; gap: 3px; font-size: 7pt; padding: 3px 0 1px; } .lbl { font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; font-size: 7pt; margin: 0 2px 0 5px; } .lbl:first-child { margin-left: 0; }
 .bub { display: inline-flex; } .bub i { width: 9px; height: 9px; border: 1px solid #333; border-radius: 50%; } .bub:nth-child(5) i { border-width: 1.6px; } .end { font-size: 7pt; color: #444; }
 .blank { display: inline-block; width: 0.35in; border-bottom: 1px solid #333; height: 9px; } .blank.long { flex: 1; } .spoon { margin: 0 0.5px; } .sp2 { margin-left: 8px; }
 .log { flex: 1; min-height: 0.8in; margin-top: 3px; }
 .rev { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; border-top: 1px solid #333; padding-top: 2px; } .rev div { font-size: 7pt; display: flex; flex-direction: column; } .rev b { text-transform: uppercase; letter-spacing: 0.5px; font-size: 7pt; } .rev span { height: 0.42in; overflow: hidden; }
-.fact { font-size: 7pt; line-height: 1.25; padding-top: 3px; margin-top: 2px; border-top: 1px dotted #777; font-style: italic; color: #222; } .fact b { font-style: normal; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 3px; }
+.fact { font-size: 8pt; line-height: 1.25; padding-top: 3px; margin-top: 2px; border-top: 1px dotted #777; font-style: italic; color: #222; } .fact b { font-style: normal; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 3px; }
 .pio { border: 1px solid #333; padding: 5px 7px; margin-top: 0.1in; font-size: 7.4pt; line-height: 1.32; } .pio p { margin: 2px 0 0; } .pio-h { display: flex; align-items: baseline; gap: 5px; } .pio-h b { font-size: 9.5pt; } .pio-k { font-size: 7pt; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700; margin-right: 3px; } .pio-f { font-style: italic; } .pio-f b { font-style: normal; font-size: 7pt; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 3px; }
 
 .page.m { padding: ${TOP + FRAME_PAD}in ${OUTSIDE + FRAME_PAD}in ${BOTTOM + FRAME_PAD + STRIP + 0.08}in ${INSIDE + FRAME_PAD}in; }
@@ -694,7 +699,7 @@ table { border-collapse: collapse; }
 .cutnote { font: 600 7pt Inter, sans-serif; color: #444; margin: -4px 0 0; line-height: 1.1; } .sq { margin-top: 3px; } .sq .lines.l2 { height: 0.46in; } .sq b { font-size: 7.5pt; } .script { margin-top: 3px; border: 1px solid #000; padding: 5px 7px; font-size: 7.5pt; line-height: 1.35; }
 .carep { width: 100%; } .carep th { text-align: left; font-size: 7.5pt; border-bottom: 1px solid #333; } .carep td { height: 0.28in; border-bottom: 1px solid #bbb; } .wd .wdn { font-size: 11pt; font-weight: 600; display: block; line-height: 1.1; } .cal .sk { font-size: 7pt; font-style: italic; color: #333; line-height: 1.1; border: none; padding: 0; }
 .ztags { grid-column: 1 / -1; }
-.sky1 { display: flex; gap: 4px; align-items: center; font-size: 7pt; line-height: 1.25; margin: 2px 0; } .sky1 .season { margin-left: auto; font-style: italic; color: #333; text-align: right; } .sky2l { font-size: 7pt; color: #333; margin: 1px 0 3px; }
+.sky1 { display: flex; flex-wrap: wrap; gap: 0 4px; align-items: center; font-size: 8pt; line-height: 1.25; margin: 2px 0; } .sky1 > span:not(.season) { white-space: nowrap; } .sky1 .season { margin-left: auto; font-style: italic; color: #333; text-align: right; } .sky2l { font-size: 8pt; color: #333; margin: 1px 0 3px; }
 .net { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 7pt; font-variant-numeric: tabular-nums; margin-top: 4px; }
 .net th { font: 600 7pt Inter, sans-serif; text-align: left; border-bottom: 1px solid #000; padding: 1px 3px; }
 .net td { padding: 1.6px 1.5px; overflow: hidden; letter-spacing: -0.015em; border-bottom: 1px solid #e3e3e3; white-space: nowrap; } .net .rn { font: 700 7.5pt Inter, sans-serif; text-align: right; padding-right: 4px; } .net col.c1 { width: 0.22in; } .net col.c2 { width: 0.66in; }
@@ -711,7 +716,7 @@ table { border-collapse: collapse; }
 .m .keycols { gap: 0.08in; } .m .phases, .m .gl-list { font-size: 7pt; }
 .m .cal + .small, .m .trk + .small { display: none; } .m .mline td { height: 0.12in; } .m .hab td { height: 0.2in; } .m .fill { min-height: 0.25in; } .m .genko { grid-template-columns: repeat(6, 0.22in); } .m .genko span { width: 0.22in; height: 0.22in; } .m .pio { margin-top: 0.06in; }
 .m .wrow.other { flex: 0 0 0.22in; } .m .wrow.other .wev { background: none; }
-.day.full .log { min-height: 1.2in; } .day.full .rev { margin-top: 4px; } .day.full .rev span { height: 0.44in; }
+.day.full .log { min-height: 1.6in; } /* writing space is never below 40 mm (1.6 in = 40.6 mm) */ .day.full .rev { margin-top: 4px; } .day.full .rev span { height: 0.44in; }
 .wrow.other { color: #777; }
 .m .cal.rows5 td { height: 1.0in; } .m .cal.rows6 td { height: 0.84in; } .m .trk td { height: 0.172in; } .m .cal { flex: 0 0 auto; }
 .review .rvh { margin-top: 0.02in; font-size: 10pt; text-transform: none; letter-spacing: 0; } .rq { margin-top: 4px; font-size: 7.6pt; }
