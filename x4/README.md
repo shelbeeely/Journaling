@@ -25,6 +25,7 @@ check-in logs, edit your safety plan, and upload new month packs. Nothing goes t
 | Menu | close | open | | move |
 | This month | back | | previous / next month | |
 | Support | back | safety plan | pages | pages |
+| Safety plan | menu | Support | pages (opens on page 1, "1 / 3" top right) | pages |
 
 Power: press to sleep now. Idle for 90 s: sleeps by itself. **Hold Back 1.2 s anywhere: Support.**
 

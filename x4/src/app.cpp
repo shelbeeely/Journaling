@@ -464,33 +464,118 @@ static void drawSupport() {
   C->textRight(F_UI_S, Canvas::W - M, HINT_Y - 10, pg);
 }
 
+// Break text into lines no wider than w, greedily by words (same rule as Canvas::wrap), without
+// drawing. A word wider than the box is split between code points so nothing runs off the edge.
+static void breakLines(const Font& f, const std::string& s, int w, std::vector<std::string>& out) {
+  std::string line;
+  size_t i = 0;
+  while (i < s.size()) {
+    while (i < s.size() && s[i] == ' ') i++;
+    if (i >= s.size()) break;
+    size_t j = s.find(' ', i); if (j == std::string::npos) j = s.size();
+    std::string word = s.substr(i, j - i); i = j;
+    std::string trial = line.empty() ? word : line + " " + word;
+    if (C->width(f, trial.c_str()) <= w) { line = trial; continue; }
+    if (!line.empty()) { out.push_back(line); line.clear(); }
+    while (C->width(f, word.c_str()) > w) {  // one over-long word: hard-split it
+      size_t k = 0, fit = 0;
+      while (k < word.size()) {
+        size_t n = k + 1; while (n < word.size() && (word[n] & 0xC0) == 0x80) n++;
+        if (fit && C->width(f, word.substr(0, n).c_str()) > w) break;
+        fit = k = n;
+      }
+      out.push_back(word.substr(0, fit)); word.erase(0, fit);
+    }
+    line = word;
+  }
+  if (!line.empty()) out.push_back(line);
+}
+
+// The plan is laid out as a flat list of lines, then paged with Up/Down like Support. A page breaks
+// before a section when that section fits on one page; a longer section flows on, never mid-line.
+// The "when talking is too hard" box sits under the text on the last page.
+struct PlanLine { uint8_t kind; bool start; std::string s; int adv; };  // kind: 0 heading, 1 body, 2 dotted, 3 note, 4 gap
+static int planPages = 1;
 static void drawPlan() {
+  static const int TOP = 120, BOX_Y = HINT_Y - 150;
+  static const int LIMIT = HINT_Y - 44, LIMIT_LAST = BOX_Y - 14;  // lowest baseline on a page
   std::string f; hal::readFile("/kw/me.txt", f);
-  C->clear();
-  header("My safety plan", "", IC_PERSON);
-  int y = 120;
-  size_t a = 0; bool any = false; std::string h;
+  size_t a = 0; bool any = false;
   std::vector<std::pair<std::string, std::string>> sec;
   while (a < f.size()) {
     size_t b = f.find('\n', a); if (b == std::string::npos) b = f.size();
     std::string line = f.substr(a, b - a); a = b + 1;
+    if (!line.empty() && line.back() == '\r') line.pop_back();
     if (line.rfind("# ", 0) == 0 || line.empty()) continue;
     if (line[0] == '#') { sec.push_back({line.substr(1), ""}); continue; }
     if (!sec.empty()) { if (!sec.back().second.empty()) sec.back().second += "; "; sec.back().second += line; any = true; }
   }
-  int n = 1;
-  for (auto& s : sec) {
-    if (y > HINT_Y - 200) break;
-    char h2[96]; snprintf(h2, sizeof h2, "%d. %s", n++, s.first.c_str());
-    C->text(F_UI_B, M, y, h2); y += 28;
-    y = s.second.empty() ? (C->dotted(M + 24, y - 6, CW - 24), y + 16) : C->wrap(F_BODY, M + 24, y, CW - 24, s.second.c_str(), 3) + 8;
+  std::vector<PlanLine> L;
+  std::vector<std::string> tmp;
+  for (size_t i = 0; i < sec.size(); i++) {
+    tmp.clear(); breakLines(F_UI_B, std::to_string(i + 1) + ". " + sec[i].first, CW, tmp);
+    for (size_t k = 0; k < tmp.size(); k++) L.push_back({0, k == 0, tmp[k], 28});
+    if (sec[i].second.empty()) { L.push_back({2, false, "", 16}); continue; }
+    tmp.clear(); breakLines(F_BODY, sec[i].second, CW - 24, tmp);
+    for (size_t k = 0; k < tmp.size(); k++) L.push_back({1, false, tmp[k], F_BODY.lineHeight + (k + 1 == tmp.size() ? 8 : 0)});
   }
-  if (!any) C->wrap(F_BODY_I, M, y + 4, CW, "Empty for now. Fill it in on the Wi-Fi page, or use the safety plan page at the back of your journal.", 3);
-  const int by = HINT_Y - 150;
-  C->rect(M, by, CW, 130, 3);
-  C->text(F_UI_S, M + 14, by + 28, "WHEN TALKING IS TOO HARD, SEND:");
-  C->wrap(F_BODY, M + 14, by + 60, CW - 28, "“Hey, I’m having a hard time. I’m not up for a call. Can you text with me for a bit?”", 3);
-  hintBar("Back", "Support", "", "");
+  if (!any) {
+    L.push_back({4, true, "", 4});
+    tmp.clear(); breakLines(F_BODY_I, "Empty for now. Fill it in on the Wi-Fi page, or use the safety plan page at the back of your journal.", CW, tmp);
+    for (auto& t : tmp) L.push_back({3, false, t, F_BODY_I.lineHeight});
+  }
+  // How far lines [from, n) get on one page whose lowest baseline is `limit`.
+  const int n = (int)L.size();
+  auto fill = [&](int from, int limit) {
+    int y = TOP, i = from;
+    while (i < n && (y <= limit || L[i].kind == 4)) { y += L[i].adv; i++; }
+    if (i >= n || i == from) return i == from ? from + 1 : n;
+    int s = i; while (s > from && !L[s].start) s--;  // start of the section that did not fit
+    if (s > from) {
+      int h = 0, e = s; do { h += L[e].adv; e++; } while (e < n && !L[e].start);
+      bool onlyHead = true; for (int k = s; k < i; k++) if (L[k].kind != 0) onlyHead = false;
+      if (h - L[e - 1].adv <= LIMIT - TOP || onlyHead) return s;  // whole section fits a page, or only its heading would
+    }
+    return i;
+  };
+  // Page starts. Every page but the last may use the full height; the last one leaves room for the box.
+  std::vector<int> starts;  // heap, no page cap: every line gets a page
+  int pages = 0;
+  for (int from = 0;;) {
+    starts.push_back(from); pages++;
+    const int e = fill(from, LIMIT_LAST);
+    if (e >= n) break;
+    const int full = fill(from, LIMIT);
+    from = full >= n ? e : full;
+  }
+  planPages = pages;
+  if (S.page >= pages) S.page = pages - 1;
+  const bool last = S.page == pages - 1;
+  const int endI = last ? n : starts[S.page + 1];
+
+  C->clear();
+  char pg[16] = "";
+  if (pages > 1) snprintf(pg, sizeof pg, "%d / %d", S.page + 1, pages);
+  header("My safety plan", pg, IC_PERSON);
+  int y = TOP;
+  for (int i = starts[S.page]; i < endI; i++) {
+    const PlanLine& l = L[i];
+    if (l.kind == 0) C->text(F_UI_B, M, y, l.s.c_str());
+    else if (l.kind == 1) C->text(F_BODY, M + 24, y, l.s.c_str());
+    else if (l.kind == 2) C->dotted(M + 24, y - 6, CW - 24);
+    else if (l.kind == 3) C->text(F_BODY_I, M, y, l.s.c_str());
+    y += l.adv;
+  }
+  if (last) {
+    C->rect(M, BOX_Y, CW, 130, 3);
+    C->text(F_UI_S, M + 14, BOX_Y + 28, "WHEN TALKING IS TOO HARD, SEND:");
+    C->wrap(F_BODY, M + 14, BOX_Y + 60, CW - 28, "“Hey, I’m having a hard time. I’m not up for a call. Can you text with me for a bit?”", 3);
+  } else {  // quiet cue that the plan goes on
+    const int x = Canvas::W - M - 14, cy = HINT_Y - 22;
+    C->textRight(F_UI_S, x - 10, HINT_Y - 14, "more");
+    C->line(x - 6, cy - 3, x, cy + 3, 2); C->line(x, cy + 3, x + 6, cy - 3, 2);
+  }
+  hintBar("Back", "Support", S.page ? "◀ page" : "", S.page + 1 < pages ? "page ▶" : "");
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -640,13 +725,15 @@ void appMain() {
         break;
       case Scr::Support:
         if (b == Btn::Back) { S.scr = S.prev == Scr::Support ? Scr::Today : S.prev; S.sel = 0; render(false); }
-        else if (b == Btn::Confirm) { S.prev = Scr::Support; S.scr = Scr::Plan; render(false); }
+        else if (b == Btn::Confirm) { S.prev = Scr::Support; S.scr = Scr::Plan; S.page = 0; render(false); }
         else if ((b == Btn::Right || b == Btn::Down) && S.page + 1 < supportPages) { S.page++; render(true); }
         else if ((b == Btn::Left || b == Btn::Up) && S.page > 0) { S.page--; render(true); }
         break;
       case Scr::Plan:
         if (b == Btn::Back) { S.scr = Scr::Menu; S.sel = 4; render(false); }
         else if (b == Btn::Confirm) { S.prev = Scr::Plan; S.scr = Scr::Support; S.page = 0; render(false); }
+        else if ((b == Btn::Right || b == Btn::Down) && S.page + 1 < planPages) { S.page++; render(true); }
+        else if ((b == Btn::Left || b == Btn::Up) && S.page > 0) { S.page--; render(true); }
         break;
       case Scr::Sync:
         if (b == Btn::Back) { hal::wifiStop(); SSID[0] = 0; loadCheckins(); S.scr = Scr::Menu; S.sel = 5; render(false); }

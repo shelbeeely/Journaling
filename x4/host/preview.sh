@@ -13,6 +13,9 @@ run menu KW_NOW="2026-10-14 13:10" KW_KEYS="back"
 run month KW_NOW="2026-10-14 13:10" KW_KEYS="back down down confirm"
 run support KW_NOW="2026-10-14 13:10" KW_KEYS="backhold right right"
 run plan KW_NOW="2026-10-14 13:10" KW_KEYS="backhold confirm"
+# a long plan (host/plan-long.txt): page to the end and past it, back up, then Support and back to page 1
+runlong() { name=$1; shift; mkdir -p out/$name; rm -rf /tmp/kwsd; cp -r sample /tmp/kwsd; cp plan-long.txt /tmp/kwsd/kw/me.txt; env KW_SD=/tmp/kwsd KW_OUT=out/$name "$@" ./kw_host >/dev/null; }
+runlong planlong KW_NOW="2026-10-14 13:10" KW_KEYS="backhold confirm down down down down up confirm confirm"
 run sync KW_NOW="2026-10-14 13:10" KW_KEYS="back down down down down down confirm"
 run clock KW_NOW="2026-10-14 13:10" KW_KEYS="back down down down down down down confirm"
 run holiday KW_NOW="2026-11-26 09:00" KW_KEYS="right"
