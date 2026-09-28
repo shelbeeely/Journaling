@@ -141,6 +141,8 @@ int ITEM_COUNT = BUILTIN_COUNT;
 
 // ---------- custom check-ins (/kw/checkins.txt, written by tools/export_pack.py) ----------
 static char CKEY[MAX_CUSTOM][65], CLABEL[MAX_CUSTOM][48], CGROUP[MAX_CUSTOM][40];
+// Choice option text, pooled: every choice item takes its options from here in order (8 per item at most).
+static char COPT[MAX_CUSTOM * CHOICE_MAX][OPT_BYTES];
 
 // Copies at most n-1 bytes without cutting a UTF-8 sequence in half.
 static void copyField(char* dst, int n, const char* s, int len) {
@@ -165,7 +167,7 @@ int loadCheckins() {
   std::string f;
   if (!hal::readFile("/kw/checkins.txt", f)) return 0;
   const char* group = "";  // items before any @line get a separator but no heading
-  const char* pending = nullptr; int pendingLen = 0, groups = 0;
+  const char* pending = nullptr; int pendingLen = 0, groups = 0, opts = 0;  // opts: used rows of COPT
   size_t a = 0;
   while (a < f.size() && ITEM_COUNT < MAX_ITEMS) {
     size_t b = f.find('\n', a); if (b == std::string::npos) b = f.size();
@@ -173,9 +175,9 @@ int loadCheckins() {
     while (len > 0 && (line[len - 1] == '\r' || line[len - 1] == ' ')) len--;
     if (len == 0 || line[0] == '#') continue;
     if (line[0] == '@') { pending = line + 1; pendingLen = len - 1; continue; }
-    // key|label|kind|lo|hi|def
-    const char* fs[6]; int fl[6], nf = 0; const char* p = line; const char* end = line + len;
-    while (nf < 6) {
+    // key|label|kind|lo|hi|def|options  (anything after the 7th column is ignored)
+    const char* fs[7]; int fl[7], nf = 0; const char* p = line; const char* end = line + len;
+    while (nf < 7) {
       const char* q = (const char*)memchr(p, '|', end - p); if (!q) q = end;
       fs[nf] = p; fl[nf] = (int)(q - p); nf++;
       if (q == end) break;
@@ -195,8 +197,36 @@ int loadCheckins() {
     Item it = {CKEY[n], CLABEL[n], -1, Kind::Toggle, 0, 1, 0, group};
     if (kind == "toggle") { it.kind = Kind::Toggle; lo = 0; hi = 1; }
     else if (kind == "dots") { it.kind = Kind::Dots; lo = 0; hi = 2; }
-    else if (kind == "count") { it.kind = Kind::Count; lo = 0; if (!hasHi) hi = 99; if (hi < 1 || hi > 999) continue; }
-    else if (kind == "scale") { it.kind = Kind::Scale; if (!hasLo || !hasHi || hi <= lo || hi - lo > 9) continue; }
+    else if (kind == "count") { it.kind = Kind::Count; lo = 0; if (!hasHi) hi = 99; if (hi < 1 || hi > 999) continue; }  // hi = the most it counts to
+    else if (kind == "scale") { it.kind = Kind::Scale; if (!hasLo || !hasHi || hi <= lo || hi - lo > 10) continue; }  // up to 11 steps: 0..10, -5..+5
+    else if (kind == "choice") {
+      // Options come from the 7th column, ';'-separated. Empty ones are skipped; 2..8 are needed, all different, or the item is skipped.
+      if (nf < 7) continue;
+      it.kind = Kind::Choice; it.opts = COPT + opts; int no = 0; bool bad = false;
+      const char* q = fs[6]; const char* qe = fs[6] + fl[6];
+      while (q <= qe && !bad) {
+        const char* sc = (const char*)memchr(q, ';', qe - q); if (!sc) sc = qe;
+        int ol = (int)(sc - q);
+        while (ol > 0 && q[0] == ' ') { q++; ol--; }
+        while (ol > 0 && q[ol - 1] == ' ') ol--;
+        if (ol > 0) {
+          if (no >= CHOICE_MAX || opts + no >= MAX_CUSTOM * CHOICE_MAX) { bad = true; break; }
+          char* dst = COPT[opts + no];
+          int chars = 0, bytes = 0;  // at most CHOICE_LEN characters, never cutting a UTF-8 sequence
+          for (int k = 0; k < ol && bytes < OPT_BYTES - 1; k++) {
+            const unsigned char c = (unsigned char)q[k];
+            if ((c & 0xC0) != 0x80) { if (chars == CHOICE_LEN) break; chars++; }
+            dst[bytes++] = (c < ' ' || c == ',') ? ' ' : (char)c;  // the option is written to the CSV log as it is: no commas or control characters
+          }
+          dst[bytes] = 0;
+          for (int k = 0; k < no; k++) if (!strcmp(COPT[opts + k], dst)) bad = true;  // duplicates would make the log ambiguous
+          no++;
+        }
+        q = sc + 1;
+      }
+      if (bad || no < 2) continue;
+      it.nopts = no; lo = 0; hi = no - 1;
+    }
     else continue;
     it.lo = lo; it.hi = hi; it.def = def < lo ? lo : def > hi ? hi : def;
     if (pending) {  // the group heading is stored once, when its first item arrives
@@ -204,6 +234,7 @@ int loadCheckins() {
       group = CGROUP[groups++]; it.group = group; pending = nullptr;
     }
     copyField(CLABEL[n], sizeof CLABEL[n], fs[1], fl[1]);
+    opts += it.nopts;
     ITEMS[ITEM_COUNT++] = it;
   }
   return ITEM_COUNT - BUILTIN_COUNT;
@@ -217,6 +248,14 @@ int DayLog::doneCount() const {
   return n;
 }
 
+// A logged value as the item's number. Choice rows hold the option's text; a text no option has any more
+// (the words were edited) is INT_MIN: unset on screen, still in the CSV.
+static int parseValue(int i, const std::string& v) {
+  const Item& it = ITEMS[i];
+  if (it.kind != Kind::Choice) return atoi(v.c_str());
+  for (int k = 0; k < it.nopts; k++) if (v == it.opts[k]) return k;
+  return INT_MIN;
+}
 static int itemIndex(const std::string& k) {
   for (int i = 0; i < ITEM_COUNT; i++) if (k == ITEMS[i].key) return i;
   return -1;
@@ -245,7 +284,11 @@ void loadDayLog(const std::string& date, DayLog& out) {
     if (k == "prn") { out.stamps.push_back(v); return; }
     if (k == "prn_undo") { if (!out.stamps.empty()) out.stamps.pop_back(); return; }
     const int i = itemIndex(k);
-    if (i >= 0) out.value[i] = atoi(v.c_str());
+    if (i >= 0) {
+      const int x = parseValue(i, v);
+      if (x != INT_MIN) out.value[i] = x;
+      else if (std::find(old.begin(), old.end(), k + "=" + v) == old.end()) old.push_back(k + "=" + v);  // a word she has since removed
+    }
     else if (std::find(old.begin(), old.end(), k) == old.end()) old.push_back(k);
   });
   out.orphans = (int)old.size();
@@ -254,7 +297,9 @@ void loadDayLog(const std::string& date, DayLog& out) {
 void saveItem(const std::string& date, int item, int value, time_t when) {
   // The row is stamped with the moment of the tap but keyed to the day being logged, so a
   // late-night "morning meds" for yesterday lands on yesterday.
-  std::string line = date + stampStr(when).substr(10) + "," + ITEMS[item].key + "," + std::to_string(value);
+  const Item& it = ITEMS[item];
+  const std::string v = it.kind == Kind::Choice && value >= 0 && value < it.nopts ? std::string(it.opts[value]) : std::to_string(value);
+  std::string line = date + stampStr(when).substr(10) + "," + it.key + "," + v;
   hal::appendLine(("/kw/log/" + date.substr(0, 7) + ".csv").c_str(), line);
 }
 void saveStamp(const std::string& date, time_t when) {
@@ -274,7 +319,7 @@ void monthStats(int year, int month, MonthStats& s) {
   scanLog(ym, [&](const std::string& d, const std::string&, const std::string& k, const std::string& v) {
     const int dd = atoi(d.c_str() + 8); if (dd < 1 || dd > 31) return;
     seen[dd] = true;
-    const int i = itemIndex(k); if (i >= 0) L[dd].value[i] = atoi(v.c_str());
+    const int i = itemIndex(k); if (i >= 0) { const int x = parseValue(i, v); if (x != INT_MIN) L[dd].value[i] = x; }
   });
   const int iMood = itemIndex("mood"), iSleep = itemIndex("sleep"), iSpoons = itemIndex("spoons");
   const int iAm = itemIndex("med_am"), iPm = itemIndex("med_pm"), iShower = itemIndex("shower");
