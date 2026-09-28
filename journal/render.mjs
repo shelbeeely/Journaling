@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import { launch } from './browser.mjs';
 import { build, busCoverage } from './data.mjs';
 import bwipjs from 'bwip-js';
+import { drawRulings } from './rulings.mjs';
 import { EDITION } from './content/edition.mjs';
 import { IC, ic, box, spoon, actionZone, dayBlocks, normalize, DAYPAGE_CSS } from './daypage.mjs';
 // Day page layout from the page editor (content/daypage.json); defaults reproduce the original page.
@@ -531,72 +532,7 @@ if (HARDCOVER) while (pages.length < 76 || pages.length % 2) add('notes', notesP
 // re-verifies that on every build. Page type and date come from layout.json.
 const SIZE_CODE = HARDCOVER ? 'H' : LETTER ? 'L' : 'S';
 const pageCode = (i) => `KW2|${EDITION}|${VOL.id.slice(2).replace('-', '')}|${SIZE_CODE}${String(i + 1).padStart(3, '0')}`;
-// Rulings for print: every ruled line, dot grid and 4 mm grid is redrawn as one plain inline SVG per area, same
-// geometry as its CSS background. Chromium turns CSS gradients and tiled SVG backgrounds into PDF shadings and image
-// patterns that renderers disagree on (poppler: stray/doubled lines, cairo: nothing, mupdf: grey bars), and KDP
-// rasterises with its own pipeline. The CSS backgrounds stay for the editor preview; this runs in the page (after
-// fonts load, and again from render.mjs before the PDF) and switches them off. Keep the table in sync with the CSS.
-// Idempotent. Everything is clipped to the area, so no drawn box pokes past it (check.mjs stays at [] 0).
-function drawRulings() {
-  const IN = 96, MM = 96 / 25.4;
-  const SPECS = [ // first match wins; lines: 1px band at the bottom of each pitch; dots: centres ox + i·pitch, oy + j·pitch
-    ['.ru.pd', { dots: 0.22 * IN, ox: 0.11 * IN, oy: 0.2 * IN, r: 0.012 * IN, c: '#999' }],
-    ['.ru.pg, .grid.log', { grid: 4 * MM, w: 0.1 * MM, dash: [0.2 * MM, 0.3 * MM], c: '#d6d6d6' }],
-    ['.ruled.log', { lines: 0.26 * IN, c: '#999' }],
-    ['.ru', { lines: 0.22 * IN, c: '#999' }],
-    ['.m .dots', { dots: 5 * MM, ox: 0, oy: 0, r: 0.3 * MM, c: '#DCDCDC' }],
-    ['.dots', { dots: 0.17 * IN, ox: 0, oy: 0, r: 0.01 * IN, c: '#555' }],
-    ['.genko span', { cross: 0.5, c: '#ddd' }],
-  ];
-  const f = (v) => +v.toFixed(3);
-  const NS = 'http://www.w3.org/2000/svg';
-  document.querySelectorAll('svg.vrule').forEach((s) => s.remove());
-  const rect = (x0, y0, x1, y1) => `M${f(x0)} ${f(y0)}H${f(x1)}V${f(y1)}H${f(x0)}Z`;
-  // A dot as a Bézier circle; one cut by the edge becomes a clipped 32-gon, so the path never leaves the area.
-  const dot = (cx, cy, r, W, H) => {
-    if (cx - r >= 0 && cy - r >= 0 && cx + r <= W && cy + r <= H) return `M${f(cx - r)} ${f(cy)}a${f(r)} ${f(r)} 0 1 0 ${f(2 * r)} 0a${f(r)} ${f(r)} 0 1 0 ${f(-2 * r)} 0Z`;
-    let P = Array.from({ length: 32 }, (_, k) => [cx + r * Math.cos(k * Math.PI / 16), cy + r * Math.sin(k * Math.PI / 16)]);
-    for (const [ax, lim, keepLE] of [[0, 0, false], [0, W, true], [1, 0, false], [1, H, true]]) {
-      const inside = (p) => (keepLE ? p[ax] <= lim : p[ax] >= lim), out = [];
-      P.forEach((p, i) => {
-        const q = P[(i + 1) % P.length];
-        if (inside(p)) out.push(p);
-        if (inside(p) !== inside(q)) { const t = (lim - p[ax]) / (q[ax] - p[ax]); out.push([p[0] + t * (q[0] - p[0]), p[1] + t * (q[1] - p[1])]); }
-      });
-      P = out;
-      if (P.length < 3) return '';
-    }
-    return 'M' + P.map((p) => `${f(p[0])} ${f(p[1])}`).join('L') + 'Z';
-  };
-  document.querySelectorAll('.page').forEach((pg) => { const z = parseFloat(getComputedStyle(pg).zoom) || 1; SPECS.forEach(([sel, s]) => pg.querySelectorAll(sel).forEach((el) => {
-    if (el.dataset.vrule) return; // already taken by an earlier (more specific) spec
-    el.dataset.vrule = '1';
-    const cs = getComputedStyle(el), b = el.getBoundingClientRect();
-    // the letter book zooms each page; measure in the page's own CSS px, where the backgrounds tile
-    const W = b.width / z - parseFloat(cs.borderLeftWidth) - parseFloat(cs.borderRightWidth), H = b.height / z - parseFloat(cs.borderTopWidth) - parseFloat(cs.borderBottomWidth);
-    let d = '', attrs = { fill: s.c };
-    if (s.lines) for (let y = s.lines; y - 1 < H; y += s.lines) d += rect(0, y - 1, W, Math.min(y, H));
-    if (s.cross) d += rect(0, (H - s.cross) / 2, W, (H + s.cross) / 2) + rect((W - s.cross) / 2, 0, (W + s.cross) / 2, H);
-    if (s.dots) for (let y = s.oy + Math.ceil((-s.r - s.oy) / s.dots) * s.dots; y - s.r < H; y += s.dots) for (let x = s.ox + Math.ceil((-s.r - s.ox) / s.dots) * s.dots; x - s.r < W; x += s.dots) d += dot(x, y, s.r, W, H);
-    if (s.grid) { // dashes restart at every 4 mm tile edge, and 4 mm is a whole number of dash periods, so one line per row/column matches
-      const o = s.w / 2;
-      for (let y = o; y < H; y += s.grid) d += `M0 ${f(y)}H${f(W)}`;
-      for (let x = o; x < W; x += s.grid) d += `M${f(x)} 0V${f(H)}`;
-      attrs = { fill: 'none', stroke: s.c, 'stroke-width': f(s.w), 'stroke-dasharray': s.dash.map(f).join(' ') };
-    }
-    const svg = document.createElementNS(NS, 'svg');
-    svg.setAttribute('class', 'vrule'); svg.setAttribute('aria-hidden', 'true');
-    svg.setAttribute('width', f(W)); svg.setAttribute('height', f(H)); svg.setAttribute('viewBox', `0 0 ${f(W)} ${f(H)}`);
-    svg.style.cssText = 'position:absolute;left:0;top:0;overflow:hidden;pointer-events:none';
-    const path = document.createElementNS(NS, 'path');
-    path.setAttribute('d', d); for (const [k, v] of Object.entries(attrs)) path.setAttribute(k, v);
-    svg.appendChild(path);
-    if (cs.position === 'static') el.style.position = 'relative';
-    el.style.backgroundImage = 'none';
-    el.appendChild(svg);
-  })); });
-  document.querySelectorAll('[data-vrule]').forEach((el) => delete el.dataset.vrule);
-}
+// Rulings for print: drawRulings() (rulings.mjs) redraws every ruled line, dot grid and 4 mm grid as vector SVG; keep its SPECS in sync with the CSS below and in daypage.mjs.
 
 const qrSvgs = pages.map((p, i) => bwipjs.toSVG({ bcid: 'datamatrix', text: pageCode(i) }));
 const html = `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/600.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/700.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/400-italic.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/noto-serif-jp/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/noto-serif-jp/600.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/noto-sans-jp/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/dejavu-sans/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/inter/500.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/inter/700.css"><style>
@@ -636,12 +572,12 @@ table { border-collapse: collapse; }
 .wk td { padding: 2px 10px 2px 0; font-size: 8pt; border-bottom: 1px solid #ccc; } .wk .kj { font-size: 13pt; }
 .boxline { border-bottom: 1px solid #333; font-size: 8pt; font-weight: 700; padding: 0.14in 0 2px; margin-bottom: 2px; }
 .boxline.big { height: 0.6in; font-size: 9pt; }
-.lines { overflow: hidden; } .rule { border-bottom: 1px solid #999; }
+.lines { overflow: hidden; } .rule { border-bottom: 1px solid #a0a0a0; }
 .lines.l2 { height: 0.52in; } .lines.l3 { height: 0.78in; } .lines.l4 { height: 1.04in; } .lines.l6 { height: 1.56in; } .lines.l7 { height: 1.82in; }
 .fill { flex: 1; min-height: 0.5in; }
-/* .dots, .m .dots and .genko backgrounds: print redraws them as vectors in drawRulings() above; keep its SPECS in sync */
-.dots { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='17' height='17' viewBox='0 0 17 17'%3E%3Ccircle cx='8.5' cy='8.5' r='1' fill='%23555'/%3E%3C/svg%3E"); background-size: 0.17in 0.17in; background-position: -0.085in -0.085in; }
-.three { margin: 4px 0 0 16px; padding: 0; } .three li { height: 0.34in; border-bottom: 1px solid #999; }
+/* .dots, .m .dots and .genko backgrounds: print redraws them as vectors in drawRulings() (rulings.mjs); keep its SPECS in sync */
+.dots { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='17' height='17' viewBox='0 0 17 17'%3E%3Ccircle cx='8.5' cy='8.5' r='1.344' fill='%23606060'/%3E%3C/svg%3E"); background-size: 0.17in 0.17in; background-position: -0.085in -0.085in; }
+.three { margin: 4px 0 0 16px; padding: 0; } .three li { height: 0.34in; border-bottom: 1px solid #a0a0a0; }
 .minis { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.12in; margin-bottom: 0.05in; }
 .mini table { width: 100%; font-size: 7pt; text-align: center; } .mini th { font-weight: 700; color: #444; } .mini td { padding: 1.5px 0; position: relative; } .mini td.q { font-weight: 700; } .mq { position: absolute; top: 0; right: -1px; }
 .sky2 td, .sky td { padding: 2.5px 8px 2.5px 0; font-size: 7.8pt; border-bottom: 1px solid #ccc; vertical-align: middle; } .sky2 td:first-child, .sky td:first-child { white-space: nowrap; font-weight: 600; width: 0.6in; }
@@ -666,8 +602,8 @@ table { border-collapse: collapse; }
 .wd .kj { font-size: 14pt; display: block; line-height: 1.1; } .wd .dt { font-size: 7.6pt; font-weight: 700; }
 .wsky { font-size: 7pt; display: flex; flex-direction: column; gap: 1px; } .wsky .ms { display: flex; align-items: center; gap: 3px; }
 .wr-top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 0.15in; } .word .wk-k { font-size: 20pt; line-height: 1.2; }
-.genko { display: grid; grid-template-columns: repeat(6, 0.26in); gap: 0; margin-top: 4px; } .genko span { width: 0.26in; height: 0.26in; border: 1px solid #999; background: linear-gradient(#ddd, #ddd) center/100% 0.5px no-repeat, linear-gradient(#ddd, #ddd) center/0.5px 100% no-repeat; }
-.word p { margin: 2px 0 0; font-size: 7pt; } .prio ol { margin: 0; padding-left: 14px; } .prio li { height: 0.36in; border-bottom: 1px solid #999; }
+.genko { display: grid; grid-template-columns: repeat(6, 0.26in); gap: 0; margin-top: 4px; } .genko span { width: 0.26in; height: 0.26in; border: 1px solid #999; background: linear-gradient(#ccc, #ccc) center/100% 1px no-repeat, linear-gradient(#ccc, #ccc) center/1px 100% no-repeat; }
+.word p { margin: 2px 0 0; font-size: 7pt; } .prio ol { margin: 0; padding-left: 14px; } .prio li { height: 0.36in; border-bottom: 1px solid #a0a0a0; }
 .hab, .mline { width: 100%; table-layout: fixed; } .hab th { font-family: 'Noto Serif JP', serif; font-size: 8pt; } .hab td { border: 1px solid #999; height: 0.24in; } .hab td.hl, .mline td.hl { width: 0.75in; border: none; border-bottom: 1px solid #999; font-size: 7pt; color: #444; }
 .mline td { height: 0.16in; text-align: center; } .mline i { display: inline-block; width: 4px; height: 4px; border-radius: 50%; background: #888; } .mline td.hl { border: none; text-align: right; padding-right: 6px; } .mline tr.zero td { border-top: 1px solid #999; border-bottom: 1px solid #999; } .mline td.dl { font-family: 'Noto Serif JP', serif; font-size: 7pt; }
 .halves { gap: 0; } .day { flex: 1; display: flex; flex-direction: column; min-height: 0; } .cut { height: 0; border-top: 1px dashed #999; margin: 0.08in 0; }
@@ -694,8 +630,8 @@ table { border-collapse: collapse; }
 .strip .pno { font: 500 7pt 'Inter', sans-serif; color: #333; width: 0.2in; } .strip .send { font: 700 7pt 'Inter', sans-serif; color: #333; letter-spacing: 0.5px; }
 .sym { display: flex; flex-direction: column; align-items: center; gap: 2px; } .sym i { width: 12px; height: 12px; border: 1px dashed #333; border-radius: 50%; }
 .strip .qr { margin-left: auto; width: ${STRIP}in; height: ${STRIP}in; } .strip .qr svg { width: 100%; height: 100%; display: block; }
-.m .dots { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='5mm' height='5mm' viewBox='0 0 50 50'%3E%3Ccircle cx='25' cy='25' r='3' fill='%23DCDCDC'/%3E%3C/svg%3E"); background-size: 5mm 5mm; background-position: -2.5mm -2.5mm; }
-.m .rule { border-bottom-color: #DCDCDC; }
+.m .dots { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='5mm' height='5mm' viewBox='0 0 50 50'%3E%3Ccircle cx='25' cy='25' r='4' fill='%23C8C8C8'/%3E%3C/svg%3E"); background-size: 5mm 5mm; background-position: -2.5mm -2.5mm; }
+.m .rule { border-bottom-color: #c8c8c8; }
 .zl { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 7pt; letter-spacing: 0.6px; text-transform: uppercase; color: #111; }
 .hz { display: grid; grid-template-columns: 1.35fr 1fr; gap: 4px; margin-bottom: 4px; }
 .zbox { border: 1px solid #9a9a9a; background: #e6e6e6; padding: 3px 5px; min-height: 0.3in; display: flex; gap: 5px; align-items: baseline; }
@@ -734,7 +670,7 @@ table { border-collapse: collapse; }
 .hg tr.rng td { background: #f1f1f1; } .hg td { padding: 0.4px 2px; line-height: 1.1; border-bottom: 1px solid #e3e3e3; overflow: hidden; letter-spacing: -0.02em; } .hg td.hl { white-space: nowrap; font: 600 7pt Inter, sans-serif; text-align: right; padding-right: 5px; } .hg td.hl.pm { font-weight: 800; }
 .busvalid { font: 600 7pt Inter, sans-serif; margin: 3px 0 0; border: 1px solid #000; padding: 2px 5px; display: inline-block; } .busbox { margin-top: 8px; border: 1px solid #000; padding: 4px 7px; font-size: 8pt; }
 .rt { font: 600 7.5pt Inter, sans-serif; text-transform: uppercase; margin: 6px 0 0; } .hg .gs { border-left: 1px solid #9a9a9a; padding-left: 4px; }
-.az { margin-top: 4px; } .cb { display: flex; align-items: center; gap: 6px; height: 0.24in; } .cb i { width: 10px; height: 10px; border: 1.2px solid #000; flex: none; } .cb span { flex: 1; border-bottom: 1px solid #DCDCDC; height: 100%; display: flex; align-items: flex-end; font-size: 7.5pt; padding-bottom: 1px; }
+.az { margin-top: 4px; } .cb { display: flex; align-items: center; gap: 6px; height: 0.24in; } .cb i { width: 10px; height: 10px; border: 1.2px solid #000; flex: none; } .cb span { flex: 1; border-bottom: 1px solid #c8c8c8; height: 100%; display: flex; align-items: flex-end; font-size: 7.5pt; padding-bottom: 1px; }
 .m .chk .zl, .m .spn .zl { margin-right: 3px; }
 .m .lin th, .m .lin td { font-size: 7pt; padding: 2px 6px 2px 0; } .m .lin th { width: 1.1in; } .m .lead { font-size: 7.5pt; } .m .small { font-size: 7pt; }
 .m .steps { gap: 0.06in; } .m .steps p { font-size: 7.4pt; } .m .anat .a3 { height: 0.45in; } .m .anat div { font-size: 7pt; padding: 3px 5px; }

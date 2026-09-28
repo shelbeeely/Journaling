@@ -26,4 +26,5 @@ done
 unset SIZE
 # scan codes: unique, decode from the PDF, every page mapped (DECODE=all for every page, DECODE=none to skip)
 [ ${#dirs[@]} -eq 0 ] || node check-codes.mjs "${dirs[@]}" || { echo "::error::scan codes"; fail=1; }
+node proof-test.mjs || fail=1   # KDP proof test sheet (both sizes), not part of the books
 exit $fail
