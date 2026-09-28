@@ -138,6 +138,37 @@ The Pages editor saves in the browser and commits `journal/content/daypage.json`
 The Artifact editor saves to its store at `layouts/day`; copy that `layout` object into `content/daypage.json`.
 The DATE/TITLE/TAGS header and the scan frame, strip and page code are fixed. The X4 firmware is unaffected.
 
+### Presets and options (Tier 1)
+Every option is off (or at today's value) by default, so an unchanged layout prints exactly the same page.
+Presets are ready-made blocks in the palette. Checkbox, habit, blank and scale presets are also X4 check-ins.
+
+| Group | Presets (palette name: labels) |
+|---|---|
+| Planning | Rituals: Morning, Start, Shut down, Evening. Today's 3: #1, #2, #3. One Q2 thing. Inbox cleared. Weekly review (dots). Shutdown: Lists captured, Tomorrow's first block, Work closed. Deep blocks (blanks): planned, done. Focus rounds count (blank) |
+| Check-ins | Supports: Headphones, Hood, Dark room, Alone time. Masking (4 steps, none to all day). Overload (dot). Felt like me (5 steps, not today to so me). Voice minutes (blank). Cycle & dose: Period, Dose day. Deposits done: Rest, Alone time, Outside. Sharpen the saw: Body, Mind, Heart, Spirit. Places (blank). Something new: Something new, Went outside, Talked to someone. Made something: Made something, Went outside. Good today: Warmth, Food, Rest, People, Outside. Device-free hour. Outside & light (dots): Outside, Daylight on face, Moved. One small good thing (blank) |
+
+| Block | Option | Values (default first) |
+|---|---|---|
+| Top priorities | How many | 3 (1 to 6) |
+| | Guess / took columns (`est`) | off, on: two short blanks per line, with a header |
+| | Carried column (`carried`) | off, on: a tick box for "carried again" |
+| Time blocks | From / To (hour) | 8 / 22; From goes down to 0, To up to 24 |
+| | Actual column (`actual`) | off, on: plan and actual side by side |
+| | Re-plan columns (`replan`) | 0, 1, 2. Three or more columns switch to one wide list |
+| Lined notes, Two columns | Line spacing (`pitch`) | Tight 5.6 mm (today), Standard 6.6 mm, Wide 8.5 mm |
+| Writing space | Paper (`style`) | Dot grid, Lines, Bold lines (1.5 pt black at 9/16 in), 4 mm grid, 3.7 mm grid, Blank |
+| | Secret line (`secretLine`) | off, on: a faint vertical line 0.9 in from the left |
+| Small good things | Label (`label`) | Small good things |
+| | "because" (`because`) | off, on: each line gets a "because" half |
+| Sensory load | Senses | Sound, Light, Crowds, Touch on; Smell, Social, Temperature, Movement off |
+| Habit dots | Legend (`tiny`) | half / full, or tiny / done |
+| Sketch box | Tape marks (`corners`) | off, on: four thin corner ticks |
+| | Caption (`caption`) | none, up to 30 characters next to the label |
+| Divider | Icon (`icon`) | None, Sun, Moon |
+| Checkboxes, Scale | Scan-ready (`omr`) | off, on: 12 px marks with wider gaps, easier to read by optical mark reading |
+
+Scan zones do not change: every block keeps its `data-zone`. Print draws all rules and grids as vectors (`rulings.mjs`).
+
 ### Page codes
 Every page carries its own Data Matrix: `KW2|<edition>|<yymm>|<size><page>`, e.g. `KW2|1|2610|S026`.
 Size is `S` (5.5x8.5), `L` (8.5x11) or `H` (5.5x8.5 hardcover). The code is built at build time from the final page order,
