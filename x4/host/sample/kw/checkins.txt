@@ -11,3 +11,8 @@ c_habits_h7d_read|Read a few pages|dots|0|2|0
 c_habits_h7d_tidy|Tidy one thing|dots|0|2|0
 @Notes
 c_fields_f4b_water|Glasses of water|count|0|99|0
+@More scales, words and counts
+c_scale_pain10|Pain today|scale|0|10|5
+c_scale_mood7|Mood check|scale|-3|3|0
+c_words_kind|Kind of day|choice|0|3|0|foggy;clear;stormy;still
+c_fields_rounds|Focus rounds|count|0|8|0

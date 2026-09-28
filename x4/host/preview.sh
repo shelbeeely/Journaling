@@ -9,6 +9,14 @@ run today KW_NOW="2026-10-14 13:10" KW_KEYS="back"
 run checkin KW_NOW="2026-10-14 13:10" KW_KEYS="confirm down down down down down down down confirm down down down down right right"
 # custom check-ins (sample/kw/checkins.txt): scroll past the built-ins, tick, set, fill dots, count
 run custom KW_NOW="2026-10-14 13:10" KW_KEYS="confirm down down down down down down down down down down down down down down down confirm down down down right right down confirm confirm down confirm down down right right right up"
+# bridge v2: zero-based 0-10 scale, signed -3..+3 scale, pick-one choice, capped count (sample/kw/checkins.txt "More" group)
+run custom2 KW_NOW="2026-10-14 13:10" KW_KEYS="confirm down down down down down down down down down down down down down down down down down down down down down down down confirm right right down confirm left left down right right down right right right"
+# choices are logged by their text, so the history survives re-ordering the words; a word she removed later is kept in the CSV but shows as unset
+grep -q '^2026-10-14T13:10,c_words_kind,stormy$' /tmp/kwsd/kw/log/2026-10.csv && grep -q ',c_scale_mood7,-2$' /tmp/kwsd/kw/log/2026-10.csv && grep -q ',c_scale_pain10,7$' /tmp/kwsd/kw/log/2026-10.csv || { echo "FAIL: bridge v2 values were not logged as expected"; exit 1; }
+# forward compatible: unknown kinds and extra columns are ignored; bad choices (1 option, 9 options, repeated words) are skipped, the rest still load
+mkdir -p out/compat; rm -rf /tmp/kwsd; cp -r sample /tmp/kwsd
+printf "c_z1|Future kind|widget|0|1|0\nc_z2|One option|choice|0|0|0|only\nc_z3|Nine options|choice|0|8|0|a;b;c;d;e;f;g;h;i\nc_z4|Repeats|choice|0|1|0|x;x\nc_z5|Extra columns kept|toggle|0|1|0|ignored|ignored too\n" >> /tmp/kwsd/kw/checkins.txt
+env KW_SD=/tmp/kwsd KW_OUT=out/compat KW_NOW="2026-10-14 13:10" KW_KEYS="confirm down down down down down down down down down down down down down down down down down down down down down down down down down down down" ./kw_host >/dev/null
 run menu KW_NOW="2026-10-14 13:10" KW_KEYS="back"
 run month KW_NOW="2026-10-14 13:10" KW_KEYS="back down down confirm"
 run support KW_NOW="2026-10-14 13:10" KW_KEYS="backhold right right"
@@ -41,3 +49,4 @@ printf "2026-10-31T09:00,c_old_key,1\n2026-10-31T09:01,c_other_old,2\n2026-10-31
 env KW_SD=/tmp/kwsd KW_OUT=out/manyevents KW_NOW="2026-10-31 13:10" KW_KEYS="" ./kw_host >/dev/null
 python3 topng.py out
 ./test_update.sh
+python3 ../tools/test_export.py
