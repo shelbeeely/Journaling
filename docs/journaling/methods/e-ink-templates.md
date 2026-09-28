@@ -12,7 +12,7 @@ Checked: 2026-09-28. Points marked **(uncertain)** could not be confirmed from a
 
 | | |
 |---|---|
-| **Creator** | No single creator. E Ink Corporation (electrophoretic film, spun out of MIT Media Lab, 1997); device makers reMarkable (Norway), Amazon (Kindle Scribe), Onyx (Boox), Ratta (Supernote), Rakuten Kobo (Elipsa). Hyperlinked PDF planners come from independent designers (Etsy, Gumroad, own shops). |
+| **Creator** | No single creator. E Ink Corporation (electrophoretic film, from MIT Media Lab work, 1997 **(uncertain)**); device makers reMarkable (Norway), Amazon (Kindle Scribe), Onyx (Boox), Ratta (Supernote), Rakuten Kobo (Elipsa). Hyperlinked PDF planners come from independent designers (Etsy, Gumroad, own shops). |
 | **Year** | Sony Digital Paper and early readers around 2013 **(uncertain)**; reMarkable 1 in 2017; Kindle Scribe 2022; reMarkable Paper Pro 2024; Paper Pro Move 2025. |
 | **Type** | A medium, not a method. Any paper method (BuJo, planners, morning pages) can run on it. Templates and PDF planners are the "system" layer. |
 | **Time per day** | Same as the paper method you run on it. Add 1–3 min for navigation and sync. |
@@ -558,7 +558,7 @@ durable copy.
 
 ## 21. Combining
 
-- **Bullet Journal on e-ink:** see `bullet-journal.md` (sibling doc, if present). Rapid logging works well
+- **Bullet Journal on e-ink:** see the Bullet Journal doc in this folder once it lands. Rapid logging works well
   with a pen on e-ink; migration is easier with copy/paste lasso.
 - **Digital daily notes:** see [`digital-daily-notes.md`](digital-daily-notes.md). Text-converted e-ink
   notes can feed an Obsidian vault; Keeping Watch's X4 logs (CSV) can be imported into daily notes.
