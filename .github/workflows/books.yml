@@ -59,7 +59,7 @@ jobs:
         env: { BOOKS_PASSWORD: '${{ secrets.BOOKS_PASSWORD }}' }
         run: |
           mkdir -p ../dist
-          files=$(ls out/*/*.pdf out/*/*.epub out/*/layout.json 2>/dev/null)
+          files=$(ls out/*/*.pdf out/*/*.epub out/*/layout.json out/*/manifest.json 2>/dev/null)
           if [ "${PERSONAL:-}" = 1 ]; then
             if [ -z "$BOOKS_PASSWORD" ]; then echo "::error::Set the BOOKS_PASSWORD secret: personal books are never uploaded unencrypted."; exit 1; fi
             7z a -t7z -mhe=on -p"$BOOKS_PASSWORD" ../dist/keeping-watch-books.7z $files out/sd-card >/dev/null

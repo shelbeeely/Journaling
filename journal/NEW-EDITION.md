@@ -90,6 +90,7 @@ Possible later improvements (don't change now):
 - [ ] Put fresh calendar exports in `private/` (see `private/README.md`), or update the `ICS_URLS` secret.
 - [ ] `node render.mjs month 2027-10 test.ics` prints no `content gaps:`. Repeat for 2028-02 to catch `02-29`.
 - [ ] `./build-all.sh` (or `ICS=private/main.ics,… ./build-all.sh`) exits 0, and every month prints `[] 0` from `check.mjs`.
+- [ ] `check-pages.mjs` (part of `build-all.sh`) passes: every page id and printed label unique in each book, `shared` pages (Key, Support, Safety, Quick contacts, Looking back) identical in all 24 books. Keep each proof's `manifest.json`.
 - [ ] Look at the pages:
   - "Book 1 of 12 · October 2027"
   - Week 1 on the first spread

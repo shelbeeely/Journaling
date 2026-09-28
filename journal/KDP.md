@@ -73,6 +73,8 @@ Double-check the spine in KDP's [cover calculator](https://kdp.amazon.com/cover-
 Proofs print **"Not for Resale"** and carry a proof barcode instead of the ISBN. Nobody else can buy or see them.
 Order one proof per size before buying more (see `HANDOFF.md`).
 
+**Keep the manifest with each proof.** `out/<book>/manifest.json` (in the Books workflow artifact next to the PDF) maps every printed page code to its page id, section and zones, and records the build. A printed book decodes through the manifest of the build it came from, even after the layout changes.
+
 **Never publish these books.** A live listing would sell your calendar to anyone. The Keeper is the same: draft
 and proof only. It has no scan codes, and it never should.
 
