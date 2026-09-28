@@ -52,7 +52,7 @@ It writes out/keeper/index.json, which the monthly books use to point their "Clo
 | `keeping-watch-<YYYY-MM>-x4.epub` | X4 / CrossPoint EPUB (small folder only) |
 | `journal.html` | The interior as HTML: open it to debug a page |
 | `cover.html` | The cover as HTML |
-| `layout.json` | Scan-zone map for every page: type, date, page code, zones in mm from the frame's inner edge |
+| `layout.json` | Scan-zone map for every page: `type`, `date` (day pages) or `from`/`to` (month and week pages), `section` (front, month, week, back), `code`, `code_format`, and zones in mm from the frame's inner edge. Repeated zone names get `_2`, `_3`. Pages with no labelled block get one `content` zone |
 | `pages.txt` | Page count (cover.mjs reads it for the spine). `HARDCOVER=1` writes `pages-hardcover.txt` instead |
 | `data.json` | Everything computed for the month (days, moon, sun, events). epub.py and the X4 pack read it |
 
@@ -132,6 +132,16 @@ The Keeper holds hints and recovery codes: never scan it.
 The Pages editor saves in the browser and commits `journal/content/daypage.json` with a fine-grained token.
 The Artifact editor saves to its store at `layouts/day`; copy that `layout` object into `content/daypage.json`.
 The DATE/TITLE/TAGS header and the scan frame, strip and page code are fixed. The X4 firmware is unaffected.
+
+### Page codes
+Every page carries its own Data Matrix: `KW2|<edition>|<yymm>|<size><page>`, e.g. `KW2|1|2610|S026`.
+Size is `S` (5.5x8.5), `L` (8.5x11) or `H` (5.5x8.5 hardcover). The code is built at build time from the final page order,
+so it always names the page's real position. 15 characters still fit a 16x16 symbol (0.42 in, 0.66 mm modules, same as before).
+The edition is one constant, `content/edition.mjs` (single digit; see NEW-EDITION.md).
+`node check-codes.mjs` runs at the end of `build-all.sh` and fails on: a repeated code, a code that doesn't match its page,
+book, size or edition, a page with no zone map, a symbol bigger than 16x16, or a code that doesn't decode from the PDF
+at 200 dpi (`DECODE=all` checks every page, default is a sample, `DECODE=none` skips). The app picks the zone map by
+(yymm, size), and the code says which.
 
 ## More docs
 - [KDP.md](KDP.md): uploading to KDP
