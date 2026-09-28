@@ -96,6 +96,7 @@ function titlePage() {
     <p class="sub">A sky, season &amp; self journal</p>
     <p class="range">Book ${VOL.n} of 12 · ${VOL.label}</p>
     <p class="place">Sky data for ${esc(D.config.place)} · ${D.config.lat.toFixed(2)}° N, ${Math.abs(D.config.lon).toFixed(2)}° W · Pacific Time</p>
+    <p class="built">Built ${D.generated.slice(0, 10)}</p>
     <p class="owner">This journal belongs to<br><span class="line"></span></p>
   </div>`;
 }
@@ -593,7 +594,7 @@ h4 { margin: 0 0 2px; font-size: 8.5pt; }
 .title { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%; }
 .tmoon { display: flex; gap: 14px; margin-bottom: 0.2in; }
 .sub { font-style: italic; font-size: 12pt; margin: 0; } .jp-title { font-size: 16pt; margin: 0.12in 0; } .range { font-size: 11pt; letter-spacing: 2px; text-transform: uppercase; margin: 0.1in 0; }
-.place { font-size: 7.5pt; color: #444; } .owner { margin-top: 0.6in; font-size: 8pt; color: #444; } .owner .line { display: inline-block; width: 3in; border-bottom: 1px solid #333; height: 0.3in; }
+.place { font-size: 7.5pt; color: #444; } .built { font-size: 6pt; line-height: 9pt; margin: 0; color: #666; } .owner { margin-top: calc(0.6in - 9pt); font-size: 8pt; color: #444; } .owner .line { display: inline-block; width: 3in; border-bottom: 1px solid #333; height: 0.3in; }
 table { border-collapse: collapse; }
 .lin th { text-align: left; vertical-align: top; padding: 4px 8px 4px 0; width: 1.45in; font-size: 8pt; }
 .lin td { padding: 4px 0; font-size: 8pt; border-bottom: 1px solid #bbb; line-height: 1.35; }

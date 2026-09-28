@@ -1,7 +1,8 @@
-# Keeping Watch day pack 2026-11 · generated from the paper journal build
+# Keeping Watch day pack 2026-11 · generated from the paper journal build · built 2026-09-28
 keeper=26
 @2026-11-01
 wd=Sunday
+page=16
 planet=☉ Sun
 moon=269.5|51|Last Quarter|♌ Leo
 sun=6:34a|4:31p|9h 57m|♏ Scorpio
@@ -12,6 +13,7 @@ fact=2005 — A software error during an upgrade halts trading on the Tokyo Stoc
 prompt=Describe the sky the last time you looked up.
 @2026-11-02
 wd=Monday
+page=22
 planet=☽ Moon
 moon=282.5|39|Waning Crescent|♌ Leo
 sun=6:35a|4:29p|9h 54m|♏ Scorpio
@@ -23,6 +25,7 @@ pioneer=Hedy Lamarr|1914–2000|Hollywood star who co-invented frequency hopping
 prompt=What are you looking forward to?
 @2026-11-03
 wd=Tuesday
+page=23
 planet=♂ Mars
 moon=295.1|29|Waning Crescent|♍ Virgo
 moonin=♍ Virgo 12:27a
@@ -34,6 +37,7 @@ pioneer=Hedy Lamarr|1914–2000|Hollywood star who co-invented frequency hopping
 prompt=What are you looking forward to?
 @2026-11-04
 wd=Wednesday
+page=24
 planet=☿ Mercury
 moon=307.4|20|Waning Crescent|♍ Virgo
 sun=6:38a|4:26p|9h 48m|♏ Scorpio
@@ -43,6 +47,7 @@ pioneer=Hedy Lamarr|1914–2000|Hollywood star who co-invented frequency hopping
 prompt=What are you looking forward to?
 @2026-11-05
 wd=Thursday
+page=25
 planet=♃ Jupiter
 moon=319.5|12|Waning Crescent|♎ Libra
 moonin=♎ Libra 6:38a
@@ -53,6 +58,7 @@ pioneer=Hedy Lamarr|1914–2000|Hollywood star who co-invented frequency hopping
 prompt=What are you looking forward to?
 @2026-11-06
 wd=Friday
+page=26
 planet=♀ Venus
 moon=331.4|6|Waning Crescent|♎ Libra
 sun=6:41a|4:24p|9h 42m|♏ Scorpio
@@ -62,6 +68,7 @@ pioneer=Hedy Lamarr|1914–2000|Hollywood star who co-invented frequency hopping
 prompt=What are you looking forward to?
 @2026-11-07
 wd=Saturday
+page=27
 planet=♄ Saturn
 moon=343.2|2|Waning Crescent|♎ Libra
 moonin=♏ Scorpio 2:39p
@@ -73,6 +80,7 @@ pioneer=Hedy Lamarr|1914–2000|Hollywood star who co-invented frequency hopping
 prompt=What are you looking forward to?
 @2026-11-08
 wd=Sunday
+page=28
 planet=☉ Sun
 moon=354.7|0|New Moon|♏ Scorpio
 sun=6:45a|4:21p|9h 36m|♏ Scorpio
@@ -83,6 +91,7 @@ pioneer=Hedy Lamarr|1914–2000|Hollywood star who co-invented frequency hopping
 prompt=What are you looking forward to?
 @2026-11-09
 wd=Monday
+page=34
 planet=☽ Moon
 moon=6.1|0|Waxing Crescent|♏ Scorpio
 sun=6:46a|4:19p|9h 33m|♏ Scorpio
@@ -92,6 +101,7 @@ pioneer=Wendy Carlos|b. 1939|Her 1968 album Switched-On Bach made the Moog synth
 prompt=A thing you want to remember from this month.
 @2026-11-10
 wd=Tuesday
+page=35
 planet=♂ Mars
 moon=17.3|2|Waxing Crescent|♐ Sagittarius
 moonin=♐ Sagittarius 12:35a
@@ -103,6 +113,7 @@ pioneer=Wendy Carlos|b. 1939|Her 1968 album Switched-On Bach made the Moog synth
 prompt=A thing you want to remember from this month.
 @2026-11-11
 wd=Wednesday
+page=36
 planet=☿ Mercury
 moon=28.4|6|Waxing Crescent|♐ Sagittarius
 sun=6:49a|4:17p|9h 28m|♏ Scorpio
@@ -113,6 +124,7 @@ pioneer=Wendy Carlos|b. 1939|Her 1968 album Switched-On Bach made the Moog synth
 prompt=A thing you want to remember from this month.
 @2026-11-12
 wd=Thursday
+page=37
 planet=♃ Jupiter
 moon=39.3|11|Waxing Crescent|♐ Sagittarius
 moonin=♑ Capricorn 12:27p
@@ -124,6 +136,7 @@ pioneer=Wendy Carlos|b. 1939|Her 1968 album Switched-On Bach made the Moog synth
 prompt=A thing you want to remember from this month.
 @2026-11-13
 wd=Friday
+page=38
 planet=♀ Venus
 moon=50.1|18|Waxing Crescent|♑ Capricorn
 sun=6:52a|4:14p|9h 22m|♏ Scorpio
@@ -135,6 +148,7 @@ pioneer=Wendy Carlos|b. 1939|Her 1968 album Switched-On Bach made the Moog synth
 prompt=A thing you want to remember from this month.
 @2026-11-14
 wd=Saturday
+page=39
 planet=♄ Saturn
 moon=60.9|26|Waxing Crescent|♑ Capricorn
 sun=6:54a|4:13p|9h 20m|♏ Scorpio
@@ -144,6 +158,7 @@ pioneer=Wendy Carlos|b. 1939|Her 1968 album Switched-On Bach made the Moog synth
 prompt=A thing you want to remember from this month.
 @2026-11-15
 wd=Sunday
+page=40
 planet=☉ Sun
 moon=71.8|34|Waxing Crescent|♒ Aquarius
 moonin=♒ Aquarius 1:24a
@@ -154,6 +169,7 @@ pioneer=Wendy Carlos|b. 1939|Her 1968 album Switched-On Bach made the Moog synth
 prompt=A thing you want to remember from this month.
 @2026-11-16
 wd=Monday
+page=46
 planet=☽ Moon
 moon=82.7|44|Waxing Crescent|♒ Aquarius
 sun=6:57a|4:11p|9h 14m|♏ Scorpio
@@ -164,6 +180,7 @@ pioneer=Sally Ride|1951–2012|First American woman in space, on STS-7 in 1983, 
 prompt=What drained your spoons, and what refilled them?
 @2026-11-17
 wd=Tuesday
+page=47
 planet=♂ Mars
 moon=93.8|53|First Quarter|♒ Aquarius
 moonin=♓ Pisces 1:19p
@@ -178,6 +195,7 @@ pioneer=Sally Ride|1951–2012|First American woman in space, on STS-7 in 1983, 
 prompt=What drained your spoons, and what refilled them?
 @2026-11-18
 wd=Wednesday
+page=48
 planet=☿ Mercury
 moon=105.3|63|Waxing Gibbous|♓ Pisces
 sun=6:59a|4:09p|9h 09m|♏ Scorpio
@@ -187,6 +205,7 @@ pioneer=Sally Ride|1951–2012|First American woman in space, on STS-7 in 1983, 
 prompt=What drained your spoons, and what refilled them?
 @2026-11-19
 wd=Thursday
+page=49
 planet=♃ Jupiter
 moon=117.1|73|Waxing Gibbous|♓ Pisces
 moonin=♈ Aries 9:52p
@@ -197,6 +216,7 @@ pioneer=Sally Ride|1951–2012|First American woman in space, on STS-7 in 1983, 
 prompt=What drained your spoons, and what refilled them?
 @2026-11-20
 wd=Friday
+page=50
 planet=♀ Venus
 moon=129.4|82|Waxing Gibbous|♈ Aries
 sun=7:02a|4:07p|9h 05m|♏ Scorpio
@@ -206,6 +226,7 @@ pioneer=Sally Ride|1951–2012|First American woman in space, on STS-7 in 1983, 
 prompt=What drained your spoons, and what refilled them?
 @2026-11-21
 wd=Saturday
+page=51
 planet=♄ Saturn
 moon=142.1|89|Waxing Gibbous|♈ Aries
 sun=7:04a|4:06p|9h 02m|♏ Scorpio
@@ -216,6 +237,7 @@ pioneer=Sally Ride|1951–2012|First American woman in space, on STS-7 in 1983, 
 prompt=What drained your spoons, and what refilled them?
 @2026-11-22
 wd=Sunday
+page=52
 planet=☉ Sun
 moon=155.4|95|Waxing Gibbous|♉ Taurus
 moonin=♉ Taurus 2:09a
@@ -226,6 +248,7 @@ pioneer=Sally Ride|1951–2012|First American woman in space, on STS-7 in 1983, 
 prompt=What drained your spoons, and what refilled them?
 @2026-11-23
 wd=Monday
+page=58
 planet=☽ Moon
 moon=169|99|Waxing Gibbous|♉ Taurus
 sun=7:07a|4:04p|8h 58m|♐ Sagittarius
@@ -235,6 +258,7 @@ pioneer=Audrey Tang|b. 1981|Civic hacker from the g0v movement who became Taiwan
 prompt=Draw something. Anything.
 @2026-11-24
 wd=Tuesday
+page=59
 planet=♂ Mars
 moon=183|100|Full Moon|♊ Gemini
 moonin=♊ Gemini 3:09a
@@ -247,6 +271,7 @@ pioneer=Audrey Tang|b. 1981|Civic hacker from the g0v movement who became Taiwan
 prompt=Draw something. Anything.
 @2026-11-25
 wd=Wednesday
+page=60
 planet=☿ Mercury
 moon=197.1|98|Waning Gibbous|♊ Gemini
 sun=7:09a|4:03p|8h 54m|♐ Sagittarius
@@ -256,6 +281,7 @@ pioneer=Audrey Tang|b. 1981|Civic hacker from the g0v movement who became Taiwan
 prompt=Draw something. Anything.
 @2026-11-26
 wd=Thursday
+page=61
 planet=♃ Jupiter
 moon=211.2|93|Waning Gibbous|♋ Cancer
 moonin=♋ Cancer 2:51a
@@ -269,6 +295,7 @@ pioneer=Audrey Tang|b. 1981|Civic hacker from the g0v movement who became Taiwan
 prompt=Draw something. Anything.
 @2026-11-27
 wd=Friday
+page=62
 planet=♀ Venus
 moon=225|85|Waning Gibbous|♋ Cancer
 sun=7:12a|4:01p|8h 49m|♐ Sagittarius
@@ -278,6 +305,7 @@ pioneer=Audrey Tang|b. 1981|Civic hacker from the g0v movement who became Taiwan
 prompt=Draw something. Anything.
 @2026-11-28
 wd=Saturday
+page=63
 planet=♄ Saturn
 moon=238.6|76|Waning Gibbous|♌ Leo
 moonin=♌ Leo 3:20a
@@ -288,6 +316,7 @@ pioneer=Audrey Tang|b. 1981|Civic hacker from the g0v movement who became Taiwan
 prompt=Draw something. Anything.
 @2026-11-29
 wd=Sunday
+page=64
 planet=☉ Sun
 moon=251.8|66|Waning Gibbous|♌ Leo
 sun=7:15a|4:00p|8h 46m|♐ Sagittarius
@@ -297,6 +326,7 @@ pioneer=Audrey Tang|b. 1981|Civic hacker from the g0v movement who became Taiwan
 prompt=Draw something. Anything.
 @2026-11-30
 wd=Monday
+page=70
 planet=☽ Moon
 moon=264.7|55|Last Quarter|♍ Virgo
 moonin=♍ Virgo 6:12a
