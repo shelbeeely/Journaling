@@ -243,7 +243,7 @@ function change(fn, { list = true, hist = true } = {}) {
 $('#undo').onclick = () => { if (!history.length) return; layout = normalize(JSON.parse(history.pop())); $('#undo').disabled = !history.length; drawList(); drawPalette(); drawPreview(); queueSave(); };
 // Blocks that export_pack.py turns into X4 check-ins (/kw/checkins.txt): on, and with at least one item.
 const X4_TYPES = new Set(['checks', 'scale', 'habits', 'fields']);
-const onX4 = (b) => X4_TYPES.has(b.type) && b.on && (b.type === 'scale' || (b.labels || []).length > 0);
+const onX4 = (b) => b.on && (b.type === 'words' ? !!b.x4 && new Set((b.words || []).map((w) => w.replace(/[;|,]/g, ' ').split(/\s+/).filter(Boolean).join(' ').slice(0, 12).trim()).filter(Boolean)).size >= 2 : X4_TYPES.has(b.type) && (b.type === 'scale' || (b.labels || []).length > 0));
 const X4_MARK = '<span class="x4" title="Also on X4 as check-ins after the next Books build"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" aria-hidden="true"><rect x="2.4" y="1" width="7.2" height="10" rx="1.2"/><path d="M4.4 3.4h3.2M4.4 5.4h3.2M4.4 7.4h1.8"/></svg><span>also on X4</span></span>';
 const find = (uid) => layout.blocks.find((b) => b.uid === uid);
 const icon = (k, cls = '') => `<svg class="${cls}" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k] || IC.box}</svg>`;

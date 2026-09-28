@@ -82,25 +82,42 @@ The Wi-Fi page also refuses to take `me.txt` as an upload; only its safety-plan 
 
 The Check in list is the 15 built-ins, then up to 16 items of your own, loaded at startup and when
 you leave the Wi-Fi page (you can upload a new `checkins.txt` there). `export_pack.py` writes the file from the day page layout (checks, scale,
-habits and fields blocks). One `@` line per group heading, one line per item:
+habits, fields and, when "Pick one on X4" is on, words blocks). One `@` line per group heading, one line per item:
 
 ```
 # Custom check-ins from the day page layout
 @Little wins
 c_checks_k3f_bed|Made the bed|toggle|0|1|0
 @Pain
-c_scale_p2a|Pain|scale|1|5|3
+c_scale_p2a|Pain today|scale|0|10|5
+@Mood
+c_scale_m1|Mood|scale|-3|3|0
+@Kind of day
+c_words_w7|Kind of day|choice|0|3|0|foggy;clear;stormy;still
 @Habits
 c_habits_h7d_stretch|Stretch|dots|0|2|0
 @Notes
-c_fields_f4b_water|Glasses of water|count|0|99|0
+c_fields_f4b_rounds|Focus rounds|count|0|8|0
 ```
 
-Fields: `key|label|kind|lo|hi|default`. Kinds: `toggle` (tick), `scale` (lo..hi, up to 10 steps),
-`count` (0..hi, hi up to 999), `dots` (empty, half, full; Confirm cycles). Keys are opaque (up
-to 64 characters, no spaces or commas) and are what the log stores (`2026-10-14T08:40,c_checks_k3f_bed,1`). Bad lines,
-duplicate keys and items past 16 are skipped; with no file the list is the built-ins only. Custom
-items don't change **This month**. See `host/sample/kw/checkins.txt`.
+Fields: `key|label|kind|lo|hi|default|options`. The last column is only used by `choice`. Kinds:
+
+| Kind | Paper block | Stored | On the X4 |
+| --- | --- | --- | --- |
+| `toggle` | Checkboxes | 0 or 1 | tick |
+| `scale` | Scale | the number on the paper: `1..steps` (plain), `0..steps-1` ("Number from 0"), `-k..+k` ("Signed", 7 steps = -3..+3, default 0). Up to 11 steps, so a 0-10 pain scale is `0|10` | Left/Right; the number is shown ("+2", "-1", "0") |
+| `choice` | Words to circle, with "Pick one on X4" | the option's **text**, e.g. `stormy` | Left/Right cycle the words (wrapping); Confirm sets the default, then goes to the next word |
+| `count` | Fill-in blanks | 0..`hi` (`hi` is the block's "Highest count on X4": 5 to 999, default 99) | Left/Right; a cap under 99 shows "3 / 10" |
+| `dots` | Habit dots | 0 empty, 1 half, 2 full | Confirm cycles |
+
+`choice` takes 2 to 8 options, separated by `;`, at most 12 characters each. The exporter turns `; | ,` inside a word into a space
+and keeps the first 8 words and the first 12 characters of each (it warns when it cuts anything). A choice with fewer than 2, more than 8 or repeated options is skipped
+on the device. Keys are opaque (up to 64 characters, no spaces or commas) and are what the log stores.
+The log line for a choice holds the word, not its position (`2026-10-14T08:40,c_words_w7,stormy`), so reordering the words on the
+paper block doesn't scramble your history. If you rename or remove a word, its old entries stay in the CSV and Today counts them under "older custom entries kept".
+The loader ignores columns after the seventh and kinds it doesn't know, so a newer `checkins.txt` still loads on older firmware (those items just don't appear). Bad lines,
+duplicate keys and items past 16 are skipped (`export_pack.py` says which items it dropped); with no file the list is the built-ins only. Custom
+items don't change **This month**. See `host/sample/kw/checkins.txt`; `tools/test_export.py` (run by `host/preview.sh`) checks the export of every kind.
 
 Change custom check-ins at the start of a month. If you change them mid-month, that month's earlier lines
 keep their old keys: they stay in the CSV, Today shows "N older custom entries kept in the log", and
