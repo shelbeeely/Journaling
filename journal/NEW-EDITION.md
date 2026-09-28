@@ -36,6 +36,7 @@ Under the new `EPOCH`, index 0's pioneer never prints. That week's Thursday (Sep
 | `cover.mjs` | Keeper `label: 'Oct 2026 – Sep 2027'` | `'Oct 2027 – Sep 2028'` |
 | `keeper.mjs` | `LABEL = process.argv[2] \|\| 'Oct 2026 – Sep 2027'` | `'Oct 2027 – Sep 2028'` |
 | `keeper.mjs` | handoff loop `Date.UTC(2026, 9 + i, 1)` | `Date.UTC(2027, 9 + i, 1)`. This builds `out/keeper/index.json`, which the Closing page and `export_pack.py` read |
+| `content/edition.mjs` | `EDITION = 1` | `2` (single digit). It is printed in every page code, `KW2\|<edition>\|...` |
 | `build-all.sh` | `MONTHS=${MONTHS:-"2026-10 … 2027-09"}` | `"2027-10 2027-11 2027-12 2028-01 … 2028-09"` |
 | `gtfs/network.py` | `months = [(2026, m) for m in (10, 11, 12)] + [(2027, m) for m in range(1, 10)]` | `[(2027, m) …] + [(2028, m) …]` |
 | `gtfs/network.py` | debug line `out['months']['2026-10']` | `'2027-10'`, or the script crashes after writing |

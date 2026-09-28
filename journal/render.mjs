@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import { launch } from './browser.mjs';
 import { build, busCoverage } from './data.mjs';
 import bwipjs from 'bwip-js';
+import { EDITION } from './content/edition.mjs';
 import { IC, ic, box, spoon, actionZone, dayBlocks, normalize, DAYPAGE_CSS } from './daypage.mjs';
 // Day page layout from the page editor (content/daypage.json); defaults reproduce the original page.
 const DAYPAGE = normalize(fs.existsSync(new URL('./content/daypage.json', import.meta.url)) ? JSON.parse(fs.readFileSync(new URL('./content/daypage.json', import.meta.url), 'utf8')) : null);
@@ -64,9 +65,10 @@ const ruby = (k, r) => `<ruby>${k}<rt>${r}</rt></ruby>`;
 
 // ---------- page sequencing (mirror margins by parity) ----------
 const pages = [];
-const add = (cls, html, date = '') => pages.push({ cls, html, date });
-const alignToVerso = () => { if ((pages.length + 1) % 2 === 1) add('notes', notesPage('Notes')); }; // next page must be even
-const alignToRecto = () => { if ((pages.length + 1) % 2 === 0) add('notes', notesPage('Notes')); };
+let SEC = 'front', SPAN = null; // section and date span the pages being added belong to (they end up in layout.json)
+const add = (cls, html, date = '', type = 'page') => pages.push({ cls, html, date, type, section: SEC, from: SPAN ? SPAN[0] : null, to: SPAN ? SPAN[1] : null });
+const alignToVerso = () => { if ((pages.length + 1) % 2 === 1) add('notes', notesPage('Notes'), '', 'notes'); }; // next page must be even
+const alignToRecto = () => { if ((pages.length + 1) % 2 === 0) add('notes', notesPage('Notes'), '', 'notes'); };
 const notesPage = (title) => `${headerZone('', title)}<div class="dots fill" data-zone="body"></div>${actionZone(4)}`;
 // AI-scan zones: labelled header boxes, faint body grid, checkbox action items.
 function headerZone(dateText, titleText = '') {
@@ -302,7 +304,7 @@ function contactsPage() {
   <h3 class="sh">This month</h3><div class="qg">${Array(10).fill(0).map(one).join('')}</div>`;
 }
 function safetyPage() {
-  const q = (n, t, h = 'l2') => `<div class="sq"><b>${n}. ${t}</b><div class="lines ${h}"></div></div>`;
+  const q = (n, t, h = 'l2') => `<div class="sq" data-zone="safety_${n}"><b>${n}. ${t}</b><div class="lines ${h}"></div></div>`;
   const person = () => `<div class="pn"><div class="qf"><span>Name</span><i></i></div><div class="qf"><span>Phone</span><i></i></div><span class="qt"><i></i> TEXT OK</span></div>`;
   return `<div class="sph"><h2 class="pt">My safety plan</h2><div class="qf"><span>Last reviewed</span><i></i></div></div>
   <p class="small">Fill this in on a good day, so it is ready on a hard one. Work down the list until you feel safer.</p>
@@ -319,11 +321,11 @@ function safetyPage() {
 function themePage() {
   return `<h2 class="pt">Season theme</h2>
   <p class="lead">A theme is a direction for the season, like “Season of Rest” or “Season of Order.” There's no pass or fail.</p>
-  <div class="boxline big">My theme for ${VOL.short}</div>
-  <div class="boxline">What it means to me</div><div class="lines l4"></div>
+  <div class="boxline big" data-zone="theme_name">My theme for ${VOL.short}</div>
+  <div class="boxline">What it means to me</div><div class="lines l4" data-zone="theme_meaning"></div>
   <div class="boxline">Three small ways to live it (these become your habit grid)</div>
-  <ol class="three"><li></li><li></li><li></li></ol>
-  <div class="boxline">What I want to feel by ${seasonGoal()}</div><div class="lines l4"></div>`;
+  <ol class="three" data-zone="theme_habits"><li></li><li></li><li></li></ol>
+  <div class="boxline">What I want to feel by ${seasonGoal()}</div><div class="lines l4" data-zone="theme_feel"></div>`;
 }
 
 // ---------- month section ----------
@@ -350,8 +352,8 @@ function monthCalendar(M) {
   }
   while (cells.length % 7) cells.push('<td class="out"></td>');
   const rows = []; for (let i = 0; i < cells.length; i += 7) rows.push(`<tr>${cells.slice(i, i + 7).join('')}</tr>`);
-  return `<div class="mhead"><h2 class="month">${M.name}</h2><span class="big">${M.y}</span></div>
-  <table class="cal rows${rows.length}"><tr>${['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((x) => `<th>${x}</th>`).join('')}</tr>${rows.join('')}</table>
+  return `<div class="mhead" data-zone="month_title"><h2 class="month">${M.name}</h2><span class="big">${M.y}</span></div>
+  <table class="cal rows${rows.length}" data-zone="calendar"><tr>${['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((x) => `<th>${x}</th>`).join('')}</tr>${rows.join('')}</table>
   <p class="small">${moon(180, 9)} principal moon phases. ${ICS ? 'One-off events and birthdays from your calendar; weekly routines are checkboxes on each day page.' : 'Write in your events, or import an .ics file in the next edition.'}</p>`;
 }
 
@@ -369,25 +371,25 @@ function monthSky(M) {
   const change = l.sun.lengthMin - f.sun.lengthMin;
   const retroStart = [...new Set(M.days.flatMap((d) => d.retro))];
   return `<h2 class="pt">${M.name} · sky &amp; seasons</h2>
-  <div class="daylen"><div><b>${f.sun.rise}</b> / <b>${f.sun.set}</b><br><span class="dim">${M.name.slice(0, 3)} ${f.d} · ${dur(f.sun.lengthMin)}</span></div><div class="arrow">→</div><div><b>${l.sun.rise}</b> / <b>${l.sun.set}</b><br><span class="dim">${M.name.slice(0, 3)} ${l.d} · ${dur(l.sun.lengthMin)}</span></div><div class="chg">${change < 0 ? '−' : '+'}${dur(Math.abs(change))} of daylight</div></div>
-  <table class="sky">${rows.join('')}</table>
-  <p class="small">${G('℞')} Retrograde at some point this month: ${retroStart.map((p) => `${G(PLANET_GLYPH[p])} ${p}`).join(', ') || 'none'}.</p>`;
+  <div class="daylen" data-zone="daylight"><div><b>${f.sun.rise}</b> / <b>${f.sun.set}</b><br><span class="dim">${M.name.slice(0, 3)} ${f.d} · ${dur(f.sun.lengthMin)}</span></div><div class="arrow">→</div><div><b>${l.sun.rise}</b> / <b>${l.sun.set}</b><br><span class="dim">${M.name.slice(0, 3)} ${l.d} · ${dur(l.sun.lengthMin)}</span></div><div class="chg">${change < 0 ? '−' : '+'}${dur(Math.abs(change))} of daylight</div></div>
+  <table class="sky" data-zone="sky_list">${rows.join('')}</table>
+  <p class="small" data-zone="retrograde">${G('℞')} Retrograde at some point this month: ${retroStart.map((p) => `${G(PLANET_GLYPH[p])} ${p}`).join(', ') || 'none'}.</p>`;
 }
 
 function monthTracker(M) {
   const rows = M.days.map((d) => `<tr><td class="dn">${d.d}</td><td class="kj">${DAY_LETTERS[(d.weekday + 6) % 7]}</td><td class="mc">${moon(d.moon.phaseDeg, 8)}</td><td class="mood">${[-3, -2, -1, 0, 1, 2, 3].map(() => '<i></i>').join('')}</td><td class="bx"></td><td class="bx"></td><td class="bx"></td><td class="bx"></td><td class="bx"></td><td class="bx"></td></tr>`).join('');
   return `<h2 class="pt">${M.name} · tracker</h2>
-  <table class="trk"><tr><th colspan="3"></th><th>${ic('low')} mood ${ic('high')}</th><th>${ic('sleep', 'Sleep')}</th><th>${ic('pill', 'Meds')}</th><th>${ic('meal', 'Meals')}</th><th>${ic('shower', 'Shower')}</th><th>${ic('work', 'Work')}</th><th>${ic('spoon', 'Spoons')}</th></tr><tr class="un"><th colspan="3"></th><th>−3 … +3</th><th>hrs</th><th>tick</th><th>0–3</th><th>tick</th><th>hrs</th><th>left</th></tr>${rows}</table>
+  <table class="trk" data-zone="tracker_grid"><tr><th colspan="3"></th><th>${ic('low')} mood ${ic('high')}</th><th>${ic('sleep', 'Sleep')}</th><th>${ic('pill', 'Meds')}</th><th>${ic('meal', 'Meals')}</th><th>${ic('shower', 'Shower')}</th><th>${ic('work', 'Work')}</th><th>${ic('spoon', 'Spoons')}</th></tr><tr class="un"><th colspan="3"></th><th>−3 … +3</th><th>hrs</th><th>tick</th><th>0–3</th><th>tick</th><th>hrs</th><th>left</th></tr>${rows}</table>
   <p class="small">Fill one mood dot (−3 to +3). Hours for sleep and work, meals 0–3, spoons left at bedtime. X4: Menu → This month.</p>`;
 }
 
 function monthMoonPage(M) {
   const nm = M.days.find((d) => d.moon.quarter === 0), fm = M.days.find((d) => d.moon.quarter === 2);
-  const block = (d, title, prompt) => d ? `<div class="mp"><div class="mph">${moon(d.moon.phaseDeg, 26)}<div><h3>${title} · ${M.name.slice(0, 3)} ${d.d}</h3><p class="dim">in ${G(d.moon.phaseGlyph || d.moon.glyph)} ${d.moon.phaseSign || d.moon.sign} · ${esc(d.notes.find((n) => n.kind === 'moon')?.text || '')}</p></div></div><p class="small">${prompt}</p><div class="lines l7"></div></div>` : '';
+  const block = (d, title, prompt, z) => d ? `<div class="mp" data-zone="${z}"><div class="mph">${moon(d.moon.phaseDeg, 26)}<div><h3>${title} · ${M.name.slice(0, 3)} ${d.d}</h3><p class="dim">in ${G(d.moon.phaseGlyph || d.moon.glyph)} ${d.moon.phaseSign || d.moon.sign} · ${esc(d.notes.find((n) => n.kind === 'moon')?.text || '')}</p></div></div><p class="small">${prompt}</p><div class="lines l7"></div></div>` : '';
   return `<h2 class="pt">${M.name} · moon pages</h2>
-  <div class="boxline">Theme check-in: how is my season theme going?</div><div class="lines l3"></div>
-  ${block(nm, 'New moon', 'Set an intention for the next four weeks. What do you want to start, or tend?')}
-  ${block(fm, 'Full moon', 'What came to light? What are you ready to put down?')}`;
+  <div class="boxline">Theme check-in: how is my season theme going?</div><div class="lines l3" data-zone="theme_check"></div>
+  ${block(nm, 'New moon', 'Set an intention for the next four weeks. What do you want to start, or tend?', 'new_moon')}
+  ${block(fm, 'Full moon', 'What came to light? What are you ready to put down?', 'full_moon')}`;
 }
 
 // ---------- week section ----------
@@ -395,27 +397,27 @@ function weekLeft(W) {
   const f = W.days[0], l = W.days[W.days.length - 1];
   const lead = (f.weekday + 6) % 7, tail = 6 - ((l.weekday + 6) % 7);
   const other = (label) => `<div class="wrow other"><div class="wd"><span class="dt">${label}</span></div><div></div><div class="wev dim">${lead ? (VOL.n === 1 ? 'before this journal starts' : 'in the previous book') : (VOL.n === 12 ? 'after this journal ends' : 'in the next book')}</div></div>`;
-  const rows = Array(lead).fill(0).map(() => other('—')).join('') + W.days.map((d) => `<div class="wrow"><div class="wd"><span class="wdn">${d.weekdayName.slice(0, 3)}</span><span class="dt">${MONTHS[d.m - 1].slice(0, 3)} ${d.d}</span></div><div class="wsky"><span class="ms">${moon(d.moon.phaseDeg, 11)} ${G(d.moon.glyph)} ${d.moon.lit}%</span><span class="dim">${G('☀')} ${d.sun.rise}–${d.sun.set}</span><span class="wk-shift">work ____–____</span></div><div class="wev" data-pitch="0.22"><div class="rules lines" data-pitch="0.22"></div>${d.events.filter((e) => !e.routine).map((e) => `<div class="ev">${e.time ? e.time + ' ' : ''}${esc(e.title)}</div>`).join('')}${d.notes.filter((n) => n.kind !== 'astro').map((n) => `<div class="evs">${esc(n.text)}</div>`).join('')}</div></div>`).join('') + Array(tail).fill(0).map(() => other('—')).join('');
-  return `<div class="whead"><h2 class="pt">${W.label}</h2><span class="dim">${MONTHS[f.m - 1].slice(0, 3)} ${f.d} – ${MONTHS[l.m - 1].slice(0, 3)} ${l.d}</span></div>${rows}`;
+  const rows = Array(lead).fill(0).map(() => other('—')).join('') + W.days.map((d) => `<div class="wrow" data-zone="week_day_${(d.weekday + 6) % 7 + 1}"><div class="wd"><span class="wdn">${d.weekdayName.slice(0, 3)}</span><span class="dt">${MONTHS[d.m - 1].slice(0, 3)} ${d.d}</span></div><div class="wsky"><span class="ms">${moon(d.moon.phaseDeg, 11)} ${G(d.moon.glyph)} ${d.moon.lit}%</span><span class="dim">${G('☀')} ${d.sun.rise}–${d.sun.set}</span><span class="wk-shift">work ____–____</span></div><div class="wev" data-pitch="0.22"><div class="rules lines" data-pitch="0.22"></div>${d.events.filter((e) => !e.routine).map((e) => `<div class="ev">${e.time ? e.time + ' ' : ''}${esc(e.title)}</div>`).join('')}${d.notes.filter((n) => n.kind !== 'astro').map((n) => `<div class="evs">${esc(n.text)}</div>`).join('')}</div></div>`).join('') + Array(tail).fill(0).map(() => other('—')).join('');
+  return `<div class="whead" data-zone="week_header"><h2 class="pt">${W.label}</h2><span class="dim">${MONTHS[f.m - 1].slice(0, 3)} ${f.d} – ${MONTHS[l.m - 1].slice(0, 3)} ${l.d}</span></div>${rows}`;
 }
 
 function weekRight(W) {
   const days = DAY_LETTERS;
   const grid = (label) => `<tr><td class="hl">${label}</td>${days.map(() => '<td></td>').join('')}</tr>`;
-  return `<div class="wr-top"><div class="word"><h3>Words to keep</h3><p class="dim">A line worth copying out this week: a quote, a lyric you heard, something someone said.</p><div class="lines l3" data-pitch="0.24"></div></div>
-  <div class="prio"><h3>This week</h3><ol><li></li><li></li><li></li></ol></div></div>
+  return `<div class="wr-top"><div class="word" data-zone="words"><h3>Words to keep</h3><p class="dim">A line worth copying out this week: a quote, a lyric you heard, something someone said.</p><div class="lines l3" data-pitch="0.24"></div></div>
+  <div class="prio" data-zone="priorities"><h3>This week</h3><ol><li></li><li></li><li></li></ol></div></div>
   <h3>Habits &amp; theme</h3>
-  <table class="hab"><tr><th></th>${days.map((x) => `<th>${x}</th>`).join('')}</tr>${grid('')}${grid('')}${grid('')}${grid('work hours')}</table>
+  <table class="hab" data-zone="habits"><tr><th></th>${days.map((x) => `<th>${x}</th>`).join('')}</tr>${grid('')}${grid('')}${grid('')}${grid('work hours')}</table>
   <h3>Mood line</h3>
-  <table class="mline">${[3, 2, 1, 0, -1, -2, -3].map((v) => `<tr class="${v === 0 ? 'zero' : ''}"><td class="hl">${v > 0 ? '+' + v : v}</td>${days.map(() => '<td><i></i></td>').join('')}</tr>`).join('')}<tr><td></td>${days.map((x) => `<td class="dl">${x}</td>`).join('')}</tr></table>
+  <table class="mline" data-zone="mood_line">${[3, 2, 1, 0, -1, -2, -3].map((v) => `<tr class="${v === 0 ? 'zero' : ''}"><td class="hl">${v > 0 ? '+' + v : v}</td>${days.map(() => '<td><i></i></td>').join('')}</tr>`).join('')}<tr><td></td>${days.map((x) => `<td class="dl">${x}</td>`).join('')}</tr></table>
   ${pioneerCard(W)}
-  ${W.pioneer ? '' : '<h3>Notes</h3><div class="dots fill"></div>'}`;
+  ${W.pioneer ? '' : '<h3>Notes</h3><div class="dots fill" data-zone="notes"></div>'}`;
 }
 
 function pioneerCard(W) {
   const p = W.pioneer; if (!p) return '';
   const [name, years, what, fact] = p;
-  return `<div class="pio"><div class="pio-h"><span class="pio-k">Pioneer of the week</span><b>${esc(name)}</b> <span class="dim">${years}</span></div><p>${esc(what)}</p><p class="pio-f"><b>Useless knowledge</b> ${esc(fact)}</p></div>`;
+  return `<div class="pio" data-zone="pioneer"><div class="pio-h"><span class="pio-k">Pioneer of the week</span><b>${esc(name)}</b> <span class="dim">${years}</span></div><p>${esc(what)}</p><p class="pio-f"><b>Useless knowledge</b> ${esc(fact)}</p></div>`;
 }
 
 function dayFull(d) {
@@ -445,52 +447,54 @@ function dayFull(d) {
 
 function weekReview(W) {
   return `<div class="day review"><h3 class="rvh">${W.label} review</h3>
-  <div class="rq"><b>What did I do well?</b><div class="lines l2"></div></div>
-  <div class="rq"><b>Where did I fall short, and was it about capacity or choice?</b><div class="lines l2"></div></div>
-  <div class="rq"><b>What will I change, move forward (&gt;) or drop?</b><div class="lines l2"></div></div>
-  <div class="rq"><b>Carry forward</b> <span class="dim">— tasks and threads for next week</span></div><div class="dots log"></div></div>`;
+  <div class="rq" data-zone="review_q1"><b>What did I do well?</b><div class="lines l2"></div></div>
+  <div class="rq" data-zone="review_q2"><b>Where did I fall short, and was it about capacity or choice?</b><div class="lines l2"></div></div>
+  <div class="rq" data-zone="review_q3"><b>What will I change, move forward (&gt;) or drop?</b><div class="lines l2"></div></div>
+  <div class="rq"><b>Carry forward</b> <span class="dim">— tasks and threads for next week</span></div><div class="dots log" data-zone="carry_forward"></div></div>`;
 }
 
 function exchange(W, side) {
   const p = W.prompt || 'Anything you want to tell me.';
   return side === 'L'
-    ? `<div class="xh"><h2 class="pt">Exchange</h2><span class="dim">${W.label}</span></div><div class="xft"><span>From</span><i></i><span>To</span><i></i><span>Date</span><i></i></div><p class="xp">This week's prompt: <b>${p}</b></p><div class="lines fill"></div>`
-    : `<div class="xh"><h2 class="pt">Reply</h2><span class="dim">hand the book back when done</span></div><div class="xft"><span>From</span><i></i><span>Date</span><i></i></div><p class="xp">Answer the prompt, respond to their page, or ask them something.</p><div class="lines fill"></div>`;
+    ? `<div class="xh"><h2 class="pt">Exchange</h2><span class="dim">${W.label}</span></div><div class="xft" data-zone="exchange_from"><span>From</span><i></i><span>To</span><i></i><span>Date</span><i></i></div><p class="xp" data-zone="prompt">This week's prompt: <b>${p}</b></p><div class="lines fill" data-zone="body"></div>`
+    : `<div class="xh"><h2 class="pt">Reply</h2><span class="dim">hand the book back when done</span></div><div class="xft" data-zone="exchange_from"><span>From</span><i></i><span>Date</span><i></i></div><p class="xp" data-zone="prompt">Answer the prompt, respond to their page, or ask them something.</p><div class="lines fill" data-zone="body"></div>`;
 }
 
 // ---------- assemble ----------
 let REF_THEME = 0;
-add('title', titlePage());               // 1 (recto)
-add('', `<div class="blankpage"></div>`); // 2
-add('', anatomyPage());
-add('', keyPage());
-add('', `<h2 class="pt">Key, continued</h2><h3>Day page icons</h3><div class="ikey">${ICON_KEY.map(([k, t]) => `<span>${ic(k)} ${t}</span>`).join('')}</div>${weekdayTable()}<h3>Send-to symbols</h3><p class="small">Fire (solid triangle), water (open triangle), air (three winds), earth (circled cross), crescent moon, full moon and pentacle. Fill the bubble above one to route a scan; you decide what each means in your app.</p>`);
-add('', carePage()); add('', contactsPage());
-REF_THEME = pages.length + 1; add('', themePage());
+add('title', titlePage(), '', 'title');               // 1 (recto)
+add('', `<div class="blankpage"></div>`, '', 'blank'); // 2
+add('', anatomyPage(), '', 'anatomy');
+add('', keyPage(), '', 'key');
+add('', `<h2 class="pt">Key, continued</h2><h3>Day page icons</h3><div class="ikey">${ICON_KEY.map(([k, t]) => `<span>${ic(k)} ${t}</span>`).join('')}</div>${weekdayTable()}<h3>Send-to symbols</h3><p class="small">Fire (solid triangle), water (open triangle), air (three winds), earth (circled cross), crescent moon, full moon and pentacle. Fill the bubble above one to route a scan; you decide what each means in your app.</p>`, '', 'key');
+add('', carePage(), '', 'care'); add('', contactsPage(), '', 'contacts');
+REF_THEME = pages.length + 1; add('', themePage(), '', 'theme');
 
 const monthStartWeek = (M) => D.weeks.find((W) => W.days.some((d) => d.m === M.m && d.y === M.y));
 for (const W of D.weeks) {
   const M = D.months.find((M) => monthStartWeek(M) === W);
-  if (M) { alignToVerso(); add('', monthCalendar(M)); add('', monthSky(M)); add('', monthTracker(M)); add('', monthMoonPage(M)); }
+  if (M) { SEC = 'month'; SPAN = [M.days[0].date, M.days[M.days.length - 1].date]; alignToVerso(); add('', monthCalendar(M), '', 'month_cal'); add('', monthSky(M), '', 'month_sky'); add('', monthTracker(M), '', 'month_tracker'); add('', monthMoonPage(M), '', 'month_moon'); }
+  SEC = 'week'; SPAN = [W.days[0].date, W.days[W.days.length - 1].date];
   alignToVerso();
-  add('', weekLeft(W)); add('', weekRight(W));
+  add('', weekLeft(W), '', 'week_left'); add('', weekRight(W), '', 'week_right');
   // The week's Sunday is in this book. The year's last week (Sep 27–Oct 3 2027, week 53) ends after the final book,
   // so it gets its review and exchange here instead of never being printed.
   const endsHere = W.days[W.days.length - 1].weekday === 0 || (W === D.weeks[D.weeks.length - 1] && W.gi === 52);
-  for (const d of W.days) add('dayp', dayFull(d), d.date);
-  if (endsHere) { add('', weekReview(W)); alignToVerso(); add('', exchange(W, 'L')); add('', exchange(W, 'R')); } // Exchange (verso) and Reply (recto) must face each other
+  for (const d of W.days) add('dayp', dayFull(d), d.date, 'dayp');
+  if (endsHere) { add('', weekReview(W), '', 'week_review'); alignToVerso(); add('', exchange(W, 'L'), '', 'exchange_l'); add('', exchange(W, 'R'), '', 'exchange_r'); } // Exchange (verso) and Reply (recto) must face each other
 }
+SEC = 'back'; SPAN = null;
 alignToVerso();
-add('', `<h2 class="pt">Looking back on the month</h2><div class="boxline">My theme was</div><div class="lines l2"></div><div class="boxline">What the trackers showed me</div><div class="lines l6"></div><div class="boxline">Which parts of this journal I actually used</div><div class="lines l4"></div><div class="boxline">What to change in the next edition</div><div class="lines l6"></div>`);
-add('', closingPage());
+add('', `<h2 class="pt">Looking back on the month</h2><div class="boxline">My theme was</div><div data-zone="review_theme" class="lines l2"></div><div class="boxline">What the trackers showed me</div><div data-zone="review_trackers" class="lines l6"></div><div class="boxline">Which parts of this journal I actually used</div><div data-zone="review_used" class="lines l4"></div><div class="boxline">What to change in the next edition</div><div data-zone="review_change" class="lines l6"></div>`, '', 'month_review');
+add('', closingPage(), '', 'closing');
 // Reference section at the back: support, safety plan, bus times, and where each piece comes from.
 const REF = { theme: REF_THEME };
-REF.support = pages.length + 1; add('', supportPage()); add('', transPage());
-REF.safety = pages.length + 1; add('', safetyPage());
-if (NET && BUS_COV !== 'none') { alignToVerso(); REF.bus = pages.length + 1; add('', netPage(0)); add('', netPage(1)); for (const g of packGrids(NET.months[VOL.id])) add('', gridPage(g)); }
-REF.lineage = pages.length + 1; add('', lineagePage());
+REF.support = pages.length + 1; add('', supportPage(), '', 'support'); add('', transPage(), '', 'trans');
+REF.safety = pages.length + 1; add('', safetyPage(), '', 'safety');
+if (NET && BUS_COV !== 'none') { alignToVerso(); REF.bus = pages.length + 1; add('', netPage(0), '', 'bus'); add('', netPage(1), '', 'bus'); for (const g of packGrids(NET.months[VOL.id])) add('', gridPage(g), '', 'bus_grid'); }
+REF.lineage = pages.length + 1; add('', lineagePage(), '', 'lineage');
 for (const p of pages) p.html = p.html.replace(/\{\{P_(\w+)\}\}/g, (_, k) => REF[k.toLowerCase()] ?? '?');
-while (pages.length % 2) add('notes', notesPage('Notes'));
+while (pages.length % 2) add('notes', notesPage('Notes'), '', 'notes');
 
 // ---------- HTML ----------
 // 5.5 x 8.5 in: a KDP.com size for both paperback and hardcover (A5 is only offered on KDP Japan)
@@ -504,7 +508,7 @@ const BORDER_PT = 9, BORDER = BORDER_PT / 72, QUIET = 0.5, STRIP = 0.42; // 9pt 
 const FRAME_PAD = BORDER + QUIET;
 
 // Scan markers: thick border + 7 send-to bubbles + a Data Matrix page code.
-// Payload: KW1|<book id>|<page no>|<page type>|<date>. Read by Shelbee's own scanning app, not the Rocketbook app.
+// Payload: see pageCode below (KW2|<edition>|<yymm>|<size><page>). Read by Shelbee's own scanning app, not the Rocketbook app.
 const SYMBOLS = [ // fire (solid △), water (open ▽), air (three winds), earth (⊕), crescent (solid), full moon (solid disc), pentacle
   // Chosen so no two look alike after a blurry phone photo (tested: worst pair correlation 0.63; the old set had 0.90).
   '<path d="M7 1.5 L12.5 12 H1.5 Z" fill="#000"/>',
@@ -519,9 +523,14 @@ const SYMBOL_NAMES = ['fire', 'water', 'air', 'earth', 'crescent_moon', 'full_mo
 const symbolRow = SYMBOLS.map((s, i) => `<span class="sym" data-zone="send_to_${SYMBOL_NAMES[i]}"><i></i><svg width="17" height="17" viewBox="0 0 14 14" fill="none" stroke="#000" stroke-width="1.1">${s}</svg></span>`).join('');
 // Hardcover (HARDCOVER=1): KDP needs at least 75 pages, so pad with notes pages to an even count >= 76.
 const HARDCOVER = process.env.HARDCOVER === '1';
-if (HARDCOVER) while (pages.length < 76 || pages.length % 2) add('notes', notesPage('Notes'));
-// Page code: Data Matrix with a short payload "KW1|<yymm>|<page>" (16x16 modules). Page type and date come from layout.json.
-const pageCode = (i) => `KW1|${VOL.id.slice(2).replace('-', '')}|${String(i + 1).padStart(3, '0')}`;
+if (HARDCOVER) while (pages.length < 76 || pages.length % 2) add('notes', notesPage('Notes'), '', 'notes');
+// Page code: Data Matrix, payload "KW2|<edition>|<yymm>|<size><page>", e.g. KW2|1|2610|S026 (15 chars = 16x16 modules, the
+// same symbol size as the old KW1|2610|026, so modules stay 0.42in / 16 = 0.66 mm). Size: S 5.5x8.5, L 8.5x11, H 5.5x8.5
+// hardcover. Size and edition are in the code because zone positions differ by size and layout.json is per book variant.
+// Built from `pages` as it stands here (after all padding), so a page's code always names its real position; check-codes.mjs
+// re-verifies that on every build. Page type and date come from layout.json.
+const SIZE_CODE = HARDCOVER ? 'H' : LETTER ? 'L' : 'S';
+const pageCode = (i) => `KW2|${EDITION}|${VOL.id.slice(2).replace('-', '')}|${SIZE_CODE}${String(i + 1).padStart(3, '0')}`;
 // Rulings for print: every ruled line, dot grid and 4 mm grid is redrawn as one plain inline SVG per area, same
 // geometry as its CSS background. Chromium turns CSS gradients and tiled SVG backgrounds into PDF shadings and image
 // patterns that renderers disagree on (poppler: stray/doubled lines, cairo: nothing, mupdf: grey bars), and KDP
@@ -768,13 +777,21 @@ const layout = await page.evaluate(() => {
     const f = pg.querySelector('.frame').getBoundingClientRect(), bw = parseFloat(getComputedStyle(pg.querySelector('.frame')).borderTopWidth);
     const ox = f.left + bw, oy = f.top + bw, fw = f.width - 2 * bw, fh = f.height - 2 * bw;
     const rect = (el) => { const e = el.getBoundingClientRect(); return { x: +((e.left - ox) * px2mm).toFixed(1), y: +((e.top - oy) * px2mm).toFixed(1), w: +(e.width * px2mm).toFixed(1), h: +(e.height * px2mm).toFixed(1) }; };
-    const zones = [...pg.querySelectorAll('[data-zone]')].map((el) => ({ zone: el.dataset.zone, ...rect(el) }));
-    zones.push({ zone: 'page_code', ...rect(pg.querySelector('.qr')) }, { zone: 'send_to', ...rect(pg.querySelector('.strip')) });
+    // repeated zone names get _2, _3 ... (same rule as the day page blocks)
+    const seen = {};
+    const zones = [...pg.querySelectorAll('[data-zone]')].map((el) => { const n = el.dataset.zone; seen[n] = (seen[n] || 0) + 1; return { zone: seen[n] > 1 ? `${n}_${seen[n]}` : n, ...rect(el) }; });
+    if (!zones.some((z) => !z.zone.startsWith('send_to_'))) { // a page with no labelled block (title, key, directories ...): one zone for everything inside the frame
+      const kids = [...pg.children].filter((c) => !c.matches('.frame, .strip, .folio')).map((c) => c.getBoundingClientRect()).filter((r) => r.width && r.height);
+      if (!kids.length) kids.push(pg.getBoundingClientRect()); // nothing measurable inside: fall back to the whole page
+      const l = Math.min(...kids.map((r) => r.left)), t = Math.min(...kids.map((r) => r.top));
+      zones.push({ zone: 'content', ...rect({ getBoundingClientRect: () => ({ left: l, top: t, width: Math.max(...kids.map((r) => r.right)) - l, height: Math.max(...kids.map((r) => r.bottom)) - t }) }) });
+    }
+    zones.push({ zone: 'page_code', ...rect(pg.querySelector('.strip .qr')) }, { zone: 'send_to', ...rect(pg.querySelector('.strip')) });
     return { page: i + 1, frame_inner_mm: { w: +(fw * px2mm).toFixed(1), h: +(fh * px2mm).toFixed(1) }, zones };
   });
 });
-const meta = pages.map((p, i) => ({ type: (p.cls || 'page').split(' ')[0] || 'page', date: p.date || null, code: pageCode(i), code_format: 'data_matrix' }));
-fs.writeFileSync(`${OUT}/layout.json`, JSON.stringify({ book: VOL.id, trim_in: [TRIM_W, TRIM_H], border_pt: BORDER_PT, quiet_zone_in: QUIET, symbols: ['fire', 'water', 'air', 'earth', 'crescent_moon', 'full_moon', 'pentacle'], pages: layout.map((l, i) => ({ ...meta[i], ...l })) }, null, 1));
+const meta = pages.map((p, i) => ({ type: p.type, date: p.date || null, ...(p.from && !p.date ? { from: p.from, to: p.to } : {}), section: p.section, code: pageCode(i), code_format: 'data_matrix' }));
+fs.writeFileSync(`${OUT}/layout.json`, JSON.stringify({ book: VOL.id, edition: EDITION, size: SIZE_CODE, code_scheme: 'KW2|<edition>|<yymm>|<size><page>', trim_in: [TRIM_W, TRIM_H], border_pt: BORDER_PT, quiet_zone_in: QUIET, symbols: ['fire', 'water', 'air', 'earth', 'crescent_moon', 'full_moon', 'pentacle'], pages: layout.map((l, i) => ({ ...meta[i], ...l })) }, null, 1));
 await page.pdf({ width: `${TRIM_W}in`, height: `${TRIM_H}in`, path: `${OUT}/keeping-watch-${VOL.id}-interior-${HARDCOVER ? 'hardcover-' : ''}${SIZE_TAG}.pdf`, printBackground: true, preferCSSPageSize: true });
 await browser.close();
 fs.writeFileSync(`${OUT}/pages${HARDCOVER ? '-hardcover' : ''}.txt`, String(pages.length)); // separate counts, so each cover sizes its own spine
