@@ -1,7 +1,7 @@
 // Host (PC) implementation of the HAL: the SD card is a folder, the panel writes PBM frames, and
 // buttons come from a script, so every screen can be previewed exactly as the X4 would draw it.
 //   KW_SD=host/sd  KW_OUT=host/out  KW_NOW="2026-10-14 08:30"  KW_KEYS="confirm down down confirm back"
-//   KW_TIMER=1 simulates the midnight wake.
+//   KW_TIMER=1 simulates the day-start wake. KW_CLOCK=unset simulates a flat battery (clock not set).
 #include "../src/hal/hal.h"
 #include <chrono>
 #include <cstdio>
@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 #include <sys/stat.h>
+#include <dirent.h>
+#include <unistd.h>
 
 static uint8_t fb[800 * 480 / 8];
 static std::string sd = "host/sd", outDir = "host/out";
@@ -20,6 +22,7 @@ static size_t keyPos = 0;
 static int frame = 0;
 static time_t offset = 0;  // simulated clock = real clock + offset
 static bool timerWake = false;
+static bool clockSet = true;  // KW_CLOCK=unset simulates a flat battery: not set until Clock > Save
 
 static std::string env(const char* k, const char* d = "") { const char* v = getenv(k); return v ? v : d; }
 
@@ -29,6 +32,7 @@ void begin() {
   mkdir(outDir.c_str(), 0755);
   std::istringstream ks(env("KW_KEYS")); std::string k; while (ks >> k) keys.push_back(k);
   timerWake = env("KW_TIMER") == "1";
+  clockSet = env("KW_CLOCK") != "unset";
   std::string n = env("KW_NOW");
   if (!n.empty()) {
     setenv("TZ", "PST8PDT,M3.2.0,M11.1.0", 1); tzset();
@@ -63,8 +67,8 @@ Btn waitButton(uint32_t) {
 }
 uint32_t millis() { using namespace std::chrono; return (uint32_t)duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count(); }
 time_t now() { return time(nullptr) + offset; }
-void setTime(time_t utc) { offset = utc - time(nullptr); }
-bool timeValid() { return true; }
+void setTime(time_t utc) { offset = utc - time(nullptr); clockSet = true; }
+bool timeValid() { return clockSet; }
 
 static std::string full(const char* p) { return sd + p; }
 bool readFile(const char* path, std::string& out) {
@@ -74,6 +78,19 @@ bool readFile(const char* path, std::string& out) {
 bool writeFile(const char* path, const std::string& data) { std::ofstream f(full(path), std::ios::binary); f << data; return (bool)f; }
 bool appendLine(const char* path, const std::string& line) { std::ofstream f(full(path), std::ios::app); f << line << "\n"; return (bool)f; }
 bool exists(const char* path) { struct stat st; return stat(full(path).c_str(), &st) == 0; }
+int listFiles(const char* dir, char (*names)[48], int max) {
+  DIR* d = opendir(full(dir).c_str()); if (!d) return 0;
+  int n = 0;
+  while (dirent* e = readdir(d)) {
+    struct stat st; if (stat(full((std::string(dir) + "/" + e->d_name).c_str()).c_str(), &st) != 0 || S_ISDIR(st.st_mode)) continue;
+    if (n < max && strlen(e->d_name) <= 47) strcpy(names[n++], e->d_name);
+  }
+  closedir(d); return n;
+}
+bool removeFile(const char* path) { return unlink(full(path).c_str()) == 0; }
+bool renameFile(const char* from, const char* to) { return !exists(to) && rename(full(from).c_str(), full(to).c_str()) == 0; }
+bool makeDir(const char* path) { return mkdir(full(path).c_str(), 0755) == 0 || exists(path); }
+bool removeEmptyDir(const char* path) { return rmdir(full(path).c_str()) == 0; }
 int batteryPercent() { return 82; }
 bool woke_by_timer() { return timerWake; }
 bool wifiStart(const char*, const char*) { return true; }

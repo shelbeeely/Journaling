@@ -44,7 +44,10 @@ Actions → **Books** → the latest run → Artifacts → `keeping-watch-books`
 - every interior and cover PDF
 - the EPUBs
 - `layout.json` scan maps
-- `sd-card/`: copy its `kw` folder to the X4's SD card
+- `sd-card/kw-update/`: the X4's update. Copy the **`kw-update` folder** (not `kw`) to the SD card's root, eject, and turn the
+  X4 on. It moves the files into `/kw` and deletes the folder, and never touches your safety plan or check-in log.
+
+Before each month closes, download that month's check-in log from the X4 (Menu → Wi-Fi sync). The card holds the only copy.
 
 Run it by hand (Run workflow) to build only some months, one size, or hardcover padding.
 

@@ -16,13 +16,13 @@ export const IC = {
   text: '<path d="M1.4 2.2h9.2v6H5.4L2.8 10.4V8.2H1.4Z"/><path d="M3.6 4.6h4.8M3.6 6.2h3"/>',
   sleep: '<path d="M1 10V3.4M1 7.6h10V10M1 6.2h2.6a1.2 1.2 0 0 0 0-2.4H1"/><path d="M5 6.2V5a1.2 1.2 0 0 1 1.2-1.2H9.8A1.2 1.2 0 0 1 11 5v2.6"/>',
   work: '<rect x="1" y="3.6" width="10" height="7" rx="1"/><path d="M4 3.6V2.2h4v1.4M1 6.8h10"/>',
-  spoon: '<ellipse cx="6" cy="3.2" rx="2.1" ry="2.5"/><path d="M6 5.7V11"/>',
+  spoon: '<path d="M 6.03 0.69 C 7.51 0.69 8.14 2.02 8.14 3.26 8.14 4.51 7.12 5.45 6.42 5.92 L 6.81 10.75 Q 6.81 11.69 6.03 11.69 5.25 11.69 5.25 10.75 L 5.64 5.92 C 4.94 5.45 3.92 4.51 3.92 3.26 3.92 2.02 4.55 0.69 6.03 0.69Z"/>',
   low: '<circle cx="6" cy="6" r="4.8"/><path d="M4.1 8.2c1.1-1 2.7-1 3.8 0"/><path d="M4.3 4.6v.4M7.7 4.6v.4"/>',
   high: '<circle cx="6" cy="6" r="4.8"/><path d="M3.9 6.8c1.1 1.3 3.1 1.3 4.2 0"/><path d="M4.3 4.3v.4M7.7 4.3v.4"/>',
   anx: '<path d="M.8 6c1-2 1.8-2 2.6 0s1.6 2 2.6 0 1.6-2 2.6 0 1.6 2 2.6 0"/>',
   calm: '<path d="M.8 6h10.4"/>',
   well: '<path d="M1.8 6.4 4.6 9.2 10.2 2.8"/>',
-  hard: '<path d="M3.6 9.6a2.6 2.6 0 0 1-.4-5.2 3.2 3.2 0 0 1 6 .6 2.3 2.3 0 0 1 .2 4.6Z"/>',
+  hard: '<path d="M1.2 10.2 4.4 3.2 6.6 6.4 8 4.6 10.8 10.2Z"/>',
   next: '<path d="M1.4 6h8.4M6.8 3l3 3-3 3"/>',
   water: '<path d="M6 1.2C4.4 3.6 2.6 5.6 2.6 7.6a3.4 3.4 0 0 0 6.8 0C9.4 5.6 7.6 3.6 6 1.2Z"/>',
   heart: '<path d="M6 10.4 1.9 6.4A2.4 2.4 0 0 1 6 3a2.4 2.4 0 0 1 4.1 3.4Z"/>',
@@ -48,11 +48,18 @@ export const IC = {
 };
 export const ic = (k, t = '') => `<svg class="ic" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="${t || k}">${IC[k]}</svg>`;
 export const box = (label) => `<span class="ck"><i></i>${label ? `<span>${label}</span>` : ''}</span>`;
-export const spoon = () => `<svg class="spoon" width="7" height="15" viewBox="0 0 7 15"><ellipse cx="3.5" cy="3.4" rx="2.8" ry="3.1" fill="none" stroke="#333" stroke-width="1"/><line x1="3.5" y1="6.5" x2="3.5" y2="14.2" stroke="#333" stroke-width="1" stroke-linecap="round"/></svg>`;
+export const spoon = () => `<svg class="spoon" width="7" height="15" viewBox="0 0 7 15"><path d="M3.5 .5C5.4 .5 6.2 2.2 6.2 3.8 6.2 5.4 4.9 6.6 4 7.2L4.5 13.4Q4.5 14.6 3.5 14.6 2.5 14.6 2.5 13.4L3 7.2C2.1 6.6.8 5.4.8 3.8.8 2.2 1.6.5 3.5.5Z" fill="none" stroke="#333" stroke-width="1" stroke-linejoin="round"/></svg>`;
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+// 3+ routines collapse into one wrapping row of tick boxes (max 6, then "+N more"), so a busy day keeps its writing space.
+export const ROUTINE_ROWS = 2, ROUTINE_MAX = 6;
 export function actionZone(n, pre = []) {
-  const blanks = Math.max(1, n - pre.length);
-  return `<div class="az" data-zone="action_items"><div class="zl">ACTION ITEMS:</div>${pre.map((t) => `<div class="cb pre"><i></i><span>${esc(t)}</span></div>`).join('')}${Array(blanks).fill('<div class="cb"><i></i><span></span></div>').join('')}</div>`;
+  const zl = '<div class="zl">ACTION ITEMS:</div>', blank = '<div class="cb"><i></i><span></span></div>';
+  if (pre.length <= ROUTINE_ROWS) {
+    const blanks = Math.max(1, n - pre.length);
+    return `<div class="az" data-zone="action_items">${zl}${pre.map((t) => `<div class="cb pre"><i></i><span>${esc(t)}</span></div>`).join('')}${Array(blanks).fill(blank).join('')}</div>`;
+  }
+  const more = pre.length - ROUTINE_MAX;
+  return `<div class="az" data-zone="action_items">${zl}<div class="cbi">${pre.slice(0, ROUTINE_MAX).map((t) => `<span class="ci"><i></i><span>${esc(t)}</span></span>`).join('')}${more > 0 ? `<span class="more">+${more} more</span>` : ''}</div>${Array(Math.max(1, n - ROUTINE_ROWS)).fill(blank).join('')}</div>`;
 }
 
 
@@ -258,7 +265,7 @@ function renderBlock(b, parts, zone) {
     case 'actions': return actionZone(b.count, b.routines ? parts.routines || [] : []);
     case 'review': {
       const it = Object.keys(REVIEW_ITEMS).filter((k) => b.items[k]);
-      return it.length ? `<div class="rev${it.length < 3 ? ` c${it.length}` : ''}" data-zone="review">${it.map((k) => `<div><b class="zl">${ic(k, REVIEW_ITEMS[k])}</b><span class="lines" data-pitch="0.22"></span></div>`).join('')}</div>` : '';
+      return it.length ? `<div class="rev${it.length < 3 ? ` c${it.length}` : ''}" data-zone="review">${it.map((k) => `<div><b class="zl">${ic(k, REVIEW_ITEMS[k])}<i>${REVIEW_ITEMS[k]}</i></b><span class="lines" data-pitch="0.22"></span></div>`).join('')}</div>` : '';
     }
     case 'checks': return b.labels.length ? `<div class="xb xrow" ${Z}>${lbl('', b.title)}${b.labels.map((t) => box(`<span class="t">${esc(t)}</span>`)).join('')}</div>` : '';
     case 'scale': return `<div class="xb xrow" ${Z}>${lbl('', b.title)}<span class="end">${esc(b.lo)}</span>${bubs(b.steps)}<span class="end">${esc(b.hi)}</span></div>`;
@@ -314,6 +321,9 @@ export function dayBlocks(parts, layout, opt = {}) {
 
 // Extra CSS the blocks need (appended to the page CSS).
 export const DAYPAGE_CSS = `
+.rev .zl { display: flex; align-items: center; gap: 3px; } .rev .zl i { font-style: normal; font-size: 6.5pt; letter-spacing: 0.4px; white-space: nowrap; }
+.cbi { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; padding: 3px 0 4px; font-size: 7.5pt; line-height: 1.2; border-bottom: 1px solid #DCDCDC; }
+.ci { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; } .ci i { width: 10px; height: 10px; border: 1.2px solid #000; flex: none; } .ci span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .cbi .more { font-style: italic; color: #444; }
 .rev.c2 { grid-template-columns: 1fr 1fr; } .rev.c1 { grid-template-columns: 1fr; }
 .care.solo { padding: 3px 0; } .care.solo .cr.sp { margin-top: 0; }
 .plain.log { border-top: 1px solid #bbb; }

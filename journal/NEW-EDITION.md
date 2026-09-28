@@ -36,6 +36,7 @@ Under the new `EPOCH`, index 0's pioneer never prints. That week's Thursday (Sep
 | `cover.mjs` | Keeper `label: 'Oct 2026 – Sep 2027'` | `'Oct 2027 – Sep 2028'` |
 | `keeper.mjs` | `LABEL = process.argv[2] \|\| 'Oct 2026 – Sep 2027'` | `'Oct 2027 – Sep 2028'` |
 | `keeper.mjs` | handoff loop `Date.UTC(2026, 9 + i, 1)` | `Date.UTC(2027, 9 + i, 1)`. This builds `out/keeper/index.json`, which the Closing page and `export_pack.py` read |
+| `content/edition.mjs` | `EDITION = 1` | `2` (single digit). It is printed in every page code, `KW2\|<edition>\|...` |
 | `build-all.sh` | `MONTHS=${MONTHS:-"2026-10 … 2027-09"}` | `"2027-10 2027-11 2027-12 2028-01 … 2028-09"` |
 | `gtfs/network.py` | `months = [(2026, m) for m in (10, 11, 12)] + [(2027, m) for m in range(1, 10)]` | `[(2027, m) …] + [(2028, m) …]` |
 | `gtfs/network.py` | debug line `out['months']['2026-10']` | `'2027-10'`, or the script crashes after writing |
@@ -79,7 +80,7 @@ Possible later improvements (don't change now):
   - the `epub.py` Support body
   - `x4/tools/export_pack.py` `'# Support · checked Sep 2026'`
 - [ ] **STA feed.** `gtfs/network.json` covers only the months listed in `network.py`.
-  - A month that isn't in it gets **no bus pages, silently**. A month past the feed's end prints "May have changed".
+  - Bus pages follow the feed's dates (`busCoverage()` in `data.mjs`): a month fully inside `valid_from`–`valid_to` prints them; the month the feed ends in prints them with "Schedule valid through … · check spokanetransit.com after" (and a build warning); later months get **no bus pages and no SUN BUS tags**, only "Bus times: spokanetransit.com or the STA app" on the last back page. Refreshing the feed lights up later months by itself.
   - Run the **STA schedules** workflow, or run it by hand (see `journal/README.md`), after updating `months`.
   - Check that the `render.mjs` `GRID_PRIORITY` routes still exist.
   - `gtfs/build.py` hard-codes service ids `'672.8.1'`, `'672.6.1'` and `'672.0.4'` from the Sep 2026 feed. Re-check them against the new `calendar.txt`.

@@ -112,11 +112,11 @@ const back = (code) => `
 <div class="row"><div>${ruler()}<div style="margin-top:6px"><span class="sq" style="width:${(5 * 96 / 25.4).toFixed(2)}px;height:${(5 * 96 / 25.4).toFixed(2)}px"></span><span class="s">5 mm square</span></div></div><div><span class="sq" style="width:96px;height:96px;margin:0"></span><span class="s" style="display:block">1 in square</span></div></div>
 <div class="note">Small book: 1 in should measure 25.4 mm. 8.5x11: this sheet is zoomed 1.294x, so a 0.75 pt line prints as 0.97 pt and the 1 in square measures 1.294 in (32.9 mm).</div>`;
 
-const notes = `<div class="note">Scan code, real size (0.42 in, 10.7 mm), bottom right. Scan it with your journal app: it should read <b>${'KW1|TEST|001'}</b>. Dashed line: KDP's minimum margin (0.25 in; 0.375 in inside). The black frame and code strip sit where they do in the books.</div>`;
+const notes = `<div class="note">Scan code, real size (0.42 in, 10.7 mm), bottom right. Scan it with your journal app: it should read <b>${'KW2|T|TEST|S001'}</b>. Dashed line: KDP's minimum margin (0.25 in; 0.375 in inside). The black frame and code strip sit where they do in the books.</div>`;
 
 const pageHtml = (kind, body, qr, n) => `<section class="page ${kind}"><div class="guide min"></div><div class="frame"></div><div class="in">${body}</div><div class="strip"><span class="t">${n} PROOF TEST · SCAN ME</span><span class="qr">${qr}</span></div></section>`;
 
-const qr = bwipjs.toSVG({ bcid: 'datamatrix', text: 'KW1|TEST|001' });
+const qr = bwipjs.toSVG({ bcid: 'datamatrix', text: 'KW2|T|TEST|S001' });
 fs.mkdirSync(OUT, { recursive: true });
 const browser = await launch();
 for (const [tag, W_IN, ZOOM] of [['5.5x8.5', 5.5, 1], ['8.5x11', +(8.5 / (11 / 8.5)).toFixed(4), 11 / 8.5]]) {

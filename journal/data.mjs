@@ -1,6 +1,21 @@
 import { SPOKANE } from './spokane.mjs';
 import fsBus from 'node:fs';
 const BUS = fsBus.existsSync(new URL('./gtfs/route6.json', import.meta.url)) ? JSON.parse(fsBus.readFileSync(new URL('./gtfs/route6.json', import.meta.url))) : null;
+// How much of a month the STA feed covers, from the feed's own dates (gtfs/network.json):
+// 'full' = every day inside valid_from..valid_to and the month is in network.json; 'partial' = the feed starts or ends
+// mid-month; 'none' = outside the feed. A refreshed feed lights up later months by itself.
+const NETJ = fsBus.existsSync(new URL('./gtfs/network.json', import.meta.url)) ? JSON.parse(fsBus.readFileSync(new URL('./gtfs/network.json', import.meta.url))) : null;
+const FEED = NETJ; // no network.json = no bus pages
+export const BUS_START = FEED ? `${FEED.valid_from.slice(0, 4)}-${FEED.valid_from.slice(4, 6)}-${FEED.valid_from.slice(6)}` : null;
+export const BUS_END = FEED ? `${FEED.valid_to.slice(0, 4)}-${FEED.valid_to.slice(4, 6)}-${FEED.valid_to.slice(6)}` : null;
+export function busCoverage(monthId) {
+  if (!FEED || (NETJ && NETJ.months && !NETJ.months[monthId])) return 'none';
+  const [y, m] = monthId.split('-').map(Number);
+  const first = `${monthId}-01`, last = `${monthId}-${String(new Date(Date.UTC(y, m, 0)).getUTCDate()).padStart(2, '0')}`;
+  const from = BUS_START;
+  if (last < from || first > BUS_END) return 'none';
+  return first >= from && last <= BUS_END ? 'full' : 'partial';
+}
 // Builds journal data (sky, astrology, Japanese calendar, iCal events) as JSON.
 // Usage: node data.mjs [events.ics] > data.json
 import * as A from 'astronomy-engine';
@@ -65,7 +80,8 @@ function phaseName(deg, quarterToday) {
 }
 
 // Approximate peaks of major meteor showers (IMO typical dates; ±1 day year to year).
-const METEORS = { '10-08': 'Draconid meteors (peak, approx.)', '10-21': 'Orionid meteors (peak, approx.)', '11-17': 'Leonid meteors (peak, approx.)', '12-14': 'Geminid meteors (peak, approx.)', '12-22': 'Ursid meteors (peak, approx.)', '01-03': 'Quadrantid meteors (peak, approx.)' };
+// Peak nights (first date of the night) match the AMS 2026/2027 calendar, which also gives the moon that night.
+const METEORS = { '04-21': 'Lyrid meteors (peak, approx.; bright moon)', '05-05': 'Eta Aquariid meteors (peak, approx.)', '07-30': 'Southern Delta Aquariid meteors (peak, approx.)', '08-12': 'Perseid meteors (peak, approx.; bright moon)', '10-08': 'Draconid meteors (peak, approx.)', '10-21': 'Orionid meteors (peak, approx.)', '11-17': 'Leonid meteors (peak, approx.)', '12-14': 'Geminid meteors (peak, approx.)', '12-22': 'Ursid meteors (peak, approx.)', '01-03': 'Quadrantid meteors (peak, approx.)' };
 
 // ---- iCal import ----
 function loadEvents(paths, t0, t1) {
@@ -95,7 +111,9 @@ function loadEvents(paths, t0, t1) {
       } else if (ev.start >= t0 && ev.start < t1 && !ev.recurrenceid) add(ev.start, ev.summary, allDay);
     }
   }
-  for (const k in byDay) byDay[k].sort((a, b) => (b.allDay - a.allDay) || a.time.localeCompare(b.time));
+  // All-day first, then by clock time (minutes since midnight). Array.sort is stable, so ties keep calendar order.
+  const mins = (t) => { const m = /^(\d+):(\d+)([ap])$/.exec(t); return m ? ((+m[1] % 12) + (m[3] === 'p' ? 12 : 0)) * 60 + +m[2] : -1; };
+  for (const k in byDay) byDay[k].sort((a, b) => (b.allDay - a.allDay) || (mins(a.time) - mins(b.time)));
   return byDay;
 }
 
@@ -134,12 +152,17 @@ export function build(icsPath, vol, words = []) {
     const moonIngress = crossings(moonLon, start, end, 30).map((c) => ({ time: fmtTime(c.time), sign: SIGNS[c.index] }));
     const sunIngress = crossings(sunLon, start, end, 30, 24).map((c) => ({ time: fmtTime(c.time), sign: SIGNS[c.index] }));
     const koChange = crossings(sunLon, start, end, 5, 24).map((c) => { const ko = koIndex(c.index * 5 + 0.01); const si = Math.floor(ko / 3); return { time: fmtTime(c.time), ko, kanji: KO[ko][0], en: SPOKANE[ko + 1][0], note: SPOKANE[ko + 1][1], n: ko + 1, sekki: ko % 3 === 0 ? { kanji: SEKKI[si][0], kana: SEKKI[si][1], romaji: SEKKI[si][2], en: SEKKI[si][3] } : null }; });
-    for (const q of quarters) if (q.time.date >= start && q.time.date < end) notes.push({ kind: 'moon', text: `${['New Moon', 'First Quarter', 'Full Moon', 'Last Quarter'][q.quarter]} ${fmtTime(q.time.date)}` });
+    // The sign of a phase is the sign at the exact phase moment, not at local noon.
+    let phaseSign = null;
+    for (const q of quarters) if (q.time.date >= start && q.time.date < end) {
+      phaseSign = signOf(moonLon(q.time.date));
+      notes.push({ kind: 'moon', text: `${['New Moon', 'First Quarter', 'Full Moon', 'Last Quarter'][q.quarter]} ${fmtTime(q.time.date)}`, sign: phaseSign, glyph: GLYPH[phaseSign] });
+    }
     for (const [name, t] of seasons) if (t.date >= start && t.date < end) notes.push({ kind: 'season', text: `${name} ${fmtTime(t.date)}` });
     const mm = key.slice(5);
     for (const h of (HOL[y] ||= holidays(y))[mm] || []) notes.unshift({ kind: 'holiday', text: h.name, federal: h.federal });
     for (const t of PAY[key] || []) notes.push({ kind: 'pay', text: t });
-    if (BUS && BUS.holiday_service.includes(key)) notes.push({ kind: 'bus', text: 'STA: Sunday bus schedule' });
+    if (BUS && BUS.holiday_service.includes(key) && key >= BUS_START && key <= BUS_END && busCoverage(vol.id) !== 'none') notes.push({ kind: 'bus', text: 'STA: Sunday bus schedule' });
     if (METEORS[mm]) notes.push({ kind: 'sky', text: METEORS[mm] });
 
     // Retrogrades + stations
@@ -154,10 +177,24 @@ export function build(icsPath, vol, words = []) {
     for (const s of stations) notes.push({ kind: 'astro', text: s });
 
     // Eclipses (none expected Oct–Dec 2026, but computed anyway)
+    // Each one says whether Spokane can see it, with local start / max / end when it can.
     const lunar = A.SearchLunarEclipse(start);
-    if (lunar.peak.date >= start && lunar.peak.date < end) notes.push({ kind: 'sky', text: `${lunar.kind} lunar eclipse ${fmtTime(lunar.peak.date)}` });
+    if (lunar.peak.date >= start && lunar.peak.date < end) {
+      // Contacts: partial phase when there is one, else the (faint) penumbral phase. Moon altitude from Spokane at each.
+      const sd = (lunar.sd_partial || lunar.sd_penum) * 60000;
+      const moonAlt = (t) => { const eq = A.Equator('Moon', t, obs, true, true); return A.Horizon(t, obs, eq.ra, eq.dec, 'normal').altitude; };
+      const parts = [['starts', new Date(+lunar.peak.date - sd)], ['max', lunar.peak.date], ['ends', new Date(+lunar.peak.date + sd)]].map(([w, t]) => ({ w, t, up: moonAlt(t) > 0 }));
+      const seen = parts.some((p) => p.up);
+      notes.push({ kind: 'sky', text: seen ? `${lunar.kind} lunar eclipse · visible from Spokane · ${parts.map((p) => `${p.w} ${fmtTime(p.t)}${p.up ? '' : ' (moon down)'}`).join(', ')}` : `${lunar.kind} lunar eclipse · not visible from Spokane` });
+    }
     const solar = A.SearchGlobalSolarEclipse(start);
-    if (solar.peak.date >= start && solar.peak.date < end) notes.push({ kind: 'sky', text: `${solar.kind} solar eclipse (global) ${fmtTime(solar.peak.date)}` });
+    if (solar.peak.date >= start && solar.peak.date < end) {
+      const S = A.SearchLocalSolarEclipse(new Date(+solar.peak.date - 2 * 864e5), obs);
+      const same = Math.abs(S.peak.time.date - solar.peak.date) < 864e5;
+      const parts = same ? [S.partial_begin, S.peak, S.partial_end] : [];
+      const seen = same && parts.some((e) => e.altitude > 0);
+      notes.push({ kind: 'sky', text: seen ? `${solar.kind} solar eclipse · visible from Spokane · ${[['starts', parts[0]], ['max', parts[1]], ['ends', parts[2]]].map(([w, e]) => `${w} ${fmtTime(e.time.date)}${e.altitude > 0 ? '' : ' (sun down)'}`).join(', ')}` : `${solar.kind} solar eclipse · not visible from Spokane` });
+    }
 
     const k = koIndex(sLon), s = sekkiIndex(sLon);
     days.push({
@@ -165,7 +202,7 @@ export function build(icsPath, vol, words = []) {
       weekdayName: new Date(Date.UTC(y, m - 1, dd)).toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' }),
       jp: { ...WEEKDAYS[wd], sekki: { i: s, kanji: SEKKI[s][0], kana: SEKKI[s][1], romaji: SEKKI[s][2], en: SEKKI[s][3] }, ko: { i: k, n: k + 1, kanji: KO[k][0], romaji: KO[k][1], en: SPOKANE[k + 1][0], note: SPOKANE[k + 1][1] }, koChange, sekkiStart: koChange.some((c) => c.ko % 3 === 0) },
       sun: { rise: rise ? fmtTime(rise.date) : null, set: set ? fmtTime(set.date) : null, lengthMin, sign: signOf(sLon), glyph: GLYPH[signOf(sLon)], ingress: sunIngress },
-      moon: { phaseDeg: +phaseDeg.toFixed(1), phase: phaseName(phaseDeg, qToday ? qToday.quarter : null), quarter: qToday ? qToday.quarter : null, lit: Math.round(lit * 100), waxing: phaseDeg < 180, sign: signOf(moonLon(noon)), glyph: GLYPH[signOf(moonLon(noon))], ingress: moonIngress, rise: moonrise ? fmtTime(moonrise.date) : null, set: moonset ? fmtTime(moonset.date) : null },
+      moon: { phaseDeg: +phaseDeg.toFixed(1), phase: phaseName(phaseDeg, qToday ? qToday.quarter : null), quarter: qToday ? qToday.quarter : null, lit: Math.round(lit * 100), waxing: phaseDeg < 180, ...(phaseSign ? { phaseSign, phaseGlyph: GLYPH[phaseSign] } : {}), sign: signOf(moonLon(noon)), glyph: GLYPH[signOf(moonLon(noon))], ingress: moonIngress, rise: moonrise ? fmtTime(moonrise.date) : null, set: moonset ? fmtTime(moonset.date) : null },
       retro, notes, events: events[key] || [],
     });
     d = end;

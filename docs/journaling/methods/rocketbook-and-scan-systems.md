@@ -104,7 +104,7 @@ Keeping Watch's own philosophy is narrower: the scan system exists so Shelbee's 
 | Element | What it does | Examples |
 |---|---|---|
 | Page finder | Lets the camera locate and straighten the page | Four corner codes (Whitelines Link), dot grid used as reference (Evernote Page Camera), QR (Rocketbook), black frame (Keeping Watch), page edges (Apple Notes, OneDrive) |
-| Page ID code | Says which notebook, page, size or version | Rocketbook QR (page size and notebook version), Keeping Watch Data Matrix (`KW1\|yymm\|page`) |
+| Page ID code | Says which notebook, page, size or version | Rocketbook QR (page size and notebook version), Keeping Watch Data Matrix (`KW2\|edition\|yymm\|size+page`) |
 | Position pattern | Tells a pen where it is | Anoto dot pattern, Ncode |
 | Routing symbols | Say where the scan goes | Rocketbook's 7 symbols, Whitelines' 3 icons, Keeping Watch's 7 SEND TO bubbles |
 | Title field | Names the file | Rocketbook Smart Title (`##Title##`), Keeping Watch TITLE box |
@@ -193,7 +193,7 @@ Keeping Watch's own philosophy is narrower: the scan system exists so Shelbee's 
 
 Sources: [Data Matrix, Wikipedia; QR code, Wikipedia; Denso Wave, QR history; Denso Wave, error correction]. ISO pages blocked automated access and weren't opened; figures for quiet zones are the well-known values from those standards.
 
-**Why Data Matrix suits Keeping Watch:** the payload is short (`KW1|2610|001`, 12 characters), which fits a 16 × 16 Data Matrix. The smallest QR is 21 × 21 and needs a wider quiet zone, so a QR would be bigger and busier. A phone's camera also won't pop up "open link?" on a journal page.
+**Why Data Matrix suits Keeping Watch:** the payload is short (`KW2|1|2610|S001`, 15 characters), which fits a 16 × 16 Data Matrix. The smallest QR is 21 × 21 and needs a wider quiet zone, so a QR would be bigger and busier. A phone's camera also won't pop up "open link?" on a journal page.
 
 ### 5.10 Scan-friendly page design rules
 
@@ -218,7 +218,7 @@ Distilled from the systems above and from how scan apps behave (general practice
 | Quiet zone | 0.5 in clear band inside the frame |
 | Header | DATE / TITLE / TAGS boxes at the top (fixed) |
 | SEND TO strip | Page number, "SEND TO", then seven dashed bubbles, each above a symbol: fire (solid △), water (open ▽), air (three waves), earth (⊕), crescent moon (solid), full moon (solid disc), pentacle. Each bubble has `data-zone="send_to_<name>"` |
-| Page code | Data Matrix, 16 × 16 modules, 0.42 in square, at the right of the strip. Payload `KW1\|<yymm>\|<page>` |
+| Page code | Data Matrix, 16 × 16 modules, 0.42 in square, at the right of the strip. Payload `KW2\|<edition>\|<yymm>\|<size><page>` (size S, L or H) |
 | Zone map | `layout.json` per book: trim size, `border_pt`, `quiet_zone_in`, symbol names, and each page's type, date, code and zones (in mm from the frame's inner edge) |
 | Reader | Shelbee's own app; the book's key says the Rocketbook app won't read these markers |
 | Exceptions | The Keeper has no scan codes (it holds password hints and recovery codes) |
@@ -370,7 +370,7 @@ DATE Tue 6 Oct   TITLE Clinic + short shift   TAGS hrt, work
 ...
 [x] refill pickup      [ ] email Sam
 ...
-SEND TO   ●  o  o  ●  o  o  o       [DM: KW1|2610|012]
+SEND TO   ●  o  o  ●  o  o  o       [DM: KW2|1|2610|S012]
           ▲  ▽  ≋  ⊕  ☾  ●  ⛤
 ```
 
@@ -550,7 +550,7 @@ Decision for Nov: map air to "Bus notes" or ignore it
 | | Keeping Watch | Rocketbook | Smartpen (Ncode/Anoto) | Whitelines Link | Phone scanner on plain paper |
 |---|---|---|---|---|---|
 | Page finder | 9 pt frame + Data Matrix | QR + page | Dot pattern (pen) | 4 corner codes | Page edges |
-| Page ID | `KW1\|yymm\|page` | Page size + notebook version | Page address in pattern | **(unconfirmed)** | None |
+| Page ID | `KW2\|edition\|yymm\|size+page` | Page size + notebook version | Page address in pattern | **(unconfirmed)** | None |
 | Routing | 7 filled bubbles | 7 symbols (X) | App | 3 icons | Manual |
 | Zones | `layout.json` per block | Title and tag bars | Whole page strokes | None | None |
 | OCR | Own app (on-device preferred) | Cloud app, English titles | App | App | App |
@@ -634,7 +634,7 @@ Symbol maps, headings and scan habits to copy:
 - **Zone map (`layout.json`):** Keeping Watch file giving each block's position on each page.
 - **`data-zone`:** the id each Keeping Watch block carries so it appears in the zone map.
 - **SEND TO strip:** Keeping Watch's row of seven routing bubbles.
-- **Page code:** Keeping Watch's Data Matrix, `KW1|yymm|page`.
+- **Page code:** Keeping Watch's Data Matrix, `KW2|edition|yymm|size+page`.
 
 ---
 
