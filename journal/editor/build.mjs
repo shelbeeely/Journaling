@@ -23,7 +23,8 @@ const kit = {
   routines: ['7:30a Morning routine', '8:00p Evening routine'], // a busy day, so the meter errs on the safe side
   strip: seg.slice(seg.indexOf('<div class="frame">'), seg.trimEnd().lastIndexOf('</div>')),
 };
-const lib = read('daypage.mjs').replace(/^export /gm, '');
+// Method layouts ride along after the block library (their import of daypage.mjs is already in scope).
+const lib = read('daypage.mjs').replace(/^export /gm, '') + '\n' + read('content/layouts.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '');
 const tpl = read('editor/template.html').replace('/*__DAYPAGE__*/', () => lib).replace('/*__KIT__*/', () => `const KIT = ${JSON.stringify(kit)};`);
 const dist = new URL('editor/dist/', root);
 fs.mkdirSync(new URL('site/', dist), { recursive: true });

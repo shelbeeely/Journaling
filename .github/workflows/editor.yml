@@ -6,9 +6,9 @@ name: Editor
 on:
   push:
     branches: [main]
-    paths: ['journal/daypage.mjs', 'journal/editor/**', 'journal/render.mjs', 'journal/content/daypage.json', '.github/workflows/editor.yml']
+    paths: ['journal/daypage.mjs', 'journal/editor/**', 'journal/content/layouts.mjs', 'journal/render.mjs', 'journal/content/daypage.json', '.github/workflows/editor.yml']
   pull_request:
-    paths: ['journal/daypage.mjs', 'journal/editor/**']
+    paths: ['journal/daypage.mjs', 'journal/editor/**', 'journal/content/layouts.mjs']
   workflow_dispatch:
 permissions: { contents: read, pages: write, id-token: write }
 concurrency: { group: pages, cancel-in-progress: true }
