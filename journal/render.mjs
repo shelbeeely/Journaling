@@ -503,6 +503,73 @@ const HARDCOVER = process.env.HARDCOVER === '1';
 if (HARDCOVER) while (pages.length < 76 || pages.length % 2) add('notes', notesPage('Notes'));
 // Page code: Data Matrix with a short payload "KW1|<yymm>|<page>" (16x16 modules). Page type and date come from layout.json.
 const pageCode = (i) => `KW1|${VOL.id.slice(2).replace('-', '')}|${String(i + 1).padStart(3, '0')}`;
+// Rulings for print: every ruled line, dot grid and 4 mm grid is redrawn as one plain inline SVG per area, same
+// geometry as its CSS background. Chromium turns CSS gradients and tiled SVG backgrounds into PDF shadings and image
+// patterns that renderers disagree on (poppler: stray/doubled lines, cairo: nothing, mupdf: grey bars), and KDP
+// rasterises with its own pipeline. The CSS backgrounds stay for the editor preview; this runs in the page (after
+// fonts load, and again from render.mjs before the PDF) and switches them off. Keep the table in sync with the CSS.
+// Idempotent. Everything is clipped to the area, so no drawn box pokes past it (check.mjs stays at [] 0).
+function drawRulings() {
+  const IN = 96, MM = 96 / 25.4;
+  const SPECS = [ // first match wins; lines: 1px band at the bottom of each pitch; dots: centres ox + i·pitch, oy + j·pitch
+    ['.ru.pd', { dots: 0.22 * IN, ox: 0.11 * IN, oy: 0.2 * IN, r: 0.012 * IN, c: '#999' }],
+    ['.ru.pg, .grid.log', { grid: 4 * MM, w: 0.1 * MM, dash: [0.2 * MM, 0.3 * MM], c: '#d6d6d6' }],
+    ['.ruled.log', { lines: 0.26 * IN, c: '#999' }],
+    ['.ru', { lines: 0.22 * IN, c: '#999' }],
+    ['.m .dots', { dots: 5 * MM, ox: 0, oy: 0, r: 0.3 * MM, c: '#DCDCDC' }],
+    ['.dots', { dots: 0.17 * IN, ox: 0, oy: 0, r: 0.01 * IN, c: '#555' }],
+    ['.genko span', { cross: 0.5, c: '#ddd' }],
+  ];
+  const f = (v) => +v.toFixed(3);
+  const NS = 'http://www.w3.org/2000/svg';
+  document.querySelectorAll('svg.vrule').forEach((s) => s.remove());
+  const rect = (x0, y0, x1, y1) => `M${f(x0)} ${f(y0)}H${f(x1)}V${f(y1)}H${f(x0)}Z`;
+  // A dot as a Bézier circle; one cut by the edge becomes a clipped 32-gon, so the path never leaves the area.
+  const dot = (cx, cy, r, W, H) => {
+    if (cx - r >= 0 && cy - r >= 0 && cx + r <= W && cy + r <= H) return `M${f(cx - r)} ${f(cy)}a${f(r)} ${f(r)} 0 1 0 ${f(2 * r)} 0a${f(r)} ${f(r)} 0 1 0 ${f(-2 * r)} 0Z`;
+    let P = Array.from({ length: 32 }, (_, k) => [cx + r * Math.cos(k * Math.PI / 16), cy + r * Math.sin(k * Math.PI / 16)]);
+    for (const [ax, lim, keepLE] of [[0, 0, false], [0, W, true], [1, 0, false], [1, H, true]]) {
+      const inside = (p) => (keepLE ? p[ax] <= lim : p[ax] >= lim), out = [];
+      P.forEach((p, i) => {
+        const q = P[(i + 1) % P.length];
+        if (inside(p)) out.push(p);
+        if (inside(p) !== inside(q)) { const t = (lim - p[ax]) / (q[ax] - p[ax]); out.push([p[0] + t * (q[0] - p[0]), p[1] + t * (q[1] - p[1])]); }
+      });
+      P = out;
+      if (P.length < 3) return '';
+    }
+    return 'M' + P.map((p) => `${f(p[0])} ${f(p[1])}`).join('L') + 'Z';
+  };
+  document.querySelectorAll('.page').forEach((pg) => { const z = parseFloat(getComputedStyle(pg).zoom) || 1; SPECS.forEach(([sel, s]) => pg.querySelectorAll(sel).forEach((el) => {
+    if (el.dataset.vrule) return; // already taken by an earlier (more specific) spec
+    el.dataset.vrule = '1';
+    const cs = getComputedStyle(el), b = el.getBoundingClientRect();
+    // the letter book zooms each page; measure in the page's own CSS px, where the backgrounds tile
+    const W = b.width / z - parseFloat(cs.borderLeftWidth) - parseFloat(cs.borderRightWidth), H = b.height / z - parseFloat(cs.borderTopWidth) - parseFloat(cs.borderBottomWidth);
+    let d = '', attrs = { fill: s.c };
+    if (s.lines) for (let y = s.lines; y - 1 < H; y += s.lines) d += rect(0, y - 1, W, Math.min(y, H));
+    if (s.cross) d += rect(0, (H - s.cross) / 2, W, (H + s.cross) / 2) + rect((W - s.cross) / 2, 0, (W + s.cross) / 2, H);
+    if (s.dots) for (let y = s.oy + Math.ceil((-s.r - s.oy) / s.dots) * s.dots; y - s.r < H; y += s.dots) for (let x = s.ox + Math.ceil((-s.r - s.ox) / s.dots) * s.dots; x - s.r < W; x += s.dots) d += dot(x, y, s.r, W, H);
+    if (s.grid) { // dashes restart at every 4 mm tile edge, and 4 mm is a whole number of dash periods, so one line per row/column matches
+      const o = s.w / 2;
+      for (let y = o; y < H; y += s.grid) d += `M0 ${f(y)}H${f(W)}`;
+      for (let x = o; x < W; x += s.grid) d += `M${f(x)} 0V${f(H)}`;
+      attrs = { fill: 'none', stroke: s.c, 'stroke-width': f(s.w), 'stroke-dasharray': s.dash.map(f).join(' ') };
+    }
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('class', 'vrule'); svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('width', f(W)); svg.setAttribute('height', f(H)); svg.setAttribute('viewBox', `0 0 ${f(W)} ${f(H)}`);
+    svg.style.cssText = 'position:absolute;left:0;top:0;overflow:hidden;pointer-events:none';
+    const path = document.createElementNS(NS, 'path');
+    path.setAttribute('d', d); for (const [k, v] of Object.entries(attrs)) path.setAttribute(k, v);
+    svg.appendChild(path);
+    if (cs.position === 'static') el.style.position = 'relative';
+    el.style.backgroundImage = 'none';
+    el.appendChild(svg);
+  })); });
+  document.querySelectorAll('[data-vrule]').forEach((el) => delete el.dataset.vrule);
+}
+
 const qrSvgs = pages.map((p, i) => bwipjs.toSVG({ bcid: 'datamatrix', text: pageCode(i) }));
 const html = `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/600.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/700.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/400-italic.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/noto-serif-jp/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/noto-serif-jp/600.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/noto-sans-jp/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/dejavu-sans/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/inter/500.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/inter/700.css"><style>
 @page { size: ${TRIM_W}in ${TRIM_H}in; margin: 0; }
@@ -544,6 +611,7 @@ table { border-collapse: collapse; }
 .lines { overflow: hidden; } .rule { border-bottom: 1px solid #999; }
 .lines.l2 { height: 0.52in; } .lines.l3 { height: 0.78in; } .lines.l4 { height: 1.04in; } .lines.l6 { height: 1.56in; } .lines.l7 { height: 1.82in; }
 .fill { flex: 1; min-height: 0.5in; }
+/* .dots, .m .dots and .genko backgrounds: print redraws them as vectors in drawRulings() above; keep its SPECS in sync */
 .dots { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='17' height='17' viewBox='0 0 17 17'%3E%3Ccircle cx='8.5' cy='8.5' r='1' fill='%23555'/%3E%3C/svg%3E"); background-size: 0.17in 0.17in; background-position: -0.085in -0.085in; }
 .three { margin: 4px 0 0 16px; padding: 0; } .three li { height: 0.34in; border-bottom: 1px solid #999; }
 .minis { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.12in; margin-bottom: 0.05in; }
@@ -660,6 +728,8 @@ document.querySelectorAll('.lines').forEach((el) => {
   const n = Math.floor((el.clientHeight - 1) / pitch);
   for (let i = 0; i < n; i++) { const d = document.createElement('div'); d.className = 'rule'; d.style.height = pitch + 'px'; el.appendChild(d); }
 });
+${drawRulings.toString()}
+document.fonts.ready.then(drawRulings);
 </script></body></html>`;
 
 fs.mkdirSync(OUT, { recursive: true });
@@ -668,6 +738,7 @@ fs.writeFileSync(`${OUT}/data.json`, JSON.stringify(D, null, 1));
 const browser = await launch();
 const page = await browser.newPage();
 await page.goto('file://' + process.cwd() + `/${OUT}/journal.html`, { waitUntil: 'networkidle' }); await page.evaluate(() => document.fonts.ready);
+await page.evaluate(() => drawRulings()); // vector rulings on the final layout (the page also does this on load)
 // Zone map for the scanning app: every labelled zone in mm, relative to the inner edge of the black frame.
 const layout = await page.evaluate(() => {
   const px2mm = 25.4 / 96;

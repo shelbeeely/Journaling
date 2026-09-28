@@ -317,6 +317,7 @@ export const DAYPAGE_CSS = `
 .rev.c2 { grid-template-columns: 1fr 1fr; } .rev.c1 { grid-template-columns: 1fr; }
 .care.solo { padding: 3px 0; } .care.solo .cr.sp { margin-top: 0; }
 .plain.log { border-top: 1px solid #bbb; }
+/* ruling backgrounds (.ruled/.ru/.pd/.pg/.grid) are for the screen; print redraws them as vectors: drawRulings() in render.mjs, keep its SPECS in sync */
 .ruled.log { background: repeating-linear-gradient(to bottom, transparent 0 calc(0.26in - 1px), #999 calc(0.26in - 1px) 0.26in); }
 .grat { display: grid; grid-template-columns: auto 1fr; gap: 6px; align-items: start; border-top: 1px solid #9a9a9a; padding-top: 2px; margin-top: 2px; } .grat span { height: 0.62in; }
 .care [data-zone="water"] { gap: 3px; }
