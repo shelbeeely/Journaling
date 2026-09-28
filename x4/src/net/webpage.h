@@ -29,18 +29,19 @@ textarea{width:100%;min-height:260px;font:15px/1.45 ui-monospace,Menlo,monospace
 <section><h2>Books</h2><p class="note">Your journals as PDF and EPUB, stored on the X4’s card. Tap one to download it to this device.</p>
 <ul id="library"><li><span>Loading…</span></li></ul></section>
 
-<section><h2>Check-in log</h2><p class="note">One file per month (a spreadsheet opens it). Totals are on the X4 under This month.</p>
+<section><h2>Check-in log</h2><p class="note">One file per month (a spreadsheet opens it). Totals are on the X4 under This month. <b>The card holds the only copy: download this month’s file when you close the month.</b></p>
 <ul id="logs"><li><span>Loading…</span></li></ul></section>
 
 <section><h2>My safety plan</h2><p class="note">Lines starting with # are headings. Write under each one. It shows on the X4 under My safety plan.</p>
 <textarea id="me" spellcheck="true"></textarea>
 <div class="row"><button id="saveMe">Save to the X4</button></div><p class="msg" id="meMsg"></p></section>
 
-<section><h2>Add files</h2><p class="note">Month packs (like 2026-11.txt), checkins.txt, support.txt, or book PDFs and EPUBs.</p>
+<section><h2>Add files</h2><p class="note">Month packs (like 2026-11.txt), checkins.txt, support.txt, or book PDFs and EPUBs. Your safety plan and check-in log are never replaced from here.</p>
 <div class="row"><input type="file" id="files" multiple accept=".txt,.pdf,.epub"><button id="upload">Upload</button></div><p class="msg" id="upMsg"></p></section>
 </main>
 <script>
 const $=id=>document.getElementById(id);
+const PLAN='#Signs a hard time is starting\n\n#Things I can do on my own\n\n#People or places that help\n\n#People I can text\n\n#Professionals\n\n#Making my space safer\n\n#What matters to me\n';
 const say=(id,t,ok)=>{const e=$(id);e.textContent=t;e.className='msg '+(ok?'ok':'bad')};
 const size=b=>b>1e6?(b/1e6).toFixed(1)+' MB':Math.max(1,Math.round(b/1e3))+' KB';
 async function load(){
@@ -55,7 +56,7 @@ async function load(){
     s.logs.filter(n=>n.endsWith('.csv')).sort().reverse().forEach(n=>{const m=n.slice(0,7);const li=document.createElement('li');li.innerHTML='<span></span>';li.firstChild.textContent=m;const a=document.createElement('a');a.className='btn';a.textContent='Download';a.href='/api/log?m='+m;li.appendChild(a);logs.appendChild(li)});
     if(!logs.children.length)logs.innerHTML='<li><span>No check-ins yet.</span></li>';
   }catch(e){$('clock').textContent='Could not reach the X4. Is this phone still on its Wi-Fi?'}
-  try{$('me').value=await (await fetch('/api/me')).text()}catch(e){}
+  try{const t=await (await fetch('/api/me')).text();$('me').value=t.trim()?t:PLAN}catch(e){}
 }
 $('setTime').onclick=async()=>{const r=await fetch('/api/time',{method:'POST',body:String(Math.floor(Date.now()/1000))});say('timeMsg',await r.text(),r.ok);load()};
 $('saveMe').onclick=async()=>{const r=await fetch('/api/me',{method:'POST',body:$('me').value});say('meMsg',await r.text(),r.ok)};
