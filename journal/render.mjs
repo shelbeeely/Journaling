@@ -135,7 +135,7 @@ function keyPage() {
     <div><h3>Signs</h3><div class="gl-list">${signs}</div>
       <h3>Planets</h3><div class="gl-list">${planets}</div>
       <h3>Check-in</h3>
-      <p class="small"><b>Mood</b> −3 very low · 0 steady · +3 very high/wired<br><b>Energy</b> 1 empty … 5 full<br><b>Spoons</b> ${spoon()} cross one out per spoon spent. Start with the number you woke up with.</p>
+      <p class="small"><b>Mood</b> −3 very low · 0 steady · +3 very high/wired<br><b>Spoons</b> ${spoon()} cross one out per spoon spent. Start with the number you woke up with. A <b>good-spoon day</b> ends with 4 or more left.</p>
     </div>
   </div>
   `;
@@ -259,10 +259,9 @@ function carePage() {
 // ---------- support pages (checked Sep 2026; numbers and hours change, so re-check each edition) ----------
 const SUPPORT = JSON.parse(fs.readFileSync('content/support.json', 'utf8')); // shared with epub.py
 const TRANS = JSON.parse(fs.readFileSync('content/trans.json', 'utf8'));
-const CUT = `<div class="cutnote"><svg width="9" height="8" viewBox="0 0 12 10" style="vertical-align:-1px"><circle cx="2.5" cy="2.5" r="1.8" fill="none" stroke="#444" stroke-width="1"/><circle cx="2.5" cy="7.5" r="1.8" fill="none" stroke="#444" stroke-width="1"/><path d="M4 3.4 L11.5 8.5 M4 6.6 L11.5 1.5" stroke="#444" stroke-width="1"/></svg> To remove this page, cut along the inside edge of the black frame.</div>`;
 function dirPage(title, intro, data) {
   const chip = (t) => t.split(' ').filter(Boolean).map((x) => `<span class="chip${x === 'TEXT' ? ' tx' : ''}">${x}</span>`).join('');
-  return `${CUT}<h2 class="pt">${title}</h2><p class="small">${intro}</p>
+  return `<h2 class="pt">${title}</h2><p class="small">${intro}</p>
   ${data.map(([h, items]) => `<h3 class="sh">${h}</h3>${items.map(([n, d, c]) => `<div class="sup"><div class="sn"><b>${n}</b>${chip(c)}</div><div class="sd">${d}</div></div>`).join('')}`).join('')}`;
 }
 const supportPage = () => dirPage('Support', '<span class="chip tx">TEXT</span> means you can text instead of talking. Emergency: <b>911</b>. 988’s LGBTQ+ “press 3” option ended July 2025. Checked Sep 2026.', SUPPORT);
@@ -279,8 +278,9 @@ function closingPage() {
   <p class="small">Do this with your Keeper open${kp ? ` to <b>page ${kp}</b>` : ''}, before starting ${nextName}. About 15 minutes.</p>
   <h3 class="sh">1 · Total the tracker</h3>
   <div class="qg">${st('Avg mood', '−3…+3')}${st('Avg sleep', 'h')}${st('Showers', '/' + dim)}${st('Meds taken', 'days')}${st('Good-spoon days', 'days')}${st('Work hours', 'h')}</div>
+  <p class="small">Good-spoon day: 4 or more spoons left at bedtime. In the tracker’s spoons box, write the number left.</p>
   <h3 class="sh">2 · Hand off to the Keeper${kp ? ` (p. ${kp}–${kp + 1})` : ''}</h3>
-  ${step('Copy the totals, highs, lows and health notes')}${step('Add new contacts and birthdays')}${step('Update account hints; cross out used recovery codes')}${step('Index pages worth finding later (this is <b>Book ' + VOL.n + '</b>)')}${step('Back up the X4 log: Wi-Fi sync → download')}
+  ${step('Copy the totals, highs, lows and health notes')}${step('Add new contacts and birthdays')}${step('Update account hints and where recovery codes are kept')}${step('Index pages worth finding later (this is <b>Book ' + VOL.n + '</b>)')}${step('Back up the X4 log: Wi-Fi sync → download')}
   <h3 class="sh">3 · Carry forward</h3>
   ${step('Mark unfinished tasks in this book with &gt; and copy them to the Keeper')}${step('Scan any pages you still want in your app')}
   <h3 class="sh">4 · Start fresh</h3>
@@ -295,13 +295,14 @@ function contactsPage() {
 }
 function safetyPage() {
   const q = (n, t, h = 'l2') => `<div class="sq"><b>${n}. ${t}</b><div class="lines ${h}"></div></div>`;
-  return `${CUT}<h2 class="pt">My safety plan</h2>
+  const person = () => `<div class="pn"><div class="qf"><span>Name</span><i></i></div><div class="qf"><span>Phone</span><i></i></div><span class="qt"><i></i> TEXT OK</span></div>`;
+  return `<div class="sph"><h2 class="pt">My safety plan</h2><div class="qf"><span>Last reviewed</span><i></i></div></div>
   <p class="small">Fill this in on a good day, so it is ready on a hard one. Work down the list until you feel safer.</p>
   ${q(1, 'Signs a hard time is starting (thoughts, moods, situations)')}
   ${q(2, 'Things I can do on my own to feel a little better')}
   ${q(3, 'People or places that help me get my mind off it')}
-  ${q(4, 'People I can text for help')}
-  ${q(5, 'Professionals: my therapist, my prescriber, 988, crisis line 1-877-266-1818')}
+  <div class="sq" style="margin-bottom:5px"><b>4. People I can text or call for help</b>${person()}${person()}${person()}</div>
+  ${q(5, 'Professionals and crisis lines: my therapist, my prescriber; 988 (call or text); text HOME to 741741; Frontier crisis line 1-877-266-1818; Trans Lifeline (877) 565-8860 (call, weekdays 10–6 PT)')}
   ${q(6, 'How I can make my space safer (meds, other things)')}
   ${q(7, 'What matters to me, worth staying for', 'l2')}
   <div class="script"><b>A text I can send when talking is too hard:</b><br>“Hey, I’m having a hard time. I’m not up for a call. Can you text with me for a bit?”</div>`;
@@ -366,7 +367,7 @@ function monthTracker(M) {
   const rows = M.days.map((d) => `<tr><td class="dn">${d.d}</td><td class="kj">${DAY_LETTERS[(d.weekday + 6) % 7]}</td><td class="mc">${moon(d.moon.phaseDeg, 8)}</td><td class="mood">${[-3, -2, -1, 0, 1, 2, 3].map(() => '<i></i>').join('')}</td><td class="bx"></td><td class="bx"></td><td class="bx"></td><td class="bx"></td><td class="bx"></td><td class="bx"></td></tr>`).join('');
   return `<h2 class="pt">${M.name} · tracker</h2>
   <table class="trk"><tr><th colspan="3"></th><th>${ic('low')} mood ${ic('high')}</th><th>${ic('sleep', 'Sleep')}</th><th>${ic('pill', 'Meds')}</th><th>${ic('meal', 'Meals')}</th><th>${ic('shower', 'Shower')}</th><th>${ic('work', 'Work')}</th><th>${ic('spoon', 'Spoons')}</th></tr>${rows}</table>
-  <p class="small">Fill a dot per day. After a few weeks, look for patterns: sleep before mood shifts, spoons vs. moon phase, busy days vs. spoons.</p>`;
+  <p class="small">Fill a dot per day; in the spoons box write the number you had left at bedtime. After a few weeks, look for patterns: sleep before mood shifts, spoons vs. moon phase, busy days vs. spoons.</p>`;
 }
 
 function monthMoonPage(M) {
@@ -694,7 +695,7 @@ table { border-collapse: collapse; }
 .rev .zl .ic { width: 12px; height: 12px; }
 .trk th .ic { width: 10px; height: 10px; }
 .ikey { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 12px; font-size: 7.5pt; margin-bottom: 6px; } .ikey span { display: flex; align-items: center; gap: 5px; } .ikey .ic { width: 11px; height: 11px; }
-.cutnote { font: 600 7pt Inter, sans-serif; color: #444; margin: -4px 0 0; line-height: 1.1; } .sq { margin-top: 3px; } .sq .lines.l2 { height: 0.46in; } .sq b { font-size: 7.5pt; } .script { margin-top: 3px; border: 1px solid #000; padding: 5px 7px; font-size: 7.5pt; line-height: 1.35; }
+.sq { margin-top: 3px; } .sph { display: flex; align-items: flex-end; gap: 10px; } .sph .pt { flex: none; } .sph .qf { max-width: 2.1in; } .pn { display: flex; gap: 8px; align-items: flex-end; } .pn .qf:first-child { flex: 1.2; } .sq .lines.l2 { height: 0.36in; } .sq + .sq { margin-top: 5px; } .sq b { font-size: 7.5pt; } .script { margin-top: 3px; border: 1px solid #000; padding: 5px 7px; font-size: 7.5pt; line-height: 1.35; }
 .carep { width: 100%; } .carep th { text-align: left; font-size: 7.5pt; border-bottom: 1px solid #333; } .carep td { height: 0.28in; border-bottom: 1px solid #bbb; } .wd .wdn { font-size: 11pt; font-weight: 600; display: block; line-height: 1.1; } .cal .sk { font-size: 7pt; font-style: italic; color: #333; line-height: 1.1; border: none; padding: 0; }
 .ztags { grid-column: 1 / -1; }
 .sky1 { display: flex; gap: 4px; align-items: center; font-size: 7pt; line-height: 1.25; margin: 2px 0; } .sky1 .season { margin-left: auto; font-style: italic; color: #333; text-align: right; } .sky2l { font-size: 7pt; color: #333; margin: 1px 0 3px; }

@@ -27,7 +27,7 @@ add(`<h2>How to keep this book safe</h2>
 <ol class="rules">
 <li><b>Write hints, not passwords.</b> A hint only makes sense to you, like “first cat + usual 4 + !”. If this book is lost, a stranger still can’t log in.</li>
 <li><b>Never write your password manager’s master password</b> or your phone passcode here.</li>
-<li><b>Recovery codes are the exception.</b> 2FA backup codes are safer on paper than in your email. Cross each one out when you use it.</li>
+<li><b>Never write recovery codes or keys here either.</b> Write only <i>where</i> they are (a safe, a password manager’s emergency kit). An Apple recovery key, or a login plus a code, could take over an account if this book is lost.</li>
 <li><b>Keep this book at home.</b> The monthly journals travel and get shared; this one doesn’t.</li>
 <li><b>Don’t scan or photograph these pages.</b> They have no scan code on purpose.</li>
 <li><b>Account numbers:</b> write only the last 4 digits. The full number is on your card or statement.</li>
@@ -64,14 +64,14 @@ add(`<h2>Birthdays</h2><div class="bd">${['January', 'February', 'March', 'April
 
 // ---- passwords (hints) ----
 const acct = (n) => `<table class="t pw"><tr><th>Site / app</th><th>Login (user or email)</th><th>Hint</th><th>2FA</th><th>Changed</th></tr>${blank(n).map(() => '<tr><td></td><td></td><td></td><td class="c"><i></i></td><td></td></tr>').join('')}</table>`;
-add(`<h2>Accounts · hints only</h2><p class="small">Hint, never the password. Tick 2FA when it’s on; its backup codes go on the Recovery codes pages.</p>${acct(17)}`);
+add(`<h2>Accounts · hints only</h2><p class="small">Hint, never the password. Tick 2FA when it’s on; note where its backup codes are kept on the Recovery codes pages.</p>${acct(17)}`);
 for (let p = 0; p < 4; p++) add(`<h2>Accounts · hints only</h2>${acct(19)}`);
 add(`<h2>Email &amp; the big ones</h2><p class="small">If someone gets your email, they can reset everything else. Make these the strongest, with 2FA on.</p>
-${['Main email', 'Apple / Google account', 'Password manager', 'Bank', 'Phone carrier'].map((a) => `<div class="card"><b class="cl">${a}</b>${row(field('Login'))}${row(field('Hint'), field('2FA method', 'sm'))}${row(field('Recovery email / phone'))}</div>`).join('')}`);
+${['Main email', 'Apple / Google account', 'Password manager', 'Bank', 'Phone carrier'].map((a) => `<div class="card"><b class="cl">${a}</b>${row(field('Account (no login)'))}${row(field(a === 'Password manager' ? 'Where the emergency kit is' : 'Hint'), field('2FA method', 'sm'))}${row(field('Recovery email / phone'))}</div>`).join('')}`);
 
 // ---- recovery codes ----
-const codes = () => `<div class="rc">${row(field('Account'), field('Date', 'xs'))}<div class="cg">${blank(10).map((_, i) => `<div><span>${i + 1}</span><i></i></div>`).join('')}</div></div>`;
-for (let p = 0; p < 2; p++) add(`<h2>Recovery codes</h2><p class="small">2FA backup codes. <b>Cross out each code as you use it</b>; make new ones when a few are left.</p>${blank(4).map(codes).join('')}`);
+const codes = () => `<div class="rc">${row(field('Account (no login)'), field('Made', 'xs'))}${row(field('Where the codes or key are kept'))}${row(field('Codes left', 'xs'), field('Last checked', 'xs'))}</div>`;
+for (let p = 0; p < 2; p++) add(`<h2>Recovery codes · where they are</h2><p class="small">Write <b>where</b> the backup codes or recovery key are kept, never the codes themselves. Update “codes left” when you use one; make new ones when a few are left.</p>${blank(6).map(codes).join('')}`);
 
 // ---- devices & wifi ----
 add(`<h2>Devices &amp; Wi-Fi</h2>
@@ -89,7 +89,7 @@ add(`<h2>Monthly handoffs</h2>
 <p class="lead">At the end of each month, before you start the next journal, sit down with both books for 15 minutes.</p>
 <ol class="rules">
 <li><b>Close the month</b> (left page): copy the tracker totals from the monthly book, then the highs, lows and health notes.</li>
-<li><b>Update the Keeper</b>: new contacts, birthdays, account hints, used recovery codes.</li>
+<li><b>Update the Keeper</b>: new contacts, birthdays, account hints, where recovery codes are kept.</li>
 <li><b>Carry forward</b> (right page): unfinished tasks and people to follow up with. Copy them into week 1 of the new book.</li>
 <li><b>Index</b> anything worth finding later: what it is, which book, which page.</li>
 <li><b>Revise</b>: note what to change in the next edition of the journal.</li>
@@ -101,12 +101,13 @@ for (const M of MONTHS) {
   INDEX[M.id] = pages.length + 1;
   add(`<div class="hh"><h2>Closing ${M.name} ${M.y}</h2><span>BOOK ${M.n} OF 12</span></div>
   <h3>From the tracker</h3><div class="sts">${stat('Avg mood', '−3…+3')}${stat('Avg sleep', 'h')}${stat('Showers', `/${new Date(Date.UTC(M.y, +M.id.slice(5), 0)).getUTCDate()}`)}${stat('Meds taken', 'days')}${stat('Good-spoon days', 'days')}${stat('Work hours', 'h')}</div>
+  <p class="small">Good-spoon day: 4 or more spoons left at bedtime. In the tracker’s spoons box, write the number left.</p>
   <div class="two"><div><h3>Highs</h3>${lines(4)}</div><div><h3>Lows</h3>${lines(4)}</div></div>
   <h3>Health</h3><p class="small">Appointments, med changes, how the meds felt.</p>${lines(3)}
   <h3>Money &amp; work</h3>${lines(2)}
   <h3>One line to remember ${M.name} by</h3>${lines(1)}`, 'hl');
   add(`<div class="hh"><h2>Into ${next}</h2><span>HANDOFF</span></div>
-  <h3>Keeper updated</h3><div class="cbs">${cbx('New contacts')}${cbx('Birthdays')}${cbx('Account hints')}${cbx('Recovery codes used')}${cbx('Clinic &amp; support still right')}${cbx('Tracker totals copied')}</div>
+  <h3>Keeper updated</h3><div class="cbs">${cbx('New contacts')}${cbx('Birthdays')}${cbx('Account hints')}${cbx('Recovery code locations')}${cbx('Clinic &amp; support still right')}${cbx('Tracker totals copied')}</div>
   <h3>Carry forward</h3><p class="small">Copy these into week 1 of the new book.</p>${blank(7).map(() => cbx('')).join('')}
   <h3>Follow up with</h3>${lines(2)}
   <h3>Worth finding later</h3><table class="t ix"><tr><th>What</th><th>Book</th><th>Page</th></tr>${blank(4).map(() => `<tr><td></td><td>${M.n}</td><td></td></tr>`).join('')}</table>
