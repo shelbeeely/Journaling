@@ -84,7 +84,7 @@ KDP hardcover is a case laminate: printed cover on 2 mm board, matte or glossy.
 | --- | --- | --- |
 | 5.5 × 8.5 in | yes | **yes** |
 | 8.5 × 11 in | yes | **no** (KDP's big hardcover is 8.25 × 11) |
-| Pages (B&W, white) | 24–828 (5.5×8.5), 24–590 (8.5×11) | 75–550 |
+| Pages (B&W, white) | 24–828 (5.5×8.5), 24–590 (8.5×11) | 75–550 (the cover calculator starts at 76) |
 
 So hardcover is the **small book only**. `cover.mjs` stops with an error for any other trim.
 The Keeper stays paperback.
@@ -102,11 +102,12 @@ or `HARDCOVER=1 SIZES=small ./build-all.sh`.
 | Interior | `out/m2026-10/keeping-watch-2026-10-interior-hardcover-5.5x8.5.pdf` |
 | Cover | `out/m2026-10/keeping-watch-2026-10-hardcover-cover.pdf` |
 
-The hardcover files sit in the same folder as the paperback ones and share `pages.txt`.
-Build the paperback cover right after the paperback interior, and the hardcover cover right after the hardcover interior.
+The hardcover files sit in the same folder as the paperback ones. The hardcover cover counts the pages of the hardcover
+interior itself, but the paperback cover reads `pages.txt`, which the last interior build wrote. So after a hardcover
+build, rebuild the paperback interior before its cover.
 
-The hardcover cover isn't the paperback cover: it wraps 0.51 in around the board and has a 0.4 in hinge beside
-the spine. Check its size in the [cover calculator](https://kdp.amazon.com/cover-calculator) set to **Hardcover**.
+The hardcover cover isn't the paperback cover: it wraps 0.591 in (15 mm) around the board and has a 0.394 in
+(10 mm) hinge beside the spine. (KDP's help page prints the wrap as "0.51", but its calculator uses 15 mm.) Check its size in the [cover calculator](https://kdp.amazon.com/cover-calculator) set to **Hardcover**.
 
 KDP steps: **+ Create** → **Hardcover**, then the same as the paperback (own free ISBN, B&W white, 5.5 × 8.5, no bleed,
 upload, Previewer, **Save as Draft**, **Request printed proofs**). Never publish.
