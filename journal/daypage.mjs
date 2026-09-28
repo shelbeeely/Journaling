@@ -101,6 +101,7 @@ const T = (label, def, max = 40) => ({ k: 'title', kind: 'text', label, def, max
 const N = (k, label, lo, hi, def) => ({ k, kind: 'num', label, lo, hi, def });
 const B = (k, label, def = true) => ({ k, kind: 'bool', label, def });
 const LST = (k, label, def, max = 10) => ({ k, kind: 'list', label, def, max });
+export const X4_MAXES = [5, 10, 20, 50, 99, 200, 999]; // "fields": the most the X4 counts up to (paper is unaffected)
 const PAPER = { k: 'paper', kind: 'choice', label: 'Paper', choices: [['lines', 'Lines'], ['dots', 'Dot grid'], ['grid', '4 mm grid']], def: 'lines' };
 
 // group: where the block sits in the "Add blocks" palette.
@@ -117,12 +118,12 @@ export const TYPES = {
   care: { name: 'Care check-in', group: 'Check-ins', icon: 'pill', single: true, hint: 'Meds, meals, self-care, mood: two columns', opts: [] },
   spoons: { name: 'Spoons', group: 'Check-ins', icon: 'spoon', single: true, hint: 'Cross off as you use them', opts: [N('count', 'How many', 6, 16, 12)] },
   checks: { name: 'Checkboxes', group: 'Check-ins', icon: 'box', hint: 'Your own tick boxes · also on X4', opts: [T('Label', 'Habits', 24), LST('labels', 'Boxes', ['Stretch', 'Outside', 'Read'], 8)] },
-  scale: { name: 'Scale', group: 'Check-ins', icon: 'bolt', hint: 'Circle a number between two words · also on X4', opts: [T('Label', 'Energy', 18), N('steps', 'Steps', 3, 10, 5), { k: 'lo', kind: 'text', label: 'Left word', def: 'low', max: 10 }, { k: 'hi', kind: 'text', label: 'Right word', def: 'high', max: 10 }] },
-  words: { name: 'Words to circle', group: 'Check-ins', icon: 'list', hint: 'Circle the ones that fit today', opts: [T('Label', 'Feeling', 18), LST('words', 'Words', ['calm', 'tired', 'anxious', 'content', 'flat', 'overwhelmed', 'hopeful', 'irritable', 'proud', 'lonely'], 14)] },
+  scale: { name: 'Scale', group: 'Check-ins', icon: 'bolt', hint: 'Circle a number between two words · also on X4', opts: [T('Label', 'Energy', 18), N('steps', 'Steps', 3, 11, 5), B('zero', 'Number from 0', false), B('signed', 'Signed (−3 … +3)', false), { k: 'lo', kind: 'text', label: 'Left word', def: 'low', max: 10 }, { k: 'hi', kind: 'text', label: 'Right word', def: 'high', max: 10 }] },
+  words: { name: 'Words to circle', group: 'Check-ins', icon: 'list', hint: 'Circle the ones that fit today', opts: [T('Label', 'Feeling', 18), LST('words', 'Words', ['calm', 'tired', 'anxious', 'content', 'flat', 'overwhelmed', 'hopeful', 'irritable', 'proud', 'lonely'], 14), B('x4', 'Pick one on X4 (first 8 words)', false)] },
   sensory: { name: 'Sensory load', group: 'Check-ins', icon: 'ear', hint: 'How loud was the world today, 0–3', opts: [{ k: 'items', kind: 'flags', label: 'Senses', items: { sound: 'Sound', light: 'Light', crowd: 'Crowds', touch: 'Touch', smell: 'Smell', social: 'Social' }, def: { sound: true, light: true, crowd: true, touch: true, smell: false, social: false } }] },
   sleeptimes: { name: 'Sleep times', group: 'Check-ins', icon: 'sleep', single: true, hint: 'Bed, wake and how it felt', opts: [B('quality', 'Quality scale')] },
   habits: { name: 'Habit dots', group: 'Check-ins', icon: 'dots', hint: 'One circle each: leave empty, half-fill or fill · also on X4', opts: [T('Label', 'Habits', 24), LST('labels', 'Habits', ['Stretch', 'Outside', 'Read', 'Water'], 8)] },
-  fields: { name: 'Fill-in blanks', group: 'Check-ins', icon: 'pen', hint: 'Label + a blank to write a number or word · also on X4', opts: [T('Label', 'Outside', 18), LST('labels', 'Blanks', ['Minutes outside', 'Steps'], 6)] },
+  fields: { name: 'Fill-in blanks', group: 'Check-ins', icon: 'pen', hint: 'Label + a blank to write a number or word · also on X4', opts: [T('Label', 'Outside', 18), LST('labels', 'Blanks', ['Minutes outside', 'Steps'], 6), { k: 'max', kind: 'choice', label: 'Highest count on X4', choices: X4_MAXES.map((m) => [m, String(m)]), def: 99 }] },
   weather: { name: 'Weather & air', group: 'Check-ins', icon: 'cloud', single: true, hint: 'Circle the sky; high, low and air quality', opts: [B('aqi', 'Air quality (smoke season)')] },
   // ---- writing ----
   lines: { name: 'Lined notes', group: 'Writing', icon: 'pen', hint: 'A label and a few lines', opts: [T('Label', 'Notes'), N('n', 'Lines', 1, 8, 2), PAPER] },
@@ -216,6 +217,19 @@ export function normalize(L) {
 }
 
 // ---------- rendering ----------
+// Scale numbering. Plain scales print unnumbered bubbles and the X4 stores 1..steps (as ever).
+// zero: 0..steps-1, printed under the bubbles. signed: -k..+k around a centre 0 (steps rounded down to odd), 0 is the ringed one.
+// The X4 stores exactly these numbers (export_pack.py mirrors this).
+export function scaleRange(b) {
+  if (b.signed) { const k = Math.floor((b.steps - 1) / 2); return { lo: -k, hi: k, n: 2 * k + 1, def: 0 }; }
+  if (b.zero) return { lo: 0, hi: b.steps - 1, n: b.steps, def: Math.floor((b.steps - 1) / 2) };
+  return { lo: 1, hi: b.steps, n: b.steps, def: Math.floor((1 + b.steps) / 2) };
+}
+const scaleBubs = (b) => {
+  if (!b.zero && !b.signed) return bubs(b.steps);
+  const { lo, hi } = scaleRange(b);
+  return Array.from({ length: hi - lo + 1 }, (_, i) => { const v = lo + i; return `<span class="bub n${b.signed && v === 0 ? ' mid' : ''}"><i></i><em>${v < 0 ? '\u2212' + -v : b.signed && v > 0 ? '+' + v : v}</em></span>`; }).join('');
+};
 const bubs = (n) => Array(n).fill('<span class="bub"><i></i></span>').join('');
 const lbl = (icon, t) => `<b class="xl">${icon ? ic(icon, t) : ''}${t ? `<span>${esc(t)}</span>` : ''}</b>`;
 const PAPER_CLS = { lines: '', dots: 'pd', grid: 'pg' }; // lines = today's ruling, byte for byte
@@ -268,7 +282,7 @@ function renderBlock(b, parts, zone) {
       return it.length ? `<div class="rev${it.length < 3 ? ` c${it.length}` : ''}" data-zone="review">${it.map((k) => `<div><b class="zl">${ic(k, REVIEW_ITEMS[k])}<i>${REVIEW_ITEMS[k]}</i></b><span class="lines" data-pitch="0.22"></span></div>`).join('')}</div>` : '';
     }
     case 'checks': return b.labels.length ? `<div class="xb xrow" ${Z}>${lbl('', b.title)}${b.labels.map((t) => box(`<span class="t">${esc(t)}</span>`)).join('')}</div>` : '';
-    case 'scale': return `<div class="xb xrow" ${Z}>${lbl('', b.title)}<span class="end">${esc(b.lo)}</span>${bubs(b.steps)}<span class="end">${esc(b.hi)}</span></div>`;
+    case 'scale': return `<div class="xb xrow" ${Z}>${lbl('', b.title)}<span class="end">${esc(b.lo)}</span>${scaleBubs(b)}<span class="end">${esc(b.hi)}</span></div>`;
     case 'words': return b.words.length ? `<div class="xb xrow wr" ${Z}>${lbl('', b.title)}${b.words.map((w) => `<span class="w">${esc(w)}</span>`).join('')}</div>` : '';
     case 'sensory': {
       const S = TYPES.sensory.opts[0].items, it = Object.keys(S).filter((k) => b.items[k]);
@@ -337,6 +351,7 @@ export const DAYPAGE_CSS = `
 .xb > .xl { display: flex; } .xrow > .xl { display: inline-flex; }
 .xl .ic { width: 11px; height: 11px; }
 .xb .ck { gap: 2px; font-size: 7pt; } .xb .ck .t { margin-right: 3px; }
+.bub.n { flex-direction: column; align-items: center; } .bub.n:nth-child(5) i { border-width: 1px; } .bub.n.mid i { border-width: 1.6px; } .bub.n em { font: normal 500 6.3pt/1 Inter, sans-serif; color: #222; margin-top: 1px; min-width: 12px; text-align: center; }
 .xb .w { padding: 0 4px; } .xb .sn { display: inline-flex; align-items: center; gap: 2px; margin-right: 4px; } .xb .sn .bub i { width: 7px; height: 7px; }
 .xb .f { display: inline-flex; align-items: baseline; gap: 2px; white-space: nowrap; } .xb .blank { height: 8px; }
 .xb .cir { display: inline-flex; width: 15px; height: 15px; align-items: center; justify-content: center; } .xb .cir .ic { width: 11px; height: 11px; }
