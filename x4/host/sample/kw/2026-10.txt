@@ -7,7 +7,7 @@ planet=♃ Jupiter
 moon=246.6|70|Waning Gibbous|♊ Gemini
 sun=6:49a|6:28p|11h 39m|♎ Libra
 season=Sumac flames on the basalt|Smooth sumac turns scarlet on scabland slopes and river canyons.
-fact=1982 — Sony releases the CDP-101 in Japan, the first CD player ever sold. (2003: 4chan launches.)
+fact=1982 — Sony releases the CDP-101 in Japan, the first CD player ever sold. (1958: NASA begins operations.)
 pioneer=Ada Lovelace|1815–1852|Her 1843 “Note G” on Babbage’s Analytical Engine is often called the first published computer program. She saw machines could handle music and symbols, not just numbers.|At 12 she designed wings from paper, oilsilk, wire and feathers and planned a book called “Flyology.”
 prompt=Something small you noticed this week.
 @2026-10-02
@@ -277,7 +277,7 @@ prompt=Ask me one question.
 wd=Sunday
 page=56
 planet=☉ Sun
-moon=174.9|100|Full Moon|♈ Aries
+moon=174.9|100|Full Moon|♉ Taurus
 moonin=♉ Taurus 4:34p
 sun=7:23a|5:42p|10h 19m|♏ Scorpio
 season=Tundra swans pass over|Swans rest on eastern Washington wetlands on their way to winter grounds.
@@ -304,7 +304,7 @@ moonin=♊ Gemini 6:01p
 sun=7:26a|5:39p|10h 13m|♏ Scorpio
 season=Tundra swans pass over|Swans rest on eastern Washington wetlands on their way to winter grounds.
 note=Payday
-fact=1980 — The ARPANET suffers its first major crash, a four-hour network-wide collapse.
+fact=1961 — The first Saturn I rocket, SA-1, flies a flawless test flight from Cape Canaveral.
 pioneer=Sophie Wilson|b. 1957|Wrote BBC BASIC and designed the ARM instruction set in 1983 with Steve Furber. ARM chips now run nearly every smartphone. She transitioned in 1994.|She debugged the BBC Micro prototype while watching the 1981 royal wedding on a tiny portable TV.
 prompt=Describe the sky the last time you looked up.
 @2026-10-28

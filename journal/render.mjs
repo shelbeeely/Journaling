@@ -403,11 +403,19 @@ function monthMoonPage(M) {
 // ---------- week section ----------
 const wk = (W) => String(W.gi + 1).padStart(2, '0'); // week number in page ids: week.03.left
 const wkRange = (W) => { const f = W.days[0], l = W.days[W.days.length - 1]; return `${MONTHS[f.m - 1].slice(0, 3)} ${f.d} – ${MONTHS[l.m - 1].slice(0, 3)} ${l.d}`; }; // the week's days in this book
+// A week row holds ~5 one-line items: events first, then the day's notes; the rest becomes "+N more" (a busy day never spills).
+const WEEK_ITEMS = 5;
+function weekItems(d) {
+  const items = d.events.filter((e) => !e.routine).map((e) => `<div class="ev">${e.time ? e.time + ' ' : ''}${esc(e.title)}</div>`)
+    .concat(d.notes.filter((n) => n.kind !== 'astro').map((n) => `<div class="evs">${esc(n.text)}</div>`));
+  return items.length <= WEEK_ITEMS ? items.join('') : items.slice(0, WEEK_ITEMS - 1).join('') + `<div class="evs">+${items.length - WEEK_ITEMS + 1} more</div>`;
+}
+
 function weekLeft(W) {
   const f = W.days[0], l = W.days[W.days.length - 1];
   const lead = (f.weekday + 6) % 7, tail = 6 - ((l.weekday + 6) % 7);
   const other = (label) => `<div class="wrow other"><div class="wd"><span class="dt">${label}</span></div><div></div><div class="wev dim">${lead ? (VOL.n === 1 ? 'before this journal starts' : 'in the previous book') : (VOL.n === 12 ? 'after this journal ends' : 'in the next book')}</div></div>`;
-  const rows = Array(lead).fill(0).map(() => other('—')).join('') + W.days.map((d) => `<div class="wrow" data-zone="week_day_${(d.weekday + 6) % 7 + 1}"><div class="wd"><span class="wdn">${d.weekdayName.slice(0, 3)}</span><span class="dt">${MONTHS[d.m - 1].slice(0, 3)} ${d.d}</span></div><div class="wsky"><span class="ms">${moon(d.moon.phaseDeg, 11)} ${G(d.moon.glyph)} ${d.moon.lit}%</span><span class="dim">${G('☀')} ${d.sun.rise}–${d.sun.set}</span><span class="wk-shift">work ____–____</span></div><div class="wev" data-pitch="0.22"><div class="rules lines" data-pitch="0.22"></div>${d.events.filter((e) => !e.routine).map((e) => `<div class="ev">${e.time ? e.time + ' ' : ''}${esc(e.title)}</div>`).join('')}${d.notes.filter((n) => n.kind !== 'astro').map((n) => `<div class="evs">${esc(n.text)}</div>`).join('')}</div></div>`).join('') + Array(tail).fill(0).map(() => other('—')).join('');
+  const rows = Array(lead).fill(0).map(() => other('—')).join('') + W.days.map((d) => `<div class="wrow" data-zone="week_day_${(d.weekday + 6) % 7 + 1}"><div class="wd"><span class="wdn">${d.weekdayName.slice(0, 3)}</span><span class="dt">${MONTHS[d.m - 1].slice(0, 3)} ${d.d}</span></div><div class="wsky"><span class="ms">${moon(d.moon.phaseDeg, 11)} ${G(d.moon.glyph)} ${d.moon.lit}%</span><span class="dim">${G('☀')} ${d.sun.rise}–${d.sun.set}</span><span class="wk-shift">work ____–____</span></div><div class="wev" data-pitch="0.22"><div class="rules lines" data-pitch="0.22"></div>${weekItems(d)}</div></div>`).join('') + Array(tail).fill(0).map(() => other('—')).join('');
   return `<div class="whead" data-zone="week_header"><h2 class="pt">${W.label}</h2><span class="dim">${wkRange(W)}</span></div>${rows}`;
 }
 
@@ -607,7 +615,7 @@ table { border-collapse: collapse; }
 .mp { margin-top: 0.1in; } .mph { display: flex; gap: 8px; align-items: center; } .mph h3 { margin: 0; } .mph p { margin: 0; font-size: 7.6pt; }
 .whead { display: flex; justify-content: space-between; align-items: baseline; }
 .wrow { flex: 1; display: grid; grid-template-columns: 0.62in 0.9in 1fr; border-top: 1px solid #333; padding-top: 3px; min-height: 0; }
-.wev { padding-left: 4px; overflow: hidden; position: relative; } .wev .rules { position: absolute; inset: 0 0 0 4px; } .wev .ev, .wev .evs { position: relative; background: #fff; display: inline-block; }
+.wev { padding-left: 4px; overflow: hidden; position: relative; } .wev .rules { position: absolute; inset: 0 0 0 4px; } .wev .ev, .wev .evs { position: relative; background: #fff; display: inline-block; max-width: 100%; box-sizing: border-box; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: top; margin-right: 9px; } .wev .evs { font-size: 6.4pt; }
 .wd .kj { font-size: 14pt; display: block; line-height: 1.1; } .wd .dt { font-size: 7.6pt; font-weight: 700; }
 .wsky { font-size: 7pt; display: flex; flex-direction: column; gap: 1px; } .wsky .ms { display: flex; align-items: center; gap: 3px; }
 .wr-top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 0.15in; } .word .wk-k { font-size: 20pt; line-height: 1.2; }
