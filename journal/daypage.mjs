@@ -306,7 +306,7 @@ function renderBlock(b, parts, zone) {
   switch (b.type) {
     case 'sky': case 'notes': case 'events': case 'fact': return parts[b.type] || '';
     case 'spoons': return `<div class="care solo">${spoonRow(b)}</div>`;
-    case 'good': return `<div class="grat" ${Z}><b class="zl">${ic('heart', b.label || 'Small good things')}</b>${b.because ? `<div class="gbs">${Array(b.n).fill('<div class="gb"><span class="lines" data-pitch="0.2" style="height:0.22in"></span><i>because</i><span class="lines" data-pitch="0.2" style="height:0.22in"></span></div>').join('')}</div>` : `<span class="lines" data-pitch="0.2" style="height:${(b.n * 0.2 + 0.02).toFixed(2)}in"></span>`}</div>`;
+    case 'good': return `<div class="grat" ${Z}><b class="zl">${ic('heart', esc(b.label || 'Small good things'))}</b>${b.because ? `<div class="gbs">${Array(b.n).fill('<div class="gb"><span class="lines" data-pitch="0.2" style="height:0.22in"></span><i>because</i><span class="lines" data-pitch="0.2" style="height:0.22in"></span></div>').join('')}</div>` : `<span class="lines" data-pitch="0.2" style="height:${(b.n * 0.2 + 0.02).toFixed(2)}in"></span>`}</div>`;
     case 'body': return `<div class="${{ lines: 'ruled', bold: 'ruled bold', blank: 'plain', grid: 'grid', grid37: 'grid g37' }[b.style] || 'dots'} log${b.secretLine ? ' sl' : ''}" data-zone="body"></div>`;
     case 'actions': return actionZone(b.count, b.routines ? parts.routines || [] : []);
     case 'review': {
@@ -412,8 +412,8 @@ export const DAYPAGE_CSS = `
 .grid.log, .ru.pg { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4mm' height='4mm' viewBox='0 0 40 40'%3E%3Cpath d='M0 1.3H40M1.3 0V40' stroke='%23c8c8c8' stroke-width='2.65' stroke-dasharray='6 4' fill='none'/%3E%3C/svg%3E"); background-size: 4mm 4mm; }
 .ru.pd { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'%3E%3Ccircle cx='11' cy='11' r='1.4' fill='%23808080'/%3E%3C/svg%3E"); background-size: 0.22in 0.22in; background-position: 0 0.09in; }
 /* Tier 1 options (see journal/README.md, "Day page presets and options"): every one is off by default and adds nothing to today's page */
-.ru.p26 { background: repeating-linear-gradient(to bottom, transparent 0 calc(0.26in - 1pt), #a0a0a0 calc(0.26in - 1pt) 0.26in); }
-.ru.p33 { background: repeating-linear-gradient(to bottom, transparent 0 calc(0.335in - 1pt), #a0a0a0 calc(0.335in - 1pt) 0.335in); }
+.ru.p26:not(.pg):not(.pd) { background: repeating-linear-gradient(to bottom, transparent 0 calc(0.26in - 1pt), #a0a0a0 calc(0.26in - 1pt) 0.26in); }
+.ru.p33:not(.pg):not(.pd) { background: repeating-linear-gradient(to bottom, transparent 0 calc(0.335in - 1pt), #a0a0a0 calc(0.335in - 1pt) 0.335in); }
 .ru.pd.p26 { background-size: 0.26in 0.26in; background-position: 0 0.106in; }
 .ru.pd.p33 { background-size: 0.335in 0.335in; background-position: 0 0.137in; }
 .ruled.log.bold { background: repeating-linear-gradient(to bottom, transparent 0 calc(0.5625in - 1.5pt), #000 calc(0.5625in - 1.5pt) 0.5625in); }
