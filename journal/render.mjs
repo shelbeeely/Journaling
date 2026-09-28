@@ -68,9 +68,15 @@ const ruby = (k, r) => `<ruby>${k}<rt>${r}</rt></ruby>`;
 // ---------- page sequencing (mirror margins by parity) ----------
 const pages = [];
 let SEC = 'front', SPAN = null; // section and date span the pages being added belong to (they end up in layout.json)
-const add = (cls, html, date = '', type = 'page') => pages.push({ cls, html, date, type, section: SEC, from: SPAN ? SPAN[0] : null, to: SPAN ? SPAN[1] : null });
-const alignToVerso = () => { if ((pages.length + 1) % 2 === 1) add('notes', notesPage('Notes'), '', 'notes'); }; // next page must be even
-const alignToRecto = () => { if ((pages.length + 1) % 2 === 0) add('notes', notesPage('Notes'), '', 'notes'); };
+// Page identity: every page has an `id` (unique in the book, derived from what the page is, never from its position: title, key,
+// week.03.reply, day.2026-10-14 ...), a printed `label` (text the page itself shows, so it can be told apart without scanning;
+// check-pages.mjs verifies it is on the page) and `shared` (front/back matter meant to print byte-identically in every book).
+// Only padding pages are numbered by order (notes.1, notes.2 ...): they exist because of position.
+const add = (cls, html, date = '', type = 'page', id = null, label = '', shared = false) => pages.push({ cls, html, date, type, id: id || type, label, shared, section: SEC, from: SPAN ? SPAN[0] : null, to: SPAN ? SPAN[1] : null });
+let notesN = 0;
+const addNotes = () => { notesN++; add('notes', notesPage(`Notes ${notesN}`), '', 'notes', `notes.${notesN}`, `Notes ${notesN}`); };
+const alignToVerso = () => { if ((pages.length + 1) % 2 === 1) addNotes(); }; // next page must be even
+const alignToRecto = () => { if ((pages.length + 1) % 2 === 0) addNotes(); };
 const notesPage = (title) => `${headerZone('', title)}<div class="dots fill" data-zone="body"></div>${actionZone(4)}`;
 // AI-scan zones: labelled header boxes, faint body grid, checkbox action items.
 function headerZone(dateText, titleText = '') {
@@ -242,9 +248,10 @@ function gridTable(E, r) {
   ${runsOf(hrs, cols).map(([a, b]) => `<tr${a !== b ? ' class="rng"' : ''}><td class="hl${a >= 12 ? ' pm' : ''}">${a === b ? hl(a) : ((a < 12) === (b < 12) ? hl(a).slice(0, -1) : hl(a)) + '–' + hl(b)}</td>${cols.map((c) => `<td class="${c.group ? 'gs' : ''}">${(c.hours[a] || []).join(' ')}</td>`).join('')}</tr>`).join('')}</table>
 ${partial ? '<p class="small">* starts partway along the route.</p>' : ''}`;
 }
+const gridRoutes = (routeIds) => routeIds.map((r) => NET.routes[r].n).join(', ');
 function gridPage(routeIds) {
   const { E, note, valid } = busMeta();
-  return `<div class="xh"><h2 class="pt">Bus times</h2><span class="dim">minutes past the hour</span></div>${valid}
+  return `<div class="xh"><h2 class="pt">Bus times</h2><span class="dim">routes ${esc(gridRoutes(routeIds))} · minutes past the hour</span></div>${valid}
   ${routeIds.map((r) => gridTable(E, r)).join('')}
   <p class="small">Shaded rows like <b>8–10a</b> repeat the same minutes each hour. ${note}</p>`;
 }
@@ -398,6 +405,8 @@ function monthMoonPage(M) {
 }
 
 // ---------- week section ----------
+const wk = (W) => String(W.gi + 1).padStart(2, '0'); // week number in page ids: week.03.left
+const wkRange = (W) => { const f = W.days[0], l = W.days[W.days.length - 1]; return `${MONTHS[f.m - 1].slice(0, 3)} ${f.d} – ${MONTHS[l.m - 1].slice(0, 3)} ${l.d}`; }; // the week's days in this book
 // A week row holds ~5 one-line items: events first, then the day's notes; the rest becomes "+N more" (a busy day never spills).
 const WEEK_ITEMS = 5;
 function weekItems(d) {
@@ -411,14 +420,14 @@ function weekLeft(W) {
   const lead = (f.weekday + 6) % 7, tail = 6 - ((l.weekday + 6) % 7);
   const other = (label) => `<div class="wrow other"><div class="wd"><span class="dt">${label}</span></div><div></div><div class="wev dim">${lead ? (VOL.n === 1 ? 'before this journal starts' : 'in the previous book') : (VOL.n === 12 ? 'after this journal ends' : 'in the next book')}</div></div>`;
   const rows = Array(lead).fill(0).map(() => other('—')).join('') + W.days.map((d) => `<div class="wrow" data-zone="week_day_${(d.weekday + 6) % 7 + 1}"><div class="wd"><span class="wdn">${d.weekdayName.slice(0, 3)}</span><span class="dt">${MONTHS[d.m - 1].slice(0, 3)} ${d.d}</span></div><div class="wsky"><span class="ms">${moon(d.moon.phaseDeg, 11)} ${G(d.moon.glyph)} ${d.moon.lit}%</span><span class="dim">${G('☀')} ${d.sun.rise}–${d.sun.set}</span><span class="wk-shift">work ____–____</span></div><div class="wev" data-pitch="0.22"><div class="rules lines" data-pitch="0.22"></div>${weekItems(d)}</div></div>`).join('') + Array(tail).fill(0).map(() => other('—')).join('');
-  return `<div class="whead" data-zone="week_header"><h2 class="pt">${W.label}</h2><span class="dim">${MONTHS[f.m - 1].slice(0, 3)} ${f.d} – ${MONTHS[l.m - 1].slice(0, 3)} ${l.d}</span></div>${rows}`;
+  return `<div class="whead" data-zone="week_header"><h2 class="pt">${W.label}</h2><span class="dim">${wkRange(W)}</span></div>${rows}`;
 }
 
 function weekRight(W) {
   const days = DAY_LETTERS;
   const grid = (label) => `<tr><td class="hl">${label}</td>${days.map(() => '<td></td>').join('')}</tr>`;
   return `<div class="wr-top"><div class="word" data-zone="words"><h3>Words to keep</h3><p class="dim">A line worth copying out this week: a quote, a lyric you heard, something someone said.</p><div class="lines l3" data-pitch="0.24"></div></div>
-  <div class="prio" data-zone="priorities"><h3>This week</h3><ol><li></li><li></li><li></li></ol></div></div>
+  <div class="prio" data-zone="priorities"><h3>${W.label}</h3><ol><li></li><li></li><li></li></ol></div></div>
   <h3>Habits &amp; theme</h3>
   <table class="hab" data-zone="habits"><tr><th></th>${days.map((x) => `<th>${x}</th>`).join('')}</tr>${grid('')}${grid('')}${grid('')}${grid('work hours')}</table>
   <h3>Mood line</h3>
@@ -469,45 +478,45 @@ function weekReview(W) {
 function exchange(W, side) {
   const p = W.prompt || 'Anything you want to tell me.';
   return side === 'L'
-    ? `<div class="xh"><h2 class="pt">Exchange</h2><span class="dim">${W.label}</span></div><div class="xft" data-zone="exchange_from"><span>From</span><i></i><span>To</span><i></i><span>Date</span><i></i></div><p class="xp" data-zone="prompt">This week's prompt: <b>${p}</b></p><div class="lines fill" data-zone="body"></div>`
-    : `<div class="xh"><h2 class="pt">Reply</h2><span class="dim">hand the book back when done</span></div><div class="xft" data-zone="exchange_from"><span>From</span><i></i><span>Date</span><i></i></div><p class="xp" data-zone="prompt">Answer the prompt, respond to their page, or ask them something.</p><div class="lines fill" data-zone="body"></div>`;
+    ? `<div class="xh"><h2 class="pt">Exchange</h2><span class="dim">${W.label} · ${wkRange(W)}</span></div><div class="xft" data-zone="exchange_from"><span>From</span><i></i><span>To</span><i></i><span>Date</span><i></i></div><p class="xp" data-zone="prompt">This week's prompt: <b>${p}</b></p><div class="lines fill" data-zone="body"></div>`
+    : `<div class="xh"><h2 class="pt">Reply</h2><span class="dim">${W.label} · ${wkRange(W)}</span></div><div class="xft" data-zone="exchange_from"><span>From</span><i></i><span>Date</span><i></i></div><p class="xp" data-zone="prompt">Answer the prompt, respond to their page, or ask them something. Hand the book back when done.</p><div class="lines fill" data-zone="body"></div>`;
 }
 
 // ---------- assemble ----------
 let REF_THEME = 0, REF_TRACKER = 0;
-add('title', titlePage(), '', 'title');               // 1 (recto)
-add('', `<div class="blankpage"></div>`, '', 'blank'); // 2
-add('', anatomyPage(), '', 'anatomy');
-add('', keyPage(), '', 'key');
-add('', `<h2 class="pt">Key, continued</h2><h3>Day page icons</h3><div class="ikey">${ICON_KEY.map(([k, t]) => `<span>${ic(k)} ${t}</span>`).join('')}</div>${weekdayTable()}<h3>Send-to symbols</h3><p class="small">Fire (solid triangle), water (open triangle), air (three winds), earth (circled cross), crescent moon, full moon and pentacle. Fill the bubble above one to route a scan; you decide what each means in your app.</p>`, '', 'key');
-add('', carePage(), '', 'care'); add('', contactsPage(), '', 'contacts');
-REF_THEME = pages.length + 1; add('', themePage(), '', 'theme');
+add('title', titlePage(), '', 'title', 'title', 'Keeping Watch');               // 1 (recto)
+add('', `<div class="blankpage"></div>`, '', 'blank', 'blank', '', true); // 2
+add('', anatomyPage(), '', 'anatomy', 'anatomy', 'How to use it');
+add('', keyPage(), '', 'key', 'key', 'Key', true);
+add('', `<h2 class="pt">Key, continued</h2><h3>Day page icons</h3><div class="ikey">${ICON_KEY.map(([k, t]) => `<span>${ic(k)} ${t}</span>`).join('')}</div>${weekdayTable()}<h3>Send-to symbols</h3><p class="small">Fire (solid triangle), water (open triangle), air (three winds), earth (circled cross), crescent moon, full moon and pentacle. Fill the bubble above one to route a scan; you decide what each means in your app.</p>`, '', 'key', 'key.2', 'Key, continued', true);
+add('', carePage(), '', 'care', 'care_plan', 'Care plan'); add('', contactsPage(), '', 'contacts', 'contacts', 'Quick contacts', true);
+REF_THEME = pages.length + 1; add('', themePage(), '', 'theme', 'theme', 'Season theme');
 
 const monthStartWeek = (M) => D.weeks.find((W) => W.days.some((d) => d.m === M.m && d.y === M.y));
 for (const W of D.weeks) {
   const M = D.months.find((M) => monthStartWeek(M) === W);
-  if (M) { SEC = 'month'; SPAN = [M.days[0].date, M.days[M.days.length - 1].date]; alignToVerso(); add('', monthCalendar(M), '', 'month_cal'); add('', monthSky(M), '', 'month_sky'); REF_TRACKER = pages.length + 1; add('', monthTracker(M), '', 'month_tracker'); add('', monthMoonPage(M), '', 'month_moon'); }
+  if (M) { SEC = 'month'; SPAN = [M.days[0].date, M.days[M.days.length - 1].date]; alignToVerso(); add('', monthCalendar(M), '', 'month_cal', 'month.calendar', `${M.name} ${M.y}`); add('', monthSky(M), '', 'month_sky', 'month.sky', `${M.name} · sky & seasons`); REF_TRACKER = pages.length + 1; add('', monthTracker(M), '', 'month_tracker', 'month.tracker', `${M.name} · tracker`); add('', monthMoonPage(M), '', 'month_moon', 'month.moon', `${M.name} · moon pages`); }
   SEC = 'week'; SPAN = [W.days[0].date, W.days[W.days.length - 1].date];
   alignToVerso();
-  add('', weekLeft(W), '', 'week_left'); add('', weekRight(W), '', 'week_right');
+  add('', weekLeft(W), '', 'week_left', `week.${wk(W)}.left`, `${W.label} · ${wkRange(W)}`); add('', weekRight(W), '', 'week_right', `week.${wk(W)}.right`, W.label);
   // The week's Sunday is in this book. The year's last week (Sep 27–Oct 3 2027, week 53) ends after the final book,
   // so it gets its review and exchange here instead of never being printed.
   const endsHere = W.days[W.days.length - 1].weekday === 0 || (W === D.weeks[D.weeks.length - 1] && W.gi === 52);
-  for (const d of W.days) add('dayp', dayFull(d), d.date, 'dayp');
-  if (endsHere) { add('', weekReview(W), '', 'week_review'); alignToVerso(); add('', exchange(W, 'L'), '', 'exchange_l'); add('', exchange(W, 'R'), '', 'exchange_r'); } // Exchange (verso) and Reply (recto) must face each other
+  for (const d of W.days) add('dayp', dayFull(d), d.date, 'dayp', `day.${d.date}`, d.date);
+  if (endsHere) { add('', weekReview(W), '', 'week_review', `week.${wk(W)}.review`, `${W.label} review`); alignToVerso(); add('', exchange(W, 'L'), '', 'exchange_l', `week.${wk(W)}.exchange`, `Exchange · ${W.label}`); add('', exchange(W, 'R'), '', 'exchange_r', `week.${wk(W)}.reply`, `Reply · ${W.label}`); } // Exchange (verso) and Reply (recto) must face each other
 }
 SEC = 'back'; SPAN = null;
 alignToVerso();
-add('', `<h2 class="pt">Looking back on the month</h2><div class="boxline">My theme was</div><div data-zone="review_theme" class="lines l2"></div><div class="boxline">What the trackers showed me</div><div data-zone="review_trackers" class="lines l6"></div><div class="boxline">Which parts of this journal I actually used</div><div data-zone="review_used" class="lines l4"></div><div class="boxline">What to change in the next edition</div><div data-zone="review_change" class="lines l6"></div>`, '', 'month_review');
-add('', closingPage(), '', 'closing');
+add('', `<h2 class="pt">Looking back on the month</h2><div class="boxline">My theme was</div><div data-zone="review_theme" class="lines l2"></div><div class="boxline">What the trackers showed me</div><div data-zone="review_trackers" class="lines l6"></div><div class="boxline">Which parts of this journal I actually used</div><div data-zone="review_used" class="lines l4"></div><div class="boxline">What to change in the next edition</div><div data-zone="review_change" class="lines l6"></div>`, '', 'month_review', 'month_review', 'Looking back on the month', true);
+add('', closingPage(), '', 'closing', 'closing', `Closing ${VOL.label}`);
 // Reference section at the back: support, safety plan, bus times, and where each piece comes from.
 const REF = { theme: REF_THEME };
-REF.support = pages.length + 1; add('', supportPage(), '', 'support'); add('', transPage(), '', 'trans');
-REF.safety = pages.length + 1; add('', safetyPage(), '', 'safety');
-if (NET && BUS_COV !== 'none') { alignToVerso(); REF.bus = pages.length + 1; add('', netPage(0), '', 'bus'); add('', netPage(1), '', 'bus'); for (const g of packGrids(NET.months[VOL.id])) add('', gridPage(g), '', 'bus_grid'); }
-REF.lineage = pages.length + 1; add('', lineagePage(), '', 'lineage');
+REF.support = pages.length + 1; add('', supportPage(), '', 'support', 'support', 'Support', true); add('', transPage(), '', 'trans', 'trans_support', 'Trans support', true);
+REF.safety = pages.length + 1; add('', safetyPage(), '', 'safety', 'safety', 'My safety plan', true);
+if (NET && BUS_COV !== 'none') { alignToVerso(); REF.bus = pages.length + 1; add('', netPage(0), '', 'bus', 'bus.net.1', 'STA at a glance'); add('', netPage(1), '', 'bus', 'bus.net.2', 'STA at a glance, cont.'); packGrids(NET.months[VOL.id]).forEach((g, gi) => add('', gridPage(g), '', 'bus_grid', `bus.grid.${gi + 1}`, `Bus times · routes ${gridRoutes(g)}`)); }
+REF.lineage = pages.length + 1; add('', lineagePage(), '', 'lineage', 'lineage', 'Where each piece comes from');
 for (const p of pages) p.html = p.html.replace(/\{\{P_(\w+)\}\}/g, (_, k) => REF[k.toLowerCase()] ?? '?');
-while (pages.length % 2) add('notes', notesPage('Notes'), '', 'notes');
+while (pages.length % 2) addNotes();
 
 // ---------- HTML ----------
 // 5.5 x 8.5 in: a KDP.com size for both paperback and hardcover (A5 is only offered on KDP Japan)
@@ -536,7 +545,7 @@ const SYMBOL_NAMES = ['fire', 'water', 'air', 'earth', 'crescent_moon', 'full_mo
 const symbolRow = SYMBOLS.map((s, i) => `<span class="sym" data-zone="send_to_${SYMBOL_NAMES[i]}"><i></i><svg width="17" height="17" viewBox="0 0 14 14" fill="none" stroke="#000" stroke-width="1.1">${s}</svg></span>`).join('');
 // Hardcover (HARDCOVER=1): KDP needs at least 75 pages, so pad with notes pages to an even count >= 76.
 const HARDCOVER = process.env.HARDCOVER === '1';
-if (HARDCOVER) while (pages.length < 76 || pages.length % 2) add('notes', notesPage('Notes'), '', 'notes');
+if (HARDCOVER) while (pages.length < 76 || pages.length % 2) addNotes();
 // Page code: Data Matrix, payload "KW2|<edition>|<yymm>|<size><page>", e.g. KW2|1|2610|S026 (15 chars = 16x16 modules, the
 // same symbol size as the old KW1|2610|026, so modules stay 0.42in / 16 = 0.66 mm). Size: S 5.5x8.5, L 8.5x11, H 5.5x8.5
 // hardcover. Size and edition are in the code because zone positions differ by size and layout.json is per book variant.
@@ -701,7 +710,7 @@ table { border-collapse: collapse; }
 .blankpage { flex: 1; }
 ${DAYPAGE_CSS}
 </style></head><body>
-${pages.map((p, i) => { const n = i + 1; const side = n % 2 ? 'recto' : 'verso'; const marks = `<div class="frame"></div><div class="strip"><span class="pno">${n}</span><span class="send">SEND TO</span>${symbolRow}<span class="qr">${qrSvgs[i]}</span></div>`; return `<div class="page ${side} ${p.cls} m">${p.html}${marks}</div>`; }).join('\n')}
+${pages.map((p, i) => { const n = i + 1; const side = n % 2 ? 'recto' : 'verso'; const marks = `<div class="frame"></div><div class="strip"><span class="pno">${n}</span><span class="send">SEND TO</span>${symbolRow}<span class="qr">${qrSvgs[i]}</span></div>`; return `<div class="page ${side} ${p.cls} m" data-page-id="${p.id}">${p.html}${marks}</div>`; }).join('\n')}
 <script>
 document.querySelectorAll('.lines').forEach((el) => {
   const pitch = parseFloat(el.dataset.pitch || '0.26') * 96;
@@ -739,8 +748,14 @@ const layout = await page.evaluate(() => {
     return { page: i + 1, frame_inner_mm: { w: +(fw * px2mm).toFixed(1), h: +(fh * px2mm).toFixed(1) }, zones };
   });
 });
-const meta = pages.map((p, i) => ({ type: p.type, date: p.date || null, ...(p.from && !p.date ? { from: p.from, to: p.to } : {}), section: p.section, code: pageCode(i), code_format: 'data_matrix' }));
-fs.writeFileSync(`${OUT}/layout.json`, JSON.stringify({ book: VOL.id, edition: EDITION, size: SIZE_CODE, code_scheme: 'KW2|<edition>|<yymm>|<size><page>', trim_in: [TRIM_W, TRIM_H], border_pt: BORDER_PT, quiet_zone_in: QUIET, symbols: ['fire', 'water', 'air', 'earth', 'crescent_moon', 'full_moon', 'pentacle'], pages: layout.map((l, i) => ({ ...meta[i], ...l })) }, null, 1));
+const meta = pages.map((p, i) => ({ id: p.id, label: p.label, ...(p.shared ? { shared: true } : {}), type: p.type, date: p.date || null, ...(p.from && !p.date ? { from: p.from, to: p.to } : {}), section: p.section, code: pageCode(i), code_format: 'data_matrix' }));
+const layoutJson = { book: VOL.id, edition: EDITION, size: SIZE_CODE, code_scheme: 'KW2|<edition>|<yymm>|<size><page>', trim_in: [TRIM_W, TRIM_H], border_pt: BORDER_PT, quiet_zone_in: QUIET, symbols: ['fire', 'water', 'air', 'earth', 'crescent_moon', 'full_moon', 'pentacle'], pages: layout.map((l, i) => ({ ...meta[i], ...l })) };
+fs.writeFileSync(`${OUT}/layout.json`, JSON.stringify(layoutJson, null, 1));
+// manifest.json: code -> page id -> section -> zones, plus what identifies this build. Keep it with every proof or print run: a printed
+// page's code decodes through the manifest of the build it came from, even after the layout changes (see README "Page identity").
+const manifest = { book: VOL.id, size: SIZE_CODE, edition: EDITION, hardcover: HARDCOVER, built: D.generated, commit: process.env.GITHUB_SHA || null, page_count: pages.length, code_scheme: layoutJson.code_scheme,
+  pages: layoutJson.pages.map((p) => ({ code: p.code, page: p.page, id: p.id, label: p.label, section: p.section, type: p.type, date: p.date, ...(p.from ? { from: p.from, to: p.to } : {}), shared: !!p.shared, zones: p.zones })) };
+fs.writeFileSync(`${OUT}/manifest.json`, JSON.stringify(manifest, null, 1));
 await page.pdf({ width: `${TRIM_W}in`, height: `${TRIM_H}in`, path: `${OUT}/keeping-watch-${VOL.id}-interior-${HARDCOVER ? 'hardcover-' : ''}${SIZE_TAG}.pdf`, printBackground: true, preferCSSPageSize: true });
 await browser.close();
 fs.writeFileSync(`${OUT}/pages${HARDCOVER ? '-hardcover' : ''}.txt`, String(pages.length)); // separate counts, so each cover sizes its own spine
