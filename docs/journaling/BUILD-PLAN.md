@@ -203,6 +203,8 @@ run with the real calendar secrets; order one private KDP proof per size with th
 | F | Make it reusable by others: profile + content packs (section 9), starts after canvas C2 merges | 2–3 agents |
 | G | Versioning and collaboration for Journalwright Studio: projects, commits, branches, forks, proposals, merges, releases, reusable pages (section 10); vertical slice first | G1 core, then G2 (forks, proposals, merges), G3 (releases, components) |
 | H | Other book scopes: quarter, season, half-year, year, custom range, undated planner; auto-split into volumes past the paperback page limit (section 11); after the page grid and G1 land | 1–2 agents |
+| C4a | Editor navigation: the Book view is the default; zooming in goes book → spread → day; day view is the day-page editor (section 12) | 1 agent |
+| S1 | Spread days: a day can cover one page or a whole two-page spread (section 12); after H1 merges | 1 agent |
 
 Every unit follows the same proof as the fixes: reproduce, fix, rebuild all 12 months at both sizes with the checks
 (overflow, spreads, scan codes, fonts), look at the pages, editor and X4 previews, Firmware CI green, PR.
@@ -289,3 +291,21 @@ The user writes the dates. It works as a general journal, and it is the kind ADH
 - **Volumes:** the 110-page split applies unchanged (an undated book is just numbered pages).
 - **Privacy and profile:** no location or calendar is needed, so an undated book has the smallest private footprint and is the easiest one to share as a template.
 - **X4:** the X4 logs by the real date you open it, so it works alongside an undated book. It cannot point to a printed page from the date, so the "book p. N" pointer and page-based prompts are off for undated books; check-ins, Focus and the theme word still work.
+
+## 12. Editor navigation, spread days, site and accounts (decisions, 2026-09-29)
+
+**Editor navigation (C4a).** The Book view is what opens first. It is one continuous zoom, not tabs: whole book (all spreads) → spread (two facing pages, editable in place) → day (one page or one spread's day, in the block editor). Pinch, wheel, buttons and keys move between levels; tapping a page zooms to it; a breadcrumb (Book › Spread 12 › Day Oct 14) and Back always work; the URL hash records the level (`#book`, `#spread/12`, `#day/2026-10-14`) so links and undo behave. The current Day tab goes away as a top-level tab; the day-page editor is the day level. Phone friendly, 44px targets.
+
+**Spread days (S1).** A day may cover a single page (today) or a whole two-page spread. Set per day in `book.json` (`format: page | spread`), with per-weekday defaults (for example weekends as spreads) and per-month overrides.
+- A spread day is two consecutive pages that keep their own scan frames, page codes, ids and headers, so every page stays unique and scannable. The date, title and tags header is on the left page; the right page carries the same date with a "continued" label in its printed identity.
+- The blocks sit on a two-page grid (2 × 4 columns × 24 rows) with the fold between the pages; in the first version no block crosses the fold, which keeps text out of the gutter and rulings clean.
+- Verso/recto alignment stays automatic (a spread day always starts on a verso page); page counts, volumes and the 110-page limit include the extra pages; X4 is unaffected.
+- The editor's day level shows the page or the spread at true size.
+
+**Website.** The GitHub Pages site is the product website at the root; the editor demo lives at `/editor/` and docs under `/docs/`. Nothing else deploys to the root.
+
+**Accounts and guest mode (Phase G).** Accounts are for versioning and sharing; everything that only touches the user's own device works without one.
+| Without an account (guest) | With an account |
+|---|---|
+| Open the site, editor demo and sample book; use the block, day and book editors; autosave to this browser; export the project to a file and import it back; build and download print PDFs and the X4 pack from their own data (local build); read public projects and their history; fork to their own browser copy | Save projects to the server; commits, branches, history and restore; forks with attribution; change proposals and reviews; merges; releases; reusable-page updates; private projects and sharing with named people; server-side autosave across devices |
+Rules: guests never need an account to design or print; signing in never uploads anything unless the user saves or publishes; private data stays out of forkable publication source; a guest's local project can be imported into an account project in one step.
