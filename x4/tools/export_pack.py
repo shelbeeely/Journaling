@@ -32,7 +32,13 @@ CHECKIN_TYPES = {  # type: (kind, hi, default title, title max, default labels, 
     'fields': ('count', 99, 'Outside', 18, ['Minutes outside', 'Steps'], 6),  # hi = the block's "max" option
     'scale': ('scale', None, 'Energy', 18, None, 0),  # one item: 1..steps, or 0..steps-1 (zero), or -k..+k (signed)
     'words': ('choice', None, 'Feeling', 18, None, 0),  # only when the block's "x4" option is on: pick one word
+    # Tier 2 care blocks. Therapy pack (diary card): only when the block's "x4" option is on, so nobody's cap fills by surprise.
+    'feelings': ('scale', None, 'Feelings', 18, ['Sad', 'Shame', 'Anger', 'Fear', 'Joy'], 6),  # one 0..5 item per label
+    'skills': ('scale', None, 'Skills', 18, None, 0),  # one 0..7 item
+    'urge': ('scale', None, 'Urges', 18, ['Urge'], 3),  # per label: a 0..5 item and an "acted" tick
+    'sites': ('choice', None, 'Site', 14, ['L thigh', 'R thigh', 'L belly', 'R belly'], 8),  # injection site rotation: always exported; pick one site
 }
+X4_OPT_IN = ('words', 'feelings', 'skills', 'urge')  # exported only with the block's "x4" option
 CHOICE_MAX, CHOICE_LEN = 8, 12  # options per choice, characters per option (the firmware's limits)
 X4_MAXES = (5, 10, 20, 50, 99, 200, 999)  # journal/daypage.mjs X4_MAXES; anything else falls back to 99
 
@@ -73,7 +79,7 @@ def checkins(path):
     for b in L['blocks']:
         if not isinstance(b, dict) or b.get('type') not in CHECKIN_TYPES or not b.get('on', True): continue
         t = b['type']; kind, hi, dtitle, tmax, dlabels, lmax = CHECKIN_TYPES[t]
-        if t == 'words' and not opt_bool(b, 'x4'): continue  # words print only, unless "Also on X4" is on
+        if t in X4_OPT_IN and not opt_bool(b, 'x4'): continue  # these print only, unless "Also on X4" is on
         uid = b.get('uid') if isinstance(b.get('uid'), str) and re.fullmatch(r'[\w-]{1,40}', b.get('uid')) else t
         uid = re.sub(r'[^a-z0-9_]', '_', uid.lower()); base, n = uid, 2
         while uid in uids: uid, n = f'{base}_{n}', n + 1
@@ -86,9 +92,28 @@ def checkins(path):
             elif opt_bool(b, 'zero'): lo, h, d = 0, steps - 1, (steps - 1) // 2
             else: lo, h, d = 1, steps, (1 + steps) // 2
             rows = [(None, title, kind, lo, h, d, '')]  # one item, keyed c_<uid>
-        elif t == 'words':
+        elif t == 'feelings':
+            rows, slugs = [], set()
+            for x in opt_list(b, 'labels', dlabels, lmax):
+                label = clean(x)
+                if not label: continue
+                slug = slugify(label); base_s, n = slug, 2
+                while slug in slugs: slug, n = f'{base_s}_{n}', n + 1
+                slugs.add(slug); rows.append((slug, label, kind, 0, 5, 0, ''))  # mirrors the printed 0..5 (six bubbles)
+        elif t == 'skills':
+            rows = [(None, title, kind, 0, 7, 0, '')]  # eight bubbles, 0..7
+        elif t == 'urge':
+            rows, slugs = [], set()
+            for x in opt_list(b, 'labels', dlabels, lmax):
+                label = clean(x)
+                if not label: continue
+                slug = slugify(label); base_s, n = slug, 2
+                while slug in slugs: slug, n = f'{base_s}_{n}', n + 1
+                slugs.add(slug)
+                rows += [(slug, label, 'scale', 0, 5, 0, ''), (slug + '_acted', f'{label[:17]} acted'.strip(), 'toggle', 0, 1, 0, '')]
+        elif t in ('words', 'sites'):
             opts = []
-            for w in opt_list(b, 'words', [], 20):
+            for w in (opt_list(b, 'words', [], 20) if t == 'words' else opt_list(b, 'labels', dlabels, lmax)):
                 o = choice_opt(w)
                 if not o: continue
                 if o in opts: print(f'checkins: "{title}" lists "{o}" twice; the X4 keeps one'); continue
