@@ -20,6 +20,9 @@ Shelbee's year-long journaling system. Read README.md, then HANDOFF.md (status +
 - `journal/editor/`: `template.html` + `build.mjs` produce `dist/site/` (GitHub Pages: saves in the browser, commits
   via a fine-grained token) and `dist/artifact.html` (Claude Artifact: saves to the artifact store `layouts/day`).
   `test.mjs` is the smoke test CI runs.
+- `studio/`: Journalwright Studio (Phase G): Node + SQLite + HTTP API for projects, commits, branches, drafts, import/export of
+  `content/book.json` and `daypage.json`. `npm start`, `npm test`; the editor's Versions view talks to it. Never put private pages,
+  calendars, profile secrets or packs into a snapshot (`studio/src/snapshot.mjs` refuses them). See `studio/README.md`.
 - `x4/`: ESP32-C3 firmware on the FreeInk SDK (pinned in `.github/workflows/firmware.yml`). See `x4/CLAUDE.md`.
 
 ## Rules that matter

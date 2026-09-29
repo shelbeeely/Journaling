@@ -32,6 +32,12 @@
 - **CI:** Books (encrypted when personal), Firmware (image + previews + tag releases), Editor (tests + Pages),
   STA schedules (monthly PR).
 
+- **Studio (Phase G1, `studio/`)**: Node + built-in SQLite + a small HTTP API. Local accounts, projects (private/public, `allowReuse`), roles,
+  immutable content-hashed commits, snapshots as content-addressed objects, branches, per-user autosaved drafts, restore-as-new-commit,
+  structured diff by page id and block uid, import from / export to `content/book.json` + `daypage.json` (byte-identical books), a scanner
+  that keeps private data out of a snapshot, and the editor's **Versions** view. `cd studio && npm start`, `npm test`; see `studio/README.md`.
+  Left for G2/G3: forks, proposals, three-way merge, releases, component adoption, an editor for the book structure, an image picker.
+
 ## Next, in order
 1. **First CI run.** Push, add the secrets (SETUP.md) and get all four workflows green. Likely snags:
    - Playwright system deps
