@@ -174,7 +174,7 @@ dialog .btn { min-height: 44px; }
 @media (max-width: 960px) {
   .tabs { display: flex; }
   main { grid-template-columns: minmax(0, 1fr); padding-top: 12px; }
-  main:not([data-tab="edit"]) .edit, main:not([data-tab="add"]) .pal, main:not([data-tab="preview"]) .prev { display: none; }
+  main:not([data-tab="edit"]) .edit, main:not([data-tab="add"]) .pal { display: none; } /* the page is always shown; Blocks and + Add are the two panels of the bottom sheet (E1) */
   .pal, .prev { position: static; max-height: none; }
   .bar h1 { flex-basis: 100%; }
   .status { flex: 1; }
@@ -289,6 +289,40 @@ html[data-view="day"] main, html[data-view="page"] #pageview { animation: kw-in 
   .status { order: 6; flex: 1 1 100%; font-size: 11.5px; }
   .btn { min-height: 44px; min-width: 44px; }
 }
+
+/* ---------- view versus edit (E1): the day is viewed first; the editor UI exists only while editing ---------- */
+[hidden] { display: none !important; }
+.panels { display: contents; }
+html:not([data-mode="edit"]) .editonly { display: none !important; }
+.editing { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; border-radius: 999px; border: 1.5px solid var(--accent); color: var(--accent); font-size: 13px; font-weight: 600; }
+.editing svg { width: 16px; height: 16px; }
+.bar .btn { min-height: 44px; }
+.btn.keep svg { width: 16px; height: 16px; vertical-align: -3px; }
+html[data-mode="edit"] .top { border-bottom: 3px solid var(--accent); }
+/* Viewing: one column, the page centered, larger, no editing furniture */
+html[data-mode="view"] main { grid-template-columns: minmax(0, 1fr); }
+html[data-mode="view"] .prev { justify-self: center; width: 100%; }
+html[data-mode="view"] .paper { margin: 0 auto; }
+html[data-mode="view"] #pv [data-b] { cursor: default; outline: none; }
+html[data-mode="view"] #pv [data-b]:hover { outline: none; }
+#viewnote { max-width: 46ch; margin: 10px auto 0; }
+.tabs .sheet-t { display: none; }
+/* Editing on a phone or narrow window: the page stays in view; Blocks and + Add are a bottom sheet that can be folded away */
+@media (max-width: 960px) {
+  html[data-mode="edit"] { --sh: 46vh; --sh: 46dvh; }
+  html[data-mode="edit"][data-sheet="min"] { --sh: 68px; }
+  html[data-mode="edit"] main { padding-bottom: calc(var(--sh) + 16px); }
+  .panels:not([hidden]) { display: flex; flex-direction: column; position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; height: var(--sh); background: var(--panel); border-top: 1px solid var(--line); border-radius: 16px 16px 0 0; box-shadow: 0 -6px 24px rgba(0,0,0,.18); }
+  .panels .tabs { display: flex; flex: none; max-width: none; width: 100%; margin: 0; padding: 8px 12px; }
+  .panels .tabs .sheet-t { display: inline-flex; flex: none; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; border: 1px solid var(--line); background: var(--bg); border-radius: 10px; cursor: pointer; }
+  .panels .tabs .sheet-t svg { width: 20px; height: 20px; transition: transform .2s; }
+  html[data-sheet="min"] .panels .sheet-t svg { transform: rotate(180deg); }
+  .panels > .edit, .panels > .pal { flex: 1 1 auto; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 4px 16px 20px; max-height: none; position: static; }
+  html[data-sheet="min"] .panels > .edit, html[data-sheet="min"] .panels > .pal { display: none; }
+  html[data-mode="edit"] .toast { bottom: calc(var(--sh) + 14px); }
+  .btn.keep .lab { display: inline; }
+  #edit, #done, #edit-pill { order: 2; }
+}
 /*__VSCSS__*/
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
@@ -301,16 +335,19 @@ html[data-view="day"] main, html[data-view="page"] #pageview { animation: kw-in 
     <span class="seg" id="laygrp" role="group" aria-label="Page layout"><button id="lay-f" aria-pressed="true" title="Blocks stack in order; the writing space takes what is left">Flow</button><button id="lay-g" aria-pressed="false" title="Place blocks on a grid of 4 columns and tight-line rows; blocks can span several">Grid</button></span>
     <span class="seg" role="group" aria-label="Preview size"><button id="sz-s" aria-pressed="true">5.5×8.5</button><button id="sz-l" aria-pressed="false">8.5×11</button></span>
     <button class="btn" id="v-ver" type="button" aria-haspopup="dialog" aria-label="Versions"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10a6.5 6.5 0 1 0 2-4.7M3.5 3.8v3.4h3.4M10 6.5V10l2.4 1.6"/></svg><span class="lab"> Versions</span></button>
+    <span class="editing" id="edit-pill" hidden><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 3.5l3 3L7 16l-4 1 1-4Z"/></svg>Editing</span>
+    <button class="btn primary keep" id="edit" type="button" hidden aria-keyshortcuts="E" title="Edit this page (E)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 3.5l3 3L7 16l-4 1 1-4Z"/></svg><span class="lab"> Edit</span></button>
+    <button class="btn primary keep" id="done" type="button" hidden aria-keyshortcuts="Escape" title="Done editing (Escape)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5l4 4 8-9"/></svg><span class="lab"> Done</span></button>
     <button class="btn" id="undo" disabled aria-label="Undo">↶<span class="lab"> Undo</span></button>
     <div class="menu" id="menu"><button class="btn" aria-haspopup="true" aria-expanded="false" id="menubtn">More</button>
       <div role="menu">
-        <button role="menuitem" id="m-method">Start from a method…</button>
+        <button role="menuitem" class="editonly" id="m-method">Start from a method…</button>
         <button role="menuitem" id="m-gh" hidden>Save to GitHub…</button>
-        <button role="menuitem" id="m-ghload" hidden>Load from GitHub</button>
+        <button role="menuitem" class="editonly" id="m-ghload" hidden>Load from GitHub</button>
         <button role="menuitem" id="m-dl">Download daypage.json</button>
         <button role="menuitem" id="m-copy">Copy layout JSON</button>
-        <button role="menuitem" id="m-import">Import a layout…</button>
-        <button role="menuitem" id="m-reset">Reset to the original page</button>
+        <button role="menuitem" class="editonly" id="m-import">Import a layout…</button>
+        <button role="menuitem" class="editonly" id="m-reset">Reset to the original page</button>
       </div></div>
   </div>
   <!-- NAVIGATION (C4a): Back, breadcrumb, level buttons, and the mount point for Versions. Filled by the navigation section in the script. -->
@@ -323,14 +360,16 @@ html[data-view="day"] main, html[data-view="page"] #pageview { animation: kw-in 
       <button class="nv-b" type="button" data-nav-level="day" aria-pressed="false" aria-label="One page: the day page editor" title="Day: edit the page (2)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2.5" width="10" height="15" rx="1.2"/><path d="M7.5 7h5M7.5 10h5"/></svg><span class="lab">Day</span></button>
     </div>
   </div>
-  <div class="tabs" role="tablist">
-    <button role="tab" aria-selected="true" data-tab="edit">Blocks</button>
-    <button role="tab" aria-selected="false" data-tab="add">+ Add</button>
-    <button role="tab" aria-selected="false" data-tab="preview">Preview</button>
-  </div>
 </header>
 
 <main id="main" data-tab="edit">
+  <!-- EDIT PANELS (E1): drawn and shown only while editing. On a phone they are a bottom sheet under the page. -->
+  <div class="panels" id="panels" hidden>
+  <div class="tabs" role="tablist" aria-label="Editing panels">
+    <button role="tab" aria-selected="true" data-tab="edit">Blocks</button>
+    <button role="tab" aria-selected="false" data-tab="add">+ Add</button>
+    <button class="sheet-t" id="sheet-t" type="button" aria-expanded="true" aria-controls="panels" aria-label="Collapse the panel"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button>
+  </div>
   <aside class="pal" aria-label="Add blocks">
     <h2 class="sec">Add blocks</h2>
     <p class="note">Drag onto your list or the page, or tap +.</p>
@@ -344,12 +383,14 @@ html[data-view="day"] main, html[data-view="page"] #pageview { animation: kw-in 
     <ul class="list" id="list"></ul>
     <div class="fixed"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>Scan frame, Send-to symbols and page code stay put</div>
   </section>
+  </div>
   <section class="prev" aria-label="Page preview">
     <p class="meter" id="meter"></p>
     <ul class="probs" id="problems" aria-live="polite" hidden></ul>
     <div class="paper" id="paper"><div id="pv"></div><div id="ov" hidden></div></div>
     <p class="gtools" id="gtools" hidden><button class="btn" id="actual" aria-pressed="false">Actual size</button><span id="gnote"></span></p>
-    <p class="dragtip" id="dragtip">A busy sample day. Tap a block to find it; hold and drag to move it.</p>
+    <p class="dragtip" id="viewnote">Viewing. Every day page uses this one layout; this is a busy sample day. Press Edit (or E) to change it.</p>
+    <p class="dragtip" id="dragtip" hidden>A busy sample day. Tap a block to find it; hold and drag to move it.</p>
   </section>
 </main>
 
@@ -472,7 +513,9 @@ function paletteItems() {
   PRESETS.forEach((p, i) => items.push({ key: 'p:' + i, type: p.type, name: p.name, group: p.group, icon: TYPES[p.type].icon, preset: p }));
   return items;
 }
+const editing = () => NAV.view === 'day' && NAV.edit; // the editor UI is drawn only while editing (E1)
 function drawPalette() {
+  if (!editing()) { $('#pal').innerHTML = ''; return; }
   const used = new Set(layout.blocks.map((b) => b.type)), items = paletteItems();
   $('#pal').innerHTML = PAL_GROUPS.map((g) => `<h3>${g}</h3>${PAL_NOTES[g] ? `<p class="fine">${PAL_NOTES[g]}</p>` : ''}<ul class="pg">${items.filter((it) => it.group === g).map((it) => {
     const u = TYPES[it.type].single && used.has(it.type);
@@ -542,6 +585,7 @@ function placePanel(b) {
     <p class="minn ${tight ? 'bad' : ''}">Smallest for its content: ${m.cols} columns × ${m.rows} rows. The page has ${GRIDS.day.cols} columns × ${gridRows(size)} rows.</p></div>`;
 }
 function drawList() {
+  if (!editing()) { const u = Sortable.get($('#list')); if (u) u.destroy(); $('#list').innerHTML = ''; return; }
   const ul = $('#list'), probs = layout.grid ? gridProblems(layout, size) : [];
   ul.innerHTML = layout.blocks.map((b) => {
     const t = TYPES[b.type], open = openIds.has(b.uid);
@@ -604,7 +648,7 @@ function drawPreview() {
   pv.innerHTML = `<style>${KIT.css}#pv .page { width: ${SIZES[size]}in; }</style><div class="page verso dayp m">${day}${KIT.strip}</div>`;
   drawRules(pv);
   fit(); meter(); hl(selected); drawOverlay();
-  if (layout.grid) return; // the grid has no drag-to-reorder: blocks are placed on the overlay
+  if (layout.grid || !editing()) return; // viewing is read-only; the grid has no drag-to-reorder: blocks are placed on the overlay
   const dayEl = pv.querySelector('.day.full');
   Sortable.create(dayEl, { group: { name: 'blocks', pull: false, put: true }, draggable: '[data-b]', animation: 150, ghostClass: 'ghost', delay: 180, delayOnTouchOnly: true, fallbackTolerance: 4,
     onAdd: (e) => { const key = e.item.dataset.key; let n = e.item.nextElementSibling; while (n && !n.dataset.b) n = n.nextElementSibling; e.item.remove(); const b = blockFromKey(key); if (b) insertBlock(b, n ? n.dataset.b : afterLastVisible()); else drawPreview(); },
@@ -622,12 +666,17 @@ function movedOnPage(shown) {
 }
 function fit() {
   const W = SIZES[size] * 96, H = 8.5 * 96, narrow = matchMedia('(max-width: 960px)').matches;
-  const avail = narrow ? Math.min(paper.parentElement.clientWidth || 360, 600) : Math.min(layout.grid ? 640 : 430, (window.innerHeight - (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hh')) || 84) - 66) / H * W);
+  const hh = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hh')) || 84, byW = Math.min(paper.parentElement.clientWidth || 360, 600);
+  let avail;
+  if (narrow && editing()) { const sheet = $('#panels').offsetHeight || 0; avail = Math.min(byW, Math.max((window.innerHeight - hh - sheet - 24) / H * W, byW * 0.62)); } // page stays in view above the sheet
+  else if (narrow) avail = byW;
+  else avail = Math.min(editing() ? (layout.grid ? 640 : 430) : 660, (window.innerHeight - hh - (editing() ? 66 : 96)) / H * W);
   // Actual size (grid only, wide screens): 1 CSS inch = 96 px, so the paper is as big as the printed page (the 8.5x11 page is the layout zoomed 1.294x)
-  const s = layout.grid && actualSize && !narrow ? (size === 'letter' ? 11 / 8.5 : 1) : Math.max(0.4, avail / W);
+  const s = (layout.grid || !editing()) && actualSize && !narrow ? (size === 'letter' ? 11 / 8.5 : 1) : Math.max(0.4, avail / W);
   pv.style.transform = `scale(${s})`; paper.style.width = W * s + 'px'; paper.style.height = H * s + 'px';
 }
 function meter() {
+  if (!editing()) { $('#meter').innerHTML = ''; return; }
   const page = pv.querySelector('.page'), body = pv.querySelector('[data-zone="body"]');
   const day = pv.querySelector('.day.full'), h = body ? body.offsetHeight / 96 : 0, over = page.scrollHeight > page.clientHeight + 1 || day.scrollHeight > day.clientHeight + 1;
   const x4n = layout.blocks.reduce((t, b) => t + x4Items(b), 0), cap = x4n > 16 ? `<span class="warn">X4 holds 16 custom items; you have ${x4n}. The last ${x4n - 16} stay on paper.</span>` : '';
@@ -645,8 +694,9 @@ function select(uid, scroll = true) {
   if (scroll) { const li = $(`#list > li[data-uid="${uid}"]`); if (li) li.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
 }
 pv.addEventListener('click', (e) => {
+  if (!editing()) return;
   const el = e.target.closest('[data-b]'); if (!el) return;
-  if (matchMedia('(max-width: 960px)').matches) { tab('edit'); openIds.add(el.dataset.b); drawList(); }
+  if (matchMedia('(max-width: 960px)').matches) { sheetSet(false); tab('edit'); openIds.add(el.dataset.b); drawList(); }
   select(el.dataset.b);
 });
 addEventListener('resize', () => { if (NAV.view === 'day') { fit(); drawOverlay(); } });
@@ -691,11 +741,11 @@ function gridProblemList() { // rule problems, plus blocks whose sample content 
 const WARN = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M8 2 1.5 13.5h13Z"/><path d="M8 6.5v3M8 11.6v.1"/></svg>';
 const LOCK = '<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>';
 function drawProblems() {
-  const ul = $('#problems'), list = layout.grid ? gridProblemList() : [];
+  const ul = $('#problems'), list = layout.grid && editing() ? gridProblemList() : [];
   ul.hidden = !list.length;
   ul.innerHTML = list.map((p) => `<li data-uid="${p.uid}" data-code="${p.code}" role="button" tabindex="0">${WARN}<span>${escH(p.msg)}</span></li>`).join('');
   document.querySelectorAll('#list > li').forEach((li) => li.classList.toggle('prob', list.some((p) => p.uid === li.dataset.uid)));
-  $('#gnote').textContent = layout.grid ? `${GRIDS.day.cols} columns × ${gridRows(size)} rows · a row is one tight line (5.6 mm)` : '';
+  $('#gnote').textContent = layout.grid && editing() ? `${GRIDS.day.cols} columns × ${gridRows(size)} rows · a row is one tight line (5.6 mm)` : '';
 }
 $('#problems').addEventListener('click', (e) => { const li = e.target.closest('li'); if (li) { select(li.dataset.uid); const g = ov.querySelector(`.gb[data-uid="${li.dataset.uid}"]`); if (g) g.focus({ preventScroll: true }); } });
 $('#problems').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.target.click(); } });
@@ -704,10 +754,10 @@ function boxStyle(g, p) {
   g.style.width = p.colSpan * M.cw + (p.colSpan - 1) * M.gap + 'px'; g.style.height = p.rowSpan * M.rh + 'px';
 }
 function drawOverlay() {
-  const on = !!layout.grid;
+  const ed = editing(), g = !!layout.grid, on = g && ed;
   $('#main').classList.toggle('gridmode', on);
-  $('#lay-f').setAttribute('aria-pressed', !on); $('#lay-g').setAttribute('aria-pressed', on);
-  $('#gtools').hidden = !on; ov.hidden = !on;
+  $('#lay-f').setAttribute('aria-pressed', !g); $('#lay-g').setAttribute('aria-pressed', g);
+  $('#gtools').hidden = ed ? !g : false; $('#gnote').hidden = !ed; ov.hidden = !on; // viewing keeps only the Actual size button
   $('#dragtip').textContent = on ? 'Drag a block to move it, or its corner handle to resize. It snaps to the grid. Arrow keys move the block you focus; Shift + arrows resize.' : 'A busy sample day. Tap a block to find it; hold and drag to move it.';
   overs = [];
   const gg = pv.querySelector('.gg');
@@ -767,7 +817,7 @@ ov.addEventListener('pointercancel', (e) => endDrag(e, true));
 ov.addEventListener('touchmove', (e) => { if (dragSt && dragSt.active) e.preventDefault(); }, { passive: false });
 ov.addEventListener('keydown', (e) => {
   const g = e.target.closest('.gb'); if (!g) return;
-  if (e.key === 'Escape') { g.blur(); return; }
+  if (e.key === 'Escape') { e.preventDefault(); g.blur(); return; } // the first Escape leaves the box; the next one leaves editing
   const k = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key]; if (!k) return;
   e.preventDefault();
   const b = find(g.dataset.uid); if (!b) return;
@@ -782,10 +832,10 @@ $('#lay-g').onclick = () => {
 };
 $('#lay-f').onclick = () => { if (!layout.grid) return; change((L) => { delete L.grid; }); toast('Flow: blocks stack in order again. Undo brings the grid back.'); };
 $('#actual').onclick = () => { actualSize = !actualSize; $('#actual').setAttribute('aria-pressed', actualSize); fit(); drawOverlay(); };
-document.addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'z' && !e.target.matches('input,textarea')) { e.preventDefault(); $('#undo').click(); } });
+document.addEventListener('keydown', (e) => { if (editing() && (e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'z' && !e.target.matches('input,textarea')) { e.preventDefault(); $('#undo').click(); } });
 
 // ---------- tabs & menu ----------
-function tab(t) { $('#main').dataset.tab = t; document.querySelectorAll('.tabs button').forEach((b) => b.setAttribute('aria-selected', b.dataset.tab === t)); if (t === 'preview') { fit(); meter(); drawOverlay(); } }
+function tab(t) { if (t === 'preview') t = 'edit'; $('#main').dataset.tab = t; document.querySelectorAll('.tabs button').forEach((b) => b.setAttribute('aria-selected', b.dataset.tab === t)); fit(); drawOverlay(); }
 document.querySelectorAll('.tabs button').forEach((b) => (b.onclick = () => tab(b.dataset.tab)));
 const menu = $('#menu');
 $('#menubtn').onclick = (e) => { e.stopPropagation(); menu.classList.toggle('open'); $('#menubtn').setAttribute('aria-expanded', menu.classList.contains('open')); };
@@ -1111,6 +1161,7 @@ bkView.addEventListener('keydown', (e) => {
   else if (k === 'Home') bkSelect(1, { center: true }); else if (k === 'End') bkSelect(BK.pages.length, { center: true });
   else if (k === 'Enter') navIn(); // one level in: book to spread, spread to the day
   else if (k === 'Escape' || k === 'Backspace') { if (NAV.level === 'book') { bkSelect(0); bkMsg(''); } else navOut(); }
+  else if (k === 'e' || k === 'E') navGo({ level: 'day', n: bkFocusPage(), edit: true }); // Edit the focused page (a page that is not a day page opens for viewing)
   else if (k === 'g' || k === '/') { $('#bk-go').focus(); }
   else used = false;
   if (used) e.preventDefault();
@@ -1152,40 +1203,65 @@ function bkSize() { // 5.5x8.5 <-> 8.5x11: same pages, the page width changes
 // Levels: "book" (all spreads), "spread" (two facing pages, thumbnails at reading size), "day" (one page: the day-page editor for a
 // day page; a read-only page view for every other page until C5). The canvas camera is the book and spread levels; zooming in past
 // one whole page, tapping a page, Enter or the level buttons cross into the day. The URL hash mirrors the level:
-//   #book   #spread/12 (1-based)   #day/2026-10-14   #page/safety (a page that is not a day page)
+//   #book   #spread/12 (1-based)   #day/2026-10-14 (viewing)   #day/2026-10-14/edit (editing)   #page/safety (a page that is not a day page)
 // and back/forward and reload restore it. Everything else in the script asks for a level through navGo(); nothing else touches the hash.
-const NAV = { level: 'book', view: 'book', s: 0, n: 0, id: '', date: '', tok: 0, lockUntil: 0, tap: null, busy() { return performance.now() < this.lockUntil; } };
+const NAV = { level: 'book', view: 'book', s: 0, n: 0, id: '', date: '', edit: false, tok: 0, lockUntil: 0, tap: null, busy() { return performance.now() < this.lockUntil; } };
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const dateOf = (id) => { const m = /^day\.(\d{4}-\d{2}-\d{2})$/.exec(id || ''); return m ? m[1] : ''; };
 const dayLabel = (d) => new Date(d + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
 const pageName = (p) => p.label || (BK.data.types.find((t) => t.key === p.type) || {}).name || p.id;
-const navHash = () => (NAV.level === 'book' ? '#book' : NAV.level === 'spread' ? `#spread/${NAV.s + 1}` : NAV.date ? `#day/${NAV.date}` : NAV.id ? `#page/${encodeURIComponent(NAV.id)}` : '#book');
+const navHash = () => (NAV.level === 'book' ? '#book' : NAV.level === 'spread' ? `#spread/${NAV.s + 1}` : NAV.date ? `#day/${NAV.date}${NAV.edit ? '/edit' : ''}` : NAV.id ? `#page/${encodeURIComponent(NAV.id)}` : '#book');
 function navParse(h) { // a hash -> a target for navGo (unknown hashes open the book)
-  const [k, v = ''] = decodeURIComponent(h.replace(/^#/, '')).split('/');
+  const [k, v = '', m = ''] = decodeURIComponent(h.replace(/^#/, '')).split('/');
   if (k === 'spread' && +v >= 1) return { level: 'spread', s: +v - 1 };
-  if (k === 'day' && DATE_RE.test(v)) return { level: 'day', date: v };
+  if (k === 'day' && DATE_RE.test(v)) return { level: 'day', date: v, edit: m === 'edit' };
   if (k === 'page' && v) return /^\d+$/.test(v) ? { level: 'day', n: +v } : { level: 'day', id: v };
   return { level: 'book' };
 }
 const HIST = window.history; // the editor's undo stack is also called "history", so the browser's is always reached as HIST
 const navDepth = () => { try { return (HIST.state && HIST.state.kw) || 0; } catch { return 0; } };
-function navWrite(push) { // mirror the level into the URL. History can be missing (sandboxed frame): the level still works.
+function navWrite(push, ed) { // mirror the level into the URL. History can be missing (sandboxed frame): the level still works. ed marks the entry Edit pushed, so Done can step back over it.
   const h = navHash(); if (location.hash === h) return;
-  try { const k = navDepth(); HIST[push ? 'pushState' : 'replaceState']({ kw: push ? k + 1 : k }, '', h); } catch {}
+  try { const k = navDepth(); HIST[push ? 'pushState' : 'replaceState']({ kw: push ? k + 1 : k, ...(ed ? { ed: 1 } : {}) }, '', h); } catch {}
 }
 const navPage = (t) => !BK.loaded ? null : t.n ? BK.pages[t.n - 1] || null : t.id ? BK.pages.find((p) => p.id === t.id) || null : t.date ? BK.pages.find((p) => p.id === 'day.' + t.date) || null : null;
 const navCanvas = () => NAV.view === 'book';
 const navCurrentPage = () => (navCanvas() ? (BK.ready ? bkFocusPage() : 1) : NAV.n || 1);
 
+// Viewing and editing (E1). The day opens for viewing: the page, clean and read-only. Edit draws the palette, options, layout switch and undo;
+// Done takes them away again. Nothing editable is in the page while viewing (the panels are not drawn, so they are not in the accessibility tree either).
+function applyMode() {
+  const day = NAV.view === 'day', ed = day && NAV.edit;
+  document.documentElement.dataset.mode = ed ? 'edit' : 'view';
+  $('#edit').hidden = !day || ed; $('#done').hidden = !ed; $('#edit-pill').hidden = !ed;
+  $('#undo').hidden = !ed; $('#laygrp').hidden = !ed; $('#panels').hidden = !ed;
+  $('#meter').hidden = !ed; $('#dragtip').hidden = !ed; $('#viewnote').hidden = ed;
+  if (!ed) { $('#problems').hidden = true; $('#ov').hidden = true; }
+  hhSync();
+}
+function sheetSet(min) { document.documentElement.dataset.sheet = min ? 'min' : 'half'; const b = $('#sheet-t'); b.setAttribute('aria-expanded', !min); b.setAttribute('aria-label', min ? 'Expand the panel' : 'Collapse the panel'); if (editing()) { fit(); drawOverlay(); } }
+$('#sheet-t').onclick = () => sheetSet(document.documentElement.dataset.sheet !== 'min');
+function editOn(push = true) { // Edit: only for a day page (other pages stay view-only until C5)
+  if (NAV.view !== 'day') { if (NAV.view === 'page') toast('This page is view-only for now.'); return; }
+  if (NAV.edit) return;
+  NAV.edit = true; navWrite(push, true); showDay(); navRefresh();
+}
+function editOff() { // Done: your changes are already saved as the draft; back to viewing. Steps back over the entry Edit pushed, else replaces the URL.
+  if (!editing()) return;
+  let st = null; try { st = HIST.state; } catch {}
+  if (st && st.ed) { try { return HIST.back(); } catch {} }
+  NAV.edit = false; navWrite(false); showDay(); navRefresh();
+}
+$('#edit').onclick = () => editOn(); $('#done').onclick = editOff;
 function showCanvas() {
-  NAV.view = 'book'; document.documentElement.dataset.view = 'book';
+  NAV.view = 'book'; document.documentElement.dataset.view = 'book'; applyMode();
   hhSync();
   if (BK.loaded && !BK.ready) { BK.cols = bkPickCols(); bkBuild(); BK.ready = true; bkMsg(''); bkInfo(); bkLevel('book', false); }
   else if (BK.ready) bkResize();
 }
 function showDay() {
-  NAV.view = 'day'; document.documentElement.dataset.view = 'day'; hhSync();
-  drawPreview(); // the editor was hidden (no size to measure): draw it again now it is shown
+  NAV.view = 'day'; document.documentElement.dataset.view = 'day'; applyMode();
+  drawPalette(); drawList(); drawPreview(); // the editor was hidden (no size to measure): draw it again now it is shown
   $('#day-note').textContent = NAV.date ? `Every day page uses this one layout. ${dayLabel(NAV.date)} is open here; the preview is a busy sample day.` : 'Every day page uses this one layout. The preview is a busy sample day.';
 }
 function pgvFit() {
@@ -1194,7 +1270,7 @@ function pgvFit() {
   const pap = $('#pgv-paper'); pap.style.width = W * s + 'px'; pap.style.height = Hh * s + 'px';
 }
 function showPage(p) {
-  NAV.view = 'page'; document.documentElement.dataset.view = 'page'; hhSync();
+  NAV.view = 'page'; document.documentElement.dataset.view = 'page'; applyMode();
   $('#pgv-title').textContent = pageName(p); $('#pgv-meta').textContent = `Page ${p.n} · ${p.id} · ${p.n % 2 ? 'right-hand' : 'left-hand'}${p.protected ? ' · protected: can move, never hidden' : ''}`;
   $('#pgv').style.setProperty('--pw', SIZES[size] + 'in'); paintPage($('#pgv'), p, p.n); pgvFit(); window.scrollTo(0, 0);
 }
@@ -1207,7 +1283,7 @@ async function navGo(t, { push = true, anim = true } = {}) {
     if (tok !== NAV.tok) return;
     const s = t.s != null ? t.s : t.n ? bkSpreadOf(t.n) : NAV.s, n = t.n || 0;
     if (t.level === 'spread' && (s < 0 || s >= bkSpreadCount())) { toast(`This book has spreads 1 to ${bkSpreadCount()}.`); t = { level: 'book' }; }
-    Object.assign(NAV, { level: t.level, s: t.level === 'book' ? NAV.s : s, n: 0, id: '', date: '' }); navWrite(push);
+    Object.assign(NAV, { level: t.level, s: t.level === 'book' ? NAV.s : s, n: 0, id: '', date: '', edit: false }); navWrite(push);
     showCanvas(); if (!BK.ready) return navRefresh();
     if (!wasCanvas && n) { bkSelect(n); const p = bkSlotPos(n); bkRect(p.x, p.y, BK.geo.pw, BK.geo.ph + 60, false); void bkWorld.offsetWidth; } // back from the day: start on the page, zoom out from it
     else if (n) bkSelect(n);
@@ -1221,7 +1297,7 @@ async function navGo(t, { push = true, anim = true } = {}) {
   if (p && p.type === 'dayp') date = dateOf(p.id) || date;
   if (!p && !date) { toast('That page isn’t in the sample book.'); return navGo({ level: 'book' }, { push: false }); }
   const isDay = !!date && (!p || p.type === 'dayp');
-  Object.assign(NAV, { level: 'day', s: p ? bkSpreadOf(p.n) : NAV.s, n: p ? p.n : 0, id: isDay ? '' : p.id, date: isDay ? date : '' }); navWrite(push);
+  Object.assign(NAV, { level: 'day', s: p ? bkSpreadOf(p.n) : NAV.s, n: p ? p.n : 0, id: isDay ? '' : p.id, date: isDay ? date : '', edit: isDay && !!t.edit }); navWrite(push, isDay && !!t.edit && push);
   if (wasCanvas && BK.ready && p && anim && !reduceMotion()) { // zoom onto the page first, then open it
     bkSelect(p.n); bkLevel('page', true); NAV.lockUntil = performance.now() + 900;
     await new Promise((r) => (navGo.t = setTimeout(r, 230))); if (tok !== NAV.tok) return;
@@ -1230,7 +1306,7 @@ async function navGo(t, { push = true, anim = true } = {}) {
   if (p && BK.ready) bkSelect(p.n);
   navRefresh();
 }
-const navIn = () => navGo(NAV.level === 'book' ? { level: 'spread', n: navCurrentPage() } : { level: 'day', n: navCurrentPage() });
+const navIn = () => (NAV.level === 'day' ? editOn() : navGo(NAV.level === 'book' ? { level: 'spread', n: navCurrentPage() } : { level: 'day', n: navCurrentPage() }));
 const navOut = () => {
   if (NAV.level === 'day') return navGo({ level: 'spread', n: NAV.n || undefined, s: NAV.s });
   if (NAV.level === 'spread') return navGo({ level: 'book' });
@@ -1266,9 +1342,13 @@ function navRefresh() {
   $('#nv-back').disabled = NAV.level === 'book' && navDepth() === 0;
   hhSync();
   // Screen readers: say the level whenever it changes; after a move into the day or a page, focus lands on the current crumb.
-  const said = crumbs.map((c) => c.t).join(', ') + (NAV.level === 'book' ? '. Whole book.' : NAV.level === 'spread' ? '. Spread level.' : NAV.view === 'page' ? '. Page view, read only.' : '. Day page editor.');
+  const said = crumbs.map((c) => c.t).join(', ') + (NAV.level === 'book' ? '. Whole book.' : NAV.level === 'spread' ? '. Spread level.' : NAV.view === 'page' ? '. Page view, read only.' : NAV.edit ? '. Day page editor, editing. Done or Escape to finish.' : '. Day page, viewing. Edit or E to change it.');
   if (navRefresh.said !== said) { navRefresh.said = said; $('#nav-live').textContent = 'Now at: ' + said; }
-  if (NAV.view !== 'book' && navRefresh.focusFor !== NAV.view + NAV.n + NAV.date) { navRefresh.focusFor = NAV.view + NAV.n + NAV.date; const cur = $('#crumb-list [aria-current]'); if (cur && document.activeElement && document.activeElement !== document.body && !document.activeElement.closest('input,textarea,select')) { cur.tabIndex = -1; cur.focus({ preventScroll: true }); } else if (cur) { cur.tabIndex = -1; cur.focus({ preventScroll: true }); } }
+  if (NAV.view !== 'book') {
+    const fk = NAV.view + NAV.n + NAV.date, mk = fk + (NAV.edit ? 'E' : 'V');
+    if (navRefresh.focusFor !== fk) { navRefresh.focusFor = fk; navRefresh.modeFor = mk; const cur = $('#crumb-list [aria-current]'); if (cur) { cur.tabIndex = -1; cur.focus({ preventScroll: true }); } }
+    else if (navRefresh.modeFor !== mk) { navRefresh.modeFor = mk; const to = NAV.edit ? $('#laygrp [aria-pressed="true"]') : $('#edit'); if (to) to.focus(); } // Edit: first editing control; Done: back on the Edit button
+  }
   dispatchEvent(new CustomEvent('kw:nav', { detail: { level: NAV.level, spread: NAV.s + 1, page: NAV.n, id: NAV.id, date: NAV.date, hash: navHash() } }));
 }
 function hhSync() { document.documentElement.style.setProperty('--hh', document.querySelector('.top').offsetHeight + 'px'); }
@@ -1283,7 +1363,8 @@ document.addEventListener('keydown', (e) => {
   if (e.defaultPrevented || e.ctrlKey || e.metaKey) return;
   const typing = e.target.closest && e.target.closest('input, textarea, select, [contenteditable="true"], dialog[open]');
   if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) { e.preventDefault(); return e.key === 'ArrowUp' ? navOut() : navIn(); }
-  if (e.key === 'Escape' && !typing && !e.altKey && NAV.view !== 'book' && !menu.classList.contains('open')) { e.preventDefault(); navOut(); }
+  if (e.key === 'Escape' && !typing && !e.altKey && NAV.view !== 'book' && !menu.classList.contains('open')) { e.preventDefault(); editing() ? editOff() : navOut(); } // Escape: Done first, then up a level
+  if (!typing && !e.altKey && !e.shiftKey && NAV.view === 'day' && !NAV.edit && (e.key === 'e' || e.key === 'E' || (e.key === 'Enter' && !e.target.closest('button, a, [role="button"]')))) { e.preventDefault(); editOn(); }
 });
 // Zoom out from the day or a page: a pinch on the page, or ctrl/cmd + wheel (a trackpad pinch) over it. Plain wheel scrolls; the browser's own zoom elsewhere is untouched.
 function zoomOutGestures(el) {
