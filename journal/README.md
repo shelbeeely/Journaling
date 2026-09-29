@@ -178,7 +178,7 @@ Presets are ready-made blocks in the palette. Checkbox, habit, blank and scale p
 | Group | Presets (palette name: labels) |
 |---|---|
 | Planning | Rituals: Morning, Start, Shut down, Evening. Today's 3: #1, #2, #3. One Q2 thing. Inbox cleared. Weekly review (dots). Shutdown: Lists captured, Tomorrow's first block, Work closed. Deep blocks (blanks): planned, done. Focus rounds count (blank) |
-| Check-ins | Supports: Headphones, Hood, Dark room, Alone time. Masking (4 steps, none to all day). Overload (dot). Felt like me (5 steps, not today to so me). Voice minutes (blank). Cycle & dose: Period, Dose day. Deposits done: Rest, Alone time, Outside. Sharpen the saw: Body, Mind, Heart, Spirit. Places (blank). Something new: Something new, Went outside, Talked to someone. Made something: Made something, Went outside. Good today: Warmth, Food, Rest, People, Outside. Device-free hour. Outside & light (dots): Outside, Daylight on face, Moved. One small good thing (blank) |
+| Check-ins | Supports: Headphones, Hood, Dark room, Alone time. Masking (4 steps, none to all day). Felt like me (5 steps, not today to so me). Voice minutes (blank). Cycle & dose: Period, Dose day. Deposits done: Rest, Alone time, Outside. Sharpen the saw: Body, Mind, Heart, Spirit. Places (blank). Something new: Something new, Went outside, Talked to someone. Made something: Made something, Went outside. Good today: Warmth, Food, Rest, People, Outside. Device-free hour. Outside & light (dots): Outside, Daylight on face, Moved. One small good thing (blank) |
 
 | Block | Option | Values (default first) |
 |---|---|---|
@@ -201,6 +201,25 @@ Presets are ready-made blocks in the palette. Checkbox, habit, blank and scale p
 | Checkboxes, Scale | Scan-ready (`omr`) | off, on: 12 px marks with wider gaps, easier to read by optical mark reading |
 
 Scan zones do not change: every block keeps its `data-zone`. Print draws all rules and grids as vectors (`rulings.mjs`).
+
+### Therapy and body blocks (Tier 2)
+Palette-only: none of these is on the default page, so an unchanged layout prints exactly the same. They sit under **Therapy** and **Body** headings in the palette.
+The Therapy blocks (diary card and thought record) each print a small "Use with a therapist" line with **988** (call or text) and **Trans Lifeline (877) 565-8860**, the same numbers as the Support page (`THERAPY_NOTE` in `daypage.mjs`; keep it in step with `content/support.json`). They are not advice.
+
+| Group | Block (zone) | Options | X4 (`checkins.txt`) |
+|---|---|---|---|
+| Therapy | Feelings 0-5 (`feelings`) | Label, up to 6 feelings (Sad, Shame, Anger, Fear, Joy) | Off until "Also on X4": one `scale` 0..5 per feeling |
+| | Skills 0-7 (`skills`) | Label, print what 0-7 mean (one line) | Off until "Also on X4": one `scale` 0..7 |
+| | Urge + acted (`urge`) | Label, up to 3 urge names of your own (default "Urge") | Off until "Also on X4": a `scale` 0..5 and an "acted" `toggle` per urge |
+| | Thought record (`thought`) | 3, 5 or 7 boxes; 1-3 lines per box | Paper only |
+| Body | Injection site rotation (`sites`) | Label, up to 8 sites (default L/R thigh, L/R belly), time blank | Always: one `choice` with the site words (12 characters each, 2 or more sites) |
+| | Body signals (`bodysig`) | 1-3 times a day; Hungry, Thirsty, Toilet, Tense, Tired on; Hot/cold, Heart off | Paper only |
+| | Overload (habit dots preset) | one dot: empty, half (near miss), full | `dots` |
+| | Special interest (lines preset "Into today") | 2 lines | Paper only |
+
+Scales here are zero-based (0..5, 0..7), and the X4 stores exactly the printed numbers. The X4 keeps at most 16 custom check-ins: the therapy blocks are opt-in so they do not fill it by surprise, and the editor warns ("X4 holds 16 custom items; you have N") before `export_pack.py` drops the last ones. `x4/tools/test_export.py` covers every case.
+On the small page (5.5 x 8.5) all of these fit together with the writing space when the moon line and action items are off (thought record at 3 boxes); each one fits on its own on the default day.
+
 
 ### Page identity
 Every page has an `id` in `layout.json`, unique in its book and derived from what the page is, not where it sits:

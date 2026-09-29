@@ -128,6 +128,62 @@ ok((await p.locator('#pv [data-b="wx"] .w').count()) === 2 && (await p.locator('
 await p.locator('#list > li[data-uid="pain"] button[data-open]').click();
 ok((await p.locator('#list > li[data-uid="pain"] [data-bool$="zero"]').count()) === 1 && (await p.locator('#list > li[data-uid="pain"] [data-bool$="signed"]').count()) === 1, 'scale has Number from 0 and Signed options');
 await p.locator('.paper').screenshot({ path: `${OUT}/bridge-v2.png` });
+// Tier 2 care blocks: therapy pack (feelings, skills, urge, thought record) and body (injection sites, body signals, overload, special interest).
+const heads = await p.evaluate(() => [...document.querySelectorAll('#pal h3')].map((h) => h.textContent));
+ok(heads.includes('Therapy') && heads.includes('Body') && heads.indexOf('Therapy') < heads.indexOf('Body'), 'palette has Therapy and Body headings');
+ok(await p.evaluate(() => document.querySelector('#pal').textContent.includes('Use with a therapist')), 'the Therapy heading says to use it with a therapist');
+const inGroup = await p.evaluate(() => Object.fromEntries(['Therapy', 'Body'].map((g) => [g, paletteItems().filter((i) => i.group === g).map((i) => i.name)])));
+ok(['Feelings 0–5', 'Skills 0–7', 'Urge + acted', 'Thought record'].every((n) => inGroup.Therapy.includes(n)), 'Therapy group: ' + inGroup.Therapy.join(', '));
+ok(['Injection site rotation', 'Body signals', 'Overload', 'Special interest'].every((n) => inGroup.Body.includes(n)), 'Body group: ' + inGroup.Body.join(', '));
+const cnt = (sel) => p.evaluate((q) => document.querySelectorAll('#pv ' + q).length, sel);
+const use = (blocks) => p.evaluate((bl) => { layout = normalize({ v: 2, blocks: [{ type: 'sky' }, ...bl, { type: 'body', uid: 'body' }, ...(bl.some((x) => x.type === 'actions') ? [] : [{ type: 'actions' }])] }); drawList(); drawPalette(); drawPreview(); }, blocks);
+const fits = async (m) => { const r = await p.evaluate(() => document.querySelector('#meter').textContent); ok(!r.includes('Too full') && !r.includes('overflows'), `${m}: fits`); };
+for (const t of ['feelings', 'skills', 'urge', 'thought']) {
+  await use([{ type: t, uid: t }]);
+  ok((await cnt(`[data-zone="${t}"]`)) === 1 && (await cnt('.tn')) === 1, `${t}: one zone and a therapist note`);
+  const note = await p.evaluate(() => document.querySelector('#pv .tn').textContent);
+  ok(/therapist/.test(note) && note.includes('988') && note.includes('Trans Lifeline (877) 565-8860'), `${t}: note has 988 and the Trans Lifeline number`);
+  ok((await p.locator('#list .x4').count()) === 0, `${t}: not on X4 until turned on`);
+  await fits(t);
+}
+await use([{ type: 'feelings', uid: 'f' }]);
+ok((await cnt('.fr')) === 5 && (await p.evaluate(() => [...document.querySelectorAll('#pv .fr')[0].querySelectorAll('.bub i')].map((e) => e.textContent).join(' '))) === '0 1 2 3 4 5' && (await p.evaluate(() => document.querySelectorAll('#pv .fr .bub').length)) === 30, 'feelings: 5 rows of 6 bubbles (0 to 5)');
+await use([{ type: 'skills', uid: 's' }]);
+ok((await cnt('.bub')) === 8 && (await p.evaluate(() => [...document.querySelectorAll('#pv .bub i')].map((e) => e.textContent).join(''))) === '01234567', 'skills: 8 bubbles numbered 0 to 7');
+ok((await cnt('.skey')) === 1, 'skills: meaning of 0–7 printed');
+await use([{ type: 'skills', uid: 's', key: false }]);
+ok((await cnt('.skey')) === 0, 'skills: key can be switched off');
+await use([{ type: 'urge', uid: 'u', labels: ['Urge A', 'Urge B'] }]);
+ok((await cnt('.xrow.ur')) === 2 && (await cnt('.xrow.ur .ck')) === 2 && (await cnt('.xrow.ur .bub')) === 12, 'urge: each row has 0–5 bubbles and an acted box');
+for (const [c, n] of [[3, 3], [5, 5], [7, 7]]) {
+  await use([{ type: 'thought', uid: 'th', cols: c, n: c === 7 ? 2 : 1 }]);
+  ok((await cnt('.thr > div')) === n && (await cnt('.thr')) === (c === 3 ? 1 : 2), `thought record: ${c} boxes`);
+  await fits(`thought record ${c}`);
+  await p.locator('.paper').screenshot({ path: `${OUT}/tier2-thought-${c}.png` });
+}
+// X4: injection sites always export (a choice); the therapy blocks only with "Also on X4"; the mark follows.
+await use([{ type: 'sites', uid: 'st' }, { type: 'feelings', uid: 'fe' }, { type: 'skills', uid: 'sk', x4: true }, { type: 'urge', uid: 'ur', x4: true }]);
+ok((await p.locator('#list > li[data-uid="st"] .x4').count()) === 1 && (await p.locator('#list > li[data-uid="fe"] .x4').count()) === 0 && (await p.locator('#list > li[data-uid="sk"] .x4').count()) === 1 && (await p.locator('#list > li[data-uid="ur"] .x4').count()) === 1, 'also-on-X4 mark: sites, and skills/urge with x4 on; feelings without');
+ok(await p.evaluate(() => x4Items(find('st')) === 1 && x4Items(find('fe')) === 0 && x4Items(find('sk')) === 1 && x4Items(find('ur')) === 2), 'X4 item counts: sites 1, skills 1, urge 2');
+ok((await cnt('[data-zone="sites"] .w')) === 4, 'sites: four sites to circle by default');
+await use([{ type: 'sites', uid: 'st', labels: ['solo'] }]);
+ok((await p.locator('#list .x4').count()) === 0, 'a single site is not a choice, so no X4 mark');
+await use([{ type: 'bodysig', uid: 'bs' }]);
+ok((await cnt('[data-zone="bodysig"] .xrow')) === 2 && (await cnt('[data-zone="bodysig"] .ck')) === 10 && (await p.locator('#list .x4').count()) === 0, 'body signals: paper only, 2 rows of 5 boxes');
+await fits('body signals');
+// The 16-item cap: the editor says so before the export drops anything.
+await use([{ type: 'checks', uid: 'c1', labels: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] }, { type: 'habits', uid: 'c2', labels: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] }, { type: 'urge', uid: 'ur', x4: true }]);
+ok((await p.textContent('#meter')).includes('X4 holds 16 custom items; you have 18'), 'over 16 X4 items: the editor warns');
+// Everything at once: all the new blocks on one page (with the writing space, without the moon line and action items) fit at both sizes; check.mjs agrees on a real build.
+const ALL = [{ type: 'feelings', uid: 'a1' }, { type: 'skills', uid: 'a2' }, { type: 'urge', uid: 'a3' }, { type: 'thought', uid: 'a4', cols: 3 }, { type: 'sites', uid: 'a5', time: true }, { type: 'bodysig', uid: 'a6', n: 1 },
+  { type: 'habits', uid: 'a7', title: 'Overload', labels: ['Overload'] }, { type: 'lines', uid: 'a8', title: 'Into today', n: 1 }];
+for (const sz of ['small', 'letter']) {
+  await p.evaluate((z) => setSize(z), sz);
+  await p.evaluate((bl) => { layout = normalize({ v: 2, blocks: [...bl, { type: 'body', uid: 'body' }] }); drawList(); drawPalette(); drawPreview(); }, ALL); // no sky, no action items: the small page is 8.5 in tall
+  ok(!(await p.evaluate(() => document.querySelector('#meter').textContent)).includes('page overflows'), `all Tier 2 care blocks at once (${sz}): the page does not overflow`);
+  await p.locator('.paper').screenshot({ path: `${OUT}/tier2-all-${sz}.png` });
+}
+await p.evaluate(() => setSize('small'));
 await p.evaluate(() => { layout = normalize(METHOD_LAYOUTS.find((x) => x.id === 'theme').layout); drawList(); drawPreview(); });
 await p.screenshot({ path: `${OUT}/desktop-method.png` });
 await p.evaluate(() => { layout = normalize({ v: 2, blocks: ['sky', 'notes', 'events', 'care', 'spoons', 'timeline', 'sketch', 'body', 'actions', 'review', 'fact'].map((type) => ({ type })) }); drawList(); drawPreview(); });
