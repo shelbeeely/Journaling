@@ -46,6 +46,14 @@ export const IC = {
   box: '<rect x="1.4" y="1.4" width="9.2" height="9.2" rx="1"/>',
   log: '<circle cx="2" cy="2.6" r=".6" fill="currentColor"/><circle cx="2" cy="6" r="1.1"/><path d="M1 9.4h2M4.8 2.6h6M4.8 6h6M4.8 9.4h6"/>',
   dots: '<circle cx="3.2" cy="3.2" r="2"/><circle cx="8.8" cy="3.2" r="2"/><circle cx="3.2" cy="8.8" r="2"/><circle cx="8.8" cy="8.8" r="2"/><circle cx="3.2" cy="3.2" r="2" fill="currentColor"/><path d="M8.8 6.8a2 2 0 0 1 0 4Z" fill="currentColor"/>',
+  // Tier 2 blocks
+  dump: '<path d="M1.6 3.2c1.6-1.2 2.6 1.2 4.2 0s2.6-1.2 4.6.2M1.6 6.2c1.6-1.2 2.6 1.2 4.2 0s2.6-1.2 4.6.2M1.6 9.2c1.6-1.2 2.6 1.2 4.2 0"/>',
+  wall: '<rect x="1" y="2" width="10" height="8" rx=".6"/><path d="M1 4.7h10M1 7.3h10M5 2v2.7M8.2 4.7v2.6M3.8 7.3V10"/>',
+  rounds: '<rect x="1" y="3.6" width="2.4" height="2.4"/><rect x="4.8" y="3.6" width="2.4" height="2.4"/><rect x="8.6" y="3.6" width="2.4" height="2.4"/><path d="M1 9h10"/>',
+  keep: '<path d="M3 1.2h6v9.6L6 8.4 3 10.8Z"/>',
+  back: '<path d="M10.4 6H2.2M5 3 2 6l3 3"/>',
+  week: '<rect x="1" y="3" width="10" height="6" rx="1"/><path d="M3.5 3v6M6 3v6M8.5 3v6"/>',
+  pixel: '<rect x="1.6" y="1.6" width="8.8" height="8.8" rx="1"/><path d="M1.6 6h8.8v4.4H1.6Z" fill="currentColor"/>',
 };
 export const ic = (k, t = '') => `<svg class="ic" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="${t || k}">${IC[k]}</svg>`;
 export const box = (label) => `<span class="ck"><i></i>${label ? `<span>${label}</span>` : ''}</span>`;
@@ -144,6 +152,22 @@ export const TYPES = {
   bus: { name: 'Bus plan', group: 'Planning', icon: 'bus', single: true, hint: 'Route, stop, leave and back', opts: [N('n', 'Trips', 1, 3, 1)] },
   money: { name: 'Spending', group: 'Planning', icon: 'coin', single: true, hint: 'What and how much', opts: [N('n', 'Rows', 2, 8, 4)] },
   reach: { name: 'Reach out', group: 'Planning', icon: 'people', single: true, hint: 'People to text or check on', opts: [N('n', 'Names', 1, 4, 2)] },
+  // ---- Tier 2 (docs/journaling/BUILD-PLAN.md section 5): all are palette-only, the default page is unchanged ----
+  tl24: { name: 'Time line 24 h', group: 'Planning', icon: 'clock', hint: 'A 24-hour strip, plan over actual; night shaded from the day\'s sunrise and sunset', opts: [N('start', 'Starts at (hour, 24h)', 0, 23, 0), { k: 'every', kind: 'choice', label: 'Hour labels', choices: [[2, 'Every 2 h'], [3, 'Every 3 h'], [4, 'Every 4 h'], [6, 'Every 6 h']], def: 3 }, B('actual', 'Actual row', false), B('shade', 'Shade night (sunrise–sunset)')] },
+  dump: { name: 'Brain dump', group: 'Writing', icon: 'dump', hint: 'A box to tip everything out of your head', opts: [T('Label', 'Brain dump', 24), N('n', 'Rows', 1, 10, 1), { k: 'paper', kind: 'choice', label: 'Paper', choices: [['dots', 'Dots'], ['lines', 'Lines'], ['blank', 'Blank']], def: 'dots' }] },
+  later: { name: 'Later', group: 'Writing', icon: 'next', hint: 'Park a thought so it is safe and out of the way', opts: [T('Label', 'Later', 24), N('n', 'Rows', 1, 6, 1)] },
+  done: { name: 'Done list', group: 'Writing', icon: 'well', hint: 'What you did, written down after (no plan needed)', opts: [T('Label', 'Done', 24), N('n', 'Rows', 1, 8, 1), B('gutter', 'Tick boxes', true)] },
+  wall: { name: 'Wall of Awful', group: 'Writing', icon: 'wall', hint: 'When starting feels hard: circle what is in the way, then a way past. Paper only', opts: [T('Label', 'Wall of Awful', 24), LST('words', 'In the way', ['scary', 'boring', 'too big', 'unclear', 'tired', 'stuck'], 8), LST('ways', 'A way past', ['tiny step', 'ask', '5 minutes', 'not today'], 6)] },
+  stamps: { name: 'Time stamps', group: 'Planning', icon: 'clock', hint: 'Between tasks: the time, and what you switched to', opts: [T('Label', 'Between tasks', 24), N('n', 'Rows', 1, 10, 1), B('resume', 'Resume with line', false)] },
+  rounds: { name: 'Focus rounds', group: 'Planning', icon: 'rounds', hint: 'Boxes to fill, one per round, and marks for interruptions · also on X4 (count)', opts: [T('Label', 'Focus rounds', 24), N('n', 'Tasks', 1, 5, 1), N('boxes', 'Rounds per task', 1, 7, 4), B('marks', 'Interruption marks', true), { k: 'len', kind: 'text', label: 'Round length', def: '25 min', max: 8 }] },
+  energy: { name: 'Energy types', group: 'Check-ins', icon: 'bolt', hint: 'How much of each kind of energy is left · also on X4', opts: [T('Label', 'Energy left', 18), LST('labels', 'Kinds', ['Body', 'Mind', 'People', 'Senses'], 6), N('steps', 'Steps', 3, 5, 3)] },
+  accounts: { name: 'Energy accounts', group: 'Check-ins', icon: 'spoon', hint: 'Start with what you have, write what each thing cost. The X4 keeps spoons left', opts: [T('Label', 'Energy account', 24), N('n', 'Items', 2, 6, 2), B('x4', 'Left: on the X4', true)] },
+  weekstrip: { name: 'Week at a glance', group: 'Planning', icon: 'week', hint: 'This week as a strip, today ringed. Dutch door: same strip on every page, no cutting', opts: [N('h', 'Height (tenths of an inch)', 3, 8, 3)] },
+  keep: { name: 'Keep', group: 'Writing', icon: 'keep', hint: 'Words to keep, where they came from, and a moved box for the commonplace pages', opts: [T('Label', 'Words to keep', 24), N('n', 'Lines', 1, 4, 1), B('source', 'Source line', false), B('moved', 'Moved box', true)] },
+  lookback: { name: 'A month ago today', group: 'Writing', icon: 'back', hint: 'Prints that date so you can look back at that page. Paper only', opts: [{ k: 'period', kind: 'choice', label: 'Look back', choices: [['month', 'A month'], ['year', 'A year']], def: 'month' }, N('n', 'Lines', 1, 2, 1)] },
+  prompt: { name: 'Rotating prompt', group: 'Writing', icon: 'text', hint: 'A prompt that changes by date: the same on any reprint', opts: [{ k: 'every', kind: 'choice', label: 'Changes', choices: [['day', 'Every day'], ['week', 'Every week']], def: 'day' }, N('n', 'Lines', 1, 5, 1), B('pass', 'Pass box', true)] },
+  pixel: { name: 'Day pixel', group: 'Check-ins', icon: 'pixel', hint: 'One square for the whole day: fill it to match the level you circle', opts: [{ k: 'levels', kind: 'choice', label: 'Levels', choices: [[5, '5'], [7, '7']], def: 5 }, B('key', 'Low and high words', true)] },
+  range: { name: 'Low and high', group: 'Check-ins', icon: 'low', hint: 'The lowest and highest point of the day', opts: [T('Label', 'Low and high', 18), N('steps', 'Steps', 3, 7, 5), { k: 'lo', kind: 'text', label: 'Left word', def: 'flat', max: 10 }, { k: 'hi', kind: 'text', label: 'Right word', def: 'bright', max: 10 }] },
   // ---- layout ----
   divider: { name: 'Divider', group: 'Layout', icon: 'calm', hint: 'A thin line', opts: [{ k: 'icon', kind: 'choice', label: 'Icon', choices: [['none', 'None'], ['sun', 'Sun'], ['moon', 'Moon']], def: 'none' }] },
   spacer: { name: 'Space', group: 'Layout', icon: 'box', hint: 'Empty room', opts: [N('h', 'Height (tenths of an inch)', 1, 10, 2)] },
@@ -308,11 +332,54 @@ function x4Note(b, spoonsOn) {
 const MK = {
   task: '<circle cx="4" cy="4" r="1.5" fill="currentColor" stroke="none"/>', event: '<circle cx="4" cy="4" r="2.2"/>', note: '<path d="M1.8 4h4.4"/>',
   moved: '<path d="M2.8 1.8 5.2 4 2.8 6.2"/>', done: '<path d="M2.2 2.2l3.6 3.6M5.8 2.2 2.2 5.8"/>',
+  me: '<path d="M4.6 1.4 3.4 5.4"/>', other: '<path d="M1.4 4h5.2"/>',
   half: '<circle cx="4" cy="4" r="3"/><path d="M4 1a3 3 0 0 1 0 6Z" fill="currentColor"/>', full: '<circle cx="4" cy="4" r="3" fill="currentColor"/>',
 };
 const mk = (k) => `<svg class="bmk" width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="${k}">${MK[k]}</svg>`;
 const mkKey = (ks, names = {}) => `<span class="mkey">${ks.map((k) => `<span>${mk(k)}${names[k] || k}</span>`).join('')}</span>`;
 const hour = (h) => { const x = h % 24, ap = x < 12 ? 'a' : 'p'; return `${x % 12 || 12}${ap}`; };
+
+// ---- Tier 2 helpers: dates and sun times come from parts.day ({date, rise, set}); the editor's sample day is generic ----
+export const SAMPLE_DAY = { date: '2026-10-31', rise: '7:26a', set: '5:58p' };
+const MON3 = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const dparse = (s) => { const m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(s || ''); return m ? new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])) : null; };
+const dnum = (dt) => Math.floor(dt.getTime() / 864e5); // days since 1970-01-01 (a Thursday)
+const clock = (s) => { const m = /^(\d{1,2}):(\d\d)([ap])$/.exec(s || ''); return m ? (+m[1] % 12) + (m[3] === 'p' ? 12 : 0) + +m[2] / 60 : null; };
+// A month or year before, same day of the month, clamped to the last day (Mar 31 -> Feb 28).
+export function lookBack(date, period) {
+  const d = dparse(date); if (!d) return '';
+  const y = d.getUTCFullYear() - (period === 'year' ? 1 : 0), m = d.getUTCMonth() - (period === 'year' ? 0 : 1);
+  const last = new Date(Date.UTC(y, m + 1, 0)); // day 0 of the next month = last day of this one
+  const t = new Date(Date.UTC(y, m, Math.min(d.getUTCDate(), last.getUTCDate())));
+  return `${MON3[t.getUTCMonth()]} ${t.getUTCDate()}${period === 'year' ? ', ' + t.getUTCFullYear() : ''}`;
+}
+// Rotating prompts: [tag, text]. Picked by date only (days since 1970, or the Monday's), so a reprint gives the same prompt.
+export const DAY_PROMPTS = [
+  ['noticing', 'One thing I noticed today that I usually miss'], ['body', 'Where my body asked for something today'], ['people', 'Someone I was glad to hear from'],
+  ['small', 'A small thing that went better than I expected'], ['rest', 'What would count as rest today'], ['place', 'A place that felt okay to be in'],
+  ['noticing', 'A sound I liked'], ['self', 'Something I did that was kind to me'], ['past', 'Something I used to worry about that is quieter now'],
+  ['body', 'What my body needed more of this week'], ['people', 'Something I would like to say to someone'], ['small', 'A thing I finished, however small'],
+  ['noticing', 'The light at a time of day I usually miss'], ['self', 'A word I would use for today'], ['rest', 'One thing I can put down until tomorrow'],
+  ['place', 'A corner of my home I like, and why'], ['past', 'A day I got through, and what helped'], ['body', 'What I ate or drank that felt good'],
+  ['people', 'A person who makes things easier'], ['small', 'Something I am looking forward to'], ['noticing', 'Something I saw on the way'],
+  ['self', 'A boundary that helped me'], ['rest', 'What I would do with an empty hour'], ['place', 'The weather today, in three words'],
+  ['past', 'Something I have learned about myself lately'], ['body', 'A moment I felt steady'], ['people', 'A kind thing someone did'],
+  ['small', 'A plan that can stay small'], ['noticing', 'A smell I liked'], ['self', 'What I forgave myself for'], ['rest', 'Where I felt most at ease today'],
+  ['place', 'Somewhere I would like to go'], ['past', 'What I would tell myself a year ago'], ['body', 'How I moved today'], ['people', 'Someone I miss'],
+  ['small', 'A choice that was mine today'],
+];
+export function promptFor(date, every) {
+  const d = dparse(date); if (!d) return DAY_PROMPTS[0];
+  const n = dnum(d), k = every === 'week' ? Math.floor((n + 3) / 7) : n; // (n + 3) % 7 = 0 on a Monday, so a week is Monday to Sunday
+  return DAY_PROMPTS[((k % DAY_PROMPTS.length) + DAY_PROMPTS.length) % DAY_PROMPTS.length];
+}
+// The seven days of this date's week, Monday first.
+function weekOf(date) {
+  const d = dparse(date) || dparse(SAMPLE_DAY.date), mon = new Date(d.getTime() - ((d.getUTCDay() + 6) % 7) * 864e5);
+  return Array.from({ length: 7 }, (_, i) => { const t = new Date(mon.getTime() + i * 864e5); return { l: 'MTWTFSS'[i], d: t.getUTCDate(), m: t.getUTCMonth(), today: t.getTime() === d.getTime() }; });
+}
+// Day pixel swatch: a 10x10 square filled from the bottom, level 0 = empty (SVG, so no font glyphs).
+const swatch = (i, n) => { const h = Math.round((i / (n - 1)) * 8); return `<svg class="pxs" width="12" height="12" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width=".9" role="img" aria-label="level ${i + 1} of ${n}"><rect x="1" y="1" width="8" height="8" rx=".8"/>${h ? `<rect x="1" y="${9 - h}" width="8" height="${h}" fill="#888" stroke="none"/>` : ''}</svg>`; };
 
 function renderBlock(b, parts, zone) {
   const Z = `data-zone="${zone}"`;
@@ -361,6 +428,26 @@ function renderBlock(b, parts, zone) {
     case 'bus': return `<div class="xb" ${Z}>${Array.from({ length: b.n }, (_, i) => `<div class="xrow">${i ? '<b class="xl"></b>' : lbl('bus', 'Bus')}<span class="f">route <span class="blank xs"></span></span><span class="f">stop <span class="blank"></span></span><span class="f">leave <span class="blank xs"></span></span><span class="f">back <span class="blank xs"></span></span></div>`).join('')}</div>`;
     case 'money': return `<div class="xb" ${Z}>${lbl('coin', 'Spent')}<div class="xmoney">${Array(b.n).fill('<span class="f"><span class="blank long"></span> $<span class="blank xs"></span></span>').join('')}</div></div>`;
     case 'reach': return `<div class="xb xrow wr" ${Z}>${lbl('people', 'Reach out')}${Array(b.n).fill(box('<span class="blank"></span>')).join('')}</div>`;
+    case 'tl24': {
+      const dy = parts.day || SAMPLE_DAY, rise = clock(dy.rise), set = clock(dy.set), night = b.shade && rise !== null && set !== null;
+      const hrs = Array.from({ length: 24 }, (_, i) => (b.start + i) % 24);
+      const row = (name) => `<div class="tlr"><span class="tln">${name}</span>${hrs.map((h) => `<i${night && (h + 0.5 < rise || h + 0.5 > set) ? ' class="nt"' : ''}></i>`).join('')}</div>`;
+      return `<div class="xb xtl24" ${Z}><div class="tlr th"><span class="tln">${ic('clock', '24 h')}</span>${hrs.map((h, i) => `<span>${i % b.every === 0 ? hour(h) : ''}</span>`).join('')}</div>${row('plan')}${b.actual ? row('actual') : ''}</div>`;
+    }
+    case 'dump': return `<div class="xb" ${Z}><div class="dbox"><b class="dbl">${lbl('dump', b.title)}</b>${b.paper === 'blank' ? `<span class="blk" style="height:${(b.n * 0.22).toFixed(2)}in"></span>` : ruled(b.n, b.paper === 'dots' ? 'pd' : '')}</div></div>`;
+    case 'later': return `<div class="xb xbul" ${Z}><div class="hrw">${lbl('next', b.title)}${ruled(1)}</div>${Array(b.n - 1).fill(`<div class="bl">${mk('moved')}<span></span></div>`).join('')}</div>`;
+    case 'done': return `<div class="xb xbul dn" ${Z}><div class="hrw">${lbl('well', b.title)}${ruled(1)}</div>${Array(b.n - 1).fill(`<div class="bl">${b.gutter ? '<i class="bx"></i>' : mk('done')}<span></span></div>`).join('')}</div>`;
+    case 'wall': return `<div class="xb xwall" ${Z}>${b.words.length ? `<div class="xrow wr">${lbl('wall', b.title)}${b.words.map((w) => `<span class="w">${esc(w)}</span>`).join('')}</div>` : `<div class="xrow">${lbl('wall', b.title)}</div>`}${b.ways.length ? `<div class="xrow wr"><span class="wl">${ic('next', 'A way past')}a way past</span>${b.ways.map((w) => `<span class="w">${esc(w)}</span>`).join('')}</div>` : ''}</div>`;
+    case 'stamps': return `<div class="xb xst" ${Z}>${Array.from({ length: b.n }, (_, i) => `<div class="str"><span class="tsc">${i ? '<i class="sp"></i>' : ic('clock', b.title)}__:__</span>${ruled(1)}</div>`).join('')}${b.resume ? `<div class="str rs"><span class="tsc">${ic('next', 'Resume with')}</span>${ruled(1)}</div>` : ''}</div>`;
+    case 'rounds': return `<div class="xb xrd" style="--rc:${b.marks ? 'auto 1fr auto auto' : 'auto 1fr auto'}" ${Z}>${Array.from({ length: b.n }, (_, i) => `<div class="rr"><span class="rn">${i ? i + 1 : lbl('rounds', b.title)}</span>${ruled(1)}<span class="rbx">${Array(b.boxes).fill('<i></i>').join('')}${!i && b.len ? `<span class="cap">${esc(b.len)}</span>` : ''}</span>${b.marks ? `<span class="rty"><span>${mk('me')}</span><span>${mk('other')}</span></span>` : ''}</div>`).join('')}</div>`;
+    case 'energy': return b.labels.length ? `<div class="xb xrow wr" ${Z}>${lbl('bolt', b.title)}${b.labels.map((t) => `<span class="sn">${esc(t)} ${bubs(b.steps)}</span>`).join('')}</div>` : '';
+    case 'accounts': return `<div class="xb" ${Z}><div class="xrow">${lbl('spoon', b.title)}<span class="f">start <span class="blank xs"></span></span><span class="f rgt">left ${b.x4 ? `${ic('x4', 'X4')}<span class="dim">X4</span>` : '<span class="blank xs"></span>'}</span></div><div class="xmoney">${Array(b.n).fill('<span class="f"><span class="blank long"></span> <span class="blank xs"></span></span>').join('')}</div></div>`;
+    case 'weekstrip': return `<div class="xb" ${Z}><div class="wsk" style="height:${(b.h / 10).toFixed(1)}in">${weekOf((parts.day || SAMPLE_DAY).date).map((x) => `<span class="wsc${x.today ? ' td' : ''}"><b>${x.l}</b><i>${x.d === 1 ? MON3[x.m] + ' 1' : x.d}</i></span>`).join('')}</div></div>`;
+    case 'keep': return `<div class="xb" ${Z}><div class="hrw">${lbl('keep', b.title)}${ruled(1)}${b.moved ? box('moved') : ''}</div>${b.n > 1 ? ruled(b.n - 1) : ''}${b.source ? '<div class="xrow"><span class="f">from <span class="blank long"></span></span></div>' : ''}</div>`;
+    case 'lookback': { const dy = parts.day || SAMPLE_DAY, when = lookBack(dy.date, b.period); return `<div class="xb" ${Z}><div class="hrw">${lbl('back', b.period === 'year' ? 'A year ago today' : 'A month ago today')}${when ? `<span class="cap">${when}</span>` : ''}${ruled(1)}</div>${b.n > 1 ? ruled(b.n - 1) : ''}</div>`; }
+    case 'prompt': { const [tag, text] = promptFor((parts.day || SAMPLE_DAY).date, b.every); return `<div class="xb" ${Z}><div class="hrw">${ic('text', 'Prompt: ' + tag)}<span class="pq">${esc(text)}</span>${ruled(1)}${b.pass ? box('pass') : ''}</div>${b.n > 1 ? ruled(b.n - 1) : ''}</div>`; }
+    case 'pixel': return `<div class="xb xrow xpx" ${Z}>${lbl('pixel', 'Day pixel')}<span class="pxb"></span>${b.key ? '<span class="end">low</span>' : ''}${Array.from({ length: b.levels }, (_, i) => `<span class="pxc">${swatch(i, b.levels)}<i></i></span>`).join('')}${b.key ? '<span class="end">high</span>' : ''}</div>`;
+    case 'range': return `<div class="xb xrow wr" ${Z}>${lbl('', b.title)}${[['low', 'Lowest'], ['high', 'Highest']].map(([k, t]) => `<span class="sn">${ic(k, t)}<span class="end">${esc(b.lo)}</span> ${bubs(b.steps)} <span class="end">${esc(b.hi)}</span></span>`).join('')}</div>`;
     case 'divider': return b.icon === 'sun' || b.icon === 'moon' ? `<div class="xdiv xdi"><i></i>${ic(b.icon === 'sun' ? 'am' : 'pm', b.icon === 'sun' ? 'Sun' : 'Moon')}<i></i></div>` : `<div class="xdiv"></div>`;
     case 'spacer': return `<div class="xsp" style="height:${(b.h / 10).toFixed(1)}in"></div>`;
   }
@@ -446,4 +533,19 @@ export const DAYPAGE_CSS = `
 .xb.omr { gap: 8px; } .xb.omr .bub i { width: 12px; height: 12px; border-width: 1.3px; } .xb.omr .ck i { width: 12px; height: 12px; border-width: 1.3px; } .xb.omr .ck .t { margin-right: 4px; }
 /* top priorities: time circles at the line's end, each = 15 min (estimate, then fill) */
 .xb .num.tb { grid-template-columns: 10px 1fr auto; } .xb .tbub { display: inline-flex; gap: 2px; padding: 0 0 2px 4px; } .xb .tbub .bub i { width: 7px; height: 7px; border-width: 0.8px; }
+
+/* Tier 2 blocks: palette-only, so none of this touches today's page */
+.xtl24 .tlr { display: grid; grid-template-columns: 0.42in repeat(24, 1fr); align-items: stretch; } .xtl24 .tlr > i { height: 0.18in; border-left: 1px solid #888; border-bottom: 1px solid #888; border-top: 1px solid #888; } .xtl24 .tlr > i:last-child { border-right: 1px solid #888; } .xtl24 .tlr > i.nt { background: #d4d4d4; }
+.xtl24 .tln { font: 500 5.5pt Inter, sans-serif; text-transform: uppercase; letter-spacing: 0.4px; color: #555; align-self: center; } .xtl24 .tln .ic { width: 10px; height: 10px; } .xtl24 .th span { font: 500 5.6pt Inter, sans-serif; color: #444; white-space: nowrap; overflow: visible; height: 0.12in; }
+.dbox { border: 1px solid #999; border-radius: 2px; margin-top: 2px; padding: 0 3px; position: relative; } .dbox .ru { margin: 0; } .blk { display: block; } .dbl { position: absolute; left: 3px; top: 3px; background: #fff; padding: 0 3px; z-index: 1; } .dbl .xl { margin: 0; }
+.hrw { display: flex; align-items: flex-end; gap: 4px; min-height: 0.22in; } .hrw > .ru { flex: 1; min-width: 0.4in; } .hrw > .xl { align-self: center; } .hrw .ck { align-self: center; } .hrw .cap { align-self: center; white-space: nowrap; } .hrw .ic { align-self: center; }
+.xbul .bl .bmk { margin-bottom: 3px; } .xbul.dn .bl i.bx { width: 8px; height: 8px; border: 1.1px solid #000; border-radius: 0; background: none; margin-bottom: 3px; }
+.xwall .wl { font: 500 6pt Inter, sans-serif; color: #555; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 3px; } .xwall .w { border: 1px solid #999; border-radius: 999px; padding: 0 5px; }
+.xst .str { display: grid; grid-template-columns: 0.5in 1fr; align-items: end; } .xst .tsc { font: 500 6.5pt Inter, sans-serif; color: #777; padding-bottom: 2px; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 3px; } .xst .tsc .ic { width: 10px; height: 10px; color: #333; } .xst .tsc .sp { width: 10px; height: 10px; }
+.xrd { display: grid; grid-template-columns: var(--rc); column-gap: 4px; align-items: end; } .xrd .rr { display: contents; } .xrd .rn { font-weight: 600; padding-bottom: 2px; justify-self: start; } .xrd .rbx { display: inline-flex; align-items: center; gap: 3px; padding-bottom: 3px; } .xrd .rbx i { width: 9px; height: 9px; border: 1.1px solid #000; display: block; } .xrd .rbx .cap { margin-left: 2px; white-space: nowrap; }
+.xrd .rty { display: inline-flex; gap: 4px; padding-bottom: 1px; } .xrd .rty span { width: 0.3in; height: 0.17in; border-bottom: 1px solid #a0a0a0; display: inline-flex; align-items: flex-end; color: #666; }
+.rgt { margin-left: auto; } .xb .f.rgt { margin-left: auto; } .xb .f .ic { width: 10px; height: 10px; align-self: center; }
+.wsk { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-top: 2px; } .wsc { border: 1px solid #999; border-radius: 2px; padding: 1px 3px; display: flex; justify-content: space-between; align-items: flex-start; font: 500 6pt Inter, sans-serif; color: #444; } .wsc b { font-weight: 600; letter-spacing: 0.4px; } .wsc i { font-style: normal; font-weight: 700; color: #000; } .wsc.td { border: 1.8px solid #000; padding: 0 2px; }
+.pq { font: italic 500 7.5pt/1.2 Inter, sans-serif; color: #222; align-self: center; }
+.xpx { gap: 4px; } .xpx .pxb { width: 0.3in; height: 0.3in; border: 1.4px solid #000; border-radius: 2px; margin-right: 4px; flex: none; } .xpx .pxc { display: inline-flex; flex-direction: column; align-items: center; gap: 1px; } .xpx .pxs { width: 12px; height: 12px; display: block; } .xpx .pxc i { width: 8px; height: 8px; border: 1px solid #000; border-radius: 50%; display: block; }
 `;

@@ -94,5 +94,22 @@ L, _ = export([blk('scale', 'a', title='T'), blk('words', 'a', title='U', x4=Tru
 keys = [l.split('|')[0] for l in L if '|' in l]
 check(len(keys) == len(set(keys)), 'keys are unique even when two blocks share a uid')
 
+# --- Tier 2: Energy types (one scale per kind) and Focus rounds (one count, key focus_rounds) ---
+L, out = export([blk('energy', 'en', title='Energy', labels=['Body', 'Mind', 'People', 'Senses'], steps=3)])
+check(L == ['@Energy', 'c_en_body|Body|scale|1|3|2', 'c_en_mind|Mind|scale|1|3|2', 'c_en_people|People|scale|1|3|2', 'c_en_senses|Senses|scale|1|3|2'], 'energy types: one 1..steps scale per kind')
+L, _ = export([blk('energy', 'en', labels=['Body'], steps=5)])
+check('c_en_body|Body|scale|1|5|3' in L, 'energy types: steps 5 gives 1..5, default in the middle')
+L, _ = export([blk('energy', 'en', labels=[], steps=3)])
+check(L == [], 'energy types with no kinds exports nothing')
+L, out = export([blk('rounds', 'fr', title='Focus rounds', n=3, boxes=4)])
+check(L == ['@Focus rounds', 'focus_rounds|Focus rounds|count|0|16|0'], 'focus rounds: one count with the exact key focus_rounds')
+L, out = export([blk('rounds', 'a', title='One'), blk('rounds', 'b', title='Two')])
+check(sum(1 for l in L if l.startswith('focus_rounds|')) == 1 and 'second Focus rounds block is paper only' in out, 'a second Focus rounds block stays on paper')
+L, _ = export([dict(type='rounds', uid='off', on=False)])
+check(L == [], 'a Focus rounds block that is switched off exports nothing')
+L, _ = export([blk('dump', 'd'), blk('later', 'l'), blk('done', 'n'), blk('wall', 'w'), blk('stamps', 's'), blk('accounts', 'a'), blk('weekstrip', 'k'),
+               blk('keep', 'kp'), blk('lookback', 'lb'), blk('prompt', 'p'), blk('pixel', 'px'), blk('range', 'rg'), blk('tl24', 't')])
+check(L == [], 'the paper-only Tier 2 blocks export nothing')
+
 print('FAILED: ' + '; '.join(fails) if fails else 'export test: ok')
 sys.exit(1 if fails else 0)

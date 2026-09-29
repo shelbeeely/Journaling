@@ -32,7 +32,10 @@ CHECKIN_TYPES = {  # type: (kind, hi, default title, title max, default labels, 
     'fields': ('count', 99, 'Outside', 18, ['Minutes outside', 'Steps'], 6),  # hi = the block's "max" option
     'scale': ('scale', None, 'Energy', 18, None, 0),  # one item: 1..steps, or 0..steps-1 (zero), or -k..+k (signed)
     'words': ('choice', None, 'Feeling', 18, None, 0),  # only when the block's "x4" option is on: pick one word
+    'energy': ('scale', None, 'Energy left', 18, ['Body', 'Mind', 'People', 'Senses'], 6),  # Energy types: one 1..steps scale per kind
+    'rounds': ('count', 16, 'Focus rounds', 24, None, 0),  # Focus rounds: one count, key focus_rounds (the X4 Focus timer's key); the first such block only
 }
+FOCUS_KEY = 'focus_rounds'  # firmware core/data.h KEY_FOCUS_ROUNDS
 CHOICE_MAX, CHOICE_LEN = 8, 12  # options per choice, characters per option (the firmware's limits)
 X4_MAXES = (5, 10, 20, 50, 99, 200, 999)  # journal/daypage.mjs X4_MAXES; anything else falls back to 99
 
@@ -86,6 +89,9 @@ def checkins(path):
             elif opt_bool(b, 'zero'): lo, h, d = 0, steps - 1, (steps - 1) // 2
             else: lo, h, d = 1, steps, (1 + steps) // 2
             rows = [(None, title, kind, lo, h, d, '')]  # one item, keyed c_<uid>
+        elif t == 'rounds':
+            if FOCUS_KEY in keys: print(f'checkins: a second Focus rounds block is paper only; the X4 has one {FOCUS_KEY} count'); continue
+            rows = [(None, 'Focus rounds', kind, 0, hi, 0, '')]  # the boxes are paper; the day's total is one count
         elif t == 'words':
             opts = []
             for w in opt_list(b, 'words', [], 20):
@@ -104,17 +110,18 @@ def checkins(path):
                 h = opt_num(b, 'max', 1, 999, 99)
                 if h not in X4_MAXES: h = 99
             rows, slugs = [], set()
+            steps = opt_num(b, 'steps', 3, 5, 3)  # energy
             for x in opt_list(b, 'labels', dlabels, lmax):
                 label = clean(x)
                 if not label: continue
                 slug = slugify(label); base_s, n = slug, 2
                 while slug in slugs: slug, n = f'{base_s}_{n}', n + 1
                 slugs.add(slug)
-                rows.append((slug, label, kind, 0, h, 0, ''))
+                rows.append((slug, label, kind, 1, steps, (1 + steps) // 2, '') if t == 'energy' else (slug, label, kind, 0, h, 0, ''))
         out = []
         for slug, label, k, lo, h, d, extra in rows:  # keys follow the label, so deleting one leaves the others (except same-slug labels, numbered in order)
             if items >= CHECKIN_MAX: dropped.append(label); continue
-            key = f'c_{uid}' if slug is None else f'c_{uid}_{slug}'; base_k, n = key, 2
+            key = FOCUS_KEY if t == 'rounds' else f'c_{uid}' if slug is None else f'c_{uid}_{slug}'; base_k, n = key, 2
             while key in keys: key, n = f'{base_k}_{n}', n + 1  # e.g. scale uid "a_b" vs checks uid "a" + label "b"
             keys.add(key)
             out.append(f'{key}|{label}|{k}|{lo}|{h}|{d}' + (f'|{extra}' if extra else '')); items += 1
