@@ -59,6 +59,21 @@ export function createApp(studio, { staticDir = null, corsOrigins = [], openRegi
   route('PUT', `${P}/drafts/(.+)`, async (c) => S.saveDraft(c.user, c.m[1], dec(c.m[2]), await c.body()));
   route('DELETE', `${P}/drafts/(.+)`, (c) => S.discardDraft(c.user, c.m[1], dec(c.m[2])));
 
+  // G2: forks, change proposals, merges
+  route('GET', `${P}/forks`, (c) => ({ forks: S.listForks(c.user, c.m[1]) }));
+  route('POST', `${P}/forks`, async (c) => [201, { project: S.fork(c.user, c.m[1], await c.body()) }]);
+  route('GET', `${P}/proposals`, (c) => ({ proposals: S.listProposals(c.user, c.m[1], { status: c.query.get('status') || undefined }) }));
+  route('POST', `${P}/proposals`, async (c) => [201, { proposal: S.createProposal(c.user, c.m[1], await c.body()) }]);
+  route('GET', `${P}/proposals/(\\d+)`, (c) => ({ proposal: S.getProposal(c.user, c.m[1], c.m[2]) }));
+  route('GET', `${P}/proposals/(\\d+)/compare`, (c) => S.compareProposal(c.user, c.m[1], c.m[2]));
+  route('POST', `${P}/proposals/(\\d+)/comments`, async (c) => [201, { proposal: S.commentProposal(c.user, c.m[1], c.m[2], await c.body()) }]);
+  route('POST', `${P}/proposals/(\\d+)/reviews`, async (c) => [201, { proposal: S.reviewProposal(c.user, c.m[1], c.m[2], await c.body()) }]);
+  route('POST', `${P}/proposals/(\\d+)/status`, async (c) => ({ proposal: S.setProposalStatus(c.user, c.m[1], c.m[2], await c.body()) }));
+  route('POST', `${P}/proposals/(\\d+)/accept`, async (c) => { const r = S.acceptChanges(c.user, c.m[1], c.m[2], await c.body()); return [r.unchanged ? 200 : 201, r]; });
+  route('POST', `${P}/proposals/(\\d+)/merge`, async (c) => [201, S.mergeProposal(c.user, c.m[1], c.m[2], await c.body())]);
+  route('POST', `${P}/merge/preview`, async (c) => S.mergePreview(c.user, c.m[1], await c.body()));
+  route('POST', `${P}/merge`, async (c) => [201, S.merge(c.user, c.m[1], await c.body())]);
+
   route('GET', `${P}/assets`, (c) => ({ assets: S.listAssets(c.user, c.m[1]) }));
   route('POST', `${P}/assets`, async (c) => [201, { asset: S.putAsset(c.user, c.m[1], { name: c.req.headers['x-asset-name'], mime: String(c.req.headers['content-type'] || '').split(';')[0].trim(), bytes: await c.bytes() }) }]);
   route('GET', `${P}/assets/([0-9a-f]{64})`, (c) => { const a = S.getAsset(c.user, c.m[1], c.m[2]); return { raw: a }; });
