@@ -278,3 +278,14 @@ Today one book is one calendar month, and the Keeper holds twelve of them. Phase
 **Rules that stay:** the default monthly books stay byte-identical (`check-identical.mjs` 24/24); every page passes `check.mjs`; scan codes stay unique and decodable across volumes; no Type 3 fonts; the Keeper never gets scan codes.
 
 **Slices:** H1 span and volumes in the data and render layers (book plan, per-span month/week pages, page counting, volume split, cover and codes, manifest); H2 the Keeper options, studio UI for the plan and the volume preview, checks, docs.
+
+### Undated books (Theme System style; added 2026-09-29)
+The user writes the dates. It works as a general journal, and it is the kind ADHD writers prefer, because a missed week leaves no dated blank pages (see methods/adhd-journaling.md and theme-system-journal.md).
+- **Set-up:** `scope: undated` plus a page count (for example 90 day pages, a season's worth), how many week and month pages, and which extras (theme pages, trackers, notes).
+- **No printed dates anywhere.** The DATE box in the fixed DATE/TITLE/TAGS header is left blank to write in (it is already a handwritten box, so the scan frame is unchanged). Week pages print "Week of ____" with weekday letters to write the dates under. Month pages are a blank month grid with a month name line and numbered cells (1 to 31) you align yourself.
+- **Date-driven blocks switch off or become fill-ins:** sky, moon, sun times, holidays and events, the on-this-day fact, bus, "a month ago today" and the date-picked rotating prompt (it rotates by page number instead), pay marks. Sun times can become blanks ("Rise ____ Set ____"). Blocks that need no date (checks, habits, scales, writing, lines, priorities, time blocks, care, spoons) all work as they do today.
+- **Themes:** the season theme page, theme check-in and a "Yearly theme" opener page come with the Theme System layout; the Daily Actions tracker (15 columns of full or half circles) is a Tier 4 page for this scope.
+- **Identity and scan codes:** codes and page ids go by page order, never by date (`day.017`, `KW2|<edition>|<book>|<S/L/H><page>`). Every page still has a unique code and a unique printed label, for example "Day 17". The manifest records order instead of dates.
+- **Volumes:** the 110-page split applies unchanged (an undated book is just numbered pages).
+- **Privacy and profile:** no location or calendar is needed, so an undated book has the smallest private footprint and is the easiest one to share as a template.
+- **X4:** the X4 logs by the real date you open it, so it works alongside an undated book. It cannot point to a printed page from the date, so the "book p. N" pointer and page-based prompts are off for undated books; check-ins, Focus and the theme word still work.
