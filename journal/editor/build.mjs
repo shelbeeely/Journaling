@@ -37,7 +37,7 @@ const lib = read('daypage.mjs').replace(/^export /gm, '') + '\n' + read('content
 // The Versions view (Journalwright Studio) computes its compare view in the browser with the same diff code the Studio server uses (studio/src/diff.mjs).
 const studioCode = ['../studio/src/canonical.mjs', '../studio/src/diff.mjs'].map((f) => read(f).replace(/^import .*$/gm, '').replace(/^export /gm, '')).join('\n');
 const studio = `(() => {\n${studioCode}\nreturn { canonical, diffSnapshots };\n})()`;
-const tpl = read('editor/template.html').replace('Keeping Watch · every monthly book', () => `${PROFILE.book.title.replace(/&/g, '&amp;').replace(/</g, '&lt;')} · every monthly book`).replace('/*__DAYPAGE__*/', () => lib).replace('/*__STUDIO__*/', () => studio).replace('/*__KIT__*/', () => `const KIT = ${JSON.stringify(kit)};`);
+const tpl = read('editor/template.html').replace('Keeping Watch · every monthly book', () => `${PROFILE.book.title.replace(/&/g, '&amp;').replace(/</g, '&lt;')} · every monthly book`).replace('/*__DAYPAGE__*/', () => lib).replace('/*__VSCSS__*/', () => read('editor/versions.css')).replace('<!--__VSHTML__-->', () => read('editor/versions.html')).replace('/*__VSJS__*/', () => read('editor/versions.js').replace('/*__STUDIO__*/', () => studio)).replace('/*__KIT__*/', () => `const KIT = ${JSON.stringify(kit)};`);
 const dist = new URL('editor/dist/', root);
 fs.mkdirSync(new URL('site/', dist), { recursive: true });
 // 1) Claude Artifact (saves to the artifact's store; the host adds the document skeleton)

@@ -5,7 +5,7 @@ A year-long journaling system (Oct 2026 – Sep 2027) in three parts that work t
 | Folder | What it makes |
 | --- | --- |
 | `journal/` | 12 monthly books for Amazon KDP (5.5×8.5 and 8.5×11), the yearly **Keeper**, X4 EPUBs, and the day page editor |
-| `studio/` | Journalwright Studio (Phase G1): projects, named versions, branches, drafts and history for journal books; the editor's Versions view. Optional: single-user builds don't need it |
+| `studio/` | Journalwright Studio (Phase G1): projects, named versions, branches, drafts and history for journal books; the editor's Versions drawer. Optional: single-user builds don't need it |
 | `x4/` | Companion firmware for the Xteink X4 e-ink reader: today on the sleep screen, button check-ins, Support one long-press away |
 | `.github/workflows/` | CI that builds the books, the firmware and the editor site, and refreshes STA bus times monthly |
 
