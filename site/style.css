@@ -77,8 +77,8 @@ figure img { border-radius: 8px; box-shadow: var(--shadow); }
 .cards li { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
 .cards h3 { margin: 12px 0 6px; }
 .cards p { margin: 0; color: var(--muted); font-size: .95rem; }
-@media (min-width: 560px) { .cards.four { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 960px) { .cards.four { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 560px) { .cards.four, .cards.three { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 960px) { .cards.four { grid-template-columns: repeat(4, 1fr); } .cards.three { grid-template-columns: repeat(3, 1fr); } }
 
 .list, .ticks { list-style: none; padding: 0; margin: 20px 0 0; display: grid; gap: 16px; }
 .list li { display: flex; gap: 14px; align-items: flex-start; }

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Assembles the public site into site/_out (or the folder you name): the page at the root and the editor demo under /editor/.
-# The demo is built from the GENERIC profile and test.ics only. CI runs the same script (.github/workflows/site.yml).
+# Assembles the public site into site/_out (or the folder you name): the page at the root and the editor demo under /editor/ and the docs under /docs/.
+# The demo is built from the GENERIC profile and test.ics only. CI runs the same script (.github/workflows/editor.yml).
 #   site/build.sh [outdir]
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -14,4 +14,6 @@ cp site/index.html site/style.css site/app.js "$OUT/"
 cp -r site/img "$OUT/img"
 cp journal/editor/dist-demo/demo/* journal/editor/dist-demo/demo/.nojekyll "$OUT/editor/"
 touch "$OUT/.nojekyll"
+( cd site/tools && npm install --silent --no-audit --no-fund )
+node site/tools/build-docs.mjs "$OUT"
 node site/check-links.mjs "$OUT"

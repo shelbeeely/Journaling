@@ -2,15 +2,17 @@
 
 Design and publish physical journals and planners.
 
-- **Block editor.** Arrange the day page from building blocks (check-ins, notes, time blocks, scales, sketch boxes) and see it at print size.
-- **Book canvas.** See every page of the book in spreads, zoom from the whole month to one page.
+- **Book canvas.** Open on the whole book, then zoom to a spread and to a single day. Every page is where it prints.
+- **Block editor.** At the day level, arrange the page from building blocks (check-ins, notes, time blocks, scales, sketch boxes) at print size.
 - **Print-ready PDFs.** Interiors and covers for Amazon KDP (5.5×8.5 and 8.5×11), with an overflow check on every page and no Type 3 fonts.
 - **Optional e-ink companion.** Firmware for the Xteink X4 shows today, takes button check-ins and stays offline.
 
 The first book made with it is Shelbee's year-long journal, *Keeping Watch* (Oct 2026 to Sep 2027). Her book is one profile and one set
 of content packs; the studio itself holds nothing personal.
 
-Site and live editor demo (sample data only): published by the Editor workflow, source in [`site/`](site/).
+No account is needed to design and print: your work saves in your browser, and you can export it, import it and build PDFs locally.
+
+Website, live editor demo (`/editor/`, sample data only) and docs (`/docs/`): published to GitHub Pages by the Editor workflow, source in [`site/`](site/).
 
 ## Quick start
 
@@ -37,7 +39,7 @@ To make your own, copy `journal/content/profile.example.json` to `journal/conten
 | `journal/editor/` | The block editor and book canvas. Builds three things: the working site (saves in the browser, commits with a token), a Claude Artifact, and the public demo |
 | `journal/content/` | The profile, content packs (support, clinic, trans, seasons), the book plan and method layouts |
 | `x4/` | ESP32-C3 firmware for the X4, a host preview, and the SD-card tools |
-| `site/` | The product website: plain HTML, CSS and JS, sample page images, a link checker |
+| `site/` | The product website: plain HTML, CSS and JS, sample page images, a docs builder and a link checker |
 | `docs/journaling/` | [BUILD-PLAN.md](docs/journaling/BUILD-PLAN.md) and the [methods library](docs/journaling/methods/) (44 docs) |
 | `.github/workflows/` | CI: books, firmware, editor and site (GitHub Pages), STA schedules |
 
@@ -77,6 +79,7 @@ Crisis and support numbers are never filled in for someone else. The `generic` p
 | Onboarding: `npm run init`, guides for your own journal and your own pack | Next |
 | Book scopes (quarter, season, year, undated) and automatic volumes past 110 pages | Coming |
 | Versioning: history, branches, forks, change proposals, releases | Coming |
+| Accounts, only for saving versions and sharing (designing and printing stay free of one) | Coming |
 | X4 hardware bring-up | In progress |
 
 Details and order: [BUILD-PLAN.md](docs/journaling/BUILD-PLAN.md).

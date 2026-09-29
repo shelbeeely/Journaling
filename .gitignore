@@ -20,3 +20,4 @@ x4/host/sd/
 freeink-sdk/
 .DS_Store
 site/_out/
+site/tools/node_modules/

@@ -21,6 +21,7 @@
       <a href="#make">Make</a>
       <a href="#editor">Editor</a>
       <a href="#samples">Pages</a>
+      <a href="docs/">Docs</a>
       <a href="#start">Start</a>
       <a href="#roadmap">Roadmap</a>
     </nav>
@@ -111,28 +112,31 @@
 
 <section id="editor" class="band">
   <div class="wrap">
-    <h2>The block editor and the book canvas</h2>
-    <p class="lede">Two views of the same book. The Day view is where you arrange one page. The Book view shows all of it.</p>
-    <div class="two">
-      <div>
-        <h3>Day view</h3>
-        <ul class="ticks">
-          <li>Drag from the palette onto the list, or straight onto the page.</li>
-          <li>28 block types and 8 presets: care grid, spoons, scales, time blocks, lined notes, sketch box.</li>
-          <li>A writing-space meter tells you before a page runs out of room.</li>
-          <li>Start from a method with one click.</li>
-        </ul>
-      </div>
-      <div>
-        <h3>Book view</h3>
-        <ul class="ticks">
-          <li>Every page in spreads, with a legend and a jump menu.</li>
-          <li>Zoom from the whole month down to one page.</li>
-          <li>Hidden pages are shown, so nothing goes missing quietly.</li>
-          <li>Fixed scan zones stay fixed, so every page can be identified.</li>
-        </ul>
-      </div>
-    </div>
+    <h2>The book canvas and the block editor</h2>
+    <p class="lede">The editor opens on the whole book and zooms in one step at a time: the book, a spread, then a single day.</p>
+    <ul class="cards three">
+      <li>
+        <svg class="ic big" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h8v13H3z"/><path d="M13 6h8v13h-8z"/></svg>
+        <h3>Book</h3>
+        <p>Every page in spreads, with a legend and a jump menu. Hidden pages are shown, so nothing goes missing quietly.</p>
+      </li>
+      <li>
+        <svg class="ic big" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 7h9v11H2z"/><path d="M13 7h9v11h-9z"/><path d="M12 4v16"/></svg>
+        <h3>Spread</h3>
+        <p>Two facing pages, the way they print. Pinch, scroll or tap a page to zoom in, and use Back to zoom out.</p>
+      </li>
+      <li>
+        <svg class="ic big" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
+        <h3>Day</h3>
+        <p>Drag check-ins, notes, time blocks and more onto the page. A writing-space meter warns you before a page runs out of room.</p>
+      </li>
+    </ul>
+    <ul class="ticks">
+      <li>Dozens of block types and presets: care grid, spoons, scales, time blocks, lined notes, sketch box.</li>
+      <li>Start from a method with one click.</li>
+      <li>Fixed scan zones stay fixed, so every page can be identified.</li>
+      <li>No account needed to design and print. Your work saves in your browser, and you can export and import it as a file.</li>
+    </ul>
     <p><a class="btn primary" href="editor/">
       <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1 11-11-3-3L5 16z"/></svg>
       Open the live editor demo</a></p>
@@ -148,7 +152,7 @@
     <li>Spoon theory</li><li>Pomodoro log</li><li>Dream journal</li><li>Stoic journaling</li><li>Hobonichi techo</li>
     <li>Safety planning</li><li>Prompt journaling</li><li>Shadow growth</li><li>Five-year diary</li><li>Sensory journaling</li>
   </ul>
-  <p><a class="link" href="https://github.com/shelbeeely/Journaling/tree/main/docs/journaling/methods">Browse the methods library
+  <p><a class="link" href="docs/">Read the methods library
     <svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7"/><path d="M8 7h9v9"/></svg></a></p>
 </section>
 
@@ -212,6 +216,10 @@ KW_PROFILE=content/profile.example.json KW_OUT=out-sample node editor/build.mjs 
         <span>This site, the editor demo and the sample cards use generic sample data only.</span>
       </li>
       <li>
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/><path d="M4 4l16 16"/></svg>
+        <span>No account is needed to design and print. Accounts are coming, only for saving versions and sharing.</span>
+      </li>
+      <li>
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><path d="M4 4l16 16"/></svg>
         <span>The e-ink companion sends nothing anywhere except over its own hotspot.</span>
       </li>
@@ -231,6 +239,7 @@ KW_PROFILE=content/profile.example.json KW_OUT=out-sample node editor/build.mjs 
         <tr><th scope="row">Profiles</th><td>One file for who and where</td><td><span class="tag ok">Ready</span></td></tr>
         <tr><th scope="row">Content packs</th><td>Regional resource lists as data</td><td><span class="tag soon">Next</span></td></tr>
         <tr><th scope="row">Book scopes</th><td>Quarter, season, half-year, year, undated; automatic volumes</td><td><span class="tag soon">Coming</span></td></tr>
+        <tr><th scope="row">Accounts</th><td>Optional, for saving versions and sharing. Designing and printing stay free of one</td><td><span class="tag soon">Coming</span></td></tr>
         <tr><th scope="row">Versioning</th><td>History, branches, forks and releases, shown visually</td><td><span class="tag soon">Coming</span></td></tr>
         <tr><th scope="row">E-ink</th><td>Hardware bring-up on the Xteink X4</td><td><span class="tag soon">In progress</span></td></tr>
       </tbody>
@@ -244,6 +253,7 @@ KW_PROFILE=content/profile.example.json KW_OUT=out-sample node editor/build.mjs 
     <p><b>Journalwright Studio</b><br>License and credits: to be added.</p>
     <ul class="links">
       <li><a href="editor/">Editor demo</a></li>
+      <li><a href="docs/">Docs</a></li>
       <li><a href="https://github.com/shelbeeely/Journaling">Source</a></li>
       <li><a href="https://github.com/shelbeeely/Journaling/blob/main/docs/journaling/BUILD-PLAN.md">Build plan</a></li>
       <li><a href="https://github.com/shelbeeely/Journaling/blob/main/journal/README.md">Journal guide</a></li>
