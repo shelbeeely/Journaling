@@ -4,7 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { DEFAULT_BOOK } from '../../journal/book.mjs';
-import { normalize, TYPES } from '../../journal/daypage.mjs';
+import { normalize, TYPES, PLACE } from '../../journal/daypage.mjs';
 import { MODULES } from '../../journal/profile.mjs';
 import { serializeSnapshot, emptySnapshot } from './snapshot.mjs';
 
@@ -51,7 +51,7 @@ const entryOrder = (e) => ({ id: e.id, type: e.type, on: e.on, options: e.type =
 export function journalFiles(snap) {
   const book = { version: snap.book.version, default: snap.book.default.map(entryOrder), months: Object.fromEntries(Object.entries(snap.book.months).map(([k, v]) => [k, { pages: v.pages.map(entryOrder) }])) };
   const day = normalize(snap.day);
-  day.blocks = day.blocks.map((b) => Object.fromEntries([['uid', b.uid], ['type', b.type], ['on', b.on], ...TYPES[b.type].opts.map((o) => [o.k, b[o.k]]), ...(b.rows ? [['rows', b.rows]] : [])].filter(([, v]) => v !== undefined)));
+  day.blocks = day.blocks.map((b) => Object.fromEntries([['uid', b.uid], ['type', b.type], ['on', b.on], ...TYPES[b.type].opts.map((o) => [o.k, b[o.k]]), ...(b.rows ? [['rows', b.rows]] : []), ...PLACE.map((k) => [k, b[k]])].filter(([, v]) => v !== undefined)));
   return { 'content/book.json': JSON.stringify(book, null, 1) + '\n', 'content/daypage.json': JSON.stringify(day, null, 2) + '\n' };
 }
 export function exportJournal(snap, dir) {

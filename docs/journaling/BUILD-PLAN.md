@@ -202,6 +202,7 @@ run with the real calendar secrets; order one private KDP proof per size with th
 | E | Docs: index of the 43 docs with a ranked backlog and the doc template (unit 14) | 1 agent |
 | F | Make it reusable by others: profile + content packs (section 9), starts after canvas C2 merges | 2–3 agents |
 | G | Versioning and collaboration for Journalwright Studio: projects, commits, branches, forks, proposals, merges, releases, reusable pages (section 10); vertical slice first | G1 core, then G2 (forks, proposals, merges), G3 (releases, components) |
+| H | Other book scopes: quarter, season, half-year, year, custom range, undated planner; auto-split into volumes past the paperback page limit (section 11); after the page grid and G1 land | 1–2 agents |
 
 Every unit follows the same proof as the fixes: reproduce, fix, rebuild all 12 months at both sizes with the checks
 (overflow, spreads, scan codes, fonts), look at the pages, editor and X4 previews, Firmware CI green, PR.
@@ -257,3 +258,34 @@ Foundation: the structured day-page blocks, stable page and block ids, `content/
 Platform: persistent backend with schema and migrations, authentication, project permissions, APIs, transactional updates and concurrency checks (no silent overwrite), server-side access checks for private projects, forks, proposals, assets and releases. Stack fits the current Node code (Node, SQLite for local setup, content-addressed snapshot store). Never a default to Cloudflare for hosting.
 
 Slices: **G1** data model, migrations, auth and permissions, commits, branches and drafts, history, restore, import and export against the current pipeline, editor history UI. **G2** forks, proposals, three-way merge and conflict UI. **G3** releases, reusable pages, full editor-to-print workflow, docs. Tests: commit ancestry, independent merges, conflicts, fork permissions, component updates, release immutability, editor-to-print.
+
+## 11. Phase H: other book scopes and automatic volumes (added 2026-09-29)
+
+Today one book is one calendar month, and the Keeper holds twelve of them. Phase H makes the book's span a setting.
+
+**Book plan (in `content/profile.json`, editable in the studio):**
+- `scope`: `month` (today's default), `quarter`, `season`, `half-year`, `year`, `custom` (start and end date), or `undated` (blank days and weeks, no dates).
+- Month pages (calendar, sky, tracker, moon) repeat for each month in the span; week pages run continuously; the Closing page is per month or once at the end (option).
+- The Keeper is one of: the twelve-book Keeper (today), a per-book Keeper, or none.
+
+**Volumes (Shelbee's rule): if a book goes past the paperback limit of 110 pages, split it into volumes.**
+- The build measures the page count for the chosen trim and binding. Paperback is 24 to 110 pages; hardcover needs 76 or more. Over the limit, it splits the span into the fewest balanced volumes that each fit, cutting on month boundaries where it can and on a week boundary otherwise.
+- Volume ids are stable (`v1`, `v2`, ...). Each volume is its own book: its own cover (title plus "Volume N of M" and its date range), its own scan-code space (the edition code gains a volume part), its own manifest, and its own interior PDF. The build reports the split and why.
+- Volume boundaries are continuous: no day is dropped or repeated, week numbering and cross-references carry across, and the last page of a volume can point to the first page of the next.
+- Hardcover keeps the 76 to 110 rule per volume as well. A book that fits stays a single book.
+- The volume plan is deterministic, so a reprint gives the same split, and it is shown in the studio before printing.
+
+**Rules that stay:** the default monthly books stay byte-identical (`check-identical.mjs` 24/24); every page passes `check.mjs`; scan codes stay unique and decodable across volumes; no Type 3 fonts; the Keeper never gets scan codes.
+
+**Slices:** H1 span and volumes in the data and render layers (book plan, per-span month/week pages, page counting, volume split, cover and codes, manifest); H2 the Keeper options, studio UI for the plan and the volume preview, checks, docs.
+
+### Undated books (Theme System style; added 2026-09-29)
+The user writes the dates. It works as a general journal, and it is the kind ADHD writers prefer, because a missed week leaves no dated blank pages (see methods/adhd-journaling.md and theme-system-journal.md).
+- **Set-up:** `scope: undated` plus a page count (for example 90 day pages, a season's worth), how many week and month pages, and which extras (theme pages, trackers, notes).
+- **No printed dates anywhere.** The DATE box in the fixed DATE/TITLE/TAGS header is left blank to write in (it is already a handwritten box, so the scan frame is unchanged). Week pages print "Week of ____" with weekday letters to write the dates under. Month pages are a blank month grid with a month name line and numbered cells (1 to 31) you align yourself.
+- **Date-driven blocks switch off or become fill-ins:** sky, moon, sun times, holidays and events, the on-this-day fact, bus, "a month ago today" and the date-picked rotating prompt (it rotates by page number instead), pay marks. Sun times can become blanks ("Rise ____ Set ____"). Blocks that need no date (checks, habits, scales, writing, lines, priorities, time blocks, care, spoons) all work as they do today.
+- **Themes:** the season theme page, theme check-in and a "Yearly theme" opener page come with the Theme System layout; the Daily Actions tracker (15 columns of full or half circles) is a Tier 4 page for this scope.
+- **Identity and scan codes:** codes and page ids go by page order, never by date (`day.017`, `KW2|<edition>|<book>|<S/L/H><page>`). Every page still has a unique code and a unique printed label, for example "Day 17". The manifest records order instead of dates.
+- **Volumes:** the 110-page split applies unchanged (an undated book is just numbered pages).
+- **Privacy and profile:** no location or calendar is needed, so an undated book has the smallest private footprint and is the easiest one to share as a template.
+- **X4:** the X4 logs by the real date you open it, so it works alongside an undated book. It cannot point to a printed page from the date, so the "book p. N" pointer and page-based prompts are off for undated books; check-ins, Focus and the theme word still work.

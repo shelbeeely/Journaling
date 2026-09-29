@@ -87,7 +87,9 @@ export function diffSnapshots(a, b) {
   const assets = diffKeyed(a.assets.map((x) => ({ ...x, id: x.name })), b.assets.map((x) => ({ ...x, id: x.name })), (x, y) => fieldDiff({ hash: x.hash, mime: x.mime, size: x.size }, { hash: y.hash, mime: y.mime, size: y.size }), (x) => ({ id: x.name, type: x.mime }));
   const components = diffKeyed(a.components, b.components, (x, y) => fieldDiff({ name: x.name, version: x.version, page: x.page }, { name: y.name, version: y.version, page: y.page }), (x) => ({ id: x.id, type: x.page && x.page.type }));
   const r = { meta: fieldDiff(a.meta, b.meta), print: fieldDiff(a.print, b.print), book: diffBook(a.book, b.book), day: diffDay(a.day, b.day), assets, components };
-  r.summary = { meta: r.meta.length, print: r.print.length, book: count(r.book), day: count(r.day), assets: count(assets), components: count(components) };
+  // the Grid layout switch is a property of the whole page, not of one block
+  r.day.grid = !!a.day.grid !== !!b.day.grid ? { before: !!a.day.grid, after: !!b.day.grid } : null;
+  r.summary = { meta: r.meta.length, print: r.print.length, book: count(r.book), day: count(r.day) + (r.day.grid ? 1 : 0), assets: count(assets), components: count(components) };
   r.summary.total = Object.values(r.summary).reduce((t, n) => t + n, 0);
   return r;
 }

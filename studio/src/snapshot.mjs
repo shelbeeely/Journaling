@@ -13,7 +13,7 @@
 // (person, location, crisis lines, paths), calendars (.ics, ICS_URLS), support/trans/clinic packs, passwords, tokens, recovery codes.
 // Two layers keep it that way: the serializer only copies allowlisted fields, and the scanner refuses a snapshot (or a raw
 // submission) that carries a forbidden key, path or value anywhere in it, however deeply nested.
-import { normalize, DEFAULT_LAYOUT, TYPES, newBlock } from '../../journal/daypage.mjs';
+import { normalize, TYPES, PLACE, newBlock } from '../../journal/daypage.mjs';
 import { validateBook, DEFAULT_BOOK } from '../../journal/book.mjs';
 import { PAGE_TYPES } from '../../journal/pages.mjs';
 import { MODULES } from '../../journal/profile.mjs';
@@ -139,8 +139,9 @@ export function serializeDay(d, errs) {
   const L = normalize(d && Object.keys(d).length ? d : null);
   return {
     v: 2,
+    ...(L.grid ? { grid: true } : {}), // the Grid layout switch: blocks carry their placement (col, row, colSpan, rowSpan)
     blocks: L.blocks.map((b) => {
-      const keys = ['uid', 'type', 'on', ...TYPES[b.type].opts.map((o) => o.k), ...(b.type === 'care' ? ['rows'] : [])];
+      const keys = ['uid', 'type', 'on', ...TYPES[b.type].opts.map((o) => o.k), ...(b.type === 'care' ? ['rows'] : []), ...PLACE];
       const o = {};
       for (const k of keys) if (b[k] !== undefined) o[k] = structuredClone(b[k]);
       if (o.rows) o.rows = o.rows.map((r) => Object.fromEntries((CARE_ROW_KEYS[r.id] || ['id', 'on']).filter((k) => r[k] !== undefined).map((k) => [k, structuredClone(r[k])])));

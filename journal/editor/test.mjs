@@ -261,6 +261,185 @@ await m.click('#methods [data-method="theme"]');
 ok(await m.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'no sideways scroll with a method layout');
 await m.screenshot({ path: `${OUT}/phone-theme.png` });
 ok(!errs.length, 'no page errors ' + errs.join(' | '));
+// ---------- page grid (the Grid layout switch, BUILD-PLAN C4b) ----------
+{
+  const DP = await import('../daypage.mjs');
+  const parts = { header: '<div class="hz">H</div>', sky: '<div class="sky1" data-zone="sky">S</div>', notes: '', events: '', fact: '', routines: [], day: DP.SAMPLE_DAY };
+  // the default layout is the flow layout, and grid placements never touch a flow layout
+  const flowHtml = DP.dayBlocks(parts, null), placedBlocks = DP.DEFAULT_LAYOUT.blocks.map((x, i) => ({ ...structuredClone(x), col: 2, row: i + 1, colSpan: 3, rowSpan: 2 }));
+  ok(JSON.stringify(DP.normalize(null)) === JSON.stringify({ v: 2, blocks: DP.DEFAULT_LAYOUT.blocks }) && !('grid' in DP.normalize(null)), 'grid: the default layout is still plain v2 flow (no grid)');
+  ok(DP.dayBlocks(parts, { v: 2, blocks: placedBlocks }) === flowHtml && !flowHtml.includes('class="gc'), 'grid: placements on a flow layout change nothing (same HTML as the default)');
+  ok(DP.GRIDS.day.cols === 4 && DP.gridRows('small') === DP.gridRows('letter') && DP.gridRows('small') === 24, 'grid: day page is 4 columns x 24 rows on both trims');
+  // X4 export: check-in blocks export the same wherever they sit (and in a grid layout)
+  {
+    const { spawnSync } = await import('node:child_process'), os = await import('node:os');
+    const py = spawnSync('python3', ['--version']);
+    if (py.status !== 0) ok(true, 'grid: X4 export check skipped (no python3)');
+    else {
+      const exp = (L) => {
+        const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'kwgrid-')), content = path.join(tmp, 'j', 'content'); fs.mkdirSync(content, { recursive: true });
+        for (const f of ['clinic.json', 'support.json', 'trans.json', 'profile.json']) fs.symlinkSync(new URL('../content/' + f, import.meta.url).pathname, path.join(content, f));
+        fs.writeFileSync(path.join(content, 'daypage.json'), JSON.stringify(L));
+        const r = spawnSync('python3', [new URL('../../x4/tools/export_pack.py', import.meta.url).pathname, path.join(tmp, 'j'), path.join(tmp, 'sd')], { env: { ...process.env, KW_NO_LIBRARY: '1' }, encoding: 'utf8' });
+        const t = r.status === 0 ? fs.readFileSync(path.join(tmp, 'sd', 'kw-update', 'checkins.txt'), 'utf8').split('\n').slice(1).join('\n') : 'FAILED ' + r.stderr;
+        fs.rmSync(tmp, { recursive: true, force: true }); return t;
+      };
+      const flow = { v: 2, blocks: [{ type: 'scale', uid: 's1', title: 'Energy' }, { type: 'checks', uid: 'c1', title: 'Wins', labels: ['Bed', 'Water'] }, { type: 'habits', uid: 'h1', labels: ['Stretch'] }, { type: 'body', uid: 'body' }] };
+      const gl = DP.normalize(flow); gl.grid = true; DP.autoPlace(gl); const grid = { v: 2, grid: true, blocks: gl.blocks.map((x, i) => ({ ...x, col: 1 + (i % 2) * 2, row: 1 + i * 3, colSpan: 2, rowSpan: 3 })) };
+      const a = exp(flow), c = exp(grid);
+      ok(a.includes('c_s1|Energy|scale') && a === c, 'grid: X4 check-ins export identically for a flow layout and a grid layout with the same blocks');
+    }
+  }
+  // the editor: switch to Grid, place, span, refuse rule-breaking moves
+  const st = () => p.evaluate(() => ({ grid: !!layout.grid, probs: gridProblems(layout, size).map((x) => x.msg), b: Object.fromEntries(layout.blocks.map((x) => [x.uid, { on: x.on, col: x.col, row: x.row, cs: x.colSpan, rs: x.rowSpan }])) }));
+  await p.evaluate(() => { setSize('small'); layout = normalize(null); history = []; selected = null; drawList(); drawPalette(); drawPreview(); });
+  ok(await p.evaluate(() => !layout.grid && !document.querySelector('#pv .gc') && document.querySelector('#ov').hidden), 'grid: Flow is the default: no grid cells, overlay hidden');
+  await p.click('#lay-g');
+  let S = await st();
+  ok(S.grid && S.probs.length === 0 && ['sky', 'notes', 'events', 'care', 'body', 'actions', 'review'].every((u) => S.b[u].on && S.b[u].col === 1 && S.b[u].cs === 4), 'grid: turning Grid on stacks the blocks full width, no problems');
+  ok(S.b.body.rs >= 8 && S.b.fact.on === false, 'grid: the Writing space keeps its 8 rows; "On this day" was switched off to make room');
+  ok((await p.textContent('#toast')).includes('On this day'), 'grid: the toast says which block was switched off');
+  ok(await p.evaluate(() => getComputedStyle(pv.querySelector('.gg')).gridTemplateRows.split(' ').length === 24 && getComputedStyle(pv.querySelector('.gg')).gridTemplateColumns.split(' ').length === 4), 'grid: 24 rows and 4 columns in the preview');
+  ok(await p.evaluate(() => [...pv.querySelectorAll('.gc')].every((c) => c.dataset.zone && c.dataset.b) && new Set([...pv.querySelectorAll('.gc')].map((c) => c.dataset.zone)).size === pv.querySelectorAll('.gc').length), 'grid: one zone per block cell, each with a name');
+  const rowPx = 0.22 * 96;
+  ok(await p.evaluate((rp) => { const g = pv.querySelector('.gg').getBoundingClientRect(), z = g.width / pv.querySelector('.gg').offsetWidth; return [...pv.querySelectorAll('.gc')].every((c) => { const r = c.getBoundingClientRect(), n = (r.top - g.top) / z / rp, h = r.height / z / rp; return Math.abs(n - Math.round(n)) < 0.03 && Math.abs(h - Math.round(h)) < 0.03; }); }, rowPx), 'grid: every block cell starts and ends on a whole row (5.6 mm)');
+  const same = () => p.evaluate(() => [...document.querySelectorAll('#ov .gb')].every((g) => { const c = pv.querySelector(`.gc[data-b="${g.dataset.uid}"]`); if (!c) return true; const a = g.getBoundingClientRect(), r = c.getBoundingClientRect(); return [a.left - r.left, a.top - r.top, a.width - r.width, a.height - r.height].every((d) => Math.abs(d) < 1.5); }));
+  ok(await same(), 'grid: the overlay boxes sit exactly on the block cells (small)');
+  ok(await p.evaluate(() => document.querySelectorAll('#ov .gb').length >= 7 && document.querySelectorAll('#ov .lk').length === 2), 'grid: a box per block, and the header and scan strip are marked as fixed');
+  // placement and spans
+  ok(await p.evaluate(() => applyPlace('events', { colSpan: 2 })) && await p.evaluate(() => applyPlace('events', { col: 3 })), 'grid: a block can span fewer columns and move to another column');
+  S = await st();
+  ok(S.b.events.col === 3 && S.b.events.cs === 2 && S.probs.length === 0, 'grid: events now sits in columns 3-4');
+  ok(await p.evaluate(() => /grid-column:\s*3\s*\/\s*span 2/.test(pv.querySelector('.gc[data-b="events"]').getAttribute('style'))), 'grid: the cell spans columns 3-4');
+  ok(await p.evaluate(() => applyPlace('notes', { colSpan: 2, rowSpan: 3 })) && (await st()).b.notes.rs === 3 && await p.evaluate(() => Math.abs(pv.querySelector('.gc[data-b="notes"]').offsetHeight - 3 * 0.22 * 96) < 1.5), 'grid: a block can span several rows and columns (notes, 2 wide and 3 tall)');
+  ok(await same(), 'grid: overlay still matches after moves and spans');
+  // rules, with the message
+  const refuse = async (uid, patch, want, label) => {
+    const before = JSON.stringify((await st()).b[uid]);
+    const r = await p.evaluate(([u, pa]) => { const ok2 = applyPlace(u, pa); return { ok2, t: document.querySelector('#toast').textContent }; }, [uid, patch]);
+    ok(!r.ok2 && r.t.includes(want) && JSON.stringify((await st()).b[uid]) === before, `grid rule (${label}): refused with "${r.t.slice(0, 70)}" and nothing moved`);
+  };
+  await refuse('notes', { colSpan: 3 }, 'overlap', 'no overlap');
+  await refuse('care', { colSpan: 2 }, 'needs at least 4 columns', 'minimum columns');
+  await refuse('actions', { rowSpan: 1 }, 'needs at least', 'minimum rows');
+  await refuse('body', { rowSpan: 6 }, 'Writing space stays at least 8 rows', 'Writing space minimum');
+  await refuse('body', { colSpan: 1 }, 'Writing space stays', 'Writing space minimum width');
+  await refuse('review', { row: 23 }, 'runs off the bottom', 'inside the page');
+  await refuse('events', { col: 4 }, 'sticks out of the page', 'inside the columns');
+  await refuse('sky', { col: 0 }, 'left edge', 'edge of the page');
+  await refuse('sky', { row: 0 }, 'date, title and tags', 'header is locked');
+  // an imported layout that breaks the rules is shown, not printed
+  await p.evaluate(() => { const L = structuredClone(layout); L.blocks.find((x) => x.uid === 'notes').row = 4; L.blocks.find((x) => x.uid === 'notes').colSpan = 4; L.blocks.find((x) => x.uid === 'notes').rowSpan = 1; layout = normalize(L, size); drawList(); drawPalette(); drawPreview(); });
+  ok(await p.evaluate(() => !document.querySelector('#problems').hidden && document.querySelector('#problems').textContent.includes('overlap') && document.querySelector('#list li.prob') && document.querySelectorAll('#ov .gb.bad').length >= 1), 'grid: a layout with an overlap lists the problem, marks the block and its box');
+  const printErr = await p.evaluate(() => { try { dayBlocks(KIT, layout, { size }); return ''; } catch (e) { return e.message; } });
+  ok(printErr.includes('cannot be printed') && printErr.includes('overlap'), 'grid: print refuses a layout that breaks a rule, and says why');
+  await p.evaluate(() => { history = []; layout = normalize(null); drawList(); drawPalette(); drawPreview(); });
+  await p.click('#lay-g');
+  // keyboard: arrows move, Shift + arrows span, undo
+  await p.evaluate(() => { applyPlace('events', { colSpan: 2 }); applyPlace('events', { col: 3 }); applyPlace('notes', { colSpan: 2, rowSpan: 3 }); focusUid = 'notes'; drawOverlay(); });
+  await p.focus('#ov .gb[data-uid="notes"]');
+  await p.keyboard.press('ArrowUp');
+  ok((await st()).b.notes.row === 3 && (await p.textContent('#toast')).includes('overlap'), 'grid keys: a move into another block is refused');
+  await p.keyboard.press('Shift+ArrowUp');
+  ok((await st()).b.notes.rs === 2, 'grid keys: Shift + Up makes it one row shorter');
+  await p.keyboard.press('ArrowDown');
+  ok((await st()).b.notes.row === 4 && (await p.evaluate(() => document.activeElement.dataset.uid)) === 'notes', 'grid keys: Down moves it one row, and the focus stays on the block');
+  await p.keyboard.press('ArrowRight');
+  ok((await st()).b.notes.col === 1 && (await p.textContent('#toast')).includes('overlap'), 'grid keys: Right into the events block is refused with a message');
+  await p.keyboard.press('ArrowLeft');
+  ok((await p.textContent('#toast')).includes('left edge'), 'grid keys: it stops at the left edge with a message');
+  await p.click('#undo'); await p.click('#undo');
+  ok((await st()).b.notes.row === 3 && (await st()).b.notes.rs === 3, 'grid: undo steps back through moves and spans');
+  // mouse: drag to move, drag the corner to resize (snaps to cells)
+  await p.evaluate(() => { history = []; layout = normalize(null); drawList(); drawPreview(); });
+  await p.click('#lay-g');
+  await p.evaluate(() => { applyPlace('events', { colSpan: 2 }); });
+  const cell = await p.evaluate(() => ({ dx: M.cw + M.gap, dy: M.rh }));
+  const box = async (uid) => p.evaluate((u) => { const r = document.querySelector(`#ov .gb[data-uid="${u}"]`).getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; }, uid);
+  let bx = await box('events');
+  await p.mouse.move(bx.x + bx.w / 2, bx.y + bx.h / 2); await p.mouse.down(); await p.mouse.move(bx.x + bx.w / 2 + cell.dx * 2 + 4, bx.y + bx.h / 2, { steps: 6 }); await p.mouse.up();
+  ok((await st()).b.events.col === 3, 'grid mouse: dragging a block two columns right snaps it to column 3');
+  bx = await box('actions');
+  await p.mouse.move(bx.x + bx.w, bx.y + bx.h); await p.mouse.down(); await p.mouse.move(bx.x + bx.w - cell.dx - 3, bx.y + bx.h, { steps: 6 }); await p.mouse.up();
+  ok((await st()).b.actions.cs === 3, 'grid mouse: dragging the corner handle one column left makes the block 3 wide');
+  bx = await box('notes');
+  await p.mouse.move(bx.x + 30, bx.y + bx.h / 2); await p.mouse.down(); await p.mouse.move(bx.x + 30, bx.y + bx.h / 2 + cell.dy * 3, { steps: 6 }); await p.mouse.up();
+  ok((await st()).b.notes.row === 3 && (await p.textContent('#toast')).includes('overlap'), 'grid mouse: dropping a block on another is refused (it snaps back)');
+  ok(await same(), 'grid: after refused drags the overlay still matches the cells');
+  // targets and steppers
+  ok(await p.evaluate(() => { const h = document.querySelector('#ov .gb .rh').getBoundingClientRect(); return h.width >= 44 && h.height >= 44 && document.querySelector('#lay-g').getBoundingClientRect().height >= 44; }), 'grid: resize handle and layout switch are 44px targets');
+  await p.evaluate(() => { openIds.add('care'); drawList(); });
+  ok(await p.evaluate(() => [...document.querySelectorAll('#list [data-place]')].filter((x) => x.offsetParent).every((x) => x.getBoundingClientRect().height >= 44 && x.getBoundingClientRect().width >= 44)), 'grid: placement steppers are 44px targets');
+  await p.click('#list li[data-uid="care"] [data-place="care/row"][data-d="1"]');
+  ok((await st()).b.care.row === 6 && (await p.textContent('#toast')).includes('overlap'), 'grid: the steppers follow the same rules (care cannot move down onto the writing space)');
+  // adding and switching on
+  await p.evaluate(() => { history = []; layout = normalize(null); drawList(); drawPalette(); drawPreview(); });
+  await p.click('#lay-g');
+  await p.locator('#pal [data-add="t:checks"]').click();
+  ok((await p.textContent('#toast')).includes('No room') && (await st()).b[(await p.evaluate(() => layout.blocks.find((x) => x.type === 'checks').uid))].on === false, 'grid: adding to a full page adds the block switched off and says so');
+  await p.click('#lay-f');
+  ok(await p.evaluate(() => !layout.grid && !document.querySelector('#pv .gc')), 'grid: Flow switches back');
+  await p.click('#undo');
+  ok(await p.evaluate(() => layout.grid && !!document.querySelector('#pv .gc')), 'grid: undo brings the grid back');
+  // a busy layout of spans on both trims
+  const SPANS = () => { const P = (type, uid, o, col, row, colSpan, rowSpan) => ({ ...newBlock(type, o, uid), col, row, colSpan, rowSpan });
+    return { v: 2, grid: true, blocks: [P('sky', 'sky', {}, 1, 1, 4, 2), P('notes', 'notes', {}, 1, 3, 4, 1), P('events', 'events', {}, 1, 4, 4, 2), P('care', 'care', {}, 1, 6, 4, 4), P('spoons', 'spoons', { count: 8 }, 1, 10, 2, 2), P('fact', 'fact', {}, 3, 10, 2, 3), P('scale', 'scale', { title: 'Energy' }, 1, 12, 2, 1),
+      P('actions', 'actions', {}, 1, 13, 2, 4), P('lines', 'lines', { title: 'Notes', n: 3 }, 3, 13, 2, 4), P('body', 'body', {}, 1, 17, 4, 8)] }; };
+  for (const sz of ['small', 'letter']) {
+    await p.evaluate((z) => setSize(z), sz);
+    await p.evaluate((src) => { layout = normalize(eval('(' + src + ')')(), size); drawList(); drawPalette(); drawPreview(); }, SPANS.toString());
+    ok((await st()).probs.length === 0 && await p.evaluate(() => !document.querySelector('#problems') || document.querySelector('#problems').hidden), `grid (${sz}): a layout of spans has no problems`);
+    ok(await same(), `grid (${sz}): overlay boxes match the block cells`);
+    ok(await p.evaluate(() => { const g = pv.querySelector('.gg'); return [...pv.querySelectorAll('.gc')].every((c) => c.scrollHeight <= c.clientHeight + 1 && c.scrollWidth <= c.clientWidth + 1) && g.scrollHeight <= g.clientHeight + 1; }), `grid (${sz}): every block fits its cell`);
+    await p.evaluate(() => select('lines')); await p.waitForTimeout(100);
+    await p.locator('.paper').screenshot({ path: `${OUT}/grid-spans-${sz}.png` });
+  }
+  await p.evaluate(() => setSize('small'));
+  // every block type, and every option that changes its size, fits inside its own minimum span (both trims): the minimums are a floor the content fits in
+  {
+    const cases = JSON.parse(fs.readFileSync(new URL('./grid-cases.json', import.meta.url)));
+    for (const sz of ['small', 'letter']) {
+      await p.evaluate((z) => setSize(z), sz);
+      const bad = await p.evaluate((extra) => {
+        const items = paletteItems().map((i) => ({ name: i.name, type: i.type, opts: i.preset ? i.preset.opts : {} })).concat(extra), out = [];
+        for (const it of items) {
+          const b = newBlock(it.type, it.opts, 'zz'), c0 = minSpan(b).cols; if (minSpan(b, c0).rows > 20) continue; // taller than the page: nothing to place
+          for (const w of [...new Set([c0, GRIDS.day.cols])]) {
+            const m = minSpan(b, w), rows = Math.max(1, m.rows);
+            layout = normalize({ v: 2, grid: true, blocks: [{ ...b, col: 1, row: 1, colSpan: w, rowSpan: rows }, { type: 'body', uid: 'body', col: 1, row: 20, colSpan: 4, rowSpan: 5 }] }, size);
+            drawPreview();
+            const g = pv.querySelector('.gc[data-b="zz"]'); if (!g) { if (!['notes', 'events', 'fact'].includes(it.type)) out.push(`${it.name}: not drawn`); continue; }
+            if (g.scrollHeight > g.clientHeight + 1 || (g.scrollWidth > g.clientWidth + 1 && it.type !== 'feelings')) out.push(`${it.name} at ${w} cols x ${rows} rows: needs ${(g.scrollHeight / 96 / 0.22).toFixed(2)} rows, ${Math.ceil(g.scrollWidth)}px wide in ${Math.floor(g.clientWidth)}px`);
+          }
+        }
+        return out;
+      }, cases);
+      ok(bad.length === 0, `grid (${sz}): every block type and option variant fits its minimum span` + (bad.length ? ': ' + bad.slice(0, 12).join(' | ') : ''));
+    }
+    await p.evaluate(() => setSize('small'));
+  }
+  // phone: the grid preview and steppers, no sideways scroll, 44px targets
+  {
+    const ph = await b.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
+    ph.on('pageerror', (e) => errs.push('phone grid: ' + e.message));
+    await ph.goto(URL0, { waitUntil: 'networkidle' });
+    await ph.click('#lay-g');
+    ok(await ph.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'grid phone: no sideways scroll (Blocks tab)');
+    await ph.click('.tabs [data-tab="preview"]');
+    await ph.waitForTimeout(150);
+    ok(await ph.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.querySelectorAll('#ov .gb').length >= 7 && M && M.cw > 20), 'grid phone: the preview shows the grid and boxes, no sideways scroll');
+    ok(await ph.evaluate(() => { const r = document.querySelector('#ov .gb .rh').getBoundingClientRect(); return r.width >= 44 && r.height >= 44; }), 'grid phone: the resize handle is a 44px target');
+    await ph.screenshot({ path: `${OUT}/grid-phone-preview.png` });
+    await ph.click('.tabs [data-tab="edit"]');
+    await ph.evaluate(() => { openIds.add('events'); drawList(); });
+    ok(await ph.evaluate(() => document.documentElement.scrollWidth <= innerWidth && [...document.querySelectorAll('#list [data-place]')].filter((x) => x.offsetParent).every((x) => x.getBoundingClientRect().height >= 44)), 'grid phone: placement steppers fit at 390px with 44px buttons');
+    await ph.screenshot({ path: `${OUT}/grid-phone-edit.png` });
+    await ph.close();
+  }
+  await p.locator('.paper').screenshot({ path: `${OUT}/grid-last.png` });
+  await p.screenshot({ path: `${OUT}/grid-desktop.png` });
+  await p.evaluate(() => { history = []; layout = normalize(null); drawList(); drawPalette(); drawPreview(); });
+}
 // Any page type renders from sample data (pages.mjs, shared with print): each type of the default book, drawn with the page CSS.
 {
   const S = JSON.parse(fs.readFileSync(new URL('./dist/site/pages-sample.json', import.meta.url)));

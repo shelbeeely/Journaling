@@ -276,7 +276,9 @@ export const DEFAULT_LAYOUT = {
 };
 
 // Clean up any saved layout: v1 → v2, unknown types dropped, one of each single, the writing space always present.
-export function normalize(L) {
+// Grid layouts (the "Grid" switch, see "Page grid" below) are v2 with `grid: true` and a placement on every block:
+// { col, row, colSpan, rowSpan }. Flow layouts never carry `grid`; placements left on their blocks are ignored.
+export function normalize(L, size = 'small') {
   let src = L && Array.isArray(L.blocks) ? L.blocks : DEFAULT_LAYOUT.blocks;
   if (!L || L.v !== 2) src = src.map((b) => (b && b.id ? { ...b, uid: b.id, type: b.id === 'gratitude' ? 'good' : b.id } : b));
   const singles = new Set(), uids = new Set(), blocks = [];
@@ -289,7 +291,181 @@ export function normalize(L) {
     blocks.push(fixOpts({ ...structuredClone(s), uid, on: s.on === undefined ? true : !!s.on }));
   }
   if (!singles.has('body')) { const i = blocks.findIndex((b) => b.type === 'actions'); blocks.splice(i < 0 ? blocks.length : i, 0, newBlock('body', {}, 'body')); }
-  return { v: 2, blocks };
+  const grid = !!(L && L.grid && L.v === 2);
+  for (const b of blocks) for (const k of PLACE) { const v = Math.round(+b[k]); if (Number.isFinite(v) && v >= 1 && b[k] !== null && b[k] !== '') b[k] = v; else delete b[k]; }
+  if (!grid) return { v: 2, blocks };
+  const out = { v: 2, grid: true, blocks };
+  if (blocks.some((b) => PLACE.some((k) => b[k] === undefined))) placeMissing(out, size);
+  return out;
+}
+
+// ======================= page grid (layout switch "Grid") =======================
+// A grid layout puts every block on a fixed grid instead of stacking them: each block has { col, row, colSpan, rowSpan } (1-based).
+// The grid is fixed per page type and trim (GRIDS), never set by the person; blocks only choose where they sit and how far they span.
+// Day page: 4 columns, and rows one tight line high (0.22 in = 5.6 mm), so ruled lines line up with the rows.
+// Measured on the built pages (both trims): the day area is 590.4 px tall; the DATE/TITLE/TAGS header takes 61.6 px plus its 4 px margin,
+// which leaves 524.8 px = 5.47 in, and 5.47 in / 0.22 in = 24.85, so 24 rows fit (0.19 in is left blank above the SEND TO strip).
+// The 8.5x11 book is laid out at the same height as 5.5x8.5 and zoomed 1.294x, so its row count is also 24 (a row is 7.2 mm there, and
+// the columns are wider: still 4). Both trims keep the same columns and rows, so a layout carries across sizes.
+// Other page types can add their own entry here later.
+export const GRIDS = {
+  day: { cols: 4, rowIn: 0.22, gapPx: 8, rows: { small: 24, letter: 24 } },
+};
+export const PLACE = ['col', 'row', 'colSpan', 'rowSpan'];
+export const gridRows = (size) => GRIDS.day.rows[size === 'letter' ? 'letter' : 'small'];
+// Locked: the DATE/TITLE/TAGS header (above the grid), the SEND TO strip, the page code and the 9pt frame (below and around it) are
+// not blocks and never sit on the grid. The Writing space stays and keeps a minimum: 8 rows (1.76 in, over the 40 mm floor) by 2 columns.
+export const BODY_MIN = { rows: 8, cols: 2 };
+
+// Minimum span per block: the least room its content needs. `cols` is the narrowest it can be; `rows` is its height at that width
+// (a wider block is never taller). Measured on every block type in Chromium; editor/test.mjs re-measures them and fails if any block
+// overflows its own minimum, so the minimum is a floor the content fits in, not a guess at what looks nice.
+const ROW_IN = GRIDS.day.rowIn;
+const rowsIn = (h) => Math.max(1, Math.ceil((h + 0.02) / ROW_IN)); // inches of content (+ a little slack for font differences) -> whole rows
+// type -> (block, colSpan) => [minimum columns, height in inches at that width]. Heights are the measured natural heights of the
+// block at 1-4 columns (small trim, real fonts) plus what each option adds (a ruled line is one pitch, and so on).
+const Pi = (b) => PITCH_IN[b.pitch] || 0.22;
+const at = (H, w) => H[Math.min(3, Math.max(0, w - 1))] * (w <= 2 ? 1.3 : 1); // heights measured at 1, 2, 3, 4 columns (a narrow block gets extra: words wrap unevenly)
+// lines a row of items wraps to (greedy, as flex-wrap does) when `avail` px are free after the label
+const flowLines = (widths, avail) => { let lines = 1, x = 0; for (const w of widths) { if (x && x + w > avail) { lines++; x = 0; } x += w + 4; } return lines; };
+const wrapH = (b, w, itemPx, cnt) => 0.03 + 0.2 * flowLines(cnt.map(itemPx), w * (colPx + gapPx) - gapPx - (b.title || '').length * 5 - 30);
+const more = (n, d) => Math.max(1, Math.ceil(n / d)); // a list longer than the default one wraps onto more lines
+const colPx = 76.8, gapPx = 8; // a column and the gap between columns, in px (small trim; the letter trim is wider, so this is the safe one)
+const fitCols = (px) => { for (let c = 1; c < GRIDS.day.cols; c++) if (c * (colPx + gapPx) - gapPx >= px + 4) return c; return GRIDS.day.cols; };
+const hoursOf = (b) => Math.ceil((Math.max(b.to, b.from + 1) - b.from) / b.every);
+const MINSPAN = {
+  sky: () => [2, 0.4], // the season line wraps on some days, so two rows at any width
+  notes: () => [2, 0.15],
+  events: (b, w) => [2, [0.39, 0.39, 0.35, 0.33][w - 1]],
+  fact: (b, w) => [2, [1.02, 0.46, 0.32, 0.32][w - 1]],
+  actions: (b) => [2, 0.13 + Math.max(b.count, b.routines ? 3 : 1) * b.h], // routines fill in first: up to 2 of them sit above one blank line
+  review: (b) => [Math.max(2, Object.values(b.items).filter(Boolean).length), 0.156 + b.h * 0.22],
+  care: (b) => [4, 0.06 + Math.ceil((b.rows.filter((r) => r.on).length + 1) / 2) * 0.245],
+  spoons: (b) => [b.count > 12 ? 3 : 2, 0.313],
+  checks: (b) => { const px = 1.35 * (b.title.length * 5 + 12 + b.labels.reduce((t, l) => t + l.length * 4.3 + 16 + (b.omr ? 3 : 0), 0)), c = fitCols(px); return [c, px + 4 > c * (colPx + gapPx) - gapPx - 12 ? 0.42 : 0.2]; }, // two rows when it is a tight fit
+  scale: (b) => [fitCols(95 + 4.6 * (b.title.length + b.lo.length + b.hi.length) + (b.steps - 5) * 17 + (b.omr ? b.steps * 2 : 0)), 0.2],
+  words: (b, w) => [2, wrapH(b, w, (l) => l.length * 5 + 14, b.words) + 0.1],
+  sensory: (b, w) => [2, at([0.74, 0.46, 0.31, 0.31], w) * more(Object.values(b.items).filter(Boolean).length, 4)],
+  sleeptimes: () => [4, 0.2],
+  habits: (b, w) => [2, wrapH(b, w, (l) => l.length * 5 + 26, b.labels) + 0.1],
+  fields: (b, w) => [2, wrapH(b, w, (l) => l.length * 5 + 42, b.labels) + 0.1],
+  weather: (b) => [b.aqi ? 4 : 3, 0.2],
+  feelings: (b) => [4, 0.5 + 0.2 * Math.ceil(b.labels.length / 2)],
+  skills: () => [4, 0.477],
+  urge: (b) => [4, 0.277 + 0.2 * b.labels.length],
+  thought: (b, w) => { const r = b.cols === 3 ? 1 : 2; return [2, 0.281 + r * (0.1 + 0.22 * b.n) + (w < 4 ? r * 0.1 : 0)]; },
+  sites: (b, w) => [2, at([0.74, 0.31, 0.2, 0.2], w) * more(b.labels.length + (b.time ? 1 : 0), 4)],
+  bodysig: (b, w) => [2, 0.156 + b.n * at([0.8, 0.26, 0.26, 0.2], w) * more(Object.values(b.items).filter(Boolean).length, 5)],
+  lines: (b) => [2, 0.156 + b.n * Pi(b)],
+  bullets: (b) => [b.key ? 3 : 2, b.n * Pi(b) + (b.title || b.key ? 0.24 : 0.04)],
+  good: (b) => [2, 0.05 + b.n * (b.because ? Math.max(0.22, b.pitch) + 0.03 : b.pitch)],
+  split: (b) => [2, 0.17 + b.n * Pi(b)],
+  top: (b) => [b.est || b.carried ? 4 : b.bubbles > 4 ? 3 : 2, 0.156 + b.n * Pi(b) + (b.est || b.carried ? 0.2 : 0)],
+  sketch: (b) => [2, b.h / 10 + 0.07 + (b.title || b.caption ? 0.2 : 0)],
+  timeline: (b) => { const nc = 1 + (b.actual ? 1 : 0) + b.replan, hrs = hoursOf(b); return nc === 1 ? [2, Math.ceil(hrs / 2) * Pi(b) + 0.04] : nc === 2 ? [3, Math.ceil(hrs / 2) * Pi(b) + 0.135] : [3, hrs * Pi(b) + 0.135]; },
+  shift: (b) => [3, 0.242 + b.n * 0.22],
+  bus: (b) => [4, 0.042 + b.n * 0.2],
+  money: (b) => [2, 0.17 + Math.ceil(b.n / 2) * 0.15],
+  reach: (b, w) => [2, at([0.43, 0.29, 0.2, 0.2], w) * more(b.n, 2)],
+  tl24: (b) => [2, 0.16 + b.h * (b.actual ? 2 : 1)],
+  dump: (b) => [2, 0.083 + b.n * Pi(b)],
+  later: (b) => [2, 0.042 + b.n * Pi(b)],
+  done: (b) => [2, 0.042 + b.n * Pi(b)],
+  wall: (b, w) => [2, at([1.77, 0.83, 0.67, 0.55], w) * more(b.words.length + b.ways.length, 10) + b.n * Pi(b)],
+  stamps: (b) => [2, 0.042 + (b.n + (b.resume ? 1 : 0)) * Pi(b)],
+  rounds: (b) => [b.boxes > 4 ? 4 : 3, 0.042 + b.n * Pi(b)],
+  energy: (b, w) => [2, at([0.74, 0.46, 0.31, 0.2], w) * more(b.labels.length * b.steps, 12)],
+  accounts: (b) => [3, 0.346 + (Math.ceil(b.n / 2) - 1) * 0.15],
+  weekstrip: (b) => [3, b.h / 10 + 0.07],
+  keep: (b) => [3, 0.042 + b.n * Pi(b) + (b.source ? 0.2 : 0)],
+  lookback: (b) => [3, 0.042 + b.n * Pi(b)],
+  prompt: (b, w) => [2, 0.042 + b.n * Pi(b) + (w < 3 ? 0.16 : 0)],
+  pixel: (b) => [b.levels > 5 ? 4 : 3, 0.342],
+  range: (b, w) => [2, at([0.45, 0.45, 0.31, 0.2], w) * more(b.steps, 5)],
+  divider: () => [1, 0.02],
+  spacer: (b) => [1, b.h / 10 + 0.01],
+  body: () => [BODY_MIN.cols, BODY_MIN.rows * ROW_IN - 0.05],
+};
+export function minSpan(b, colSpan = GRIDS.day.cols) {
+  const f = MINSPAN[b.type] || (() => [2, 0.5]);
+  const [cols, h] = f(b, Math.max(colSpan, 1));
+  return { cols: Math.min(GRIDS.day.cols, cols), rows: rowsIn(h) };
+}
+
+const blockName = (b) => (TYPES[b.type] ? TYPES[b.type].name : b.type);
+const span = (a, n) => (n > 1 ? `${a}–${a + n - 1}` : `${a}`);
+const rectOf = (b) => ({ c1: b.col, c2: b.col + b.colSpan - 1, r1: b.row, r2: b.row + b.rowSpan - 1 });
+const hit = (a, c) => a.c1 <= c.c2 && c.c1 <= a.c2 && a.r1 <= c.r2 && c.r1 <= a.r2;
+const placed = (b) => PLACE.every((k) => Number.isInteger(b[k]) && b[k] >= 1);
+// Every reason a grid layout cannot be printed, in words: [{ uid, code, msg }]. Empty = valid. Blocks that are off take no room.
+export function gridProblems(L, size = 'small') {
+  const G = GRIDS.day, R = gridRows(size), out = [], on = L.blocks.filter((b) => b.on);
+  const bad = (b, code, msg) => out.push({ uid: b.uid, code, msg });
+  for (const b of on) {
+    const nm = blockName(b);
+    if (!placed(b)) { bad(b, 'unplaced', `${nm} has no place on the grid yet.`); continue; }
+    if (b.col + b.colSpan - 1 > G.cols) bad(b, 'columns', `${nm} sticks out of the page: it uses columns ${span(b.col, b.colSpan)} and the page has ${G.cols}.`);
+    if (b.row + b.rowSpan - 1 > R) bad(b, 'rows', `${nm} runs off the bottom: it uses rows ${span(b.row, b.rowSpan)} and the page has ${R}.`);
+    const m = minSpan(b, b.colSpan);
+    if (b.type === 'body') {
+      if (b.rowSpan < BODY_MIN.rows || b.colSpan < BODY_MIN.cols) bad(b, 'body', `The Writing space stays at least ${BODY_MIN.rows} rows tall (${(BODY_MIN.rows * 5.588).toFixed(0)} mm) and ${BODY_MIN.cols} columns wide; it is ${b.rowSpan} rows by ${b.colSpan} columns.`);
+    } else if (b.colSpan < m.cols) bad(b, 'min', `${nm} needs at least ${m.cols} columns to fit its content; it has ${b.colSpan}.`);
+    else if (b.rowSpan < m.rows) bad(b, 'min', `${nm} needs at least ${m.rows} rows to fit its content at this width; it has ${b.rowSpan}.`);
+  }
+  for (let i = 0; i < on.length; i++) for (let j = i + 1; j < on.length; j++) {
+    const a = on[i], c = on[j];
+    if (!placed(a) || !placed(c) || !hit(rectOf(a), rectOf(c))) continue;
+    const A = rectOf(a), C = rectOf(c), c1 = Math.max(A.c1, C.c1), c2 = Math.min(A.c2, C.c2), r1 = Math.max(A.r1, C.r1), r2 = Math.min(A.r2, C.r2);
+    bad(c, 'overlap', `${blockName(a)} and ${blockName(c)} overlap at column${c2 > c1 ? 's' : ''} ${span(c1, c2 - c1 + 1)}, row${r2 > r1 ? 's' : ''} ${span(r1, r2 - r1 + 1)}.`);
+  }
+  return out;
+}
+// The first free rectangle of `cols` × `rows` cells (top to bottom, then left to right), ignoring `except` (a uid), or null.
+export function findFree(L, cols, rows, size = 'small', except = null) {
+  const G = GRIDS.day, R = gridRows(size), taken = L.blocks.filter((b) => b.on && b.uid !== except && placed(b)).map(rectOf);
+  for (let r = 1; r + rows - 1 <= R; r++) for (let c = 1; c + cols - 1 <= G.cols; c++) {
+    const q = { c1: c, c2: c + cols - 1, r1: r, r2: r + rows - 1 };
+    if (!taken.some((t) => hit(t, q))) return { col: c, row: r, colSpan: cols, rowSpan: rows };
+  }
+  return null;
+}
+// Place a block on the first free spot, as wide as it can be (full width first, then narrower down to its minimum); null if the page is full.
+export function placeBlock(L, b, size = 'small') {
+  for (let w = GRIDS.day.cols; w >= 1; w--) {
+    const m = minSpan(b, w); if (w < m.cols) break;
+    const f = findFree(L, w, m.rows, size, b.uid); if (f) return f;
+  }
+  return null;
+}
+// Today's single-column flow laid on the grid: blocks stacked in list order at full width, each as tall as its minimum, and the Writing
+// space takes every row that is left (at its place in the list, as in the flow layout). Blocks that are off get a spot but take no room.
+// The stack of minimums can be taller than the page (every block gets its worst-case room, including the ones that are usually empty);
+// then blocks are switched off from the end of the list until the Writing space has its minimum. Returns those blocks (uids), in order.
+export function autoPlace(L, size = 'small') {
+  const R = gridRows(size), W = GRIDS.day.cols, dropped = [];
+  const used = () => L.blocks.filter((b) => b.on && b.type !== 'body').reduce((t, b) => t + minSpan(b, W).rows, 0);
+  while (R - used() < BODY_MIN.rows) {
+    const last = [...L.blocks].reverse().find((b) => b.on && b.type !== 'body');
+    if (!last) break;
+    last.on = false; dropped.push(last.uid);
+  }
+  const room = R - used();
+  let row = 1;
+  for (const b of L.blocks) {
+    const rows = b.type === 'body' ? Math.max(BODY_MIN.rows, room) : minSpan(b, W).rows;
+    Object.assign(b, { col: 1, row, colSpan: W, rowSpan: rows });
+    if (b.on) row += rows;
+  }
+  return dropped;
+}
+// Blocks in a grid layout that lack a placement (a hand-edited file, or one just added): put them in the free space.
+function placeMissing(L, size) {
+  for (const b of L.blocks) {
+    if (placed(b)) continue;
+    for (const k of PLACE) delete b[k];
+    const m = minSpan(b), at = placeBlock({ ...L, blocks: L.blocks.filter((x) => x !== b) }, b, size);
+    Object.assign(b, at || { col: 1, row: 1, colSpan: GRIDS.day.cols, rowSpan: m.rows });
+  }
 }
 
 // ---------- rendering ----------
@@ -494,7 +670,8 @@ function renderBlock(b, parts, zone) {
 // parts: pre-built, data-driven strings from render.mjs: header, sky, notes, events, fact ('' when none), routines [].
 // opt.tag (editor only): mark each block's outer element with data-b="<uid>" so the preview can be dragged.
 export function dayBlocks(parts, layout, opt = {}) {
-  const L = normalize(layout);
+  const L = normalize(layout, opt.size);
+  if (L.grid) return gridBlocks(parts, L, opt);
   const on = L.blocks.filter((b) => b.on);
   const count = {}, out = [];
   const push = (b, h) => { if (h && b.roomy) h = h.replace(/class="xb( |")/, 'class="xb rm$1'); if (h) out.push(opt.tag ? h.replace(/^<div/, `<div data-b="${b.uid}"`) : h); };
@@ -503,17 +680,44 @@ export function dayBlocks(parts, layout, opt = {}) {
     count[b.type] = (count[b.type] || 0) + 1;
     const zone = count[b.type] > 1 ? `${b.type}_${count[b.type]}` : b.type;
     if (b.type === 'care') {
-      const rowH = b.rows.filter((r) => r.on).map(careRow).filter(Boolean);
       const sp = on[i + 1] && on[i + 1].type === 'spoons' ? on[++i] : null; // spoons right after care share its box
-      const note = x4Note(b, on.some((x) => x.type === 'spoons')); // a spoons block anywhere on the page counts
-      // The X4 line takes the last free cell of the two-column grid; on an even row count it spans the width.
-      const grid = rowH.join('') + (note ? note.replace('class="x4n"', `class="x4n${rowH.length % 2 ? '' : ' wide'}"`) : '');
-      if (grid || sp) push(b, `<div class="care" data-zone="care">${grid ? `<div class="cg2">${grid}</div>` : ''}${sp ? spoonRow(sp) : ''}</div>`);
+      push(b, careBox(b, on, sp));
       continue;
     }
     push(b, renderBlock(b, parts, zone));
   }
   return `<div class="day full">\n    ${parts.header}\n    ${out.join('\n    ')}\n  </div>`;
+}
+// The care check-in box (rows in two columns, the X4 line, and the spoons row when it rides along); '' when nothing is on.
+function careBox(b, on, sp) {
+  const rowH = b.rows.filter((r) => r.on).map(careRow).filter(Boolean);
+  const note = x4Note(b, on.some((x) => x.type === 'spoons')); // a spoons block anywhere on the page counts
+  // The X4 line takes the last free cell of the two-column grid; on an even row count it spans the width.
+  const grid = rowH.join('') + (note ? note.replace('class="x4n"', `class="x4n${rowH.length % 2 ? '' : ' wide'}"`) : '');
+  return grid || sp ? `<div class="care" data-zone="care">${grid ? `<div class="cg2">${grid}</div>` : ''}${sp ? spoonRow(sp) : ''}</div>` : '';
+}
+
+// Grid layout: the same block HTML, each block in one cell (.gc) that spans its grid rectangle. The cell carries the block's single
+// data-zone (its rectangle is the scan zone: the zone name of the block's first element moves to the cell) and, in the editor, data-b.
+// Blocks with room to spare (Lined notes, Two columns, Sketch box, Brain dump, Writing space) fill their cell: extra rows become lines.
+// A grid layout that breaks a rule cannot print: the build stops and says why (the editor passes opt.tag and shows the problems instead).
+const FILLS = new Set(['body', 'lines', 'split', 'sketch', 'dump']);
+function gridBlocks(parts, L, opt) {
+  const size = opt.size === 'letter' ? 'letter' : 'small', probs = gridProblems(L, size);
+  if (probs.length && !opt.tag) throw new Error('The day page grid layout cannot be printed:\n - ' + probs.map((x) => x.msg).join('\n - '));
+  const on = L.blocks.filter((b) => b.on), count = {}, seen = {}, out = [];
+  for (const b of on) {
+    count[b.type] = (count[b.type] || 0) + 1;
+    let h = b.type === 'care' ? careBox(b, on, null) : renderBlock(b, parts, count[b.type] > 1 ? `${b.type}_${count[b.type]}` : b.type);
+    if (!h) continue; // data-driven blocks (holidays, events, the fact) leave their cell empty on days without one
+    if (b.roomy) h = h.replace(/class="xb( |")/, 'class="xb rm$1');
+    const m = /data-zone="([^"]+)"/.exec(h);
+    let zone = m ? m[1] : b.type;
+    if (m) h = h.replace(` data-zone="${zone}"`, '');
+    seen[zone] = (seen[zone] || 0) + 1; if (seen[zone] > 1) zone += `_${seen[zone]}`;
+    out.push(`<div class="gc${FILLS.has(b.type) ? ' fill' : ''}" data-zone="${zone}"${opt.tag ? ` data-b="${b.uid}"` : ''} style="grid-column:${b.col}/span ${b.colSpan};grid-row:${b.row}/span ${b.rowSpan}">${h}</div>`);
+  }
+  return `<div class="day full gm">\n    ${parts.header}\n    <div class="gg" style="--gr:${gridRows(size)}">\n    ${out.join('\n    ')}\n    </div>\n  </div>`;
 }
 
 // Extra CSS the blocks need (appended to the page CSS).
@@ -593,4 +797,14 @@ export const DAYPAGE_CSS = `
 .skey { font: 500 6pt Inter, sans-serif; color: #444; margin-top: 1px; line-height: 1.25; }
 .xrow.ur .ul { font: 600 7pt Inter, sans-serif; min-width: 0.5in; max-width: 0.9in; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .xrow.ur .ck { margin-left: auto; }
 .thr { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; column-gap: 8px; margin-top: 1px; } .thr > div { min-width: 0; } .thr i { display: block; font: 600 5.8pt Inter, sans-serif; font-style: normal; text-transform: uppercase; letter-spacing: 0.4px; color: #555; }
+/* Page grid (layout switch "Grid"; see GRIDS): 4 columns, rows 0.22 in high, one cell (.gc) per block. Nothing here touches the flow layout. */
+.day.gm .gg { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(var(--gr), 0.22in); column-gap: 8px; height: calc(var(--gr) * 0.22in); flex: none; }
+.gc { min-width: 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+.day.full.gm .gc > * { margin-top: 0; }
+.day.full.gm .gc > .log { flex: 1; min-height: 0; }
+.gc.fill > .xb { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.gc.fill > .xb > .ru, .gc.fill .sk-box, .gc.fill .dbox > .ru, .gc.fill .dbox > .blk { flex: 1; min-height: 0; height: auto !important; }
+.gc.fill .dbox { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.gc.fill > .xb.xsplit { display: grid; grid-template-rows: minmax(0, 1fr); }
+.gc.fill .xsplit > div { display: flex; flex-direction: column; min-height: 0; } .gc.fill .xsplit > div > .ru { flex: 1; min-height: 0; height: auto !important; }
 `;

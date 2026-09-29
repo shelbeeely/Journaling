@@ -5,6 +5,8 @@ import { fresh, project, withBlock } from './helpers.mjs';
 import { Studio } from '../src/repo.mjs';
 import { StudioError } from '../src/db.mjs';
 import { hashOf } from '../src/canon.mjs';
+import { autoPlace } from '../../journal/daypage.mjs';
+import { journalFiles } from '../src/pipeline.mjs';
 
 const code = (fn) => { try { fn(); } catch (e) { assert.ok(e instanceof StudioError, String(e)); return { status: e.status, code: e.code, details: e.details }; } assert.fail('expected an error'); };
 function setup() {
@@ -257,4 +259,21 @@ test('reserved for G2/G3: parents is an array, source columns and component tabl
   assert.ok(cols('commits').includes('source_commit_id') && cols('commits').includes('parents'));
   assert.ok(cols('component_versions').includes('version'));
   assert.equal(Studio.commitId.length, 1);
+});
+
+test('grid layouts (the Grid switch) survive a commit: placements are kept, the switch shows in the diff, export writes them back', () => {
+  const { studio, sam, p, head, save } = setup();
+  const v1 = head();
+  const day = structuredClone(studio.head(sam, p.id).snapshot.day); day.grid = true; autoPlace(day, 'small');
+  const v2 = save('Use the grid', { day }).commit;
+  const stored = studio.getCommit(sam, p.id, v2.id).snapshot.day;
+  assert.equal(stored.grid, true);
+  assert.deepEqual(stored.blocks.map((b) => [b.uid, b.col, b.row, b.colSpan, b.rowSpan]), day.blocks.map((b) => [b.uid, b.col, b.row, b.colSpan, b.rowSpan]));
+  const df = studio.diff(sam, p.id, v1.id, v2.id);
+  assert.deepEqual(df.day.grid, { before: false, after: true });
+  assert.ok(df.summary.day >= 1);
+  assert.equal(studio.diff(sam, p.id, v2.id, v2.id).day.grid, null);
+  const file = JSON.parse(journalFiles(studio.getCommit(sam, p.id, v2.id).snapshot)['content/daypage.json']);
+  assert.equal(file.grid, true);
+  assert.equal(file.blocks[0].colSpan, day.blocks[0].colSpan);
 });

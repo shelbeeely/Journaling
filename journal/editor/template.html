@@ -113,6 +113,39 @@ ul.sub .opts { padding-left: 40px; }
 #pv li.pi { font: 600 11px Inter, sans-serif; padding: 6px; border: 1.5px dashed #3f5f5a; background: #eef4f2; color: #3f5f5a; border-radius: 4px; list-style: none; }
 #pv li.pi .add, #pv li.pi .ico { display: none; }
 .dragtip { font-size: 12px; color: var(--muted); margin: 8px 0 0; text-align: center; }
+/* Grid layout: the overlay sits on the paper in screen px (not scaled), so its handles stay 44px whatever the zoom */
+.seg button { min-height: 44px; min-width: 44px; }
+#ov { position: absolute; inset: 0; z-index: 3; user-select: none; -webkit-user-select: none; }
+#ov[hidden] { display: none; }
+#ov svg.gridl { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+#ov .lk { position: absolute; border: 1.5px dashed rgba(90, 84, 72, .4); border-radius: 3px; pointer-events: none; }
+#ov .lk span { position: absolute; right: -9px; top: -9px; width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 1.5px solid rgba(90, 84, 72, .55); color: #5a5448; display: grid; place-items: center; }
+#ov .gb { position: absolute; border: 1.5px solid rgba(63, 95, 90, .55); border-radius: 3px; background: rgba(63, 95, 90, .04); cursor: grab; touch-action: pan-y; outline: none; }
+#ov .gb:hover { background: rgba(63, 95, 90, .09); }
+#ov .gb.sel, #ov .gb:focus-visible { border: 2px solid #3f5f5a; background: rgba(63, 95, 90, .16); box-shadow: 0 0 0 2px rgba(255,255,255,.9), 0 0 0 4px #3f5f5a; z-index: 2; }
+#ov .gb.bad, #ov .gb.over { border: 2px dashed #b3261e; background: rgba(179, 38, 30, .10); }
+#ov .gb.drag { cursor: grabbing; z-index: 4; }
+#ov .gb .gl { opacity: 0; transition: opacity .12s; position: absolute; left: 3px; top: 3px; max-width: calc(100% - 6px); font: 600 10.5px/1.2 Inter, sans-serif; color: #fff; background: #3f5f5a; border-radius: 999px; padding: 1px 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+#ov .gb.bad .gl, #ov .gb.over .gl { background: #b3261e; opacity: 1; } #ov .gb:hover .gl, #ov .gb.sel .gl, #ov .gb:focus-visible .gl { opacity: 1; }
+#ov .gb .rh { position: absolute; right: -14px; bottom: -14px; width: 44px; height: 44px; display: grid; place-items: center; cursor: nwse-resize; touch-action: none; }
+#ov .gb .rh i { width: 14px; height: 14px; border-radius: 4px; background: #3f5f5a; border: 2px solid #fff; display: block; }
+#ov .gb:not(.sel):not(:focus-visible) .rh { opacity: 0; } #ov .gb:hover .rh { opacity: 1; }
+.probs { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 6px; }
+.probs li { display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; line-height: 1.35; color: var(--warn); background: var(--warn-bg); border-radius: 10px; padding: 8px 10px; min-height: 44px; cursor: pointer; }
+.probs li svg { flex: none; margin-top: 1px; }
+.gtools { display: flex; gap: 10px; align-items: center; justify-content: center; margin: 8px 0 0; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+.gtools[hidden], .probs[hidden] { display: none; }
+.gtools .btn { min-height: 44px; }
+.gtools .btn[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.place { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px 12px; padding: 4px 0 2px; }
+.place .opt { justify-content: space-between; } .place .opt > label { min-width: 0; }
+.place .step button { width: 44px; height: 44px; }
+.place .minn { grid-column: 1 / -1; font-size: 12.5px; color: var(--muted); }
+.place .minn.bad { color: var(--warn); }
+li.blk .gp { font-size: 11.5px; color: var(--muted); margin-left: 6px; white-space: nowrap; }
+li.blk.prob { outline: 2px solid var(--warn); outline-offset: 1px; }
+main.gridmode .grip { display: none; }
+@media (max-width: 1100px) { #actual { display: none; } }
 .toast { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 9px 14px; border-radius: 10px; font-size: 13px; opacity: 0; pointer-events: none; transition: opacity .2s; max-width: calc(100% - 32px); z-index: 20; }
 .toast.show { opacity: 1; }
 dialog { border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--ink); padding: 18px; width: min(460px, calc(100% - 32px)); box-shadow: var(--shadow); }
@@ -292,6 +325,7 @@ html[data-view="versions"] #versions { display: block; }
     <h1 id="ttl">Day page<small>Keeping Watch · every monthly book</small></h1>
     <span class="seg" id="views" role="group" aria-label="View"><button id="v-day" aria-pressed="true">Day</button><button id="v-book" aria-pressed="false">Book</button><button id="v-ver" aria-pressed="false">Versions</button></span>
     <span class="status" id="status" role="status">Loading…</span>
+    <span class="seg" role="group" aria-label="Page layout"><button id="lay-f" aria-pressed="true" title="Blocks stack in order; the writing space takes what is left">Flow</button><button id="lay-g" aria-pressed="false" title="Place blocks on a grid of 4 columns and tight-line rows; blocks can span several">Grid</button></span>
     <span class="seg" role="group" aria-label="Preview size"><button id="sz-s" aria-pressed="true">5.5×8.5</button><button id="sz-l" aria-pressed="false">8.5×11</button></span>
     <button class="btn" id="undo" disabled aria-label="Undo">↶<span class="lab"> Undo</span></button>
     <div class="menu" id="menu"><button class="btn" aria-haspopup="true" aria-expanded="false" id="menubtn">More</button>
@@ -327,8 +361,10 @@ html[data-view="versions"] #versions { display: block; }
   </section>
   <section class="prev" aria-label="Page preview">
     <p class="meter" id="meter"></p>
-    <div class="paper" id="paper"><div id="pv"></div></div>
-    <p class="dragtip">A busy sample day. Tap a block to find it; hold and drag to move it.</p>
+    <ul class="probs" id="problems" aria-live="polite" hidden></ul>
+    <div class="paper" id="paper"><div id="pv"></div><div id="ov" hidden></div></div>
+    <p class="gtools" id="gtools" hidden><button class="btn" id="actual" aria-pressed="false">Actual size</button><span id="gnote"></span></p>
+    <p class="dragtip" id="dragtip">A busy sample day. Tap a block to find it; hold and drag to move it.</p>
   </section>
 </main>
 
@@ -451,7 +487,9 @@ const BOOK_DATA = '__BOOKDATA__'; // Artifact build: the sample book, gzipped + 
 const $ = (s, el = document) => el.querySelector(s);
 const escH = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const SIZES = { small: 5.5, letter: +(8.5 / (11 / 8.5)).toFixed(4) };
-let size = 'small', layout = normalize(null), history = [], selected = null, openIds = new Set(['care']);
+let size = 'small', layout = normalize(null), history = [], selected = null, openIds = new Set(['care']), actualSize = false;
+// A layout loaded into the working one: its blocks, and whether it is a grid layout.
+function setLayoutFrom(X, L) { X.blocks = L.blocks; if (L.grid) X.grid = true; else delete X.grid; }
 let db = null, dl = null, saveTimer = null, readOnly = false, dirty = false;
 const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} } };
 
@@ -459,11 +497,11 @@ const store = { get(k) { try { return localStorage.getItem(k); } catch { return 
 function snapshot() { history.push(JSON.stringify(layout)); if (history.length > 60) history.shift(); $('#undo').disabled = false; }
 function change(fn, { list = true, hist = true } = {}) {
   if (hist) snapshot();
-  fn(layout); layout = normalize(layout);
+  fn(layout); layout = normalize(layout, size);
   if (list) drawList();
   drawPalette(); drawPreview(); queueSave();
 }
-$('#undo').onclick = () => { if (!history.length) return; layout = normalize(JSON.parse(history.pop())); $('#undo').disabled = !history.length; drawList(); drawPalette(); drawPreview(); queueSave(); };
+$('#undo').onclick = () => { if (!history.length) return; layout = normalize(JSON.parse(history.pop()), size); $('#undo').disabled = !history.length; drawList(); drawPalette(); drawPreview(); queueSave(); };
 // Blocks that export_pack.py turns into X4 check-ins (/kw/checkins.txt): on, and with at least one item.
 // Mirrors CHECKIN_TYPES in x4/tools/export_pack.py: how many X4 check-in items a block makes (0 = not exported).
 const choiceN = (list) => new Set((list || []).map((w) => w.replace(/[;|,]/g, ' ').split(/\s+/).filter(Boolean).join(' ').slice(0, 12).trim()).filter(Boolean)).size;
@@ -509,16 +547,23 @@ function blockFromKey(key) {
   if (TYPES[it.type].single && layout.blocks.some((b) => b.type === it.type)) return null;
   return newBlock(it.type, it.preset ? it.preset.opts : {});
 }
+let noRoom = false; // the last block added to a grid had nowhere to go, so it was added switched off
 function insertBlock(b, beforeUid) {
-  selected = b.uid; openIds.add(b.uid);
-  change((L) => { const i = beforeUid ? L.blocks.findIndex((x) => x.uid === beforeUid) : -1; L.blocks.splice(i < 0 ? L.blocks.length : i, 0, b); });
+  selected = b.uid; openIds.add(b.uid); noRoom = false;
+  change((L) => {
+    const i = beforeUid ? L.blocks.findIndex((x) => x.uid === beforeUid) : -1; L.blocks.splice(i < 0 ? L.blocks.length : i, 0, b);
+    if (L.grid) { // first free spot, as wide as it can be; a full page takes it switched off
+      const at = placeBlock(L, b, size);
+      if (at) Object.assign(b, at); else { Object.assign(b, { col: 1, row: 1, colSpan: GRIDS.day.cols, rowSpan: minSpan(b).rows, on: false }); noRoom = true; }
+    }
+  });
 }
 $('#pal').addEventListener('click', (e) => {
   const k = e.target.closest('[data-add]'); if (!k) return;
   const b = blockFromKey(k.dataset.add); if (!b) return;
   const i = selected ? layout.blocks.findIndex((x) => x.uid === selected) : -1; // after the selected block, else above the writing space
   insertBlock(b, i >= 0 ? (layout.blocks[i + 1] || {}).uid : 'body');
-  toast(`Added ${TYPES[b.type].name.toLowerCase()}`);
+  toast(noRoom ? `No room for ${TYPES[b.type].name.toLowerCase()}: added switched off. Free some rows, then switch it on.` : `Added ${TYPES[b.type].name.toLowerCase()}`);
 });
 
 // ---------- list ----------
@@ -551,14 +596,22 @@ function rowItem(bu, r) {
       <button class="sw" role="switch" aria-checked="${r.on}" aria-label="${CARE_ROWS[r.id].name}" data-bool="${bu}/rows/${r.id}/on"></button></div>
     ${o ? `<div class="opts">${o}</div>` : ''}</li>`;
 }
+// Grid: where a block sits, as four steppers (column, row, columns wide, rows tall). Moves that break a rule are refused with the reason.
+const PLACE_LABELS = [['col', 'Column', 'Move left', 'Move right'], ['row', 'Row', 'Move up', 'Move down'], ['colSpan', 'Wide', 'Fewer columns', 'More columns'], ['rowSpan', 'Tall', 'Fewer rows', 'More rows']];
+function placePanel(b) {
+  const m = b.type === 'body' ? { cols: BODY_MIN.cols, rows: BODY_MIN.rows } : minSpan(b, b.colSpan), tight = b.colSpan < m.cols || b.rowSpan < m.rows;
+  return `<div class="place">${PLACE_LABELS.map(([k, lab, lo, hi]) => `<div class="opt"><label>${lab}</label><span class="step" role="group" aria-label="${lab}"><button data-place="${b.uid}/${k}" data-d="-1" aria-label="${lo}">−</button><output>${b[k]}</output><button data-place="${b.uid}/${k}" data-d="1" aria-label="${hi}">+</button></span></div>`).join('')}
+    <p class="minn ${tight ? 'bad' : ''}">Smallest for its content: ${m.cols} columns × ${m.rows} rows. The page has ${GRIDS.day.cols} columns × ${gridRows(size)} rows.</p></div>`;
+}
 function drawList() {
-  const ul = $('#list');
+  const ul = $('#list'), probs = layout.grid ? gridProblems(layout, size) : [];
   ul.innerHTML = layout.blocks.map((b) => {
     const t = TYPES[b.type], open = openIds.has(b.uid);
-    const o = b.type === 'care' ? `<ul class="sub" data-care="${b.uid}">${b.rows.map((r) => rowItem(b.uid, r)).join('')}</ul>` : t.opts.map((x) => optControl(x, b[x.k], `${b.uid}/${x.k}`)).join('');
-    return `<li class="blk ${b.on ? '' : 'off'} ${open ? 'open' : ''} ${selected === b.uid ? 'sel' : ''}" data-uid="${b.uid}">
+    const o = (layout.grid ? placePanel(b) : '') + (b.type === 'care' ? `<ul class="sub" data-care="${b.uid}">${b.rows.map((r) => rowItem(b.uid, r)).join('')}</ul>` : t.opts.map((x) => optControl(x, b[x.k], `${b.uid}/${x.k}`)).join(''));
+    const gp = layout.grid && b.on ? `col ${b.col} · row ${b.row} · ${b.colSpan}×${b.rowSpan} · ` : '';
+    return `<li class="blk ${b.on ? '' : 'off'} ${open ? 'open' : ''} ${selected === b.uid ? 'sel' : ''} ${probs.some((p) => p.uid === b.uid) ? 'prob' : ''}" data-uid="${b.uid}">
       <div class="row"><span class="grip" aria-label="Drag to reorder">${GRIP}</span>${icon(t.icon, 'bico')}
-        <span class="txt" data-open="${b.uid}"><span class="name">${escH(t.name)}</span>${onX4(b) ? X4_MARK : ''}<span class="hint">${escH(summary(b))}</span></span>
+        <span class="txt" data-open="${b.uid}"><span class="name">${escH(t.name)}</span>${onX4(b) ? X4_MARK : ''}<span class="hint">${escH(gp + summary(b))}</span></span>
         <button class="icon-btn more" ${o ? '' : 'hidden'} data-open="${b.uid}" aria-label="Options for ${escH(t.name)}" aria-expanded="${open}">${CHEV}</button>
         <button class="icon-btn del" ${t.locked ? 'hidden' : ''} data-del="${b.uid}" aria-label="Remove ${escH(t.name)}">${BIN}</button>
         <button class="sw" role="switch" aria-checked="${b.on}" aria-label="Show ${escH(t.name)}" data-bool="${b.uid}/on" ${t.locked ? 'disabled title="The writing space always stays"' : ''}></button></div>
@@ -579,14 +632,15 @@ function target(L, path) {
   return [b, p[1]];
 }
 $('#list').addEventListener('click', (e) => {
-  const t = e.target.closest('[data-open],[data-del],[data-num],[data-bool],[data-choice],[data-flag]'); if (!t) return;
+  const t = e.target.closest('[data-open],[data-del],[data-num],[data-bool],[data-choice],[data-flag],[data-place]'); if (!t) return;
   const d = t.dataset;
+  if (d.place) { const [u, k] = d.place.split('/'), b = find(u); if (b) applyPlace(u, { [k]: b[k] + +d.d }); return; }
   if (d.open) { const k = d.open; openIds.has(k) ? openIds.delete(k) : openIds.add(k); if (!k.startsWith('r:')) select(k, false); drawList(); return; }
   if (d.del) { const name = TYPES[find(d.del).type].name; change((L) => { L.blocks = L.blocks.filter((b) => b.uid !== d.del); }); toast(`Removed ${name.toLowerCase()}. Undo brings it back.`); return; }
   change((L) => {
     const [o, k] = target(L, d.num || d.bool || d.choice || d.flag); if (!o) return;
     if (d.num) o[k] += +d.d;
-    else if (d.bool) o[k] = !o[k];
+    else if (d.bool) { o[k] = !o[k]; if (k === 'on' && o.on && L.grid) settleOn(L, o); }
     else if (d.choice) o[k] = isNaN(+d.v) ? d.v : +d.v;
     else if (d.flag) o[k][d.k] = !o[k][d.k];
   });
@@ -608,10 +662,11 @@ function drawRules(root) { // same rule-drawing as the print build (the compare 
   });
 }
 function drawPreview() {
-  const day = dayBlocks(KIT, layout, { tag: true });
+  const day = dayBlocks(KIT, layout, { tag: true, size });
   pv.innerHTML = `<style>${KIT.css}#pv .page { width: ${SIZES[size]}in; }</style><div class="page verso dayp m">${day}${KIT.strip}</div>`;
   drawRules(pv);
-  fit(); meter(); hl(selected);
+  fit(); meter(); hl(selected); drawOverlay();
+  if (layout.grid) return; // the grid has no drag-to-reorder: blocks are placed on the overlay
   const dayEl = pv.querySelector('.day.full');
   Sortable.create(dayEl, { group: { name: 'blocks', pull: false, put: true }, draggable: '[data-b]', animation: 150, ghostClass: 'ghost', delay: 180, delayOnTouchOnly: true, fallbackTolerance: 4,
     onAdd: (e) => { const key = e.item.dataset.key; let n = e.item.nextElementSibling; while (n && !n.dataset.b) n = n.nextElementSibling; e.item.remove(); const b = blockFromKey(key); if (b) insertBlock(b, n ? n.dataset.b : afterLastVisible()); else drawPreview(); },
@@ -629,8 +684,9 @@ function movedOnPage(shown) {
 }
 function fit() {
   const W = SIZES[size] * 96, H = 8.5 * 96, narrow = matchMedia('(max-width: 960px)').matches;
-  const avail = narrow ? Math.min(paper.parentElement.clientWidth || 360, 600) : Math.min(430, (window.innerHeight - 150) / H * W);
-  const s = Math.max(0.4, avail / W);
+  const avail = narrow ? Math.min(paper.parentElement.clientWidth || 360, 600) : Math.min(layout.grid ? 640 : 430, (window.innerHeight - 150) / H * W);
+  // Actual size (grid only, wide screens): 1 CSS inch = 96 px, so the paper is as big as the printed page (the 8.5x11 page is the layout zoomed 1.294x)
+  const s = layout.grid && actualSize && !narrow ? (size === 'letter' ? 11 / 8.5 : 1) : Math.max(0.4, avail / W);
   pv.style.transform = `scale(${s})`; paper.style.width = W * s + 'px'; paper.style.height = H * s + 'px';
 }
 function meter() {
@@ -643,6 +699,7 @@ function meter() {
 function hl(uid) {
   const b = uid && find(uid), prev = b ? (layout.blocks[layout.blocks.indexOf(b) - 1] || {}).uid : null;
   pv.querySelectorAll('[data-b]').forEach((el) => el.classList.toggle('hl', el.dataset.b === uid || (b && b.type === 'spoons' && el.dataset.b === prev)));
+  $('#ov').querySelectorAll('.gb').forEach((g) => g.classList.toggle('sel', g.dataset.uid === uid));
 }
 function select(uid, scroll = true) {
   selected = uid; hl(uid);
@@ -654,12 +711,143 @@ pv.addEventListener('click', (e) => {
   if (matchMedia('(max-width: 960px)').matches) { tab('edit'); openIds.add(el.dataset.b); drawList(); }
   select(el.dataset.b);
 });
-addEventListener('resize', () => fit());
+addEventListener('resize', () => { fit(); drawOverlay(); });
 function setSize(s) { size = s; $('#sz-s').setAttribute('aria-pressed', s === 'small'); $('#sz-l').setAttribute('aria-pressed', s === 'letter'); store.set('kw-size', s); drawPreview(); bkSize(); }
 $('#sz-s').onclick = () => setSize('small'); $('#sz-l').onclick = () => setSize('letter');
 
+// ---------- page grid (Grid layout) ----------
+// The overlay is drawn in screen px on top of the scaled preview: cell lines, the locked parts, and one box per block with a
+// corner handle. Every change is snapped to whole cells and checked with gridProblems() (daypage.mjs): a move that breaks a rule is refused
+// with the reason. Keyboard: focus a box, arrows move it, Shift + arrows resize it.
+const ov = $('#ov');
+let M = null, dragSt = null, focusUid = null, overs = [];
+const clampN = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+// The rule problems a change would add (ones the layout already had do not count), or [].
+function checkPlace(uid, patch) {
+  const lo = Object.entries(patch).find(([, v]) => v < 1);
+  if (lo) return [{ msg: lo[0] === 'col' ? 'That is the left edge of the page.' : lo[0] === 'row' ? 'That is the top of the grid: the date, title and tags above it stay put.' : 'A block needs at least one cell.' }];
+  const cand = normalize({ ...layout, blocks: layout.blocks.map((x) => (x.uid === uid ? { ...x, ...patch } : x)) }, size);
+  const before = new Set(gridProblems(layout, size).map((p) => p.msg));
+  return gridProblems(cand, size).filter((p) => !before.has(p.msg));
+}
+function applyPlace(uid, patch) {
+  const bad = checkPlace(uid, patch);
+  if (bad.length) { toast(bad[0].msg); return false; }
+  focusUid = document.activeElement && document.activeElement.dataset && document.activeElement.dataset.uid === uid ? uid : null;
+  change((L) => Object.assign(L.blocks.find((x) => x.uid === uid), patch));
+  return true;
+}
+// A block just switched on keeps its place if it is free, else takes the first free spot; a full page leaves it flagged.
+function settleOn(L, b) {
+  if (!L.blocks.includes(b)) return;
+  const rest = { ...L, blocks: L.blocks.filter((x) => x !== b) }, q = placed(b) ? rectOf(b) : null;
+  if (q && !rest.blocks.some((x) => x.on && placed(x) && hit(rectOf(x), q))) return;
+  const at = placeBlock(rest, b, size);
+  if (at) Object.assign(b, at);
+}
+function gridProblemList() { // rule problems, plus blocks whose sample content does not fit their box (measured in the preview)
+  const out = gridProblems(layout, size).map((p) => ({ ...p }));
+  overs.forEach((u) => { const b = find(u); if (b) out.push({ uid: u, code: 'fit', msg: `${TYPES[b.type].name}: its content does not fit the box on this sample day. Give it more rows or columns.` }); });
+  return out;
+}
+const WARN = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M8 2 1.5 13.5h13Z"/><path d="M8 6.5v3M8 11.6v.1"/></svg>';
+const LOCK = '<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>';
+function drawProblems() {
+  const ul = $('#problems'), list = layout.grid ? gridProblemList() : [];
+  ul.hidden = !list.length;
+  ul.innerHTML = list.map((p) => `<li data-uid="${p.uid}" data-code="${p.code}" role="button" tabindex="0">${WARN}<span>${escH(p.msg)}</span></li>`).join('');
+  document.querySelectorAll('#list > li').forEach((li) => li.classList.toggle('prob', list.some((p) => p.uid === li.dataset.uid)));
+  $('#gnote').textContent = layout.grid ? `${GRIDS.day.cols} columns × ${gridRows(size)} rows · a row is one tight line (5.6 mm)` : '';
+}
+$('#problems').addEventListener('click', (e) => { const li = e.target.closest('li'); if (li) { select(li.dataset.uid); const g = ov.querySelector(`.gb[data-uid="${li.dataset.uid}"]`); if (g) g.focus({ preventScroll: true }); } });
+$('#problems').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.target.click(); } });
+function boxStyle(g, p) {
+  g.style.left = M.x + (p.col - 1) * (M.cw + M.gap) + 'px'; g.style.top = M.y + (p.row - 1) * M.rh + 'px';
+  g.style.width = p.colSpan * M.cw + (p.colSpan - 1) * M.gap + 'px'; g.style.height = p.rowSpan * M.rh + 'px';
+}
+function drawOverlay() {
+  const on = !!layout.grid;
+  $('#main').classList.toggle('gridmode', on);
+  $('#lay-f').setAttribute('aria-pressed', !on); $('#lay-g').setAttribute('aria-pressed', on);
+  $('#gtools').hidden = !on; ov.hidden = !on;
+  $('#dragtip').textContent = on ? 'Drag a block to move it, or its corner handle to resize. It snaps to the grid. Arrow keys move the block you focus; Shift + arrows resize.' : 'A busy sample day. Tap a block to find it; hold and drag to move it.';
+  overs = [];
+  const gg = pv.querySelector('.gg');
+  if (!on || !gg || !gg.offsetWidth || !paper.offsetWidth) { ov.innerHTML = ''; M = null; drawProblems(); return; } // (hidden on a phone until the Preview tab opens)
+  const pr = paper.getBoundingClientRect(), gr = gg.getBoundingClientRect(), G = GRIDS.day, R = gridRows(size);
+  const gap = G.gapPx * (gr.width / gg.offsetWidth), cw = (gr.width - gap * (G.cols - 1)) / G.cols, rh = G.rowIn * 96 * (gr.width / gg.offsetWidth);
+  M = { x: gr.left - pr.left, y: gr.top - pr.top, cw, gap, rh, R, cols: G.cols };
+  let h = `<svg class="gridl" aria-hidden="true">`;
+  for (let r = 0; r <= R; r++) h += `<path d="M${M.x} ${M.y + r * rh}H${M.x + gr.width}" stroke="rgba(63,95,90,${r % 4 === 0 ? .32 : .16})" stroke-width="1"/>`;
+  for (let c = 0; c < G.cols; c++) { const x = M.x + c * (cw + gap); h += `<path d="M${x} ${M.y}V${M.y + R * rh}M${x + cw} ${M.y}V${M.y + R * rh}" stroke="rgba(63,95,90,.28)" stroke-width="1" stroke-dasharray="3 3"/>`; }
+  for (let r = 0; r < R; r += 4) h += `<text x="${M.x - 6}" y="${M.y + r * rh + 11}" text-anchor="end" font-size="10" fill="#5a5448" font-family="Inter,sans-serif">${r + 1}</text>`;
+  h += '</svg>';
+  // locked parts: the header above the grid and the scan strip below it never move
+  const dr = pv.querySelector('.day.full').getBoundingClientRect(), sr = pv.querySelector('.strip');
+  const lock = (t, l, tp, w, hh) => `<div class="lk" title="${t} stay put" style="left:${l}px;top:${tp}px;width:${w}px;height:${hh}px"><span role="img" aria-label="${t}: fixed">${LOCK}</span></div>`;
+  h += lock('Date · Title · Tags', dr.left - pr.left, dr.top - pr.top, dr.width, gr.top - dr.top);
+  if (sr) { const q = sr.getBoundingClientRect(); h += lock('Send to · page code', q.left - pr.left, q.top - pr.top, q.width, q.height); }
+  for (const b of layout.blocks.filter((x) => x.on && placed(x))) {
+    const cell = pv.querySelector(`.gc[data-b="${b.uid}"]`);
+    if (cell && (cell.scrollHeight > cell.clientHeight + 1 || cell.scrollWidth > cell.clientWidth + 1)) overs.push(b.uid);
+    h += `<div class="gb" data-uid="${b.uid}" tabindex="0" role="group" aria-label="${escH(TYPES[b.type].name)}: column ${b.col}, row ${b.row}, ${b.colSpan} wide, ${b.rowSpan} tall. Arrow keys move it; Shift and arrows resize it."><span class="gl">${escH(TYPES[b.type].name)}</span><span class="rh" data-rh aria-hidden="true"><i></i></span></div>`;
+  }
+  ov.innerHTML = h;
+  const bad = new Set(gridProblems(layout, size).map((p) => p.uid));
+  ov.querySelectorAll('.gb').forEach((g) => { const b = find(g.dataset.uid); boxStyle(g, b); g.classList.toggle('over', overs.includes(b.uid)); g.classList.toggle('bad', bad.has(b.uid)); g.classList.toggle('sel', b.uid === selected); });
+  drawProblems();
+  if (focusUid) { const g = ov.querySelector(`.gb[data-uid="${focusUid}"]`); if (g) g.focus({ preventScroll: true }); focusUid = null; }
+}
+ov.addEventListener('pointerdown', (e) => {
+  const g = e.target.closest('.gb'); if (!g || (e.pointerType === 'mouse' && e.button !== 0)) return;
+  const b = find(g.dataset.uid); if (!b) return;
+  select(b.uid);
+  dragSt = { uid: b.uid, mode: e.target.closest('[data-rh]') ? 'resize' : 'move', x0: e.clientX, y0: e.clientY, o: { col: b.col, row: b.row, colSpan: b.colSpan, rowSpan: b.rowSpan }, g, active: e.pointerType !== 'touch', patch: null, moved: false };
+  if (dragSt.active) g.classList.add('drag'); // a finger has to hold first, so a swipe still scrolls the page
+  else dragSt.timer = setTimeout(() => { if (dragSt) { dragSt.active = true; dragSt.g.classList.add('drag'); } }, 220);
+  try { g.setPointerCapture(e.pointerId); } catch {}
+});
+ov.addEventListener('pointermove', (e) => {
+  const s = dragSt; if (!s) return;
+  const dx = e.clientX - s.x0, dy = e.clientY - s.y0;
+  if (!s.active) { if (Math.hypot(dx, dy) > 8) { clearTimeout(s.timer); dragSt = null; } return; }
+  const dc = Math.round(dx / (M.cw + M.gap)), dr = Math.round(dy / M.rh), o = s.o;
+  const p = s.mode === 'move' ? { col: clampN(o.col + dc, 1, M.cols - o.colSpan + 1), row: clampN(o.row + dr, 1, M.R - o.rowSpan + 1) }
+    : { colSpan: clampN(o.colSpan + dc, 1, M.cols - o.col + 1), rowSpan: clampN(o.rowSpan + dr, 1, M.R - o.row + 1) };
+  s.patch = p; s.moved = Object.keys(p).some((k) => p[k] !== o[k]);
+  boxStyle(s.g, { ...o, ...p });
+  s.g.classList.toggle('bad', s.moved && checkPlace(s.uid, p).length > 0);
+});
+function endDrag(e, cancel) {
+  const s = dragSt; if (!s) return; clearTimeout(s.timer); dragSt = null;
+  s.g.classList.remove('drag');
+  if (!cancel && s.active && s.moved) { focusUid = s.uid; if (!applyPlace(s.uid, s.patch)) drawOverlay(); }
+  else if (s.moved) drawOverlay();
+}
+ov.addEventListener('pointerup', (e) => endDrag(e, false));
+ov.addEventListener('pointercancel', (e) => endDrag(e, true));
+ov.addEventListener('touchmove', (e) => { if (dragSt && dragSt.active) e.preventDefault(); }, { passive: false });
+ov.addEventListener('keydown', (e) => {
+  const g = e.target.closest('.gb'); if (!g) return;
+  if (e.key === 'Escape') { g.blur(); return; }
+  const k = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key]; if (!k) return;
+  e.preventDefault();
+  const b = find(g.dataset.uid); if (!b) return;
+  select(b.uid);
+  applyPlace(b.uid, e.shiftKey ? { colSpan: b.colSpan + k[0], rowSpan: b.rowSpan + k[1] } : { col: b.col + k[0], row: b.row + k[1] });
+});
+$('#lay-g').onclick = () => {
+  if (layout.grid) return;
+  let dropped = [];
+  change((L) => { L.grid = true; if (L.blocks.some((b) => !placed(b)) || gridProblems(L, size).length) dropped = autoPlace(L, size); });
+  toast(dropped.length ? `Grid on. Switched off ${dropped.map((u) => TYPES[find(u).type].name).join(', ')} for room: turn it on again and place it where you like.` : 'Grid on. Drag a block to move it, or its corner to resize.');
+};
+$('#lay-f').onclick = () => { if (!layout.grid) return; change((L) => { delete L.grid; }); toast('Flow: blocks stack in order again. Undo brings the grid back.'); };
+$('#actual').onclick = () => { actualSize = !actualSize; $('#actual').setAttribute('aria-pressed', actualSize); fit(); drawOverlay(); };
+document.addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'z' && !e.target.matches('input,textarea')) { e.preventDefault(); $('#undo').click(); } });
+
 // ---------- tabs & menu ----------
-function tab(t) { $('#main').dataset.tab = t; document.querySelectorAll('.tabs button').forEach((b) => b.setAttribute('aria-selected', b.dataset.tab === t)); if (t === 'preview') { fit(); meter(); } }
+function tab(t) { $('#main').dataset.tab = t; document.querySelectorAll('.tabs button').forEach((b) => b.setAttribute('aria-selected', b.dataset.tab === t)); if (t === 'preview') { fit(); meter(); drawOverlay(); } }
 document.querySelectorAll('.tabs button').forEach((b) => (b.onclick = () => tab(b.dataset.tab)));
 const menu = $('#menu');
 $('#menubtn').onclick = (e) => { e.stopPropagation(); menu.classList.toggle('open'); $('#menubtn').setAttribute('aria-expanded', menu.classList.contains('open')); };
@@ -684,7 +872,7 @@ async function save(retry = true) {
     setStatus('Couldn’t save. Try again in a moment', 'bad');
   }
 }
-$('#m-reset').onclick = () => { if (!confirm('Put the day page back to the original layout?')) return; change((L) => { L.blocks = structuredClone(DEFAULT_LAYOUT.blocks); }); toast('Back to the original page. Undo is still there.'); };
+$('#m-reset').onclick = () => { if (!confirm('Put the day page back to the original layout?')) return; change((L) => { L.blocks = structuredClone(DEFAULT_LAYOUT.blocks); delete L.grid; }); toast('Back to the original page. Undo is still there.'); };
 // Method layouts (content/layouts.mjs): replace the page, one undo step; confirm first if it isn't the original page.
 const sameBlocks = (a, c) => JSON.stringify(normalize({ v: 2, blocks: a }).blocks) === JSON.stringify(normalize({ v: 2, blocks: c }).blocks);
 let pickedMethod = null;
@@ -693,7 +881,7 @@ $('#methods-list').innerHTML = METHOD_LAYOUTS.map((m) => `<li><button type="butt
 $('#m-method').onclick = () => { methodPane(false); $('#methods').showModal(); };
 function applyMethod(m) {
   selected = null;
-  change((L) => { L.blocks = structuredClone(m.layout.blocks); });
+  change((L) => { L.blocks = structuredClone(m.layout.blocks); delete L.grid; });
   $('#methods').close(); toast(`Now: ${m.name}. Undo brings your page back.`);
 }
 $('#methods-list').addEventListener('click', (e) => {
@@ -713,7 +901,7 @@ $('#m-dl').onclick = async () => {
 $('#m-import').onclick = () => $('#file').click();
 $('#file').onchange = async () => {
   const f = $('#file').files[0]; $('#file').value = ''; if (!f) return;
-  try { const L = JSON.parse(await f.text()); change((X) => { X.blocks = normalize(L).blocks; }); toast('Layout imported'); } catch { toast('That file isn’t a day page layout.'); }
+  try { const L = JSON.parse(await f.text()); change((X) => setLayoutFrom(X, normalize(L, size))); toast('Layout imported'); } catch { toast('That file isn’t a day page layout.'); }
 };
 
 // GitHub (Pages mode): commit journal/content/daypage.json with a fine-grained token.
@@ -755,7 +943,7 @@ $('#m-ghload').onclick = async () => {
   try {
     const f = await gh('GET', repo, token, `${GH_PATH}?ref=${encodeURIComponent(branch)}`);
     if (!f) { toast('No layout on GitHub yet: the books use the original page.'); return; }
-    const L = JSON.parse(unb64(f.content)); change((X) => { X.blocks = normalize(L).blocks; }); dirty = false; setStatus('Loaded from GitHub', 'ok');
+    const L = JSON.parse(unb64(f.content)); change((X) => setLayoutFrom(X, normalize(L, size))); dirty = false; setStatus('Loaded from GitHub', 'ok');
   } catch (e) { toast(e.message || 'Couldn’t reach GitHub.'); }
 };
 addEventListener('beforeunload', (e) => { if (MODE === 'pages' && dirty) { e.preventDefault(); e.returnValue = ''; } });
@@ -1215,8 +1403,8 @@ function stFieldText(type, f) {
   if (f.key === 'on') return f.after ? 'Turned on' : 'Turned off';
   const m = f.key.match(/^rows\.([a-z_0-9]+)(?:\.(.+))?$/);
   if (m) { const row = (CARE_ROWS[m[1]] || {}).name || m[1], what = m[2]; if (!what) return `Care › ${row}: ${f.after === 'added' ? 'added' : 'removed'}`; return `Care › ${row}${what === 'on' ? '' : ' › ' + what}: ${stFmt(f.before)} → ${stFmt(f.after)}`; }
-  const o = ((TYPES[type] || {}).opts || []).find((x) => x.k === f.key);
-  return `${o ? o.label : f.key}: ${stFmt(f.before)} → ${stFmt(f.after)}`;
+  const o = ((TYPES[type] || {}).opts || []).find((x) => x.k === f.key), place = { col: 'Grid column', row: 'Grid row', colSpan: 'Grid width', rowSpan: 'Grid height' }[f.key];
+  return `${o ? o.label : place || f.key}: ${stFmt(f.before)} → ${stFmt(f.after)}`;
 }
 const stCmpClear = () => { $('#vs-cols').dataset.pane = 'log'; $('#vs-cmp').innerHTML = '<p class="vs-empty">Pick a version and tap Compare to see what changed, page by page and block by block.</p>'; };
 async function stSnap(ref) {
@@ -1230,7 +1418,7 @@ function stInjectCss() {
 }
 function stPaintPage(host, day, marks) {
   const W = SIZES[size] * 96, H = 8.5 * 96;
-  host.innerHTML = `<div class="vpv" style="width:${W}px;height:${H}px"><div class="page verso dayp m" style="width:${SIZES[size]}in">${dayBlocks(KIT, day, { tag: true })}${KIT.strip}</div></div>`;
+  host.innerHTML = `<div class="vpv" style="width:${W}px;height:${H}px"><div class="page verso dayp m" style="width:${SIZES[size]}in">${dayBlocks(KIT, day, { tag: true, size })}${KIT.strip}</div></div>`;
   const root = host.querySelector('.vpv');
   drawRules(root);
   for (const [uid, [kind, text]] of Object.entries(marks)) root.querySelectorAll(`[data-b="${uid}"]`).forEach((el) => { el.dataset.mark = text; el.dataset.mk = kind; });
@@ -1261,6 +1449,7 @@ async function stCompare(a, b, title) {
     // day page: marks per side
     const ad = Object.fromEntries(A.snapshot.day.blocks.map((x) => [x.uid, x])), bd = Object.fromEntries(B.snapshot.day.blocks.map((x) => [x.uid, x]));
     const mA = {}, mB = {}, rows = [];
+    if (df.day.grid) rows.push(['chg', 'Changed', df.day.grid.after ? 'Grid layout switched on' : 'Grid layout switched off', df.day.grid.after ? 'Blocks sit on the page grid instead of stacking' : 'Blocks stack in order again']);
     for (const x of df.day.added) { mB[x.id] = ['add', 'New']; rows.push(['add', 'Added', `${stBlockLabel(bd[x.id])}`, '']); }
     for (const x of df.day.removed) { mA[x.id] = ['del', 'Removed']; rows.push(['del', 'Removed', stBlockLabel(ad[x.id]), '']); }
     for (const x of df.day.moved) { mA[x.id] = ['mov', 'Moved']; mB[x.id] = ['mov', 'Moved']; rows.push(['mov', 'Moved', stBlockLabel(bd[x.id]), `From position ${x.from + 1} to ${x.to + 1}`]); }
