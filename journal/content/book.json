@@ -1,0 +1,161 @@
+{
+ "version": 1,
+ "default": [
+  {
+   "id": "title",
+   "type": "title",
+   "on": true,
+   "options": {}
+  },
+  {
+   "id": "blank",
+   "type": "blank",
+   "on": true,
+   "options": {}
+  },
+  {
+   "id": "anatomy",
+   "type": "anatomy",
+   "on": true,
+   "options": {}
+  },
+  {
+   "id": "key",
+   "type": "key",
+   "on": true,
+   "options": {}
+  },
+  {
+   "id": "key_2",
+   "type": "key_2",
+   "on": true,
+   "options": {}
+  },
+  {
+   "id": "care_plan",
+   "type": "care_plan",
+   "on": true,
+   "options": {}
+  },
+  {
+   "id": "contacts",
+   "type": "contacts",
+   "on": true,
+   "options": {}
+  },
+  {
+   "id": "theme",
+   "type": "theme",
+   "on": true,
+   "options": {}
+  },
+  {
+   "id": "weeks",
+   "type": "weeks",
+   "on": true,
+   "options": {
+    "month": [
+     {
+      "id": "month_cal",
+      "type": "month_cal",
+      "on": true,
+      "options": {}
+     },
+     {
+      "id": "month_sky",
+      "type": "month_sky",
+      "on": true,
+      "options": {}
+     },
+     {
+      "id": "month_tracker",
+      "type": "month_tracker",
+      "on": true,
+      "options": {}
+     },
+     {
+      "id": "month_moon",
+      "type": "month_moon",
+      "on": true,
+      "options": {}
+     }
+    ],
+    "week": [
+     {
+      "id": "week_left",
+      "type": "week_left",
+      "on": true,
+      "options": {}
+     },
+     {
+      "id": "week_right",
+      "type": "week_right",
+      "on": true,
+      "options": {}
+     },
+     {
+      "id": "days",
+      "type": "days",
+      "on": true,
+      "options": {}
+     },
+     {
+      "id": "week_review",
+      "type": "week_review",
+      "on": true,
+      "options": {}
+     },
+     {
+      "id": "week_exchange",
+      "type": "week_exchange",
+      "on": true,
+      "options": {}
+     }
+    ]
+   }
+  },
+  {
+   "id": "month_review",
+   "type": "month_review",
+   "on": true,
+   "options": {}
+  },
+  {
+   "id": "closing",
+   "type": "closing",
+   "on": true,
+   "options": {}
+  },
+  {
+   "id": "support",
+   "type": "support",
+   "on": true,
+   "options": {}
+  },
+  {
+   "id": "trans_support",
+   "type": "trans_support",
+   "on": true,
+   "options": {}
+  },
+  {
+   "id": "safety",
+   "type": "safety",
+   "on": true,
+   "options": {}
+  },
+  {
+   "id": "bus",
+   "type": "bus",
+   "on": true,
+   "options": {}
+  },
+  {
+   "id": "lineage",
+   "type": "lineage",
+   "on": true,
+   "options": {}
+  }
+ ],
+ "months": {}
+}

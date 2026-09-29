@@ -173,6 +173,23 @@ references. `render.mjs` only adds the frame, scan markers and page codes. The e
 `identical.json` holds a fingerprint per page HTML of the default books (from `test.ics`). A change that is meant to alter the
 default books: rebuild them all, then `node check-identical.mjs --update` and commit the new file with the change.
 
+### The book layout (`content/book.json`)
+`book.mjs` `DEFAULT_BOOK` is the page order; `content/book.json` (the committed copy equals the default) overrides it and
+`render.mjs` follows it. Validation runs at build time and says what is wrong and where.
+
+    { "version": 1,
+      "default": [ {"id": "title", "type": "title", "on": true, "options": {}}, ... ],
+      "months": { "2027-02": { "pages": [ ...a whole list for that month's book... ] } } }
+
+- One entry per page type (`PAGE_TYPES` in `pages.mjs`); `on: false` hides it. `notes` entries can be added and repeated (option `title`).
+- The `weeks` entry is the journal itself: its `month` list is that month's pages (calendar, sky, tracker, moon), its `week` list is each
+  week's pages (left, right, days, review, exchange + reply).
+- Safety plan, Support and Closing the month can be moved but never hidden or removed. Each other page type appears once.
+- Never hand-set: recto/verso (a Notes page is added where a spread needs one), even page count (>= 24, hardcover >= 76), `{{P_x}}`
+  page references (a hidden page's pointer is dropped from How to use it; a pointer that cannot resolve is an error), scan codes, the
+  Keeper's handoff page number. Page ids stay `week.03.reply`, `day.2026-10-14` ... whatever the order.
+- `node test-book.mjs` checks the rules and the sequence. A book that differs from the default is skipped by `check-identical.mjs`.
+
 ## Day page editor
 `daypage.mjs` is the block library: order, on/off and options for every day page block. `content/daypage.json`
 (written by the editor) overrides the default; with no file the page is the original layout.

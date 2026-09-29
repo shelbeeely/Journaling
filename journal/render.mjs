@@ -1,16 +1,16 @@
 // Renders one monthly book's KDP interior (5.5x8.5, or 8.5x11 with SIZE=letter) as HTML (one fixed-size div per page)
 // and prints it to PDF with Chromium.
 // Usage: node render.mjs month <YYYY-MM> [a.ics,b.ics]      (SIZE=letter for 8.5x11, HARDCOVER=1 to pad to 76+ pages)
-// The pages themselves are built by pages.mjs (shared with the page editor) and laid out in the order book.mjs says
-// (DEFAULT_BOOK reproduces the original sequence). This file adds the frame, scan markers and page codes.
+// The pages themselves are built by pages.mjs (shared with the page editor) and laid out in the order content/book.json
+// says (book.mjs; the default reproduces the original sequence). This file adds the frame, scan markers and page codes.
 import fs from 'node:fs';
 import { launch } from './browser.mjs';
 import bwipjs from 'bwip-js';
 import { drawRulings } from './rulings.mjs';
 import { EDITION } from './content/edition.mjs';
 import { DAYPAGE_CSS } from './daypage.mjs';
-import { loadContext } from './context.mjs';
-import { assemble, DEFAULT_BOOK } from './book.mjs';
+import { loadContext, loadBook } from './context.mjs';
+import { assemble, assertBook, entriesFor, normalizeBook } from './book.mjs';
 if (process.argv[2] !== 'month' || !/^\d{4}-\d{2}$/.test(process.argv[3] || '')) {
   console.error('Usage: node render.mjs month <YYYY-MM> [a.ics,b.ics]   (SIZE=letter, HARDCOVER=1)');
   process.exit(1);
@@ -19,11 +19,15 @@ const LETTER = process.env.SIZE === 'letter', HARDCOVER = process.env.HARDCOVER 
 const ctx = await loadContext({ month: process.argv[3], ics: process.argv[4], size: LETTER ? 'letter' : 'small' });
 const { D, VOL } = ctx;
 const OUT = `out/m${VOL.id}${LETTER ? '-letter' : ''}`;
+// Which pages, in what order: content/book.json (from the editor), checked here so a bad file says what is wrong.
+const fileBook = loadBook();
+if (fileBook && Object.keys(fileBook).length) try { assertBook(fileBook); } catch (e) { console.error(e.message); process.exit(1); }
+const book = normalizeBook(fileBook);
 // Page sequence (mirror margins by parity), padding and page references: book.mjs. Every page has an `id` (unique in the book,
 // derived from what the page is, never from its position: title, key, week.03.reply, day.2026-10-14 ...), a printed `label`
 // and `shared` (front/back matter meant to print byte-identically in every book); see pages.mjs and check-pages.mjs.
 // Only padding pages are numbered by order (notes.1, notes.2 ...): they exist because of position.
-const { pages } = assemble(ctx, DEFAULT_BOOK.default, { hardcover: HARDCOVER });
+const { pages } = assemble(ctx, entriesFor(book, VOL.id), { hardcover: HARDCOVER });
 
 // ---------- HTML ----------
 // 5.5 x 8.5 in: a KDP.com size for both paperback and hardcover (A5 is only offered on KDP Japan)

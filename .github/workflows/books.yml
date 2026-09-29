@@ -32,6 +32,8 @@ jobs:
           sudo apt-get install -y -q poppler-utils p7zip-full >/dev/null
       - name: Data checks (event order, moon signs, eclipses, meteors)
         run: node test-data.mjs
+      - name: Book layout check (content/book.json validation, hide/move/per-month, alignment, padding)
+        run: node test-book.mjs
       - name: Busy-calendar check (month cells and week rows cap and clamp; every page fits)
         run: node test-busy.mjs
       - name: Calendars (from the ICS_URLS secret, never committed)
