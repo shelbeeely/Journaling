@@ -121,6 +121,29 @@ await p.evaluate(() => { layout = normalize({ v: 2, blocks: [{ type: 'sky' }, { 
 ok(await p.evaluate(() => document.querySelectorAll('#pv [data-zone="weekstrip"] .wsc').length === 7 && document.querySelectorAll('#pv [data-zone="weekstrip"] .wsc.td').length === 1 && document.querySelector('#pv .wsc.td i').textContent === '31'), 'week strip: 7 days, today ringed');
 await p.evaluate(() => { layout = normalize({ v: 2, blocks: [{ type: 'sky' }, { type: 'tl24' }, { type: 'rounds' }, { type: 'rounds' }, { type: 'body', uid: 'body' }, { type: 'actions' }] }); drawList(); drawPreview(); });
 ok(await p.evaluate(() => [...document.querySelectorAll('#pv [data-zone]')].map((e) => e.dataset.zone).filter((z) => z.startsWith('rounds')).join() === 'rounds,rounds_2'), 'repeated blocks get rounds, rounds_2 zones');
+// Size options (Shelbee: "give blocks a size option"): every block that had a fixed height gets a control. Each starts at today's size
+// (proved byte for byte against the old library, see README), each bigger setting makes the block taller, and the meter follows.
+const SIZE_OPTS = [
+  ['top', 'pitch', 8.5, { n: 3 }], ['good', 'pitch', 0.335, {}], ['review', 'h', 4, {}], ['timeline', 'pitch', 8.5, {}], ['bullets', 'pitch', 8.5, {}], ['actions', 'h', 0.36, {}],
+  ['dump', 'pitch', 8.5, { n: 2 }], ['later', 'pitch', 8.5, { n: 3 }], ['done', 'pitch', 8.5, { n: 3 }], ['wall', 'n', 3, {}], ['tl24', 'h', 0.3, {}], ['stamps', 'pitch', 8.5, { n: 3 }],
+  ['keep', 'pitch', 8.5, { n: 3 }], ['prompt', 'pitch', 8.5, { n: 3 }], ['lookback', 'pitch', 8.5, { n: 2 }], ['rounds', 'pitch', 8.5, { n: 2 }],
+  ...['checks', 'habits', 'scale', 'fields', 'words', 'sensory', 'sleeptimes', 'weather', 'bus', 'money', 'reach', 'shift', 'energy', 'accounts', 'pixel', 'range', 'wall'].map((t) => [t, 'roomy', true, {}]),
+];
+const ws = (m) => { const x = /Writing space ([\d.]+) in/.exec(m); return x ? +x[1] : 0; };
+for (const [t, k, big, base] of SIZE_OPTS) {
+  const r = await p.evaluate(([t, k, big, base]) => {
+    const run = (o) => { layout = normalize({ v: 2, blocks: [{ type: 'sky' }, { type: t, uid: 'zz', ...base, ...o }, { type: 'body', uid: 'body' }, ...(t === 'actions' ? [] : [{ type: 'actions' }])] }); drawList(); drawPreview();
+      const el = document.querySelector('#pv [data-b="zz"]'); if (!el) throw new Error('no block for ' + t); return { h: el.getBoundingClientRect().height, m: document.querySelector('#meter').textContent, has: !!TYPES[t].opts.find((x) => x.k === k), def: layout.blocks.find((b) => b.type === t)[k] }; };
+    const a = run({}), b = run({ [k]: big }); return { a, b, zones: document.querySelectorAll(`#pv [data-zone="${t === 'actions' ? 'action_items' : t}"]`).length };
+  }, [t, k, big, base]);
+  ok(r.a.has && r.zones >= 1, `${t}: has a size control (${k}) and keeps its data-zone`);
+  ok(r.b.h > r.a.h + 1, `${t}: ${k} ${big} is taller than the default (${r.a.h.toFixed(0)} -> ${r.b.h.toFixed(0)} px)`);
+  ok(r.b.m.includes('Too full') || ws(r.b.m) < ws(r.a.m) + 0.001, `${t}: the meter follows the new height (${ws(r.a.m)} -> ${ws(r.b.m) || 'overflow'} in)`);
+}
+await p.evaluate(() => { layout = normalize({ v: 2, blocks: [{ type: 'sky' }, { type: 'top', n: 6, pitch: 8.5 }, { type: 'good', n: 8, pitch: 0.335 }, { type: 'body', uid: 'body' }, { type: 'actions', count: 8, h: 0.36 }, { type: 'review', h: 5 }] }); drawList(); drawPreview(); });
+ok((await p.textContent('#meter')).includes('Too full'), 'big sizes overflow: the meter says so');
+await p.evaluate(() => { layout = normalize({ v: 2, blocks: [{ type: 'sky' }, { type: 'top', n: 3, pitch: 8.5 }, { type: 'checks', roomy: true }, { type: 'dump', n: 3, pitch: 6.6 }, { type: 'body', uid: 'body' }, { type: 'actions' }] }); drawList(); drawPreview(); });
+await p.locator('.paper').screenshot({ path: `${OUT}/sizes.png` });
 await p.evaluate(() => { layout = normalize(null); drawList(); drawPreview(); });
 await p.click('#pal [data-add="t:lines"]');
 const inp = p.locator('#list li[data-uid^="lines"] input[data-text]').first();

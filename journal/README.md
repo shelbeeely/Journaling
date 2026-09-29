@@ -230,6 +230,27 @@ them). `focus_rounds` is the key the X4 Focus timer files its count under. A sec
 The 24 h line, the look-back date and the prompt read the day's `parts.day` (`{date, rise, set}`) that `render.mjs` passes in;
 the editor uses a generic sample day (2026-10-31).
 
+### Size options
+Every block that had a fixed height now has a size control. Each starts at today's size, so an unchanged layout prints exactly
+the same page (checked byte for byte against the previous block library for the default layout, every old block type and every
+preset). The editor's meter follows the new heights; rules and grids print as vectors at every size (`rulings.mjs` already
+draws each line spacing, and the row edges and `.lines` rules take any height).
+
+| Block | Option | Values (default first) |
+|---|---|---|
+| Top priorities, Time blocks, Quick bullets | Line spacing / Row height (`pitch`) | Tight 5.6 mm, Standard 6.6 mm, Wide 8.5 mm |
+| Small good things | Line spacing (`pitch`) | Tight 5 mm (0.2 in), Standard 6.6 mm, Wide 8.5 mm; up to 8 lines |
+| Went well / Was hard / Tomorrow | Height in lines (`h`) | 2 (1 to 5) |
+| Action items | Row height (`h`), lines | Standard 0.24 in, Roomy 0.3, Wide 0.36; 3 lines (1 to 8) |
+| Lined notes, Two columns | Lines | 2 or 3 (1 to 12) |
+| Quick bullets | Rows | 5 (2 to 14) |
+| Time line 24 h | Row height (`h`) | Compact 0.18 in, Standard 0.24, Roomy 0.3 |
+| Brain dump, Later, Done list, Time stamps, Focus rounds, Keep, Rotating prompt, A month ago today | Row height (`pitch`), rows | Tight 5.6 mm, Standard 6.6 mm, Wide 8.5 mm; rows up to 8 to 12 |
+| Wall of Awful | Lines to write below (`n`), row height | 0 (0 to 4) |
+| Checkboxes, Habit dots, Scale, Fill-in blanks, Words, Sensory load, Sleep times, Weather, Bus plan, Spending, Reach out, Work shift, Energy types, Energy accounts, Wall of Awful, Day pixel, Low and high | Roomy spacing (`roomy`) | off, on: more height per row and wider gaps |
+
+Sketch box (`h`), Space (`h`), Spending, Bus plan, Reach out and Work shift (row counts) already had size controls.
+
 ### Page identity
 Every page has an `id` in `layout.json`, unique in its book and derived from what the page is, not where it sits:
 `title`, `key`, `care_plan`, `month.calendar`, `week.03.left`, `week.03.right`, `week.03.exchange`, `week.03.reply`,
