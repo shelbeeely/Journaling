@@ -47,7 +47,22 @@ mkdir -p out/manyevents; rm -rf /tmp/kwsd; cp -r sample /tmp/kwsd
 printf "ev=9:00a Dentist\nev=10:30a Call the pharmacy\nev=12:00p Lunch with Sam\nev=2:00p Therapy\nev=4:30p Pick up parcel\nev=6:00p Movie night\nrt=Water plants\n" >> /tmp/kwsd/kw/2026-10.txt
 printf "2026-10-31T09:00,c_old_key,1\n2026-10-31T09:01,c_other_old,2\n2026-10-31T09:02,mood,2\n" >> /tmp/kwsd/kw/log/2026-10.csv
 env KW_SD=/tmp/kwsd KW_OUT=out/manyevents KW_NOW="2026-10-31 13:10" KW_KEYS="" ./kw_host >/dev/null
+# Focus (Menu > Focus, the last entry): setup with a custom work length, a run started (draws once, then deep sleep), the break after
+# round 1, round 2 of 4, the long break, and Done. Each phase is a timer wake from a seeded /kw/focus.txt.
+E=$(TZ=America/Los_Angeles date -d "2026-10-14 13:10" +%s)
+run focussetup KW_NOW="2026-10-14 13:10" KW_KEYS="back down down down down down down down confirm down right right up"
+run focusing KW_NOW="2026-10-14 13:10" KW_KEYS="back down down down down down down down confirm down down down confirm"
+grep -q '^run=W,1,' /tmp/kwsd/kw/focus.txt || { echo "FAIL: starting Focus did not save the run"; exit 1; }
+focusseed() { name=$1; seed=$2; shift; shift; mkdir -p out/$name; rm -rf /tmp/kwsd; cp -r sample /tmp/kwsd; printf "$seed" > /tmp/kwsd/kw/focus.txt; [ -n "$FLOG" ] && printf "$FLOG" >> /tmp/kwsd/kw/log/2026-10.csv; env KW_SD=/tmp/kwsd KW_OUT=out/$name "$@" ./kw_host >/dev/null; }
+focusseed focusbreak "plan=25,5,15,4\nrun=W,1,$E,0\n" KW_NOW="2026-10-14 13:10" KW_TIMER=1
+grep -q ',focus_rounds,1$' /tmp/kwsd/kw/log/2026-10.csv || { echo "FAIL: the finished round was not logged"; exit 1; }
+focusseed focusround2 "plan=25,5,15,4\nrun=W,2,$((E+1500)),1\n" KW_NOW="2026-10-14 13:10" KW_KEYS=""
+focusseed focuslong "plan=25,5,15,4\nrun=W,4,$E,3\n" KW_NOW="2026-10-14 13:10" KW_TIMER=1
+FLOG="2026-10-14T12:55,focus_rounds,3\\n" focusseed focusdone "plan=25,5,15,4\nrun=B,4,$E,3\n" KW_NOW="2026-10-14 13:10" KW_TIMER=1
+focusseed focusinterrupt "plan=25,5,15,4\nrun=W,2,$((E+1500)),0\n" KW_NOW="2026-10-14 13:10" KW_KEYS="confirm confirm"
+grep -q ',focus_interruptions,2$' /tmp/kwsd/kw/log/2026-10.csv || { echo "FAIL: interruptions were not logged"; exit 1; }
 python3 topng.py out
 ./test_update.sh
+./test_focus.sh    # round/break schedule, late wakes (also past the 4 a.m. roll), stale runs, month counts
 ./test_legacy.sh   # logs written before the care split (old keys for meds, meals, mood) still read and count
 python3 ../tools/test_export.py
