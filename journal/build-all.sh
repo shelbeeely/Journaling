@@ -29,5 +29,7 @@ unset SIZE
 [ ${#dirs[@]} -eq 0 ] || node check-pages.mjs "${dirs[@]}" || { echo "::error::page identity"; fail=1; }
 [ ${#dirs[@]} -eq 0 ] || node check-codes.mjs "${dirs[@]}" || { echo "::error::scan codes"; fail=1; }
 [ ${#dirs[@]} -eq 0 ] || node check-handoff.mjs "${dirs[@]}" || { echo "::error::handoff boxes differ between the X4, the Closing page and the Keeper"; fail=1; }
+# the default books must not change unless a change to them is intended (fingerprints in identical.json; sample calendar, paperback only)
+[ "$ICS" = test.ics ] && [ "${HARDCOVER:-}" != 1 ] && [ ${#dirs[@]} -gt 0 ] && { node check-identical.mjs "${dirs[@]}" || { echo "::error::default books changed"; fail=1; }; }
 node proof-test.mjs || fail=1   # KDP proof test sheet (both sizes), not part of the books
 exit $fail

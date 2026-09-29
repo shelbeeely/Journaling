@@ -3,6 +3,7 @@
 // is the printed page. Sample content is generic: no calendar events or routines from private/.
 //   node render.mjs month 2026-10 private/main.ics,private/birthdays.ics && node editor/build.mjs
 import fs from 'node:fs';
+import { samplePages } from './samples.mjs';
 const root = new URL('../', import.meta.url);
 const read = (p) => fs.readFileSync(new URL(p, root), 'utf8');
 const h = read('out/m2026-10/journal.html');
@@ -44,4 +45,7 @@ fs.writeFileSync(new URL('site/index.html', dist), site);
 const cur = new URL('content/daypage.json', root);
 fs.writeFileSync(new URL('site/daypage.json', dist), fs.existsSync(cur) ? fs.readFileSync(cur) : '{}\n');
 fs.writeFileSync(new URL('site/.nojekyll', dist), '');
+// Every page type rendered from sample data by pages.mjs (the same code print uses), with the scoped page CSS. Not used by the
+// day page editor's screen yet; the book canvas draws its page thumbnails from it.
+fs.writeFileSync(new URL('site/pages-sample.json', dist), JSON.stringify({ css, ...(await samplePages()) }));
 console.log('editor/dist/artifact.html + editor/dist/site/', (site.length / 1024).toFixed(0) + ' KB');

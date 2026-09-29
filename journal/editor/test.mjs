@@ -261,5 +261,25 @@ await m.click('#methods [data-method="theme"]');
 ok(await m.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'no sideways scroll with a method layout');
 await m.screenshot({ path: `${OUT}/phone-theme.png` });
 ok(!errs.length, 'no page errors ' + errs.join(' | '));
+// Any page type renders from sample data (pages.mjs, shared with print): each type of the default book, drawn with the page CSS.
+{
+  const S = JSON.parse(fs.readFileSync(new URL('./dist/site/pages-sample.json', import.meta.url)));
+  const { PAGE_TYPES } = await import('../pages.mjs');
+  const typesMade = new Set(S.pages.map((x) => x.type));
+  ok(S.types.length === Object.keys(PAGE_TYPES).length, `sample data lists every page type (${S.types.length})`);
+  ok(S.pages.length >= 24 && S.pages.length % 2 === 0, `sample book has an even page count (${S.pages.length})`);
+  ok(S.pages.every((x) => !/\{\{P_|undefined|NaN|\[object/.test(x.html)), 'no unresolved page references or undefined text in any sample page');
+  ok(!S.pages.some((x) => /Unify|120 W Mission/.test(x.html)), 'sample pages carry no clinic details');
+  const want = ['title', 'blank', 'anatomy', 'key', 'care', 'contacts', 'theme', 'month_cal', 'month_sky', 'month_tracker', 'month_moon', 'week_left', 'week_right', 'dayp', 'week_review', 'exchange_l', 'exchange_r', 'month_review', 'closing', 'support', 'trans', 'safety', 'bus', 'bus_grid', 'lineage', 'notes'];
+  ok(want.every((t) => typesMade.has(t)), 'every page type is rendered from sample data' + want.filter((t) => !typesMade.has(t)).map((t) => ' (missing ' + t + ')').join(''));
+  const pg = await b.newPage({ viewport: { width: 1200, height: 900 } });
+  const seenT = new Set(), picks = [];
+  for (const x of S.pages) if (!seenT.has(x.type)) { seenT.add(x.type); picks.push(x); }
+  await pg.setContent(`<!doctype html><meta charset="utf-8"><style>body{margin:0;background:#888;display:flex;flex-wrap:wrap;gap:12px;padding:12px;font-family:Lora,serif}${S.css}#pv .page{flex:none;background:#fff}</style><div id="pv" style="display:contents">${picks.map((x) => `<div class="page ${x.n % 2 ? 'recto' : 'verso'} ${x.cls} m" data-type="${x.type}" style="width:5.5in;height:8.5in;zoom:.6">${x.html}<div class="frame"></div></div>`).join('')}</div>`);
+  await pg.waitForTimeout(300);
+  ok(await pg.evaluate(() => [...document.querySelectorAll('#pv .page')].every((e) => e.querySelector(':scope > *') && e.scrollHeight <= e.clientHeight + 2)), 'every sample page fits its page');
+  await pg.screenshot({ path: `${OUT}/pages-sample.png`, fullPage: true });
+  await pg.close();
+}
 await b.close(); srv.close();
 if (fails.length) { console.log(`\n${fails.length} failed`); process.exit(1); }

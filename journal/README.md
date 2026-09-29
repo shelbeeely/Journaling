@@ -159,6 +159,20 @@ Your calendar files (private/*.ics) are also left out; put them back in private/
 Printed books show your calendar events: keep KDP proofs private (never a public listing).
 The Keeper holds hints and where things are kept (never passwords or recovery codes): never scan it.
 
+## Pages as shared functions (book canvas)
+Every page of a book is built by `pages.mjs`: pure functions (data + options -> HTML) with no fs or process, so print and the
+editor run the same code. `PAGE_TYPES` lists the page types (title, key, month calendar, week left/right, day, review, exchange,
+support, safety, bus, lineage ...) and `renderPages(type, ctx)` builds any of them. `context.mjs` loads the data a page needs
+(month, year content, STA schedule, directories) into one `ctx`; `book.mjs` lays the pages out (`DEFAULT_BOOK` is today's
+sequence) and adds what is never hand-set: recto/verso Notes pages, the even page count (>= 24, hardcover >= 76), `{{P_x}}` page
+references. `render.mjs` only adds the frame, scan markers and page codes. The editor build writes
+`editor/dist/site/pages-sample.json` (every page type from `test.ics`, no clinic details).
+
+    node check-identical.mjs          # after build-all.sh: the default books still match identical.json
+
+`identical.json` holds a fingerprint per page HTML of the default books (from `test.ics`). A change that is meant to alter the
+default books: rebuild them all, then `node check-identical.mjs --update` and commit the new file with the change.
+
 ## Day page editor
 `daypage.mjs` is the block library: order, on/off and options for every day page block. `content/daypage.json`
 (written by the editor) overrides the default; with no file the page is the original layout.
