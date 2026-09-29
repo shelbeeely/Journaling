@@ -1,5 +1,7 @@
 // KDP cover, full wrap: back + spine + front. White paper, B&W interior.
-// Usage: node cover.mjs month <YYYY-MM> | keeper   (SIZE=letter; HARDCOVER=1 for months -> …-hardcover-cover.pdf)
+// Usage: node cover.mjs month <YYYY-MM> | book <volume id> | keeper   (SIZE=letter; HARDCOVER=1 for books -> …-hardcover-cover.pdf)
+// `book` is one volume of a book plan (render.mjs book): its cover says "Volume N of M" and the volume's own range, and takes its
+// page count from that volume's folder (out/b-<id>/volume.json).
 // Paperback: 0.125" bleed, spine = pages x 0.002252". Hardcover (case laminate), per https://kdp.amazon.com/cover-calculator,
 // https://kdp.amazon.com/en_US/help/topic/GDTKFJPNQCBTMRV6 and https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6:
 // 0.591" (15 mm) wrap round the boards; boards 0.197" (5 mm) wider, 0.236" (6 mm) taller than the trim; 0.394" (10 mm) hinge beside
@@ -10,12 +12,16 @@ import { PROFILE, bookNo, yearLabel } from './profile.mjs';
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const { title: TITLE, subtitle: SUBTITLE, slug: SLUG } = PROFILE.book, LOC = PROFILE.location;
 
-const KEEPER = process.argv[2] === 'keeper';
-if (!KEEPER && !(process.argv[2] === 'month' && /^\d{4}-\d{2}$/.test(process.argv[3] || ''))) { console.error('usage: node cover.mjs month <YYYY-MM> | keeper'); process.exit(1); }
+const KEEPER = process.argv[2] === 'keeper', VOLUME = process.argv[2] === 'book' && /^[a-z0-9-]+-v\d+$/.test(process.argv[3] || '');
+if (!KEEPER && !VOLUME && !(process.argv[2] === 'month' && /^\d{4}-\d{2}$/.test(process.argv[3] || ''))) { console.error('usage: node cover.mjs month <YYYY-MM> | book <volume id, e.g. year-2026-10-v3> | keeper'); process.exit(1); }
 const LETTER = !KEEPER && (process.env.SIZE || PROFILE.trim) === 'letter';
 const HC = !KEEPER && process.env.HARDCOVER === '1'; // the Keeper is always a paperback
-let VN, VOL, OUT;
-if (KEEPER) { VN = 0; VOL = { label: yearLabel(), short: 'Keeper' }; OUT = `${process.env.KW_OUT || 'out'}/keeper`; }
+let VN, VOL, OUT, VV = null;
+if (VOLUME) {
+  OUT = `${process.env.KW_OUT || 'out'}/b-${process.argv[3]}${LETTER ? '-letter' : ''}`;
+  if (!fs.existsSync(`${OUT}/volume.json`)) { console.error(`No ${OUT}/volume.json: build the volume first (node render.mjs book).`); process.exit(1); }
+  VV = JSON.parse(fs.readFileSync(`${OUT}/volume.json`, 'utf8')); VN = VV.n; VOL = { label: VV.undated ? `Days ${VV.day_from}–${VV.day_to}` : VV.label, short: VV.undated ? `Days ${VV.day_from}–${VV.day_to}` : VV.short };
+} else if (KEEPER) { VN = 0; VOL = { label: yearLabel(), short: 'Keeper' }; OUT = `${process.env.KW_OUT || 'out'}/keeper`; }
 else {
   const [y, m] = process.argv[3].split('-').map(Number);
   const name = new Date(Date.UTC(y, m - 1, 1)).toLocaleDateString('en-US', { month: 'long', timeZone: 'UTC' });
@@ -68,17 +74,17 @@ ${KEEPER ? `<h2>The book that stays home.</h2>
   <p style="font-size:8pt;opacity:.75">Keeper · ${VOL.label} · Private: do not scan</p>` : `
   <h2>Keep watch over the sky, the season and yourself.</h2>
   <p>Babylonian astronomers wrote the night sky next to the price of barley. Seneca reviewed each day by lamplight. Old calendars named the seasons in five-day steps. This journal borrows from all of them.</p>
-  <ul><li>Full-page days with sunrise, sunset, moon phase and sign for ${esc(LOC.place)}</li><li>72 micro-seasons and the planetary week</li><li>Mood, sleep${PROFILE.modules.spoons ? ' and spoons' : ''} check-ins</li><li>Weekly spreads, monthly calendars and trackers</li><li>Exchange pages to share with someone</li></ul>
-  <p style="font-size:8pt;opacity:.75">Book ${VN} of 12 · ${VOL.label} · Test edition</p>`}
+  <ul><li>${VV && VV.undated ? 'Full-page days with no printed dates: you write them' : `Full-page days with sunrise, sunset, moon phase and sign for ${esc(LOC.place)}`}</li>${VV && VV.undated ? '' : '<li>72 micro-seasons and the planetary week</li>'}<li>Mood, sleep${PROFILE.modules.spoons ? ' and spoons' : ''} check-ins</li><li>${VV && VV.undated ? 'Weekly spreads, blank month grids and trackers' : 'Weekly spreads, monthly calendars and trackers'}</li><li>Exchange pages to share with someone</li></ul>
+  <p style="font-size:8pt;opacity:.75">${VV ? (VV.of > 1 ? `Volume ${VN} of ${VV.of}` : 'One volume') + (VV.undated ? ' · Undated' : '') : `Book ${VN} of 12`} · ${VOL.label} · Test edition</p>`}
 </div>
-<div class="panel spine">${SPINE >= 0.25 ? `<span>${esc(TITLE.toUpperCase())} · ${KEEPER ? 'THE KEEPER' : 'BOOK ' + VN + ' · ' + VOL.short.toUpperCase()}</span>` : ''}</div>
+<div class="panel spine">${SPINE >= 0.25 ? `<span>${esc(TITLE.toUpperCase())} · ${KEEPER ? 'THE KEEPER' : VV ? (VV.of > 1 ? 'VOL ' + VN + ' OF ' + VV.of + ' · ' : '') + VOL.short.toUpperCase() : 'BOOK ' + VN + ' · ' + VOL.short.toUpperCase()}</span>` : ''}</div>
 <div class="panel front">
   <div class="row">${phases}</div>
   <h1>${esc(TITLE)}</h1>
   <p class="sub">${KEEPER ? 'The Keeper' : esc(SUBTITLE)}</p>
-  <p class="range">${KEEPER ? 'Contacts · accounts · important info' : `Book ${VN} of 12`} · ${VOL.label}</p>
+  <p class="range">${KEEPER ? 'Contacts · accounts · important info' : VV ? (VV.of > 1 ? `Volume ${VN} of ${VV.of}` : VV.undated ? 'Undated' : 'One volume') : `Book ${VN} of 12`} · ${VOL.label}</p>${VV && VV.undated && VV.of > 1 ? '<p class="sub" style="margin-top:0.1in">Undated</p>' : ''}
 </div>
-<div class="foot">${KEEPER ? "Private · keep at home" : `Sky data for ${esc(LOC.city)}, ${esc(LOC.region)}`}</div>
+<div class="foot">${KEEPER ? "Private · keep at home" : VV && VV.undated ? '' : `Sky data for ${esc(LOC.city)}, ${esc(LOC.region)}`}</div>
 </body></html>`;
 
 const NAME = HC ? 'hardcover-cover' : 'cover';

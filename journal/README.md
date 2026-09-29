@@ -412,6 +412,44 @@ book, size or edition, a page with no zone map, a symbol bigger than 16x16, or a
 at 200 dpi (`DECODE=all` checks every page, default is a sample, `DECODE=none` skips). The app picks the zone map by
 (yymm, size), and the code says which.
 
+## Book plan (scopes, undated books, volumes)
+One book is one calendar month by default. The profile's `book` section can change that (`plan.mjs` is the whole rule):
+
+    "book": { ..., "scope": "year", "keeper": "twelve-book", "closing": "month" }
+
+| Setting | Values |
+|---|---|
+| `scope` | `month` (default: today's twelve monthly books), `quarter` (3 months from `book.start`), `season` (from the 1st of the start month to the day before the next solstice or equinox at least 60 days later: Oct 1 gives Oct 1 - Dec 20), `half-year`, `year`, `custom` (`book.custom: {"start": "2026-10-05", "end": "2027-01-20"}`, at most 1100 days), `undated` |
+| `undated` | `{"days": 90, "weeks": 13, "months": 3, "extras": ["theme", "tracker", "notes"], "fillins": true}`; weeks and months default from days |
+| `keeper` | `twelve-book` (today), `per-book`, `none` (`build-all.sh` skips the Keeper and the Closing pages stop pointing to it). `per-book` is accepted and treated like `twelve-book` until H2 |
+| `closing` | `month` (a Closing page after each month that ends in the volume) or `end` (once at the end of each volume; always for undated) |
+| `id` | The book's own scan-code id, 8 characters (0-9 A-Z without I L O U). Made once at the first build that needs it and written into the profile |
+
+    node render.mjs plan [test.ics] [--json]    # show the plan and the volume split, no rendering
+    node render.mjs book [test.ics]             # build every volume into out/b-<id>/ (SIZE=letter, HARDCOVER=1 as for months)
+    node cover.mjs book year-2026-10-v3         # that volume's cover ("Volume 3 of 9" and its range)
+
+**Month pages repeat for every month in the span**, week pages run continuously (week numbers carry across volumes), and each day, week
+and month page id says which one it is (`month.2026-11.calendar`, `week.07.left`, `day.2026-11-09`; undated: `day.017`).
+A week belongs to the month its first day is in; a month's pages come before its first week.
+
+**Volumes.** Paperback is 24-110 pages, hardcover 76-110 (shorter volumes are padded with Notes pages). If a book is over 110 pages the
+build counts pages with the real page builders and splits the span into the fewest volumes that each fit, as evenly as it can: on month
+boundaries when that works, else on the fewest week boundaries. It is deterministic and `plan` prints the split and why. A volume cut
+mid-week keeps that week in both volumes (the outside days say "in volume 2"), and no day is dropped or repeated. Each volume has its own folder
+(`b-<scope>-<start>-v<N>`), interior PDF, `layout.json`, `manifest.json` (book id, volume N of M, plan), cover and scan codes. At most 35 volumes.
+
+**Undated books.** No printed date anywhere: the DATE box is blank, the day page says "Day 17", weeks say "Week of ____" with a blank
+date row under the weekday letters, months are a blank grid (write the weekday the 1st falls on in the first header box) with numbered
+cells 1-31. Sky, holidays, events, pay marks and bus are off; the sky line and "On this day" become fill-ins; the rotating prompt goes by
+page number. Page ids, labels and codes go by order, and the manifest records the day, week or month number, not dates. The title page
+prints a build stamp instead of a date. The X4 pack (`epub.py`) is for the monthly books only.
+
+**Scan codes for these books** are `KW3` + book id (8) + volume (1 character, base 36) + size letter + page (3 digits), 16 characters,
+still a 16x16 Data Matrix. Nothing in it is a date. Monthly books keep `KW2|<edition>|<yymm>|<size><page>` exactly. `check-codes.mjs`
+checks uniqueness across every book present in `out/` (or `KW_OUT`, and `KW_REGISTRY` folders), and fails when one book id is on two different plans.
+`node test-scopes.mjs` (CI) builds every scope and checks all of this.
+
 ## More docs
 - [KDP.md](KDP.md): uploading to KDP
 - [NEW-EDITION.md](NEW-EDITION.md): setting up the next year

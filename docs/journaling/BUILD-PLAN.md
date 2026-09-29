@@ -209,6 +209,8 @@ run with the real calendar secrets; order one private KDP proof per size with th
 | X | X4-hosted editor: edit right from the device's hotspot, no internet; cloud sync goes through the phone (section 14); after C4a and G1 | 1–2 agents |
 | E1 | View versus edit: the editor UI (palette, options, panels) shows only while editing a page, not while viewing it (section 16); small, can go now | 1 agent |
 | L1 | Library and series: custom titles for every book, several books per project, series, Library → Series → Book → Spread → Page navigation (section 16); after H1 merges | 1–2 agents |
+| P1 | Account profile with saved locations that feed new books (section 17); pairs with Phase F units 2 and 3 | 1 agent |
+| I18N | Languages: translated UI and printed books, RTL and other scripts, X4 language packs (section 18); string extraction first | 3–4 agents |
 | A11Y | Accessibility options: editor, printed books, X4, site (section 15); audit first, then units; every new unit follows the checklist | 2–3 agents |
 
 Every unit follows the same proof as the fixes: reproduce, fix, rebuild all 12 months at both sizes with the checks
@@ -381,3 +383,52 @@ Accessibility is a requirement on every unit, plus a set of user-facing options.
 **Studio.** A project's commits snapshot the whole library; forks copy the project (books and series); merges work per book and per series setting using stable ids; releases are per book. Book ids are allocated per book.
 
 **Slices:** E1 view versus edit in the current editor (small); L1a data model (books and series in the project file and `profile`, custom titles through covers, manifests and the studio schema, migration from a single-book profile), L1b Library, Series and Book navigation in the editor plus series defaults and the Keeper option.
+
+## 17. Account profile and location (2026-09-29)
+
+A signed-in user has a profile with one or more **saved locations** (for example Home, Work, Travel). Guests get the same profile stored in the browser. A new book copies its location from the profile's default; a book can pick another saved location or a one-off place; changing the profile does not silently change books that already exist.
+
+**Setting a location (privacy first, no third-party service by default)**
+- Pick from a bundled offline gazetteer (cities of about 15,000 people and up, an open dataset with its licence and credit included), or type latitude, longitude and elevation, or press "Use my device location" (browser geolocation, only on tap, computed on the device).
+- Fields: place name and short name to print, region and country, latitude, longitude, elevation, IANA timezone (looked up offline from the coordinates and editable), first day of week, units, date format, and the region for content packs.
+- Nothing is sent to a server unless the user is signed in and chooses to save the profile; the browser never calls a geocoding service unless the user turns that on, and says so.
+
+**What the location drives when a book is built**
+- Sunrise and sunset, day length, moonrise and moonset, twilight, and the night shading on the 24 h time line.
+- Timezone, daylight saving changes and where a day starts (the X4 day-start hour stays a separate setting).
+- The place name on the title page, cover and sky pages; seasons and their dates for the hemisphere (southern hemisphere flips them); which astronomy events are visible.
+- Holidays and observances for the country or region (a data pack, off by default, chosen by the user).
+- Optional modules that need a place: transit feeds (a content pack per agency), and the region's support and resources pack. **Crisis and support numbers are never filled in automatically for a region without a pack that names who verified it and when**; without one, the book says how to add local numbers and shows only 988-style national lines that a pack verified.
+- Weather is not part of this. No live data leaves the device or the build.
+
+**Where it lives and what is shared**
+- The location is personal data. It is never part of the forkable publication source: a shared or forked project keeps only a reference (`location: profile default`), and whoever builds the book supplies their own. The studio's forbidden-content scanner rejects coordinates in a snapshot.
+- Printed books naturally show sun times for a place, so the profile explains that before printing a shared or sold book, and offers "approximate place" (rounded to a city or grid cell) for books meant to be shared.
+- A profile export and delete-my-data option ships with accounts.
+
+**Slices:** P1a profile schema and gazetteer with the offline timezone lookup, the account and guest profile UI, and the book-creation flow; P1b feed every location-driven calculation from the book's location (verify with a second city and a southern-hemisphere city: sun times, seasons, meteor visibility, timezone), with tests, plus the snapshot scanner rule. Shelbee's Spokane profile must reproduce today's books byte-identically.
+
+## 18. Languages: translated UI and printed books (2026-09-29)
+
+Goal: other people can create journals in their own language, and the printed book (and later the X4) speaks it too. English stays the source language and must stay byte-identical.
+
+**What has to change**
+- **Editor and site UI:** message catalogs (one JSON file per language, ICU-style plurals and variables), a language switcher (browser default, saved in the profile), `lang` and `dir` on the page, and the browser's `Intl` for dates, numbers and month and weekday names. Icons over words already cuts the amount of text.
+- **Printed pages:** every printed string in `pages.mjs`, `daypage.mjs`, `render.mjs` and the handoff, key, care and Keeper pages moves into the same catalogs (keys such as `page.key.title`), including block labels, option names printed on pages, the rotating prompts, the "facts", and the moon, sky and season wording. The book's language comes from the profile (`book.language`, default `en`), separate from the editor's UI language, so a Spanish speaker can design in Spanish and someone else can print a French book.
+- **Calendar and locale:** month and weekday names, first day of the week (Monday, Sunday or Saturday), date order and numerals through `Intl`, still Gregorian first; a secondary calendar line (Hijri, Hebrew, Buddhist, Japanese era) is a later option. Sun, moon and season data come from the book's location, and holidays from a per-region pack.
+- **Fonts and scripts:** an OFL font set (Noto families) chosen per script, embedded and subset in the PDF as real fonts, never Type 3 (the existing `pdffonts` gate stays; colour emoji stay converted to SVG). Latin extended, Greek and Cyrillic first; then Arabic and Hebrew (right to left, with shaping through Chromium's HarfBuzz), Devanagari and Thai; CJK last because of font size, with vertical text left out at first.
+- **Right to left:** the page layout mirrors (binding side, tab and spine side, the send-to strip, the page-code corner, week start), scan zones follow the mirror, and the check runs on mirrored pages. Numerals and mixed text use proper bidi isolation.
+- **Text length:** German and Finnish run 30 percent longer than English. The overflow gate (`check.mjs`) runs per language; labels can abbreviate through a second short-form key; blocks that overflow in a language show up in the editor's overflow meter for that language.
+- **Scan codes, ids and manifests:** ASCII only. Codes and page ids are unchanged; only the printed labels are translated, and each language keeps every printed label unique.
+- **Support and safety content:** stays region packs written in the pack's own language. No translation of a crisis number or its text without a verified pack.
+- **X4:** language packs on the SD card (`/kw/lang/xx.txt`) written by the export pack; fonts for the language on the SD card; the firmware reads strings from the pack and falls back to English. Later slice.
+
+**Translation process (no generative AI in the product)**
+- Catalogs live in the repo (`i18n/<lang>.json`), with a plain contribution guide, a translation status table (percent complete per language), and a review step by a native speaker before a language is marked ready. Untranslated keys fall back to English, and a build for a language that is not marked ready warns before printing.
+- **Checks:** a lint that fails on new hard-coded printed strings, a **pseudo-locale** (accented and lengthened English) and a **mirrored pseudo-locale** that exercise overflow and RTL in CI, and a fingerprint test that the English default books are byte-identical.
+
+**Slices**
+- **I1 (first, no visible change):** move every printed and UI string into `en` catalogs, the string lookup, `book.language`, `Intl` date and weekday handling, pseudo-locales, the lint. English books byte-identical (24/24).
+- **I2:** editor and site translated with the language switcher and the first pilot languages in Latin script (Spanish, French, German), with printed books in those languages passing every gate.
+- **I3:** fonts and scripts, right-to-left printing and mirroring (Arabic and Hebrew pilot), then Devanagari, Thai, and CJK.
+- **I4:** X4 language packs.

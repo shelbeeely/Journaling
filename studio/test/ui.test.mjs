@@ -36,8 +36,8 @@ test('guests: local versions in this browser (no account), read a public project
     const original = await types(p);
     assert.equal(original, 'sky notes events care spoons good body actions review fact');
     // reachable from the header, in every view
-    await p.click('#v-book'); assert.ok(await p.locator('#v-ver').isVisible(), 'the Versions button is there in the Book view');
-    await p.click('#v-day');
+    assert.ok(await p.locator('#v-ver').isVisible(), 'the Versions button is there in the Book view (the editor opens on the Book)');
+    await p.evaluate(() => { location.hash = '#day/2026-10-14'; }); await p.waitForSelector('#v-ver'); await p.waitForTimeout(300); // into the day level, where the layout is edited
     await openDrawer(p);
     assert.match(await p.textContent('#vs-guest'), /Sign in to save versions/);
     assert.match(await p.textContent('#vs-guest'), /stays in this browser/);
@@ -103,7 +103,7 @@ test('accounts: sign in changes nothing until you choose; move this browser’s 
     const p = await ctx.newPage();
     p.on('pageerror', (e) => errs.push(e.message));
     p.on('dialog', (d) => d.accept());
-    await p.goto(t.base + '/', { waitUntil: 'networkidle' });
+    await p.goto(t.base + '/#day/2026-10-14', { waitUntil: 'networkidle' });
     // a guest's work: two versions in this browser and an unsaved change
     await openDrawer(p);
     await p.fill('#vs-msg', 'Start'); await p.click('#vs-savebtn');
