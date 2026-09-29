@@ -285,6 +285,7 @@ void loadDayLog(const std::string& date, DayLog& out) {
     if (d != date) return;
     if (k == "prn") { out.stamps.push_back(v); return; }
     if (k == "prn_undo") { if (!out.stamps.empty()) out.stamps.pop_back(); return; }
+    if (k.compare(0, 6, "focus_") == 0) return;  // the Focus timer's counts (core/focus.h): known keys, not check-ins
     const int i = itemIndex(k);
     if (i >= 0) {
       const int x = parseValue(i, v);
@@ -304,6 +305,16 @@ void saveItem(const std::string& date, int item, int value, time_t when) {
   std::string line = date + stampStr(when).substr(10) + "," + it.key + "," + v;
   hal::appendLine(("/kw/log/" + date.substr(0, 7) + ".csv").c_str(), line);
 }
+int loggedCount(const std::string& date, const char* key) {
+  int v = 0;
+  scanLog(date.substr(0, 7), [&](const std::string& d, const std::string&, const std::string& k, const std::string& val) {
+    if (d == date && k == key) v = atoi(val.c_str());  // last value wins
+  });
+  return v;
+}
+void logCount(const std::string& date, const char* key, int value, time_t when) {
+  hal::appendLine(("/kw/log/" + date.substr(0, 7) + ".csv").c_str(), date + stampStr(when).substr(10) + "," + key + "," + std::to_string(value));
+}
 void saveStamp(const std::string& date, time_t when) {
   std::string line = date + stampStr(when).substr(10) + ",prn," + clockStr(when);
   hal::appendLine(("/kw/log/" + date.substr(0, 7) + ".csv").c_str(), line);
@@ -317,9 +328,14 @@ void monthStats(int year, int month, MonthStats& s) {
   s.days = DIM[month - 1] + (month == 2 && year % 4 == 0 ? 1 : 0);
   static DayLog L[32];  // static: ~5 KB would overflow the 8 KB loop-task stack
   bool seen[32] = {false};
+  static int FR[32], FI[32];  // Focus counts per day (static, like L)
+  for (int d = 0; d < 32; d++) FR[d] = FI[d] = 0;
   for (int d = 1; d <= s.days; d++) { L[d].date = ""; for (int i = 0; i < 32; i++) L[d].value[i] = INT_MIN; }
   scanLog(ym, [&](const std::string& d, const std::string&, const std::string& k, const std::string& v) {
     const int dd = atoi(d.c_str() + 8); if (dd < 1 || dd > 31) return;
+    if (!strcmp(k.c_str(), KEY_FOCUS_ROUNDS)) { FR[dd] = atoi(v.c_str()); return; }         // last value of the day wins
+    if (!strcmp(k.c_str(), KEY_FOCUS_INTERRUPTIONS)) { FI[dd] = atoi(v.c_str()); return; }
+    if (k.compare(0, 6, "focus_") == 0) return;
     seen[dd] = true;
     const int i = itemIndex(k); if (i >= 0) { const int x = parseValue(i, v); if (x != INT_MIN) L[dd].value[i] = x; }
   });
@@ -342,6 +358,7 @@ void monthStats(int year, int month, MonthStats& s) {
     if (on(I_MED_AM) || on(I_MED_PM)) s.medsAny++;
     s.doneByDay[d] = l.doneCount();
   }
+  for (int d = 1; d <= s.days; d++) { s.focusRounds += FR[d]; s.focusInterruptions += FI[d]; if (FR[d]) s.focusDays++; }
   if (s.spoonsN) s.avgSpoons = spoons / s.spoonsN;
   if (s.anxietyN) s.avgAnxiety = anxiety / s.anxietyN;
   if (s.sleepN) s.avgSleep = sleep / s.sleepN;

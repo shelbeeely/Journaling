@@ -36,6 +36,8 @@ the sibling `journal/` project). Target: Xteink X4 (ESP32-C3, no PSRAM, ~380 KB 
 3. Month switch on the device: a "Closing <month>" screen that walks through the Keeper handoff.
 4. Routines as tickable items. Not planned: since the care split, paper is where routines are ticked and the X4 shows them as text.
 
+- `src/core/focus.*` — Focus timer arithmetic + `/kw/focus.txt`; logs `focus_rounds` / `focus_interruptions` (keys are stable, the paper block relies on them). `host/test_focus.sh` tests it.
+
 ## The care split (approved 2026-09-28)
 Paper: meds, meals, water, mood, work shift, routines, events, writing, safety plan (source of truth). X4: spoons **left**,
 sleep, anxiety, shower, teeth, joy, texted, snack, plus custom check-ins. `ITEMS[]` keeps every old key (`med_am`, `med_pm`,

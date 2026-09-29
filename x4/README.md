@@ -12,6 +12,7 @@ the three things paper can't:
   Meds, meals, water and mood are on paper, so they are not here (Today says "on paper"). Routines, events and notes are
   shown on Today as text only; paper is where they are ticked and written.
   **This month** adds up what the X4 records; the Closing page and the Keeper say which of their six boxes come from it.
+- **Focus rounds** (Menu, Focus). Silent work rounds and breaks: no sound, no alarms, no per-minute refresh. See "Focus" below.
 - **Support, one long-press away.** Hold **Back** for about a second on any screen: text-first crisis
   numbers, then your safety plan and the "can you text with me" message.
 
@@ -50,6 +51,22 @@ month-stats code and checks the numbers.
 **Good-spoon days** (4+ spoons left) and **Avg sleep**. Below them: average spoons left, average anxiety and the days each
 care tick was ticked. The other four boxes (Avg mood, Meds taken, Avg meals, Work hours) come from the paper tracker.
 
+## Focus (Menu, Focus)
+
+Pairs with the paper "Focus rounds" block. Defaults are **25 min work / 5 min break, 4 rounds, then a 15 min long break**. Presets
+**25/5**, **15/5** and **45/10**; Left/Right on Work (steps of 5, 5-90) and Break (1-30) make it custom. Start draws
+"Focus until 2:35p · round 2 of 4" **once**, then the X4 deep-sleeps with a timer wake. At the end it wakes, draws "Break until 2:40p",
+sleeps again, and after the long break shows Done. Nothing makes a sound, there is no countdown, no notification. Press power any time to
+see where you are: **Interrupted** (Confirm, during work) marks an interruption without touching the timer, **End** (Back) stops the session.
+
+- **Log keys (stable, documented for the paper block and the Keeper):** in the month CSV, `focus_rounds` = work rounds finished that day, `focus_interruptions` = interruption presses. Each line holds the day's running total, last value wins, like every log line (`2026-10-14T13:35,focus_rounds,2`).
+  They are separate from any custom check-in you define, and never appear as "older custom entries".
+- A round is filed under the day it **started** (4 a.m. rule): a round begun at 3:50 a.m. that ends at 4:15 counts for the day before, even if the wake lands after 4:31. Interruptions are filed under the day of the press.
+- **This month** shows one quiet line, "Focus 10 · 3 interrupted": a count, no streaks, no goals, no badges.
+- The run is kept in `/kw/focus.txt` (`plan=25,5,15,4` / `run=W,2,<end epoch>,<interruptions>`) because RAM does not survive deep sleep. On every wake the run is walked forward
+  from the clock, so a late wake still credits the rounds that finished. If the X4 was off so long that a phase ended more than 2 hours ago (flat battery), nothing is credited and the run is dropped. Done clears itself after 30 minutes.
+- While a run is going the X4 wakes only for its phases; the 4:31 a.m. Today redraw resumes when the session ends. Focus needs the clock set (it goes to Clock if not). `host/test_focus.sh` checks the arithmetic, including a wake that lands after the day rolls.
+
 ## Which build am I on?
 
 Every pack, `support.txt` and `checkins.txt` carries the journal build date on its first line
@@ -65,6 +82,8 @@ and that's fine for events, but if the dates differ and page numbers look off, r
 | Check in | Done | tick, log the time, or fill a habit dot | − / + for scales, counts and dots | move |
 | Menu | close | open | | move |
 | This month | back | | previous / next month | |
+| Focus setup | back | next row / Start | less / more | move |
+| Focus running | end | Interrupted (work only) | | |
 
 **This month** opens on the month just finished during the first 3 days of a new month (the Closing page is for that one); ▶ reaches the new month.
 | Support | back | safety plan | pages | pages |
@@ -81,6 +100,7 @@ Power: press to sleep now. Idle for 90 s: sleeps by itself. **Hold Back 1.2 s an
 /kw/me.txt                      your safety plan (edit on the Wi-Fi page; missing = empty)
 /kw/log/2026-10.csv …           check-ins, one line per tap: 2026-10-14T13:05,med_am,1
 /kw/library/*.pdf, *.epub       your books (not the KDP covers), downloadable from the Wi-Fi page
+/kw/focus.txt                   the Focus run in progress and its settings (safe to delete)
 /kw/clock.txt                   last known time (used after the battery runs flat)
 /kw-update/                     the update inbox (below); empty and deleted after each boot
 ```
@@ -166,7 +186,7 @@ CrossPoint's two app slots, so a later version can live beside CrossPoint instea
 
     cd host && ./preview.sh     # renders every screen to host/out/*.png from host/sample
 
-The sample card (`host/sample/kw/2026-10.txt`, `2026-11.txt`, `support.txt`) is generic: it comes from the `test.ics` books via
+The sample card (its log has a few generic `focus_rounds` / `focus_interruptions` lines for This month; `host/sample/kw/2026-10.txt`, `2026-11.txt`, `support.txt`) is generic: it comes from the `test.ics` books via
 `export_pack.py` (rebuild the Keeper and both months first so the `keeper=` and `page=` lines are filled). `checkins.txt` and `me.txt` are hand-kept.
 
 The host build compiles the same app, drawing and data code as the device; only `hal_host.cpp`
