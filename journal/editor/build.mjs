@@ -3,6 +3,7 @@
 // is the printed page. Sample content is generic: no calendar events or routines from private/.
 //   node render.mjs month 2026-10 private/main.ics,private/birthdays.ics && node editor/build.mjs
 import fs from 'node:fs';
+import zlib from 'node:zlib';
 import { samplePages } from './samples.mjs';
 import { PROFILE, firstMonthId } from '../profile.mjs';
 const M0 = firstMonthId(); // the profile's first month: the book the editor's preview is cut from
@@ -37,10 +38,12 @@ const tpl = read('editor/template.html').replace('Keeping Watch · every monthly
 const dist = new URL('editor/dist/', root);
 fs.mkdirSync(new URL('site/', dist), { recursive: true });
 // 1) Claude Artifact (saves to the artifact's store; the host adds the document skeleton)
-const art = tpl.replace("'__MODE__'", "'artifact'").replace('<!--__HEAD__-->', '').replace('<!--__FOOT__-->', '');
+// The Artifact is one file, so the sample book (the book canvas's thumbnails) rides inside it, gzipped: about a tenth of its size.
+const sample = JSON.stringify({ css, ...(await samplePages()) });
+const art = tpl.replace("'__MODE__'", "'artifact'").replace("'__BOOKDATA__'", () => `'${zlib.gzipSync(sample, { level: 9 }).toString('base64')}'`).replace('<!--__HEAD__-->', '').replace('<!--__FOOT__-->', '');
 fs.writeFileSync(new URL('artifact.html', dist), art);
 // 2) GitHub Pages site (saves in the browser, commits to the repo with a token)
-const site = tpl.replace("'__MODE__'", "'pages'")
+const site = tpl.replace("'__MODE__'", "'pages'").replace("'__BOOKDATA__'", "''")
   .replace('<!--__HEAD__-->', '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="robots" content="noindex">')
   .replace('<header class="top">', '</head>\n<body>\n<header class="top">')
   .replace('<!--__FOOT__-->', '</body>\n</html>');
@@ -48,7 +51,6 @@ fs.writeFileSync(new URL('site/index.html', dist), site);
 const cur = new URL('content/daypage.json', root);
 fs.writeFileSync(new URL('site/daypage.json', dist), fs.existsSync(cur) ? fs.readFileSync(cur) : '{}\n');
 fs.writeFileSync(new URL('site/.nojekyll', dist), '');
-// Every page type rendered from sample data by pages.mjs (the same code print uses), with the scoped page CSS. Not used by the
-// day page editor's screen yet; the book canvas draws its page thumbnails from it.
-fs.writeFileSync(new URL('site/pages-sample.json', dist), JSON.stringify({ css, ...(await samplePages()) }));
-console.log('editor/dist/artifact.html + editor/dist/site/', (site.length / 1024).toFixed(0) + ' KB');
+// The sample book (every page of the book, drawn by pages.mjs from test.ics) with the scoped page CSS: the Book view's thumbnails.
+fs.writeFileSync(new URL('site/pages-sample.json', dist), sample);
+console.log('editor/dist/artifact.html', (art.length / 1024).toFixed(0) + ' KB, editor/dist/site/', (site.length / 1024).toFixed(0) + ' KB + pages-sample.json', (sample.length / 1024).toFixed(0) + ' KB');

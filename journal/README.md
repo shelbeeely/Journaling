@@ -208,6 +208,19 @@ sequence) and adds what is never hand-set: recto/verso Notes pages, the even pag
 references. `render.mjs` only adds the frame, scan markers and page codes. The editor build writes
 `editor/dist/site/pages-sample.json` (every page type from `test.ics`, no clinic details).
 
+### Book view (read-only canvas)
+The editor's **Book** tab (next to **Day**, or open `#book`) shows the whole book on a pan/zoom canvas, spreads laid out as it
+opens: the title page alone on the right, then left|right pairs (even|odd), the last even page alone on the left. Every
+page is a live thumbnail drawn by `pages.mjs` from the sample calendar (`test.ics`, never your data; no clinic details),
+with its number and id. Thumbnails are painted lazily, only near the view.
+- **Zoom:** whole book / one spread / one page buttons, - and +, mouse wheel (at the pointer), two-finger pinch, keys
+  `+` `-` `0` (book) `1` (spread) `2` (page). Drag or arrow keys to move; `[` `]` previous/next page, `Home` `End`.
+- **Jump:** type a page number (`30`, `p30`) or an id (`safety`, `week.03.review`, a date like `2026-10-05`).
+- **Legend (i):** lock = protected page (Closing, Support, Safety plan: can move, never hidden); pages a book hides in
+  `content/book.json` sit dimmed in a row under the book; the 5.5x8.5 / 8.5x11 switch reflows the same pages.
+- Read-only: reordering, hiding and adding pages come in the next canvas step. Works in the GitHub Pages site (loads
+  `pages-sample.json`) and the Artifact (the sample book is embedded, gzipped).
+
     node check-identical.mjs          # after build-all.sh: the default books still match identical.json
 
 `identical.json` holds a fingerprint per page HTML of the default books (from `test.ics`). A change that is meant to alter the

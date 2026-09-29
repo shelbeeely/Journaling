@@ -281,5 +281,130 @@ ok(!errs.length, 'no page errors ' + errs.join(' | '));
   await pg.screenshot({ path: `${OUT}/pages-sample.png`, fullPage: true });
   await pg.close();
 }
+
+// ---------- Book view: the read-only canvas ----------
+{
+  const S = JSON.parse(fs.readFileSync(new URL('./dist/site/pages-sample.json', import.meta.url)));
+  const N = S.pages.length, bp = await b.newPage({ viewport: { width: 1400, height: 900 } });
+  bp.on('pageerror', (e) => errs.push('book: ' + e.message));
+  await bp.goto(URL0, { waitUntil: 'networkidle' });
+  ok(await bp.evaluate(() => document.documentElement.dataset.view !== 'book' && !!document.querySelector('#main') && getComputedStyle(document.querySelector('#main')).display !== 'none'), 'the Day editor is still the default view');
+  const t0 = Date.now(); await bp.click('#v-book'); await bp.waitForFunction(() => BK.ready && BK.painted.size >= 60 && BK.queue.size === 0, null, { timeout: 15000 }); const paintMs = Date.now() - t0; await bp.waitForTimeout(300);
+  ok(paintMs < 8000, `the whole book (${N} thumbnails) is drawn in ${paintMs} ms`);
+  ok(await bp.evaluate(() => getComputedStyle(document.querySelector('#main')).display === 'none' && getComputedStyle(document.querySelector('#book')).display !== 'none'), 'Book tab shows the canvas and hides the day editor');
+  ok((await bp.locator('#bk-world .bpg[data-n]').count()) === N, `renders all ${N} pages of the sample book as slots`);
+  ok(await bp.evaluate(() => [...document.querySelectorAll('#bk-world .bpg[data-n]')].every((e) => e.querySelector('.cap b').textContent === e.dataset.n && e.dataset.id && e.querySelector('.cid').textContent === e.dataset.id)), 'every page shows its number and id');
+  // spreads as the book opens: title alone on the right, then verso|recto, the last even page alone on the left
+  const sp = await bp.evaluate(() => [...document.querySelectorAll('#bk-world .sp[data-spread]')].map((e) => [+e.dataset.left, +e.dataset.right]));
+  ok(sp.length === N / 2 + 1 && sp[0][0] === 0 && sp[0][1] === 1, 'the first spread is page 1 alone, on the right');
+  ok(sp.slice(1, -1).every(([l, r]) => l % 2 === 0 && r === l + 1), 'every inner spread pairs an even left page with the odd page after it');
+  ok(sp[sp.length - 1][0] === N && sp[sp.length - 1][1] === 0, 'the last (even) page is alone on the left');
+  ok(await bp.evaluate(() => [...document.querySelectorAll('#bk-world .sp[data-spread]')].every((s) => { const l = s.querySelector('.bpg.l'), r = s.querySelector('.bpg.r'); return (!l || +l.dataset.n % 2 === 0) && (!r || +r.dataset.n % 2 === 1); })), 'left slots hold even pages, right slots hold odd pages');
+  ok(await bp.evaluate(() => { const r = document.querySelector('.bpg[data-n="2"]').getBoundingClientRect(), q = document.querySelector('.bpg[data-n="3"]').getBoundingClientRect(); return Math.abs(r.right - q.left) < 1 && Math.abs(r.top - q.top) < 1; }), 'a spread\'s two pages touch at the spine');
+  // page thumbnails are the real pages
+  await bp.waitForFunction(() => BK.painted.size > 0 && BK.queue.size === 0);
+  ok(await bp.evaluate(() => document.querySelectorAll('.bpg[data-n="1"] .page.recto .title h1').length === 1 && document.querySelector('.bpg[data-n="2"] .page').classList.contains('verso')), 'thumbnails are drawn from the shared page functions (title page, verso/recto classes)');
+  ok(await bp.evaluate(() => document.querySelector('.bpg[data-n="1"]').getBoundingClientRect().height > 40), 'whole book fits the view');
+  await bp.screenshot({ path: `${OUT}/book-whole.png` });
+  // zoom levels
+  const z = () => bp.evaluate(() => BK.z), lvl = () => bp.evaluate(() => BK.level);
+  ok((await lvl()) === 'book', 'opens at the whole book');
+  const zb = await z();
+  await bp.click('[data-lv="spread"]'); await bp.waitForTimeout(500); const zs = await z();
+  await bp.click('[data-lv="page"]'); await bp.waitForTimeout(500); const zp = await z();
+  ok(zb < zs && zs <= zp && (await lvl()) === 'page' && (await bp.getAttribute('[data-lv="page"]', 'aria-pressed')) === 'true', `three levels: whole book ${zb.toFixed(2)} < spread ${zs.toFixed(2)} <= page ${zp.toFixed(2)}`);
+  await bp.waitForTimeout(400);
+  ok(await bp.evaluate(() => { const r = document.querySelector('#bk-view').getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2, q = [...document.querySelectorAll('.bpg[data-n]')].map((e) => e.getBoundingClientRect()).find((e) => e.left <= cx && e.right >= cx && e.top <= cy && e.bottom >= cy); return !!q && q.left >= r.left - 2 && q.right <= r.right + 2 && q.top >= r.top - 2 && q.bottom <= r.bottom + 2 && q.height > r.height * 0.7; }), 'page level: one whole page fills the view');
+  // virtualised: at page level far pages hold no DOM
+  const pc = await bp.evaluate(() => ({ painted: BK.painted.size, real: document.querySelectorAll('#bk-world .bpg .page').length }));
+  ok(pc.real === pc.painted && pc.painted < N / 2, `lazy: only ${pc.painted} of ${N} pages hold thumbnails at page level`);
+  await bp.click('#bk-out'); await bp.waitForTimeout(400); const zo = await z();
+  await bp.click('#bk-in'); await bp.click('#bk-in'); await bp.waitForTimeout(400); const zi = await z();
+  ok(zo < zp && zi > zo, 'zoom buttons');
+  await bp.click('[data-lv="book"]'); await bp.waitForTimeout(500);
+  await bp.evaluate(() => document.querySelector('#bk-view').focus());
+  const z0 = await z(); await bp.keyboard.press('+'); await bp.waitForTimeout(400); const z1 = await z(); await bp.keyboard.press('-'); await bp.keyboard.press('-'); await bp.waitForTimeout(400); const z2 = await z();
+  ok(z1 > z0 && z2 < z1, 'keyboard: + and - zoom');
+  await bp.keyboard.press('2'); await bp.waitForTimeout(400); const k2 = await lvl(); await bp.keyboard.press('1'); await bp.waitForTimeout(400); const k1 = await lvl(); await bp.keyboard.press('0'); await bp.waitForTimeout(400);
+  ok(k2 === 'page' && k1 === 'spread' && (await lvl()) === 'book', 'keyboard: 2 page, 1 spread, 0 whole book');
+  await bp.keyboard.press('+'); await bp.waitForTimeout(400); const px0 = await bp.evaluate(() => BK.x); await bp.keyboard.press('ArrowLeft'); const px1 = await bp.evaluate(() => BK.x);
+  ok(px1 > px0, 'keyboard: arrows pan');
+  await bp.click('[data-lv="book"]'); await bp.waitForTimeout(500);
+  const w0 = await z(); await bp.mouse.move(700, 500); await bp.mouse.wheel(0, -300); await bp.waitForTimeout(150); const w1 = await z(); await bp.mouse.wheel(0, 300); await bp.waitForTimeout(150);
+  ok(w1 > w0, 'mouse wheel zooms at the pointer');
+  await bp.click('[data-lv="spread"]'); await bp.waitForTimeout(500);
+  const d0 = await bp.evaluate(() => [BK.x, BK.y]); await bp.mouse.move(700, 500); await bp.mouse.down(); await bp.mouse.move(730, 520, { steps: 4 }); await bp.mouse.up(); const d1 = await bp.evaluate(() => [BK.x, BK.y]);
+  ok(d1[0] > d0[0] && d1[1] > d0[1], 'dragging pans');
+  ok(await bp.evaluate(() => { const c = document.querySelector('#bk-view'), mk = (t, id, x, y) => c.dispatchEvent(new PointerEvent(t, { pointerId: id, clientX: x, clientY: y, bubbles: true, pointerType: 'touch' })); bkLevel('book', false); const z0 = BK.z;
+    mk('pointerdown', 11, 500, 400); mk('pointerdown', 12, 600, 400); mk('pointermove', 12, 700, 400); mk('pointermove', 11, 450, 400); mk('pointerup', 11, 450, 400); mk('pointerup', 12, 700, 400); return BK.z > z0 * 1.5; }), 'pinch zooms');
+  await bp.click('[data-lv="book"]'); await bp.waitForTimeout(500);
+  // select + jump
+  const jump = async (q) => { await bp.fill('#bk-go', q); await bp.press('#bk-go', 'Enter'); await bp.waitForTimeout(700); return bp.evaluate(() => ({ sel: BK.sel, msg: document.querySelector('#bk-msg').textContent, bad: document.querySelector('#bk-msg').className === 'bad' })); };
+  const inView = () => bp.evaluate(() => { const r = document.querySelector('#bk-view').getBoundingClientRect(), q = document.querySelector('.bpg.sel').getBoundingClientRect(); return q.left >= r.left - 2 && q.right <= r.right + 2 && q.top >= r.top - 2 && q.bottom <= r.bottom + 2 && q.width > 40; });
+  let j = await jump('30'); ok(j.sel === 30 && (await inView()), 'jump by number brings the page into view and selects it');
+  ok(await bp.evaluate(() => document.querySelector('#bk-info').textContent.includes('Page 30') && document.querySelector('#bk-info').textContent.includes(BK.pages[29].id)), 'the info line shows the selected page number and id');
+  const idOf = (id) => S.pages.find((x) => x.id === id).n;
+  j = await jump('safety'); ok(j.sel === idOf('safety') && (await inView()), 'jump by id (safety)');
+  j = await jump('week.03.review'); ok(j.sel === idOf('week.03.review'), 'jump by id (week.03.review)');
+  j = await jump('2026-10-05'); ok(j.sel === idOf('day.2026-10-05'), 'jump by date');
+  j = await jump('p12'); ok(j.sel === 12, 'jump by p12');
+  const before = j.sel; j = await jump('999'); ok(j.sel === before && j.bad && /no page 999/i.test(j.msg), 'a page that does not exist gets a clear message');
+  j = await jump('zzz'); ok(j.bad && j.sel === before, 'an id that matches nothing gets a clear message');
+  await bp.evaluate(() => document.querySelector('#bk-view').focus()); await bp.keyboard.press('Home'); await bp.keyboard.press(']'); await bp.waitForTimeout(400);
+  ok((await bp.evaluate(() => BK.sel)) === 2, 'keyboard: ] goes to the next page');
+  // protected pages
+  ok(await bp.evaluate(() => ['closing', 'support', 'safety'].every((id) => document.querySelector(`.bpg[data-id="${id}"] .cap svg`)) && document.querySelectorAll('.bpg[data-n] .cap svg').length === 3), 'protected pages (closing, support, safety) carry the lock, and only they do');
+  await bp.click('#bk-leg'); ok(await bp.evaluate(() => !document.querySelector('#bk-legend').hidden && document.querySelector('#bk-legend').textContent.includes('Protected page') && document.querySelector('#bk-legend').textContent.includes('Hidden page')), 'legend explains protected and hidden pages');
+  await bp.click('#bk-leg');
+  // sizes
+  const w5 = await bp.evaluate(() => document.querySelector('.bpg[data-n="4"]').offsetWidth); await bp.click('#sz-l'); await bp.waitForTimeout(500);
+  const w8 = await bp.evaluate(() => document.querySelector('.bpg[data-n="4"]').offsetWidth);
+  ok(w8 > w5 && (await bp.locator('#bk-world .bpg[data-n]').count()) === N && (await bp.evaluate(() => BK.sel)) === 2, `8.5x11 reflows the same ${N} pages wider (${w5} to ${w8})`);
+  await bp.screenshot({ path: `${OUT}/book-letter.png` }); await bp.click('#sz-s'); await bp.waitForTimeout(300);
+  // hidden pages show dimmed
+  const hidden = await bp.evaluate(() => { BK.hidden = [{ ...BK.pages[20], id: 'lineage' }, { ...BK.pages[3], id: 'key' }]; BK.cols = bkPickCols(); bkBuild(); bkLevel('book', false); return document.querySelectorAll('.bpg.hid').length; });
+  await bp.waitForTimeout(500);
+  ok(hidden === 2 && (await bp.evaluate(() => +getComputedStyle(document.querySelector('.bpg.hid .ph')).opacity < 0.6 && !!document.querySelector('.bpg.hid .cap svg') && document.querySelectorAll('.bpg[data-n]').length === BK.pages.length)), 'hidden pages are shown dimmed in their own row, with the eye-off mark');
+  await bp.screenshot({ path: `${OUT}/book-hidden.png` });
+  // back to the day editor, untouched
+  await bp.click('#v-day');
+  ok(await bp.evaluate(() => getComputedStyle(document.querySelector('#main')).display !== 'none' && document.querySelectorAll('#pv [data-b]').length >= 3), 'Day tab brings the day editor back');
+  await bp.close();
+  // hidden pages come from book.json: the sample builder lists pages a book turns off
+  const { samplePages } = await import('./samples.mjs'), { DEFAULT_BOOK } = await import('../book.mjs');
+  const bk2 = structuredClone(DEFAULT_BOOK); bk2.default.find((e) => e.id === 'lineage').on = false; bk2.default.find((e) => e.id === 'weeks').options.week.find((e) => e.id === 'week_review').on = false;
+  const S2 = await samplePages('2026-10', bk2);
+  ok(S2.hidden.map((x) => x.id).sort().join() === 'lineage,week.01.review' && !S2.pages.some((x) => x.id === 'lineage') && S2.pages.length % 2 === 0, 'a book that hides pages lists them apart (lineage, a week review); the rest still spreads evenly');
+  ok(S.hidden.length === 0, 'the default book hides nothing');
+  // phone
+  const ph = await b.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true });
+  ph.on('pageerror', (e) => errs.push('book phone: ' + e.message));
+  await ph.goto(URL0 + '#book', { waitUntil: 'networkidle' }); await ph.waitForFunction(() => BK.ready); await ph.waitForTimeout(700);
+  ok(await ph.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.body.scrollWidth <= innerWidth), 'Book view: no sideways scroll at 390px');
+  await ph.screenshot({ path: `${OUT}/book-phone-whole.png` });
+  const small = await ph.evaluate(() => [...document.querySelectorAll('#book button, #book input')].filter((x) => x.offsetParent && (x.getBoundingClientRect().height < 43.5 || x.getBoundingClientRect().width < 43.5)).map((x) => x.id || x.dataset.lv || x.tagName));
+  ok(small.length === 0, 'Book view: 44px targets on a phone ' + small.join(','));
+  await ph.fill('#bk-go', '15'); await ph.press('#bk-go', 'Enter'); await ph.waitForTimeout(700);
+  await ph.screenshot({ path: `${OUT}/book-phone-jump.png` });
+  await ph.click('[data-lv="page"]'); await ph.waitForTimeout(500);
+  ok(await ph.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Book view page level: no sideways scroll at 390px');
+  await ph.screenshot({ path: `${OUT}/book-phone-page.png` });
+  await ph.click('#bk-leg'); await ph.screenshot({ path: `${OUT}/book-phone-legend.png` });
+  await ph.click('#v-day'); ok(await ph.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'back on the Day tab: still no sideways scroll');
+  await ph.close();
+  // dark mode
+  const dk = await b.newPage({ viewport: { width: 1200, height: 800 }, colorScheme: 'dark' });
+  await dk.goto(URL0 + '#book', { waitUntil: 'networkidle' }); await dk.waitForFunction(() => BK.ready); await dk.waitForTimeout(500);
+  await dk.click('[data-lv="spread"]'); await dk.waitForTimeout(600); await dk.screenshot({ path: `${OUT}/book-dark.png` }); await dk.close();
+  // the Artifact build carries the sample book inside the page (no fetch)
+  const art = fs.readFileSync(new URL('./dist/artifact.html', import.meta.url), 'utf8');
+  const ap = await b.newPage({ viewport: { width: 1200, height: 800 } });
+  ap.on('pageerror', (e) => errs.push('artifact: ' + e.message));
+  await ap.setContent('<!doctype html><html lang="en"><head><meta charset="utf-8">' + art + '</html>', { waitUntil: 'load' });
+  await ap.click('#v-book'); await ap.waitForFunction(() => BK.ready, null, { timeout: 8000 }).catch(() => {});
+  ok(await ap.evaluate(() => typeof BK !== 'undefined' && BK.ready && document.querySelectorAll('#bk-world .bpg[data-n]').length === BK.pages.length && BK.pages.length >= 24), `Artifact build: the Book view works from the embedded sample book (${(art.length / 1024).toFixed(0)} KB file)`);
+  await ap.close();
+}
+ok(!errs.length, 'no page errors after the Book view ' + errs.join(' | '));
 await b.close(); srv.close();
 if (fails.length) { console.log(`\n${fails.length} failed`); process.exit(1); }
