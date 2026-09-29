@@ -77,6 +77,12 @@ struct DayLog {
 void loadDayLog(const std::string& date, DayLog& out);
 void saveItem(const std::string& date, int item, int value, time_t when);
 void saveStamp(const std::string& date, time_t when);
+// Plain counts the Focus timer keeps in the same month CSV (core/focus.h). Last value of the day wins, like every log line.
+// These keys are STABLE, the paper "Focus rounds" block and the Keeper rely on them; never rename them.
+static const char* const KEY_FOCUS_ROUNDS = "focus_rounds";                 // work rounds finished that (4 a.m.) day
+static const char* const KEY_FOCUS_INTERRUPTIONS = "focus_interruptions";   // times the interruption button was pressed
+int loggedCount(const std::string& date, const char* key);  // 0 when never logged
+void logCount(const std::string& date, const char* key, int value, time_t when);
 
 // ---------- month totals for the Keeper handoff ----------
 // What the X4 records now: spoons left (average, good-spoon days = 4+ left), sleep, anxiety, and the care ticks.
@@ -87,6 +93,7 @@ struct MonthStats {
   float avgSpoons = 0, avgSleep = 0, avgAnxiety = 0; int spoonsN = 0, sleepN = 0, anxietyN = 0;
   int goodSpoonDays = 0, showers = 0, teeth = 0, joy = 0, texted = 0;
   float avgMood = 0; int moodN = 0, medsBoth = 0, medsAny = 0;  // from logs written before the split
+  int focusRounds = 0, focusInterruptions = 0, focusDays = 0;  // Focus timer totals (counts only: no streaks)
   int doneByDay[32] = {0};  // care ticks done, per day of month
 };
 void monthStats(int year, int month, MonthStats& out);

@@ -5,6 +5,7 @@
 #include <vector>
 #include "core/canvas.h"
 #include "core/data.h"
+#include "core/focus.h"
 #include "core/update.h"
 #include "hal/hal.h"
 #include "gen/assets.h"
@@ -20,7 +21,7 @@ static const int CW = Canvas::W - 2 * M;
 static const int HINT_Y = 760;    // top of the hint bar
 static const uint32_t IDLE_MS = 90000;  // go to sleep (showing Today) after 90 s untouched
 
-enum class Scr { Today, Checkin, Menu, Month, Support, Plan, Sync, Clock };
+enum class Scr { Today, Checkin, Menu, Month, Support, Plan, Sync, Clock, Focus };
 struct State {
   Scr scr = Scr::Today;
   int dayOffset = 0;      // Today screen: browse other days with Left/Right
@@ -391,18 +392,20 @@ static const MenuEntry MENU[] = {
   {"My safety plan", "and people to text", IC_PERSON, Scr::Plan},
   {"Wi-Fi sync", "upload packs, download your log", IC_WIFI, Scr::Sync},
   {"Clock", "set the date and time", IC_GEAR, Scr::Clock},
+  {"Focus", "silent work rounds and breaks", IC_WORK, Scr::Focus},
 };
 static const int MENU_N = sizeof(MENU) / sizeof(MENU[0]);
+static int menuIndex(Scr s) { for (int i = 0; i < MENU_N; i++) if (MENU[i].to == s) return i; return 0; }
 static void drawMenu() {
   C->clear();
   header("Keeping Watch", prettyDate(baseDay()).c_str());
   for (int i = 0; i < MENU_N; i++) {
-    const int y = 110 + i * 86;
-    C->icon(MENU[i].icon, M + 4, y + 14, 36);
-    C->text(F_UI_B, M + 60, y + 34, MENU[i].label);
-    C->text(F_UI_S, M + 60, y + 60, MENU[i].sub);
-    if (i < MENU_N - 1) C->hline(M, y + 82, CW);
-    if (i == S.sel) C->invert(M - 8, y + 4, CW + 16, 76);
+    const int y = 110 + i * 76;
+    C->icon(MENU[i].icon, M + 4, y + 12, 36);
+    C->text(F_UI_B, M + 60, y + 32, MENU[i].label);
+    C->text(F_UI_S, M + 60, y + 56, MENU[i].sub);
+    if (i < MENU_N - 1) C->hline(M, y + 72, CW);
+    if (i == S.sel) C->invert(M - 8, y + 2, CW + 16, 68);
   }
   battery(M, HINT_Y - 16);
   hintBar("Close", "Open", "", "");
@@ -457,7 +460,12 @@ static void drawMonth() {
   }
   // Calendar: each day's dot grows with the care ticks done that day.
   int y = 424;
-  C->text(F_UI_S, M, y, "CARE TICKS, BY DAY"); y += 8;
+  C->text(F_UI_S, M, y, "CARE TICKS, BY DAY");
+  if (s.focusRounds || s.focusInterruptions) {  // a count, nothing more: no streaks, no goals
+    char fb[48]; snprintf(fb, sizeof fb, s.focusInterruptions ? "Focus %d · %d interrupted" : "Focus %d rounds", s.focusRounds, s.focusInterruptions);
+    C->textRight(F_UI_S, Canvas::W - M, y, fb, &F_SYM);
+  }
+  y += 8;
   struct tm first = {}; first.tm_year = y0 - 1900; first.tm_mon = m0 - 1; first.tm_mday = 1; first.tm_hour = 12; mktime(&first);
   const int lead = (first.tm_wday + 6) % 7, cellW = CW / 7, rows = (lead + s.days + 6) / 7, cellH = rows > 5 ? 38 : 44;
   static const char* WD = "MTWTFSS";
@@ -722,6 +730,82 @@ static void drawClock() {
 }
 
 // ---------------------------------------------------------------------------------------------
+// FOCUS — silent work rounds and breaks. Draws a phase once, deep-sleeps until it ends (no sound, no per-minute
+// refresh, no notification). The run lives in /kw/focus.txt because RAM does not survive deep sleep. Rounds and
+// interruptions go to the month CSV as focus_rounds / focus_interruptions (counts only, see core/focus.h).
+// ---------------------------------------------------------------------------------------------
+static FocusPlan FP;
+static FocusRun FRUN;
+static const int PRESETS[3][2] = {{25, 5}, {15, 5}, {45, 10}};
+static int presetOf() { for (int i = 0; i < 3; i++) if (FP.work == PRESETS[i][0] && FP.brk == PRESETS[i][1]) return i; return -1; }
+
+// Walks the run forward to the clock (a wake can land late, even after 4 a.m.), logging finished rounds. True if it changed.
+static bool focusTick() {
+  if (!hal::timeValid() || !(focusActive(FRUN) || FRUN.phase == FPhase::Done)) return false;
+  const FPhase ph = FRUN.phase; const int rd = FRUN.round;
+  FocusCredits cr; focusAdvance(FP, FRUN, hal::now(), cr);
+  if (cr.n) focusLogRounds(cr, hal::now());
+  const bool ch = cr.n || ph != FRUN.phase || rd != FRUN.round;
+  if (ch) focusSave(FP, FRUN);
+  return ch;
+}
+
+static void drawFocus(bool sleeping) {
+  C->clear();
+  const std::string today = baseDay();
+  const int rounds = loggedCount(today, KEY_FOCUS_ROUNDS);
+  if (FRUN.phase == FPhase::Idle) {
+    header("Focus", "silent · no alarms", IC_WORK);
+    char v[4][24];
+    const int pi = presetOf();
+    if (pi >= 0) snprintf(v[0], 24, "%d / %d", PRESETS[pi][0], PRESETS[pi][1]); else strcpy(v[0], "Custom");
+    snprintf(v[1], 24, "%d min", FP.work); snprintf(v[2], 24, "%d min", FP.brk); strcpy(v[3], "Start");
+    static const char* L[4] = {"PRESET (work / break)", "WORK", "BREAK", ""};
+    for (int i = 0; i < 4; i++) {
+      const int y = 112 + i * 104;
+      if (i < 3) { C->text(F_UI_S, M + 12, y + 26, L[i]); C->text(F_UI_XL, M + 12, y + 74, v[i]); }
+      else C->textCenter(F_UI_XL, Canvas::W / 2, y + 60, v[i]);
+      C->rect(M, y, CW, 92, i == 3 ? 3 : 1);
+      if (i == S.sel) C->invert(M, y, CW, 92);
+    }
+    char info[160]; snprintf(info, sizeof info, "%d rounds, then a %d min break. No sound: the screen is drawn once, the X4 sleeps and wakes itself.", FP.rounds, FP.longBrk);
+    C->wrap(F_UI_S, M, 550, CW, info, 3);
+    if (rounds) { snprintf(info, sizeof info, "%d round%s finished today.", rounds, rounds == 1 ? "" : "s"); C->text(F_UI_S, M, 640, info); }
+    hintBar("Back", S.sel == 3 ? "Start" : "Next", S.sel == 3 ? "" : "◀ less", S.sel == 3 ? "" : "more ▶");
+    return;
+  }
+  if (FRUN.phase == FPhase::Done) {
+    header("Focus", "done", IC_WORK);
+    char b[48]; snprintf(b, sizeof b, "%d", rounds);
+    const int x = C->text(F_HUGE, M, 300, b);
+    C->text(F_UI, x + 14, 296, rounds == 1 ? "round finished today" : "rounds finished today");
+    if (FRUN.interruptions) { snprintf(b, sizeof b, "%d interruption%s this session", FRUN.interruptions, FRUN.interruptions == 1 ? "" : "s"); C->text(F_BODY, M, 380, b); }
+    C->wrap(F_BODY_I, M, FRUN.interruptions ? 430 : 380, CW, "That was the last round. Nothing else to do here.", 2);
+    hintBar("Menu", "", "", "");
+    return;
+  }
+  const bool work = FRUN.phase == FPhase::Work;
+  const bool lng = focusLong(FP, FRUN);
+  const std::string until = clockStr(FRUN.end);
+  char sub[32]; snprintf(sub, sizeof sub, "round %d of %d", FRUN.round, FP.rounds);
+  header(work ? "Focus" : lng ? "Long break" : "Break", sub, IC_WORK);
+  C->textCenter(F_UI_XL, Canvas::W / 2, 300, until.c_str());
+  std::string line = std::string(work ? "Focus" : lng ? "Long break" : "Break") + " until " + until;
+  if (work) line += std::string(" · ") + sub;
+  C->wrap(F_BODY, M, 380, CW, line.c_str(), 3, 0, &F_SYM);
+  char b[64]; int y = 470;
+  if (work && FRUN.interruptions) { snprintf(b, sizeof b, "Interrupted %d time%s", FRUN.interruptions, FRUN.interruptions == 1 ? "" : "s"); C->text(F_UI, M, y, b); y += 34; }
+  if (rounds) { snprintf(b, sizeof b, "%d round%s finished today", rounds, rounds == 1 ? "" : "s"); C->text(F_UI_S, M, y, b); }
+  if (sleeping) {
+    C->hline(0, HINT_Y, Canvas::W);
+    battery(M, HINT_Y + 28);
+    C->textRight(F_UI_S, Canvas::W - M, HINT_Y + 28, ("Silent · wakes itself " + until).c_str());
+  } else {
+    hintBar("End", work ? "Interrupted" : "", "", "");
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
 // Refresh policy. E-ink is at its best when it barely moves: moving a selection is a fast partial
 // refresh with no flash; changing screens is a half refresh; every 8th fast update, or anything
 // shown for long (sleep), gets a full refresh so ghosting never builds up.
@@ -736,17 +820,26 @@ static void render(bool sameScreen, bool sleeping = false) {
     case Scr::Plan: drawPlan(); break;
     case Scr::Sync: drawSync(hal::wifiClients() >= 0 && SSID[0]); break;
     case Scr::Clock: drawClock(); break;
+    case Scr::Focus: drawFocus(sleeping); break;
   }
   Refresh r = Refresh::Half;
   if (sleeping) r = Refresh::Full;
   else if (sameScreen) { r = (++S.changes % 8 == 0) ? Refresh::Half : Refresh::Fast; }
   else S.changes = 0;
-  static const char* NAMES[] = {"today", "checkin", "menu", "month", "support", "plan", "sync", "clock"};
+  static const char* NAMES[] = {"today", "checkin", "menu", "month", "support", "plan", "sync", "clock", "focus"};
   hal::show(r, NAMES[(int)S.scr]);
 }
 
-[[noreturn]] static void goToSleep() {
+// Sleeping: a Focus run in progress sleeps showing its phase and wakes when the phase ends; otherwise Today until 4:31 a.m.
+// A finished session (Done) stays on screen only when the timer woke us; touched and idle, it clears back to Today.
+[[noreturn]] static void goToSleep(bool redraw = true, bool keepDone = false) {
   hal::wifiStop();
+  if (FRUN.phase == FPhase::Done && !keepDone) { FRUN = FocusRun(); focusSave(FP, FRUN); }
+  if (focusActive(FRUN) || FRUN.phase == FPhase::Done) {
+    S.scr = Scr::Focus;
+    if (redraw) render(false, true);
+    hal::sleepUntil(focusActive(FRUN) ? FRUN.end + 5 : nextDayStart(hal::now()));
+  }
   S.scr = Scr::Today; S.dayOffset = 0;
   render(false, true);
   hal::sleepUntil(nextDayStart(hal::now()));  // 4:31 a.m., when the new day starts; leaves room for RTC drift
@@ -768,12 +861,21 @@ void appMain() {
   timeInit();
   FB = hal::framebuffer();
   static Canvas canvas(FB); C = &canvas;
-  if (hal::woke_by_timer()) goToSleep();  // midnight: redraw today's page and go straight back to sleep
+  focusLoad(FP, FRUN);  // a Focus run survives deep sleep on the card
+  if (hal::woke_by_timer()) {
+    // A phase ended: log it, draw the next one, sleep again. Woken early by clock drift: sleep on without redrawing.
+    if (focusActive(FRUN) || FRUN.phase == FPhase::Done) { const bool ch = focusTick(); goToSleep(ch, true); }
+    goToSleep();  // day start: redraw today's page and go straight back to sleep
+  }
   loadCheckins();  // custom check-ins from the day page layout, if the card has them
+  if (focusTick() || focusActive(FRUN) || FRUN.phase == FPhase::Done) S.scr = Scr::Focus;  // power button during a run: show where it is
 
   render(false);
   for (;;) {
-    const Btn b = hal::waitButton(S.scr == Scr::Sync ? 250 : IDLE_MS);
+    uint32_t wait = S.scr == Scr::Sync ? 250 : IDLE_MS;
+    if (S.scr == Scr::Focus && focusActive(FRUN)) { const time_t left = FRUN.end - hal::now(); if (left >= 0 && (uint32_t)left * 1000 + 1000 < wait) wait = (uint32_t)left * 1000 + 1000; }
+    const Btn b = hal::waitButton(wait);
+    if (S.scr == Scr::Focus && focusTick()) { render(false); if (b == Btn::None) continue; }
     if (b == Btn::None) {
       if (S.scr == Scr::Sync) { static uint32_t last = 0; hal::wifiLoop(); if (hal::millis() - last > 20000) { last = hal::millis(); render(true); } continue; }
       goToSleep();
@@ -816,6 +918,7 @@ void appMain() {
             break;
           }
           if (to == Scr::Clock) { openClock(); break; }
+          if (to == Scr::Focus && !clockOk()) { openClock(); break; }  // rounds are filed under the day: never guess it
           if (to == Scr::Checkin && !clockOk()) { openClock(); break; }  // never save under a guessed date
           go(to);
         }
@@ -832,16 +935,37 @@ void appMain() {
         else if ((b == Btn::Left || b == Btn::Up) && S.page > 0) { S.page--; render(true); }
         break;
       case Scr::Plan:
-        if (b == Btn::Back) { S.scr = Scr::Menu; S.sel = 4; render(false); }
+        if (b == Btn::Back) { S.scr = Scr::Menu; S.sel = menuIndex(Scr::Plan); render(false); }
         else if (b == Btn::Confirm) { S.prev = Scr::Plan; S.scr = Scr::Support; S.page = 0; render(false); }
         else if ((b == Btn::Right || b == Btn::Down) && S.page + 1 < planPages) { S.page++; render(true); }
         else if ((b == Btn::Left || b == Btn::Up) && S.page > 0) { S.page--; render(true); }
         break;
       case Scr::Sync:
-        if (b == Btn::Back) { hal::wifiStop(); SSID[0] = 0; loadCheckins(); S.scr = Scr::Menu; S.sel = 5; render(false); }
+        if (b == Btn::Back) { hal::wifiStop(); SSID[0] = 0; loadCheckins(); S.scr = Scr::Menu; S.sel = menuIndex(Scr::Sync); render(false); }
+        break;
+      case Scr::Focus:
+        if (FRUN.phase == FPhase::Idle) {
+          if (b == Btn::Back) { S.scr = Scr::Menu; S.sel = menuIndex(Scr::Focus); render(false); }
+          else if (b == Btn::Up) { S.sel = (S.sel + 3) % 4; render(true); }
+          else if (b == Btn::Down) { S.sel = (S.sel + 1) % 4; render(true); }
+          else if (b == Btn::Confirm && S.sel == 3) { focusStart(FP, hal::now(), FRUN); focusSave(FP, FRUN); goToSleep(); }
+          else if (b == Btn::Confirm) { S.sel++; render(true); }
+          else if ((b == Btn::Left || b == Btn::Right) && S.sel < 3) {
+            const int d = b == Btn::Right ? 1 : -1;
+            if (S.sel == 0) { const int p = presetOf(); const int n = p < 0 ? (d > 0 ? 0 : 2) : (p + d + 3) % 3; FP.work = PRESETS[n][0]; FP.brk = PRESETS[n][1]; }
+            else if (S.sel == 1) { FP.work += 5 * d; if (FP.work < FOCUS_WORK_MIN) FP.work = FOCUS_WORK_MIN; if (FP.work > FOCUS_WORK_MAX) FP.work = FOCUS_WORK_MAX; }
+            else { FP.brk += d; if (FP.brk < FOCUS_BREAK_MIN) FP.brk = FOCUS_BREAK_MIN; if (FP.brk > FOCUS_BREAK_MAX) FP.brk = FOCUS_BREAK_MAX; }
+            focusSave(FP, FRUN);
+            render(true);
+          }
+        } else if (b == Btn::Back || (FRUN.phase == FPhase::Done && b == Btn::Confirm)) {  // End: rounds already finished stay in the log
+          FRUN = FocusRun(); focusSave(FP, FRUN); S.scr = Scr::Menu; S.sel = menuIndex(Scr::Focus); render(false);
+        } else if (b == Btn::Confirm && FRUN.phase == FPhase::Work) {
+          FRUN.interruptions++; focusLogInterruption(hal::now()); focusSave(FP, FRUN); render(true);
+        }
         break;
       case Scr::Clock:
-        if (b == Btn::Back) { S.scr = Scr::Menu; S.sel = 6; render(false); }
+        if (b == Btn::Back) { S.scr = Scr::Menu; S.sel = menuIndex(Scr::Clock); render(false); }
         else if (b == Btn::Left) { S.field = (S.field + 4) % 5; render(true); }
         else if (b == Btn::Right) { S.field = (S.field + 1) % 5; render(true); }
         else if (b == Btn::Up || b == Btn::Down) {
