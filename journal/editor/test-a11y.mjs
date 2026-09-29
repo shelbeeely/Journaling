@@ -18,7 +18,6 @@ const AXE = fs.readFileSync(createRequire(import.meta.url).resolve('axe-core/axe
 const KNOWN = [
   { rule: 'tabs-pattern', id: 'A11Y-16', match: /tab/i, why: 'the Blocks / + Add / Preview tabs have no aria-controls, no tabpanel and no arrow-key movement', unit: 'C4a navigation rewrite' },
   { rule: 'announce', id: 'A11Y-11', match: /grid move/i, why: 'a block moved in Grid mode by keyboard is not announced', unit: 'grid follow-up' },
-  { rule: 'announce', id: 'A11Y-11', match: /book level/i, why: 'changing the Book / Spread / Page zoom level is not announced', unit: 'C4a navigation rewrite' },
   { rule: 'targets', id: 'A11Y-20', match: /grid box/i, why: 'one-row blocks in Grid mode are 21 px tall (the grid cell is the layout); keyboard and stepper alternatives exist', unit: 'grid follow-up' },
 ];
 
@@ -40,14 +39,15 @@ const b = await launch();
 const found = [];
 const add = (rule, where, msg) => found.push({ rule, where, msg, key: `${where}: ${msg}` });
 
-async function open(target, { w = 1400, h = 900, scheme = 'light', reduce = false, forced = false, contrast = null, wait = 350 } = {}) {
+async function open(target, { hash = "", w = 1400, h = 900, scheme = 'light', reduce = false, forced = false, contrast = null, wait = 350 } = {}) {
   const ctx = await b.newContext({ viewport: { width: w, height: h }, colorScheme: scheme, reducedMotion: reduce ? 'reduce' : 'no-preference', forcedColors: forced ? 'active' : 'none' });
   const p = await ctx.newPage();
   await p.route(/fonts\.(googleapis|gstatic)/, (r) => r.abort());
   if (process.env.SORTABLE_JS) await p.route(/cdnjs\.cloudflare\.com/, (r) => r.fulfill({ path: process.env.SORTABLE_JS, contentType: 'text/javascript' }));
   const errs = []; p.on('pageerror', (e) => errs.push(e.message));
-  await p.goto(`${ORIGIN}/${target}/`, { waitUntil: 'load' });
+  await p.goto(`${ORIGIN}/${target}/${hash}`, { waitUntil: 'load' });
   if (contrast) await p.emulateMedia({ contrast });
+  if (hash.startsWith("#day")) await p.waitForFunction(() => document.documentElement.dataset.view === "day" && document.querySelectorAll("#list > li").length > 3, null, { timeout: 15000 });
   await p.waitForTimeout(wait);
   p.errs = errs; p.ctx = ctx;
   return p;
@@ -129,6 +129,8 @@ async function motionCheck(p, label) {
 
 // ---------- token contrast ----------
 const full = (h) => (/^#[0-9a-f]{3}$/i.test(h) ? "#" + [...h.slice(1)].map((x) => x + x).join("") : h);
+const DAY = '#day/2026-10-14';
+async function go(p, hash) { await p.evaluate((h) => { location.hash = h; }, hash); const v = hash.startsWith("#day") ? "day" : hash.startsWith("#page") ? "page" : "book"; await p.waitForFunction((v) => document.documentElement.dataset.view === v, v, { timeout: 15000 }); await p.waitForTimeout(700); }
 const lum = (h) => { h = full(h); const c = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
 const ratio = (a, c) => { const [x, y] = [lum(a), lum(c)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
 const PAIRS = [['ink', 'bg', 4.5], ['ink', 'panel', 4.5], ['muted', 'bg', 4.5], ['muted', 'panel', 4.5], ['muted', 'soft', 4.5], ['accent-ink', 'accent', 4.5], ['warn', 'warn-bg', 4.5], ['warn', 'bg', 4.5], ['ok', 'bg', 4.5], ['danger', 'bg', 4.5],
@@ -136,7 +138,7 @@ const PAIRS = [['ink', 'bg', 4.5], ['ink', 'panel', 4.5], ['muted', 'bg', 4.5], 
 async function tokens() {
   const seen = {};
   for (const [name, scheme, contrast] of [['light', 'light', null], ['dark', 'dark', null], ['high-contrast light', 'light', 'more'], ['high-contrast dark', 'dark', 'more']]) {
-    const p = await open('site', { scheme, contrast, wait: 100 });
+    const p = await open('site', { hash: DAY, scheme, contrast, wait: 100 });
     const t = await p.evaluate(() => { const s = getComputedStyle(document.documentElement); return Object.fromEntries(['bg', 'panel', 'ink', 'muted', 'soft', 'accent', 'accent-ink', 'warn', 'warn-bg', 'ok', 'danger', 'focus', 'ctl'].map((k) => [k, s.getPropertyValue('--' + k).trim()])); });
     seen[name] = t;
     if (contrast && t.ctl === seen[scheme].ctl) add('tokens', name, 'prefers-contrast: more changes nothing (no high-contrast tokens)');
@@ -150,7 +152,7 @@ const openAllOptions = (p) => p.evaluate(() => { openIds = new Set(layout.blocks
 
 // 1) the Day editor on the working editor (pages mode): axe, targets, tokens, landmarks
 {
-  const p = await open('site');
+  const p = await open('site', { hash: DAY });
   await axeRun(p, 'Day (desktop, light)');
   await openAllOptions(p); await smallTargets(p, 'Day desktop, every option open');
   const n = await p.evaluate(() => [...document.querySelectorAll('main, [role=main]')].filter((e) => e.offsetParent !== null).length);
@@ -171,16 +173,15 @@ const openAllOptions = (p) => p.evaluate(() => { openIds = new Set(layout.blocks
   await close(p);
 }
 {
-  const p = await open('site', { scheme: 'dark' });
+  const p = await open('site', { hash: DAY, scheme: 'dark' });
   await axeRun(p, 'Day (dark)');
   await close(p);
 }
 // 2) keyboard-only tasks: skip link, add a block, reorder, change an option, save a version
 {
-  const p = await open('site');
-  await p.keyboard.press('Tab');
-  if (!(await p.evaluate(() => document.activeElement.classList.contains('skip')))) add('keyboard', 'Day', 'the first Tab stop is not a skip link');
-  await p.keyboard.press('Enter');
+  const p = await open('site', { hash: DAY });
+  if (!(await p.evaluate(() => { const first = document.querySelector('header a[href], header button, main button, [tabindex="0"]'); return first && first.classList.contains('skip'); }))) add('keyboard', 'Day', 'the first Tab stop is not a skip link');
+  await p.focus('.skip-day'); await p.keyboard.press('Enter');
   if (!(await p.evaluate(() => document.activeElement.id === 'list' || !!document.activeElement.closest('#list')))) add('keyboard', 'Day', 'the skip link does not move focus to the block list');
   const types = () => p.evaluate(() => layout.blocks.map((x) => x.type));
   // add a block: Tab to a "+" button, Enter
@@ -208,7 +209,7 @@ const openAllOptions = (p) => p.evaluate(() => { openIds = new Set(layout.blocks
   await close(p);
 }
 { // versions: keyboard save, focus stays in the drawer, Escape returns focus
-  const p = await open('site');
+  const p = await open('site', { hash: DAY });
   await p.focus('#v-ver'); await p.keyboard.press('Enter'); await p.waitForTimeout(300);
   if (!(await p.evaluate(() => !!document.activeElement.closest('#versions')))) add('keyboard', 'Versions drawer', 'opening it does not move focus inside');
   await axeRun(p, 'Versions drawer');
@@ -218,13 +219,13 @@ const openAllOptions = (p) => p.evaluate(() => { openIds = new Set(layout.blocks
   if (!saved) add('keyboard', 'Versions drawer', 'typing a message and pressing Enter does not save a version');
   for (let i = 0; i < 25; i++) await p.keyboard.press('Tab');
   if (!(await p.evaluate(() => !!document.activeElement.closest('#versions') || document.activeElement === document.body))) add('keyboard', 'Versions drawer', 'Tab leaves the open drawer (focus is not contained)');
-  await p.keyboard.press('Escape'); await p.waitForTimeout(200);
+  await p.focus('#vs-msg'); await p.keyboard.press('Escape'); await p.waitForTimeout(200);
   if ((await p.evaluate(() => document.activeElement.id)) !== 'v-ver') add('keyboard', 'Versions drawer', 'Escape does not return focus to the Versions button');
   await close(p);
 }
 // 3) Grid mode
 {
-  const p = await open('site');
+  const p = await open('site', { hash: DAY });
   await p.click('#lay-g'); await p.waitForTimeout(200);
   await axeRun(p, 'Grid'); await smallTargets(p, 'Grid');
   await p.evaluate(() => change((L) => { L.blocks = L.blocks.filter((x) => x.type !== 'care'); })); await p.waitForTimeout(150); // frees rows above the writing space
@@ -240,8 +241,7 @@ const openAllOptions = (p) => p.evaluate(() => { openIds = new Set(layout.blocks
 }
 // 4) Book view
 {
-  const p = await open('site');
-  await p.focus('#v-book'); await p.keyboard.press('Enter'); await p.waitForTimeout(1200);
+  const p = await open('site', { wait: 1500 }); // the editor opens on the Book
   await axeRun(p, 'Book view'); await smallTargets(p, 'Book view'); await focusRing(p, 'Book view', 8);
   const main = await p.evaluate(() => [...document.querySelectorAll('main, [role=main]')].filter((e) => e.offsetParent !== null).length);
   if (main !== 1) add('landmarks', 'Book view', `${main} visible main landmarks (needs 1)`);
@@ -251,11 +251,13 @@ const openAllOptions = (p) => p.evaluate(() => { openIds = new Set(layout.blocks
   if (l0 === l1 && l1 === l2) add('announce', 'Book view', 'book level changes (keys 0, 1, 2) are not announced');
   await p.keyboard.press(']'); await p.waitForTimeout(300);
   if (!/Page \d/.test(await p.textContent('#bk-info'))) add('keyboard', 'Book view', 'the ] key does not select a page and report it');
+  await go(p, '#page/safety'); await axeRun(p, 'Page view'); await smallTargets(p, 'Page view');
+  const pm = await p.evaluate(() => [...document.querySelectorAll('main, [role=main]')].filter((e) => e.offsetParent !== null).length); if (pm !== 1) add('landmarks', 'Page view', `${pm} visible main landmarks (needs 1)`);
   await close(p);
 }
 // 5) mobile: tabs, dialogs, reflow, targets
 for (const w of [320, 390]) {
-  const p = await open('site', { w, h: 800 });
+  const p = await open('site', { hash: DAY, w, h: 800 });
   for (const t of ['edit', 'add', 'preview']) {
     await p.evaluate((t) => tab(t), t); await p.waitForTimeout(120);
     await reflow(p, `Day ${w}px, ${t} tab`);
@@ -270,18 +272,18 @@ for (const w of [320, 390]) {
   }
   await p.evaluate(() => { tab('edit'); openAllOptions_(); function openAllOptions_() { openIds = new Set(layout.blocks.map((x) => x.uid)); drawList(); } });
   await reflow(p, `Day ${w}px, every option open`);
-  await p.click('#v-book'); await p.waitForTimeout(1000); await reflow(p, `Book ${w}px`);
+  await go(p, '#book'); await reflow(p, `Book ${w}px`);
   if (w === 390) await smallTargets(p, 'Book 390px');
-  await p.click('#v-day'); await p.waitForTimeout(150);
+  await go(p, DAY);
   await p.click('#v-ver'); await p.waitForTimeout(300); await reflow(p, `Versions drawer ${w}px`);
   if (w === 390) await smallTargets(p, 'Versions drawer 390px');
   await close(p);
 }
 { // dialogs, the demo and the Artifact build
-  const p = await open('site');
+  const p = await open('site', { hash: DAY });
   await p.evaluate(() => document.querySelector('#gh').showModal()); await axeRun(p, 'Save to GitHub dialog'); await smallTargets(p, 'Save to GitHub dialog', {});
   await close(p);
-  const q = await open('site');
+  const q = await open('site', { hash: DAY });
   await q.click('#menubtn'); await q.click('#m-method'); await q.waitForTimeout(200); await axeRun(q, 'Methods dialog'); await smallTargets(q, 'Methods dialog');
   await close(q);
   const d = await open('demo');
@@ -295,14 +297,14 @@ for (const w of [320, 390]) {
 }
 // 6) reduced motion, forced colors, high contrast
 {
-  const p = await open('site', { reduce: true });
+  const p = await open('site', { hash: DAY, reduce: true });
   await motionCheck(p, 'Day');
-  await p.click('#v-book'); await p.waitForTimeout(900); await p.focus('#bk-view'); await p.keyboard.press('2'); await p.waitForTimeout(150);
+  await go(p, '#book'); await p.focus('#bk-view'); await p.keyboard.press('2'); await p.waitForTimeout(150);
   await motionCheck(p, 'Book view');
-  await p.click('#v-day'); await p.click('#v-ver'); await p.waitForTimeout(300);
+  await go(p, DAY); await p.click('#v-ver'); await p.waitForTimeout(300);
   await motionCheck(p, 'Versions drawer');
   await close(p);
-  const f = await open('site', { forced: true });
+  const f = await open('site', { hash: DAY, forced: true });
   const st = await f.evaluate(() => { const on = document.querySelector('.sw[aria-checked=true]'), off = document.querySelector('.sw[aria-checked=false]'); const bg = (e) => getComputedStyle(e, '::before').backgroundColor + '|' + getComputedStyle(e, '::after').backgroundColor; const pr = document.querySelector('.seg button[aria-pressed=true]'), np = document.querySelector('.seg button[aria-pressed=false]');
     return { sw: on && off ? bg(on) !== bg(off) : null, seg: pr && np ? getComputedStyle(pr).backgroundColor !== getComputedStyle(np).backgroundColor : null }; });
   if (st.sw === false) add('forced-colors', 'Day', 'switch on and off look the same in forced-colors mode');
