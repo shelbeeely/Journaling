@@ -353,6 +353,15 @@ Scales here are zero-based (0..5, 0..7), and the X4 stores exactly the printed n
 On the small page (5.5 x 8.5) all of these fit together with the writing space when the moon line and action items are off (thought record at 3 boxes); each one fits on its own on the default day.
 
 
+### Page grid (Grid layout switch)
+Flow (the default) stacks blocks in order and the writing space takes what is left. **Grid** puts every block on a fixed grid and lets it span rows and columns.
+- **Fixed grid, `GRIDS` in `daypage.mjs`.** Day page: 4 columns, rows one tight line high (0.22 in, 5.6 mm), 24 rows on both trims (measured: 590.4 px day area, 65.6 px header, so 524.8 px = 24.85 rows; 0.19 in stays blank above the SEND TO strip). The 8.5x11 book is laid out at the same height and zoomed, so its rows and columns match (a row is 7.2 mm there).
+- **Stored as** `{v: 2, grid: true, blocks: [{..., col, row, colSpan, rowSpan}]}` (1-based). The flow layout and the default page are unchanged (placements are ignored without `grid`). X4 export reads only the blocks, so it is the same wherever a block sits (the editor test compares it).
+- **Rules** (`gridProblems()`, with messages): no overlap; each block at least its content's minimum (`minSpan()`, measured; the editor test checks every block type and option variant fits its minimum on both trims); inside the 4 columns and 24 rows; the Writing space at least 8 rows by 2 columns. The date/title/tags header, SEND TO strip, page code and frame are not blocks and never move. A grid layout that breaks a rule stops the build and says why.
+- **Data blocks** (holidays, events, on this day) keep their cell on days without one. Turning Grid on stacks the blocks at their minimums and switches off blocks from the end of the list until the writing space has its 8 rows (today: On this day); place it beside another block to bring it back.
+- **Scan zones:** one zone per block cell (its grid rectangle, `_2`, `_3` for repeats); parts inside a cell (the care rows) are not listed. `check.mjs` also checks each cell (`blk` names the block).
+- **Editor:** the Flow / Grid switch, the grid drawn over the preview (Actual size on wide screens), drag to snap, corner handle to resize, arrows to move and Shift + arrows to resize, Column/Row/Wide/Tall steppers per block, undo, and a list of problems. Blocks with room to spare (Lined notes, Two columns, Sketch box, Brain dump, Writing space) fill their cell.
+
 ### Page identity
 Every page has an `id` in `layout.json`, unique in its book and derived from what the page is, not where it sits:
 `title`, `key`, `care_plan`, `month.calendar`, `week.03.left`, `week.03.right`, `week.03.exchange`, `week.03.reply`,
