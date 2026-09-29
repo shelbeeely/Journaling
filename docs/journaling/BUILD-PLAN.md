@@ -209,6 +209,7 @@ run with the real calendar secrets; order one private KDP proof per size with th
 | X | X4-hosted editor: edit right from the device's hotspot, no internet; cloud sync goes through the phone (section 14); after C4a and G1 | 1–2 agents |
 | E1 | View versus edit: the editor UI (palette, options, panels) shows only while editing a page, not while viewing it (section 16); small, can go now | 1 agent |
 | L1 | Library and series: custom titles for every book, several books per project, series, Library → Series → Book → Spread → Page navigation (section 16); after H1 merges | 1–2 agents |
+| P1 | Account profile with saved locations that feed new books (section 17); pairs with Phase F units 2 and 3 | 1 agent |
 | A11Y | Accessibility options: editor, printed books, X4, site (section 15); audit first, then units; every new unit follows the checklist | 2–3 agents |
 
 Every unit follows the same proof as the fixes: reproduce, fix, rebuild all 12 months at both sizes with the checks
@@ -381,3 +382,27 @@ Accessibility is a requirement on every unit, plus a set of user-facing options.
 **Studio.** A project's commits snapshot the whole library; forks copy the project (books and series); merges work per book and per series setting using stable ids; releases are per book. Book ids are allocated per book.
 
 **Slices:** E1 view versus edit in the current editor (small); L1a data model (books and series in the project file and `profile`, custom titles through covers, manifests and the studio schema, migration from a single-book profile), L1b Library, Series and Book navigation in the editor plus series defaults and the Keeper option.
+
+## 17. Account profile and location (2026-09-29)
+
+A signed-in user has a profile with one or more **saved locations** (for example Home, Work, Travel). Guests get the same profile stored in the browser. A new book copies its location from the profile's default; a book can pick another saved location or a one-off place; changing the profile does not silently change books that already exist.
+
+**Setting a location (privacy first, no third-party service by default)**
+- Pick from a bundled offline gazetteer (cities of about 15,000 people and up, an open dataset with its licence and credit included), or type latitude, longitude and elevation, or press "Use my device location" (browser geolocation, only on tap, computed on the device).
+- Fields: place name and short name to print, region and country, latitude, longitude, elevation, IANA timezone (looked up offline from the coordinates and editable), first day of week, units, date format, and the region for content packs.
+- Nothing is sent to a server unless the user is signed in and chooses to save the profile; the browser never calls a geocoding service unless the user turns that on, and says so.
+
+**What the location drives when a book is built**
+- Sunrise and sunset, day length, moonrise and moonset, twilight, and the night shading on the 24 h time line.
+- Timezone, daylight saving changes and where a day starts (the X4 day-start hour stays a separate setting).
+- The place name on the title page, cover and sky pages; seasons and their dates for the hemisphere (southern hemisphere flips them); which astronomy events are visible.
+- Holidays and observances for the country or region (a data pack, off by default, chosen by the user).
+- Optional modules that need a place: transit feeds (a content pack per agency), and the region's support and resources pack. **Crisis and support numbers are never filled in automatically for a region without a pack that names who verified it and when**; without one, the book says how to add local numbers and shows only 988-style national lines that a pack verified.
+- Weather is not part of this. No live data leaves the device or the build.
+
+**Where it lives and what is shared**
+- The location is personal data. It is never part of the forkable publication source: a shared or forked project keeps only a reference (`location: profile default`), and whoever builds the book supplies their own. The studio's forbidden-content scanner rejects coordinates in a snapshot.
+- Printed books naturally show sun times for a place, so the profile explains that before printing a shared or sold book, and offers "approximate place" (rounded to a city or grid cell) for books meant to be shared.
+- A profile export and delete-my-data option ships with accounts.
+
+**Slices:** P1a profile schema and gazetteer with the offline timezone lookup, the account and guest profile UI, and the book-creation flow; P1b feed every location-driven calculation from the book's location (verify with a second city and a southern-hemisphere city: sun times, seasons, meteor visibility, timezone), with tests, plus the snapshot scanner rule. Shelbee's Spokane profile must reproduce today's books byte-identically.
