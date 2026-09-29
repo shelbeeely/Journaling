@@ -220,7 +220,7 @@ X4 sample card in `x4/host/sample/kw/`.
 | Content packs | Regional support and resource lists, optional transit feeds, as data | `generic` pack ships; Shelbee's becomes `spokane-wa` |
 
 Units:
-1. **Profile extraction:** move location, names, branding, day start and module switches out of code into `profile.json`; every
+1. **Profile extraction (done):** move location, names, branding, day start and module switches out of code into `profile.json`; every
    module reads it; Shelbee's profile reproduces today's books byte-identically.
 2. **Content packs:** support, clinic, trans and transit as packs with a manifest (region, who verified it, date verified); a
    `generic` pack with placeholders; the build refuses to print a pack with no verification note on crisis pages.

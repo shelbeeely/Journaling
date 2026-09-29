@@ -3,6 +3,7 @@
 import { loadContext, loadBook } from '../context.mjs';
 import { assemble, DEFAULT_BOOK } from '../book.mjs';
 import { PAGE_TYPES } from '../pages.mjs';
+import { firstMonthId } from '../profile.mjs';
 
 const fresh = async (month) => {
   const ctx = await loadContext({ month, ics: 'test.ics', size: 'small', quiet: true });
@@ -14,7 +15,7 @@ const allOn = (list) => list.map((e) => ({ ...e, on: true, ...(e.options && e.ty
 
 // The sample book follows content/book.json (else DEFAULT_BOOK). Pages the book hides are listed apart in `hidden` (one per
 // hidden entry, the first page it would make), so the canvas can show them dimmed.
-export async function samplePages(month = '2026-10', bookIn = null) {
+export async function samplePages(month = firstMonthId(), bookIn = null) {
   const book = bookIn || loadBook() || DEFAULT_BOOK;
   const { pages, refs } = assemble(await fresh(month), book.default);
   const shown = new Set(pages.map((p) => p.id));

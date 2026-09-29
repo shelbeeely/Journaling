@@ -118,6 +118,7 @@ export function assemble(ctx, entries, opts = {}) {
   const emit = (entry, at = {}) => {
     if (entry.on === false) return;
     const T = PAGE_TYPES[entry.type];
+    if (T.module && ctx.PROFILE && ctx.PROFILE.modules[T.module] === false) return; // the profile's module switch: this page is not in this book
     const specs = T.build(ctx, { ...at, entry });
     if (!specs.length) return;
     if (T.align === 'verso') alignToVerso();

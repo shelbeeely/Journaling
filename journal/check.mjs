@@ -1,7 +1,7 @@
 import { launch } from './browser.mjs';
 const b = await launch();
 const p = await b.newPage();
-await p.goto('file://' + process.cwd() + `/out/${process.argv[2] || 'v1'}/journal.html`, { waitUntil: 'networkidle' });
+await p.goto('file://' + process.cwd() + `/${process.env.KW_OUT || 'out'}/${process.argv[2] || 'v1'}/journal.html`, { waitUntil: 'networkidle' });
 await p.evaluate(() => document.fonts.ready);
 const res = await p.evaluate(() => [...document.querySelectorAll('.page')].map((pg, i) => {
   const over = pg.scrollHeight > pg.clientHeight + 1 || pg.scrollWidth > pg.clientWidth + 1;

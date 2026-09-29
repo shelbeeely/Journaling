@@ -8,13 +8,20 @@ from PIL import Image, ImageDraw
 ARG = sys.argv[1] if len(sys.argv) > 1 else ''
 if not re.fullmatch(r'm\d{4}-\d{2}', ARG):
     sys.exit('Usage: python3 epub.py m<YYYY-MM>   (e.g. m2026-10)')
-OUT = f'out/{ARG}'
+OUT = f"{os.environ.get('KW_OUT') or 'out'}/{ARG}"
+# content/profile.json (or KW_PROFILE): title, place, modules and content paths (see profile.mjs; the node build has already validated it)
+PROFILE = json.load(open(os.environ.get('KW_PROFILE') or 'content/profile.json'))
+BOOK, LOC, MODS, PATHS, TRANSIT = PROFILE['book'], PROFILE['location'], PROFILE['modules'], PROFILE.get('paths', {}), PROFILE.get('transit') or {}
+TITLE, SLUG = BOOK['title'], BOOK['slug']
+def content(key):  # a profile content path, parsed; None when the profile has none or the file is absent
+    p = PATHS.get(key)
+    return json.load(open(p)) if p and os.path.exists(p) else None
 D = json.load(open(f'{OUT}/data.json'))
 VOL = D['volume']
 MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
 e = html.escape
 # EPUB identifier: keep this exact seed (e.g. "keeping-watch-volm2026-10-Oct 2026") so readers don't see an existing book as new.
-BOOK_ID = 'urn:uuid:' + str(uuid.uuid5(uuid.NAMESPACE_URL, f'keeping-watch-vol{ARG}-' + VOL['short']))
+BOOK_ID = 'urn:uuid:' + str(uuid.uuid5(uuid.NAMESPACE_URL, f'{SLUG}-vol{ARG}-' + VOL['short']))
 
 def moon_png(deg, size=96):
     """Grayscale moon icon, 8 bits, e-ink friendly (lit white, dark black, thin ring)."""
@@ -62,7 +69,7 @@ def day_html(d):
     moon_line = ' · '.join(f"enters {i['sign']} {i['time']}" for i in mo['ingress']) or f"in {mo.get('phaseSign', mo['sign'])}"
     notes = [n['text'] for n in d['notes']]
     for c in jp['koChange']:
-        notes.insert(0, f"New Spokane season {c['time']}: {c['en']}")
+        notes.insert(0, f"New {LOC['city']} season {c['time']}: {c['en']}")
     ev = ''.join(f"<li>{'☐ ' if x.get('routine') else ''}{e(x['time'] + ' ' if x['time'] else '')}{e(x['title'])}</li>" for x in d['events'])
     return f'''<div class="day" id="d{d['date']}">
 <img class="moon" src="{phase_img(mo['phaseDeg'])}" alt="{e(mo['phase'])}"/>
@@ -97,16 +104,16 @@ files = {}  # name -> (content, media-type)
 spine = []
 nav = []
 
-intro = page('Keeping Watch', f'''<h1>Keeping Watch</h1>
-<p>Companion almanac for the paper journal,  {e(VOL["label"])}. Sky data for {e(D['config']['place'])}, Pacific time.</p>
+intro = page(TITLE, f'''<h1>{e(TITLE)}</h1>
+<p>Companion almanac for the paper journal,  {e(VOL["label"])}. Sky data for {e(D['config']['place'])}, {e(re.sub(r' Time$', ' time', LOC['timezone_name']))}.</p>
 <h3>How to use it</h3><ul><li>Open a week from the contents (each day is listed under its week): each day has its moon, sunrise and sunset, micro-season and events.</li><li>Write in the paper book; use this for reference away from it.</li></ul>
 <p class="dim">Astrology is included as a reflection prompt, not a forecast. Astronomy is calculated with astronomy-engine. Daily facts: Computer History Museum “This Day in History” and Wikipedia date pages.</p>''')
 files['intro.xhtml'] = (intro, 'application/xhtml+xml'); spine.append('intro.xhtml')
 
 # STA bus coverage of this month from the feed's dates (same rule as data.mjs busCoverage): full / partial / none
 def bus_coverage():
-    if not os.path.exists('gtfs/network.json'): return 'none'
-    N = json.load(open('gtfs/network.json'))
+    if not MODS['bus'] or not PATHS.get('transit') or not os.path.exists(f"{PATHS['transit']}/network.json"): return 'none'
+    N = json.load(open(f"{PATHS['transit']}/network.json"))
     mid = f"{VOL['year']}-{VOL['month']:02d}"
     if mid not in N.get('months', {}): return 'none'
     iso = lambda x: f"{x[:4]}-{x[4:6]}-{x[6:]}"
@@ -117,26 +124,26 @@ def bus_coverage():
 BUS_COV = bus_coverage()
 
 # Support resources + safety plan prompts (content/support.json, shared with the paper book)
-if os.path.exists('content/support.json'):
-    SUP = json.load(open('content/support.json'))
+if content('support') is not None:
+    SUP = content('support')
     body = "<h1>Support</h1><p class='dim'>[TEXT] means you can text instead of talking. Emergency: 911. Checked Sep 2026; numbers and hours can change.</p>"
     for h, items in SUP:
         body += f"<h2>{h}</h2><ul>" + ''.join(f"<li><b>{n}</b> [{c.replace(' ', '] [')}]<br/>{d}</li>" for n, d, c in items) + "</ul>"
-    if os.path.exists('content/clinic.json'):
-        C = json.load(open('content/clinic.json'))
+    if content('clinic') is not None:
+        C = content('clinic')
         body = body.replace("<h2>", f"<h2>My clinic</h2><p><b>{C['name']}</b><br/>{C['address']}</p><ul>" + ''.join(f"<li><b>{k}</b>{(' [' + c.replace(' ', '] [') + ']') if c else ''}<br/>{d}</li>" for k, d, c in C['lines']) + "</ul><h2>", 1)
-    if os.path.exists('content/trans.json'):
+    if MODS['trans_support'] and content('trans') is not None:
         body += "<h1>Trans support</h1>"
-        for h, items in json.load(open('content/trans.json')):
+        for h, items in content('trans'):
             body += f"<h2>{h}</h2><ul>" + ''.join(f"<li><b>{n}</b>{(' [' + c.replace(' ', '] [') + ']') if c else ''}<br/>{d}</li>" for n, d, c in items) + "</ul>"
     body += "<h2>My safety plan</h2><p>Fill in the paper page on a good day. Work down the list until you feel safer:</p><ol><li>Signs a hard time is starting</li><li>Things I can do on my own</li><li>People or places that take my mind off it</li><li>People I can text for help</li><li>Professionals: therapist, prescriber, 988, crisis line 1-877-266-1818</li><li>Making my space safer</li><li>What matters to me</li></ol><p><b>A text I can send when talking is too hard:</b> “Hey, I’m having a hard time. I’m not up for a call. Can you text with me for a bit?”</p>"
-    if BUS_COV == 'none': body += "<p><b>Bus times:</b> spokanetransit.com or the STA app</p>"
+    if MODS['bus'] and BUS_COV == 'none': body += f"<p><b>Bus times:</b> {TRANSIT['site']} or the {TRANSIT['app']}</p>"
     body = body.replace('&amp;', '&').replace('&', '&amp;').replace('&amp;amp;', '&amp;')
     files['support.xhtml'] = (page('Support', body), 'application/xhtml+xml'); spine.append('support.xhtml')
 
 # STA schedules (gtfs/network.json): network summary + hour grids
 if BUS_COV != 'none':
-    N = json.load(open('gtfs/network.json'))
+    N = json.load(open(f"{PATHS['transit']}/network.json"))
     E = N['months'].get(f"{VOL['year']}-{VOL['month']:02d}")
     if E:
         DAYS = [('weekday', 'Wkdy'), ('saturday', 'Sat'), ('sunday', 'Sun')]
@@ -144,9 +151,9 @@ if BUS_COV != 'none':
         cell = lambda x: f"{x['span']} · {x['every']}" if x and x.get('every') else (x['span'] if x else '—')
         rows = ''.join(f"<tr><td><b>{e(N['routes'][r]['n'])}</b> {e(N['routes'][r]['name'])}</td>" + ''.join(f"<td>{e(cell(E['summary'][r].get(k)))}</td>" for k, _ in DAYS) + '</tr>' for r in sorted(E['summary'], key=num) if r in N['routes'])
         until = datetime.date(int(N['valid_to'][:4]), int(N['valid_to'][4:6]), int(N['valid_to'][6:]))
-        VALID = f"<p><b>Schedule valid through {until.strftime('%b')} {until.day} · check spokanetransit.com after</b></p>" if BUS_COV == 'partial' else ''
-        body = f"<h1>STA buses</h1><p class='dim'>First–last bus · minutes between buses at midday. Schedule {N['valid_from'][4:6]}/{N['valid_from'][6:]} – {N['valid_to'][4:6]}/{N['valid_to'][6:]}/{N['valid_to'][:4]}. Holidays run Sunday times.</p>{VALID}<table class='bus'><tr><th>Route</th>{''.join(f'<th>{l}</th>' for _, l in DAYS)}</tr>{rows}</table>"
-        for r in ['6', '68', '66', '32', '97', '65', '61', '62', '63', '7']:
+        VALID = f"<p><b>Schedule valid through {until.strftime('%b')} {until.day} · check {TRANSIT['site']} after</b></p>" if BUS_COV == 'partial' else ''
+        body = f"<h1>{TRANSIT['agency']} buses</h1><p class='dim'>First–last bus · minutes between buses at midday. Schedule {N['valid_from'][4:6]}/{N['valid_from'][6:]} – {N['valid_to'][4:6]}/{N['valid_to'][6:]}/{N['valid_to'][:4]}. Holidays run Sunday times.</p>{VALID}<table class='bus'><tr><th>Route</th>{''.join(f'<th>{l}</th>' for _, l in DAYS)}</tr>{rows}</table>"
+        for r in TRANSIT.get('priority_routes', []):
             G = E['grids'].get(r)
             if not G: continue
             body += f"<h2>Route {e(N['routes'][r]['n'])} · {e(N['routes'][r]['name'])}</h2>"
@@ -157,7 +164,7 @@ if BUS_COV != 'none':
                 hrs = sorted({int(h) for k, _ in days for h in G[k][dirn]['hours']}, key=lambda h: (h + 21) % 24)
                 hl = lambda h: f"{(h % 12) or 12}{'a' if h < 12 else 'p'}"
                 body += f"<h3>{e(g0['from'])} → {e(g0['to'])}</h3><table class='bus'><tr><th></th>{''.join(f'<th>{l}</th>' for _, l in days)}</tr>" + ''.join(f"<tr><td><b>{hl(h)}</b></td>" + ''.join(f"<td>{' '.join(G[k][dirn]['hours'].get(str(h), []))}</td>" for k, _ in days) + '</tr>' for h in hrs) + '</table>'
-        files['bus.xhtml'] = (page('STA buses', body), 'application/xhtml+xml'); spine.append('bus.xhtml')
+        files['bus.xhtml'] = (page(f"{TRANSIT['agency']} buses", body), 'application/xhtml+xml'); spine.append('bus.xhtml')
 
 for M in D['months']:
     name = f"m{M['m']:02d}.xhtml"
@@ -187,7 +194,7 @@ assert len([s for s in spine if s.startswith('w')]) == len(D['weeks']), [s for s
 
 navdoc = f'''<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en"><head><meta charset="utf-8"/><title>Contents</title></head>
-<body><nav epub:type="toc" id="toc"><h1>Contents</h1><ol><li><a href="intro.xhtml">About</a></li>{'<li><a href="support.xhtml">Support</a></li>' if 'support.xhtml' in files else ''}{'<li><a href="bus.xhtml">STA buses</a></li>' if 'bus.xhtml' in files else ''}{''.join(nav)}</ol></nav></body></html>'''
+<body><nav epub:type="toc" id="toc"><h1>Contents</h1><ol><li><a href="intro.xhtml">About</a></li>{'<li><a href="support.xhtml">Support</a></li>' if 'support.xhtml' in files else ''}{'<li><a href="bus.xhtml">' + str(TRANSIT.get('agency')) + ' buses</a></li>' if 'bus.xhtml' in files else ''}{''.join(nav)}</ol></nav></body></html>'''
 
 # EPUB 2 NCX for older readers
 pts = []; order = 1
@@ -195,8 +202,8 @@ def np(label, src, children=''):
     global order
     o = order; order += 1
     return f'<navPoint id="n{o}" playOrder="{o}"><navLabel><text>{e(label)}</text></navLabel><content src="{src}"/>{children}</navPoint>'
-ncx_body = ''.join(np(f'Week {int(x[1:3])}' if x.startswith('w') else ('About' if x == 'intro.xhtml' else 'Support' if x == 'support.xhtml' else 'STA buses' if x == 'bus.xhtml' else MONTHS[int(x[1:3]) - 1]), x) for x in spine)
-ncx = f'''<?xml version="1.0" encoding="utf-8"?><ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1"><head><meta name="dtb:uid" content="{BOOK_ID}"/></head><docTitle><text>Keeping Watch</text></docTitle><navMap>{ncx_body}</navMap></ncx>'''
+ncx_body = ''.join(np(f'Week {int(x[1:3])}' if x.startswith('w') else ('About' if x == 'intro.xhtml' else 'Support' if x == 'support.xhtml' else f"{TRANSIT.get('agency')} buses" if x == 'bus.xhtml' else MONTHS[int(x[1:3]) - 1]), x) for x in spine)
+ncx = f'''<?xml version="1.0" encoding="utf-8"?><ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1"><head><meta name="dtb:uid" content="{BOOK_ID}"/></head><docTitle><text>{e(TITLE)}</text></docTitle><navMap>{ncx_body}</navMap></ncx>'''
 
 now = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
 imgs = {f'moon{i}.png': moon_png(p) for i, p in enumerate(PHASES)}
@@ -205,11 +212,11 @@ manifest += ''.join(f'<item id="{n.split(".")[0]}" href="{n}" media-type="image/
 manifest += '<item id="css" href="style.css" media-type="text/css"/><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/><item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>'
 opf = f'''<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="bookid" xml:lang="en">
-<metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="bookid">{BOOK_ID}</dc:identifier><dc:title>Keeping Watch — {e(VOL['label'])} Almanac</dc:title><dc:language>en</dc:language><dc:creator>Shelbee</dc:creator><meta property="dcterms:modified">{now}</meta></metadata>
+<metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="bookid">{BOOK_ID}</dc:identifier><dc:title>{e(TITLE)} — {e(VOL['label'])} Almanac</dc:title><dc:language>en</dc:language><dc:creator>{e(PROFILE['person']['name'])}</dc:creator><meta property="dcterms:modified">{now}</meta></metadata>
 <manifest>{manifest}</manifest>
 <spine toc="ncx"><itemref idref="nav"/>{''.join(f'<itemref idref="{s.split(".")[0]}"/>' for s in spine)}</spine></package>'''
 
-with zipfile.ZipFile(f'{OUT}/keeping-watch-{ARG[1:]}-x4.epub', 'w') as z:
+with zipfile.ZipFile(f'{OUT}/{SLUG}-{ARG[1:]}-x4.epub', 'w') as z:
     z.writestr(zipfile.ZipInfo('mimetype'), 'application/epub+zip', compress_type=zipfile.ZIP_STORED)
     z.writestr('META-INF/container.xml', '<?xml version="1.0"?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>', compress_type=zipfile.ZIP_DEFLATED)
     z.writestr('OEBPS/content.opf', opf, compress_type=zipfile.ZIP_DEFLATED)

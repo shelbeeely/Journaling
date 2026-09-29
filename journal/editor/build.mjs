@@ -5,17 +5,20 @@
 import fs from 'node:fs';
 import zlib from 'node:zlib';
 import { samplePages } from './samples.mjs';
+import { PROFILE, firstMonthId } from '../profile.mjs';
+const M0 = firstMonthId(); // the profile's first month: the book the editor's preview is cut from
+const SAMPLE_DATE = `${M0}-${new Date(Date.UTC(+M0.slice(0, 4), +M0.slice(5), 0)).getUTCDate()}`; // its last day (Oct 31 2026 for Shelbee)
 const root = new URL('../', import.meta.url);
 const read = (p) => fs.readFileSync(new URL(p, root), 'utf8');
-const h = read('out/m2026-10/journal.html');
+const h = read(`out/m${M0}/journal.html`);
 const css = h.slice(h.indexOf('<style>') + 7, h.indexOf('</style>'))
   .replace(/@page[^}]*\}/, '').replace(/html, body \{[^}]*\}/, '')
   .replace(/(^|\n)body \{/, '$1.page {') // no body in the preview: the page carries the base font
   .replace(/([^{}]+)\{/g, (_, sel) => sel.split(',').map((x) => `#pv ${x.trim()}`).join(', ') + ' {'); // scope to the preview
 // The sample day for the Tier 2 blocks: a real date and its calculated sunrise and sunset (generic, no calendar data).
-const sd = JSON.parse(read('out/m2026-10/data.json')).days.find((x) => x.date === '2026-10-31');
-const sampleDay = { date: '2026-10-31', rise: sd.sun.rise, set: sd.sun.set };
-const k = h.indexOf('2026-10-31 · ');
+const sd = JSON.parse(read(`out/m${M0}/data.json`)).days.find((x) => x.date === SAMPLE_DATE);
+const sampleDay = { date: SAMPLE_DATE, rise: sd.sun.rise, set: sd.sun.set };
+const k = h.indexOf(`${SAMPLE_DATE} · `);
 const seg = h.slice(h.lastIndexOf('<div class="page', k), h.indexOf('<div class="page', k));
 const pick = (re) => (seg.match(re) || [''])[0];
 const kit = {
@@ -31,7 +34,7 @@ const kit = {
 };
 // Method layouts ride along after the block library (their import of daypage.mjs is already in scope).
 const lib = read('daypage.mjs').replace(/^export /gm, '') + '\n' + read('content/layouts.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '');
-const tpl = read('editor/template.html').replace('/*__DAYPAGE__*/', () => lib).replace('/*__KIT__*/', () => `const KIT = ${JSON.stringify(kit)};`);
+const tpl = read('editor/template.html').replace('Keeping Watch · every monthly book', () => `${PROFILE.book.title.replace(/&/g, '&amp;').replace(/</g, '&lt;')} · every monthly book`).replace('/*__DAYPAGE__*/', () => lib).replace('/*__KIT__*/', () => `const KIT = ${JSON.stringify(kit)};`);
 const dist = new URL('editor/dist/', root);
 fs.mkdirSync(new URL('site/', dist), { recursive: true });
 // 1) Claude Artifact (saves to the artifact's store; the host adds the document skeleton)

@@ -4,12 +4,15 @@
 // Usage: node keeper.mjs [label]      -> out/keeper/keeper-interior-5.5x8.5.pdf + pages.txt
 import fs from 'node:fs';
 import { launch } from './browser.mjs';
-import { handoffHtml, HANDOFF_BOXES, GOOD_SPOON_NOTE } from './handoff.mjs';
+import { handoffHtml, HANDOFF_BOXES as ALL_BOXES, GOOD_SPOON_NOTE } from './handoff.mjs';
+import { PROFILE, moduleOn, monthIds, yearLabel, readContent } from './profile.mjs';
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const HANDOFF_BOXES = ALL_BOXES.filter((b) => b.id !== 'spoons' || moduleOn('spoons'));
 
-const LABEL = process.argv[2] || 'Oct 2026 – Sep 2027';
+const LABEL = process.argv[2] || yearLabel();
 const OUT = 'out/keeper'; fs.mkdirSync(OUT, { recursive: true });
 const J = (p) => JSON.parse(fs.readFileSync(p, 'utf8'));
-const CLINIC = J('content/clinic.json'), SUPPORT = J('content/support.json'), TRANS = J('content/trans.json');
+const CLINIC = readContent('clinic'), SUPPORT = readContent('support') || [], TRANS = moduleOn('trans_support') ? readContent('trans') : null; // paths come from content/profile.json
 const W_IN = 5.5, H_IN = 8.5, INSIDE = 0.6, OUTSIDE = 0.45, TOP = 0.5, BOTTOM = 0.55;
 const pages = [];
 const add = (html, cls = '') => pages.push({ html, cls });
@@ -20,7 +23,7 @@ const lines = (n) => `<div class="lns">${'<div class="ln"></div>'.repeat(n)}</di
 const row = (...f) => `<div class="fr">${f.join('')}</div>`;
 
 // ---- front matter ----
-add(`<div class="title"><div class="kick">KEEPING WATCH</div><h1>The Keeper</h1><p class="sub">${LABEL}</p>
+add(`<div class="title"><div class="kick">${esc(PROFILE.book.title.toUpperCase())}</div><h1>The Keeper</h1><p class="sub">${LABEL}</p>
 <p class="lead">The reference book that stays home: the people, numbers and accounts you need, all in one place.</p>
 <div class="found"><b>If found, please return to</b>${field('Name')}${field('Text')}${field('Email')}</div></div>`, 'titlep');
 add(`<div class="blankpage"></div>`);
@@ -46,8 +49,8 @@ ${blank(3).map(() => `<div class="card">${row(field('Name'), field('Relation', '
 <h3>Communication</h3>
 <div class="card"><p class="small">What helps when you contact me or help me in a hard moment:</p>${lines(3)}</div>`);
 add(`<h2>Health</h2>
-<div class="card"><b>${CLINIC.name}</b><br><span class="small">${CLINIC.address}</span>
-${CLINIC.lines.map(([k, d, c]) => `<div class="sup"><div class="sn"><b>${k}</b>${chip(c)}</div><div class="small">${d}</div></div>`).join('')}
+<div class="card">${CLINIC ? `<b>${CLINIC.name}</b><br><span class="small">${CLINIC.address}</span>
+${CLINIC.lines.map(([k, d, c]) => `<div class="sup"><div class="sn"><b>${k}</b>${chip(c)}</div><div class="small">${d}</div></div>`).join('')}` : row(field('Clinic or practice'), field('Phone', 'sm'))}
 ${row(field('My provider'), field('Counselor'))}</div>
 <h3>Insurance</h3><div class="card">${row(field('Plan'))}${row(field('Member ID'), field('Group #', 'sm'))}${row(field('Member services phone'))}</div>
 <h3>Allergies &amp; reactions</h3>${lines(2)}
@@ -82,7 +85,7 @@ add(`<h2>Devices &amp; Wi-Fi</h2>
 
 // ---- monthly handoffs: one spread per book, filled in when you switch journals ----
 const MONTHS = [];
-for (let i = 0; i < 12; i++) { const d = new Date(Date.UTC(2026, 9 + i, 1)); MONTHS.push({ n: i + 1, id: d.toISOString().slice(0, 7), name: d.toLocaleDateString('en-US', { month: 'long', timeZone: 'UTC' }), y: d.getUTCFullYear() }); }
+for (let i = 0; i < 12; i++) { const d = new Date(Date.UTC(+monthIds()[i].slice(0, 4), +monthIds()[i].slice(5) - 1, 1)); MONTHS.push({ n: i + 1, id: d.toISOString().slice(0, 7), name: d.toLocaleDateString('en-US', { month: 'long', timeZone: 'UTC' }), y: d.getUTCFullYear() }); }
 const cbx = (t) => `<div class="cbl"><i></i><span>${t}</span></div>`;
 const stat = (l, u = '') => `<div class="st"><span>${l}</span><i></i><em>${u}</em></div>`;
 const INDEX = {};
@@ -101,8 +104,8 @@ for (const M of MONTHS) {
   const next = MONTHS[M.n] ? `${MONTHS[M.n].name}` : 'next year';
   INDEX[M.id] = pages.length + 1;
   add(`<div class="hh"><h2>Closing ${M.name} ${M.y}</h2><span>BOOK ${M.n} OF 12</span></div>
-  <h3>Totals</h3>${handoffHtml({ caption: (tag, where) => `<p class="src"><b>${tag}</b> · ${where}</p>`, grid: (h) => `<div class="sts">${h}</div>`, cell: stat })}
-  <p class="small">${GOOD_SPOON_NOTE}</p>
+  <h3>Totals</h3>${handoffHtml({ omit: moduleOn('spoons') ? [] : ['spoons'], caption: (tag, where) => `<p class="src"><b>${tag}</b> · ${where}</p>`, grid: (h) => `<div class="sts">${h}</div>`, cell: stat })}
+  ${moduleOn('spoons') ? `<p class="small">${GOOD_SPOON_NOTE}</p>` : ''}
   <div class="two"><div><h3>Highs</h3>${lines(4)}</div><div><h3>Lows</h3>${lines(4)}</div></div>
   <h3>Health</h3><p class="small">Appointments, med changes, how the meds felt.</p>${lines(3)}
   <h3>Money &amp; work</h3>${lines(2)}
@@ -116,14 +119,14 @@ for (const M of MONTHS) {
   <h3>Intention for ${next}</h3>${lines(1)}`, 'hr');
 }
 add(`<h2>Year at a glance</h2><p class="small">Copy each month’s totals here to see the whole year.</p>
-<table class="t yr"><tr><th>Month</th>${HANDOFF_BOXES.map((b) => `<th>${b.label}</th>`).join('')}</tr>${MONTHS.map((M) => `<tr><td>${M.name.slice(0, 3)} ${String(M.y).slice(2)}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`).join('')}</table>
+<table class="t yr"><tr><th>Month</th>${HANDOFF_BOXES.map((b) => `<th>${b.label}</th>`).join('')}</tr>${MONTHS.map((M) => `<tr><td>${M.name.slice(0, 3)} ${String(M.y).slice(2)}</td>${HANDOFF_BOXES.map(() => '<td></td>').join('')}</tr>`).join('')}</table>
 <h3>What this year taught me</h3>${lines(6)}`);
 fs.writeFileSync(`${OUT}/index.json`, JSON.stringify({ handoff_page: INDEX }, null, 1)); // read by render.mjs for the "Closing the month" page
 
 // ---- support (shared with the monthly books) ----
 const dir = (title, data) => `<h2>${title}</h2>${data.map(([h, items]) => `<h3 class="sh">${h}</h3>${items.map(([n, d, c]) => `<div class="sup"><div class="sn"><b>${n}</b>${chip(c)}</div><div class="small">${d}</div></div>`).join('')}`).join('')}`;
 add(dir('Support', SUPPORT) + `<p class="small">Emergency: <b>911</b>. Checked Sep 2026; numbers can change.</p>`);
-add(dir('Trans support', TRANS));
+if (TRANS) add(dir('Trans support', TRANS));
 
 // ---- notes to an even page count >= 32 ----
 while (pages.length < 24 || pages.length % 2) add(`<h2>Notes</h2>${lines(26)}`);

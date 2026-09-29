@@ -2,7 +2,9 @@
 // (handoff.mjs is the one definition). Fails the build when a label or unit drifts.
 //   node check-handoff.mjs [out/m2026-10 ...]     (default: every out/m* book plus out/keeper)
 import fs from 'node:fs';
-import { HANDOFF_BOXES, SRC } from './handoff.mjs';
+import { HANDOFF_BOXES as ALL_BOXES, SRC } from './handoff.mjs';
+import { moduleOn } from './profile.mjs';
+const HANDOFF_BOXES = ALL_BOXES.filter((b) => b.id !== 'spoons' || moduleOn('spoons')); // the spoons module off drops the Good-spoon box from the printed pages
 
 const fails = [];
 const need = (ok, msg) => { if (!ok) fails.push(msg); };

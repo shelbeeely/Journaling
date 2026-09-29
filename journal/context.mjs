@@ -1,21 +1,27 @@
-// Loads everything the page builders (pages.mjs) need for one monthly book: the month's data, the year's content, the STA
+// Loads everything the page builders (pages.mjs) need for one monthly book: the month's data, the year's content, the transit
 // schedule, the directories, the Keeper's handoff page. This is the only place the page code touches the disk.
 //   const ctx = await loadContext({ month: '2026-10', ics: 'test.ics', size: 'small' });
 // The editor builds sample pages with the same call on the generic sample calendar (test.ics), never a private one.
 import fs from 'node:fs';
 import { build, busCoverage } from './data.mjs';
 import { normalize } from './daypage.mjs';
+import { PROFILE, moduleOn, bookNo as bookNoOf, readContent, MODULE_BLOCKS } from './profile.mjs';
 
+// A switched-off module leaves its day-page blocks out of the layout (they stay in the file, so switching the module back on restores them).
+export function applyModules(layout) {
+  const off = Object.entries(MODULE_BLOCKS).filter(([m]) => !moduleOn(m)).flatMap(([, types]) => types);
+  return off.length ? { ...layout, blocks: layout.blocks.map((b) => (off.includes(b.type) ? { ...b, on: false } : b)) } : layout;
+}
 const here = (p) => new URL(p, import.meta.url);
 const readJson = (p) => (fs.existsSync(here(p)) ? JSON.parse(fs.readFileSync(here(p), 'utf8')) : null);
 
 export async function loadContext({ month, ics, size = 'small', quiet = false }) {
   const [yr, mo] = month.split('-').map(Number);
-  const bookNo = (yr - 2026) * 12 + mo - 9; // Oct 2026 = book 1 … Sep 2027 = book 12
+  const bookNo = bookNoOf(yr, mo); // the profile's first month = book 1 … its twelfth = book 12 (Oct 2026 … Sep 2027 for Shelbee)
   const monthName = new Date(Date.UTC(yr, mo - 1, 1)).toLocaleDateString('en-US', { month: 'long', timeZone: 'UTC' });
   // globalContent is kept only so data.json (read by epub.py) stays byte-identical.
   const VOL = { n: bookNo, start: [yr, mo, 1], days: new Date(Date.UTC(yr, mo, 0)).getUTCDate(), label: `${monthName} ${yr}`, short: `${monthName.slice(0, 3)} ${yr}`, globalContent: true, id: `${yr}-${String(mo).padStart(2, '0')}`, month: mo, year: yr };
-  // STA bus pages: 'full' (feed covers the whole month), 'partial' (feed ends mid-month) or 'none' (no schedule to print).
+  // Bus pages: 'full' (feed covers the whole month), 'partial' (feed ends mid-month) or 'none' (no schedule to print).
   const BUS_COV = busCoverage(VOL.id);
   const { FACTS, PIONEERS, WORDS, PROMPTS } = await import('./content/year.mjs');
   const D = build(ics, VOL, WORDS);
@@ -30,14 +36,15 @@ export async function loadContext({ month, ics, size = 'small', quiet = false })
   }
   const missing = { facts: D.days.filter((d) => !d.fact).length, pioneers: D.weeks.filter((w) => w.owns && !w.pioneer).length, words: D.weeks.filter((w) => !w.word).length, prompts: D.weeks.filter((w) => !w.prompt).length };
   if (!quiet && Object.values(missing).some(Boolean)) console.warn('content gaps:', JSON.stringify(missing));
-  const NET = readJson('./gtfs/network.json');
-  if (!quiet && NET && BUS_COV === 'partial') console.warn(`! STA schedule ends ${NET.valid_to}; ${VOL.id} is only partly covered (pages say so). Refresh gtfs before printing.`);
+  const NET = moduleOn('bus') && PROFILE.paths.transit ? readJson(`./${PROFILE.paths.transit}/network.json`) : null;
+  if (!quiet && NET && BUS_COV === 'partial') console.warn(`! ${PROFILE.transit.agency} schedule ends ${NET.valid_to}; ${VOL.id} is only partly covered (pages say so). Refresh the transit feed before printing.`);
   const ki = readJson('./out/keeper/index.json');
   return {
     D, VOL, size, hasIcs: !!ics, BUS_COV, NET,
-    SUPPORT: readJson('./content/support.json'), TRANS: readJson('./content/trans.json'), CLINIC: readJson('./content/clinic.json'),
+    PROFILE,
+    SUPPORT: readContent('support'), TRANS: moduleOn('trans_support') ? readContent('trans') : null, CLINIC: readContent('clinic'),
     keeperPage: ki && ki.handoff_page ? ki.handoff_page[VOL.id] : undefined,
-    dayLayout: normalize(readJson('./content/daypage.json')),
+    dayLayout: applyModules(normalize(readJson('./content/daypage.json'))),
     refs: {},
   };
 }

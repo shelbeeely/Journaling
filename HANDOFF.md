@@ -8,6 +8,9 @@
   - Back matter: Looking back, Closing the month (points at the Keeper handoff page), Support, Trans support,
     Safety plan, STA buses (summary + hour grids, 4-page budget), Lineage.
   - Unify Spokane clinic box.
+- **Profile** (`journal/content/profile.json`): names, branding, location, timezone, day start, trim and module switches live in
+  one file; a generic `profile.example.json` builds a clean book (`node test-profile.mjs`, CI). Content packs are still Shelbee's files
+  named by the profile's `paths` (Phase F unit 2). The firmware keeps its own `DAY_STARTS_HOUR`; the pack carries the profile's value.
 - **Keeper** (50 pages, no scan codes): accounts (hints only), where recovery codes are kept, contacts, monthly handoff spreads.
 - **Day page editor**, layout v2, with 28 block types + 8 presets, in 5 groups:
   - From your day
