@@ -9,14 +9,16 @@ import { PROFILE, firstMonthId } from '../profile.mjs';
 const M0 = firstMonthId(); // the profile's first month: the book the editor's preview is cut from
 const SAMPLE_DATE = `${M0}-${new Date(Date.UTC(+M0.slice(0, 4), +M0.slice(5), 0)).getUTCDate()}`; // its last day (Oct 31 2026 for Shelbee)
 const root = new URL('../', import.meta.url);
+const OUTD = process.env.KW_OUT || 'out'; // KW_OUT + KW_PROFILE: the public demo is cut from a generic-profile build
+const DIST = process.env.EDITOR_DIST || 'editor/dist/'; // where the three builds go (default editor/dist/)
 const read = (p) => fs.readFileSync(new URL(p, root), 'utf8');
-const h = read(`out/m${M0}/journal.html`);
+const h = read(`${OUTD}/m${M0}/journal.html`);
 const css = h.slice(h.indexOf('<style>') + 7, h.indexOf('</style>'))
   .replace(/@page[^}]*\}/, '').replace(/html, body \{[^}]*\}/, '')
   .replace(/(^|\n)body \{/, '$1.page {') // no body in the preview: the page carries the base font
   .replace(/([^{}]+)\{/g, (_, sel) => sel.split(',').map((x) => `#pv ${x.trim()}`).join(', ') + ' {'); // scope to the preview
 // The sample day for the Tier 2 blocks: a real date and its calculated sunrise and sunset (generic, no calendar data).
-const sd = JSON.parse(read(`out/m${M0}/data.json`)).days.find((x) => x.date === SAMPLE_DATE);
+const sd = JSON.parse(read(`${OUTD}/m${M0}/data.json`)).days.find((x) => x.date === SAMPLE_DATE);
 const sampleDay = { date: SAMPLE_DATE, rise: sd.sun.rise, set: sd.sun.set };
 const k = h.indexOf(`${SAMPLE_DATE} · `);
 const seg = h.slice(h.lastIndexOf('<div class="page', k), h.indexOf('<div class="page', k));
@@ -35,7 +37,7 @@ const kit = {
 // Method layouts ride along after the block library (their import of daypage.mjs is already in scope).
 const lib = read('daypage.mjs').replace(/^export /gm, '') + '\n' + read('content/layouts.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '');
 const tpl = read('editor/template.html').replace('Keeping Watch · every monthly book', () => `${PROFILE.book.title.replace(/&/g, '&amp;').replace(/</g, '&lt;')} · every monthly book`).replace('/*__DAYPAGE__*/', () => lib).replace('/*__KIT__*/', () => `const KIT = ${JSON.stringify(kit)};`);
-const dist = new URL('editor/dist/', root);
+const dist = new URL(DIST, root);
 fs.mkdirSync(new URL('site/', dist), { recursive: true });
 // 1) Claude Artifact (saves to the artifact's store; the host adds the document skeleton)
 // The Artifact is one file, so the sample book (the book canvas's thumbnails) rides inside it, gzipped: about a tenth of its size.
@@ -51,6 +53,13 @@ fs.writeFileSync(new URL('site/index.html', dist), site);
 const cur = new URL('content/daypage.json', root);
 fs.writeFileSync(new URL('site/daypage.json', dist), fs.existsSync(cur) ? fs.readFileSync(cur) : '{}\n');
 fs.writeFileSync(new URL('site/.nojekyll', dist), '');
+// 3) The public demo (the product site links to it at /editor/): built from the generic profile and test.ics only, never saves anywhere
+// (no GitHub, no browser storage of the layout), and shows a "demo, sample data" banner. Same pages-sample.json.
+fs.mkdirSync(new URL('demo/', dist), { recursive: true });
+fs.writeFileSync(new URL('demo/index.html', dist), site.replace("'pages'", "'demo'").replace('<meta name="robots" content="noindex">', '<meta name="robots" content="index">').replace('<title>Day Page Editor</title>', '<title>Journalwright Studio editor demo</title>').replaceAll('Keeping Watch', () => PROFILE.book.title));
+fs.writeFileSync(new URL('demo/pages-sample.json', dist), sample);
+fs.writeFileSync(new URL('demo/daypage.json', dist), '{}\n');
+fs.writeFileSync(new URL('demo/.nojekyll', dist), '');
 // The sample book (every page of the book, drawn by pages.mjs from test.ics) with the scoped page CSS: the Book view's thumbnails.
 fs.writeFileSync(new URL('site/pages-sample.json', dist), sample);
 console.log('editor/dist/artifact.html', (art.length / 1024).toFixed(0) + ' KB, editor/dist/site/', (site.length / 1024).toFixed(0) + ' KB + pages-sample.json', (sample.length / 1024).toFixed(0) + ' KB');
