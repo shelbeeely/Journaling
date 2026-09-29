@@ -36,8 +36,8 @@ test('guests: local versions in this browser (no account), read a public project
     const original = await types(p);
     assert.equal(original, 'sky notes events care spoons good body actions review fact');
     // reachable from the header, in every view
-    await p.click('#v-book'); assert.ok(await p.locator('#v-ver').isVisible(), 'the Versions button is there in the Book view');
-    await p.click('#v-day');
+    await p.click('[data-nav-level="book"]'); assert.ok(await p.locator('#v-ver').isVisible(), 'the Versions button is there at the whole-book level');
+    await p.click('[data-nav-level="day"]');
     await openDrawer(p);
     assert.match(await p.textContent('#vs-guest'), /Sign in to save versions/);
     assert.match(await p.textContent('#vs-guest'), /stays in this browser/);
