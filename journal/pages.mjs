@@ -420,7 +420,7 @@ function dayFull(d) {
     routines,
     day: { date: d.date, rise: d.sun.rise, set: d.sun.set }, // Tier 2 blocks: the 24 h line's night, the look-back date, the rotating prompt
   };
-  return dayBlocks(parts, ctx.dayLayout);
+  return dayBlocks(parts, ctx.dayLayout, { size: ctx.size });
 }
 
 function weekReview(W) {

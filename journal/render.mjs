@@ -240,9 +240,9 @@ const layout = await page.evaluate(() => {
     const f = pg.querySelector('.frame').getBoundingClientRect(), bw = parseFloat(getComputedStyle(pg.querySelector('.frame')).borderTopWidth);
     const ox = f.left + bw, oy = f.top + bw, fw = f.width - 2 * bw, fh = f.height - 2 * bw;
     const rect = (el) => { const e = el.getBoundingClientRect(); return { x: +((e.left - ox) * px2mm).toFixed(1), y: +((e.top - oy) * px2mm).toFixed(1), w: +(e.width * px2mm).toFixed(1), h: +(e.height * px2mm).toFixed(1) }; };
-    // repeated zone names get _2, _3 ... (same rule as the day page blocks)
+    // repeated zone names get _2, _3 ... (same rule as the day page blocks). A grid layout's block cell (.gc) is one zone, its grid rectangle: parts inside it (the care rows) are not listed
     const seen = {};
-    const zones = [...pg.querySelectorAll('[data-zone]')].map((el) => { const n = el.dataset.zone; seen[n] = (seen[n] || 0) + 1; return { zone: seen[n] > 1 ? `${n}_${seen[n]}` : n, ...rect(el) }; });
+    const zones = [...pg.querySelectorAll('[data-zone]')].filter((el) => !el.parentElement.closest('.gc')).map((el) => { const n = el.dataset.zone; seen[n] = (seen[n] || 0) + 1; return { zone: seen[n] > 1 ? `${n}_${seen[n]}` : n, ...rect(el) }; });
     if (!zones.some((z) => !z.zone.startsWith('send_to_'))) { // a page with no labelled block (title, key, directories ...): one zone for everything inside the frame
       const kids = [...pg.children].filter((c) => !c.matches('.frame, .strip, .folio')).map((c) => c.getBoundingClientRect()).filter((r) => r.width && r.height);
       if (!kids.length) kids.push(pg.getBoundingClientRect()); // nothing measurable inside: fall back to the whole page
