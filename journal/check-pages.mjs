@@ -13,7 +13,7 @@ import path from 'path';
 import crypto from 'crypto';
 
 const args = process.argv.slice(2);
-const dirs = args.length ? args : fs.existsSync('out') ? fs.readdirSync('out').filter((d) => /^m\d{4}-\d{2}(-letter)?$/.test(d)).sort().map((d) => `out/${d}`) : [];
+const dirs = args.length ? args : bookDirs();
 const errors = [];
 const fail = (dir, msg) => errors.push(`${dir}: ${msg}`);
 

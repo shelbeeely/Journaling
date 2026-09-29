@@ -8,19 +8,23 @@ import { launch } from './browser.mjs';
 import bwipjs from 'bwip-js';
 import { drawRulings } from './rulings.mjs';
 import { EDITION } from './content/edition.mjs';
-import { PROFILE } from './profile.mjs';
+import { PROFILE, monthIds } from './profile.mjs';
 import { DAYPAGE_CSS } from './daypage.mjs';
 import { loadContext, loadBook } from './context.mjs';
+import { loadSpan, planVolumes, bookEntries as bookEntriesFor } from './span.mjs';
+import { bookPlan, kw3Code, MAX_PAGES } from './plan.mjs';
+import { describePlan, printPlan } from './planview.mjs';
 import { assemble, assertBook, entriesFor, normalizeBook } from './book.mjs';
-if (process.argv[2] !== 'month' || !/^\d{4}-\d{2}$/.test(process.argv[3] || '')) {
-  console.error('Usage: node render.mjs month <YYYY-MM> [a.ics,b.ics]   (SIZE=letter, HARDCOVER=1)');
+const MODE = process.argv[2];
+if (!['month', 'book', 'plan'].includes(MODE) || (MODE === 'month' && !/^\d{4}-\d{2}$/.test(process.argv[3] || ''))) {
+  console.error(`Usage: node render.mjs month <YYYY-MM> [a.ics,b.ics]   (SIZE=letter, HARDCOVER=1)
+       node render.mjs book [a.ics,b.ics]           the whole book plan of content/profile.json (book.scope), every volume
+       node render.mjs plan [a.ics,b.ics] [--json]   show the plan and the volume split without rendering`);
   process.exit(1);
 }
 // Trim: SIZE=small|letter, else the profile's default trim (content/profile.json, trim).
 const LETTER = (process.env.SIZE || PROFILE.trim) === 'letter', HARDCOVER = process.env.HARDCOVER === '1';
-const ctx = await loadContext({ month: process.argv[3], ics: process.argv[4], size: LETTER ? 'letter' : 'small' });
-const { D, VOL } = ctx;
-const OUT = `${process.env.KW_OUT || 'out'}/m${VOL.id}${LETTER ? '-letter' : ''}`; // KW_OUT: another output folder (test-profile.mjs)
+const ROOT = process.env.KW_OUT || 'out'; // KW_OUT: another output folder (test-profile.mjs, test-scopes.mjs)
 // Which pages, in what order: content/book.json (from the editor), checked here so a bad file says what is wrong.
 const fileBook = loadBook();
 if (fileBook && Object.keys(fileBook).length) try { assertBook(fileBook); } catch (e) { console.error(e.message); process.exit(1); }
@@ -29,8 +33,16 @@ const book = normalizeBook(fileBook);
 // derived from what the page is, never from its position: title, key, week.03.reply, day.2026-10-14 ...), a printed `label`
 // and `shared` (front/back matter meant to print byte-identically in every book); see pages.mjs and check-pages.mjs.
 // Only padding pages are numbered by order (notes.1, notes.2 ...): they exist because of position.
-const { pages } = assemble(ctx, entriesFor(book, VOL.id), { hardcover: HARDCOVER });
+// A monthly book is one calendar month. A book plan (profile book.scope) can make a longer book, cut into volumes when it goes
+// past 110 pages (span.mjs, plan.mjs); each volume is rendered here exactly like a monthly book, into its own folder.
 
+// What makes two volumes the same book: check-codes refuses one book id on two different plans
+const planSig = (P, V) => ({ scope: P.scope, start: P.start, end: P.end, days: P.days, of: V.of, ...(P.undated ? { undated: P.undated } : {}) });
+const volumeInfo = (V) => ({ scope: V.scope, n: V.n, of: V.of, id: V.id, book_id: V.bookId, undated: !!V.undated, first: V.first, last: V.last, days: V.days, ...(V.undated ? { day_from: V.dayFrom, day_to: V.dayTo } : {}) });
+// An undated book's manifest records order, not dates: which day, week or month number a page is
+const orderOf = (id) => { const m = /^(day|week|month)\.(\d+)/.exec(id); return m ? { [m[1]]: +m[2] } : {}; };
+async function renderVolume(ctx, OUT, pages) {
+const { D, VOL } = ctx;
 // ---------- HTML ----------
 // 5.5 x 8.5 in: a KDP.com size for both paperback and hardcover (A5 is only offered on KDP Japan)
 // SIZE=letter: 8.5 x 11 in. The page is laid out at 6.57 x 8.5 (same height as the small book) and zoomed x1.294,
@@ -63,7 +75,7 @@ const symbolRow = SYMBOLS.map((s, i) => `<span class="sym" data-zone="send_to_${
 // Built from `pages` as it stands here (after all padding), so a page's code always names its real position; check-codes.mjs
 // re-verifies that on every build. Page type and date come from layout.json.
 const SIZE_CODE = HARDCOVER ? 'H' : LETTER ? 'L' : 'S';
-const pageCode = (i) => `KW2|${EDITION}|${VOL.id.slice(2).replace('-', '')}|${SIZE_CODE}${String(i + 1).padStart(3, '0')}`;
+const pageCode = (i) => (VOL.scoped ? kw3Code(VOL.bookId, VOL.n, SIZE_CODE, i + 1) : `KW2|${EDITION}|${VOL.id.slice(2).replace('-', '')}|${SIZE_CODE}${String(i + 1).padStart(3, '0')}`);
 // Rulings for print: drawRulings() (rulings.mjs) redraws every ruled line, dot grid and 4 mm grid as vector SVG; keep its SPECS in sync with the CSS below and in daypage.mjs.
 
 const qrSvgs = pages.map((p, i) => bwipjs.toSVG({ bcid: 'datamatrix', text: pageCode(i) }));
@@ -219,7 +231,8 @@ table { border-collapse: collapse; }
 .xp { font-size: 8pt; margin: 4px 0 6px; }
 .lines.fill { flex: 1; }
 .blankpage { flex: 1; }
-${DAYPAGE_CSS}
+${DAYPAGE_CSS}${VOL.undated ? `
+.dno { font: 600 7pt Inter, sans-serif; text-transform: uppercase; letter-spacing: 0.6px; color: #333; text-align: right; margin: -2px 0 1px; }` : ''}
 </style></head><body>
 ${pages.map((p, i) => { const n = i + 1; const side = n % 2 ? 'recto' : 'verso'; const marks = `<div class="frame"></div><div class="strip"><span class="pno">${n}</span><span class="send">SEND TO</span>${symbolRow}<span class="qr">${qrSvgs[i]}</span></div>`; return `<div class="page ${side} ${p.cls} m" data-page-id="${p.id}">${p.html}${marks}</div>`; }).join('\n')}
 <script>
@@ -234,7 +247,7 @@ document.fonts.ready.then(drawRulings);
 
 fs.mkdirSync(OUT, { recursive: true });
 fs.writeFileSync(`${OUT}/journal.html`, html);
-fs.writeFileSync(`${OUT}/data.json`, JSON.stringify(D, null, 1));
+if (!VOL.scoped) fs.writeFileSync(`${OUT}/data.json`, JSON.stringify(D, null, 1)); // read by epub.py (monthly books only)
 const browser = await launch();
 const page = await browser.newPage();
 await page.goto('file://' + process.cwd() + `/${OUT}/journal.html`, { waitUntil: 'networkidle' }); await page.evaluate(() => document.fonts.ready);
@@ -260,14 +273,51 @@ const layout = await page.evaluate(() => {
   });
 });
 const meta = pages.map((p, i) => ({ id: p.id, label: p.label, ...(p.shared ? { shared: true } : {}), type: p.type, date: p.date || null, ...(p.from && !p.date ? { from: p.from, to: p.to } : {}), section: p.section, code: pageCode(i), code_format: 'data_matrix' }));
-const layoutJson = { book: VOL.id, edition: EDITION, size: SIZE_CODE, code_scheme: 'KW2|<edition>|<yymm>|<size><page>', trim_in: [TRIM_W, TRIM_H], border_pt: BORDER_PT, quiet_zone_in: QUIET, symbols: ['fire', 'water', 'air', 'earth', 'crescent_moon', 'full_moon', 'pentacle'], pages: layout.map((l, i) => ({ ...meta[i], ...l })) };
+const layoutJson = { book: VOL.id, edition: EDITION, size: SIZE_CODE, code_scheme: VOL.scoped ? 'KW3<book id 8><volume 1><S/L/H><page 3>' : 'KW2|<edition>|<yymm>|<size><page>', ...(VOL.scoped ? { book_id: VOL.bookId, volume: volumeInfo(VOL) } : {}), trim_in: [TRIM_W, TRIM_H], border_pt: BORDER_PT, quiet_zone_in: QUIET, symbols: ['fire', 'water', 'air', 'earth', 'crescent_moon', 'full_moon', 'pentacle'], pages: layout.map((l, i) => ({ ...meta[i], ...l })) };
 fs.writeFileSync(`${OUT}/layout.json`, JSON.stringify(layoutJson, null, 1));
 // manifest.json: code -> page id -> section -> zones, plus what identifies this build. Keep it with every proof or print run: a printed
 // page's code decodes through the manifest of the build it came from, even after the layout changes (see README "Page identity").
-const manifest = { book: VOL.id, size: SIZE_CODE, edition: EDITION, hardcover: HARDCOVER, built: D.generated, commit: process.env.GITHUB_SHA || null, page_count: pages.length, code_scheme: layoutJson.code_scheme,
-  pages: layoutJson.pages.map((p) => ({ code: p.code, page: p.page, id: p.id, label: p.label, section: p.section, type: p.type, date: p.date, ...(p.from ? { from: p.from, to: p.to } : {}), shared: !!p.shared, zones: p.zones })) };
+const manifest = { book: VOL.id, size: SIZE_CODE, edition: EDITION, hardcover: HARDCOVER, built: D.generated, commit: process.env.GITHUB_SHA || null, page_count: pages.length, code_scheme: layoutJson.code_scheme, ...(VOL.scoped ? { book_id: VOL.bookId, volume: volumeInfo(VOL), plan: planSig(ctx.plan, VOL), ...(VOL.undated ? { undated: true, order: 'pages are identified by their order in the book, never by date' } : {}) } : {}),
+  pages: layoutJson.pages.map((p) => ({ code: p.code, page: p.page, id: p.id, label: p.label, section: p.section, type: p.type, date: p.date, ...(p.from ? { from: p.from, to: p.to } : {}), shared: !!p.shared, ...(VOL.undated ? orderOf(p.id) : {}), zones: p.zones })) };
 fs.writeFileSync(`${OUT}/manifest.json`, JSON.stringify(manifest, null, 1));
 await page.pdf({ width: `${TRIM_W}in`, height: `${TRIM_H}in`, path: `${OUT}/${PROFILE.book.slug}-${VOL.id}-interior-${HARDCOVER ? 'hardcover-' : ''}${SIZE_TAG}.pdf`, printBackground: true, preferCSSPageSize: true });
 await browser.close();
 fs.writeFileSync(`${OUT}/pages${HARDCOVER ? '-hardcover' : ''}.txt`, String(pages.length)); // separate counts, so each cover sizes its own spine
-console.log(`book ${VOL.id}: ${D.days[0].date} → ${D.days[D.days.length - 1].date}, ${D.weeks.length} weeks, ${pages.length} pages`);
+if (VOL.scoped) {
+  fs.writeFileSync(`${OUT}/volume.json`, JSON.stringify({ ...volumeInfo(VOL), label: VOL.label, short: VOL.short, pages: pages.length, hardcover: HARDCOVER, trim: SIZE_TAG }, null, 1)); // read by cover.mjs
+  console.log(`volume ${VOL.id}: ${VOL.undated ? `days ${VOL.dayFrom}–${VOL.dayTo}` : `${VOL.first} → ${VOL.last}`}, ${D.weeks.length} weeks, ${pages.length} pages`);
+} else console.log(`book ${VOL.id}: ${D.days[0].date} → ${D.days[D.days.length - 1].date}, ${D.weeks.length} weeks, ${pages.length} pages`);
+}
+
+const sizeName = LETTER ? 'letter' : 'small';
+const outDir = (VOL, root = ROOT) => `${root}/${VOL.scoped ? 'b-' : 'm'}${VOL.id}${LETTER ? '-letter' : ''}`;
+if (MODE === 'month') {
+  const ctx = await loadContext({ month: process.argv[3], ics: process.argv[4], size: sizeName });
+  const { pages } = assemble(ctx, entriesFor(book, ctx.VOL.id), { hardcover: HARDCOVER });
+  await renderVolume(ctx, outDir(ctx.VOL), pages);
+} else {
+  const ics = process.argv[3] && !process.argv[3].startsWith('--') ? process.argv[3] : undefined;
+  const plan = bookPlan(PROFILE.book);
+  if (plan.scope === 'month') {
+    // scope month: today's books, one per month of the profile's year (each built and checked exactly as `month` does)
+    if (MODE === 'plan') { console.log(`Book plan: month (12 monthly books, ${monthIds().join(', ')}). Each is one calendar month, under the ${MAX_PAGES}-page limit. Build one with: node render.mjs month YYYY-MM`); process.exit(0); }
+    for (const id of monthIds()) {
+      const ctx = await loadContext({ month: id, ics, size: sizeName });
+      const { pages } = assemble(ctx, entriesFor(book, ctx.VOL.id), { hardcover: HARDCOVER });
+      await renderVolume(ctx, outDir(ctx.VOL), pages);
+    }
+    process.exit(0);
+  }
+  const span = await loadSpan({ ics });
+  const res = planVolumes(span, { hardcover: HARDCOVER });
+  const desc = describePlan(span, res);
+  if (process.argv.includes('--json')) console.log(JSON.stringify(desc, null, 1)); else console.log(printPlan(desc));
+  if (MODE === 'book') {
+    for (const v of res.volumes) {
+      const ctx = span.contextFor(v.a, v.b, { n: v.n, of: v.of, size: sizeName });
+      const { pages } = assemble(ctx, bookEntriesFor(ctx.VOL.id), { hardcover: HARDCOVER });
+      if (pages.length > MAX_PAGES) throw new Error(`volume ${v.n} came out at ${pages.length} pages, over the ${MAX_PAGES}-page limit (the plan counted ${v.pages}).`);
+      await renderVolume(ctx, outDir(ctx.VOL), pages);
+    }
+  }
+}

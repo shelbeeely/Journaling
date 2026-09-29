@@ -68,14 +68,18 @@ export function createPages(ctx) {
   const mod = (m) => !!PROFILE.modules[m], TRANSIT = PROFILE.transit || {}, BOOK = PROFILE.book, LOC = PROFILE.location;
   const coords = `${Math.abs(LOC.lat).toFixed(2)}° ${LOC.lat >= 0 ? 'N' : 'S'}, ${Math.abs(LOC.lon).toFixed(2)}° ${LOC.lon < 0 ? 'W' : 'E'}`;
   const ICS = ctx.hasIcs;
+  const SC = !!VOL.scoped, UND = !!ctx.undated; // a book longer than a month (book plan), and an undated one (no dates printed anywhere)
+  const wkNo = (W) => W.no ?? W.gi + 1; // week number in this book (continues across volumes); a monthly book counts from the profile's week 0
+  const buildStamp = () => { let h = 0; for (const c of D.generated) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h.toString(36).slice(0, 6); }; // an undated book prints no date: a short build stamp instead
 function titlePage() {
+  const rangeLine = !SC ? `Book ${VOL.n} of 12 · ${VOL.label}` : `${UND ? 'Undated' : ''}${VOL.of > 1 ? `${UND ? ' · ' : ''}Volume ${VOL.n} of ${VOL.of}` : ''}${UND ? '' : `${VOL.of > 1 ? ' · ' : ''}${VOL.label}`}`;
   return `<div class="title">
     <div class="tmoon">${moon(90, 64)}${moon(180, 64)}${moon(270, 64)}</div>
     <h1>${esc(BOOK.title)}</h1>
     <p class="sub">${esc(BOOK.subtitle)}</p>
-    <p class="range">Book ${VOL.n} of 12 · ${VOL.label}</p>
+    <p class="range">${rangeLine}</p>
     ${mod('sky') ? `<p class="place">Sky data for ${esc(D.config.place)} · ${coords} · ${esc(LOC.timezone_name)}</p>` : ''}
-    <p class="built">Built ${D.generated.slice(0, 10)}</p>
+    <p class="built">${UND ? `Build ${buildStamp()}` : `Built ${D.generated.slice(0, 10)}`}</p>
     <p class="owner">This journal belongs to<br><span class="line"></span></p>
   </div>`;
 }
@@ -84,20 +88,20 @@ function lineagePage() {
   return `<h2 class="pt">Where each piece comes from</h2>
   <p class="lead">Every part of this journal is borrowed from a method people used for centuries. The history shows one lesson: methods die when they get complicated. <b>Skip anything, any day.</b> A blank box is data too.</p>
   <table class="lin">${LINEAGE.filter(([a]) => a !== 'Spoons' || mod('spoons')).map(([a, b]) => `<tr><th>${a}</th><td>${b}</td></tr>`).join('')}</table>
-  <p class="small">Daily “On this day” facts come from the Computer History Museum’s This Day in History and Wikipedia’s date pages. Pioneer profiles are checked against each person’s Wikipedia article.</p>
-  <p class="small">Astrology here is a reflection prompt, not a forecast. The astronomy (sunrise, sunset, moon phase, solstice) is real and calculated for ${esc(D.config.place)}.</p>${busLine()}`;
+  ${UND ? '<p class="small">Pioneer profiles are checked against each person’s Wikipedia article.</p>' : `<p class="small">Daily “On this day” facts come from the Computer History Museum’s This Day in History and Wikipedia’s date pages. Pioneer profiles are checked against each person’s Wikipedia article.</p>
+  <p class="small">Astrology here is a reflection prompt, not a forecast. The astronomy (sunrise, sunset, moon phase, solstice) is real and calculated for ${esc(D.config.place)}.</p>`}${busLine()}`;
 }
 
 function anatomyPage() {
   return `<h2 class="pt">How to use it</h2>
   <div class="steps">
     <div><h3>Each book</h3><p>Pick a <b>theme</b>${ctx.refs.theme ? ' (page {{P_THEME}})' : ''}. Carry it over from last month or start a new one.</p></div>
-    <div><h3>Each month</h3><p>${mod('sky') ? 'Calendar, a sky &amp; seasons list, a one-page tracker, and a new-moon / full-moon page.' : 'Calendar and a one-page tracker.'}</p></div>
+    <div><h3>Each month</h3><p>${UND ? 'A blank month grid to date yourself' + (ctx.refs.tracker ? ' and a one-page tracker.' : '.') : mod('sky') ? 'Calendar, a sky &amp; seasons list, a one-page tracker, and a new-moon / full-moon page.' : 'Calendar and a one-page tracker.'}</p></div>
     <div><h3>Each week</h3><p>A two-page spread to plan, a word of the week to copy, a weekly review, and an <b>exchange spread</b> to hand to someone.</p></div>
-    <div><h3>Each day</h3><p>A full page. ${mod('sky') ? 'Header is pre-filled with the sky. ' : ''}Circle your mood, tick meds and meals. Rapid-log anything. Answer three evening questions.</p></div>
+    <div><h3>Each day</h3><p>A full page. ${UND ? 'Write the date yourself. ' : mod('sky') ? 'Header is pre-filled with the sky. ' : ''}Circle your mood, tick meds and meals. Rapid-log anything. Answer three evening questions.</p></div>
   </div>
   <h3 class="h3b">Anatomy of a day</h3>
-  <div class="anat"><div><b class="zl">DATE / TITLE / TAGS</b> printed date; write a title and tags in the boxes</div><div>${mod('sky') ? '<b class="zl">SKY + CHECK-IN</b> moon, sun, season; circle mood, tick meds and meals' : '<b class="zl">CHECK-IN</b> circle mood, tick meds and meals'}</div><div class="a3"><b class="zl">BODY</b> faint 5 mm dots: write anything</div><div><b class="zl">ACTION ITEMS</b> one task per checkbox</div><div><b class="zl">REVIEW</b> went well · was hard · tomorrow</div></div><p class="small" style="margin-top:5px"><b>At the back:</b> ${['Support p. {{P_SUPPORT}}', 'Safety plan p. {{P_SAFETY}}', ctx.refs.bus && 'Bus times p. {{P_BUS}}', ctx.refs.lineage && 'Where each piece comes from p. {{P_LINEAGE}}'].filter(Boolean).join(' · ')}</p><h3 class="h3b">Scanning pages</h3><p class="small">Every page has a black frame, seven “send to” bubbles and a small square page code (a Data Matrix) that says which book and page it is. Fill a bubble to route the scan (you choose what each shape means in your scanning app). Keep the frame and the page code clear of ink. These markers are made for your own app; the Rocketbook app won’t read them.</p>`;
+  <div class="anat"><div><b class="zl">DATE / TITLE / TAGS</b> ${UND ? 'write the date, a title and tags in the boxes' : 'printed date; write a title and tags in the boxes'}</div><div>${UND ? '<b class="zl">SKY + CHECK-IN</b> moon, sun, season to fill in; circle mood, tick meds and meals' : mod('sky') ? '<b class="zl">SKY + CHECK-IN</b> moon, sun, season; circle mood, tick meds and meals' : '<b class="zl">CHECK-IN</b> circle mood, tick meds and meals'}</div><div class="a3"><b class="zl">BODY</b> faint 5 mm dots: write anything</div><div><b class="zl">ACTION ITEMS</b> one task per checkbox</div><div><b class="zl">REVIEW</b> went well · was hard · tomorrow</div></div><p class="small" style="margin-top:5px"><b>At the back:</b> ${['Support p. {{P_SUPPORT}}', 'Safety plan p. {{P_SAFETY}}', ctx.refs.bus && 'Bus times p. {{P_BUS}}', ctx.refs.lineage && 'Where each piece comes from p. {{P_LINEAGE}}'].filter(Boolean).join(' · ')}</p><h3 class="h3b">Scanning pages</h3><p class="small">Every page has a black frame, seven “send to” bubbles and a small square page code (a Data Matrix) that says which book and page it is. Fill a bubble to route the scan (you choose what each shape means in your scanning app). Keep the frame and the page code clear of ink. These markers are made for your own app; the Rocketbook app won’t read them.</p>`;
 }
 
 function keyPage() {
@@ -128,7 +132,7 @@ function weekdayTable() {
 }
 
 function seasonGoal() {
-  const d = D.days.find((x) => x.notes.some((n) => n.kind === 'season'));
+  const d = D.days.find((x) => x.notes && x.notes.some((n) => n.kind === 'season'));
   if (!d) return 'the end of this book';
   const n = d.notes.find((n) => n.kind === 'season').text.replace(/ \d.*$/, '');
   return `the ${n} (${MONTHS[d.m - 1].slice(0, 3)} ${d.d})`;
@@ -159,11 +163,11 @@ function packGrids(E) {
 const DAY3 = [['weekday', 'WKDY'], ['saturday', 'SAT'], ['sunday', 'SUN']];
 const shortStop = (n) => (TRANSIT.short_stops || []).reduce((t, [from, to]) => t.replace(from, to), tc(n || '')).replace(/ \(.*?\)/g, '');
 function busMeta() {
-  const E = NET.months[VOL.id];
+  const E = NET.months[VOL.busMonth || VOL.id];
   const ymd = (s) => `${s.slice(4, 6).replace(/^0/, '')}/${s.slice(6).replace(/^0/, '')}/${s.slice(2, 4)}`;
   const until = new Date(Date.UTC(+NET.valid_to.slice(0, 4), +NET.valid_to.slice(4, 6) - 1, +NET.valid_to.slice(6))).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
   const from = new Date(Date.UTC(+NET.valid_from.slice(0, 4), +NET.valid_from.slice(4, 6) - 1, +NET.valid_from.slice(6))).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
-  const startsLate = `${NET.valid_from.slice(0, 4)}-${NET.valid_from.slice(4, 6)}` === VOL.id && NET.valid_from.slice(6) !== '01';
+  const startsLate = `${NET.valid_from.slice(0, 4)}-${NET.valid_from.slice(4, 6)}` === (VOL.busMonth || VOL.id) && NET.valid_from.slice(6) !== '01';
   const valid = BUS_COV === 'partial' ? `<p class="busvalid">${startsLate ? `Schedule starts ${from} · check ${TRANSIT.site} before` : `Schedule valid through ${until} · check ${TRANSIT.site} after`}</p>` : '';
   return { E, valid, note: `${TRANSIT.agency} schedule ${ymd(NET.valid_from)}–${ymd(NET.valid_to)}.` };
 }
@@ -247,7 +251,37 @@ const busLine = () => mod('bus') && BUS_COV === 'none' ? `<div class="busbox"><b
 const supportPage = () => dirPage('Support', '<span class="chip tx">TEXT</span> means you can text instead of talking. Emergency: <b>911</b>. 988’s LGBTQ+ “press 3” option ended July 2025. Checked Sep 2026.', SUPPORT);
 const transPage = () => dirPage('Trans support', `For trans people in ${LOC.city} and ${LOC.region}. <span class="chip tx">TEXT</span> means you can message instead of calling. Checked Sep 2026.`, TRANS);
 // Last page of each monthly book: the handoff to the Keeper (page numbers from out/keeper/index.json).
-function closingPage() {
+// In a book longer than a month (book plan) it comes after each month (kind 'month') or once at the end of the volume (kind 'end').
+const closingTitle = ({ M, kind } = {}) => (kind === 'month' ? `Closing ${M.name} ${M.y}` : UND ? (VOL.of > 1 ? `Closing volume ${VOL.n}` : 'Closing this book') : `Closing ${VOL.label}`);
+function closingScoped({ M, kind }) {
+  const keeper = ctx.keeper || 'twelve-book';
+  const kp = keeper !== 'none' && M ? ctx.keeperPages && ctx.keeperPages[M.key] : undefined; // Keeper handoff page for that month, if the Keeper is built
+  const trackerRef = M && ctx.refs[`tracker_${M.key.replace('-', '')}`] ? `{{P_TRACKER_${M.key.replace('-', '')}}}` : ctx.refs.tracker ? '{{P_TRACKER}}' : 0;
+  const st = (l, u) => `<div class="qf"><span>${l}</span><i></i><span class="u">${u}</span></div>`;
+  const step = (t) => `<div class="cbl2"><i></i><span>${t}</span></div>`;
+  const last = ctx.D.days[ctx.D.days.length - 1], monthEndsHere = kind === 'month' && !UND && last.y === M.y && last.m === M.m;
+  const bookWord = VOL.of > 1 ? `volume ${VOL.n}` : 'this book';
+  const stretch = kind === 'month' ? 'the month' : bookWord;
+  // what comes next: the next month in this volume, the next volume, or the end of the book
+  let next, nextStep;
+  if (kind === 'month' && !monthEndsHere) { const nm = MONTHS[M.m % 12]; next = nm; nextStep = `Copy the carry-forward list into week 1 of <b>${nm}</b>`; }
+  else if (!VOL.isLast) { next = 'the next volume'; nextStep = `Copy the carry-forward list into the first week of <b>volume ${VOL.n + 1}</b>`; }
+  else { next = 'a new book'; nextStep = keeper === 'twelve-book' ? 'Fill in the Keeper’s Year at a glance' : keeper === 'per-book' ? 'Fill in the Keeper’s summary page' : 'Start a new book when you are ready'; }
+  return `<h2 class="pt">${closingTitle({ M, kind })}</h2>
+  <p class="small">${keeper !== 'none' ? `Do this with your Keeper open${kp ? ` to <b>page ${kp}</b>` : ''}, before` : 'Do this before'} starting ${next}. About 15 minutes.</p>
+  <h3 class="sh">1 · Total ${stretch}</h3>
+  ${handoffHtml({ omit: mod('spoons') ? [] : ['spoons'], trackerPage: trackerRef, caption: (tag, where) => `<p class="src"><b>${tag}</b> · ${where}</p>`, grid: (h) => `<div class="qg">${h}</div>`, cell: st })}
+  ${mod('spoons') ? `<p class="small">${GOOD_SPOON_NOTE}</p>` : ''}
+  ${keeper !== 'none' ? `<h3 class="sh">2 · Hand off to the Keeper${kp ? ` (p. ${kp}–${kp + 1})` : ''}</h3>
+  ${step('Copy the totals, highs, lows and health notes')}${step('Add new contacts and birthdays')}${step('Update account hints and where recovery codes are kept')}${step('Index pages worth finding later (this is <b>' + (VOL.of > 1 ? 'Volume ' + VOL.n : 'this book') + '</b>)')}${step('Back up the X4 log: Wi-Fi sync → download')}` : `<h3 class="sh">2 · Keep what matters</h3>
+  ${step('Write the totals, highs, lows and health notes where you keep them')}${step('Note new contacts and birthdays')}${step('Index pages worth finding later (this is <b>' + (VOL.of > 1 ? 'Volume ' + VOL.n : 'this book') + '</b>)')}${step('Back up the X4 log: Wi-Fi sync → download')}`}
+  <h3 class="sh">3 · Carry forward</h3>
+  ${step(`Mark unfinished tasks in this book with &gt; and copy them ${keeper !== 'none' ? 'to the Keeper' : 'somewhere safe'}`)}${step('Scan any pages you still want in your app')}
+  <h3 class="sh">4 · Start fresh</h3>
+  ${step(nextStep)}${step('Shelve this book')}`;
+}
+function closingPage(o) {
+  if (SC) return closingScoped(o || { kind: 'end' });
   const kp = ctx.keeperPage; // Keeper handoff page for this book (out/keeper/index.json), if the Keeper is built
   const nd = new Date(Date.UTC(VOL.year, VOL.month, 1)), nextName = nd.toLocaleDateString('en-US', { month: 'long', timeZone: 'UTC' });
   const dim = new Date(Date.UTC(VOL.year, VOL.month, 0)).getUTCDate();
@@ -290,7 +324,7 @@ function safetyPage() {
 function themePage() {
   return `<h2 class="pt">Season theme</h2>
   <p class="lead">A theme is a direction for the season, like “Season of Rest” or “Season of Order.” There's no pass or fail.</p>
-  <div class="boxline big" data-zone="theme_name">My theme for ${VOL.short}</div>
+  <div class="boxline big" data-zone="theme_name">My theme for ${UND ? 'this season' : VOL.short}</div>
   <div class="boxline">What it means to me</div><div class="lines l4" data-zone="theme_meaning"></div>
   <div class="boxline">Three small ways to live it (these become your habit grid)</div>
   <ol class="three" data-zone="theme_habits"><li></li><li></li><li></li></ol>
@@ -298,17 +332,29 @@ function themePage() {
 }
 
 // ---------- month section ----------
+// An undated book's month page: a blank grid with a line for the month's name and numbered cells (1 to 31) to date yourself.
+// The first box of the header row is for the weekday the 1st falls on, then carry on, so the columns line up with the numbers.
+function monthGridUndated(M) {
+  const cells = Array.from({ length: 35 }, (_, i) => (i < 31 ? `<td><div class="cd"><span class="n">${i + 1}</span></div></td>` : '<td class="out"></td>'));
+  const rows = []; for (let i = 0; i < 35; i += 7) rows.push(`<tr>${cells.slice(i, i + 7).join('')}</tr>`);
+  return `<div class="mhead" data-zone="month_title"><h2 class="month">${M.name}</h2><span class="big"><span class="blank" style="width:2.1in"></span></span></div>
+  <table class="cal rows5" data-zone="calendar"><tr>${Array(7).fill('<th style="height:0.22in">&nbsp;</th>').join('')}</tr>${rows.join('')}</table>
+  <div><p class="small" style="margin-top:6px">Write the weekday the 1st falls on in the first header box, then the rest, and the numbers line up. Write the month’s name on the line.</p></div>`;
+}
 function monthCalendar(M) {
+  if (UND) return monthGridUndated(M);
   // Full month grid; dates that live in the neighbouring volume are shaded.
   const firstWd = new Date(Date.UTC(M.y, M.m - 1, 1)).getUTCDay(), dim = new Date(Date.UTC(M.y, M.m, 0)).getUTCDate();
   const lead = (firstWd + 6) % 7;
   const cells = Array(lead).fill('<td class="out"></td>');
+  // a date outside this volume (book plan): which side it is on, short enough for a 0.5 in cell
+  const outside = (n) => (`${M.y}-${String(M.m).padStart(2, '0')}-${String(n).padStart(2, '0')}` < VOL.first ? (VOL.isFirst ? 'before start' : `in vol ${VOL.n - 1}`) : (VOL.isLast ? 'after end' : `in vol ${VOL.n + 1}`));
   const nRows = Math.ceil((lead + dim) / 7), maxEv = nRows > 5 ? 1 : nRows < 5 ? 3 : 2;
   const soft = (t) => t.replace(/[\p{L}’']{9,}/gu, (w) => w.slice(0, Math.ceil(w.length / 2)) + '\u00ad' + w.slice(Math.ceil(w.length / 2))); // soft hyphen so long words break inside a 0.5in cell
   const calHol = (t) => t.replace(' (clocks forward)', ' ').replace(' (clocks back)', ' ').replace('Daylight saving time', 'DST').replace('Martin Luther King Jr. Day', 'MLK Day').replace('Indigenous Peoples’ Day / Columbus Day', 'Indig. Peoples’ / Columbus Day').trim();
   for (let n = 1; n <= dim; n++) {
     const d = M.days.find((x) => x.d === n);
-    if (!d) { cells.push(`<td class="out other"><div class="cd"><span class="n">${n}</span></div><div class="ev">in Vol ${n < 15 ? VOL.n - 1 : VOL.n + 1}</div></td>`); continue; }
+    if (!d) { cells.push(`<td class="out other"><div class="cd"><span class="n">${n}</span></div><div class="ev">${SC ? outside(n) : `in Vol ${n < 15 ? VOL.n - 1 : VOL.n + 1}`}</div></td>`); continue; }
     const marks = [];
     if (d.moon.quarter != null) marks.push(`${moon(d.moon.phaseDeg, 10)}`);
     
@@ -347,7 +393,8 @@ function monthSky(M) {
 
 function monthTracker(M) {
   // Paper items only (mood, meds, meals, work hours). Spoons, sleep, anxiety and care ticks are counted on the X4.
-  const rows = M.days.map((d) => `<tr><td class="dn">${d.d}</td><td class="kj">${DAY_LETTERS[(d.weekday + 6) % 7]}</td><td class="mc">${moon(d.moon.phaseDeg, 8)}</td><td class="mood">${[-3, -2, -1, 0, 1, 2, 3].map(() => '<i></i>').join('')}</td><td class="bx"></td><td class="bx"></td><td class="bx"></td></tr>`).join('');
+  // Undated: rows 1 to 31 with the weekday and moon boxes left to fill in.
+  const rows = (UND ? Array.from({ length: 31 }, (_, i) => ({ d: i + 1, undated: true })) : M.days).map((d) => `<tr><td class="dn">${d.d}</td><td class="kj">${d.undated ? '' : DAY_LETTERS[(d.weekday + 6) % 7]}</td><td class="mc">${d.undated ? '' : moon(d.moon.phaseDeg, 8)}</td><td class="mood">${[-3, -2, -1, 0, 1, 2, 3].map(() => '<i></i>').join('')}</td><td class="bx"></td><td class="bx"></td><td class="bx"></td></tr>`).join('');
   return `<h2 class="pt">${M.name} · tracker</h2>
   <table class="trk" data-zone="tracker_grid"><tr><th colspan="3"></th><th>${ic('low')} mood ${ic('high')}</th><th>${ic('pill', 'Meds')}</th><th>${ic('meal', 'Meals')}</th><th>${ic('work', 'Work')}</th></tr><tr class="un"><th colspan="3"></th><th>−3 … <b>0</b> … +3</th><th>tick</th><th>0–3</th><th>hrs</th></tr>${rows}</table>
   <p class="small trn" data-zone="tracker_note">${ic('x4', 'X4')} Spoons, sleep, anxiety and care ticks: X4 → This month. Mood: one dot. Meds: tick when all doses are taken.</p>`;
@@ -364,7 +411,7 @@ function monthMoonPage(M) {
 
 // ---------- week section ----------
 const wk = (W) => String(W.gi + 1).padStart(2, '0'); // week number in page ids: week.03.left
-const wkRange = (W) => { const f = W.days[0], l = W.days[W.days.length - 1]; return `${MONTHS[f.m - 1].slice(0, 3)} ${f.d} – ${MONTHS[l.m - 1].slice(0, 3)} ${l.d}`; }; // the week's days in this book
+const wkRange = (W) => { if (UND) return 'Week of ________'; const f = W.days[0], l = W.days[W.days.length - 1]; return `${MONTHS[f.m - 1].slice(0, 3)} ${f.d} – ${MONTHS[l.m - 1].slice(0, 3)} ${l.d}`; }; // the week's days in this book
 // A week row holds ~5 one-line items: events first, then the day's notes; the rest becomes "+N more" (a busy day never spills).
 const WEEK_ITEMS = 5;
 function weekItems(d) {
@@ -373,10 +420,17 @@ function weekItems(d) {
   return items.length <= WEEK_ITEMS ? items.join('') : items.slice(0, WEEK_ITEMS - 1).join('') + `<div class="evs">+${items.length - WEEK_ITEMS + 1} more</div>`;
 }
 
+// Undated: seven weekday rows with a blank to write the date in; nothing from the sky or the calendar.
+function weekLeftUndated(W) {
+  const names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const rows = names.map((n, i) => `<div class="wrow" data-zone="week_day_${i + 1}"><div class="wd"><span class="wdn">${n}</span><span class="dt">___/___</span></div><div class="wsky"><span class="wk-shift">work ____–____</span></div><div class="wev" data-pitch="0.22"><div class="rules lines" data-pitch="0.22"></div></div></div>`).join('');
+  return `<div class="whead" data-zone="week_header"><h2 class="pt">${W.label}</h2><span class="dim">${wkRange(W)}</span></div>${rows}`;
+}
 function weekLeft(W) {
+  if (UND) return weekLeftUndated(W);
   const f = W.days[0], l = W.days[W.days.length - 1];
   const lead = (f.weekday + 6) % 7, tail = 6 - ((l.weekday + 6) % 7);
-  const other = (label) => `<div class="wrow other"><div class="wd"><span class="dt">${label}</span></div><div></div><div class="wev dim">${lead ? (VOL.n === 1 ? 'before this journal starts' : 'in the previous book') : (VOL.n === 12 ? 'after this journal ends' : 'in the next book')}</div></div>`;
+  const other = (label) => `<div class="wrow other"><div class="wd"><span class="dt">${label}</span></div><div></div><div class="wev dim">${SC ? (lead ? VOL.edge.before : VOL.edge.after) : lead ? (VOL.n === 1 ? 'before this journal starts' : 'in the previous book') : (VOL.n === 12 ? 'after this journal ends' : 'in the next book')}</div></div>`;
   const rows = Array(lead).fill(0).map(() => other('—')).join('') + W.days.map((d) => `<div class="wrow" data-zone="week_day_${(d.weekday + 6) % 7 + 1}"><div class="wd"><span class="wdn">${d.weekdayName.slice(0, 3)}</span><span class="dt">${MONTHS[d.m - 1].slice(0, 3)} ${d.d}</span></div><div class="wsky"><span class="ms">${moon(d.moon.phaseDeg, 11)} ${G(d.moon.glyph)} ${d.moon.lit}%</span><span class="dim">${G('☀')} ${d.sun.rise}–${d.sun.set}</span><span class="wk-shift">work ____–____</span></div><div class="wev" data-pitch="0.22"><div class="rules lines" data-pitch="0.22"></div>${weekItems(d)}</div></div>`).join('') + Array(tail).fill(0).map(() => other('—')).join('');
   return `<div class="whead" data-zone="week_header"><h2 class="pt">${W.label}</h2><span class="dim">${wkRange(W)}</span></div>${rows}`;
 }
@@ -387,7 +441,7 @@ function weekRight(W) {
   return `<div class="wr-top"><div class="word" data-zone="words"><h3>Words to keep</h3><p class="dim">A line worth copying out this week: a quote, a lyric you heard, something someone said.</p><div class="lines l3" data-pitch="0.24"></div></div>
   <div class="prio" data-zone="priorities"><h3>${W.label}</h3><ol><li></li><li></li><li></li></ol></div></div>
   <h3>Habits &amp; theme</h3>
-  <table class="hab" data-zone="habits"><tr><th></th>${days.map((x) => `<th>${x}</th>`).join('')}</tr>${grid('')}${grid('')}${grid('')}${grid('work hours')}</table>
+  <table class="hab" data-zone="habits"><tr><th></th>${days.map((x) => `<th>${x}</th>`).join('')}</tr>${UND ? grid('date') : ''}${grid('')}${grid('')}${grid('')}${grid('work hours')}</table>
   <h3>Mood line</h3>
   <table class="mline" data-zone="mood_line">${[3, 2, 1, 0, -1, -2, -3].map((v) => `<tr class="${v === 0 ? 'zero' : ''}"><td class="hl">${v > 0 ? '+' + v : v}</td>${days.map(() => '<td><i></i></td>').join('')}</tr>`).join('')}<tr><td></td>${days.map((x) => `<td class="dl">${x}</td>`).join('')}</tr></table>
   ${pioneerCard(W)}
@@ -400,7 +454,23 @@ function pioneerCard(W) {
   return `<div class="pio" data-zone="pioneer"><div class="pio-h"><span class="pio-k">Pioneer of the week</span><b>${esc(name)}</b> <span class="dim">${years}</span></div><p>${esc(what)}</p><p class="pio-f"><b>Useless knowledge</b> ${esc(fact)}</p></div>`;
 }
 
-function dayFull(d) {
+// An undated day: the DATE box is left blank to write in (a small "Day 17" says which page it is), the sky becomes a line to fill in,
+// and the blocks that need a date (holidays, events, "on this day", pay marks) have nothing to print. The rotating prompt goes by page
+// number (parts.day.n), "a month ago today" prints only its label, and the week strip is left blank.
+function dayUndated(d, W) {
+  const fill = ctx.plan && ctx.plan.undated && ctx.plan.undated.fillins === false ? false : true;
+  const parts = {
+    header: `${headerZone('', '')}<div class="dno" data-zone="day_no">Day ${d.no}</div>`,
+    sky: fill ? `<div class="sky1" data-zone="sky"><span>moon ${[0, 90, 180, 270].map((x) => moon(x, 13)).join(' ')}</span><span>${G('☀')} rise <span class="blank sm"></span> set <span class="blank sm"></span></span><span class="season">season <span class="blank"></span></span></div>` : '',
+    notes: '', events: '',
+    fact: fill ? '<div class="fact" data-zone="fact"><b>On this day</b> <span class="blank" style="width:2.6in"></span></div>' : '',
+    routines: [],
+    day: { date: '', rise: '', set: '', n: d.no, w: W.no, undated: true },
+  };
+  return dayBlocks(parts, ctx.dayLayout, { size: ctx.size });
+}
+function dayFull(d, W) {
+  if (UND) return dayUndated(d, W);
   const moonTxt = d.moon.ingress.length ? d.moon.ingress.map((i) => `→ ${G(D.glyphs[i.sign])} ${i.time}`).join(' ') : `in ${G(d.moon.glyph)}`;
   const retro = d.retro.length ? ` · ${G('℞')} ${d.retro.map((p) => G(PLANET_GLYPH[p])).join('')}` : '';
   const hol = d.notes.filter((n) => n.kind === 'holiday').map((n) => `<b>${esc(n.text)}</b>`);
@@ -442,7 +512,7 @@ function exchange(W, side) {
 }
 
   return {
-    titlePage, lineagePage, anatomyPage, keyPage, weekdayTable, carePage, contactsPage, safetyPage, themePage, closingPage,
+    titlePage, lineagePage, anatomyPage, keyPage, weekdayTable, carePage, contactsPage, safetyPage, themePage, closingPage, closingTitle,
     supportPage, transPage, netPage, gridPage, packGrids, gridRoutes,
     monthCalendar, monthSky, monthTracker, monthMoonPage, weekLeft, weekRight, dayFull, weekReview, exchange,
     wk, wkRange,
@@ -459,7 +529,8 @@ function exchange(W, side) {
 const cache = new WeakMap();
 const pagesFor = (ctx) => cache.get(ctx) || cache.set(ctx, createPages(ctx)).get(ctx);
 const one = (o) => [{ cls: '', date: '', shared: false, label: '', ...o }];
-const wkId = (W) => String(W.gi + 1).padStart(2, '0');
+const wkId = (W) => String(W.no ?? W.gi + 1).padStart(2, '0');
+const mid = (ctx, M, part) => (ctx.scoped ? `month.${M.key}.${part}` : `month.${part}`); // a book longer than a month has one of each month page per month
 export const PAGE_TYPES = {
   title: { name: 'Title page', scope: 'book', build: (ctx) => one({ cls: 'title', type: 'title', id: 'title', label: ctx.PROFILE.book.title, html: () => pagesFor(ctx).titlePage() }) },
   blank: { name: 'Blank page', scope: 'book', build: () => one({ type: 'blank', id: 'blank', shared: true, html: () => '<div class="blankpage"></div>' }) },
@@ -469,13 +540,13 @@ export const PAGE_TYPES = {
   care_plan: { name: 'Care plan', scope: 'book', build: (ctx) => one({ type: 'care', id: 'care_plan', label: 'Care plan', html: () => pagesFor(ctx).carePage() }) },
   contacts: { name: 'Quick contacts', scope: 'book', build: (ctx) => one({ type: 'contacts', id: 'contacts', label: 'Quick contacts', shared: true, html: () => pagesFor(ctx).contactsPage() }) },
   theme: { name: 'Season theme', scope: 'book', ref: 'theme', build: (ctx) => one({ type: 'theme', id: 'theme', label: 'Season theme', html: () => pagesFor(ctx).themePage() }) },
-  month_cal: { name: 'Month calendar', scope: 'month', align: 'verso', build: (ctx, { M }) => one({ type: 'month_cal', id: 'month.calendar', label: `${M.name} ${M.y}`, html: () => pagesFor(ctx).monthCalendar(M) }) },
-  month_sky: { name: 'Sky & seasons', scope: 'month', module: 'sky', build: (ctx, { M }) => one({ type: 'month_sky', id: 'month.sky', label: `${M.name} · sky & seasons`, html: () => pagesFor(ctx).monthSky(M) }) },
-  month_tracker: { name: 'Month tracker', scope: 'month', ref: 'tracker', build: (ctx, { M }) => one({ type: 'month_tracker', id: 'month.tracker', label: `${M.name} · tracker`, html: () => pagesFor(ctx).monthTracker(M) }) },
-  month_moon: { name: 'Moon pages', scope: 'month', module: 'sky', build: (ctx, { M }) => one({ type: 'month_moon', id: 'month.moon', label: `${M.name} · moon pages`, html: () => pagesFor(ctx).monthMoonPage(M) }) },
+  month_cal: { name: 'Month calendar', scope: 'month', align: 'verso', build: (ctx, { M }) => one({ type: 'month_cal', id: mid(ctx, M, 'calendar'), label: ctx.undated ? M.name : `${M.name} ${M.y}`, html: () => pagesFor(ctx).monthCalendar(M) }) },
+  month_sky: { name: 'Sky & seasons', scope: 'month', module: 'sky', build: (ctx, { M }) => one({ type: 'month_sky', id: mid(ctx, M, 'sky'), label: `${M.name} · sky & seasons`, html: () => pagesFor(ctx).monthSky(M) }) },
+  month_tracker: { name: 'Month tracker', scope: 'month', ref: 'tracker', build: (ctx, { M }) => one({ type: 'month_tracker', id: mid(ctx, M, 'tracker'), label: `${M.name} · tracker`, html: () => pagesFor(ctx).monthTracker(M) }) },
+  month_moon: { name: 'Moon pages', scope: 'month', module: 'sky', build: (ctx, { M }) => one({ type: 'month_moon', id: mid(ctx, M, 'moon'), label: `${M.name} · moon pages`, html: () => pagesFor(ctx).monthMoonPage(M) }) },
   week_left: { name: 'Week plan (left)', scope: 'week', align: 'verso', build: (ctx, { W }) => one({ type: 'week_left', id: `week.${wkId(W)}.left`, label: `${W.label} · ${pagesFor(ctx).wkRange(W)}`, html: () => pagesFor(ctx).weekLeft(W) }) },
   week_right: { name: 'Week plan (right)', scope: 'week', build: (ctx, { W }) => one({ type: 'week_right', id: `week.${wkId(W)}.right`, label: W.label, html: () => pagesFor(ctx).weekRight(W) }) },
-  days: { name: 'Day pages', scope: 'week', build: (ctx, { W }) => W.days.map((d) => ({ cls: 'dayp', type: 'dayp', id: `day.${d.date}`, label: d.date, date: d.date, shared: false, html: () => pagesFor(ctx).dayFull(d) })) },
+  days: { name: 'Day pages', scope: 'week', build: (ctx, { W }) => W.days.map((d) => (d.undated ? { cls: 'dayp', type: 'dayp', id: `day.${String(d.no).padStart(3, '0')}`, label: `Day ${d.no}`, date: '', shared: false, html: () => pagesFor(ctx).dayFull(d, W) } : { cls: 'dayp', type: 'dayp', id: `day.${d.date}`, label: d.date, date: d.date, shared: false, html: () => pagesFor(ctx).dayFull(d, W) })) },
   // The review and the exchange spread go after the week's Sunday. The year's last week (Sep 27–Oct 3 2027, week 53) ends after the final book, so it gets them in this one.
   week_review: { name: 'Week review', scope: 'week', when: 'weekEnd', build: (ctx, { W }) => one({ type: 'week_review', id: `week.${wkId(W)}.review`, label: `${W.label} review`, html: () => pagesFor(ctx).weekReview(W) }) },
   week_exchange: { name: 'Exchange + Reply', scope: 'week', when: 'weekEnd', align: 'verso', // Exchange (verso) and Reply (recto) must face each other
@@ -483,7 +554,7 @@ export const PAGE_TYPES = {
       { cls: '', date: '', shared: false, type: 'exchange_l', id: `week.${wkId(W)}.exchange`, label: `Exchange · ${W.label}`, html: () => pagesFor(ctx).exchange(W, 'L') },
       { cls: '', date: '', shared: false, type: 'exchange_r', id: `week.${wkId(W)}.reply`, label: `Reply · ${W.label}`, html: () => pagesFor(ctx).exchange(W, 'R') }] },
   month_review: { name: 'Looking back on the month', scope: 'book', align: 'verso', build: () => one({ type: 'month_review', id: 'month_review', label: 'Looking back on the month', shared: true, html: () => `<h2 class="pt">Looking back on the month</h2><div class="boxline">My theme was</div><div data-zone="review_theme" class="lines l2"></div><div class="boxline">What the trackers showed me</div><div data-zone="review_trackers" class="lines l6"></div><div class="boxline">Which parts of this journal I actually used</div><div data-zone="review_used" class="lines l4"></div><div class="boxline">What to change in the next edition</div><div data-zone="review_change" class="lines l6"></div>` }) },
-  closing: { name: 'Closing the month', scope: 'book', protected: true, build: (ctx) => one({ type: 'closing', id: 'closing', label: `Closing ${ctx.VOL.label}`, html: () => pagesFor(ctx).closingPage() }) },
+  closing: { name: 'Closing the month', scope: 'book', protected: true, build: (ctx, at = {}) => (ctx.scoped ? one({ type: 'closing', id: at.kind === 'month' ? `closing.${at.M.key}` : 'closing', label: pagesFor(ctx).closingTitle(at), html: () => pagesFor(ctx).closingPage(at) }) : one({ type: 'closing', id: 'closing', label: `Closing ${ctx.VOL.label}`, html: () => pagesFor(ctx).closingPage() })) },
   support: { name: 'Support', scope: 'book', protected: true, ref: 'support', build: (ctx) => one({ type: 'support', id: 'support', label: 'Support', shared: true, html: () => pagesFor(ctx).supportPage() }) },
   trans_support: { name: 'Trans support', scope: 'book', module: 'trans_support', build: (ctx) => one({ type: 'trans', id: 'trans_support', label: 'Trans support', shared: true, html: () => pagesFor(ctx).transPage() }) },
   safety: { name: 'My safety plan', scope: 'book', protected: true, ref: 'safety', build: (ctx) => one({ type: 'safety', id: 'safety', label: 'My safety plan', shared: true, html: () => pagesFor(ctx).safetyPage() }) },
@@ -494,7 +565,7 @@ export const PAGE_TYPES = {
     return [
       { cls: '', date: '', shared: false, type: 'bus', id: 'bus.net.1', label: `${ctx.PROFILE.transit.agency} at a glance`, html: () => P.netPage(0) },
       { cls: '', date: '', shared: false, type: 'bus', id: 'bus.net.2', label: `${ctx.PROFILE.transit.agency} at a glance, cont.`, html: () => P.netPage(1) },
-      ...P.packGrids(ctx.NET.months[ctx.VOL.id]).map((g, gi) => ({ cls: '', date: '', shared: false, type: 'bus_grid', id: `bus.grid.${gi + 1}`, label: `Bus times · routes ${P.gridRoutes(g)}`, html: () => P.gridPage(g) }))];
+      ...P.packGrids(ctx.NET.months[ctx.VOL.busMonth || ctx.VOL.id]).map((g, gi) => ({ cls: '', date: '', shared: false, type: 'bus_grid', id: `bus.grid.${gi + 1}`, label: `Bus times · routes ${P.gridRoutes(g)}`, html: () => P.gridPage(g) }))];
   } },
   lineage: { name: 'Where each piece comes from', scope: 'book', ref: 'lineage', build: (ctx) => one({ type: 'lineage', id: 'lineage', label: 'Where each piece comes from', html: () => pagesFor(ctx).lineagePage() }) },
   // A page the reader adds: a header + dot grid to write on. Padding pages (numbered by position) are made the same way.
