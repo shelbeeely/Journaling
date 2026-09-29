@@ -1,29 +1,35 @@
 // Renders one monthly book's KDP interior (5.5x8.5, or 8.5x11 with SIZE=letter) as HTML (one fixed-size div per page)
 // and prints it to PDF with Chromium.
 // Usage: node render.mjs month <YYYY-MM> [a.ics,b.ics]      (SIZE=letter for 8.5x11, HARDCOVER=1 to pad to 76+ pages)
-// The pages themselves are built by pages.mjs (shared with the page editor) and laid out in the order book.mjs says
-// (DEFAULT_BOOK reproduces the original sequence). This file adds the frame, scan markers and page codes.
+// The pages themselves are built by pages.mjs (shared with the page editor) and laid out in the order content/book.json
+// says (book.mjs; the default reproduces the original sequence). This file adds the frame, scan markers and page codes.
 import fs from 'node:fs';
 import { launch } from './browser.mjs';
 import bwipjs from 'bwip-js';
 import { drawRulings } from './rulings.mjs';
 import { EDITION } from './content/edition.mjs';
+import { PROFILE } from './profile.mjs';
 import { DAYPAGE_CSS } from './daypage.mjs';
-import { loadContext } from './context.mjs';
-import { assemble, DEFAULT_BOOK } from './book.mjs';
+import { loadContext, loadBook } from './context.mjs';
+import { assemble, assertBook, entriesFor, normalizeBook } from './book.mjs';
 if (process.argv[2] !== 'month' || !/^\d{4}-\d{2}$/.test(process.argv[3] || '')) {
   console.error('Usage: node render.mjs month <YYYY-MM> [a.ics,b.ics]   (SIZE=letter, HARDCOVER=1)');
   process.exit(1);
 }
-const LETTER = process.env.SIZE === 'letter', HARDCOVER = process.env.HARDCOVER === '1';
+// Trim: SIZE=small|letter, else the profile's default trim (content/profile.json, trim).
+const LETTER = (process.env.SIZE || PROFILE.trim) === 'letter', HARDCOVER = process.env.HARDCOVER === '1';
 const ctx = await loadContext({ month: process.argv[3], ics: process.argv[4], size: LETTER ? 'letter' : 'small' });
 const { D, VOL } = ctx;
-const OUT = `out/m${VOL.id}${LETTER ? '-letter' : ''}`;
+const OUT = `${process.env.KW_OUT || 'out'}/m${VOL.id}${LETTER ? '-letter' : ''}`; // KW_OUT: another output folder (test-profile.mjs)
+// Which pages, in what order: content/book.json (from the editor), checked here so a bad file says what is wrong.
+const fileBook = loadBook();
+if (fileBook && Object.keys(fileBook).length) try { assertBook(fileBook); } catch (e) { console.error(e.message); process.exit(1); }
+const book = normalizeBook(fileBook);
 // Page sequence (mirror margins by parity), padding and page references: book.mjs. Every page has an `id` (unique in the book,
 // derived from what the page is, never from its position: title, key, week.03.reply, day.2026-10-14 ...), a printed `label`
 // and `shared` (front/back matter meant to print byte-identically in every book); see pages.mjs and check-pages.mjs.
 // Only padding pages are numbered by order (notes.1, notes.2 ...): they exist because of position.
-const { pages } = assemble(ctx, DEFAULT_BOOK.default, { hardcover: HARDCOVER });
+const { pages } = assemble(ctx, entriesFor(book, VOL.id), { hardcover: HARDCOVER });
 
 // ---------- HTML ----------
 // 5.5 x 8.5 in: a KDP.com size for both paperback and hardcover (A5 is only offered on KDP Japan)
@@ -37,7 +43,7 @@ const BORDER_PT = 9, BORDER = BORDER_PT / 72, QUIET = 0.5, STRIP = 0.42; // 9pt 
 const FRAME_PAD = BORDER + QUIET;
 
 // Scan markers: thick border + 7 send-to bubbles + a Data Matrix page code.
-// Payload: see pageCode below (KW2|<edition>|<yymm>|<size><page>). Read by Shelbee's own scanning app, not the Rocketbook app.
+// Payload: see pageCode below (KW2|<edition>|<yymm>|<size><page>). Read by the owner's own scanning app, not the Rocketbook app.
 const SYMBOLS = [ // fire (solid △), water (open ▽), air (three winds), earth (⊕), crescent (solid), full moon (solid disc), pentacle
   // Chosen so no two look alike after a blurry phone photo (tested: worst pair correlation 0.63; the old set had 0.90).
   '<path d="M7 1.5 L12.5 12 H1.5 Z" fill="#000"/>',
@@ -261,7 +267,7 @@ fs.writeFileSync(`${OUT}/layout.json`, JSON.stringify(layoutJson, null, 1));
 const manifest = { book: VOL.id, size: SIZE_CODE, edition: EDITION, hardcover: HARDCOVER, built: D.generated, commit: process.env.GITHUB_SHA || null, page_count: pages.length, code_scheme: layoutJson.code_scheme,
   pages: layoutJson.pages.map((p) => ({ code: p.code, page: p.page, id: p.id, label: p.label, section: p.section, type: p.type, date: p.date, ...(p.from ? { from: p.from, to: p.to } : {}), shared: !!p.shared, zones: p.zones })) };
 fs.writeFileSync(`${OUT}/manifest.json`, JSON.stringify(manifest, null, 1));
-await page.pdf({ width: `${TRIM_W}in`, height: `${TRIM_H}in`, path: `${OUT}/keeping-watch-${VOL.id}-interior-${HARDCOVER ? 'hardcover-' : ''}${SIZE_TAG}.pdf`, printBackground: true, preferCSSPageSize: true });
+await page.pdf({ width: `${TRIM_W}in`, height: `${TRIM_H}in`, path: `${OUT}/${PROFILE.book.slug}-${VOL.id}-interior-${HARDCOVER ? 'hardcover-' : ''}${SIZE_TAG}.pdf`, printBackground: true, preferCSSPageSize: true });
 await browser.close();
 fs.writeFileSync(`${OUT}/pages${HARDCOVER ? '-hardcover' : ''}.txt`, String(pages.length)); // separate counts, so each cover sizes its own spine
 console.log(`book ${VOL.id}: ${D.days[0].date} → ${D.days[D.days.length - 1].date}, ${D.weeks.length} weeks, ${pages.length} pages`);

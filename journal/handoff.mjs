@@ -17,9 +17,10 @@ export const HANDOFF_BOXES = [
 ];
 export const GOOD_SPOON_NOTE = 'Good-spoon day: 4 or more spoons left. The X4 counts spoons left and adds up the days for you.';
 // Same HTML shape on both pages: a small caption per source, then its boxes. `cell(label, unit)` draws one box, `grid(html)` wraps a group.
-export function handoffHtml({ cell, grid, caption, trackerPage }) {
+// `omit`: box ids to leave out (the profile's spoons module off drops "spoons").
+export function handoffHtml({ cell, grid, caption, trackerPage, omit = [] }) {
   return Object.values(SRC).map((s) => {
-    const boxes = HANDOFF_BOXES.filter((b) => b.src === s.key);
+    const boxes = HANDOFF_BOXES.filter((b) => b.src === s.key && !omit.includes(b.id));
     const where = s.key === 'paper' ? (trackerPage ? `tracker, p. ${trackerPage}` : 'tracker page') : 'Menu → This month';
     return `${caption(s.tag, where)}${grid(boxes.map((b) => cell(b.label, b.unit)).join(''))}`;
   }).join('');

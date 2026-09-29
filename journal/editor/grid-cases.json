@@ -45,7 +45,6 @@
 {"name":"range 7","type":"range","opts":{"steps":7}},
 {"name":"scale 11","type":"scale","opts":{"steps":11}},
 {"name":"scale 3","type":"scale","opts":{"steps":3}},
-{"name":"checks 8","type":"checks","opts":{"labels":["Stretch","Outside","Read","Water","Sleep","Tidy","Call","Walk"]}},
 {"name":"checks 1","type":"checks","opts":{"labels":["Stretch"]}},
 {"name":"words 14","type":"words","opts":{"words":["calm","tired","anxious","content","flat","overwhelmed","hopeful","irritable","proud","lonely","a","b","c","d"]}},
 {"name":"sensory 8","type":"sensory","opts":{"items":{"sound":true,"light":true,"crowd":true,"touch":true,"smell":true,"social":true,"temp":true,"move":true}}},

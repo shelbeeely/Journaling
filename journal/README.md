@@ -39,9 +39,48 @@ It writes out/keeper/index.json, which the monthly books use to point their "Clo
 | `ICS` | build-all.sh | `test.ics` | Comma-separated calendars passed to render.mjs |
 | `MONTHS` | build-all.sh | all 12, `2026-10` … `2027-09` | Space-separated `YYYY-MM` list |
 | `SIZES` | build-all.sh | `small letter` | `small` = 5.5×8.5 (+ EPUB), `letter` = 8.5×11 |
-| `SIZE=letter` | render.mjs, cover.mjs | unset (5.5×8.5) | 8.5×11 book in `out/m<YYYY-MM>-letter/`. build-all.sh sets it from `SIZES` |
+| `SIZE=small\|letter` | render.mjs, cover.mjs | the profile's `trim` | `letter` = 8.5×11 book in `out/m<YYYY-MM>-letter/`. build-all.sh sets it from `SIZES` |
 | `HARDCOVER=1` | render.mjs (passed through by build-all.sh) | unset (paperback) | Pads with Notes pages to an even count ≥ 76 |
 | `CHROMIUM_PATH` | browser.mjs (every script that renders) | Playwright's own Chromium | Use a Chromium you already have |
+
+## Profile (`content/profile.json`)
+Everything about who the journal is for and where lives in one file, so the engine holds nothing personal. The committed
+`content/profile.json` is Shelbee's (today's books are built from it and are byte-identical to before the profile existed).
+`content/profile.example.json` is a generic person in a made-up city: copy it to `content/profile.json` and edit it to make your own.
+A missing or wrong field stops the build with one message listing every problem, for example `location.lat: is required`.
+`KW_PROFILE=path` builds with another profile without touching the committed one (`test-profile.mjs` does).
+
+| Field | Used for |
+| --- | --- |
+| `person.name` | EPUB author |
+| `book.title`, `book.subtitle`, `book.slug` | Title page, cover, spine, Keeper, EPUB, editor header; `slug` names the PDFs and EPUBs (`<slug>-2026-10-interior-5.5x8.5.pdf`) |
+| `book.edition` | The edition digit in every page code (1-9; see NEW-EDITION.md) |
+| `book.start` | First month of the 12-month year (`2026-10`): book numbers ("Book 3 of 12"), the Keeper's month list and label |
+| `book.epoch` | Optional Monday that is week 0 (week labels, and which pioneer, word and prompt each week gets). Default: the Monday on or before the 1st of `book.start` |
+| `location.*` | `place` (title page, sky data), `city` and `region` (eclipse and support notes), `lat`, `lon`, `elevation` (sunrise, sunset, moon, eclipses), `timezone` (all clock times), `timezone_name` (printed) |
+| `day_start_hour` | Hour the paper day starts (Shelbee's 4). Exported into the X4 pack (`checkins.txt`, first line ends `· profile day_start=4 tz=...`). The firmware still compiles in its own `DAY_STARTS_HOUR`; `test-profile.mjs` fails if the two differ |
+| `trim` | Default trim, `small` (5.5x8.5) or `letter` (8.5x11). `SIZE=small|letter` overrides it; build-all.sh always sets `SIZE` |
+| `modules.*` | Switches, all required: see below |
+| `crisis.lines` | The lines printed on the safety plan after "my prescriber;" (default: 988 and the 741741 text line) |
+| `transit` | Needed when `modules.bus` is on: `agency`, `site`, `app` (used in the bus page titles and notes), `priority_routes` (routes that get hour grids first), `short_stops` (stop-name abbreviations) |
+| `paths.*` | Content files, relative to `journal/`: `support` (required), `trans`, `clinic`, `transit` (feed folder, default `gtfs`), `seasons` (module exporting the 72 micro-seasons; without one, the English names of the Japanese seasons) |
+
+Modules. Switched off, a module's pages are left out of the book when it is laid out (`content/book.json` is untouched; the entries stay
+listed and simply build nothing), and every reference to them goes too (no "Bus times p. ?"). The protected pages (Support,
+My safety plan, Closing the month) can't be switched off. The moon and sun are still calculated (calendars and the 24 h line use them).
+
+| Module | Off removes |
+| --- | --- |
+| `bus` | The bus pages, the bus note on the lineage page and the EPUB bus chapter; no transit feed is read |
+| `sky` | The month sky & seasons and moon pages, the day page sky line, the title page place line |
+| `trans_support` | The Trans support page (book, Keeper, EPUB, X4 support list) |
+| `therapy` | Feelings, skills, urge and thought record blocks (day page and X4 check-ins); they stay in `daypage.json` |
+| `spoons` | Spoons and energy account blocks, the spoon lines on the Key and lineage pages, the Good-spoon box on Closing and in the Keeper. The X4 still has its built-in spoons counter (firmware is unchanged) |
+| `pay_periods` | Pay period and payday marks (`payperiods.mjs` holds one employer's sheet; leave it off for anyone else) |
+
+Content packs (support lists, clinic, trans, transit feeds) are still plain files named by `paths`. The point of the profile is that
+nothing else in the engine mentions them. `node test-profile.mjs` builds the generic profile (Lakemont, MN), checks that none of
+Shelbee's words are in its book, cover, EPUB or X4 pack, that it passes the overflow gate (`[] 0`), and builds each module off.
 
 ## Outputs
 `out/m<YYYY-MM>/` (5.5×8.5) and `out/m<YYYY-MM>-letter/` (8.5×11):
@@ -139,12 +178,13 @@ are never touched. Never copy or replace a `kw` folder. **Closing the month:** d
 ## Content you edit
 | File | What |
 | --- | --- |
+| content/profile.json | Who and where (see Profile above) |
 | content/clinic.json | My clinic box (care plan page + Keeper) |
 | content/support.json, content/trans.json | Support and Trans support pages (re-check numbers each edition) |
 | content/year.mjs, year-research.mjs, facts.mjs, pioneers.mjs | Daily facts, weekly pioneers, prompts |
-| spokane.mjs | 72 Spokane micro-seasons |
+| spokane.mjs | 72 Spokane micro-seasons (the profile's `paths.seasons`) |
 | holidays.mjs, payperiods.mjs | US holidays; Carl's Jr pay periods (2027 projected) |
-| render.mjs `GRID_PRIORITY` | Which bus routes get full hour grids |
+| content/profile.json `transit.priority_routes` | Which bus routes get full hour grids |
 
 ## Bus schedules (STA)
 STA's feed ends 2027-01-16. Books print bus pages by the feed's dates: fully covered months as usual, the month it ends in with a "valid through" label, and later months with no bus pages (just a "spokanetransit.com or the STA app" line on the last back page). To print bus times for later books:
@@ -168,10 +208,40 @@ sequence) and adds what is never hand-set: recto/verso Notes pages, the even pag
 references. `render.mjs` only adds the frame, scan markers and page codes. The editor build writes
 `editor/dist/site/pages-sample.json` (every page type from `test.ics`, no clinic details).
 
+### Book view (read-only canvas)
+The editor's **Book** tab (next to **Day**, or open `#book`) shows the whole book on a pan/zoom canvas, spreads laid out as it
+opens: the title page alone on the right, then left|right pairs (even|odd), the last even page alone on the left. Every
+page is a live thumbnail drawn by `pages.mjs` from the sample calendar (`test.ics`, never your data; no clinic details),
+with its number and id. Thumbnails are painted lazily, only near the view.
+- **Zoom:** whole book / one spread / one page buttons, - and +, mouse wheel (at the pointer), two-finger pinch, keys
+  `+` `-` `0` (book) `1` (spread) `2` (page). Drag or arrow keys to move; `[` `]` previous/next page, `Home` `End`.
+- **Jump:** type a page number (`30`, `p30`) or an id (`safety`, `week.03.review`, a date like `2026-10-05`).
+- **Legend (i):** lock = protected page (Closing, Support, Safety plan: can move, never hidden); pages a book hides in
+  `content/book.json` sit dimmed in a row under the book; the 5.5x8.5 / 8.5x11 switch reflows the same pages.
+- Read-only: reordering, hiding and adding pages come in the next canvas step. Works in the GitHub Pages site (loads
+  `pages-sample.json`) and the Artifact (the sample book is embedded, gzipped).
+
     node check-identical.mjs          # after build-all.sh: the default books still match identical.json
 
 `identical.json` holds a fingerprint per page HTML of the default books (from `test.ics`). A change that is meant to alter the
 default books: rebuild them all, then `node check-identical.mjs --update` and commit the new file with the change.
+
+### The book layout (`content/book.json`)
+`book.mjs` `DEFAULT_BOOK` is the page order; `content/book.json` (the committed copy equals the default) overrides it and
+`render.mjs` follows it. Validation runs at build time and says what is wrong and where.
+
+    { "version": 1,
+      "default": [ {"id": "title", "type": "title", "on": true, "options": {}}, ... ],
+      "months": { "2027-02": { "pages": [ ...a whole list for that month's book... ] } } }
+
+- One entry per page type (`PAGE_TYPES` in `pages.mjs`); `on: false` hides it. `notes` entries can be added and repeated (option `title`).
+- The `weeks` entry is the journal itself: its `month` list is that month's pages (calendar, sky, tracker, moon), its `week` list is each
+  week's pages (left, right, days, review, exchange + reply).
+- Safety plan, Support and Closing the month can be moved but never hidden or removed. Each other page type appears once.
+- Never hand-set: recto/verso (a Notes page is added where a spread needs one), even page count (>= 24, hardcover >= 76), `{{P_x}}`
+  page references (a hidden page's pointer is dropped from How to use it; a pointer that cannot resolve is an error), scan codes, the
+  Keeper's handoff page number. Page ids stay `week.03.reply`, `day.2026-10-14` ... whatever the order.
+- `node test-book.mjs` checks the rules and the sequence. A book that differs from the default is skipped by `check-identical.mjs`.
 
 ## Day page editor
 `daypage.mjs` is the block library: order, on/off and options for every day page block. `content/daypage.json`

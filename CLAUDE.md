@@ -12,6 +12,8 @@ Shelbee's year-long journaling system. Read README.md, then HANDOFF.md (status +
 - `journal/render.mjs`: builds one monthly book (`month YYYY-MM a.ics,b.ics`; `SIZE=letter`; `HARDCOVER=1`).
   `keeper.mjs` builds the Keeper, `cover.mjs` builds covers, `epub.py` builds X4 EPUBs, and `check.mjs` is the overflow gate.
   `build-all.sh` runs everything.
+- `journal/content/profile.json` (+ `profile.mjs`): who and where: names, branding, location, timezone, day start, trim, module
+  switches, content paths. Nothing personal lives in code; `profile.example.json` is the generic one. `test-profile.mjs` guards it.
 - `journal/daypage.mjs`: the day page **block library**. One source of truth for print and the editor preview.
   Layout v2 = ordered `{uid, type, on, ...options}`; `TYPES` declares each block's options (num/bool/choice/flags/text/list).
   `content/daypage.json` (from the editor) overrides `DEFAULT_LAYOUT`, which reproduces the original page exactly.

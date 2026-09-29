@@ -1,5 +1,5 @@
 // KDP proof test sheet: one recto + one verso per trim size, made at build time and NOT part of the monthly books.
-//   node proof-test.mjs          -> out/proof/keeping-watch-proof-test-5.5x8.5.pdf and ...-8.5x11.pdf
+//   node proof-test.mjs          -> out/proof/<slug>-proof-test-5.5x8.5.pdf and ...-8.5x11.pdf
 // Order it with the first proof (see KDP.md section 8). Generic sample content only; no calendar data.
 // Every ruling is drawn by drawRulings() from rulings.mjs, the same code and SPECS the monthly books use, so this sheet
 // always shows the real weights. The 8.5x11 sheet uses the same 1.294x page zoom as the book.
@@ -7,6 +7,7 @@ import fs from 'node:fs';
 import { launch } from './browser.mjs';
 import bwipjs from 'bwip-js';
 import { drawRulings } from './rulings.mjs';
+import { PROFILE } from './profile.mjs';
 
 const OUT = 'out/proof';
 const H_IN = 8.5, TOP = 0.3, BOTTOM = 0.3, INSIDE = 0.5, OUTSIDE = 0.3; // keep in sync with render.mjs
@@ -120,7 +121,7 @@ const qr = bwipjs.toSVG({ bcid: 'datamatrix', text: 'KW2|T|TEST|S001' });
 fs.mkdirSync(OUT, { recursive: true });
 const browser = await launch();
 for (const [tag, W_IN, ZOOM] of [['5.5x8.5', 5.5, 1], ['8.5x11', +(8.5 / (11 / 8.5)).toFixed(4), 11 / 8.5]]) {
-  const html = `<!doctype html><html><head><meta charset="utf-8"><title>Keeping Watch proof test ${tag}</title>
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>${PROFILE.book.title} proof test ${tag}</title>
 <link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/inter/500.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/inter/700.css">
 <style>${css(W_IN, ZOOM)}</style></head><body>
 ${pageHtml('recto', front(), qr, 1)}${pageHtml('verso', back() + notes, qr, 2)}
@@ -133,8 +134,8 @@ ${pageHtml('recto', front(), qr, 1)}${pageHtml('verso', back() + notes, qr, 2)}
   // fail if any content spills out of its box
   const over = await page.evaluate(() => [...document.querySelectorAll('.in')].map((e) => e.scrollHeight > e.clientHeight + 1 || e.scrollWidth > e.clientWidth + 1));
   if (over.some(Boolean)) { console.error(`proof test ${tag}: content overflows its page`, over); process.exitCode = 1; }
-  await page.pdf({ width: `${(W_IN * ZOOM).toFixed(3)}in`, height: `${(H_IN * ZOOM).toFixed(3)}in`, path: `${OUT}/keeping-watch-proof-test-${tag}.pdf`, printBackground: true, preferCSSPageSize: true });
+  await page.pdf({ width: `${(W_IN * ZOOM).toFixed(3)}in`, height: `${(H_IN * ZOOM).toFixed(3)}in`, path: `${OUT}/${PROFILE.book.slug}-proof-test-${tag}.pdf`, printBackground: true, preferCSSPageSize: true });
   await page.close();
-  console.log(`proof test ${tag}: ${OUT}/keeping-watch-proof-test-${tag}.pdf`);
+  console.log(`proof test ${tag}: ${OUT}/${PROFILE.book.slug}-proof-test-${tag}.pdf`);
 }
 await browser.close();

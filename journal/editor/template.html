@@ -177,12 +177,74 @@ dialog .btn { min-height: 44px; }
   .status { flex: 1; }
   .btn .lab { display: none; }
 }
+
+/* ---------- book canvas (read-only): Book view ---------- */
+#book { display: none; }
+html[data-view="book"] main, html[data-view="book"] .tabs, html[data-view="book"] #undo, html[data-view="book"] #menu, html[data-view="book"] #status { display: none !important; }
+html[data-view="book"] #book { display: flex; }
+html[data-view="book"], html[data-view="book"] body { overflow: hidden; }
+#book { flex-direction: column; height: calc(100vh - var(--hh, 60px)); height: calc(100dvh - var(--hh, 60px)); max-width: 1440px; margin: 0 auto; padding: 8px 16px 12px; gap: 8px; min-width: 0; }
+.bk-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.bk-b { flex: none; min-width: 44px; min-height: 44px; border: 1px solid var(--line); background: var(--panel); border-radius: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 10px; font-size: 13px; font-weight: 500; }
+.bk-b:hover { border-color: var(--focus); }
+.bk-b[aria-pressed="true"], .bk-b[aria-expanded="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.bk-b svg { width: 20px; height: 20px; flex: none; }
+.bk-grp { display: inline-flex; gap: 4px; align-items: center; }
+.bk-grp output { min-width: 46px; text-align: center; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.bk-lv { display: inline-flex; gap: 4px; }
+#bk-jump { display: flex; flex: 1; min-width: 190px; gap: 4px; }
+#bk-jump input { flex: 1; min-width: 0; min-height: 44px; border: 1px solid var(--line); background: var(--panel); border-radius: 12px; padding: 0 12px; font-size: 15px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+#bk-msg { margin: 0; font-size: 13px; color: var(--muted); min-height: 20px; }
+#bk-msg:empty { display: none; }
+#bk-msg.bad { color: var(--warn); }
+#bk-legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 8px 16px; padding: 10px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; font-size: 13px; }
+#bk-legend[hidden] { display: none; }
+#bk-legend div { display: flex; gap: 10px; align-items: flex-start; }
+#bk-legend svg { width: 18px; height: 18px; flex: none; margin: 1px 11px 0; color: var(--muted); }
+#bk-legend .sw2 { width: 22px; height: 30px; flex: none; margin: 0 9px; background: #fff; border: 1px solid var(--line); border-radius: 2px; }
+#bk-legend .sw2.dim { opacity: .4; border-style: dashed; }
+#bk-legend .sw2.two { width: 40px; margin: 0; background: linear-gradient(90deg, #fff 49%, #bbb 49%, #bbb 51%, #fff 51%); }
+#bk-view { position: relative; flex: 1; min-height: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: var(--soft); touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; contain: strict; }
+#bk-view.drag { cursor: grabbing; }
+#bk-view:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+#bk-world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+#bk-view.anim #bk-world { transition: transform .28s ease; }
+.sp { position: absolute; }
+.sp::before { content: ""; position: absolute; inset: -26px -26px -14px; background: rgba(127,120,105,.14); border-radius: 18px; pointer-events: none; }
+.sp[data-hidden]::after { display: none; }
+.sp::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: calc(2px / var(--z, 1)); margin-left: calc(-1px / var(--z, 1)); background: rgba(0,0,0,.18); pointer-events: none; }
+.bpg { position: absolute; top: 0; background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.14), 0 4px 14px rgba(0,0,0,.14); border-radius: 2px; overflow: visible; }
+.bpg.r { left: 50%; } .bpg.l { left: 0; }
+.bpg .ph { position: absolute; inset: 0; overflow: hidden; border-radius: 2px; }
+.bpg .ph .page { position: absolute; left: 0; top: 0; }
+.bpg.sel { box-shadow: 0 0 0 calc(3px / var(--z, 1)) var(--focus), 0 4px 14px rgba(0,0,0,.2); }
+.bpg.hid .ph { opacity: .38; }
+.bpg.hid { box-shadow: 0 0 0 calc(2px / var(--z, 1)) var(--line); background: transparent; }
+.bpg.hid .ph::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(135deg, transparent 0 24px, rgba(120,120,120,.12) 24px 26px); }
+.bpg .num { position: absolute; inset: 0; display: grid; place-items: center; font: 600 min(30vw, 260px) Inter, sans-serif; color: rgba(0,0,0,.07); pointer-events: none; }
+.bpg .cap { position: absolute; left: 0; right: 0; top: 100%; padding-top: 8px; display: flex; gap: .5em; align-items: baseline; font-size: clamp(14px, calc(15px / var(--z, 1)), 88px); line-height: 1.2; color: var(--ink); white-space: nowrap; overflow: hidden; pointer-events: none; }
+.bpg.l .cap { justify-content: flex-start; } .bpg.r .cap { justify-content: flex-end; }
+.bpg .cap b { font-weight: 700; font-variant-numeric: tabular-nums; }
+.bpg .cap .cid { color: var(--muted); overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.bpg .cap svg { width: 1em; height: 1em; flex: none; align-self: center; color: var(--muted); }
+#bk-view[data-lod="far"] .cid, #bk-view[data-lod="far"] .cap svg { display: none; }
+.bk-h { position: absolute; font: 600 clamp(14px, calc(15px / var(--z, 1)), 88px)/1.2 Inter, sans-serif; color: var(--muted); white-space: nowrap; }
+#bk-info { font-size: 13px; color: var(--ink); min-height: 20px; display: flex; gap: 6px 12px; flex-wrap: wrap; align-items: center; }
+#bk-info span { color: var(--muted); }
+#bk-info svg { width: 15px; height: 15px; vertical-align: -2px; }
+@media (max-width: 640px) {
+  #book { padding: 6px 12px 10px; }
+  .bk-b .lab { display: none; }
+  #bk-jump { flex-basis: 100%; order: 9; }
+}
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
 <header class="top">
   <div class="bar">
-    <h1>Day page<small>Keeping Watch · every monthly book</small></h1>
+    <h1 id="ttl">Day page<small>Keeping Watch · every monthly book</small></h1>
+    <span class="seg" id="views" role="group" aria-label="View"><button id="v-day" aria-pressed="true">Day</button><button id="v-book" aria-pressed="false">Book</button></span>
     <span class="status" id="status" role="status">Loading…</span>
     <span class="seg" role="group" aria-label="Page layout"><button id="lay-f" aria-pressed="true" title="Blocks stack in order; the writing space takes what is left">Flow</button><button id="lay-g" aria-pressed="false" title="Place blocks on a grid of 4 columns and tight-line rows; blocks can span several">Grid</button></span>
     <span class="seg" role="group" aria-label="Preview size"><button id="sz-s" aria-pressed="true">5.5×8.5</button><button id="sz-l" aria-pressed="false">8.5×11</button></span>
@@ -226,6 +288,37 @@ dialog .btn { min-height: 44px; }
     <p class="dragtip" id="dragtip">A busy sample day. Tap a block to find it; hold and drag to move it.</p>
   </section>
 </main>
+
+<section id="book" aria-label="Book canvas, read-only">
+  <div class="bk-bar">
+    <div class="bk-grp" role="group" aria-label="Zoom">
+      <button class="bk-b" id="bk-out" aria-label="Zoom out"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.5"/><path d="M6.8 10h6.4"/></svg></button>
+      <output id="bk-zl" aria-live="off">100%</output>
+      <button class="bk-b" id="bk-in" aria-label="Zoom in"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.5"/><path d="M6.8 10h6.4M10 6.8v6.4"/></svg></button>
+    </div>
+    <div class="bk-lv" role="group" aria-label="Zoom level">
+      <button class="bk-b" data-lv="book" aria-pressed="false" aria-label="Whole book" title="Whole book (0)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="4" height="5" rx=".8"/><rect x="8" y="2.5" width="4" height="5" rx=".8"/><rect x="13.5" y="2.5" width="4" height="5" rx=".8"/><rect x="2.5" y="10.5" width="4" height="5" rx=".8"/><rect x="8" y="10.5" width="4" height="5" rx=".8"/><rect x="13.5" y="10.5" width="4" height="5" rx=".8"/></svg><span class="lab">Book</span></button>
+      <button class="bk-b" data-lv="spread" aria-pressed="false" aria-label="One spread" title="One spread (1)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="3.5" width="7" height="13" rx="1"/><rect x="10.5" y="3.5" width="7" height="13" rx="1"/></svg><span class="lab">Spread</span></button>
+      <button class="bk-b" data-lv="page" aria-pressed="false" aria-label="One page" title="One page (2)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2.5" width="10" height="15" rx="1.2"/></svg><span class="lab">Page</span></button>
+    </div>
+    <form id="bk-jump" role="search" autocomplete="off">
+      <label class="sr" for="bk-go">Jump to a page by number or id</label>
+      <input id="bk-go" type="text" inputmode="text" enterkeyhint="go" placeholder="Page number or id" list="bk-ids" spellcheck="false">
+      <datalist id="bk-ids"></datalist>
+      <button class="bk-b" type="submit" aria-label="Go to page"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h11M10.5 5.5 15 10l-4.5 4.5"/></svg></button>
+    </form>
+    <button class="bk-b" id="bk-leg" aria-expanded="false" aria-controls="bk-legend" aria-label="Legend"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.5"/><path d="M10 9v4.5M10 6.6v.1"/></svg></button>
+  </div>
+  <div id="bk-legend" hidden>
+    <div><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="9" width="11" height="8" rx="1.8"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9"/></svg><span><b>Protected page.</b> It can move but never be hidden: Closing the month, Support, My safety plan.</span></div>
+    <div><i class="sw2 dim"></i><span><b>Hidden page.</b> Dimmed, in the row under the book. It is not printed.</span></div>
+    <div><i class="sw2 two"></i><span><b>Spreads</b> as the book opens: left page even, right page odd. The title page opens alone on the right.</span></div>
+    <div><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.5"/><path d="M10 9v4.5M10 6.6v.1"/></svg><span>Sample data only (the test calendar). Scan symbols and page codes are added at print. Nothing here changes your book.</span></div>
+  </div>
+  <p id="bk-msg" role="status"></p>
+  <div id="bk-view" tabindex="0" role="application" aria-label="Book canvas. Drag to move, scroll or pinch to zoom, arrow keys to move, plus and minus to zoom, 0 whole book, 1 spread, 2 page, bracket keys for the previous and next page."><div id="bk-world"></div></div>
+  <div id="bk-info" aria-live="polite"></div>
+</section>
 <input type="file" id="file" accept=".json,application/json" hidden>
 <dialog id="gh">
   <form method="dialog">
@@ -261,6 +354,7 @@ dialog .btn { min-height: 44px; }
 /*__DAYPAGE__*/
 /*__KIT__*/
 const MODE = '__MODE__';
+const BOOK_DATA = '__BOOKDATA__'; // Artifact build: the sample book, gzipped + base64. Site build: empty (fetched as pages-sample.json).
 
 const $ = (s, el = document) => el.querySelector(s);
 const escH = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -487,7 +581,7 @@ pv.addEventListener('click', (e) => {
   select(el.dataset.b);
 });
 addEventListener('resize', () => { fit(); drawOverlay(); });
-function setSize(s) { size = s; $('#sz-s').setAttribute('aria-pressed', s === 'small'); $('#sz-l').setAttribute('aria-pressed', s === 'letter'); store.set('kw-size', s); drawPreview(); }
+function setSize(s) { size = s; $('#sz-s').setAttribute('aria-pressed', s === 'small'); $('#sz-l').setAttribute('aria-pressed', s === 'letter'); store.set('kw-size', s); drawPreview(); bkSize(); }
 $('#sz-s').onclick = () => setSize('small'); $('#sz-l').onclick = () => setSize('letter');
 
 // ---------- page grid (Grid layout) ----------
@@ -722,6 +816,266 @@ $('#m-ghload').onclick = async () => {
 };
 addEventListener('beforeunload', (e) => { if (MODE === 'pages' && dirty) { e.preventDefault(); e.returnValue = ''; } });
 
+// ---------- book canvas (read-only) ----------
+// Spreads as the book opens: page 1 (title) alone on the right, then verso|recto pairs, the last (even) page alone on the left.
+// Thumbnails come from pages-sample.json (pages.mjs rendered from the sample calendar, never real data) and are painted lazily:
+// only pages near the viewport hold DOM; the rest are blank slots with a number.
+const BK = { data: null, ready: false, loading: null, z: 1, x: 0, y: 0, sel: 0, cols: 6, level: 'book', pages: [], hidden: [], slots: new Map(), spreads: [], W: 0, H: 0, geo: null, painted: new Set(), queue: new Set(), raf: 0 };
+const bkView = $('#bk-view'), bkWorld = $('#bk-world');
+const BK_IC = { lock: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="9" width="11" height="8" rx="1.8"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9"/></svg>', eyeoff: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 10s2.7-5 7.5-5 7.5 5 7.5 5-2.7 5-7.5 5-7.5-5-7.5-5z"/><circle cx="10" cy="10" r="2.2"/><path d="M3.5 16.5l13-13"/></svg>' };
+const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function bkGeo() { const pw = SIZES[size] * 96, ph = 8.5 * 96; return { pw, ph, gx: 180, gy: 150 }; }
+const bkSpreadCount = () => Math.floor(BK.pages.length / 2) + 1; // [1], [2,3] ... [N] for an even N
+const bkSpreadOf = (n) => Math.floor(n / 2); // page n lives in spread floor(n/2)
+// rows/columns of spreads that fill the viewport best: a wide window gets a wide book, a phone a tall one.
+function bkPickCols() {
+  const { pw, ph, gx, gy } = bkGeo(), vw = bkView.clientWidth || 1000, vh = bkView.clientHeight || 600, n = bkSpreadCount() + (BK.hidden.length ? 2 : 0);
+  let best = 4, bz = 0;
+  for (let c = 1; c <= 12; c++) { const rows = Math.ceil(n / c), W = c * 2 * pw + (c - 1) * gx, H = rows * (ph + gy); const z = Math.min(vw / W, vh / H); if (z > bz + 1e-9) { bz = z; best = c; } }
+  return best;
+}
+function bkSlotPos(n) { // page n -> {x, y} of its slot in world px
+  const { pw, ph, gx, gy } = bkGeo(), s = bkSpreadOf(n), c = s % BK.cols, r = Math.floor(s / BK.cols);
+  return { x: c * (2 * pw + gx) + (n % 2 ? pw : 0), y: r * (ph + gy), s };
+}
+function bkBuild() {
+  const { pw, ph, gx, gy } = bkGeo(), N = BK.pages.length;
+  BK.geo = { pw, ph };
+  BK.painted.clear(); BK.queue.clear(); BK.slots.clear(); io1.disconnect(); io2.disconnect();
+  bkWorld.style.setProperty('--pw', SIZES[size] + 'in');
+  let h = '';
+  const spreads = bkSpreadCount(), rows = Math.ceil(spreads / BK.cols);
+  BK.spreads = [];
+  for (let s = 0; s < spreads; s++) {
+    const c = s % BK.cols, r = Math.floor(s / BK.cols), L = s * 2, R = s * 2 + 1; // left page number, right page number
+    const left = L >= 2 && L <= N ? L : 0, right = R >= 1 && R <= N ? R : 0;
+    BK.spreads.push([left, right]);
+    h += `<div class="sp" data-spread="${s}" data-left="${left}" data-right="${right}" style="left:${c * (2 * pw + gx)}px;top:${r * (ph + gy)}px;width:${2 * pw}px;height:${ph}px">${[[left, 'l'], [right, 'r']].map(([n, side]) => (n ? slotHtml(BK.pages[n - 1], n, side, false) : '')).join('')}</div>`;
+  }
+  let H = rows * (ph + gy) - gy;
+  if (BK.hidden.length) {
+    const y0 = rows * (ph + gy) + 110, per = Math.max(2, BK.cols * 2);
+    h += `<div class="bk-h" style="left:0;top:${y0 - 100}px">Hidden by this book: not printed</div>`;
+    BK.hidden.forEach((p, i) => { const c = i % per, r = Math.floor(i / per); h += `<div class="sp" data-hidden="${i}" style="left:${c * (pw + gx / 2)}px;top:${y0 + r * (ph + gy)}px;width:${pw}px;height:${ph}px">${slotHtml(p, 0, 'l', true, i)}</div>`; });
+    H = y0 + Math.ceil(BK.hidden.length / per) * (ph + gy) - gy;
+  }
+  BK.W = BK.cols * 2 * pw + (BK.cols - 1) * gx; BK.H = H;
+  bkWorld.style.width = BK.W + 'px'; bkWorld.style.height = H + 'px';
+  bkWorld.innerHTML = h;
+  bkWorld.querySelectorAll('.bpg').forEach((el) => { const k = el.dataset.hid ? 'h' + el.dataset.hid : +el.dataset.n; BK.slots.set(k, el); io1.observe(el); io2.observe(el); });
+  if (BK.sel) BK.slots.get(BK.sel)?.classList.add('sel');
+}
+function slotHtml(p, n, side, hid, hi) {
+  const rs = n ? (n % 2 ? 'right-hand page' : 'left-hand page') : 'hidden page';
+  const label = `${n ? 'Page ' + n + ', ' : 'Hidden, '}${p.id}${p.label ? ', ' + p.label : ''}, ${rs}${p.protected ? ', protected' : ''}`;
+  const ico = (p.protected ? BK_IC.lock : '') + (hid ? BK_IC.eyeoff : '');
+  return `<div class="bpg ${side}${hid ? ' hid' : ''}" style="width:${BK.geo.pw}px;height:${BK.geo.ph}px" ${hid ? `data-hid="${hi}"` : `data-n="${n}"`} data-id="${escH(p.id)}" role="group" aria-label="${escH(label)}"><div class="ph"><span class="num" aria-hidden="true">${n || ''}</span></div><div class="cap" aria-hidden="true">${n ? `<b>${n}</b>` : ''}<span class="cid">${escH(p.id)}</span>${ico}</div></div>`;
+}
+function bkPaint(el) {
+  if (el.dataset.painted) return;
+  const hid = el.dataset.hid !== undefined, p = hid ? BK.hidden[+el.dataset.hid] : BK.pages[+el.dataset.n - 1], n = hid ? 0 : p.n;
+  const ph = el.querySelector('.ph');
+  ph.innerHTML = `<div class="page ${n % 2 ? 'recto' : 'verso'} ${p.cls} m" data-page-id="${escH(p.id)}" aria-hidden="true">${p.html}<div class="frame"></div><div class="strip"><span class="pno">${n || ''}</span><span class="send">SEND TO</span></div></div>`;
+  ph.querySelectorAll('.lines').forEach((l) => { // the same rule-drawing as the day page preview and the print build
+    const pitch = parseFloat(l.dataset.pitch || '0.26') * 96, k = Math.floor((l.clientHeight - 1) / pitch);
+    for (let i = 0; i < k; i++) { const d = document.createElement('div'); d.className = 'rule'; d.style.height = pitch + 'px'; l.appendChild(d); }
+  });
+  el.dataset.painted = '1'; BK.painted.add(el);
+}
+function bkUnpaint(el) { if (!el.dataset.painted) return; el.querySelector('.ph').innerHTML = `<span class="num" aria-hidden="true">${el.dataset.n || ''}</span>`; delete el.dataset.painted; BK.painted.delete(el); }
+// Paint in small batches so a pinch or a jump never freezes the page.
+function bkPump() {
+  BK.raf = 0; const t0 = performance.now();
+  for (const el of BK.queue) { BK.queue.delete(el); if (el.isConnected) bkPaint(el); if (performance.now() - t0 > 10) break; }
+  if (BK.queue.size) BK.raf = requestAnimationFrame(bkPump);
+}
+const io1 = new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) BK.queue.add(e.target); else BK.queue.delete(e.target); if (BK.queue.size && !BK.raf) BK.raf = requestAnimationFrame(bkPump); }, { root: bkView, rootMargin: '200px' });
+const io2 = new IntersectionObserver((es) => { for (const e of es) if (!e.isIntersecting) bkUnpaint(e.target); }, { root: bkView, rootMargin: '700px' });
+
+// ----- camera -----
+const bkFitZ = (w, h, pad = 12) => Math.min((bkView.clientWidth - 2 * pad) / w, (bkView.clientHeight - 2 * pad) / h);
+const bkBookZ = () => bkFitZ(BK.W, BK.H, 8);
+const bkSpreadZ = () => bkFitZ(2 * BK.geo.pw, BK.geo.ph + 60);
+const bkPageZ = () => bkFitZ(BK.geo.pw, BK.geo.ph + 60);
+const bkMin = () => Math.min(bkBookZ(), bkPageZ()) * 0.85, bkMax = () => Math.max(2.5, bkPageZ() * 1.8);
+function bkApply(anim) {
+  const vw = bkView.clientWidth, vh = bkView.clientHeight, m = 90;
+  BK.z = Math.min(bkMax(), Math.max(bkMin(), BK.z));
+  BK.x = Math.min(vw - m, Math.max(m - BK.W * BK.z, BK.x)); BK.y = Math.min(vh - m, Math.max(m - BK.H * BK.z, BK.y));
+  bkView.classList.toggle('anim', !!anim && !reduceMotion());
+  bkWorld.style.transform = `translate(${BK.x}px, ${BK.y}px) scale(${BK.z})`;
+  bkView.style.setProperty('--z', BK.z.toFixed(4));
+  bkView.dataset.lod = BK.z < 0.28 ? 'far' : BK.z < 0.5 ? 'mid' : 'near';
+  const b = bkBookZ(), sp = bkSpreadZ(), pg = bkPageZ();
+  BK.level = BK.z <= b * 1.08 ? 'book' : BK.z <= sp * 1.12 ? 'spread' : BK.z <= pg * 1.12 ? 'page' : 'detail';
+  if (BK.want === 'page' && Math.abs(BK.z - pg) / pg < 0.01) BK.level = 'page'; // on a wide window one page and one spread fit at the same zoom: keep the one asked for
+  document.querySelectorAll('[data-lv]').forEach((x) => x.setAttribute('aria-pressed', x.dataset.lv === BK.level));
+  $('#bk-zl').textContent = Math.round(BK.z * 100) + '%';
+  bkView.dataset.z = BK.z.toFixed(3);
+}
+function bkRect(x, y, w, h, anim, pad = 12) { // fit a world rectangle in the view, centered
+  const z = Math.min(bkMax(), bkFitZ(w, h, pad)); BK.z = z;
+  BK.x = (bkView.clientWidth - w * z) / 2 - x * z; BK.y = (bkView.clientHeight - h * z) / 2 - y * z; bkApply(anim);
+}
+function bkZoomAt(cx, cy, f, anim) { BK.want = null; const z0 = BK.z; BK.z = z0 * f; const z1 = Math.min(bkMax(), Math.max(bkMin(), BK.z)); BK.x = cx - (cx - BK.x) * z1 / z0; BK.y = cy - (cy - BK.y) * z1 / z0; BK.z = z1; bkApply(anim); }
+function bkFocusPage() { // the selected page, else the page nearest the middle of the view
+  if (BK.sel) return BK.sel;
+  const wx = (bkView.clientWidth / 2 - BK.x) / BK.z, wy = (bkView.clientHeight / 2 - BK.y) / BK.z, { pw, ph, gx, gy } = bkGeo();
+  const c = Math.min(BK.cols - 1, Math.max(0, Math.floor(wx / (2 * pw + gx)))), r = Math.max(0, Math.floor(wy / (ph + gy)));
+  const s = Math.min(bkSpreadCount() - 1, r * BK.cols + c), [l, rt] = BK.spreads[s];
+  return (wx - c * (2 * pw + gx) > pw ? rt || l : l || rt) || 1;
+}
+function bkLevel(lv, anim = true) {
+  if (!BK.ready) return;
+  BK.want = lv;
+  const { pw, ph } = BK.geo;
+  if (lv === 'book') return bkRect(0, 0, BK.W, BK.H, anim, 8);
+  const n = bkFocusPage(), p = bkSlotPos(n);
+  if (lv === 'spread') { const sx = p.x - (n % 2 ? pw : 0); return bkRect(sx, p.y, 2 * pw, ph + 60, anim); }
+  bkRect(p.x, p.y, pw, ph + 60, anim);
+}
+function bkSelect(n, { center = false, level } = {}) {
+  BK.slots.get(BK.sel)?.classList.remove('sel');
+  BK.sel = n || 0; if (n) BK.slots.get(n)?.classList.add('sel');
+  bkInfo();
+  if (n && (center || level)) {
+    if (level) return bkLevel(level);
+    const p = bkSlotPos(n), { pw, ph } = BK.geo, z = Math.max(BK.z, bkSpreadZ());
+    BK.z = z; BK.x = bkView.clientWidth / 2 - (p.x + pw / 2) * z; BK.y = bkView.clientHeight / 2 - (p.y + ph / 2) * z; bkApply(true);
+  }
+}
+function bkInfo() {
+  const el = $('#bk-info'), n = BK.sel;
+  if (!n) { el.innerHTML = `<span>${BK.pages.length} pages · ${bkSpreadCount()} spreads · tap a page to see its id. Read-only.</span>`; return; }
+  const p = BK.pages[n - 1], T = (BK.data.types.find((t) => t.key === p.type) || {}).name || p.type;
+  el.innerHTML = `<b>Page ${n}</b> <span>${escH(p.id)}</span> <span>${n % 2 ? 'right-hand' : 'left-hand'} · ${escH(T)}${p.label ? ' · ' + escH(p.label) : ''}</span>${p.protected ? `<span>${BK_IC.lock} protected: can move, not hide</span>` : ''}`;
+}
+function bkMsg(t, bad) { const m = $('#bk-msg'); m.textContent = t || ''; m.className = bad ? 'bad' : ''; }
+// Jump: "12", "p12", "#12", an id ("safety", "week.03.review"), a date ("2026-10-05"), or part of an id or label.
+function bkFind(q) {
+  q = q.trim().toLowerCase(); if (!q) return { err: 'Type a page number or an id.' };
+  const num = q.match(/^(?:p(?:age)?\.?\s*|#)?(\d+)$/);
+  if (num) { const n = +num[1]; return n >= 1 && n <= BK.pages.length ? { n } : { err: `There is no page ${n}. This book has pages 1 to ${BK.pages.length}.` }; }
+  const id = q.replace(/^day\./, ''), by = (f) => BK.pages.filter(f);
+  let m = by((p) => p.id.toLowerCase() === q || p.id.toLowerCase() === 'day.' + id);
+  if (!m.length) m = by((p) => p.id.toLowerCase().includes(q));
+  if (!m.length) m = by((p) => (p.label || '').toLowerCase().includes(q));
+  if (!m.length) return { err: `No page matches "${q}". Try a number, or an id like safety or week.03.review.` };
+  return { n: m[0].n, more: m.length - 1 };
+}
+function bkJump(q) {
+  const r = bkFind(q);
+  if (r.err) { bkMsg(r.err, true); return false; }
+  bkMsg(r.more ? `Page ${r.n}. ${r.more} more match${r.more > 1 ? 'es' : ''}: be more specific to see them.` : '');
+  bkSelect(r.n, { center: true }); return true;
+}
+$('#bk-jump').onsubmit = (e) => { e.preventDefault(); bkJump($('#bk-go').value); };
+$('#bk-go').addEventListener('input', () => bkMsg(''));
+$('#bk-out').onclick = () => bkZoomAt(bkView.clientWidth / 2, bkView.clientHeight / 2, 1 / 1.5, true);
+$('#bk-in').onclick = () => bkZoomAt(bkView.clientWidth / 2, bkView.clientHeight / 2, 1.5, true);
+document.querySelectorAll('[data-lv]').forEach((b) => (b.onclick = () => bkLevel(b.dataset.lv)));
+$('#bk-leg').onclick = () => { const h = $('#bk-legend'); h.hidden = !h.hidden; $('#bk-leg').setAttribute('aria-expanded', !h.hidden); bkResize(); };
+
+// ----- pointer: drag to pan, two fingers to pinch, wheel to zoom -----
+const ptrs = new Map(); let gest = null;
+bkView.addEventListener('pointerdown', (e) => {
+  if (!BK.ready) return;
+  ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  const r = bkView.getBoundingClientRect();
+  if (ptrs.size === 1) gest = { moved: false, t: e.target.closest('.bpg'), sx: e.clientX, sy: e.clientY };
+  else if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; gest = { pinch: true, d: Math.hypot(a.x - b.x, a.y - b.y) || 1, moved: true }; }
+  try { bkView.setPointerCapture(e.pointerId); } catch {} bkView.classList.remove('anim');
+});
+bkView.addEventListener('pointermove', (e) => {
+  const p = ptrs.get(e.pointerId); if (!p || !gest) return;
+  const r = bkView.getBoundingClientRect(), dx = e.clientX - p.x, dy = e.clientY - p.y;
+  if (gest.pinch && ptrs.size === 2) {
+    const [a0, b0] = [...ptrs.values()]; p.x = e.clientX; p.y = e.clientY; const [a, b] = [...ptrs.values()];
+    const mx0 = (a0.x + b0.x) / 2, my0 = (a0.y + b0.y) / 2, d = Math.hypot(a.x - b.x, a.y - b.y) || 1, mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    BK.x += mx - mx0; BK.y += my - my0; bkZoomAt(mx - r.left, my - r.top, d / gest.d); gest.d = d; return;
+  }
+  if (ptrs.size !== 1) return;
+  if (!gest.moved && Math.hypot(e.clientX - gest.sx, e.clientY - gest.sy) < 5) return;
+  gest.moved = true; bkView.classList.add('drag'); p.x = e.clientX; p.y = e.clientY; BK.x += dx; BK.y += dy; bkApply();
+});
+const endPtr = (e) => {
+  if (!ptrs.has(e.pointerId)) return; ptrs.delete(e.pointerId); bkView.classList.remove('drag');
+  if (gest && !gest.moved && e.type === 'pointerup') { const el = gest.t; if (el && el.dataset.n) bkSelect(+el.dataset.n); else bkSelect(0); }
+  if (!ptrs.size) gest = null; else if (ptrs.size === 1) gest = { moved: true };
+};
+bkView.addEventListener('pointerup', endPtr); bkView.addEventListener('pointercancel', endPtr);
+bkView.addEventListener('dblclick', (e) => { const el = e.target.closest('.bpg'); if (el && el.dataset.n) bkSelect(+el.dataset.n, { level: 'page' }); });
+bkView.addEventListener('wheel', (e) => {
+  if (!BK.ready) return; e.preventDefault(); bkView.classList.remove('anim');
+  const r = bkView.getBoundingClientRect(), k = e.deltaMode === 1 ? 33 : 1;
+  if (e.shiftKey && !e.ctrlKey) { BK.x -= e.deltaY * k; BK.y -= e.deltaX * k; bkApply(); return; }
+  if (!e.ctrlKey && Math.abs(e.deltaX) > Math.abs(e.deltaY)) { BK.x -= e.deltaX * k; BK.y -= e.deltaY * k; bkApply(); return; } // sideways trackpad swipe pans
+  bkZoomAt(e.clientX - r.left, e.clientY - r.top, Math.exp(-e.deltaY * k * (e.ctrlKey ? 0.01 : 0.0018)));
+}, { passive: false });
+bkView.addEventListener('keydown', (e) => {
+  if (!BK.ready || e.altKey || e.metaKey) return;
+  const step = e.shiftKey ? 320 : 100, k = e.key; let used = true;
+  if (k === 'ArrowLeft') { BK.x += step; bkApply(); } else if (k === 'ArrowRight') { BK.x -= step; bkApply(); }
+  else if (k === 'ArrowUp') { BK.y += step; bkApply(); } else if (k === 'ArrowDown') { BK.y -= step; bkApply(); }
+  else if (k === '+' || k === '=') bkZoomAt(bkView.clientWidth / 2, bkView.clientHeight / 2, 1.3, true);
+  else if (k === '-' || k === '_') bkZoomAt(bkView.clientWidth / 2, bkView.clientHeight / 2, 1 / 1.3, true);
+  else if (k === '0') bkLevel('book'); else if (k === '1') bkLevel('spread'); else if (k === '2') bkLevel('page');
+  else if (k === ']' || k === 'PageDown') bkSelect(Math.min(BK.pages.length, (BK.sel || 0) + 1), { center: true });
+  else if (k === '[' || k === 'PageUp') bkSelect(Math.max(1, (BK.sel || 2) - 1), { center: true });
+  else if (k === 'Home') bkSelect(1, { center: true }); else if (k === 'End') bkSelect(BK.pages.length, { center: true });
+  else if (k === 'Enter' && BK.sel) bkSelect(BK.sel, { level: 'page' });
+  else if (k === 'Escape') { bkSelect(0); bkMsg(''); }
+  else if (k === 'g' || k === '/') { $('#bk-go').focus(); }
+  else used = false;
+  if (used) e.preventDefault();
+});
+
+// ----- load + show -----
+async function bkLoadData() {
+  if (BK.data) return BK.data;
+  if (BK.loading) return BK.loading;
+  return (BK.loading = (async () => {
+    if (typeof BOOK_DATA === 'string' && BOOK_DATA) { // Artifact build: the sample book rides inside the page, gzipped
+      const bin = Uint8Array.from(atob(BOOK_DATA), (c) => c.charCodeAt(0));
+      return JSON.parse(await new Response(new Blob([bin]).stream().pipeThrough(new DecompressionStream('gzip'))).text());
+    }
+    const r = await fetch('pages-sample.json'); if (!r.ok) throw new Error('missing');
+    return r.json();
+  })());
+}
+function bkResize() { // header height for the view's height; keep the current level fitted
+  document.documentElement.style.setProperty('--hh', document.querySelector('.top').offsetHeight + 'px');
+  if (!BK.ready) return;
+  if (BK.level === 'book' || BK.level === 'spread' || BK.level === 'page') { const lv = BK.level; bkLevel(lv, false); } else bkApply();
+}
+async function showBook() {
+  document.documentElement.dataset.view = 'book'; $('#v-day').setAttribute('aria-pressed', false); $('#v-book').setAttribute('aria-pressed', true);
+  $('#ttl').innerHTML = 'Book<small>Keeping Watch · sample book, read-only</small>'; try { history.replaceState(null, '', '#book'); } catch {}
+  document.documentElement.style.setProperty('--hh', document.querySelector('.top').offsetHeight + 'px');
+  if (!BK.ready) {
+    bkMsg('Loading the sample book…');
+    try {
+      const d = await bkLoadData(); BK.data = d; BK.pages = d.pages; BK.hidden = d.hidden || [];
+      const st = document.createElement('style'); st.textContent = d.css.replace(/#pv /g, '#bk-world ') + '#bk-world .page { width: var(--pw); height: 8.5in; }'; document.head.appendChild(st);
+      $('#bk-ids').innerHTML = d.pages.map((p) => `<option value="${escH(p.id)}"></option>`).join('');
+      BK.cols = bkPickCols(); bkBuild(); BK.ready = true; bkMsg(''); bkInfo(); bkLevel('book', false);
+    } catch (e) { bkMsg('Couldn’t load the sample book. Reload the page to try again.', true); return; }
+  } else bkResize();
+  bkView.focus({ preventScroll: true });
+}
+function showDay() {
+  document.documentElement.dataset.view = 'day'; $('#v-day').setAttribute('aria-pressed', true); $('#v-book').setAttribute('aria-pressed', false);
+  $('#ttl').innerHTML = 'Day page<small>Keeping Watch · every monthly book</small>'; try { history.replaceState(null, '', location.pathname + location.search); } catch {}
+  if (document.querySelector('#main')) { fit(); meter(); }
+}
+$('#v-day').onclick = showDay; $('#v-book').onclick = showBook;
+addEventListener('resize', () => { if (document.documentElement.dataset.view === 'book') bkResize(); });
+function bkSize() { // 5.5x8.5 <-> 8.5x11: same pages, the page width changes
+  if (!BK.ready) return; const n = BK.sel, lv = BK.level;
+  BK.cols = bkPickCols(); bkBuild(); bkSelect(n); bkLevel(lv === 'detail' ? 'page' : lv, false);
+}
+
 (async function init() {
   if (store.get('kw-size') === 'letter') { size = 'letter'; $('#sz-s').setAttribute('aria-pressed', false); $('#sz-l').setAttribute('aria-pressed', true); }
   drawPalette(); drawList(); drawPreview();
@@ -741,6 +1095,7 @@ addEventListener('beforeunload', (e) => { if (MODE === 'pages' && dirty) { e.pre
     } else setStatus('Preview only: changes aren’t saved here', 'bad');
   }
   if (document.fonts) document.fonts.ready.then(() => drawPreview());
+  if (location.hash === '#book') showBook();
 })();
 </script>
 <!--__FOOT__-->

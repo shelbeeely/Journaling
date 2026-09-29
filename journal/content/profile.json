@@ -1,0 +1,58 @@
+{
+ "version": 1,
+ "person": { "name": "Shelbee" },
+ "book": {
+  "title": "Keeping Watch",
+  "subtitle": "A sky, season & self journal",
+  "slug": "keeping-watch",
+  "edition": 1,
+  "start": "2026-10"
+ },
+ "location": {
+  "place": "Spokane, WA",
+  "city": "Spokane",
+  "region": "Washington",
+  "lat": 47.6588,
+  "lon": -117.426,
+  "elevation": 600,
+  "timezone": "America/Los_Angeles",
+  "timezone_name": "Pacific Time"
+ },
+ "day_start_hour": 4,
+ "trim": "small",
+ "modules": {
+  "bus": true,
+  "sky": true,
+  "trans_support": true,
+  "therapy": true,
+  "spoons": true,
+  "pay_periods": true
+ },
+ "crisis": {
+  "lines": [
+   "988 (call or text)",
+   "text HOME to 741741",
+   "Frontier crisis line 1-877-266-1818",
+   "Trans Lifeline (877) 565-8860 (call, weekdays 10–6 PT)"
+  ]
+ },
+ "transit": {
+  "agency": "STA",
+  "site": "spokanetransit.com",
+  "app": "STA app",
+  "priority_routes": ["6", "68", "66", "32", "97", "65", "61", "62", "63", "7"],
+  "short_stops": [
+   ["K Street Station", "Cheney"],
+   ["Eagle Station", "EWU"],
+   ["West Plains TC", "W Plains"],
+   ["Spokane International Airport Concourse ", "Airport "]
+  ]
+ },
+ "paths": {
+  "support": "content/support.json",
+  "trans": "content/trans.json",
+  "clinic": "content/clinic.json",
+  "transit": "gtfs",
+  "seasons": "spokane.mjs"
+ }
+}

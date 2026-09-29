@@ -127,7 +127,7 @@ const PAPER = { k: 'paper', kind: 'choice', label: 'Paper', choices: [['lines', 
 // group: where the block sits in the "Add blocks" palette.
 export const TYPES = {
   // ---- from your day (single) ----
-  sky: { name: 'Moon, sun & season', group: 'From your day', icon: 'pm', single: true, hint: 'Moon phase, sunrise–sunset, Spokane micro-season', opts: [] },
+  sky: { name: 'Moon, sun & season', group: 'From your day', icon: 'pm', single: true, hint: 'Moon phase, sunrise–sunset, micro-season', opts: [] },
   notes: { name: 'Holidays & notes', group: 'From your day', icon: 'flag', single: true, hint: 'Prints only on days that have one', opts: [] },
   events: { name: 'Events', group: 'From your day', icon: 'clock', single: true, hint: 'One-off calendar events (days with events)', opts: [] },
   actions: { name: 'Action items', group: 'From your day', icon: 'well', single: true, hint: 'Routines from your calendar fill in first', opts: [N('count', 'Lines', 1, 8, 3), B('routines', 'Pre-fill routines'), { k: 'h', kind: 'choice', label: 'Row height', choices: [[0.24, 'Standard'], [0.3, 'Roomy'], [0.36, 'Wide']], def: 0.24 }] },
@@ -325,29 +325,32 @@ const rowsIn = (h) => Math.max(1, Math.ceil((h + 0.02) / ROW_IN)); // inches of 
 // type -> (block, colSpan) => [minimum columns, height in inches at that width]. Heights are the measured natural heights of the
 // block at 1-4 columns (small trim, real fonts) plus what each option adds (a ruled line is one pitch, and so on).
 const Pi = (b) => PITCH_IN[b.pitch] || 0.22;
-const at = (H, w) => H[Math.min(3, Math.max(0, w - 1))]; // heights measured at 1, 2, 3, 4 columns
-const more = (n, d) => Math.max(1, n / d); // a list longer than the default one wraps onto more lines
+const at = (H, w) => H[Math.min(3, Math.max(0, w - 1))] * (w <= 2 ? 1.3 : 1); // heights measured at 1, 2, 3, 4 columns (a narrow block gets extra: words wrap unevenly)
+// lines a row of items wraps to (greedy, as flex-wrap does) when `avail` px are free after the label
+const flowLines = (widths, avail) => { let lines = 1, x = 0; for (const w of widths) { if (x && x + w > avail) { lines++; x = 0; } x += w + 4; } return lines; };
+const wrapH = (b, w, itemPx, cnt) => 0.03 + 0.2 * flowLines(cnt.map(itemPx), w * (colPx + gapPx) - gapPx - (b.title || '').length * 5 - 30);
+const more = (n, d) => Math.max(1, Math.ceil(n / d)); // a list longer than the default one wraps onto more lines
 const colPx = 76.8, gapPx = 8; // a column and the gap between columns, in px (small trim; the letter trim is wider, so this is the safe one)
 const fitCols = (px) => { for (let c = 1; c < GRIDS.day.cols; c++) if (c * (colPx + gapPx) - gapPx >= px + 4) return c; return GRIDS.day.cols; };
 const hoursOf = (b) => Math.ceil((Math.max(b.to, b.from + 1) - b.from) / b.every);
 const MINSPAN = {
   sky: () => [2, 0.4], // the season line wraps on some days, so two rows at any width
   notes: () => [2, 0.15],
-  events: (b, w) => [2, at([0.39, 0.39, 0.35, 0.33], w)],
-  fact: (b, w) => [2, at([1.02, 0.46, 0.32, 0.32], w)],
+  events: (b, w) => [2, [0.39, 0.39, 0.35, 0.33][w - 1]],
+  fact: (b, w) => [2, [1.02, 0.46, 0.32, 0.32][w - 1]],
   actions: (b) => [2, 0.13 + Math.max(b.count, b.routines ? 3 : 1) * b.h], // routines fill in first: up to 2 of them sit above one blank line
   review: (b) => [Math.max(2, Object.values(b.items).filter(Boolean).length), 0.156 + b.h * 0.22],
   care: (b) => [4, 0.06 + Math.ceil((b.rows.filter((r) => r.on).length + 1) / 2) * 0.245],
   spoons: (b) => [b.count > 12 ? 3 : 2, 0.313],
-  checks: (b) => [fitCols(b.title.length * 5 + 12 + b.labels.reduce((t, l) => t + l.length * 4.3 + 16 + (b.omr ? 3 : 0), 0)), 0.2],
-  scale: (b) => [Math.min(4, (b.steps <= 5 ? 2 : 3) + (b.omr ? 1 : 0)), 0.2],
-  words: (b, w) => [2, at([1.04, 0.6, 0.31, 0.31], w) * more(b.words.length, 10)],
+  checks: (b) => { const px = 1.35 * (b.title.length * 5 + 12 + b.labels.reduce((t, l) => t + l.length * 4.3 + 16 + (b.omr ? 3 : 0), 0)), c = fitCols(px); return [c, px + 4 > c * (colPx + gapPx) - gapPx - 12 ? 0.42 : 0.2]; }, // two rows when it is a tight fit
+  scale: (b) => [fitCols(95 + 4.6 * (b.title.length + b.lo.length + b.hi.length) + (b.steps - 5) * 17 + (b.omr ? b.steps * 2 : 0)), 0.2],
+  words: (b, w) => [2, wrapH(b, w, (l) => l.length * 5 + 14, b.words) + 0.1],
   sensory: (b, w) => [2, at([0.74, 0.46, 0.31, 0.31], w) * more(Object.values(b.items).filter(Boolean).length, 4)],
   sleeptimes: () => [4, 0.2],
-  habits: (b, w) => [2, at([0.82, 0.29, 0.28, 0.2], w) * more(b.labels.length, 4)],
-  fields: (b, w) => [2, at([0.45, 0.31, 0.2, 0.2], w) * more(b.labels.length, 2)],
+  habits: (b, w) => [2, wrapH(b, w, (l) => l.length * 5 + 26, b.labels) + 0.1],
+  fields: (b, w) => [2, wrapH(b, w, (l) => l.length * 5 + 42, b.labels) + 0.1],
   weather: (b) => [b.aqi ? 4 : 3, 0.2],
-  feelings: (b) => [4, 0.277 + 0.2 * Math.ceil(b.labels.length / 2)],
+  feelings: (b) => [4, 0.5 + 0.2 * Math.ceil(b.labels.length / 2)],
   skills: () => [4, 0.477],
   urge: (b) => [4, 0.277 + 0.2 * b.labels.length],
   thought: (b, w) => { const r = b.cols === 3 ? 1 : 2; return [2, 0.281 + r * (0.1 + 0.22 * b.n) + (w < 4 ? r * 0.1 : 0)]; },

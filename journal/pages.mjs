@@ -1,7 +1,8 @@
 // Page builders: every page of a book as a pure function (data + options -> HTML), shared by the print build (render.mjs)
 // and the page editor (editor/), the way daypage.mjs is for the day page. No fs, no process: everything a page needs comes
 // in through `ctx` (see context.mjs, which loads it) so the same code runs in Node and in a browser.
-//   ctx = { D, VOL, size: 'small'|'letter', hasIcs, BUS_COV, NET, SUPPORT, TRANS, CLINIC, keeperPage, dayLayout, refs }
+//   ctx = { D, VOL, size: 'small'|'letter', hasIcs, BUS_COV, NET, PROFILE, SUPPORT, TRANS, CLINIC, keeperPage, dayLayout, refs }
+// PROFILE is content/profile.json (see profile.mjs): the person, the book's title, the place, the module switches. Nothing personal lives in this file.
 // `refs` maps {{P_x}} names to page numbers; the book assembler fills it before any page is built, and replaces the
 // {{P_x}} markers in the finished HTML. Page numbers are never hand-set.
 import { ic, box, spoon, actionZone, dayBlocks } from './daypage.mjs';
@@ -63,15 +64,17 @@ const LINEAGE = [
 // Each builder takes only data + options and returns HTML. They live in one closure so they can share the small helpers
 // (`tc`, `wkRange` ...) and read the book's context once.
 export function createPages(ctx) {
-  const { D, VOL, BUS_COV, NET, SUPPORT, TRANS, CLINIC } = ctx;
+  const { D, VOL, BUS_COV, NET, SUPPORT, TRANS, CLINIC, PROFILE } = ctx;
+  const mod = (m) => !!PROFILE.modules[m], TRANSIT = PROFILE.transit || {}, BOOK = PROFILE.book, LOC = PROFILE.location;
+  const coords = `${Math.abs(LOC.lat).toFixed(2)}° ${LOC.lat >= 0 ? 'N' : 'S'}, ${Math.abs(LOC.lon).toFixed(2)}° ${LOC.lon < 0 ? 'W' : 'E'}`;
   const ICS = ctx.hasIcs;
 function titlePage() {
   return `<div class="title">
     <div class="tmoon">${moon(90, 64)}${moon(180, 64)}${moon(270, 64)}</div>
-    <h1>Keeping Watch</h1>
-    <p class="sub">A sky, season &amp; self journal</p>
+    <h1>${esc(BOOK.title)}</h1>
+    <p class="sub">${esc(BOOK.subtitle)}</p>
     <p class="range">Book ${VOL.n} of 12 · ${VOL.label}</p>
-    <p class="place">Sky data for ${esc(D.config.place)} · ${D.config.lat.toFixed(2)}° N, ${Math.abs(D.config.lon).toFixed(2)}° W · Pacific Time</p>
+    ${mod('sky') ? `<p class="place">Sky data for ${esc(D.config.place)} · ${coords} · ${esc(LOC.timezone_name)}</p>` : ''}
     <p class="built">Built ${D.generated.slice(0, 10)}</p>
     <p class="owner">This journal belongs to<br><span class="line"></span></p>
   </div>`;
@@ -80,7 +83,7 @@ function titlePage() {
 function lineagePage() {
   return `<h2 class="pt">Where each piece comes from</h2>
   <p class="lead">Every part of this journal is borrowed from a method people used for centuries. The history shows one lesson: methods die when they get complicated. <b>Skip anything, any day.</b> A blank box is data too.</p>
-  <table class="lin">${LINEAGE.map(([a, b]) => `<tr><th>${a}</th><td>${b}</td></tr>`).join('')}</table>
+  <table class="lin">${LINEAGE.filter(([a]) => a !== 'Spoons' || mod('spoons')).map(([a, b]) => `<tr><th>${a}</th><td>${b}</td></tr>`).join('')}</table>
   <p class="small">Daily “On this day” facts come from the Computer History Museum’s This Day in History and Wikipedia’s date pages. Pioneer profiles are checked against each person’s Wikipedia article.</p>
   <p class="small">Astrology here is a reflection prompt, not a forecast. The astronomy (sunrise, sunset, moon phase, solstice) is real and calculated for ${esc(D.config.place)}.</p>${busLine()}`;
 }
@@ -89,12 +92,12 @@ function anatomyPage() {
   return `<h2 class="pt">How to use it</h2>
   <div class="steps">
     <div><h3>Each book</h3><p>Pick a <b>theme</b>${ctx.refs.theme ? ' (page {{P_THEME}})' : ''}. Carry it over from last month or start a new one.</p></div>
-    <div><h3>Each month</h3><p>Calendar, a sky &amp; seasons list, a one-page tracker, and a new-moon / full-moon page.</p></div>
+    <div><h3>Each month</h3><p>${mod('sky') ? 'Calendar, a sky &amp; seasons list, a one-page tracker, and a new-moon / full-moon page.' : 'Calendar and a one-page tracker.'}</p></div>
     <div><h3>Each week</h3><p>A two-page spread to plan, a word of the week to copy, a weekly review, and an <b>exchange spread</b> to hand to someone.</p></div>
-    <div><h3>Each day</h3><p>A full page. Header is pre-filled with the sky. Circle your mood, tick meds and meals. Rapid-log anything. Answer three evening questions.</p></div>
+    <div><h3>Each day</h3><p>A full page. ${mod('sky') ? 'Header is pre-filled with the sky. ' : ''}Circle your mood, tick meds and meals. Rapid-log anything. Answer three evening questions.</p></div>
   </div>
   <h3 class="h3b">Anatomy of a day</h3>
-  <div class="anat"><div><b class="zl">DATE / TITLE / TAGS</b> printed date; write a title and tags in the boxes</div><div><b class="zl">SKY + CHECK-IN</b> moon, sun, season; circle mood, tick meds and meals</div><div class="a3"><b class="zl">BODY</b> faint 5 mm dots: write anything</div><div><b class="zl">ACTION ITEMS</b> one task per checkbox</div><div><b class="zl">REVIEW</b> went well · was hard · tomorrow</div></div><p class="small" style="margin-top:5px"><b>At the back:</b> ${['Support p. {{P_SUPPORT}}', 'Safety plan p. {{P_SAFETY}}', ctx.refs.bus && 'Bus times p. {{P_BUS}}', ctx.refs.lineage && 'Where each piece comes from p. {{P_LINEAGE}}'].filter(Boolean).join(' · ')}</p><h3 class="h3b">Scanning pages</h3><p class="small">Every page has a black frame, seven “send to” bubbles and a small square page code (a Data Matrix) that says which book and page it is. Fill a bubble to route the scan (you choose what each shape means in your scanning app). Keep the frame and the page code clear of ink. These markers are made for your own app; the Rocketbook app won’t read them.</p>`;
+  <div class="anat"><div><b class="zl">DATE / TITLE / TAGS</b> printed date; write a title and tags in the boxes</div><div>${mod('sky') ? '<b class="zl">SKY + CHECK-IN</b> moon, sun, season; circle mood, tick meds and meals' : '<b class="zl">CHECK-IN</b> circle mood, tick meds and meals'}</div><div class="a3"><b class="zl">BODY</b> faint 5 mm dots: write anything</div><div><b class="zl">ACTION ITEMS</b> one task per checkbox</div><div><b class="zl">REVIEW</b> went well · was hard · tomorrow</div></div><p class="small" style="margin-top:5px"><b>At the back:</b> ${['Support p. {{P_SUPPORT}}', 'Safety plan p. {{P_SAFETY}}', ctx.refs.bus && 'Bus times p. {{P_BUS}}', ctx.refs.lineage && 'Where each piece comes from p. {{P_LINEAGE}}'].filter(Boolean).join(' · ')}</p><h3 class="h3b">Scanning pages</h3><p class="small">Every page has a black frame, seven “send to” bubbles and a small square page code (a Data Matrix) that says which book and page it is. Fill a bubble to route the scan (you choose what each shape means in your scanning app). Keep the frame and the page code clear of ink. These markers are made for your own app; the Rocketbook app won’t read them.</p>`;
 }
 
 function keyPage() {
@@ -111,7 +114,7 @@ function keyPage() {
     <div><h3>Signs</h3><div class="gl-list">${signs}</div>
       <h3>Planets</h3><div class="gl-list">${planets}</div>
       <h3>Check-in</h3>
-      <p class="small"><b>Mood</b> −3 very low · 0 steady · +3 very high/wired<br><b>Spoons</b> ${spoon()} the X4 counts the spoons you have <b>left</b>. A <b>good-spoon day</b> ends with 4 or more left.</p>
+      <p class="small"><b>Mood</b> −3 very low · 0 steady · +3 very high/wired${mod('spoons') ? `<br><b>Spoons</b> ${spoon()} the X4 counts the spoons you have <b>left</b>. A <b>good-spoon day</b> ends with 4 or more left.` : ''}</p>
       <p class="small lives"><b>What lives where.</b> Paper is the record: meds, meals, water, mood, work shift, routines, events, writing and the safety plan. The X4 takes the counting: spoons left, sleep, anxiety and shower, teeth, joy, texted, snack. Your own check-ins are on both. If they differ, trust the book.</p>
     </div>
   </div>
@@ -134,7 +137,7 @@ function seasonGoal() {
 const tc = (n) => n.replace(/ Transit Center/g, ' TC').replace(/ Park & Ride/g, ' P&R').replace(/^To /, '');
 // STA schedules from static GTFS (gtfs/network.json, built by gtfs/network.py): a network summary + hour grids.
 // route that runs every 20+ minutes (frequent routes are covered by the summary). Packed into GRID_PAGE_BUDGET pages.
-const GRID_PRIORITY = ['6', '68', '66', '32', '97', '65', '61', '62', '63', '7'];
+const GRID_PRIORITY = TRANSIT.priority_routes || []; // profile transit.priority_routes: your routes get grids first
 const GRID_PAGE_BUDGET = 4, GRID_PAGE_ROWS = 34;
 function packGrids(E) {
   const all = Object.keys(E.grids).filter((r) => NET.routes[r]);
@@ -154,15 +157,15 @@ function packGrids(E) {
   return pagesOut.map((p) => p.routes);
 }
 const DAY3 = [['weekday', 'WKDY'], ['saturday', 'SAT'], ['sunday', 'SUN']];
-const shortStop = (n) => tc(n || '').replace('K Street Station', 'Cheney').replace('Eagle Station', 'EWU').replace('West Plains TC', 'W Plains').replace(/ \(.*?\)/g, '').replace('Spokane International Airport Concourse ', 'Airport ');
+const shortStop = (n) => (TRANSIT.short_stops || []).reduce((t, [from, to]) => t.replace(from, to), tc(n || '')).replace(/ \(.*?\)/g, '');
 function busMeta() {
   const E = NET.months[VOL.id];
   const ymd = (s) => `${s.slice(4, 6).replace(/^0/, '')}/${s.slice(6).replace(/^0/, '')}/${s.slice(2, 4)}`;
   const until = new Date(Date.UTC(+NET.valid_to.slice(0, 4), +NET.valid_to.slice(4, 6) - 1, +NET.valid_to.slice(6))).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
   const from = new Date(Date.UTC(+NET.valid_from.slice(0, 4), +NET.valid_from.slice(4, 6) - 1, +NET.valid_from.slice(6))).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
   const startsLate = `${NET.valid_from.slice(0, 4)}-${NET.valid_from.slice(4, 6)}` === VOL.id && NET.valid_from.slice(6) !== '01';
-  const valid = BUS_COV === 'partial' ? `<p class="busvalid">${startsLate ? `Schedule starts ${from} · check spokanetransit.com before` : `Schedule valid through ${until} · check spokanetransit.com after`}</p>` : '';
-  return { E, valid, note: `STA schedule ${ymd(NET.valid_from)}–${ymd(NET.valid_to)}.` };
+  const valid = BUS_COV === 'partial' ? `<p class="busvalid">${startsLate ? `Schedule starts ${from} · check ${TRANSIT.site} before` : `Schedule valid through ${until} · check ${TRANSIT.site} after`}</p>` : '';
+  return { E, valid, note: `${TRANSIT.agency} schedule ${ymd(NET.valid_from)}–${ymd(NET.valid_to)}.` };
 }
 function netPage(part) {
   const { E, note, valid } = busMeta();
@@ -170,7 +173,7 @@ function netPage(part) {
   const half = Math.ceil(ids.length / 2), mine = part === 0 ? ids.slice(0, half) : ids.slice(half);
   const cell = (x) => x ? `${x.span.replace(/:00/g, '')}${x.every ? ` <b>${x.every === 7.5 ? '7–8' : x.every}</b>` : ''}` : '<span class="dim">no service</span>';
   const rows = mine.map((r) => `<tr><td class="rn">${esc(NET.routes[r].n)}</td><td class="rname">${esc(NET.routes[r].name)}</td>${DAY3.map(([k]) => `<td>${cell(E.summary[r][k])}</td>`).join('')}</tr>`).join('');
-  return `<h2 class="pt">${part === 0 ? 'STA at a glance' : 'STA at a glance, cont.'}</h2>${valid}<p class="small">First–last bus, then <b>minutes between buses</b> at midday.</p>
+  return `<h2 class="pt">${part === 0 ? `${TRANSIT.agency} at a glance` : `${TRANSIT.agency} at a glance, cont.`}</h2>${valid}<p class="small">First–last bus, then <b>minutes between buses</b> at midday.</p>
   <table class="net"><colgroup><col class="c1"><col class="c2"><col><col><col></colgroup><tr><th></th><th>Route</th>${DAY3.map(([, l]) => `<th>${l}</th>`).join('')}</tr>${rows}</table>
   ${part === 1 ? `<p class="small">${note} Gaps are typical 7a–6p. Holidays run the Sunday schedule. Next pages: minutes past the hour at the first stop named, → where the bus is headed. Weekday times are from ${E.samples.weekday.slice(5).replace('-', '/')}; EWU break days can differ.</p>` : ''}`;
 }
@@ -240,9 +243,9 @@ function dirPage(title, intro, data) {
   return `<h2 class="pt">${title}</h2><p class="small">${intro}</p>
   ${data.map(([h, items]) => `<h3 class="sh">${h}</h3>${items.map(([n, d, c]) => `<div class="sup"><div class="sn"><b>${n}</b>${chip(c)}</div><div class="sd">${d}</div></div>`).join('')}`).join('')}`;
 }
-const busLine = () => BUS_COV === 'none' ? '<div class="busbox"><b>Bus times:</b> spokanetransit.com or the STA app</div>' : '';
+const busLine = () => mod('bus') && BUS_COV === 'none' ? `<div class="busbox"><b>Bus times:</b> ${TRANSIT.site} or the ${TRANSIT.app}</div>` : '';
 const supportPage = () => dirPage('Support', '<span class="chip tx">TEXT</span> means you can text instead of talking. Emergency: <b>911</b>. 988’s LGBTQ+ “press 3” option ended July 2025. Checked Sep 2026.', SUPPORT);
-const transPage = () => dirPage('Trans support', 'For trans people in Spokane and Washington. <span class="chip tx">TEXT</span> means you can message instead of calling. Checked Sep 2026.', TRANS);
+const transPage = () => dirPage('Trans support', `For trans people in ${LOC.city} and ${LOC.region}. <span class="chip tx">TEXT</span> means you can message instead of calling. Checked Sep 2026.`, TRANS);
 // Last page of each monthly book: the handoff to the Keeper (page numbers from out/keeper/index.json).
 function closingPage() {
   const kp = ctx.keeperPage; // Keeper handoff page for this book (out/keeper/index.json), if the Keeper is built
@@ -253,8 +256,8 @@ function closingPage() {
   return `<h2 class="pt">Closing ${VOL.label}</h2>
   <p class="small">Do this with your Keeper open${kp ? ` to <b>page ${kp}</b>` : ''}, before starting ${nextName}. About 15 minutes.</p>
   <h3 class="sh">1 · Total the month</h3>
-  ${handoffHtml({ trackerPage: ctx.refs.tracker ? '{{P_TRACKER}}' : 0, caption: (tag, where) => `<p class="src"><b>${tag}</b> · ${where}</p>`, grid: (h) => `<div class="qg">${h}</div>`, cell: st })}
-  <p class="small">${GOOD_SPOON_NOTE}</p>
+  ${handoffHtml({ omit: mod('spoons') ? [] : ['spoons'], trackerPage: ctx.refs.tracker ? '{{P_TRACKER}}' : 0, caption: (tag, where) => `<p class="src"><b>${tag}</b> · ${where}</p>`, grid: (h) => `<div class="qg">${h}</div>`, cell: st })}
+  ${mod('spoons') ? `<p class="small">${GOOD_SPOON_NOTE}</p>` : ''}
   <h3 class="sh">2 · Hand off to the Keeper${kp ? ` (p. ${kp}–${kp + 1})` : ''}</h3>
   ${step('Copy the totals, highs, lows and health notes')}${step('Add new contacts and birthdays')}${step('Update account hints and where recovery codes are kept')}${step('Index pages worth finding later (this is <b>Book ' + VOL.n + '</b>)')}${step('Back up the X4 log: Wi-Fi sync → download')}
   <h3 class="sh">3 · Carry forward</h3>
@@ -278,7 +281,7 @@ function safetyPage() {
   ${q(2, 'Things I can do on my own to feel a little better')}
   ${q(3, 'People or places that help me get my mind off it')}
   <div class="sq" style="margin-bottom:5px"><b>4. People I can text or call for help</b>${person()}${person()}${person()}</div>
-  ${q(5, 'Professionals and crisis lines: my therapist, my prescriber; 988 (call or text); text HOME to 741741; Frontier crisis line 1-877-266-1818; Trans Lifeline (877) 565-8860 (call, weekdays 10–6 PT)')}
+  ${q(5, `Professionals and crisis lines: my therapist, my prescriber; ${PROFILE.crisis.lines.join('; ')}`)}
   ${q(6, 'How I can make my space safer (meds, other things)')}
   ${q(7, 'What matters to me, worth staying for', 'l2')}
   <div class="script"><b>A text I can send when talking is too hard:</b><br>“Hey, I’m having a hard time. I’m not up for a call. Can you text with me for a bit?”</div>`;
@@ -452,12 +455,13 @@ function exchange(W, side) {
 // page id (never a position), `type` is the layout.json type, `html` is built lazily (after page numbers are known).
 // align: 'verso' means the entry's first page must open on a left-hand page, so a Notes page is added before it when needed.
 // ref: the {{P_x}} name that points at this entry's first page. protected: can be moved but never hidden.
+// module: a profile module switch (profile.mjs MODULES); with it off the entry is left out of the book, so no page refers to it.
 const cache = new WeakMap();
 const pagesFor = (ctx) => cache.get(ctx) || cache.set(ctx, createPages(ctx)).get(ctx);
 const one = (o) => [{ cls: '', date: '', shared: false, label: '', ...o }];
 const wkId = (W) => String(W.gi + 1).padStart(2, '0');
 export const PAGE_TYPES = {
-  title: { name: 'Title page', scope: 'book', build: (ctx) => one({ cls: 'title', type: 'title', id: 'title', label: 'Keeping Watch', html: () => pagesFor(ctx).titlePage() }) },
+  title: { name: 'Title page', scope: 'book', build: (ctx) => one({ cls: 'title', type: 'title', id: 'title', label: ctx.PROFILE.book.title, html: () => pagesFor(ctx).titlePage() }) },
   blank: { name: 'Blank page', scope: 'book', build: () => one({ type: 'blank', id: 'blank', shared: true, html: () => '<div class="blankpage"></div>' }) },
   anatomy: { name: 'How to use it', scope: 'book', build: (ctx) => one({ type: 'anatomy', id: 'anatomy', label: 'How to use it', html: () => pagesFor(ctx).anatomyPage() }) },
   key: { name: 'Key', scope: 'book', build: (ctx) => one({ type: 'key', id: 'key', label: 'Key', shared: true, html: () => pagesFor(ctx).keyPage() }) },
@@ -466,9 +470,9 @@ export const PAGE_TYPES = {
   contacts: { name: 'Quick contacts', scope: 'book', build: (ctx) => one({ type: 'contacts', id: 'contacts', label: 'Quick contacts', shared: true, html: () => pagesFor(ctx).contactsPage() }) },
   theme: { name: 'Season theme', scope: 'book', ref: 'theme', build: (ctx) => one({ type: 'theme', id: 'theme', label: 'Season theme', html: () => pagesFor(ctx).themePage() }) },
   month_cal: { name: 'Month calendar', scope: 'month', align: 'verso', build: (ctx, { M }) => one({ type: 'month_cal', id: 'month.calendar', label: `${M.name} ${M.y}`, html: () => pagesFor(ctx).monthCalendar(M) }) },
-  month_sky: { name: 'Sky & seasons', scope: 'month', build: (ctx, { M }) => one({ type: 'month_sky', id: 'month.sky', label: `${M.name} · sky & seasons`, html: () => pagesFor(ctx).monthSky(M) }) },
+  month_sky: { name: 'Sky & seasons', scope: 'month', module: 'sky', build: (ctx, { M }) => one({ type: 'month_sky', id: 'month.sky', label: `${M.name} · sky & seasons`, html: () => pagesFor(ctx).monthSky(M) }) },
   month_tracker: { name: 'Month tracker', scope: 'month', ref: 'tracker', build: (ctx, { M }) => one({ type: 'month_tracker', id: 'month.tracker', label: `${M.name} · tracker`, html: () => pagesFor(ctx).monthTracker(M) }) },
-  month_moon: { name: 'Moon pages', scope: 'month', build: (ctx, { M }) => one({ type: 'month_moon', id: 'month.moon', label: `${M.name} · moon pages`, html: () => pagesFor(ctx).monthMoonPage(M) }) },
+  month_moon: { name: 'Moon pages', scope: 'month', module: 'sky', build: (ctx, { M }) => one({ type: 'month_moon', id: 'month.moon', label: `${M.name} · moon pages`, html: () => pagesFor(ctx).monthMoonPage(M) }) },
   week_left: { name: 'Week plan (left)', scope: 'week', align: 'verso', build: (ctx, { W }) => one({ type: 'week_left', id: `week.${wkId(W)}.left`, label: `${W.label} · ${pagesFor(ctx).wkRange(W)}`, html: () => pagesFor(ctx).weekLeft(W) }) },
   week_right: { name: 'Week plan (right)', scope: 'week', build: (ctx, { W }) => one({ type: 'week_right', id: `week.${wkId(W)}.right`, label: W.label, html: () => pagesFor(ctx).weekRight(W) }) },
   days: { name: 'Day pages', scope: 'week', build: (ctx, { W }) => W.days.map((d) => ({ cls: 'dayp', type: 'dayp', id: `day.${d.date}`, label: d.date, date: d.date, shared: false, html: () => pagesFor(ctx).dayFull(d) })) },
@@ -481,15 +485,15 @@ export const PAGE_TYPES = {
   month_review: { name: 'Looking back on the month', scope: 'book', align: 'verso', build: () => one({ type: 'month_review', id: 'month_review', label: 'Looking back on the month', shared: true, html: () => `<h2 class="pt">Looking back on the month</h2><div class="boxline">My theme was</div><div data-zone="review_theme" class="lines l2"></div><div class="boxline">What the trackers showed me</div><div data-zone="review_trackers" class="lines l6"></div><div class="boxline">Which parts of this journal I actually used</div><div data-zone="review_used" class="lines l4"></div><div class="boxline">What to change in the next edition</div><div data-zone="review_change" class="lines l6"></div>` }) },
   closing: { name: 'Closing the month', scope: 'book', protected: true, build: (ctx) => one({ type: 'closing', id: 'closing', label: `Closing ${ctx.VOL.label}`, html: () => pagesFor(ctx).closingPage() }) },
   support: { name: 'Support', scope: 'book', protected: true, ref: 'support', build: (ctx) => one({ type: 'support', id: 'support', label: 'Support', shared: true, html: () => pagesFor(ctx).supportPage() }) },
-  trans_support: { name: 'Trans support', scope: 'book', build: (ctx) => one({ type: 'trans', id: 'trans_support', label: 'Trans support', shared: true, html: () => pagesFor(ctx).transPage() }) },
+  trans_support: { name: 'Trans support', scope: 'book', module: 'trans_support', build: (ctx) => one({ type: 'trans', id: 'trans_support', label: 'Trans support', shared: true, html: () => pagesFor(ctx).transPage() }) },
   safety: { name: 'My safety plan', scope: 'book', protected: true, ref: 'safety', build: (ctx) => one({ type: 'safety', id: 'safety', label: 'My safety plan', shared: true, html: () => pagesFor(ctx).safetyPage() }) },
-  // STA pages exist only when the schedule feed covers the book (none: a one-line note on the lineage page instead).
-  bus: { name: 'Bus times', scope: 'book', align: 'verso', ref: 'bus', build: (ctx) => {
+  // Bus pages exist only with the bus module on and a schedule feed that covers the book (none: a one-line note on the lineage page instead).
+  bus: { name: 'Bus times', scope: 'book', align: 'verso', ref: 'bus', module: 'bus', build: (ctx) => {
     if (!ctx.NET || ctx.BUS_COV === 'none') return [];
     const P = pagesFor(ctx);
     return [
-      { cls: '', date: '', shared: false, type: 'bus', id: 'bus.net.1', label: 'STA at a glance', html: () => P.netPage(0) },
-      { cls: '', date: '', shared: false, type: 'bus', id: 'bus.net.2', label: 'STA at a glance, cont.', html: () => P.netPage(1) },
+      { cls: '', date: '', shared: false, type: 'bus', id: 'bus.net.1', label: `${ctx.PROFILE.transit.agency} at a glance`, html: () => P.netPage(0) },
+      { cls: '', date: '', shared: false, type: 'bus', id: 'bus.net.2', label: `${ctx.PROFILE.transit.agency} at a glance, cont.`, html: () => P.netPage(1) },
       ...P.packGrids(ctx.NET.months[ctx.VOL.id]).map((g, gi) => ({ cls: '', date: '', shared: false, type: 'bus_grid', id: `bus.grid.${gi + 1}`, label: `Bus times · routes ${P.gridRoutes(g)}`, html: () => P.gridPage(g) }))];
   } },
   lineage: { name: 'Where each piece comes from', scope: 'book', ref: 'lineage', build: (ctx) => one({ type: 'lineage', id: 'lineage', label: 'Where each piece comes from', html: () => pagesFor(ctx).lineagePage() }) },

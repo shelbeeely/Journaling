@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Export the paper journal's generated data into SD-card packs for the X4 firmware.
 
-Reads journal/out/m<YYYY-MM>/data.json (written by render.mjs) plus content/support.json,
-trans.json and clinic.json, and writes an UPDATE folder, never the card's own kw/ folder:
+Reads journal/out/m<YYYY-MM>/data.json (written by render.mjs) plus the support, trans and clinic lists named in
+journal/content/profile.json (paths; trans only when the trans_support module is on), and writes an UPDATE folder, never the card's own kw/ folder:
   sd/kw-update/<YYYY-MM>.txt   one section per day ("@YYYY-MM-DD"), key=value lines, UTF-8
   sd/kw-update/support.txt     the Support screen (sections "#", entries "name|detail|how")
-  sd/kw-update/checkins.txt    custom check-ins from content/daypage.json ("@group", "key|label|kind|lo|hi|def[|options]")
+  sd/kw-update/checkins.txt    custom check-ins from content/daypage.json ("@group", "key|label|kind|lo|hi|def[|options]");
+                               its first line ends "· profile day_start=4 tz=...": the profile's day-start hour, for firmware that reads it
   sd/kw-update/library/*.pdf, *.epub   the books
   sd/kw-update/me.example.txt  a starter safety plan to read or copy from (the X4 ignores it)
 Copy the kw-update folder to the card root. On boot the X4 moves these files into /kw and deletes /kw-update.
@@ -17,8 +18,20 @@ Usage: python3 tools/export_pack.py <journal dir> <sd dir> [YYYY-MM ...]   (defa
 import json, os, sys, glob, re, math
 
 J, SD = sys.argv[1], sys.argv[2]
-months = sys.argv[3:] or sorted(os.path.basename(p)[1:] for p in glob.glob(f'{J}/out/m20??-??') if os.path.isdir(p))
+OUTDIR = os.environ.get('KW_OUT') or f'{J}/out'  # where the books were built (the journal's out/; KW_OUT for test builds)
+months = sys.argv[3:] or sorted(os.path.basename(p)[1:] for p in glob.glob(f'{OUTDIR}/m20??-??') if os.path.isdir(p))
 OUT = f'{SD}/kw-update'  # the card's own /kw is never an export target
+# The profile (journal/content/profile.json, or KW_PROFILE): title, day-start hour, module switches, content paths.
+PROFILE_FILE = os.environ.get('KW_PROFILE') or f'{J}/content/profile.json'
+try: PROFILE = json.load(open(PROFILE_FILE, encoding='utf-8'))
+except (FileNotFoundError, ValueError) as ex: sys.exit(f'export_pack: cannot read the profile {PROFILE_FILE} ({ex}). See journal/README.md, "Profile".')
+TITLE, SLUG, MODS, PATHS = PROFILE['book']['title'], PROFILE['book']['slug'], PROFILE['modules'], PROFILE.get('paths', {})
+def content(key):  # a content list named by the profile (paths are relative to the journal dir); None when the profile has none
+    p = PATHS.get(key)
+    if not p: return None
+    if not os.path.exists(f'{J}/{p}'): sys.exit(f'export_pack: profile paths.{key} points to {p}, which does not exist')
+    return json.load(open(f'{J}/{p}', encoding='utf-8'))
+
 os.makedirs(OUT, exist_ok=True)
 strip = lambda s: re.sub(r'<[^>]+>', '', s).replace('&amp;', '&').replace('\n', ' ').strip()
 
@@ -41,6 +54,7 @@ CHECKIN_TYPES = {  # type: (kind, hi, default title, title max, default labels, 
     'sites': ('choice', None, 'Site', 14, ['L thigh', 'R thigh', 'L belly', 'R belly'], 8),  # injection site rotation: always exported; pick one site
 }
 FOCUS_KEY = 'focus_rounds'  # firmware core/data.h KEY_FOCUS_ROUNDS
+THERAPY = ('feelings', 'skills', 'urge')  # journal/profile.mjs MODULE_BLOCKS.therapy (thought record has no X4 item)
 X4_OPT_IN = ('words', 'feelings', 'skills', 'urge')  # exported only with the block's "x4" option
 CHOICE_MAX, CHOICE_LEN = 8, 12  # options per choice, characters per option (the firmware's limits)
 X4_MAXES = (5, 10, 20, 50, 99, 200, 999)  # journal/daypage.mjs X4_MAXES; anything else falls back to 99
@@ -82,6 +96,7 @@ def checkins(path):
     for b in L['blocks']:
         if not isinstance(b, dict) or b.get('type') not in CHECKIN_TYPES or not b.get('on', True): continue
         t = b['type']; kind, hi, dtitle, tmax, dlabels, lmax = CHECKIN_TYPES[t]
+        if t in THERAPY and not MODS['therapy']: continue  # the profile's therapy module is off
         if t in X4_OPT_IN and not opt_bool(b, 'x4'): continue  # these print only, unless "Also on X4" is on
         uid = b.get('uid') if isinstance(b.get('uid'), str) and re.fullmatch(r'[\w-]{1,40}', b.get('uid')) else t
         uid = re.sub(r'[^a-z0-9_]', '_', uid.lower()); base, n = uid, 2
@@ -159,13 +174,16 @@ def checkins(path):
 # can show which build is on the card, and so a clock set before it can be caught.
 def built_stamp():
     for mid in months:
-        try: return json.load(open(f'{J}/out/m{mid}/data.json'))['generated'][:10]
+        try: return json.load(open(f'{OUTDIR}/m{mid}/data.json'))['generated'][:10]
         except (FileNotFoundError, KeyError, ValueError): pass
     import datetime; return datetime.date.today().isoformat()
 BUILT = built_stamp()
 
 ck, n = checkins(f'{J}/content/daypage.json')
 ck[0] += f' · built {BUILT}'
+# The day starts at this hour for the paper book (profile day_start_hour); the firmware's own DAY_STARTS_HOUR must match it (test-profile.mjs checks).
+# It rides in the first (comment) line, after the build stamp the firmware reads: the pack's record of the profile, ignored by today's firmware.
+ck[0] += f" · profile day_start={PROFILE['day_start_hour']} tz={PROFILE['location']['timezone']}"
 open(f'{OUT}/checkins.txt', 'w', encoding='utf-8').write('\n'.join(ck) + '\n')
 print('checkins', n, 'items')
 
@@ -187,7 +205,7 @@ PLANET = {0: ('☉', 'Sun'), 1: ('☽', 'Moon'), 2: ('♂', 'Mars'), 3: ('☿', 
 def dur(m): return f'{m // 60}h {m % 60:02d}m'
 
 for mid in months:
-    D = json.load(open(f'{J}/out/m{mid}/data.json'))
+    D = json.load(open(f'{OUTDIR}/m{mid}/data.json'))
     week_of = {}
     for W in D['weeks']:
         for d in W['days']:
@@ -195,14 +213,14 @@ for mid in months:
     # Printed page of each day in the paper book (layout.json; identical in both trims), so Today can say "book p. 26".
     page_of = {}
     try:
-        for pg in json.load(open(f'{J}/out/m{mid}/layout.json'))['pages']:
+        for pg in json.load(open(f'{OUTDIR}/m{mid}/layout.json'))['pages']:
             if pg.get('date') and pg.get('type') == 'dayp': page_of[pg['date']] = pg['page']
     except FileNotFoundError:
         print(f'pack {mid}: no layout.json, so no page numbers on Today')
     stamp = D.get('generated', BUILT)[:10]
-    out = [f'# Keeping Watch day pack {mid} · generated from the paper journal build · built {stamp}']
+    out = [f'# {TITLE} day pack {mid} · generated from the paper journal build · built {stamp}']
     try:
-        kp = json.load(open(f'{J}/out/keeper/index.json'))['handoff_page'].get(mid)
+        kp = json.load(open(f'{OUTDIR}/keeper/index.json'))['handoff_page'].get(mid)
         if kp: out.append(f'keeper={kp}')
     except FileNotFoundError:
         pass
@@ -238,22 +256,24 @@ import shutil
 if not os.environ.get('KW_NO_LIBRARY'):  # previews and CI sample cards skip the 57 MB of books
     lib = f'{OUT}/library'; os.makedirs(lib, exist_ok=True)
     for mid in months:
-        for src in glob.glob(f'{J}/out/m{mid}/keeping-watch-*') + glob.glob(f'{J}/out/m{mid}-letter/keeping-watch-*'):
+        for src in glob.glob(f'{OUTDIR}/m{mid}/{SLUG}-*') + glob.glob(f'{OUTDIR}/m{mid}-letter/{SLUG}-*'):
             if src.endswith(('.pdf', '.epub')) and not src.endswith('-cover.pdf'): shutil.copy(src, lib)  # covers are for KDP, not for reading
-    for src in glob.glob(f'{J}/out/keeper/*.pdf') + glob.glob(f'{J}/out/keeping-watch-support-pages.pdf'):
+    for src in glob.glob(f'{OUTDIR}/keeper/*.pdf') + glob.glob(f'{OUTDIR}/{SLUG}-support-pages.pdf'):
         if not src.endswith('-cover.pdf'): shutil.copy(src, lib)
     print('library', len(os.listdir(lib)), 'files', sum(os.path.getsize(os.path.join(lib, f)) for f in os.listdir(lib)) // (1024 * 1024), 'MB')
 
 # Support screen
-C = json.load(open(f'{J}/content/clinic.json'))
+C = content('clinic')
 lines = [f'# Support · checked Sep 2026 · built {BUILT}']
-for fname in ('support.json', 'trans.json'):
-    for h, items in json.load(open(f'{J}/content/{fname}')):
+for key in ('support', 'trans'):
+    if key == 'trans' and not MODS['trans_support']: continue
+    for h, items in content(key) or []:
         lines.append(f'#{strip(h)}')
         for n, dsc, c in items: lines.append(f'{strip(n)}|{strip(dsc)}|{c}')
-lines.append('#My clinic')
-lines.append(f"{strip(C['name'])}|{strip(C['address'])}|VISIT")
-for k, dsc, c in C['lines']: lines.append(f'{strip(k)}|{strip(dsc)}|{c}')
+if C:
+    lines.append('#My clinic')
+    lines.append(f"{strip(C['name'])}|{strip(C['address'])}|VISIT")
+    for k, dsc, c in C['lines']: lines.append(f'{strip(k)}|{strip(dsc)}|{c}')
 open(f'{OUT}/support.txt', 'w').write('\n'.join(lines) + '\n')
 # Never me.txt: the X4 holds the real safety plan, and a blank one in an update would replace it. This is a reference copy only.
 open(f'{OUT}/me.example.txt', 'w').write('''# Example safety plan. The X4 ignores this file and never replaces your real plan with it.
