@@ -127,7 +127,7 @@ const PAPER = { k: 'paper', kind: 'choice', label: 'Paper', choices: [['lines', 
 // group: where the block sits in the "Add blocks" palette.
 export const TYPES = {
   // ---- from your day (single) ----
-  sky: { name: 'Moon, sun & season', group: 'From your day', icon: 'pm', single: true, hint: 'Moon phase, sunrise–sunset, Spokane micro-season', opts: [] },
+  sky: { name: 'Moon, sun & season', group: 'From your day', icon: 'pm', single: true, hint: 'Moon phase, sunrise–sunset, micro-season', opts: [] },
   notes: { name: 'Holidays & notes', group: 'From your day', icon: 'flag', single: true, hint: 'Prints only on days that have one', opts: [] },
   events: { name: 'Events', group: 'From your day', icon: 'clock', single: true, hint: 'One-off calendar events (days with events)', opts: [] },
   actions: { name: 'Action items', group: 'From your day', icon: 'well', single: true, hint: 'Routines from your calendar fill in first', opts: [N('count', 'Lines', 1, 8, 3), B('routines', 'Pre-fill routines'), { k: 'h', kind: 'choice', label: 'Row height', choices: [[0.24, 'Standard'], [0.3, 'Roomy'], [0.36, 'Wide']], def: 0.24 }] },

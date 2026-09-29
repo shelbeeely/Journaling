@@ -1,0 +1,15 @@
+[
+ [
+  "Right now, any hour",
+  [
+   ["988 Suicide &amp; Crisis Lifeline", "Call or text <b>988</b>, or chat at 988lifeline.org. 24/7, free.", "TEXT CALL CHAT"],
+   ["Crisis Text Line", "Text <b>HOME</b> to <b>741741</b>. 24/7.", "TEXT"]
+  ]
+ ],
+ [
+  "Add your own",
+  [
+   ["Your local crisis line", "Write the number and what it is for. Replace this list with people and services near you (a content pack: see journal/README.md).", ""]
+  ]
+ ]
+]

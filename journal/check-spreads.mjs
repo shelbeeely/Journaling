@@ -2,6 +2,7 @@
 // and the first/last book must not point at a book that doesn't exist.
 //   node check-spreads.mjs out/m2026-10 [out/m2026-10-letter ...]
 import { readFileSync } from 'node:fs';
+import { firstMonthId, lastMonthId } from './profile.mjs';
 let bad = 0;
 for (const dir of process.argv.slice(2)) {
   const html = readFileSync(`${dir}/journal.html`, 'utf8');
@@ -17,8 +18,8 @@ for (const dir of process.argv.slice(2)) {
     if (isX(p, 'Reply') && (n % 2 !== 1 || !pages[i - 1] || !isX(pages[i - 1], 'Exchange'))) errs.push(`Reply p${n} does not face its Exchange`);
   });
   const id = /m(\d{4}-\d{2})/.exec(dir)?.[1];
-  if (id === '2026-10' && /in the previous book/.test(html)) errs.push('first book says "previous book"');
-  if (id === '2027-09' && /in the next book/.test(html)) errs.push('last book says "next book"');
+  if (id === firstMonthId() && /in the previous book/.test(html)) errs.push('first book says "previous book"');
+  if (id === lastMonthId() && /in the next book/.test(html)) errs.push('last book says "next book"');
   console.log(`${dir}: ${pages.length} pages, ${errs.length ? errs.join('; ') : 'ok'}`);
   bad += errs.length;
 }

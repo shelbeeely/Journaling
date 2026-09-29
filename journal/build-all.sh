@@ -14,7 +14,7 @@ dirs=()
 for m in $MONTHS; do
   for s in $SIZES; do
     if [ "$s" = letter ] && [ "${HARDCOVER:-}" = 1 ]; then echo "::notice::skipping 8.5x11 for $m: KDP has no 8.5x11 hardcover"; continue; fi
-    if [ "$s" = letter ]; then export SIZE=letter; dir=m$m-letter; else unset SIZE; dir=m$m; fi
+    if [ "$s" = letter ]; then export SIZE=letter; dir=m$m-letter; else export SIZE=small; dir=m$m; fi
     node render.mjs month "$m" "$ICS"
     node cover.mjs month "$m"
     dirs+=("out/$dir")

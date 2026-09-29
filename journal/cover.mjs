@@ -6,17 +6,20 @@
 // the spine; 0.125" margin inside the board edge; spine = pages x 0.002252" + 0.189"; 76-550 pages; no 8.5x11 trim.
 import fs from 'node:fs';
 import { launch } from './browser.mjs';
+import { PROFILE, bookNo, yearLabel } from './profile.mjs';
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const { title: TITLE, subtitle: SUBTITLE, slug: SLUG } = PROFILE.book, LOC = PROFILE.location;
 
 const KEEPER = process.argv[2] === 'keeper';
 if (!KEEPER && !(process.argv[2] === 'month' && /^\d{4}-\d{2}$/.test(process.argv[3] || ''))) { console.error('usage: node cover.mjs month <YYYY-MM> | keeper'); process.exit(1); }
-const LETTER = !KEEPER && process.env.SIZE === 'letter';
+const LETTER = !KEEPER && (process.env.SIZE || PROFILE.trim) === 'letter';
 const HC = !KEEPER && process.env.HARDCOVER === '1'; // the Keeper is always a paperback
 let VN, VOL, OUT;
-if (KEEPER) { VN = 0; VOL = { label: 'Oct 2026 – Sep 2027', short: 'Keeper' }; OUT = 'out/keeper'; }
+if (KEEPER) { VN = 0; VOL = { label: yearLabel(), short: 'Keeper' }; OUT = `${process.env.KW_OUT || 'out'}/keeper`; }
 else {
   const [y, m] = process.argv[3].split('-').map(Number);
   const name = new Date(Date.UTC(y, m - 1, 1)).toLocaleDateString('en-US', { month: 'long', timeZone: 'UTC' });
-  VN = (y - 2026) * 12 + m - 9; VOL = { label: `${name} ${y}`, short: `${name.slice(0, 3)} ${y}` }; OUT = `out/m${process.argv[3]}${LETTER ? '-letter' : ''}`;
+  VN = bookNo(y, m); VOL = { label: `${name} ${y}`, short: `${name.slice(0, 3)} ${y}` }; OUT = `${process.env.KW_OUT || 'out'}/m${process.argv[3]}${LETTER ? '-letter' : ''}`;
 }
 if (HC && LETTER) { console.error('KDP hardcover trims are 5.5x8.5, 6x9, 6.14x9.21, 7x10 and 8.25x11 (not 8.5x11): build the hardcover without SIZE=letter.'); process.exit(1); }
 // render.mjs writes pages.txt for the paperback interior and pages-hardcover.txt for the hardcover one.
@@ -60,22 +63,22 @@ h1 { font-size: 40pt; font-weight: 600; margin: 0.35in 0 0.05in; }
 <svg class="stars" width="${W}in" height="${H}in">${Array.from({ length: 140 }, (_, i) => { const x = ((i * 7919) % 1000) / 10, y = ((i * 104729) % 1000) / 10, r = (i % 5 === 0) ? 1.3 : 0.6; return `<circle cx="${x}%" cy="${y}%" r="${r}" fill="#e9dfc6" opacity="${0.25 + (i % 4) * 0.12}"/>`; }).join('')}</svg>
 <div class="panel back">
 ${KEEPER ? `<h2>The book that stays home.</h2>
-  <p>The companion to the Keeping Watch monthly journals: the people, numbers and accounts worth keeping close, on paper and offline.</p>
-  <ul><li>Important info, health and home</li><li>Contacts and birthdays</li><li>Account hints (never passwords) and where recovery codes are kept</li><li>Devices and Wi-Fi</li><li>Support and trans support numbers</li></ul>
+  <p>The companion to the ${esc(TITLE)} monthly journals: the people, numbers and accounts worth keeping close, on paper and offline.</p>
+  <ul><li>Important info, health and home</li><li>Contacts and birthdays</li><li>Account hints (never passwords) and where recovery codes are kept</li><li>Devices and Wi-Fi</li><li>Support ${PROFILE.modules.trans_support ? 'and trans support ' : ''}numbers</li></ul>
   <p style="font-size:8pt;opacity:.75">Keeper · ${VOL.label} · Private: do not scan</p>` : `
   <h2>Keep watch over the sky, the season and yourself.</h2>
   <p>Babylonian astronomers wrote the night sky next to the price of barley. Seneca reviewed each day by lamplight. Old calendars named the seasons in five-day steps. This journal borrows from all of them.</p>
-  <ul><li>Full-page days with sunrise, sunset, moon phase and sign for Spokane, WA</li><li>72 micro-seasons and the planetary week</li><li>Mood, sleep and spoons check-ins</li><li>Weekly spreads, monthly calendars and trackers</li><li>Exchange pages to share with someone</li></ul>
+  <ul><li>Full-page days with sunrise, sunset, moon phase and sign for ${esc(LOC.place)}</li><li>72 micro-seasons and the planetary week</li><li>Mood, sleep${PROFILE.modules.spoons ? ' and spoons' : ''} check-ins</li><li>Weekly spreads, monthly calendars and trackers</li><li>Exchange pages to share with someone</li></ul>
   <p style="font-size:8pt;opacity:.75">Book ${VN} of 12 · ${VOL.label} · Test edition</p>`}
 </div>
-<div class="panel spine">${SPINE >= 0.25 ? `<span>KEEPING WATCH · ${KEEPER ? 'THE KEEPER' : 'BOOK ' + VN + ' · ' + VOL.short.toUpperCase()}</span>` : ''}</div>
+<div class="panel spine">${SPINE >= 0.25 ? `<span>${esc(TITLE.toUpperCase())} · ${KEEPER ? 'THE KEEPER' : 'BOOK ' + VN + ' · ' + VOL.short.toUpperCase()}</span>` : ''}</div>
 <div class="panel front">
   <div class="row">${phases}</div>
-  <h1>Keeping Watch</h1>
-  <p class="sub">${KEEPER ? 'The Keeper' : 'A sky, season &amp; self journal'}</p>
+  <h1>${esc(TITLE)}</h1>
+  <p class="sub">${KEEPER ? 'The Keeper' : esc(SUBTITLE)}</p>
   <p class="range">${KEEPER ? 'Contacts · accounts · important info' : `Book ${VN} of 12`} · ${VOL.label}</p>
 </div>
-<div class="foot">${KEEPER ? "Private · keep at home" : "Sky data for Spokane, Washington"}</div>
+<div class="foot">${KEEPER ? "Private · keep at home" : `Sky data for ${esc(LOC.city)}, ${esc(LOC.region)}`}</div>
 </body></html>`;
 
 const NAME = HC ? 'hardcover-cover' : 'cover';
@@ -83,6 +86,6 @@ fs.writeFileSync(`${OUT}/${NAME}.html`, html);
 const b = await launch();
 const p = await b.newPage();
 await p.goto('file://' + process.cwd() + `/${OUT}/${NAME}.html`, { waitUntil: 'networkidle' }); await p.evaluate(() => document.fonts.ready);
-await p.pdf({ path: `${OUT}/keeping-watch-${KEEPER ? 'keeper' : process.argv[3] + (LETTER ? '-8.5x11' : '')}-${NAME}.pdf`, width: `${W}in`, height: `${H}in`, printBackground: true, preferCSSPageSize: true });
+await p.pdf({ path: `${OUT}/${SLUG}-${KEEPER ? 'keeper' : process.argv[3] + (LETTER ? '-8.5x11' : '')}-${NAME}.pdf`, width: `${W}in`, height: `${H}in`, printBackground: true, preferCSSPageSize: true });
 await b.close();
 console.log(`${KEEPER ? 'keeper' : process.argv[3] + (LETTER ? ' 8.5x11' : '')} ${HC ? 'hardcover' : 'paperback'} cover ${W.toFixed(3)} x ${H} in, spine ${SPINE} in`);

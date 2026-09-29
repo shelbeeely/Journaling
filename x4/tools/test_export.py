@@ -18,7 +18,7 @@ def export(blocks):
     """Returns (checkins.txt lines, printed warnings) for a layout made of `blocks`."""
     with tempfile.TemporaryDirectory() as tmp:
         content = os.path.join(tmp, 'j', 'content'); os.makedirs(content)
-        for f in ('clinic.json', 'support.json', 'trans.json'): os.symlink(os.path.abspath(os.path.join(REAL, f)), os.path.join(content, f))
+        for f in ('clinic.json', 'support.json', 'trans.json', 'profile.json'): os.symlink(os.path.abspath(os.path.join(REAL, f)), os.path.join(content, f))
         json.dump({'v': 2, 'blocks': blocks}, open(os.path.join(content, 'daypage.json'), 'w'))
         sd = os.path.join(tmp, 'sd')
         env = dict(os.environ, KW_NO_LIBRARY='1')

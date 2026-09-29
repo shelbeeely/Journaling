@@ -3,8 +3,9 @@
 import { loadContext } from '../context.mjs';
 import { assemble, DEFAULT_BOOK } from '../book.mjs';
 import { PAGE_TYPES } from '../pages.mjs';
+import { firstMonthId } from '../profile.mjs';
 
-export async function samplePages(month = '2026-10') {
+export async function samplePages(month = firstMonthId()) {
   const ctx = await loadContext({ month, ics: 'test.ics', size: 'small', quiet: true });
   ctx.CLINIC = null; // a real clinic's details do not belong in a public editor
   ctx.keeperPage = undefined; // the Keeper's page numbers are per person

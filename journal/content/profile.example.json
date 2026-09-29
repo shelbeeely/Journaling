@@ -1,0 +1,40 @@
+{
+ "version": 1,
+ "person": { "name": "Sam" },
+ "book": {
+  "title": "Northlight",
+  "subtitle": "A sky and season journal",
+  "slug": "northlight",
+  "edition": 1,
+  "start": "2026-10"
+ },
+ "location": {
+  "place": "Lakemont, MN",
+  "city": "Lakemont",
+  "region": "Minnesota",
+  "lat": 46.79,
+  "lon": -92.1,
+  "elevation": 200,
+  "timezone": "America/Chicago",
+  "timezone_name": "Central Time"
+ },
+ "day_start_hour": 5,
+ "trim": "small",
+ "modules": {
+  "bus": false,
+  "sky": true,
+  "trans_support": false,
+  "therapy": false,
+  "spoons": false,
+  "pay_periods": false
+ },
+ "crisis": {
+  "lines": ["988 (call or text)", "text HOME to 741741"]
+ },
+ "paths": {
+  "support": "content/support.generic.json",
+  "trans": null,
+  "clinic": null,
+  "seasons": null
+ }
+}

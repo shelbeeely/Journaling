@@ -14,7 +14,7 @@ What happens if you skip all of this and run `node render.mjs month 2027-10 test
 - the book has no STA bus pages (see the STA feed section)
 
 ## 1. Decide: move `EPOCH` or keep it
-`data.mjs` → `EPOCH = Date.UTC(2026, 8, 28)` is week 0 (Mon Sep 28 2026). Every week gets `gi` = weeks since `EPOCH`.
+`content/profile.json` → `book.epoch` (default: the Monday on or before the 1st of `book.start`, Mon Sep 28 2026 for the first edition) is week 0 (`data.mjs` reads it through `profile.mjs` `epochMs()`). Every week gets `gi` = weeks since then.
 `gi` indexes `WORDS`, `PROMPTS` and `PIONEERS`, and `render.mjs` prints `` `Week ${W.gi + 1}` ``.
 An edition needs 53 entries per list (index 0–52), because its first and last weeks cross into September.
 
@@ -24,19 +24,13 @@ An edition needs 53 entries per list (index 0–52), because its first and last 
 | Content lists | Replace or reuse entries 0–52. Each index lands on nearly the same calendar week (1 day earlier), so seasonal words and "Born … this week" notes still line up | Add 53 new entries at 52–104 |
 | Old edition | Rebuild it from the `edition-2026-27` tag. On the new code its months have gaps | Still builds from the same code |
 
-If you move it, fix two comments: the one above `EPOCH` in `data.mjs` ("shared by every edition"), and the `content/year.mjs` header ("week 0 = Mon Sep 28 2026").
+If you move it, fix the `content/year.mjs` header ("week 0 = Mon Sep 28 2026").
 Under the new `EPOCH`, index 0's pioneer never prints. That week's Thursday (Sep 30 2027) falls in the September book, which already went out with the old edition.
 
 ## 2. Code changes
 | File | Symbol / string | Change to |
 | --- | --- | --- |
-| `data.mjs` | `EPOCH = Date.UTC(2026, 8, 28)` and the comment above it | `Date.UTC(2027, 8, 27)` (see section 1) |
-| `render.mjs` | `bookNo = (y - 2026) * 12 + m - 9` and its comment | `(y - 2027) * 12 + m - 9`. This feeds "Book N of 12", `VOL.n < 12` on the Closing page, and "Book N + 1" |
-| `cover.mjs` | `VN = (y - 2026) * 12 + m - 9` | `(y - 2027) * 12 + m - 9` |
-| `cover.mjs` | Keeper `label: 'Oct 2026 – Sep 2027'` | `'Oct 2027 – Sep 2028'` |
-| `keeper.mjs` | `LABEL = process.argv[2] \|\| 'Oct 2026 – Sep 2027'` | `'Oct 2027 – Sep 2028'` |
-| `keeper.mjs` | handoff loop `Date.UTC(2026, 9 + i, 1)` | `Date.UTC(2027, 9 + i, 1)`. This builds `out/keeper/index.json`, which the Closing page and `export_pack.py` read |
-| `content/edition.mjs` | `EDITION = 1` | `2` (single digit). It is printed in every page code, `KW2\|<edition>\|...` |
+| `content/profile.json` | `book.start` `"2026-10"`, `book.edition` `1`, optional `book.epoch` | `"2027-10"`; `2` (single digit, printed in every page code `KW2\|<edition>\|...`); `"2027-09-27"` if you move week 0 (section 1). One place feeds the book numbers ("Book N of 12", `VOL.n < 12` on Closing), the cover numbers, the Keeper's label and month loop (which builds `out/keeper/index.json`), and `EPOCH`. The old per-file edits are gone |
 | `build-all.sh` | `MONTHS=${MONTHS:-"2026-10 … 2027-09"}` | `"2027-10 2027-11 2027-12 2028-01 … 2028-09"` |
 | `gtfs/network.py` | `months = [(2026, m) for m in (10, 11, 12)] + [(2027, m) for m in range(1, 10)]` | `[(2027, m) …] + [(2028, m) …]` |
 | `gtfs/network.py` | debug line `out['months']['2026-10']` | `'2027-10'`, or the script crashes after writing |
