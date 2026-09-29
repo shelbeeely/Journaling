@@ -6,6 +6,9 @@ journal/private/*
 # build output
 journal/out/
 journal/editor/dist/
+journal/editor/dist-demo/
+journal/out-demo/
+journal/out-sample/
 journal/node_modules
 journal/gtfs/*.txt
 journal/gtfs/sta.zip
@@ -16,3 +19,5 @@ x4/host/sd/
 *.bin
 freeink-sdk/
 .DS_Store
+site/_out/
+site/tools/node_modules/

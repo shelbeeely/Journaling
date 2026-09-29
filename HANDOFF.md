@@ -1,5 +1,31 @@
 # Handoff: where things stand (late Sep 2026)
 
+## Shelbee's build (moved here from the old README)
+The product is **Journalwright Studio**; *Keeping Watch* is Shelbee's own book (her profile). Her year is Oct 2026 to Sep 2027:
+12 monthly books for Amazon KDP (5.5x8.5 and 8.5x11), the yearly Keeper, X4 EPUBs and the day page editor, plus the X4 firmware.
+- Setup takes about 20 minutes: [SETUP.md](SETUP.md).
+- Her books, from her calendars (never committed; they live in `journal/private/`):
+
+      cd journal && npm ci && npx playwright-core install chromium && pip install pillow
+      ICS=private/main.ics,private/birthdays.ics ./build-all.sh
+      ./build-all.sh                                   # sample books from test.ics (check-identical must stay 24/24)
+      node editor/build.mjs && open editor/dist/site/index.html
+- Firmware: `cd x4/host && ./preview.sh` (every screen as PNG), then
+  `git clone https://github.com/Free-Ink/freeink-sdk ../../freeink-sdk && cd .. && pio run -e x4`.
+- CI: Books, Firmware, Editor (tests + the site on Pages) and STA schedules (monthly PR).
+
+## Site and Pages (added with the README and website unit)
+- `site/` is the product website (plain HTML/CSS/JS). `site/build.sh` assembles it and runs `site/check-links.mjs`; sample page images come from
+  `site/make-samples.py` (generic profile + `test.ics`); `site/tools/build-docs.mjs` writes a titles-only `/docs/` index (BUILD-PLAN, docs/review and the method texts hold personal decisions and are never published; `site/build.sh` fails if Spokane, Keeping Watch or Shelbee appear in the site).
+- The Editor workflow publishes one Pages site (per BUILD-PLAN section 12, nothing else deploys to the root): `/` the website, `/editor/` a demo of
+  the editor (generic profile, sample data, never saves anywhere, banner says so; `MODE 'demo'` in `journal/editor/template.html`), `/docs/`,
+  and `/app/` the working editor that saves in the browser and commits with a token.
+  **The working editor moved from the site root to `/app/`.** Update any bookmark. If `EDITOR_PAGES_REPO` is set, the whole site goes to that repo.
+- The demo is built by `KW_PROFILE=content/profile.example.json KW_OUT=out-demo EDITOR_DIST=editor/dist-demo/ node editor/build.mjs`.
+- The site's editor section describes the book-first zoom (book, spread, day) and has no editor screenshots, so it will not go stale.
+- Roadmap rows for book scopes, versioning and accounts say "Coming" on the site and in the README; change them when those land on main.
+- Before a public launch: pick the license, check trademark and domain for the name, fill in credits.
+
 ## Done
 - **Monthly books** for Oct 2026 – Sep 2027, in 5.5×8.5 and 8.5×11 (74–86 pages each), with 0 overflow and no Type 3 fonts.
   - Busy days degrade instead of spilling: month cells and week rows cap at a few lines with "+N more". `node test-busy.mjs` (CI) checks it.

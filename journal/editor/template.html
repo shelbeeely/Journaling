@@ -25,6 +25,9 @@ html { background: var(--bg); }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 Inter, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
 button, input, select { font: inherit; color: inherit; }
 .top { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); }
+.demo { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: center; justify-content: center; padding: 6px 16px; background: var(--warn-bg); color: var(--warn); font-size: 13px; text-align: center; }
+.demo[hidden] { display: none; }
+.demo a { color: inherit; font-weight: 600; min-height: 44px; display: inline-flex; align-items: center; }
 .bar { max-width: 1440px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .bar h1 { font: 600 17px/1.2 Lora, Georgia, serif; margin: 0; flex: 1; min-width: 140px; }
 .bar h1 small { display: block; font: 400 12px Inter, sans-serif; color: var(--muted); margin-top: 2px; }
@@ -242,6 +245,7 @@ html[data-view="book"], html[data-view="book"] body { overflow: hidden; }
 </style>
 
 <header class="top">
+  <div class="demo" id="demo" hidden><span>Demo · sample data only. Nothing is saved to any server; your changes stay on this page.</span><a href="../">Back to Journalwright Studio</a></div>
   <div class="bar">
     <h1 id="ttl">Day page<small>Keeping Watch · every monthly book</small></h1>
     <span class="seg" id="views" role="group" aria-label="View"><button id="v-day" aria-pressed="true">Day</button><button id="v-book" aria-pressed="false">Book</button></span>
@@ -728,6 +732,7 @@ const setStatus = (t, cls = '') => { const s = $('#status'); s.textContent = t; 
 function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('show'), 2600); }
 const json = () => JSON.stringify(layout, null, 2) + '\n';
 function queueSave() {
+  if (MODE === 'demo') { setStatus('Demo: not saved anywhere'); return; }
   if (MODE === 'pages') { store.set('kw-daypage', JSON.stringify(layout)); dirty = true; setStatus('Saved in this browser · not on GitHub yet'); return; }
   if (!db || readOnly) { setStatus(db ? 'View only' : 'Preview only: changes aren’t saved here', 'bad'); return; }
   setStatus('Saving…'); clearTimeout(saveTimer); saveTimer = setTimeout(save, 600);
@@ -1079,7 +1084,8 @@ function bkSize() { // 5.5x8.5 <-> 8.5x11: same pages, the page width changes
 (async function init() {
   if (store.get('kw-size') === 'letter') { size = 'letter'; $('#sz-s').setAttribute('aria-pressed', false); $('#sz-l').setAttribute('aria-pressed', true); }
   drawPalette(); drawList(); drawPreview();
-  if (MODE === 'pages') {
+  if (MODE === 'demo') { $('#demo').hidden = false; setStatus('Demo · sample data'); }
+  else if (MODE === 'pages') {
     $('#m-gh').hidden = false; $('#m-ghload').hidden = false;
     const local = store.get('kw-daypage');
     let ok = false;

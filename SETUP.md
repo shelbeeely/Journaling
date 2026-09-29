@@ -23,7 +23,7 @@ Without `ICS_URLS` the books build from `test.ics` (sample events) and upload as
 
 ## 3. The editor site (pick one)
 - **A. GitHub Pro (or a public repo):** Settings → Pages → Source: **GitHub Actions**. The site appears at
-  `https://<you>.github.io/keeping-watch/` after the Editor workflow runs.
+  `https://<you>.github.io/keeping-watch/` after the Editor workflow runs: the product site at the root, the public editor demo at `/editor/`, the docs at `/docs/`, and your working editor (the one that saves to the repo) at `/app/`.
 - **B. Private repo on a free plan:** make an empty **public** repo (e.g. `keeping-watch-editor`), set Pages there to
   deploy from the `gh-pages` branch, and add `EDITOR_PAGES_REPO` + `EDITOR_PAGES_TOKEN` above.
 
