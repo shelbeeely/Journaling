@@ -11,12 +11,13 @@ const srv = http.createServer((q, r) => {
   const f = path.join(SITE, decodeURIComponent(q.url.split('?')[0]).replace(/\/$/, '/index.html'));
   fs.readFile(f, (e, d) => { if (e) { r.writeHead(404); r.end(); } else { r.writeHead(200, { 'Content-Type': f.endsWith('.html') ? 'text/html' : 'application/json' }); r.end(d); } });
 }).listen(0);
-const URL0 = `http://127.0.0.1:${srv.address().port}/`;
+const URL0 = `http://127.0.0.1:${srv.address().port}/`, DAY = URL0 + '#day/2026-10-14'; // the editor opens on the Book; the day-page tests open the day level directly
+const atDay = (pg) => pg.waitForFunction(() => document.documentElement.dataset.view === 'day' && document.querySelectorAll('#pv [data-b]').length >= 3);
 const fails = [], ok = (c, m) => { if (!c) fails.push(m); console.log((c ? 'ok   ' : 'FAIL ') + m); };
 const b = await launch(), errs = [];
 const p = await b.newPage({ viewport: { width: 1400, height: 950 } });
 p.on('pageerror', (e) => errs.push(e.message));
-await p.goto(URL0, { waitUntil: 'networkidle' });
+await p.goto(DAY, { waitUntil: 'networkidle' }); await atDay(p);
 const types = () => p.evaluate(() => layout.blocks.map((x) => x.type));
 ok((await types()).join(' ') === 'sky notes events care spoons good body actions review fact', 'loads the default layout (same blocks)');
 // The care split (paper and X4 as one system): the default page keeps meds, meals, work shift, mood and water on paper;
@@ -250,7 +251,7 @@ ok(await p.evaluate(() => size === 'letter'), '8.5x11 preview');
 await p.screenshot({ path: `${OUT}/desktop.png` });
 const m = await b.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
 m.on('pageerror', (e) => errs.push('phone: ' + e.message));
-await m.goto(URL0, { waitUntil: 'networkidle' });
+await m.goto(DAY, { waitUntil: 'networkidle' }); await atDay(m);
 for (const t of ['edit', 'add', 'preview']) { await m.click(`.tabs [data-tab="${t}"]`); await m.screenshot({ path: `${OUT}/phone-${t}.png` }); }
 ok(await m.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'no sideways scroll on a phone');
 await m.click('.tabs [data-tab="edit"]'); await m.click('#menubtn'); await m.click('#m-method');
@@ -422,7 +423,7 @@ ok(!errs.length, 'no page errors ' + errs.join(' | '));
   {
     const ph = await b.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
     ph.on('pageerror', (e) => errs.push('phone grid: ' + e.message));
-    await ph.goto(URL0, { waitUntil: 'networkidle' });
+    await ph.goto(DAY, { waitUntil: 'networkidle' }); await atDay(ph);
     await ph.click('#lay-g');
     ok(await ph.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'grid phone: no sideways scroll (Blocks tab)');
     await ph.click('.tabs [data-tab="preview"]');
@@ -461,16 +462,16 @@ ok(!errs.length, 'no page errors ' + errs.join(' | '));
   await pg.close();
 }
 
-// ---------- Book view: the read-only canvas ----------
+// ---------- Book view: the canvas (whole book and spread levels) ----------
 {
   const S = JSON.parse(fs.readFileSync(new URL('./dist/site/pages-sample.json', import.meta.url)));
   const N = S.pages.length, bp = await b.newPage({ viewport: { width: 1400, height: 900 } });
   bp.on('pageerror', (e) => errs.push('book: ' + e.message));
-  await bp.goto(URL0, { waitUntil: 'networkidle' });
-  ok(await bp.evaluate(() => document.documentElement.dataset.view !== 'book' && !!document.querySelector('#main') && getComputedStyle(document.querySelector('#main')).display !== 'none'), 'the Day editor is still the default view');
-  const t0 = Date.now(); await bp.click('#v-book'); await bp.waitForFunction(() => BK.ready && BK.painted.size >= 60 && BK.queue.size === 0, null, { timeout: 15000 }); const paintMs = Date.now() - t0; await bp.waitForTimeout(300);
+  const t0 = Date.now(); await bp.goto(URL0, { waitUntil: 'networkidle' });
+  ok(await bp.evaluate(() => document.documentElement.dataset.view === 'book' && NAV.level === 'book' && location.hash === '#book' && !!document.querySelector('#main') && getComputedStyle(document.querySelector('#main')).display === 'none'), 'the editor opens on the Book view (#book), not the day editor');
+  await bp.waitForFunction(() => BK.ready && BK.painted.size >= 60 && BK.queue.size === 0, null, { timeout: 15000 }); const paintMs = Date.now() - t0; await bp.waitForTimeout(300);
   ok(paintMs < 8000, `the whole book (${N} thumbnails) is drawn in ${paintMs} ms`);
-  ok(await bp.evaluate(() => getComputedStyle(document.querySelector('#main')).display === 'none' && getComputedStyle(document.querySelector('#book')).display !== 'none'), 'Book tab shows the canvas and hides the day editor');
+  ok(await bp.evaluate(() => getComputedStyle(document.querySelector('#main')).display === 'none' && getComputedStyle(document.querySelector('#book')).display !== 'none'), 'the Book view shows the canvas and hides the day editor');
   ok((await bp.locator('#bk-world .bpg[data-n]').count()) === N, `renders all ${N} pages of the sample book as slots`);
   ok(await bp.evaluate(() => [...document.querySelectorAll('#bk-world .bpg[data-n]')].every((e) => e.querySelector('.cap b').textContent === e.dataset.n && e.dataset.id && e.querySelector('.cid').textContent === e.dataset.id)), 'every page shows its number and id');
   // spreads as the book opens: title alone on the right, then verso|recto, the last even page alone on the left
@@ -489,34 +490,35 @@ ok(!errs.length, 'no page errors ' + errs.join(' | '));
   const z = () => bp.evaluate(() => BK.z), lvl = () => bp.evaluate(() => BK.level);
   ok((await lvl()) === 'book', 'opens at the whole book');
   const zb = await z();
-  await bp.click('[data-lv="spread"]'); await bp.waitForTimeout(500); const zs = await z();
-  await bp.click('[data-lv="page"]'); await bp.waitForTimeout(500); const zp = await z();
-  ok(zb < zs && zs <= zp && (await lvl()) === 'page' && (await bp.getAttribute('[data-lv="page"]', 'aria-pressed')) === 'true', `three levels: whole book ${zb.toFixed(2)} < spread ${zs.toFixed(2)} <= page ${zp.toFixed(2)}`);
+  await bp.click('[data-nav-level="spread"]'); await bp.waitForTimeout(500); const zs = await z();
+  ok((await bp.getAttribute('[data-nav-level="spread"]', 'aria-pressed')) === 'true' && (await bp.getAttribute('[data-nav-level="book"]', 'aria-pressed')) === 'false', 'the level buttons say which level is open');
+  await bp.evaluate(() => bkLevel('page', false)); await bp.waitForTimeout(300); const zp = await z();
+  ok(zb < zs && zs <= zp && (await lvl()) === 'page', `three zoom stops: whole book ${zb.toFixed(2)} < spread ${zs.toFixed(2)} <= one page ${zp.toFixed(2)}`);
   await bp.waitForTimeout(400);
   ok(await bp.evaluate(() => { const r = document.querySelector('#bk-view').getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2, q = [...document.querySelectorAll('.bpg[data-n]')].map((e) => e.getBoundingClientRect()).find((e) => e.left <= cx && e.right >= cx && e.top <= cy && e.bottom >= cy); return !!q && q.left >= r.left - 2 && q.right <= r.right + 2 && q.top >= r.top - 2 && q.bottom <= r.bottom + 2 && q.height > r.height * 0.7; }), 'page level: one whole page fills the view');
   // virtualised: at page level far pages hold no DOM
   const pc = await bp.evaluate(() => ({ painted: BK.painted.size, real: document.querySelectorAll('#bk-world .bpg .page').length }));
   ok(pc.real === pc.painted && pc.painted < N / 2, `lazy: only ${pc.painted} of ${N} pages hold thumbnails at page level`);
   await bp.click('#bk-out'); await bp.waitForTimeout(400); const zo = await z();
-  await bp.click('#bk-in'); await bp.click('#bk-in'); await bp.waitForTimeout(400); const zi = await z();
+  await bp.click('#bk-in'); await bp.waitForTimeout(400); const zi = await z();
   ok(zo < zp && zi > zo, 'zoom buttons');
-  await bp.click('[data-lv="book"]'); await bp.waitForTimeout(500);
+  await bp.click('[data-nav-level="book"]'); await bp.waitForTimeout(500);
   await bp.evaluate(() => document.querySelector('#bk-view').focus());
   const z0 = await z(); await bp.keyboard.press('+'); await bp.waitForTimeout(400); const z1 = await z(); await bp.keyboard.press('-'); await bp.keyboard.press('-'); await bp.waitForTimeout(400); const z2 = await z();
   ok(z1 > z0 && z2 < z1, 'keyboard: + and - zoom');
-  await bp.keyboard.press('2'); await bp.waitForTimeout(400); const k2 = await lvl(); await bp.keyboard.press('1'); await bp.waitForTimeout(400); const k1 = await lvl(); await bp.keyboard.press('0'); await bp.waitForTimeout(400);
-  ok(k2 === 'page' && k1 === 'spread' && (await lvl()) === 'book', 'keyboard: 2 page, 1 spread, 0 whole book');
+  await bp.keyboard.press('1'); await bp.waitForTimeout(500); const k1 = await bp.evaluate(() => NAV.level); await bp.keyboard.press('0'); await bp.waitForTimeout(500);
+  ok(k1 === 'spread' && (await lvl()) === 'book' && (await bp.evaluate(() => NAV.level)) === 'book', 'keyboard: 1 spread, 0 whole book');
   await bp.keyboard.press('+'); await bp.waitForTimeout(400); const px0 = await bp.evaluate(() => BK.x); await bp.keyboard.press('ArrowLeft'); const px1 = await bp.evaluate(() => BK.x);
   ok(px1 > px0, 'keyboard: arrows pan');
-  await bp.click('[data-lv="book"]'); await bp.waitForTimeout(500);
+  await bp.click('[data-nav-level="book"]'); await bp.waitForTimeout(500);
   const w0 = await z(); await bp.mouse.move(700, 500); await bp.mouse.wheel(0, -300); await bp.waitForTimeout(150); const w1 = await z(); await bp.mouse.wheel(0, 300); await bp.waitForTimeout(150);
   ok(w1 > w0, 'mouse wheel zooms at the pointer');
-  await bp.click('[data-lv="spread"]'); await bp.waitForTimeout(500);
+  await bp.click('[data-nav-level="spread"]'); await bp.waitForTimeout(500);
   const d0 = await bp.evaluate(() => [BK.x, BK.y]); await bp.mouse.move(700, 500); await bp.mouse.down(); await bp.mouse.move(730, 520, { steps: 4 }); await bp.mouse.up(); const d1 = await bp.evaluate(() => [BK.x, BK.y]);
   ok(d1[0] > d0[0] && d1[1] > d0[1], 'dragging pans');
   ok(await bp.evaluate(() => { const c = document.querySelector('#bk-view'), mk = (t, id, x, y) => c.dispatchEvent(new PointerEvent(t, { pointerId: id, clientX: x, clientY: y, bubbles: true, pointerType: 'touch' })); bkLevel('book', false); const z0 = BK.z;
     mk('pointerdown', 11, 500, 400); mk('pointerdown', 12, 600, 400); mk('pointermove', 12, 700, 400); mk('pointermove', 11, 450, 400); mk('pointerup', 11, 450, 400); mk('pointerup', 12, 700, 400); return BK.z > z0 * 1.5; }), 'pinch zooms');
-  await bp.click('[data-lv="book"]'); await bp.waitForTimeout(500);
+  await bp.click('[data-nav-level="book"]'); await bp.waitForTimeout(500);
   // select + jump
   const jump = async (q) => { await bp.fill('#bk-go', q); await bp.press('#bk-go', 'Enter'); await bp.waitForTimeout(700); return bp.evaluate(() => ({ sel: BK.sel, msg: document.querySelector('#bk-msg').textContent, bad: document.querySelector('#bk-msg').className === 'bad' })); };
   const inView = () => bp.evaluate(() => { const r = document.querySelector('#bk-view').getBoundingClientRect(), q = document.querySelector('.bpg.sel').getBoundingClientRect(); return q.left >= r.left - 2 && q.right <= r.right + 2 && q.top >= r.top - 2 && q.bottom <= r.bottom + 2 && q.width > 40; });
@@ -545,9 +547,6 @@ ok(!errs.length, 'no page errors ' + errs.join(' | '));
   await bp.waitForTimeout(500);
   ok(hidden === 2 && (await bp.evaluate(() => +getComputedStyle(document.querySelector('.bpg.hid .ph')).opacity < 0.6 && !!document.querySelector('.bpg.hid .cap svg') && document.querySelectorAll('.bpg[data-n]').length === BK.pages.length)), 'hidden pages are shown dimmed in their own row, with the eye-off mark');
   await bp.screenshot({ path: `${OUT}/book-hidden.png` });
-  // back to the day editor, untouched
-  await bp.click('#v-day');
-  ok(await bp.evaluate(() => getComputedStyle(document.querySelector('#main')).display !== 'none' && document.querySelectorAll('#pv [data-b]').length >= 3), 'Day tab brings the day editor back');
   await bp.close();
   // hidden pages come from book.json: the sample builder lists pages a book turns off
   const { samplePages } = await import('./samples.mjs'), { DEFAULT_BOOK } = await import('../book.mjs');
@@ -555,35 +554,216 @@ ok(!errs.length, 'no page errors ' + errs.join(' | '));
   const S2 = await samplePages('2026-10', bk2);
   ok(S2.hidden.map((x) => x.id).sort().join() === 'lineage,week.01.review' && !S2.pages.some((x) => x.id === 'lineage') && S2.pages.length % 2 === 0, 'a book that hides pages lists them apart (lineage, a week review); the rest still spreads evenly');
   ok(S.hidden.length === 0, 'the default book hides nothing');
-  // phone
+  // ---------- book-first navigation (C4a): book -> spread -> day is one continuous zoom ----------
+  {
+    const nP = await b.newPage({ viewport: { width: 1400, height: 900 } });
+    nP.on('pageerror', (e) => errs.push('nav: ' + e.message));
+    const goHash = async (h) => { await nP.goto('about:blank'); await nP.goto(URL0 + h, { waitUntil: 'networkidle' }); await nP.waitForFunction(() => window.KW && (BK.loaded || document.documentElement.dataset.view === 'day')); await nP.waitForTimeout(600); };
+    const st = () => nP.evaluate(() => ({ level: NAV.level, view: document.documentElement.dataset.view, hash: location.hash, crumbs: [...document.querySelectorAll('#crumb-list li')].map((x) => x.textContent.trim()).join(' > '), main: getComputedStyle(document.querySelector('#main')).display, pv: getComputedStyle(document.querySelector('#pageview')).display, back: document.querySelector('#nv-back').disabled }));
+    const waitView = (v) => nP.waitForFunction((x) => document.documentElement.dataset.view === x && !NAV.busy(), v, { timeout: 8000 });
+    const dayN = S.pages.find((x) => x.id === 'day.2026-10-14').n, safeN = S.pages.find((x) => x.id === 'safety').n, sp = (n) => Math.floor(n / 2) + 1;
+    await goHash('');
+    let r = await st();
+    ok(r.view === 'book' && r.level === 'book' && r.hash === '#book' && r.crumbs === 'Book' && r.back && r.main === 'none', 'default view: the Book, #book in the URL, breadcrumb "Book", Back disabled');
+    ok(await nP.evaluate(() => !document.querySelector('#v-day') && !document.querySelector('[aria-label="View"]') && ![...document.querySelectorAll('.top button')].some((x) => x.textContent.trim() === 'Day' && x.closest('.seg'))), 'the Day tab is gone as a top-level tab');
+    ok(await nP.evaluate(() => !!document.querySelector('.top #v-ver') && typeof KW.on === 'function' && typeof KW.go === 'function'), 'the Versions button sits in the header, and KW.on / KW.go are the hooks for panels');
+    await nP.screenshot({ path: `${OUT}/nav-desktop-1-book.png` });
+    // tap: book -> spread -> day
+    await nP.click(`.bpg[data-n="${dayN}"]`); await nP.waitForFunction(() => NAV.level === 'spread' && BK.level !== 'book'); await nP.waitForTimeout(1000);
+    r = await st();
+    ok(r.level === 'spread' && r.hash === `#spread/${sp(dayN)}` && r.crumbs === `Book > Spread ${sp(dayN)}` && !r.back, `tap a page: zooms to its spread (${r.hash}, "${r.crumbs}")`);
+    ok(await nP.evaluate((n) => { const q = document.querySelector(`.bpg[data-n="${n}"]`).getBoundingClientRect(), v = document.querySelector('#bk-view').getBoundingClientRect(); window.__d = [q.left, q.right, q.width, v.left, v.right, BK.z]; return q.width > 200 && q.left >= v.left - 2 && q.right <= v.right + 2; }, dayN), 'the spread level shows the two pages large enough to read, live thumbnails ' + JSON.stringify(await nP.evaluate(() => window.__d)));
+    ok(await nP.evaluate(() => document.querySelector('[data-nav-level="spread"]').getAttribute('aria-pressed') === 'true'), 'the Spread level button is pressed');
+    await nP.screenshot({ path: `${OUT}/nav-desktop-2-spread.png` });
+    await nP.click(`.bpg[data-n="${dayN}"]`); await waitView('day'); await nP.waitForTimeout(400);
+    r = await st();
+    ok(r.level === 'day' && r.hash === '#day/2026-10-14' && r.crumbs === `Book > Spread ${sp(dayN)} > Day Oct 14` && r.main !== 'none' && r.pv === 'none', `tap again: the day-page editor (${r.hash}, "${r.crumbs}")`);
+    ok(await nP.evaluate(() => document.querySelectorAll('#pv [data-b]').length >= 3 && document.querySelectorAll('#pal li.pi').length > 20 && document.querySelectorAll('#list > li').length >= 5 && !document.querySelector('#meter').textContent.includes('Too full') && document.querySelectorAll('#pv .lines .rule').length > 0), 'the day level is the full editor: palette, block list, preview with rules, meter');
+    await nP.screenshot({ path: `${OUT}/nav-desktop-3-day.png` });
+    // the editor still edits from here, and the change survives going up and coming back
+    await nP.evaluate(() => { history = []; }); await nP.locator('#pal [data-add="t:checks"]').click();
+    ok(await nP.evaluate(() => layout.blocks.some((x) => x.type === 'checks')), 'the day level edits (add a block)');
+    // Back / forward
+    await nP.click('#nv-back'); await waitView('book'); await nP.waitForTimeout(600);
+    r = await st(); ok(r.level === 'spread' && r.hash === `#spread/${sp(dayN)}` && r.crumbs === `Book > Spread ${sp(dayN)}`, 'Back from the day returns to the spread');
+    ok(await nP.evaluate((n) => BK.sel === n && BK.level !== 'book', dayN), 'coming back keeps the page selected and the spread zoomed');
+    await nP.goForward(); await waitView('day'); r = await st(); ok(r.level === 'day' && r.hash === '#day/2026-10-14', 'browser forward goes back into the day');
+    ok(await nP.evaluate(() => layout.blocks.some((x) => x.type === 'checks')), 'the day editor kept its unsaved change while you moved around the book');
+    await nP.goBack(); await waitView('book'); await nP.waitForTimeout(500);
+    await nP.click('#nv-back'); await nP.waitForFunction(() => NAV.level === 'book'); await nP.waitForTimeout(500);
+    r = await st(); ok(r.level === 'book' && r.hash === '#book' && r.back, 'Back again returns to the whole book (and Back is then disabled)');
+    // breadcrumb
+    await nP.evaluate((n) => KW.go({ level: 'day', n }), dayN); await waitView('day');
+    await nP.click('#crumb-list [data-crumb="1"]'); await waitView('book'); await nP.waitForTimeout(500);
+    r = await st(); ok(r.level === 'spread' && r.hash === `#spread/${sp(dayN)}`, 'breadcrumb: the Spread crumb goes up one level');
+    await nP.click('#crumb-list [data-crumb="0"]'); await nP.waitForFunction(() => NAV.level === 'book'); await nP.waitForTimeout(500);
+    r = await st(); ok(r.level === 'book' && r.crumbs === 'Book', 'breadcrumb: the Book crumb goes to the whole book');
+    ok(await nP.evaluate(() => [...document.querySelectorAll('#crumb-list button')].every((x) => x.getBoundingClientRect().height >= 43.5) && document.querySelector('#nv-back').getBoundingClientRect().height >= 43.5), 'breadcrumb and Back are 44px targets');
+    // level buttons
+    await nP.click('[data-nav-level="spread"]'); await nP.waitForFunction(() => NAV.level === 'spread'); await nP.click('[data-nav-level="day"]'); await waitView('day');
+    ok((await st()).level === 'day', 'level buttons: Spread then Day');
+    await nP.click('[data-nav-level="book"]'); await nP.waitForFunction(() => NAV.level === 'book' && document.documentElement.dataset.view === 'book'); ok((await st()).hash === '#book', 'level button: Book');
+    // keyboard
+    await nP.evaluate(() => document.querySelector('#bk-view').focus()); await nP.keyboard.press('Enter'); await nP.waitForFunction(() => NAV.level === 'spread');
+    await nP.keyboard.press('Enter'); await waitView('day'); r = await st(); ok(r.level === 'day', 'keyboard: Enter goes in a level (book, spread, day)');
+    await nP.keyboard.press('Escape'); await waitView('book'); await nP.waitForTimeout(400); r = await st(); ok(r.level === 'spread', 'keyboard: Escape from the day goes out to the spread');
+    await nP.keyboard.press('Escape'); await nP.waitForFunction(() => NAV.level === 'book'); ok(true, 'keyboard: Escape from the spread goes out to the book');
+    await nP.keyboard.press('2'); await waitView('day'); await nP.keyboard.press('Alt+ArrowUp'); await waitView('book'); await nP.waitForTimeout(400);
+    ok((await st()).level === 'spread', 'keyboard: 2 opens the day; Alt+Up goes out');
+    await nP.keyboard.press('Alt+ArrowDown'); await waitView('day'); ok((await st()).level === 'day', 'keyboard: Alt+Down goes in');
+    await nP.evaluate(() => { const i = document.createElement('input'); i.id = 'tmp-in'; document.body.appendChild(i); i.focus(); }); await nP.keyboard.press('Escape'); await nP.waitForTimeout(500);
+    ok((await st()).level === 'day', 'Escape in a text field does not navigate'); await nP.evaluate(() => document.querySelector('#tmp-in').remove());
+    // wheel: zoom in past a page opens the day; ctrl+wheel out over the page goes back up
+    await goHash('#spread/' + sp(dayN)); await nP.evaluate((n) => bkSelect(n), dayN);
+    await nP.mouse.move(700, 450); for (let i = 0; i < 6 && (await nP.evaluate(() => document.documentElement.dataset.view)) === 'book'; i++) { await nP.mouse.wheel(0, -400); await nP.waitForTimeout(120); }
+    await waitView('day'); r = await st(); ok(r.level === 'day', 'wheel: zooming in past one page opens the day');
+    await nP.waitForTimeout(700);
+    await nP.evaluate(() => document.querySelector('#paper').dispatchEvent(new WheelEvent('wheel', { ctrlKey: true, deltaY: 120, bubbles: true, cancelable: true }))); await waitView('book'); await nP.waitForTimeout(500);
+    r = await st(); ok(r.level === 'spread', 'ctrl/cmd + wheel (a trackpad pinch) over the page zooms out to the spread');
+    // pinch out on a phone-style touch over the day page
+    await nP.evaluate((n) => KW.go({ level: 'day', n }), dayN); await waitView('day'); await nP.waitForTimeout(700);
+    await nP.evaluate(() => { const el = document.querySelector('#paper'), mk = (t, id, x, y) => el.dispatchEvent(new PointerEvent(t, { pointerId: id, clientX: x, clientY: y, bubbles: true, pointerType: 'touch' })); mk('pointerdown', 21, 1000, 400); mk('pointerdown', 22, 1200, 400); mk('pointermove', 22, 1090, 400); mk('pointermove', 21, 1060, 400); });
+    await waitView('book'); await nP.waitForTimeout(400); ok((await st()).level === 'spread', 'pinching in over the day page zooms out to the spread');
+    // continuous zoom updates the URL
+    await nP.click('[data-nav-level="book"]'); await nP.waitForFunction(() => NAV.level === 'book'); await nP.waitForTimeout(500);
+    const h0 = await nP.evaluate(() => [location.hash, window.history.length]);
+    await nP.mouse.move(700, 450); for (let i = 0; i < 3; i++) { await nP.mouse.wheel(0, -350); await nP.waitForTimeout(80); } await nP.waitForTimeout(700);
+    const h1 = await nP.evaluate(() => [location.hash, window.history.length, NAV.level]);
+    ok(h0[0] === '#book' && /^#spread\/\d+$/.test(h1[0]) && h1[2] === 'spread' && h1[1] === h0[1] + 1, `pinch or wheel between levels updates the URL (${h0[0]} -> ${h1[0]}) and adds one history entry`);
+    // double tap: all the way in
+    await nP.click('[data-nav-level="book"]'); await nP.waitForFunction(() => NAV.level === 'book'); await nP.waitForTimeout(600);
+    const box = await nP.locator(`.bpg[data-n="${dayN}"]`).boundingBox();
+    await nP.mouse.click(box.x + box.width / 2, box.y + box.height / 2); await nP.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+    await waitView('day'); r = await st(); ok(r.level === 'day' && r.hash === '#day/2026-10-14', 'double-tap on a page goes straight to its day');
+    // reload / deep links restore the level
+    await goHash('#day/2026-10-14'); r = await st(); ok(r.level === 'day' && r.view === 'day' && r.crumbs === `Book > Spread ${sp(dayN)} > Day Oct 14` && r.main !== 'none', 'reload on #day/2026-10-14 restores the day (with its breadcrumb)');
+    await goHash(`#spread/${sp(dayN)}`); r = await st();
+    ok(r.level === 'spread' && r.view === 'book' && (await nP.evaluate((n) => { const q = document.querySelector(`.bpg[data-n="${n}"]`).getBoundingClientRect(), v = document.querySelector('#bk-view').getBoundingClientRect(); return q.left >= v.left - 2 && q.right <= v.right + 2 && q.width > 200; }, dayN)), `reload on #spread/${sp(dayN)} restores that spread, zoomed`);
+    await goHash('#book'); r = await st(); ok(r.level === 'book' && r.view === 'book', 'reload on #book restores the whole book');
+    await goHash('#spread/999'); r = await st(); ok(r.level === 'book' && r.hash === '#book', 'a spread that does not exist falls back to the book');
+    await goHash('#nonsense'); r = await st(); ok(r.level === 'book', 'an unknown hash opens the book');
+    // a typed hash and browser history move the level too
+    await nP.evaluate(() => { location.hash = '#day/2026-10-20'; }); await waitView('day'); r = await st(); ok(r.level === 'day' && r.crumbs.endsWith('Day Oct 20'), 'editing the hash by hand changes the level');
+    // a day outside the sample month still opens the editor
+    await goHash('#day/2027-03-05'); r = await st(); ok(r.level === 'day' && r.view === 'day' && r.crumbs === 'Book > Day Mar 5', 'a day that is not in the sample book still opens the day editor');
+    // non-day pages: read-only page view with the note
+    await goHash(`#page/safety`); r = await st();
+    ok(r.level === 'day' && r.view === 'page' && r.main === 'none' && r.pv !== 'none' && r.crumbs === `Book > Spread ${sp(safeN)} > My safety plan`, `a page that is not a day page opens its page view (${r.hash}, "${r.crumbs}")`);
+    ok(await nP.evaluate(() => /read-only for now/.test(document.querySelector('.pgv-note').textContent) && /later step/.test(document.querySelector('.pgv-note').textContent) && document.querySelectorAll('#pgv .page').length === 1 && /safety plan/i.test(document.querySelector('#pgv').textContent)), 'the page view says editing arrives in a later step and shows the real page');
+    ok(await nP.evaluate(() => document.querySelector('#pgv .page').getBoundingClientRect().width > 300 && document.querySelector('#laygrp').offsetParent === null && document.querySelector('#undo').offsetParent === null), 'the page view hides the day editor controls');
+    await nP.screenshot({ path: `${OUT}/nav-desktop-4-page.png` });
+    await nP.click('#nv-back'); await nP.waitForTimeout(300);
+    // from the book: tap a non-day page twice
+    await goHash(''); await nP.click(`.bpg[data-n="${safeN}"]`); await nP.waitForFunction(() => NAV.level === 'spread'); await nP.waitForTimeout(600); await nP.click(`.bpg[data-n="${safeN}"]`); await waitView('page');
+    r = await st(); ok(r.hash === '#page/safety', 'tapping a non-day page twice opens its page view (#page/safety)');
+    await nP.keyboard.press('Escape'); await waitView('book'); ok((await st()).level === 'spread', 'Escape leaves the page view');
+    // Versions mount is reachable from every level
+    const vers = [];
+    for (const h of ['#book', `#spread/${sp(dayN)}`, '#day/2026-10-14', '#page/safety']) {
+      await goHash(h);
+      await nP.click('#v-ver'); await nP.waitForSelector('#versions[open]'); vers.push(await nP.evaluate(() => ({ level: KW.level }))); await nP.click('#vs-close'); await nP.waitForFunction(() => !document.querySelector('#versions[open]'));
+    }
+    ok(vers.map((v) => v.level).join() === 'book,spread,day,day', 'Versions opens and closes at every level (book, spread, day, page view); KW reports the level');
+    ok(await nP.evaluate(async () => { const got = []; KW.on((d) => got.push(d.level)); await KW.go({ level: 'book' }, { push: false, anim: false }); return got.includes('book'); }), 'KW.on hears level changes');
+    // accessibility: live region, focus, keyboard reach, reduced motion
+    await goHash('#book');
+    await nP.evaluate((n) => KW.go({ level: 'day', n }), dayN); await waitView('day');
+    ok(await nP.evaluate(() => /Now at: Book, Spread \d+, Day Oct 14\. Day page editor/.test(document.querySelector('#nav-live').textContent) && document.querySelector('#nav-live').getAttribute('aria-live') === 'polite'), 'a live region announces the current level');
+    ok(await nP.evaluate(() => !!(document.activeElement && document.activeElement.closest('#crumbs') && document.querySelector('nav#crumbs').getAttribute('aria-label') === 'Breadcrumb' && document.querySelector('#crumb-list [aria-current="page"]'))), 'focus lands on the current crumb; the breadcrumb is a labelled nav with aria-current');
+    await nP.keyboard.press('Shift+Tab');
+    ok(await nP.evaluate(() => { const e = document.activeElement; return !!e && e.matches('button') && getComputedStyle(e).outlineStyle !== 'none'; }), 'keyboard focus is visible on the navigation controls');
+    ok(await nP.evaluate(() => [...document.querySelectorAll('.top [data-nav-level], #nv-back, #crumb-list button')].every((x) => x.tagName === 'BUTTON' && (x.getAttribute('aria-label') || x.textContent.trim()))), 'every navigation control is a labelled button');
+    const rm = await b.newPage({ viewport: { width: 1200, height: 800 }, reducedMotion: 'reduce' });
+    await rm.goto(URL0, { waitUntil: 'networkidle' }); await rm.waitForFunction(() => BK.ready); await rm.waitForTimeout(400);
+    await rm.evaluate((n) => KW.go({ level: 'spread', n }), dayN); await rm.waitForTimeout(50);
+    ok(await rm.evaluate(() => !document.querySelector('#bk-view').classList.contains('anim') && BK.level !== 'book'), 'reduced motion: the zoom between levels is instant');
+    const t1 = Date.now(); await rm.evaluate((n) => KW.go({ level: 'day', n }), dayN); await rm.waitForFunction(() => document.documentElement.dataset.view === 'day'); ok(Date.now() - t1 < 200, 'reduced motion: the day opens with no zoom animation');
+    await rm.close();
+    ok(await nP.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'no sideways scroll on desktop');
+    await nP.close();
+  }
+  // phone: every level, no sideways scroll, 44px targets, a header that leaves room for the page
+  const dayN = S.pages.find((x) => x.id === 'day.2026-10-14').n, spN = (n) => Math.floor(n / 2) + 1;
   const ph = await b.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true });
   ph.on('pageerror', (e) => errs.push('book phone: ' + e.message));
-  await ph.goto(URL0 + '#book', { waitUntil: 'networkidle' }); await ph.waitForFunction(() => BK.ready); await ph.waitForTimeout(700);
-  ok(await ph.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.body.scrollWidth <= innerWidth), 'Book view: no sideways scroll at 390px');
+  const noScroll = () => ph.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.body.scrollWidth <= innerWidth);
+  const tiny = () => ph.evaluate(() => [...document.querySelectorAll('.top button, #book button, #book input, #pageview button')].filter((x) => x.offsetParent && (x.getBoundingClientRect().height < 43.5 || x.getBoundingClientRect().width < 43.5)).map((x) => x.id || x.dataset.navLevel || x.dataset.tab || x.textContent.trim().slice(0, 12) || x.tagName));
+  const fitCrumbs = () => ph.evaluate(() => { const c = document.querySelector('#crumbs').getBoundingClientRect(), l = document.querySelector('#crumb-list'); return l.scrollWidth <= c.width + 1 && c.right <= innerWidth; });
+  await ph.goto(URL0, { waitUntil: 'networkidle' }); await ph.waitForFunction(() => BK.ready); await ph.waitForTimeout(700);
+  ok(await noScroll(), 'Book level: no sideways scroll at 390px');
+  ok((await tiny()).length === 0, 'Book level: 44px targets on a phone ' + (await tiny()).join(','));
   await ph.screenshot({ path: `${OUT}/book-phone-whole.png` });
-  const small = await ph.evaluate(() => [...document.querySelectorAll('#book button, #book input')].filter((x) => x.offsetParent && (x.getBoundingClientRect().height < 43.5 || x.getBoundingClientRect().width < 43.5)).map((x) => x.id || x.dataset.lv || x.tagName));
-  ok(small.length === 0, 'Book view: 44px targets on a phone ' + small.join(','));
   await ph.fill('#bk-go', '15'); await ph.press('#bk-go', 'Enter'); await ph.waitForTimeout(700);
   await ph.screenshot({ path: `${OUT}/book-phone-jump.png` });
-  await ph.click('[data-lv="page"]'); await ph.waitForTimeout(500);
-  ok(await ph.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Book view page level: no sideways scroll at 390px');
-  await ph.screenshot({ path: `${OUT}/book-phone-page.png` });
-  await ph.click('#bk-leg'); await ph.screenshot({ path: `${OUT}/book-phone-legend.png` });
-  await ph.click('#v-day'); ok(await ph.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'back on the Day tab: still no sideways scroll');
+  await ph.click('#bk-leg'); await ph.screenshot({ path: `${OUT}/book-phone-legend.png` }); await ph.click('#bk-leg');
+  await ph.evaluate(() => KW.go({ level: 'book' }, { anim: false })); await ph.waitForTimeout(500);
+  await ph.tap(`.bpg[data-id="day.2026-10-14"]`); await ph.waitForFunction(() => NAV.level === 'spread'); await ph.waitForTimeout(700);
+  ok(await noScroll() && (await fitCrumbs()) && (await tiny()).length === 0, 'Spread level: no sideways scroll, breadcrumb fits, 44px targets');
+  ok((await ph.evaluate(() => location.hash)) === `#spread/${spN(dayN)}`, 'a tap on a phone zooms to the spread');
+  await ph.screenshot({ path: `${OUT}/nav-phone-2-spread.png` });
+  await ph.tap(`.bpg[data-id="day.2026-10-14"]`); await ph.waitForFunction(() => document.documentElement.dataset.view === 'day'); await ph.waitForTimeout(500);
+  ok(await noScroll() && (await fitCrumbs()) && (await tiny()).length === 0, 'Day level: no sideways scroll, breadcrumb fits, 44px targets ' + (await tiny()).join(','));
+  const hh = await ph.evaluate(() => document.querySelector('.top').getBoundingClientRect().height); ok(hh < 270, `Day level: the header leaves room to work (${hh.toFixed(0)} of 844 px)`);
+  await ph.screenshot({ path: `${OUT}/nav-phone-3-day.png` });
+  for (const t of ['add', 'preview']) { await ph.click(`.tabs [data-tab="${t}"]`); await ph.screenshot({ path: `${OUT}/nav-phone-3-day-${t}.png` }); }
+  ok(await noScroll(), 'Day level tabs: no sideways scroll');
+  await ph.click('#nv-back'); await ph.waitForFunction(() => document.documentElement.dataset.view === 'book'); await ph.waitForTimeout(600);
+  ok((await ph.evaluate(() => NAV.level)) === 'spread', 'Back on a phone returns to the spread');
+  await ph.click('#crumb-list [data-crumb="0"]'); await ph.waitForFunction(() => NAV.level === 'book'); await ph.waitForTimeout(400);
+  await ph.evaluate(() => KW.go({ level: 'day', id: 'safety' })); await ph.waitForFunction(() => document.documentElement.dataset.view === 'page'); await ph.waitForTimeout(400);
+  ok(await noScroll() && (await fitCrumbs()) && (await tiny()).length === 0, 'Page view: no sideways scroll, breadcrumb fits, 44px targets');
+  await ph.screenshot({ path: `${OUT}/nav-phone-4-page.png` });
   await ph.close();
-  // dark mode
+  // dark mode: every level
   const dk = await b.newPage({ viewport: { width: 1200, height: 800 }, colorScheme: 'dark' });
-  await dk.goto(URL0 + '#book', { waitUntil: 'networkidle' }); await dk.waitForFunction(() => BK.ready); await dk.waitForTimeout(500);
-  await dk.click('[data-lv="spread"]'); await dk.waitForTimeout(600); await dk.screenshot({ path: `${OUT}/book-dark.png` }); await dk.close();
-  // the Artifact build carries the sample book inside the page (no fetch)
+  await dk.goto(URL0, { waitUntil: 'networkidle' }); await dk.waitForFunction(() => BK.ready); await dk.waitForTimeout(500);
+  await dk.screenshot({ path: `${OUT}/book-dark-whole.png` });
+  await dk.click('[data-nav-level="spread"]'); await dk.waitForTimeout(700); await dk.screenshot({ path: `${OUT}/book-dark.png` });
+  await dk.evaluate(() => KW.go({ level: 'day', date: '2026-10-14' })); await dk.waitForFunction(() => document.documentElement.dataset.view === 'day'); await dk.waitForTimeout(500); await dk.screenshot({ path: `${OUT}/nav-dark-day.png` });
+  await dk.evaluate(() => KW.go({ level: 'day', id: 'safety' })); await dk.waitForFunction(() => document.documentElement.dataset.view === 'page'); await dk.waitForTimeout(400); await dk.screenshot({ path: `${OUT}/nav-dark-page.png` });
+  ok(await dk.evaluate(() => getComputedStyle(document.body).backgroundColor !== 'rgb(244, 241, 234)'), 'dark mode follows the system at every level'); await dk.close();
+  // the Artifact build carries the sample book inside the page (no fetch) and opens on the Book too
   const art = fs.readFileSync(new URL('./dist/artifact.html', import.meta.url), 'utf8');
   const ap = await b.newPage({ viewport: { width: 1200, height: 800 } });
   ap.on('pageerror', (e) => errs.push('artifact: ' + e.message));
   await ap.setContent('<!doctype html><html lang="en"><head><meta charset="utf-8">' + art + '</html>', { waitUntil: 'load' });
-  await ap.click('#v-book'); await ap.waitForFunction(() => BK.ready, null, { timeout: 8000 }).catch(() => {});
-  ok(await ap.evaluate(() => typeof BK !== 'undefined' && BK.ready && document.querySelectorAll('#bk-world .bpg[data-n]').length === BK.pages.length && BK.pages.length >= 24), `Artifact build: the Book view works from the embedded sample book (${(art.length / 1024).toFixed(0)} KB file)`);
+  await ap.waitForFunction(() => typeof BK !== 'undefined' && BK.ready, null, { timeout: 8000 }).catch(() => {});
+  ok(await ap.evaluate(() => typeof BK !== 'undefined' && BK.ready && document.documentElement.dataset.view === 'book' && document.querySelectorAll('#bk-world .bpg[data-n]').length === BK.pages.length && BK.pages.length >= 24), `Artifact build: opens on the Book from the embedded sample book (${(art.length / 1024).toFixed(0)} KB file)`);
+  await ap.click('#v-ver');
+  ok(await ap.locator('#versions[open] #vs-guest').isVisible() && await ap.locator('#vs-save').isVisible(), 'Artifact build: the Versions drawer opens and keeps versions in the browser (a Studio server is optional)');
+  await ap.click('#vs-close');
+  await ap.evaluate(() => KW.go({ level: 'spread', s: 7 })); await ap.waitForFunction(() => NAV.level === 'spread' && BK.level !== 'book'); await ap.waitForTimeout(400);
+  await ap.evaluate(() => KW.go({ level: 'day', date: '2026-10-14' })); await ap.waitForFunction(() => document.documentElement.dataset.view === 'day' && !NAV.busy());
+  ok(await ap.evaluate(() => document.querySelectorAll('#pv [data-b]').length >= 3 && document.querySelectorAll('#pal li.pi').length > 20 && /Day Oct 14/.test(document.querySelector('#crumbs').textContent)), 'Artifact build: the day level is the editor, with its breadcrumb');
+  await ap.click('#nv-back'); await ap.waitForFunction(() => document.documentElement.dataset.view === 'book'); ok(true, 'Artifact build: Back works without history support');
   await ap.close();
 }
 ok(!errs.length, 'no page errors after the Book view ' + errs.join(' | '));
+// Versions drawer (Journalwright Studio) with no server configured: versions are kept in this browser, and the editor is untouched
+{
+  const vp = await b.newPage({ viewport: { width: 390, height: 844 } }), api = [], verrs = [];
+  vp.on('pageerror', (e) => verrs.push(e.message)); vp.on('request', (r) => { if (r.url().includes('/api/') && !r.url().endsWith('/api/health')) api.push(r.url()); });
+  await vp.goto(URL0, { waitUntil: 'networkidle' }); await vp.waitForFunction(() => BK.ready);
+  const before = await vp.evaluate(() => JSON.stringify(layout));
+  ok(await vp.locator('#v-ver').isVisible(), 'the Versions button is in the header of the Book view too'); await vp.evaluate(() => KW.go({ level: 'day', date: '2026-10-14' })); await atDay(vp);
+  await vp.click('#v-ver'); await vp.waitForSelector('#versions[open]');
+  ok(/Sign in to save versions/.test(await vp.textContent('#vs-guest')) && await vp.locator('#vs-save').isVisible(), 'Versions drawer without a server: "Sign in to save versions", and a guest can still save versions here');
+  ok(await vp.evaluate(() => document.getElementById('versions').scrollWidth <= innerWidth + 1 && document.documentElement.scrollWidth <= innerWidth + 1), 'Versions drawer: no sideways scroll at 390px');
+  ok(await vp.evaluate(() => [...document.querySelectorAll('#versions button, #versions input, #versions select')].filter((el) => el.offsetParent && (el.getBoundingClientRect().height < 43.5 || el.getBoundingClientRect().width < 43.5)).length === 0), 'Versions drawer: 44px targets on a phone');
+  await vp.fill('#vs-msg', 'First version'); await vp.click('#vs-savebtn');
+  ok(await vp.locator('#vs-log .vs-c').count() === 1 && /First version/.test(await vp.textContent('#vs-log')), 'a version saved in this browser shows in the history');
+  ok(JSON.stringify(await vp.evaluate(() => JSON.parse(localStorage.getItem('kw-st-local')).versions.length)) === '1', 'it is kept in this browser only');
+  await vp.fill('#vs-url', 'http://127.0.0.1:9'); await vp.fill('#vs-user', 'sample'); await vp.fill('#vs-pass', 'not a real password');
+  await vp.click('#vs-conn button[type=submit]'); await vp.waitForFunction(() => document.querySelector('#vs-err').textContent.length > 0);
+  ok(/reach the Studio server/.test(await vp.textContent('#vs-err')), 'an unreachable server says so in plain words');
+  await vp.screenshot({ path: `${OUT}/versions-no-server.png` });
+  await vp.click('#vs-close'); api.length = 0;
+  await vp.click('.tabs [data-tab="add"]'); await vp.locator('#pal [data-add="t:checks"]').click();
+  ok(await vp.evaluate(() => layout.blocks.some((x) => x.type === 'checks')) && (await vp.evaluate(() => JSON.stringify(layout))) !== before, 'the day editor still edits');
+  await vp.waitForTimeout(1500); // longer than the draft autosave delay
+  ok(!api.length, 'editing without a Studio server makes no Studio requests ' + api.join(','));
+  ok(!verrs.length, 'no page errors in the Versions drawer ' + verrs.join(' | '));
+  await vp.close();
+}
 await b.close(); srv.close();
 if (fails.length) { console.log(`\n${fails.length} failed`); process.exit(1); }

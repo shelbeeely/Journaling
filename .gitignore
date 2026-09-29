@@ -19,5 +19,7 @@ x4/host/sd/
 *.bin
 freeink-sdk/
 .DS_Store
+# Studio: the local database and its WAL files
+studio/data/
 site/_out/
 site/tools/node_modules/
