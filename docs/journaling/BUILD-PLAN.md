@@ -201,6 +201,7 @@ run with the real calendar secrets; order one private KDP proof per size with th
 | D | Tier 3 blocks · Tier 4 pages · more method layouts | as slots allow |
 | E | Docs: index of the 43 docs with a ranked backlog and the doc template (unit 14) | 1 agent |
 | F | Make it reusable by others: profile + content packs (section 9), starts after canvas C2 merges | 2–3 agents |
+| G | Versioning and collaboration for Journalwright Studio: projects, commits, branches, forks, proposals, merges, releases, reusable pages (section 10); vertical slice first | G1 core, then G2 (forks, proposals, merges), G3 (releases, components) |
 
 Every unit follows the same proof as the fixes: reproduce, fix, rebuild all 12 months at both sizes with the checks
 (overflow, spreads, scan codes, fonts), look at the pages, editor and X4 previews, Firmware CI green, PR.
@@ -229,3 +230,30 @@ Units:
 
 Rules: crisis and support numbers are never auto-filled for someone else; the firmware stays as is, only its config, sample
 card and check-in labels come from the profile; the personal pack stays out of the generic build.
+
+## 10. Journalwright Studio and Phase G: versioning and collaboration (added 2026-09-29)
+
+**Name.** The product is **Journalwright Studio** (Shelbee's pick). "Keeping Watch" stays as Shelbee's own book title (her profile). Check trademark and domain before public launch; the site and README rewrite (below) use the new name.
+
+**Roadmap adds**
+- README cleanup and product website (one-page GitHub Pages site with a live editor demo on sample data only).
+- Research doc: shadow growth journal (`docs/journaling/methods/shadow-growth-journal.md`, same template and source rules; add to the index).
+- Phase G below.
+
+**Phase G: Git-like versioning for journal projects.** The product stays focused on designing and publishing physical journals and planners. The visual editor is the way people see history; nobody needs Git or GitHub.
+
+Foundation: the structured day-page blocks, stable page and block ids, `content/book.json`, `content/daypage.json`, the print renderer, manifests and today's build workflows. Single-user builds keep working; existing files import into a project and export back into the current pipeline.
+
+| Workflow | Requirement |
+|---|---|
+| Projects and commits | A project holds book structure, reusable pages, block layouts, assets, metadata and print settings. Every commit is an immutable snapshot: author, message, timestamp, parent, content hash. Visual history, comparisons, restore-to-new-commit |
+| Branches | Create, edit in the editor, switch. Autosaved drafts are distinct from named commits |
+| Forks | Only where the creator enabled reuse. Records source project and commit, keeps attribution, has independent history. Private pages, filled-in personal data, account settings and secrets stay outside the forkable publication source |
+| Change proposals | Fork owner proposes upstream; page-level and block-level visual diffs, discussion, review status, accept selected changes |
+| Merges | Three-way merge on the common ancestor using stable page and block ids. Independent edits merge automatically; same-item edits are conflicts resolved in the visual editor (either side or manual). Reorders, deletions and component changes handled explicitly |
+| Releases | A publisher freezes a validated commit as a numbered print release: exact interior PDF, cover PDF, manifest, print settings, source commit. Later edits and merges never touch released files |
+| Reusable pages | Component versions and where they are used; owner reviews and adopts an upstream update into a branch, seeing the effect across the book before committing |
+
+Platform: persistent backend with schema and migrations, authentication, project permissions, APIs, transactional updates and concurrency checks (no silent overwrite), server-side access checks for private projects, forks, proposals, assets and releases. Stack fits the current Node code (Node, SQLite for local setup, content-addressed snapshot store). Never a default to Cloudflare for hosting.
+
+Slices: **G1** data model, migrations, auth and permissions, commits, branches and drafts, history, restore, import and export against the current pipeline, editor history UI. **G2** forks, proposals, three-way merge and conflict UI. **G3** releases, reusable pages, full editor-to-print workflow, docs. Tests: commit ancestry, independent merges, conflicts, fork permissions, component updates, release immutability, editor-to-print.
