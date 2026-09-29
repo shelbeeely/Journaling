@@ -202,6 +202,54 @@ Presets are ready-made blocks in the palette. Checkbox, habit, blank and scale p
 
 Scan zones do not change: every block keeps its `data-zone`. Print draws all rules and grids as vectors (`rulings.mjs`).
 
+### New blocks (Tier 2, part 1)
+Palette only: the default page does not change. Every block starts small (one row, or as few as make sense) so it fits the
+default day when added; raise the rows in its options and watch the editor's meter (5.5x8.5 has about 0.4 in to spare on a busy
+day, 8.5x11 about 0.7 in). Labels are icons plus a few words; everything prints black and white (night shading is 15 % grey).
+
+| Block (zone) | What it prints | Options (default first) | X4 |
+|---|---|---|---|
+| Time line 24 h (`tl24`) | 24 boxes, plan row (and actual row), hour labels; hours before sunrise and after sunset shaded from that day's calculated sun times | Starts at 0 (0 to 23: a night shift can start at 18); labels every 3 h (2, 3, 4, 6); actual row off; shade night on | none |
+| Brain dump (`dump`) | A box on dots, label inside | Rows 1 (1 to 10); paper dots, lines, blank | none |
+| Later (`later`) | Arrow rows to park a thought | Rows 1 (1 to 6) | none |
+| Done list (`done`) | Rows to fill in after | Rows 1 (1 to 8); tick boxes on | none |
+| Wall of Awful (`wall`) | Circle what is in the way (scary, boring, too big, unclear, tired, stuck), then a way past (tiny step, ask, 5 minutes, not today). Low-shame words; paper only | The two word lists are editable | none |
+| Time stamps (`stamps`) | `__:__` and a line per switch; optional "resume with" row (arrow) | Rows 1 (1 to 10); resume off | none |
+| Focus rounds (`rounds`) | Task lines with square boxes, one per round; tally spots for interruptions (me / others); never called Pomodoro | Tasks 1 (1 to 5); rounds per task 4 (1 to 7); marks on; length "25 min" | **count** `focus_rounds`, 0..16 |
+| Energy types (`energy`) | A row of dots per kind (Body, Mind, People, Senses) | Kinds (up to 6); steps 3 (3 to 5) | **scale** per kind, 1..steps |
+| Energy accounts (`accounts`) | Start, pairs of "what / cost", and "left: X4" (the X4 keeps spoons left) | Items 2 (2 to 6); left on X4 on | none |
+| Week at a glance (`weekstrip`) | This week Monday to Sunday, today ringed, room to write; the same on every page of the week, no cutting | Height 0.3 in (0.3 to 0.8) | none |
+| Keep (`keep`) | Words to keep, a "moved" box, an optional "from" line | Lines 1 (1 to 4); source off; moved on | none |
+| A month ago today (`lookback`) | The date a month (or a year) back, generic, and a line | Look back month or year; lines 1 (1 to 2) | none |
+| Rotating prompt (`prompt`) | One prompt from a fixed list of 36, picked by date, so a reprint gives the same one; a "pass" box | Changes daily or weekly (Monday to Sunday); lines 1 (1 to 5); pass on | none |
+| Day pixel (`pixel`) | An empty square to fill, and 5 or 7 level swatches to circle | Levels 5 (5, 7); low / high words on | none |
+| Low and high (`range`) | The lowest and highest point of the day, two rows of dots | Steps 5 (3 to 7); left / right words flat, bright | none |
+
+Blocks that export show the "also on X4" mark in the editor and appear in `checkins.txt` (`x4/tools/test_export.py` covers
+them). `focus_rounds` is the key the X4 Focus timer files its count under. A second Focus rounds block stays paper only.
+The 24 h line, the look-back date and the prompt read the day's `parts.day` (`{date, rise, set}`) that `render.mjs` passes in;
+the editor uses a generic sample day (2026-10-31).
+
+### Size options
+Every block that had a fixed height now has a size control. Each starts at today's size, so an unchanged layout prints exactly
+the same page (checked byte for byte against the previous block library for the default layout, every old block type and every
+preset). The editor's meter follows the new heights; rules and grids print as vectors at every size (`rulings.mjs` already
+draws each line spacing, and the row edges and `.lines` rules take any height).
+
+| Block | Option | Values (default first) |
+|---|---|---|
+| Top priorities, Time blocks, Quick bullets | Line spacing / Row height (`pitch`) | Tight 5.6 mm, Standard 6.6 mm, Wide 8.5 mm |
+| Small good things | Line spacing (`pitch`) | Tight 5 mm (0.2 in), Standard 6.6 mm, Wide 8.5 mm; up to 8 lines |
+| Went well / Was hard / Tomorrow | Height in lines (`h`) | 2 (1 to 5) |
+| Action items | Row height (`h`), lines | Standard 0.24 in, Roomy 0.3, Wide 0.36; 3 lines (1 to 8) |
+| Lined notes, Two columns | Lines | 2 or 3 (1 to 12) |
+| Quick bullets | Rows | 5 (2 to 14) |
+| Time line 24 h | Row height (`h`) | Compact 0.18 in, Standard 0.24, Roomy 0.3 |
+| Brain dump, Later, Done list, Time stamps, Focus rounds, Keep, Rotating prompt, A month ago today | Row height (`pitch`), rows | Tight 5.6 mm, Standard 6.6 mm, Wide 8.5 mm; rows up to 8 to 12 |
+| Wall of Awful | Lines to write below (`n`), row height | 0 (0 to 4) |
+| Checkboxes, Habit dots, Scale, Fill-in blanks, Words, Sensory load, Sleep times, Weather, Bus plan, Spending, Reach out, Work shift, Energy types, Energy accounts, Wall of Awful, Day pixel, Low and high | Roomy spacing (`roomy`) | off, on: more height per row and wider gaps |
+
+Sketch box (`h`), Space (`h`), Spending, Bus plan, Reach out and Work shift (row counts) already had size controls.
 ### Therapy and body blocks (Tier 2)
 Palette-only: none of these is on the default page, so an unchanged layout prints exactly the same. They sit under **Therapy** and **Body** headings in the palette.
 The Therapy blocks (diary card and thought record) each print a small "Use with a therapist" line with **988** (call or text) and **Trans Lifeline (877) 565-8860**, the same numbers as the Support page (`THERAPY_NOTE` in `daypage.mjs`; keep it in step with `content/support.json`). They are not advice.

@@ -463,6 +463,7 @@ function dayFull(d) {
     events: ev,
     fact: d.fact ? `<div class="fact" data-zone="fact"><b>On this day</b> ${esc(d.fact)}</div>` : '',
     routines,
+    day: { date: d.date, rise: d.sun.rise, set: d.sun.set }, // Tier 2 blocks: the 24 h line's night, the look-back date, the rotating prompt
   };
   return dayBlocks(parts, DAYPAGE);
 }
