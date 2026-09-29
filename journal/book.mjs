@@ -110,7 +110,7 @@ export const entriesFor = (book, volId) => (book.months && book.months[volId] ? 
 //   opts.hardcover: pad to >= 76 pages (KDP hardcover needs 75+); otherwise >= 24 (KDP paperback minimum). Always an even count.
 // A page's `section` and date span (front / month / week / back) ride along into layout.json.
 export function assemble(ctx, entries, opts = {}) {
-  const pages = [], refs = (ctx.refs = {});
+  const pages = [], refs = (ctx.refs = {}), scoped = !!ctx.scoped;
   let sec = 'front', span = null, notesN = 0;
   const push = (s) => pages.push({ cls: '', date: '', shared: false, label: '', ...s, section: sec, from: span ? span[0] : null, to: span ? span[1] : null });
   const addNotes = () => { notesN++; const t = `Notes ${notesN}`; push({ cls: 'notes', type: 'notes', id: `notes.${notesN}`, label: t, html: () => notesPage(t) }); };
@@ -123,12 +123,50 @@ export function assemble(ctx, entries, opts = {}) {
     if (!specs.length) return;
     if (T.align === 'verso') alignToVerso();
     if (T.ref && refs[T.ref] === undefined) refs[T.ref] = pages.length + 1;
+    if (scoped && T.ref && at.M && refs[`${T.ref}_${at.M.key.replace('-', '')}`] === undefined) refs[`${T.ref}_${at.M.key.replace('-', '')}`] = pages.length + 1; // {{P_TRACKER_202610}}: that month's page
     specs.forEach(push);
   };
   const monthStartWeek = (M) => ctx.D.weeks.find((W) => W.days.some((d) => d.m === M.m && d.y === M.y));
+  // ---- books longer than a month (ctx.scoped, see span.mjs) ----
+  // A week belongs to the month its first day (in this volume) is in; a month's pages go before its first week, and its Closing page
+  // (when the plan closes each month) after its last week, if the month ends inside this volume. Undated books have no months to
+  // close: one Closing page goes where the book's Closing entry is. Only the last week of the last volume always gets a review and an
+  // Exchange spread; a week cut by the end of a volume gets them in the volume that holds its Sunday.
+  const eomOf = (M) => new Date(Date.UTC(M.y, M.m, 0)).getUTCDate();
+  const extras = (ctx.plan && ctx.plan.undated && ctx.plan.undated.extras) || [];
+  const skipUndated = (type) => ctx.undated && ((type === 'theme' && !extras.includes('theme')) || (type === 'month_tracker' && !extras.includes('tracker')));
+  const lastDay = ctx.D.days[ctx.D.days.length - 1];
+  const needsEnd = scoped && (ctx.undated || ctx.closingPolicy === 'end' || lastDay.d !== eomOf(lastDay));
+  const closingEntry = entries.find((e) => e.type === 'closing');
+  function scopedWeeks(o) {
+    const weeks = ctx.D.weeks;
+    let cur = null;
+    const monthOf = (W) => (ctx.undated ? ctx.D.months.find((M) => M.startWeek === W.no - 1) : ctx.D.months.find((M) => M.y === W.days[0].y && M.m === W.days[0].m));
+    const closeCurrent = () => {
+      if (!cur || ctx.undated || ctx.closingPolicy !== 'month' || !closingEntry) return;
+      const l = cur.days[cur.days.length - 1];
+      if (l.d === eomOf(cur)) { sec = 'month'; span = [cur.days[0].date, l.date]; emit(closingEntry, { M: cur, kind: 'month' }); }
+    };
+    weeks.forEach((W, wi) => {
+      const M = monthOf(W);
+      if (M && (ctx.undated || M !== cur)) {
+        if (!ctx.undated) closeCurrent();
+        cur = M; sec = 'month'; span = ctx.undated ? null : [M.days[0].date, M.days[M.days.length - 1].date];
+        for (const s of o.month || []) if (!skipUndated(s.type)) emit(s, { M });
+      }
+      sec = 'week'; span = ctx.undated ? null : [W.days[0].date, W.days[W.days.length - 1].date];
+      const endsHere = ctx.undated || W.days[W.days.length - 1].weekday === 0 || (wi === weeks.length - 1 && ctx.VOL.isLast);
+      for (const s of o.week || []) { if (PAGE_TYPES[s.type].when === 'weekEnd' && !endsHere) continue; emit(s, { W }); }
+    });
+    closeCurrent();
+    sec = 'back'; span = null;
+  }
   for (const entry of entries) {
+    if (scoped && entry.type === 'closing') { if (needsEnd) emit(entry, { kind: 'end' }); continue; }
+    if (scoped && skipUndated(entry.type)) continue;
     if (entry.type !== 'weeks') { emit(entry); continue; }
     const o = entry.options || {};
+    if (scoped) { scopedWeeks(o); continue; }
     for (const W of ctx.D.weeks) {
       const M = ctx.D.months.find((M) => monthStartWeek(M) === W);
       if (M) { sec = 'month'; span = [M.days[0].date, M.days[M.days.length - 1].date]; for (const s of o.month || []) emit(s, { M }); }
@@ -138,8 +176,10 @@ export function assemble(ctx, entries, opts = {}) {
     }
     sec = 'back'; span = null;
   }
+  if (ctx.undated && extras.includes('notes')) { addNotes(); addNotes(); }
   const min = opts.hardcover ? 76 : 24;
   while (pages.length < min || pages.length % 2) addNotes();
+  if (opts.count) return { pages, refs };
   for (const p of pages) {
     const raw = p.html();
     const miss = [...raw.matchAll(/\{\{P_(\w+)\}\}/g)].map((m) => m[1].toLowerCase()).filter((k) => refs[k] === undefined);

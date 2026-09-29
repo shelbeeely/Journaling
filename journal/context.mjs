@@ -13,7 +13,7 @@ export function applyModules(layout) {
   return off.length ? { ...layout, blocks: layout.blocks.map((b) => (off.includes(b.type) ? { ...b, on: false } : b)) } : layout;
 }
 const here = (p) => new URL(p, import.meta.url);
-const readJson = (p) => (fs.existsSync(here(p)) ? JSON.parse(fs.readFileSync(here(p), 'utf8')) : null);
+export const readJson = (p) => (fs.existsSync(here(p)) ? JSON.parse(fs.readFileSync(here(p), 'utf8')) : null);
 
 export async function loadContext({ month, ics, size = 'small', quiet = false }) {
   const [yr, mo] = month.split('-').map(Number);

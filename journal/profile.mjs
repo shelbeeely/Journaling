@@ -6,6 +6,8 @@
 // A missing or wrong field stops the build with one message that lists every problem (assertProfile).
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
+import { planProblems, newBookId } from './plan.mjs';
 
 const HERE = path.dirname(new URL(import.meta.url).pathname);
 export const PROFILE_FILE = process.env.KW_PROFILE ? path.resolve(process.env.KW_PROFILE) : path.join(HERE, 'content/profile.json');
@@ -51,6 +53,7 @@ export function validateProfile(p) {
     if (typeof b.edition === 'number' && !(Number.isInteger(b.edition) && b.edition >= 1 && b.edition <= 9)) bad('book.edition', 'must be a whole number 1 to 9 (a longer number pushes the page code past 16x16 modules)');
     if (str(b.start) && !/^\d{4}-(0[1-9]|1[0-2])$/.test(b.start)) bad('book.start', `must look like 2026-10, got ${JSON.stringify(b.start)}`);
     if (str(b.slug) && !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(b.slug)) bad('book.slug', 'lowercase letters, digits and dashes only');
+    errs.push(...planProblems(b));
     if (b.epoch !== undefined && !(str(b.epoch) && /^\d{4}-\d{2}-\d{2}$/.test(b.epoch) && new Date(b.epoch + 'T00:00:00Z').getUTCDay() === 1)) bad('book.epoch', 'optional; must be a Monday like 2026-09-28 (default: the Monday on or before the 1st of book.start)');
   }
   if (sect('location', [['place', 'text', 'as printed, e.g. "Spokane, WA"'], ['city', 'text', 'short name used in sentences, e.g. "Spokane"'], ['region', 'text', 'e.g. "Washington"'], ['lat', 'num', 'degrees, north positive'], ['lon', 'num', 'degrees, east positive (west is negative)'], ['timezone', 'text', 'IANA name, e.g. "America/Los_Angeles"'], ['timezone_name', 'text', 'as printed, e.g. "Pacific Time"']])) {
@@ -104,6 +107,21 @@ export const PROFILE = Object.freeze({
   paths: { support: null, trans: null, clinic: null, transit: 'gtfs', seasons: null, ...(raw.paths || {}) },
   transit: raw.transit || null,
 });
+
+// The book's own id for scan codes (every book except the monthly ones has one: see plan.mjs, "scan-code space"). It is made once, the
+// first time such a book is built, and written into the profile file as book.id, so the same book always has the same id.
+export function ensureBookId() {
+  if (PROFILE.book.id) return PROFILE.book.id;
+  const id = newBookId(crypto.randomBytes(5));
+  const text = fs.readFileSync(PROFILE_FILE, 'utf8');
+  const m = /("book"\s*:\s*\{)(\s*)/.exec(text); // the id goes first in the book section, with the section's own indentation
+  if (!m) throw new Error(`Cannot add book.id to ${PROFILE_FILE}: no "book" section found. Add "id": "${id}" to it by hand.`);
+  const out = text.slice(0, m.index) + `${m[1]}${m[2] || ' '}"id": "${id}",${m[2] || ' '}` + text.slice(m.index + m[0].length);
+  try { JSON.parse(out); } catch { throw new Error(`Cannot add book.id to ${PROFILE_FILE} automatically. Add "id": "${id}" to its "book" section by hand.`); }
+  fs.writeFileSync(PROFILE_FILE, out);
+  PROFILE.book.id = id;
+  return id;
+}
 
 // ---- derived values, one definition each ----
 const pad2 = (n) => String(n).padStart(2, '0');

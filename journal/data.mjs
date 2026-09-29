@@ -43,7 +43,7 @@ const SEASONS = PROFILE.paths.seasons
   : Object.fromEntries(KO.map((k, i) => [String(i + 1), [k[2], '']]));
 if (!SEASONS || !SEASONS['72']) throw new Error(`profile paths.seasons (${PROFILE.paths.seasons}) must export SEASONS (or SPOKANE) with entries "1" to "72", each [name, note]`);
 const SIGNS = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
-const GLYPH = { Aries: '♈', Taurus: '♉', Gemini: '♊', Cancer: '♋', Leo: '♌', Virgo: '♍', Libra: '♎', Scorpio: '♏', Sagittarius: '♐', Capricorn: '♑', Aquarius: '♒', Pisces: '♓' };
+export const GLYPH = { Aries: '♈', Taurus: '♉', Gemini: '♊', Cancer: '♋', Leo: '♌', Virgo: '♍', Libra: '♎', Scorpio: '♏', Sagittarius: '♐', Capricorn: '♑', Aquarius: '♒', Pisces: '♓' };
 const norm = (x) => ((x % 360) + 360) % 360;
 const signOf = (lon) => SIGNS[Math.floor(norm(lon) / 30)];
 const PLANETS = ['Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'];
@@ -127,6 +127,39 @@ function loadEvents(paths, t0, t1) {
   return byDay;
 }
 
+// Weeks (Mon–Sun) and months of a run of days. Also used to cut one long span into volumes (sliceDays), so a volume's weeks and
+// months are found by exactly the same rules as a monthly book's.
+//   Weeks: Monday-based. gi = global week index counted from the profile's week 0 (book.epoch, default the Monday on or before the 1st
+//   of book.start; Mon Sep 28 2026 for Shelbee). A week cut by the run's edge keeps only the days that are in the run.
+//   Months: a month belongs to a monthly book if its 15th is inside it (default). `opt.ownerFirst` (longer books): a month belongs
+//   to every run that holds any of its days, and `M.days` is only the days in the run.
+export function groupSpan(days, words = [], opt = {}) {
+  const EPOCH = epochMs();
+  const weeks = [];
+  for (const day of days) {
+    if (!weeks.length || day.weekday === 1) {
+      const monday = Date.UTC(day.y, day.m - 1, day.d) - ((day.weekday + 6) % 7) * 864e5;
+      const gi = Math.round((monday - EPOCH) / (7 * 864e5));
+      weeks.push({ n: weeks.length + 1, gi, days: [], word: null });
+    }
+    weeks[weeks.length - 1].days.push(day);
+  }
+  for (const W of weeks) W.word = words[W.gi] || null;
+  const mname = (x) => new Date(Date.UTC(x.y, x.m - 1, 1)).toLocaleDateString('en-US', { month: 'long', timeZone: 'UTC' });
+  let months;
+  if (!opt.everyMonth) months = days.filter((x) => x.d === 15).map((x) => ({ y: x.y, m: x.m, name: mname(x), days: days.filter((z) => z.y === x.y && z.m === x.m) }));
+  else {
+    months = [];
+    for (const x of days) if (!months.some((M) => M.y === x.y && M.m === x.m)) months.push({ y: x.y, m: x.m, name: mname(x), days: days.filter((z) => z.y === x.y && z.m === x.m) });
+  }
+  return { weeks, months };
+}
+// The days [a, b) of a longer build as a build of their own (a volume): same day objects, weeks and months regrouped.
+export function sliceDays(D, a, b, volume, words = []) {
+  const days = D.days.slice(a, b), { weeks, months } = groupSpan(days, words, { everyMonth: true });
+  return { ...D, volume, days, weeks, months };
+}
+
 const HOL = {};
 export function build(icsPath, vol, words = []) {
   const [sy, sm, sd] = vol.start;
@@ -172,7 +205,7 @@ export function build(icsPath, vol, words = []) {
     const mm = key.slice(5);
     for (const h of (HOL[y] ||= holidays(y))[mm] || []) notes.unshift({ kind: 'holiday', text: h.name, federal: h.federal });
     for (const t of PAY[key] || []) notes.push({ kind: 'pay', text: t });
-    if (BUS && BUS.holiday_service.includes(key) && key >= BUS_START && key <= BUS_END && busCoverage(vol.id) !== 'none') notes.push({ kind: 'bus', text: `${PROFILE.transit.agency}: Sunday bus schedule` });
+    if (BUS && BUS.holiday_service.includes(key) && key >= BUS_START && key <= BUS_END && busCoverage(key.slice(0, 7)) !== 'none') notes.push({ kind: 'bus', text: `${PROFILE.transit.agency}: Sunday bus schedule` });
     if (METEORS[mm]) notes.push({ kind: 'sky', text: METEORS[mm] });
 
     // Retrogrades + stations
@@ -218,21 +251,7 @@ export function build(icsPath, vol, words = []) {
     d = end;
   }
 
-  // Weeks (Mon–Sun) and months
-  // Monday-based weeks. gi = global week index counted from the profile's week 0 (book.epoch, default the Monday on or before the 1st of book.start; Mon Sep 28 2026 for Shelbee).
-  const EPOCH = epochMs();
-  const weeks = [];
-  for (const day of days) {
-    if (!weeks.length || day.weekday === 1) {
-      const monday = Date.UTC(day.y, day.m - 1, day.d) - ((day.weekday + 6) % 7) * 864e5;
-      const gi = Math.round((monday - EPOCH) / (7 * 864e5));
-      weeks.push({ n: weeks.length + 1, gi, days: [], word: null });
-    }
-    weeks[weeks.length - 1].days.push(day);
-  }
-  for (const W of weeks) W.word = words[W.gi] || null;
-  // A month belongs to this book if its 15th is inside it.
-  const months = days.filter((x) => x.d === 15).map((x) => ({ y: x.y, m: x.m, name: new Date(Date.UTC(x.y, x.m - 1, 1)).toLocaleDateString('en-US', { month: 'long', timeZone: 'UTC' }), days: days.filter((z) => z.y === x.y && z.m === x.m) }));
+  const { weeks, months } = groupSpan(days, words);
   return { config: CONFIG, volume: vol, days, weeks, months, glyphs: GLYPH, generated: new Date().toISOString() };
 }
 
