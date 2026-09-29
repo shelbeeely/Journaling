@@ -207,6 +207,8 @@ run with the real calendar secrets; order one private KDP proof per size with th
 | S1 | Spread days: a day can cover one page or a whole two-page spread (section 12); after H1 merges | 1 agent |
 | SC | Scan options: Send-to as a block, scanning border toggle, configurable matrix code, per-book code ids (section 13); after H1 merges | 1 agent |
 | X | X4-hosted editor: edit right from the device's hotspot, no internet; cloud sync goes through the phone (section 14); after C4a and G1 | 1–2 agents |
+| E1 | View versus edit: the editor UI (palette, options, panels) shows only while editing a page, not while viewing it (section 16); small, can go now | 1 agent |
+| L1 | Library and series: custom titles for every book, several books per project, series, Library → Series → Book → Spread → Page navigation (section 16); after H1 merges | 1–2 agents |
 | A11Y | Accessibility options: editor, printed books, X4, site (section 15); audit first, then units; every new unit follows the checklist | 2–3 agents |
 
 Every unit follows the same proof as the fixes: reproduce, fix, rebuild all 12 months at both sizes with the checks
@@ -363,3 +365,19 @@ Accessibility is a requirement on every unit, plus a set of user-facing options.
 **Digital outputs:** the X4 EPUBs and the docs get accessibility metadata and a real heading structure.
 
 **Checklist for every unit:** keyboard path, screen reader label, contrast, reflow at 400 percent, reduced motion, phone at 390 px, and a test for each.
+
+## 16. Library, series, custom titles, and view versus edit (2026-09-29)
+
+**Custom titles.** Every book has its own title, subtitle and cover text, set in the editor (not only in `profile.json`): `book.title`, `book.subtitle`, plus an optional short spine title. Titles flow to the cover, title page, running head where one exists, file names, the manifest and the studio. Volumes of one book print "Volume N of M" under the book's own title.
+
+**Several books.** A project (a local project file, or a studio project) holds many books. Each book has its own scope (month, quarter, year, undated, custom), `book.id` (scan-code namespace, KW2 or KW3), layout, and page list; books can share reusable pages and layouts.
+
+**Series.** A series is a named, ordered group of books (for example "2027 monthly books", "Undated season journals", "Theme System Yr 2") with shared defaults that each book can override: day layout, cover style, profile modules, book plan defaults. A book belongs to at most one series or none. Series order sets numbering ("Book 3 of 12 in the series") and the Keeper can span a series (twelve-book Keeper is one series option). This is separate from volumes: volumes are an automatic split of one book past 110 pages; series membership is chosen by the user. Every book in a series still gets its own book id, so codes stay unique.
+
+**Navigation (extends C4a).** One continuous zoom: **Library** (all series and standalone books, as shelves of covers) → **Series** (its books) → **Book** (whole book, all spreads) → **Spread** → **Page or day**. Editing a series opens on the series (its books), not on a page. The breadcrumb reads `Library › Series › Book › Spread 12 › Day Oct 14`; the URL hash records the level (`#library`, `#series/<id>`, `#book/<id>`, ...); guests keep the library in the browser; signed-in users keep it in the studio. Standalone books skip the series level. Keyboard and screen-reader rules from section 15 apply at every level.
+
+**View versus edit.** At every level the page is shown for viewing first. The editor UI (block palette, options, layout controls, Flow/Grid switch, undo) is visible only while editing a page: an explicit **Edit** action on a page or day enters edit mode and **Done** leaves it. Viewing is clean, uncluttered and read-only; edit mode shows the panels. Series and book settings (title, plan, defaults) have their own settings sheets, not a permanent sidebar. The mode is in the URL hash (`#day/2026-10-14/edit`) and announced to screen readers; reduced-motion and 44px rules hold.
+
+**Studio.** A project's commits snapshot the whole library; forks copy the project (books and series); merges work per book and per series setting using stable ids; releases are per book. Book ids are allocated per book.
+
+**Slices:** E1 view versus edit in the current editor (small); L1a data model (books and series in the project file and `profile`, custom titles through covers, manifests and the studio schema, migration from a single-book profile), L1b Library, Series and Book navigation in the editor plus series defaults and the Keeper option.
