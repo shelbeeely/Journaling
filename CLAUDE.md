@@ -1,6 +1,8 @@
-# Keeping Watch: context for Claude Code
+# Journalwright Studio: context for Claude Code
 
-Shelbee's year-long journaling system. Read README.md, then HANDOFF.md (status + backlog), then the folder you touch
+Journalwright Studio is the product: a system for designing and publishing physical journals and planners (block editor, book canvas,
+KDP-ready PDFs, optional X4 e-ink companion). *Keeping Watch* is Shelbee's own book title (her profile): her year-long journal and
+the first book made with it. Read README.md, then HANDOFF.md (status + backlog), then the folder you touch
 (`journal/README.md`, `x4/CLAUDE.md`).
 
 ## How Shelbee works
@@ -23,6 +25,9 @@ Shelbee's year-long journaling system. Read README.md, then HANDOFF.md (status +
 - `studio/`: Journalwright Studio (Phase G): Node + SQLite + HTTP API for projects, commits, branches, drafts, import/export of
   `content/book.json` and `daypage.json`. `npm start`, `npm test`; the editor's Versions drawer talks to it. Never put private pages,
   calendars, profile secrets or packs into a snapshot (`studio/src/snapshot.mjs` refuses them). See `studio/README.md`.
+- `site/`: the product website (plain HTML/CSS/JS). `site/build.sh` assembles it: the site at the root, the editor demo under
+  `/editor/` (generic profile and `test.ics` only, never saving anywhere), a titles-only docs index under `/docs/`, then runs the privacy gate (no Spokane, Keeping Watch or Shelbee) and `check-links.mjs`.
+  The Editor workflow publishes it and puts the working editor under `/app/`. Nothing else deploys to the Pages root.
 - `x4/`: ESP32-C3 firmware on the FreeInk SDK (pinned in `.github/workflows/firmware.yml`). See `x4/CLAUDE.md`.
 
 ## Rules that matter

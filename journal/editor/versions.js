@@ -437,6 +437,7 @@ $('#vs-out').onclick = async () => {
   stBanner(''); stDrawCtx(); setStatus('Signed out of Studio');
 };
 async function stInit() { // a stored token, or this very server (Studio serves the editor itself)
+  if (MODE === 'demo') { $('#v-ver').hidden = true; return; } // the public demo saves nothing anywhere: no versions, no server
   $('#vs-url').value = ST.url;
   stCmpClear(); stLocalRefresh();
   await stProbe();

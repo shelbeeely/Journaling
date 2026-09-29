@@ -1,14 +1,17 @@
-# Builds the day page editor and publishes it with GitHub Pages.
-# The editor only ever contains a generic sample day, so the site is safe to be public.
+# Builds the product site (site/), the editor demo and the day page editor, and publishes them with GitHub Pages:
+#   /            the Journalwright Studio site (site/)
+#   /editor/     the live editor DEMO: generic profile + test.ics only, never saves anywhere, "demo, sample data" banner
+#   /app/        the working editor (saves in the browser, commits daypage.json with a token); it used to live at the root
+# Everything published is generic sample data, so the site is safe to be public.
 # Private repo on a free plan (no Pages)? Set the EDITOR_PAGES_REPO variable (e.g. you/keeping-watch-editor, a public
 # repo) and the EDITOR_PAGES_TOKEN secret (token with contents:write on it); the site is pushed there instead.
 name: Editor
 on:
   push:
     branches: [main]
-    paths: ['journal/daypage.mjs', 'journal/pages.mjs', 'journal/book.mjs', 'journal/context.mjs', 'journal/editor/**', 'journal/content/layouts.mjs', 'journal/render.mjs', 'journal/content/daypage.json', 'studio/src/diff.mjs', 'studio/src/canonical.mjs', '.github/workflows/editor.yml']
+    paths: ['journal/daypage.mjs', 'journal/pages.mjs', 'journal/book.mjs', 'journal/context.mjs', 'journal/editor/**', 'journal/content/layouts.mjs', 'journal/render.mjs', 'journal/content/daypage.json', 'journal/profile.mjs', 'journal/content/profile.example.json', 'site/**', 'studio/src/diff.mjs', 'studio/src/canonical.mjs', '.github/workflows/editor.yml']
   pull_request:
-    paths: ['journal/daypage.mjs', 'journal/pages.mjs', 'journal/book.mjs', 'journal/context.mjs', 'journal/editor/**', 'journal/content/layouts.mjs', 'studio/src/diff.mjs', 'studio/src/canonical.mjs']
+    paths: ['site/**', 'journal/profile.mjs', 'journal/content/profile.example.json', 'journal/daypage.mjs', 'journal/pages.mjs', 'journal/book.mjs', 'journal/context.mjs', 'journal/editor/**', 'journal/content/layouts.mjs', 'studio/src/diff.mjs', 'studio/src/canonical.mjs']
   workflow_dispatch:
 permissions: { contents: read, pages: write, id-token: write }
 concurrency: { group: pages, cancel-in-progress: true }
@@ -26,12 +29,16 @@ jobs:
       - run: node editor/build.mjs
       - name: Editor tests (drag from palette, every block, overflow meter)
         run: node editor/test.mjs
+      - name: Assemble the site (root), the editor demo (/editor/) and the working editor (/app/); check links
+        run: |
+          "$GITHUB_WORKSPACE/site/build.sh" "$GITHUB_WORKSPACE/_site"
+          mkdir -p "$GITHUB_WORKSPACE/_site/app" && cp -r editor/dist/site/. "$GITHUB_WORKSPACE/_site/app/"
       - uses: actions/upload-artifact@v4
         if: always()
         with: { name: editor-test-screens, path: journal/editor/dist/test/ }
       - uses: actions/upload-pages-artifact@v3
         if: github.event_name != 'pull_request' && vars.EDITOR_PAGES_REPO == ''
-        with: { path: journal/editor/dist/site }
+        with: { path: _site }
       - name: Push to the public editor repo instead
         if: github.event_name != 'pull_request' && vars.EDITOR_PAGES_REPO != ''
         uses: peaceiris/actions-gh-pages@v4
@@ -39,7 +46,7 @@ jobs:
           personal_token: ${{ secrets.EDITOR_PAGES_TOKEN }}
           external_repository: ${{ vars.EDITOR_PAGES_REPO }}
           publish_branch: gh-pages
-          publish_dir: journal/editor/dist/site
+          publish_dir: _site
   deploy:
     needs: build
     if: github.event_name != 'pull_request' && vars.EDITOR_PAGES_REPO == ''
