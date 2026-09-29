@@ -208,18 +208,37 @@ sequence) and adds what is never hand-set: recto/verso Notes pages, the even pag
 references. `render.mjs` only adds the frame, scan markers and page codes. The editor build writes
 `editor/dist/site/pages-sample.json` (every page type from `test.ics`, no clinic details).
 
-### Book view (read-only canvas)
-The editor's **Book** tab (next to **Day**, or open `#book`) shows the whole book on a pan/zoom canvas, spreads laid out as it
-opens: the title page alone on the right, then left|right pairs (even|odd), the last even page alone on the left. Every
-page is a live thumbnail drawn by `pages.mjs` from the sample calendar (`test.ics`, never your data; no clinic details),
-with its number and id. Thumbnails are painted lazily, only near the view.
-- **Zoom:** whole book / one spread / one page buttons, - and +, mouse wheel (at the pointer), two-finger pinch, keys
-  `+` `-` `0` (book) `1` (spread) `2` (page). Drag or arrow keys to move; `[` `]` previous/next page, `Home` `End`.
+### Book-first navigation (the editor opens on the Book)
+The editor opens on the **Book**: the whole book on a pan/zoom canvas, spreads laid out as it opens (title page alone on the
+right, then left|right pairs, the last even page alone on the left). Every page is a live thumbnail drawn by `pages.mjs` from the
+sample calendar (`test.ics`, never your data; no clinic details), painted lazily near the view. There are no tabs: zoom is one
+continuous semantic zoom through three levels.
+
+| Level | What you see | URL hash |
+| --- | --- | --- |
+| Book | every spread | `#book` |
+| Spread | two facing pages, large | `#spread/12` (1-based) |
+| Day | the day-page editor (Flow/Grid, palette, options, undo, save, methods) for a day page; a read-only page view for any other page until block pages arrive (C5) | `#day/2026-10-14`, `#page/safety` |
+
+- **Move between levels:** tap a page (book to spread, spread to day; a quick double tap goes straight to the day), zoom in past
+  one whole page (wheel, pinch, `+`), the Book / Spread / Day buttons, the breadcrumb (`Book > Spread 12 > Day Oct 14`), Back.
+  Out: breadcrumb, Back, `Escape`, a pinch in or ctrl/cmd + wheel over the page at the day level. Plain wheel zooms the canvas
+  (it does not scroll); the browser's own zoom is left alone everywhere else.
+- **Keys:** `Enter` in, `Escape` out, `Alt+Up` / `Alt+Down` out / in from anywhere, `0` book, `1` spread, `2` day (canvas);
+  `+` `-` zoom, arrows pan, `[` `]` previous/next page, `Home` `End`, `g` or `/` jumps.
+- **URL:** the hash records the level, so links, reload and the browser's Back and Forward restore it (an unknown or out-of-range
+  hash opens the book). Back (the button) uses history when there is some, else goes up one level.
+- **Accessibility:** every control is a labelled 44px button; the breadcrumb is a labelled `nav` with `aria-current`; a live region
+  says "Now at: ..." on every level change and focus moves to the current crumb; focus is visible; with reduced motion the zoom
+  between levels is instant.
 - **Jump:** type a page number (`30`, `p30`) or an id (`safety`, `week.03.review`, a date like `2026-10-05`).
 - **Legend (i):** lock = protected page (Closing, Support, Safety plan: can move, never hidden); pages a book hides in
   `content/book.json` sit dimmed in a row under the book; the 5.5x8.5 / 8.5x11 switch reflows the same pages.
-- Read-only: reordering, hiding and adding pages come in the next canvas step. Works in the GitHub Pages site (loads
-  `pages-sample.json`) and the Artifact (the sample book is embedded, gzipped).
+- **Versions mount:** `#versions-slot` (header, every level) and `#versions-drawer` are empty shells; `KW.drawer.open()` /
+  `.close()`, `KW.on(fn)` (level changes) and `KW.go(target)` are the hooks for the Versions panel.
+- The day editor edits one layout shared by every day page; its preview is a sample day whatever date you opened.
+  Reordering, hiding and adding pages come in later canvas steps. Works in the GitHub Pages site (loads `pages-sample.json`) and
+  the Artifact (the sample book is embedded, gzipped).
 
     node check-identical.mjs          # after build-all.sh: the default books still match identical.json
 
@@ -244,6 +263,7 @@ default books: rebuild them all, then `node check-identical.mjs --update` and co
 - `node test-book.mjs` checks the rules and the sequence. A book that differs from the default is skipped by `check-identical.mjs`.
 
 ## Day page editor
+(This is the day level of the editor: open a day page from the Book, or `#day/2026-10-14`.)
 `daypage.mjs` is the block library: order, on/off and options for every day page block. `content/daypage.json`
 (written by the editor) overrides the default; with no file the page is the original layout.
 
