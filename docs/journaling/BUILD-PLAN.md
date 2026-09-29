@@ -205,6 +205,7 @@ run with the real calendar secrets; order one private KDP proof per size with th
 | H | Other book scopes: quarter, season, half-year, year, custom range, undated planner; auto-split into volumes past the paperback page limit (section 11); after the page grid and G1 land | 1–2 agents |
 | C4a | Editor navigation: the Book view is the default; zooming in goes book → spread → day; day view is the day-page editor (section 12) | 1 agent |
 | S1 | Spread days: a day can cover one page or a whole two-page spread (section 12); after H1 merges | 1 agent |
+| SC | Scan options: Send-to as a block, scanning border toggle, configurable matrix code, per-book code ids (section 13); after H1 merges | 1 agent |
 
 Every unit follows the same proof as the fixes: reproduce, fix, rebuild all 12 months at both sizes with the checks
 (overflow, spreads, scan codes, fonts), look at the pages, editor and X4 previews, Firmware CI green, PR.
@@ -309,3 +310,17 @@ The user writes the dates. It works as a general journal, and it is the kind ADH
 |---|---|
 | Open the site, editor demo and sample book; use the block, day and book editors; autosave to this browser; export the project to a file and import it back; build and download print PDFs and the X4 pack from their own data (local build); read public projects and their history; fork to their own browser copy | Save projects to the server; commits, branches, history and restore; forks with attribution; change proposals and reviews; merges; releases; reusable-page updates; private projects and sharing with named people; server-side autosave across devices |
 Rules: guests never need an account to design or print; signing in never uploads anything unless the user saves or publishes; private data stays out of forkable publication source; a guest's local project can be imported into an account project in one step.
+
+## 13. Scan options (decisions, 2026-09-29)
+
+This relaxes the old rule that the header, frame, SEND TO strip and page code are fixed. The default book still prints exactly as today (fingerprints stay identical); everything below is opt-in or per-layout.
+
+- **Send-to is a block.** A `sendto` block on the day page (and available on other pages when the page becomes block-based): the symbol strip (fire, water, air, earth, moon, pentacle) with its bubbles, its own `data-zone` `send_to`, options for which symbols, size and paper. It sits in the grid like any block. The default layout keeps it in today's spot.
+- **Scanning border toggle.** Per page (and a layout default): frame and corner marks on or off. When off, the code still identifies the page (Shelbee: "code only"), but the frame that lets the scanner straighten and crop is gone, so send-to bubbles and writing-area crops do not work on that page. The editor states what stops working each time it is switched off.
+- **Matrix code options.** Position (corner or edge, keeping the quiet zone and a safe minimum size), size, on or off per page (pages that carry it stay unique), format (Data Matrix or QR), content (page id only, or id plus edition and book), and an optional tiny printed label. It never holds private data. The build checks every code still decodes at the chosen size and position.
+- **Unique codes across many books.** Uniqueness is scoped by a **book id**, not only by month:
+  - `content/profile.json` gets `book.id` (8 base32 characters, 40 bits, generated once at random if missing and written back; an account or project allocates it on the server; guests generate it locally).
+  - Existing month books keep the `KW2|edition|yymm|size|page` code byte-identically. New scopes (undated, quarter, year, custom) and every volume use `KW3` = book id + volume + page, in page order and never date-based, so several undated journals by one person never collide.
+  - `check-codes.mjs` reads every manifest present, fails on a repeated code or a repeated book id, and decodes samples; the manifest records book id, volume and page. A registry of a person's book ids lives in the project and is checked when a book is created.
+  - The 16 by 16 Data Matrix holds 16 alphanumeric characters; a longer configured content moves to the next symbol size and the build says so.
+- **Rules that stay:** the Keeper never gets scan codes; private content never goes into a code; every page keeps its printed label; no Type 3 fonts; every page passes `check.mjs`.
