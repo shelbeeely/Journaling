@@ -22,6 +22,9 @@ the first book made with it. Read README.md, then HANDOFF.md (status + backlog),
 - `journal/editor/`: `template.html` + `build.mjs` produce `dist/site/` (GitHub Pages: saves in the browser, commits
   via a fine-grained token) and `dist/artifact.html` (Claude Artifact: saves to the artifact store `layouts/day`).
   `test.mjs` is the smoke test CI runs.
+- `studio/`: Journalwright Studio (Phase G): Node + SQLite + HTTP API for projects, commits, branches, drafts, import/export of
+  `content/book.json` and `daypage.json`. `npm start`, `npm test`; the editor's Versions drawer talks to it. Never put private pages,
+  calendars, profile secrets or packs into a snapshot (`studio/src/snapshot.mjs` refuses them). See `studio/README.md`.
 - `site/`: the product website (plain HTML/CSS/JS). `site/build.sh` assembles it: the site at the root, the editor demo under
   `/editor/` (generic profile and `test.ics` only, never saving anywhere), a titles-only docs index under `/docs/`, then runs the privacy gate (no Spokane, Keeping Watch or Shelbee) and `check-links.mjs`.
   The Editor workflow publishes it and puts the working editor under `/app/`. Nothing else deploys to the Pages root.

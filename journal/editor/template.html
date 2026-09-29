@@ -108,7 +108,7 @@ ul.sub .opts { padding-left: 40px; }
 .meter b { color: var(--ink); font-weight: 600; }
 .meter .warn { color: var(--warn); background: var(--warn-bg); padding: 2px 8px; border-radius: 999px; }
 .paper, .sheet { background: #fff; box-shadow: var(--shadow); border-radius: 3px; overflow: hidden; position: relative; }
-#pv { transform-origin: 0 0; position: absolute; top: 0; left: 0; color: #111; }
+#pv { transform-origin: 0 0; position: absolute; top: 0; left: 0; color: #111; --ink: #111; } /* the page is always ink on white: the page CSS's icons read var(--ink), which the dark theme would otherwise turn light */
 #pv [data-b] { cursor: grab; transition: background .12s, outline-color .12s; outline: 1.5px dashed transparent; outline-offset: 1px; }
 #pv [data-b]:hover { outline-color: #9bb8b2; }
 #pv [data-b].hl { outline-color: #3f5f5a; background: rgba(63, 95, 90, .06); }
@@ -214,7 +214,7 @@ html[data-view="page"], html[data-view="page"] body { overflow: auto; }
 #bk-view { position: relative; flex: 1; min-height: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: var(--soft); touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; contain: strict; }
 #bk-view.drag { cursor: grabbing; }
 #bk-view:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-#bk-world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+#bk-world { position: absolute; left: 0; top: 0; transform-origin: 0 0; --ink: #111; }
 #bk-view.anim #bk-world { transition: transform .28s ease; }
 .sp { position: absolute; }
 .sp::before { content: ""; position: absolute; inset: -26px -26px -14px; background: rgba(127,120,105,.14); border-radius: 18px; pointer-events: none; }
@@ -261,12 +261,7 @@ html[data-view="page"], html[data-view="page"] body { overflow: auto; }
 #crumb-list button:hover { background: var(--soft); color: var(--ink); }
 #crumb-list [aria-current="page"] { font-weight: 600; color: var(--ink); padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .nv-lv { flex: none; display: inline-flex; gap: 4px; }
-.nv-slot:empty { display: none; }
-.nv-slot { flex: none; display: inline-flex; align-items: center; gap: 4px; }
 html:not([data-view="day"]) .bar h1 { flex-basis: auto; }
-/* Versions drawer: a shell only; the Versions panel fills it (KW.drawer) */
-.drawer { position: fixed; top: var(--hh, 64px); right: 0; bottom: 0; width: min(380px, 100%); z-index: 8; background: var(--panel); border-left: 1px solid var(--line); box-shadow: var(--shadow); overflow: auto; padding: 16px; }
-.drawer[hidden] { display: none; }
 /* Page view (a page that is not a day page): the page at true look, read-only, with a plain note */
 #pageview { flex-direction: column; align-items: center; gap: 12px; max-width: 1440px; margin: 0 auto; padding: 12px 16px 24px; min-width: 0; }
 .pgv-note { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; width: min(100%, 640px); font-size: 13px; }
@@ -276,7 +271,7 @@ html:not([data-view="day"]) .bar h1 { flex-basis: auto; }
 .pgv-note p { margin: 6px 0 0; color: var(--ink); }
 .pgv-stage { width: 100%; display: flex; justify-content: center; touch-action: pan-x pan-y; }
 #pgv-paper, #paper { touch-action: pan-x pan-y; }
-#pgv { transform-origin: 0 0; position: absolute; top: 0; left: 0; color: #111; }
+#pgv { transform-origin: 0 0; position: absolute; top: 0; left: 0; color: #111; --ink: #111; }
 /* Crossing between the canvas and the day editor: a short fade, none with reduced motion */
 @keyframes kw-in { from { opacity: 0; } to { opacity: 1; } }
 html[data-view="day"] main, html[data-view="page"] #pageview { animation: kw-in .22s ease; }
@@ -290,10 +285,11 @@ html[data-view="day"] main, html[data-view="page"] #pageview { animation: kw-in 
   /* header on a phone: title, Undo, More on the first row; layout and size next; the status line last (one line, not three) */
   .bar { gap: 6px; }
   .bar h1, html[data-view="day"] .bar h1 { order: 1; flex: 1 1 auto; min-width: 0; }
-  #undo { order: 2; } #menu { order: 3; } #laygrp { order: 4; } .bar > .seg[aria-label="Preview size"] { order: 5; margin-left: auto; }
+  #v-ver, #undo { order: 2; } #menu { order: 3; } #laygrp { order: 4; } .bar > .seg[aria-label="Preview size"] { order: 5; margin-left: auto; }
   .status { order: 6; flex: 1 1 100%; font-size: 11.5px; }
   .btn { min-height: 44px; min-width: 44px; }
 }
+/*__VSCSS__*/
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 
@@ -304,6 +300,7 @@ html[data-view="day"] main, html[data-view="page"] #pageview { animation: kw-in 
     <span class="status" id="status" role="status">Loading…</span>
     <span class="seg" id="laygrp" role="group" aria-label="Page layout"><button id="lay-f" aria-pressed="true" title="Blocks stack in order; the writing space takes what is left">Flow</button><button id="lay-g" aria-pressed="false" title="Place blocks on a grid of 4 columns and tight-line rows; blocks can span several">Grid</button></span>
     <span class="seg" role="group" aria-label="Preview size"><button id="sz-s" aria-pressed="true">5.5×8.5</button><button id="sz-l" aria-pressed="false">8.5×11</button></span>
+    <button class="btn" id="v-ver" type="button" aria-haspopup="dialog" aria-label="Versions"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10a6.5 6.5 0 1 0 2-4.7M3.5 3.8v3.4h3.4M10 6.5V10l2.4 1.6"/></svg><span class="lab"> Versions</span></button>
     <button class="btn" id="undo" disabled aria-label="Undo">↶<span class="lab"> Undo</span></button>
     <div class="menu" id="menu"><button class="btn" aria-haspopup="true" aria-expanded="false" id="menubtn">More</button>
       <div role="menu">
@@ -325,9 +322,6 @@ html[data-view="day"] main, html[data-view="page"] #pageview { animation: kw-in 
       <button class="nv-b" type="button" data-nav-level="spread" aria-pressed="false" aria-label="One spread" title="One spread (1)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="3.5" width="7" height="13" rx="1"/><rect x="10.5" y="3.5" width="7" height="13" rx="1"/></svg><span class="lab">Spread</span></button>
       <button class="nv-b" type="button" data-nav-level="day" aria-pressed="false" aria-label="One page: the day page editor" title="Day: edit the page (2)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2.5" width="10" height="15" rx="1.2"/><path d="M7.5 7h5M7.5 10h5"/></svg><span class="lab">Day</span></button>
     </div>
-    <!-- MOUNT: Versions (Phase G). Put the Versions button in #versions-slot and its panel in #versions-drawer; both are on every level.
-         KW.drawer.open() / .close() / .toggle() show and hide the drawer; KW.on(fn) hears every level change (see "navigation"). -->
-    <div id="versions-slot" class="nv-slot"></div>
   </div>
   <div class="tabs" role="tablist">
     <button role="tab" aria-selected="true" data-tab="edit">Blocks</button>
@@ -389,7 +383,7 @@ html[data-view="day"] main, html[data-view="page"] #pageview { animation: kw-in 
   <div class="pgv-note" role="note"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2.5" width="10" height="15" rx="1.2"/><path d="M7.5 7h5M7.5 10h5"/></svg><div><b id="pgv-title"></b><span id="pgv-meta"></span><p>This page is read-only for now. Editing month, week, notes and the other pages arrives in a later step; day pages are editable today.</p></div></div>
   <div class="pgv-stage" id="pgv-stage"><div class="sheet" id="pgv-paper"><div id="pgv"></div></div></div>
 </section>
-<aside id="versions-drawer" class="drawer" hidden aria-label="Versions"></aside>
+<!--__VSHTML__-->
 <input type="file" id="file" accept=".json,application/json" hidden>
 <dialog id="gh">
   <form method="dialog">
@@ -599,13 +593,16 @@ $('#list').addEventListener('change', (e) => { if (e.target.matches('[data-text]
 
 // ---------- preview ----------
 const pv = $('#pv'), paper = $('#paper');
-function drawPreview() {
-  const day = dayBlocks(KIT, layout, { tag: true, size });
-  pv.innerHTML = `<style>${KIT.css}#pv .page { width: ${SIZES[size]}in; }</style><div class="page verso dayp m">${day}${KIT.strip}</div>`;
-  pv.querySelectorAll('.lines').forEach((el) => { // same rule-drawing as the print build
+function drawRules(root) { // same rule-drawing as the print build (the compare view uses it too)
+  root.querySelectorAll('.lines').forEach((el) => {
     const pitch = parseFloat(el.dataset.pitch || '0.26') * 96, n = Math.floor((el.clientHeight - 1) / pitch);
     for (let i = 0; i < n; i++) { const d = document.createElement('div'); d.className = 'rule'; d.style.height = pitch + 'px'; el.appendChild(d); }
   });
+}
+function drawPreview() {
+  const day = dayBlocks(KIT, layout, { tag: true, size });
+  pv.innerHTML = `<style>${KIT.css}#pv .page { width: ${SIZES[size]}in; }</style><div class="page verso dayp m">${day}${KIT.strip}</div>`;
+  drawRules(pv);
   fit(); meter(); hl(selected); drawOverlay();
   if (layout.grid) return; // the grid has no drag-to-reorder: blocks are placed on the overlay
   const dayEl = pv.querySelector('.day.full');
@@ -801,6 +798,7 @@ function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add
 const json = () => JSON.stringify(layout, null, 2) + '\n';
 function queueSave() {
   if (MODE === 'demo') { setStatus('Demo: not saved anywhere'); return; }
+  stQueueDraft(); // Studio draft autosave (does nothing unless signed in to a Studio project)
   if (MODE === 'pages') { store.set('kw-daypage', JSON.stringify(layout)); dirty = true; setStatus('Saved in this browser · not on GitHub yet'); return; }
   if (!db || readOnly) { setStatus(db ? 'View only' : 'Preview only: changes aren’t saved here', 'bad'); return; }
   setStatus('Saving…'); clearTimeout(saveTimer); saveTimer = setTimeout(save, 600);
@@ -1297,9 +1295,9 @@ function zoomOutGestures(el) {
   el.addEventListener('wheel', (e) => { if ((e.ctrlKey || e.metaKey) && e.deltaY > 0) { e.preventDefault(); fire(); } }, { passive: false });
 }
 zoomOutGestures($('#paper')); zoomOutGestures($('#pgv-paper'));
-// Mount points for other panels (Versions, Phase G): KW.drawer holds #versions-drawer; KW.on(fn) hears every level change.
-window.KW = { get level() { return NAV.level; }, go: navGo, in: navIn, out: navOut, on: (fn) => addEventListener('kw:nav', (e) => fn(e.detail)),
-  drawer: { el: $('#versions-drawer'), open() { this.el.hidden = false; hhSync(); }, close() { this.el.hidden = true; }, toggle() { this.el.hidden = !this.el.hidden; hhSync(); } } };
+// The hooks other panels use (the Versions dialog is its own module below): KW.on(fn) hears every level change, KW.go(target) moves.
+window.KW = { get level() { return NAV.level; }, go: navGo, in: navIn, out: navOut, on: (fn) => addEventListener('kw:nav', (e) => fn(e.detail)) };
+/*__VSJS__*/
 
 (async function init() {
   if (store.get('kw-size') === 'letter') { size = 'letter'; $('#sz-s').setAttribute('aria-pressed', false); $('#sz-l').setAttribute('aria-pressed', true); }
@@ -1321,8 +1319,10 @@ window.KW = { get level() { return NAV.level; }, go: navGo, in: navIn, out: navO
     } else setStatus('Preview only: changes aren’t saved here', 'bad');
   }
   if (document.fonts) document.fonts.ready.then(() => drawPreview());
-  // The book opens first; a hash (#spread/12, #day/2026-10-14) restores the level.
+  // The book opens first; a hash (#spread/12, #day/2026-10-14) restores the level. #versions opens the Versions panel over the book.
+  const wantVersions = location.hash === '#versions';
   navGo(navParse(location.hash), { push: false, anim: false });
+  stInit().then(() => { if (wantVersions) showVersions(); });
 })();
 </script>
 <!--__FOOT__-->

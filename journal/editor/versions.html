@@ -1,0 +1,55 @@
+<dialog id="versions" class="drawer" aria-labelledby="vs-h">
+  <div class="vs-head">
+    <h2 id="vs-h">Versions<small id="vs-sub">This browser</small></h2>
+    <button class="vs-b" id="vs-close" type="button" aria-label="Close versions"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15"/></svg></button>
+  </div>
+  <div class="vs-in">
+    <section id="vs-guest" class="vs-card" aria-labelledby="vs-gh">
+      <h3 id="vs-gh">Sign in to save versions</h3>
+      <p class="note">Versions kept on a Studio server can be shared, branched and restored from anywhere. Until you sign in, your history stays in this browser, and signing in uploads nothing unless you save a version.</p>
+      <form id="vs-conn" autocomplete="on">
+        <div class="vs-fields">
+          <label for="vs-url">Studio server <input id="vs-url" type="url" inputmode="url" placeholder="http://127.0.0.1:8787" autocomplete="off" spellcheck="false"></label>
+          <label for="vs-user">Username <input id="vs-user" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
+          <label for="vs-pass">Password <input id="vs-pass" type="password" autocomplete="current-password"></label>
+        </div>
+        <div class="vs-acts"><button class="btn primary" type="submit">Sign in</button><button class="btn" type="button" id="vs-reg">Create account</button></div>
+        <p id="vs-err" class="vs-err" role="alert"></p>
+      </form>
+    </section>
+    <div id="vs-who" class="vs-who" hidden><span>Signed in as <b id="vs-me"></b></span><button class="vs-b" id="vs-out" type="button" aria-label="Sign out"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4H5.5A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8M12 6.5 15.5 10 12 13.5M15.5 10H8"/></svg><span class="lab">Sign out</span></button></div>
+    <div class="vs-top" id="vs-ctx">
+      <label class="vs-sel" for="vs-proj"><span>Project</span><select id="vs-proj"></select></label>
+      <label class="vs-sel" for="vs-br" id="vs-brwrap"><span>Branch</span><select id="vs-br"></select></label>
+      <button class="vs-b" id="vs-nb" type="button" aria-expanded="false" aria-controls="vs-newbr" aria-label="New branch"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5.5" cy="4.5" r="1.8"/><circle cx="5.5" cy="15.5" r="1.8"/><circle cx="14.5" cy="7.5" r="1.8"/><path d="M5.5 6.3v7.4M14.5 9.3c0 3-3 3.2-9 4.6"/></svg><span class="lab">New branch</span></button>
+      <span id="vs-chip" class="vs-chip" role="status" aria-live="polite"></span>
+    </div>
+    <form id="vs-newbr" class="vs-newbr" hidden>
+      <label for="vs-brname">Branch name <input id="vs-brname" maxlength="64" placeholder="try-purple" autocomplete="off" autocapitalize="none" spellcheck="false"></label>
+      <button class="btn primary" type="submit">Create branch</button><button class="btn" type="button" id="vs-brx">Cancel</button>
+    </form>
+    <div id="vs-banner" class="vs-banner" role="alert" hidden></div>
+    <form id="vs-save" class="vs-save">
+      <label class="sr" for="vs-msg">What changed</label>
+      <input id="vs-msg" maxlength="200" placeholder="What did you change? e.g. Added habit boxes" autocomplete="off">
+      <button class="btn primary" id="vs-savebtn" type="submit">Save version</button>
+      <span class="vs-hint" id="vs-hint"></span>
+    </form>
+    <div class="vs-cols" id="vs-cols" data-pane="log">
+      <div class="vs-logwrap"><h3 class="sec">History</h3><ol id="vs-log" class="vs-log"></ol></div>
+      <div id="vs-cmp" class="vs-cmp" aria-live="polite"></div>
+    </div>
+    <section id="vs-pub" class="vs-pub" aria-labelledby="vs-pubh" hidden><h3 class="sec" id="vs-pubh">Public projects on this server</h3><ul class="vs-pubs" id="vs-publist"></ul></section>
+  </div>
+</dialog>
+<dialog id="vs-np">
+  <form method="dialog">
+    <h3 id="vs-nph">New project from this page</h3>
+    <p id="vs-npp">Starts a project with the day page you have open and the default book, and saves it as the first version.</p>
+    <label>Name <input type="text" id="vs-npname" maxlength="120" autocomplete="off" placeholder="My journal"></label>
+    <label>Who can see it <select id="vs-npvis"><option value="private">Only people I add</option><option value="public">Anyone can read it</option></select></label>
+    <label class="check"><input type="checkbox" id="vs-npreuse"> Allow others to reuse it later</label>
+    <label class="check" id="vs-nphistwrap"><input type="checkbox" id="vs-nphist" checked> <span id="vs-nphistl">Include the versions saved in this browser</span></label>
+    <div class="acts"><button class="btn" value="cancel">Cancel</button><button class="btn primary" value="create">Create project</button></div>
+  </form>
+</dialog>

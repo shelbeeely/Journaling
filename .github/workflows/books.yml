@@ -5,7 +5,7 @@ name: Books
 on:
   push:
     branches: [main]
-    paths: ['journal/**', '.github/workflows/books.yml']
+    paths: ['journal/**', 'studio/**', '.github/workflows/books.yml']
   workflow_dispatch:
     inputs:
       months: { description: 'Months, e.g. "2026-10 2026-11" (blank = all 12)', required: false, default: '' }
@@ -38,6 +38,14 @@ jobs:
         run: node test-busy.mjs
       - name: Profile check (a generic person in a made-up city builds a clean book; module switches remove their pages)
         run: node test-profile.mjs
+      - name: Studio tests (versioning: commits, branches, drafts, forbidden content, authorization, import/export round trip, editor to print)
+        # Sample data only (test.ics). The Keeper, the sample month and the editor are built here just for these tests; the Build step below
+        # overwrites all of them, so nothing from this step is packaged. Needs Node 22.13+ (built-in SQLite).
+        run: |
+          node keeper.mjs
+          node render.mjs month 2026-10 test.ics
+          node editor/build.mjs
+          cd ../studio && npm test
       - name: Calendars (from the ICS_URLS secret, never committed)
         env: { ICS_URLS: '${{ secrets.ICS_URLS }}' }
         run: |

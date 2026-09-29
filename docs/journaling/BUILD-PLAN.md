@@ -206,6 +206,8 @@ run with the real calendar secrets; order one private KDP proof per size with th
 | C4a | Editor navigation: the Book view is the default; zooming in goes book → spread → day; day view is the day-page editor (section 12) | 1 agent |
 | S1 | Spread days: a day can cover one page or a whole two-page spread (section 12); after H1 merges | 1 agent |
 | SC | Scan options: Send-to as a block, scanning border toggle, configurable matrix code, per-book code ids (section 13); after H1 merges | 1 agent |
+| X | X4-hosted editor: edit right from the device's hotspot, no internet; cloud sync goes through the phone (section 14); after C4a and G1 | 1–2 agents |
+| A11Y | Accessibility options: editor, printed books, X4, site (section 15); audit first, then units; every new unit follows the checklist | 2–3 agents |
 
 Every unit follows the same proof as the fixes: reproduce, fix, rebuild all 12 months at both sizes with the checks
 (overflow, spreads, scan codes, fonts), look at the pages, editor and X4 previews, Firmware CI green, PR.
@@ -324,3 +326,40 @@ This relaxes the old rule that the header, frame, SEND TO strip and page code ar
   - `check-codes.mjs` reads every manifest present, fails on a repeated code or a repeated book id, and decodes samples; the manifest records book id, volume and page. A registry of a person's book ids lives in the project and is checked when a book is created.
   - The 16 by 16 Data Matrix holds 16 alphanumeric characters; a longer configured content moves to the next symbol size and the build says so.
 - **Rules that stay:** the Keeper never gets scan codes; private content never goes into a code; every page keeps its printed label; no Type 3 fonts; every page passes `check.mjs`.
+
+## 14. X4-hosted editor (feasibility and plan, 2026-09-29)
+
+**Feasible.** The X4 already runs a hotspot and serves a small page at 192.168.4.1 with upload, download and save calls (`x4/src/net/webpage.h`, Wi-Fi sync). The editor does not need the device to compute anything: the phone's browser runs the editor and renders the pages; the X4 only serves static files from the SD card and stores what the editor saves.
+
+- **Lite editor (first):** day-page blocks and options, the Book/Spread/Day view with thumbnails from a small pre-rendered sample, the "also on X4" check-in blocks. Saving regenerates `/kw/checkins.txt` in the browser (a JS port of `export_pack.py`) and uploads it, so a change to check-ins takes effect on the device at once. It also saves `daypage.json` and `book.json` to `/kw/project/` on the SD card.
+- **Full editor (second):** the same editor bundle as the site, pre-compressed (`.gz`), with every script and font inlined or vendored (no CDN, the phone has no internet on the hotspot). Roughly 60 to 80 KB compressed for the app and about 60 KB for the sample pages, streamed from the SD card in small chunks, which the ESP32-C3 handles.
+- **Firmware limits to respect:** no PSRAM, so stream files instead of holding them in RAM; static buffers only; one client at a time; nothing large on the 16 KB loop stack; the editor bundle lives on the SD card (placed by the export pack), not in flash.
+- **Rule kept: nothing leaves the device except over its own hotspot.** The X4 never calls the cloud. A phone joined to the hotspot has no internet, and an https site cannot fetch from an http device (mixed content), so **the phone is the courier**: edit on the hotspot, then "Export project" downloads a project file; on normal Wi-Fi open the Journalwright Studio site (guest or signed in) and "Import project" (or "Save to my account"). The reverse works too: "Send to X4" downloads the project file, then the device page uploads it over the hotspot. Both are one tap and an explicit user action.
+- **What edits change where:** check-in blocks change the X4 immediately; page layout changes affect the printed book only after the next build; the editor says which is which.
+- **Firmware scope stays:** no notifications, feeds, badges or AI.
+- **Slices:** X1 device side (serve static files from `/kw/editor/`, save endpoints with size and path limits, host tests, RAM numbers from CI) plus the export-pack step that places the lite bundle; X2 lite editor build (offline, vendored), JS check-in export with a parity test against `export_pack.py`, import and export project files; X3 full editor and the Studio import and send-to-X4 flow.
+
+## 15. Accessibility options (2026-09-29)
+
+Accessibility is a requirement on every unit, plus a set of user-facing options. Start with an audit, then units.
+
+**Editor and site (WCAG 2.2 AA as the floor)**
+- Fully keyboard operable, visible focus, logical order, no traps; the Book to Spread to Day zoom and the grid have keyboard equivalents for drag and pinch.
+- Screen readers: roles and labels on every control, a live region that announces level changes, block moves, overflow warnings and validation errors; icons always have text names.
+- Display options in a Settings panel, saved in the browser: text size (100 to 200 percent, layout reflows at 400 percent), high contrast, dark and light, reduced motion (also follows the system setting), a dyslexia-friendly font choice (Atkinson Hyperlegible or Lexend, both open licence), increased spacing, larger targets (44 px default, 56 px option), plain-language errors, no time limits.
+- Colour never carries meaning alone; contrast at least 4.5 to 1 (3 to 1 for large text and UI parts); no flashing; `lang` set; alt text on images; the site and demo follow the same rules.
+
+**Printed books (options in the profile and the editor, per book)**
+- **Text size:** small, medium, large, extra large; the overflow check enforces fit at each size.
+- **Large-print layout:** bigger type (14 pt and up), wider rulings (8.5 mm), fewer blocks per page (uses the existing Large-print day method layout).
+- **High contrast ink:** heavier rules and dot grids (still at least 0.75 pt for KDP), darker text, no light gray for content.
+- **Dyslexia-friendly type:** an embedded font choice (no Type 3 fonts), looser line and letter spacing.
+- **Handedness:** left-handed layout mirrors the send-to strip, tabs and page-code corner; scan zones follow.
+- **Low clutter:** a reduced icon set and quieter ornament, for sensory needs.
+- **Easy start:** a "one thing per page" mode and undated pages (see Phase H) for people who need forgiving pages.
+
+**X4:** large-text mode, high-contrast (bolder) fonts, button remap for one-handed and left-handed use, adjustable refresh and sleep timing, no timeouts that punish slowness, everything already visual and silent (no reliance on sound).
+
+**Digital outputs:** the X4 EPUBs and the docs get accessibility metadata and a real heading structure.
+
+**Checklist for every unit:** keyboard path, screen reader label, contrast, reflow at 400 percent, reduced motion, phone at 390 px, and a test for each.

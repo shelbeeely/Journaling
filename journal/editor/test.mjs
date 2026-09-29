@@ -566,7 +566,7 @@ ok(!errs.length, 'no page errors ' + errs.join(' | '));
     let r = await st();
     ok(r.view === 'book' && r.level === 'book' && r.hash === '#book' && r.crumbs === 'Book' && r.back && r.main === 'none', 'default view: the Book, #book in the URL, breadcrumb "Book", Back disabled');
     ok(await nP.evaluate(() => !document.querySelector('#v-day') && !document.querySelector('[aria-label="View"]') && ![...document.querySelectorAll('.top button')].some((x) => x.textContent.trim() === 'Day' && x.closest('.seg'))), 'the Day tab is gone as a top-level tab');
-    ok(await nP.evaluate(() => !!document.querySelector('.top #versions-slot') && !!document.querySelector('#versions-drawer') && typeof KW.drawer.open === 'function'), 'a mount point for Versions (slot + drawer) sits in the header');
+    ok(await nP.evaluate(() => !!document.querySelector('.top #v-ver') && typeof KW.on === 'function' && typeof KW.go === 'function'), 'the Versions button sits in the header, and KW.on / KW.go are the hooks for panels');
     await nP.screenshot({ path: `${OUT}/nav-desktop-1-book.png` });
     // tap: book -> spread -> day
     await nP.click(`.bpg[data-n="${dayN}"]`); await nP.waitForFunction(() => NAV.level === 'spread' && BK.level !== 'book'); await nP.waitForTimeout(1000);
@@ -661,9 +661,9 @@ ok(!errs.length, 'no page errors ' + errs.join(' | '));
     const vers = [];
     for (const h of ['#book', `#spread/${sp(dayN)}`, '#day/2026-10-14', '#page/safety']) {
       await goHash(h);
-      vers.push(await nP.evaluate(() => { const ev = []; KW.on((d) => ev.push(d.level)); const d = KW.drawer; d.open(); const shown = !document.querySelector('#versions-drawer').hidden && getComputedStyle(document.querySelector('#versions-drawer')).display !== 'none'; d.close(); return { shown, slot: !!document.querySelector('.top #versions-slot'), level: KW.level }; }));
+      await nP.click('#v-ver'); await nP.waitForSelector('#versions[open]'); vers.push(await nP.evaluate(() => ({ level: KW.level }))); await nP.click('#vs-close'); await nP.waitForFunction(() => !document.querySelector('#versions[open]'));
     }
-    ok(vers.every((v) => v.shown && v.slot) && vers.map((v) => v.level).join() === 'book,spread,day,day', 'Versions drawer opens and closes at every level; KW reports the level');
+    ok(vers.map((v) => v.level).join() === 'book,spread,day,day', 'Versions opens and closes at every level (book, spread, day, page view); KW reports the level');
     ok(await nP.evaluate(async () => { const got = []; KW.on((d) => got.push(d.level)); await KW.go({ level: 'book' }, { push: false, anim: false }); return got.includes('book'); }), 'KW.on hears level changes');
     // accessibility: live region, focus, keyboard reach, reduced motion
     await goHash('#book');
@@ -729,6 +729,9 @@ ok(!errs.length, 'no page errors ' + errs.join(' | '));
   await ap.setContent('<!doctype html><html lang="en"><head><meta charset="utf-8">' + art + '</html>', { waitUntil: 'load' });
   await ap.waitForFunction(() => typeof BK !== 'undefined' && BK.ready, null, { timeout: 8000 }).catch(() => {});
   ok(await ap.evaluate(() => typeof BK !== 'undefined' && BK.ready && document.documentElement.dataset.view === 'book' && document.querySelectorAll('#bk-world .bpg[data-n]').length === BK.pages.length && BK.pages.length >= 24), `Artifact build: opens on the Book from the embedded sample book (${(art.length / 1024).toFixed(0)} KB file)`);
+  await ap.click('#v-ver');
+  ok(await ap.locator('#versions[open] #vs-guest').isVisible() && await ap.locator('#vs-save').isVisible(), 'Artifact build: the Versions drawer opens and keeps versions in the browser (a Studio server is optional)');
+  await ap.click('#vs-close');
   await ap.evaluate(() => KW.go({ level: 'spread', s: 7 })); await ap.waitForFunction(() => NAV.level === 'spread' && BK.level !== 'book'); await ap.waitForTimeout(400);
   await ap.evaluate(() => KW.go({ level: 'day', date: '2026-10-14' })); await ap.waitForFunction(() => document.documentElement.dataset.view === 'day' && !NAV.busy());
   ok(await ap.evaluate(() => document.querySelectorAll('#pv [data-b]').length >= 3 && document.querySelectorAll('#pal li.pi').length > 20 && /Day Oct 14/.test(document.querySelector('#crumbs').textContent)), 'Artifact build: the day level is the editor, with its breadcrumb');
@@ -736,5 +739,31 @@ ok(!errs.length, 'no page errors ' + errs.join(' | '));
   await ap.close();
 }
 ok(!errs.length, 'no page errors after the Book view ' + errs.join(' | '));
+// Versions drawer (Journalwright Studio) with no server configured: versions are kept in this browser, and the editor is untouched
+{
+  const vp = await b.newPage({ viewport: { width: 390, height: 844 } }), api = [], verrs = [];
+  vp.on('pageerror', (e) => verrs.push(e.message)); vp.on('request', (r) => { if (r.url().includes('/api/') && !r.url().endsWith('/api/health')) api.push(r.url()); });
+  await vp.goto(URL0, { waitUntil: 'networkidle' }); await vp.waitForFunction(() => BK.ready);
+  const before = await vp.evaluate(() => JSON.stringify(layout));
+  ok(await vp.locator('#v-ver').isVisible(), 'the Versions button is in the header of the Book view too'); await vp.evaluate(() => KW.go({ level: 'day', date: '2026-10-14' })); await atDay(vp);
+  await vp.click('#v-ver'); await vp.waitForSelector('#versions[open]');
+  ok(/Sign in to save versions/.test(await vp.textContent('#vs-guest')) && await vp.locator('#vs-save').isVisible(), 'Versions drawer without a server: "Sign in to save versions", and a guest can still save versions here');
+  ok(await vp.evaluate(() => document.getElementById('versions').scrollWidth <= innerWidth + 1 && document.documentElement.scrollWidth <= innerWidth + 1), 'Versions drawer: no sideways scroll at 390px');
+  ok(await vp.evaluate(() => [...document.querySelectorAll('#versions button, #versions input, #versions select')].filter((el) => el.offsetParent && (el.getBoundingClientRect().height < 43.5 || el.getBoundingClientRect().width < 43.5)).length === 0), 'Versions drawer: 44px targets on a phone');
+  await vp.fill('#vs-msg', 'First version'); await vp.click('#vs-savebtn');
+  ok(await vp.locator('#vs-log .vs-c').count() === 1 && /First version/.test(await vp.textContent('#vs-log')), 'a version saved in this browser shows in the history');
+  ok(JSON.stringify(await vp.evaluate(() => JSON.parse(localStorage.getItem('kw-st-local')).versions.length)) === '1', 'it is kept in this browser only');
+  await vp.fill('#vs-url', 'http://127.0.0.1:9'); await vp.fill('#vs-user', 'sample'); await vp.fill('#vs-pass', 'not a real password');
+  await vp.click('#vs-conn button[type=submit]'); await vp.waitForFunction(() => document.querySelector('#vs-err').textContent.length > 0);
+  ok(/reach the Studio server/.test(await vp.textContent('#vs-err')), 'an unreachable server says so in plain words');
+  await vp.screenshot({ path: `${OUT}/versions-no-server.png` });
+  await vp.click('#vs-close'); api.length = 0;
+  await vp.click('.tabs [data-tab="add"]'); await vp.locator('#pal [data-add="t:checks"]').click();
+  ok(await vp.evaluate(() => layout.blocks.some((x) => x.type === 'checks')) && (await vp.evaluate(() => JSON.stringify(layout))) !== before, 'the day editor still edits');
+  await vp.waitForTimeout(1500); // longer than the draft autosave delay
+  ok(!api.length, 'editing without a Studio server makes no Studio requests ' + api.join(','));
+  ok(!verrs.length, 'no page errors in the Versions drawer ' + verrs.join(' | '));
+  await vp.close();
+}
 await b.close(); srv.close();
 if (fails.length) { console.log(`\n${fails.length} failed`); process.exit(1); }
