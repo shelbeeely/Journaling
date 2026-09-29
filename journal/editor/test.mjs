@@ -87,6 +87,63 @@ for (const [name, type, o, sel, ctl] of OPTS) {
   ok(!r.meter.includes('Too full'), `option ${name}: the default day still fits`);
   await p.locator('.paper').screenshot({ path: `${OUT}/opt-${name.replace(/[^a-z0-9]+/gi, '-')}.png` });
 }
+// Tier 2 blocks (BUILD-PLAN section 5): each is in the palette, prints on the default day without overflowing, has its data-zone,
+// and shows "also on X4" only when it exports (Focus rounds: a count, Energy types: scales). The others are paper only.
+const T2 = [['tl24', 'Time line 24 h', false], ['dump', 'Brain dump', false], ['later', 'Later', false], ['done', 'Done list', false], ['wall', 'Wall of Awful', false],
+  ['stamps', 'Time stamps', false], ['rounds', 'Focus rounds', true], ['energy', 'Energy types', true], ['accounts', 'Energy accounts', false], ['weekstrip', 'Week at a glance', false],
+  ['keep', 'Keep', false], ['lookback', 'A month ago today', false], ['prompt', 'Rotating prompt', false], ['pixel', 'Day pixel', false], ['range', 'Low and high', false]];
+for (const size0 of ['small', 'letter']) {
+  await p.evaluate((z) => { size = z; document.querySelector(z === 'small' ? '#sz-s' : '#sz-l').click(); }, size0);
+  for (const [t, name, x4] of T2) {
+    await p.evaluate(() => { layout = normalize(null); drawList(); drawPalette(); drawPreview(); });
+    ok(await p.locator(`#pal [data-add="t:${t}"]`).count() === 1, `${name}: in the palette`);
+    await p.locator(`#pal [data-add="t:${t}"]`).click();
+    const r = await p.evaluate((ty) => ({ z: document.querySelectorAll(`#pv [data-zone="${ty}"]`).length, x4: document.querySelectorAll('#list .x4').length, meter: document.querySelector('#meter').textContent, ico: !!document.querySelector(`#pal [data-add="t:${ty}"]`).closest('li').querySelector('svg path, svg rect, svg circle'), bw: [...document.querySelectorAll(`#pv [data-zone="${ty}"], #pv [data-zone="${ty}"] *`)].filter((e) => { if (e.closest('svg') || e.classList.contains('hl')) return false; const c = getComputedStyle(e); return [c.backgroundColor, c.borderTopColor, c.borderBottomColor].some((v) => { const m = v.match(/[\d.]+/g); return m && !(m[0] === m[1] && m[1] === m[2]); }); }).length }), t);
+    ok(r.z === 1 && r.ico && r.bw === 0, `${size0} ${name}: prints once with a data-zone, an icon, black and white only`);
+    ok(r.x4 === (x4 ? 1 : 0), `${name}: ${x4 ? 'has' : 'has no'} "also on X4" mark`);
+    ok(!r.meter.includes('Too full'), `${size0} ${name}: fits the default day (${r.meter.trim()})`);
+    if (size0 === 'small') await p.locator('.paper').screenshot({ path: `${OUT}/t2-${t}.png` });
+  }
+}
+await p.evaluate(() => { document.querySelector('#sz-s').click(); });
+// Every Tier 2 block at once: the meter must say so (they cannot all fit one page), each still prints, and both sizes render.
+await p.evaluate((ts) => { layout = normalize({ v: 2, blocks: [{ type: 'sky' }, ...ts.map((t) => ({ type: t })), { type: 'body', uid: 'body' }, { type: 'actions' }] }); drawList(); drawPreview(); }, T2.map((x) => x[0]));
+ok((await p.evaluate(() => document.querySelectorAll('#pv [data-b]').length)) === T2.length + 3, 'all Tier 2 blocks print together');
+// Night shading follows the day's sunrise and sunset (sample day 2026-10-31); a night-shift start hour re-orders the hours.
+await p.evaluate(() => { layout = normalize({ v: 2, blocks: [{ type: 'sky' }, { type: 'tl24', uid: 'tl', start: 0 }, { type: 'body', uid: 'body' }, { type: 'actions' }] }); drawList(); drawPreview(); });
+const night = () => p.evaluate(() => [...document.querySelectorAll('#pv [data-zone="tl24"] .tlr')][1].querySelectorAll('i.nt').length);
+ok((await night()) > 8 && (await night()) < 16, 'time line: some hours shaded as night, some not');
+await p.evaluate(() => { layout = normalize({ v: 2, blocks: [{ type: 'sky' }, { type: 'tl24', uid: 'tl', start: 18, shade: false }, { type: 'body', uid: 'body' }, { type: 'actions' }] }); drawList(); drawPreview(); });
+ok((await night()) === 0 && (await p.evaluate(() => document.querySelectorAll('#pv [data-zone="tl24"] .th span')[1].textContent)) === '6p', 'time line: shade off, and a shift starting at 6 p reads 6p first');
+ok(await p.evaluate(() => lookBack('2026-10-31', 'month') === 'Sep 30' && lookBack('2027-03-31', 'month') === 'Feb 28' && lookBack('2026-10-31', 'year') === 'Oct 31, 2025'), 'a month ago today: clamps to the last day of the month');
+ok(await p.evaluate(() => promptFor('2026-10-31', 'day')[1] === promptFor('2026-10-31', 'day')[1] && promptFor('2026-10-26', 'week')[1] === promptFor('2026-11-01', 'week')[1] && promptFor('2026-10-26', 'week')[1] !== promptFor('2026-11-02', 'week')[1]), 'rotating prompt: same on a reprint; a weekly prompt holds Monday to Sunday');
+await p.evaluate(() => { layout = normalize({ v: 2, blocks: [{ type: 'sky' }, { type: 'weekstrip' }, { type: 'body', uid: 'body' }, { type: 'actions' }] }); drawList(); drawPreview(); });
+ok(await p.evaluate(() => document.querySelectorAll('#pv [data-zone="weekstrip"] .wsc').length === 7 && document.querySelectorAll('#pv [data-zone="weekstrip"] .wsc.td').length === 1 && document.querySelector('#pv .wsc.td i').textContent === '31'), 'week strip: 7 days, today ringed');
+await p.evaluate(() => { layout = normalize({ v: 2, blocks: [{ type: 'sky' }, { type: 'tl24' }, { type: 'rounds' }, { type: 'rounds' }, { type: 'body', uid: 'body' }, { type: 'actions' }] }); drawList(); drawPreview(); });
+ok(await p.evaluate(() => [...document.querySelectorAll('#pv [data-zone]')].map((e) => e.dataset.zone).filter((z) => z.startsWith('rounds')).join() === 'rounds,rounds_2'), 'repeated blocks get rounds, rounds_2 zones');
+// Size options (Shelbee: "give blocks a size option"): every block that had a fixed height gets a control. Each starts at today's size
+// (proved byte for byte against the old library, see README), each bigger setting makes the block taller, and the meter follows.
+const SIZE_OPTS = [
+  ['top', 'pitch', 8.5, { n: 3 }], ['good', 'pitch', 0.335, {}], ['review', 'h', 4, {}], ['timeline', 'pitch', 8.5, {}], ['bullets', 'pitch', 8.5, {}], ['actions', 'h', 0.36, {}],
+  ['dump', 'pitch', 8.5, { n: 2 }], ['later', 'pitch', 8.5, { n: 3 }], ['done', 'pitch', 8.5, { n: 3 }], ['wall', 'n', 3, {}], ['tl24', 'h', 0.3, {}], ['stamps', 'pitch', 8.5, { n: 3 }],
+  ['keep', 'pitch', 8.5, { n: 3 }], ['prompt', 'pitch', 8.5, { n: 3 }], ['lookback', 'pitch', 8.5, { n: 2 }], ['rounds', 'pitch', 8.5, { n: 2 }],
+  ...['checks', 'habits', 'scale', 'fields', 'words', 'sensory', 'sleeptimes', 'weather', 'bus', 'money', 'reach', 'shift', 'energy', 'accounts', 'pixel', 'range', 'wall'].map((t) => [t, 'roomy', true, {}]),
+];
+const ws = (m) => { const x = /Writing space ([\d.]+) in/.exec(m); return x ? +x[1] : 0; };
+for (const [t, k, big, base] of SIZE_OPTS) {
+  const r = await p.evaluate(([t, k, big, base]) => {
+    const run = (o) => { layout = normalize({ v: 2, blocks: [{ type: 'sky' }, { type: t, uid: 'zz', ...base, ...o }, { type: 'body', uid: 'body' }, ...(t === 'actions' ? [] : [{ type: 'actions' }])] }); drawList(); drawPreview();
+      const el = document.querySelector('#pv [data-b="zz"]'); if (!el) throw new Error('no block for ' + t); return { h: el.getBoundingClientRect().height, m: document.querySelector('#meter').textContent, has: !!TYPES[t].opts.find((x) => x.k === k), def: layout.blocks.find((b) => b.type === t)[k] }; };
+    const a = run({}), b = run({ [k]: big }); return { a, b, zones: document.querySelectorAll(`#pv [data-zone="${t === 'actions' ? 'action_items' : t}"]`).length };
+  }, [t, k, big, base]);
+  ok(r.a.has && r.zones >= 1, `${t}: has a size control (${k}) and keeps its data-zone`);
+  ok(r.b.h > r.a.h + 1, `${t}: ${k} ${big} is taller than the default (${r.a.h.toFixed(0)} -> ${r.b.h.toFixed(0)} px)`);
+  ok(r.b.m.includes('Too full') || ws(r.b.m) < ws(r.a.m) + 0.001, `${t}: the meter follows the new height (${ws(r.a.m)} -> ${ws(r.b.m) || 'overflow'} in)`);
+}
+await p.evaluate(() => { layout = normalize({ v: 2, blocks: [{ type: 'sky' }, { type: 'top', n: 6, pitch: 8.5 }, { type: 'good', n: 8, pitch: 0.335 }, { type: 'body', uid: 'body' }, { type: 'actions', count: 8, h: 0.36 }, { type: 'review', h: 5 }] }); drawList(); drawPreview(); });
+ok((await p.textContent('#meter')).includes('Too full'), 'big sizes overflow: the meter says so');
+await p.evaluate(() => { layout = normalize({ v: 2, blocks: [{ type: 'sky' }, { type: 'top', n: 3, pitch: 8.5 }, { type: 'checks', roomy: true }, { type: 'dump', n: 3, pitch: 6.6 }, { type: 'body', uid: 'body' }, { type: 'actions' }] }); drawList(); drawPreview(); });
+await p.locator('.paper').screenshot({ path: `${OUT}/sizes.png` });
 await p.evaluate(() => { layout = normalize(null); drawList(); drawPreview(); });
 await p.click('#pal [data-add="t:lines"]');
 const inp = p.locator('#list li[data-uid^="lines"] input[data-text]').first();

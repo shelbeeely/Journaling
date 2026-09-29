@@ -11,6 +11,9 @@ const css = h.slice(h.indexOf('<style>') + 7, h.indexOf('</style>'))
   .replace(/@page[^}]*\}/, '').replace(/html, body \{[^}]*\}/, '')
   .replace(/(^|\n)body \{/, '$1.page {') // no body in the preview: the page carries the base font
   .replace(/([^{}]+)\{/g, (_, sel) => sel.split(',').map((x) => `#pv ${x.trim()}`).join(', ') + ' {'); // scope to the preview
+// The sample day for the Tier 2 blocks: a real date and its calculated sunrise and sunset (generic, no calendar data).
+const sd = JSON.parse(read('out/m2026-10/data.json')).days.find((x) => x.date === '2026-10-31');
+const sampleDay = { date: '2026-10-31', rise: sd.sun.rise, set: sd.sun.set };
 const k = h.indexOf('2026-10-31 · ');
 const seg = h.slice(h.lastIndexOf('<div class="page', k), h.indexOf('<div class="page', k));
 const pick = (re) => (seg.match(re) || [''])[0];
@@ -21,6 +24,7 @@ const kit = {
   notes: pick(/<div class="sky2l"[^>]*>.*?<\/div>/s),
   events: '<div class="dev" data-zone="events">○ 10:00a Clinic appointment · ○ 2:00p Pick up prescription · ○ 6:30p Dinner with a friend downtown</div>',
   fact: pick(/<div class="fact".*?<\/div>/s),
+  day: sampleDay,
   routines: ['7:30a Morning routine', '8:00p Evening routine'], // a busy day, so the meter errs on the safe side
   strip: seg.slice(seg.indexOf('<div class="frame">'), seg.trimEnd().lastIndexOf('</div>')),
 };
