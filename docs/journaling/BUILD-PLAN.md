@@ -210,6 +210,7 @@ run with the real calendar secrets; order one private KDP proof per size with th
 | E1 | View versus edit: the editor UI (palette, options, panels) shows only while editing a page, not while viewing it (section 16); small, can go now | 1 agent |
 | L1 | Library and series: custom titles for every book, several books per project, series, Library → Series → Book → Spread → Page navigation (section 16); after H1 merges | 1–2 agents |
 | P1 | Account profile with saved locations that feed new books (section 17); pairs with Phase F units 2 and 3 | 1 agent |
+| I18N | Languages: translated UI and printed books, RTL and other scripts, X4 language packs (section 18); string extraction first | 3–4 agents |
 | A11Y | Accessibility options: editor, printed books, X4, site (section 15); audit first, then units; every new unit follows the checklist | 2–3 agents |
 
 Every unit follows the same proof as the fixes: reproduce, fix, rebuild all 12 months at both sizes with the checks
@@ -406,3 +407,28 @@ A signed-in user has a profile with one or more **saved locations** (for example
 - A profile export and delete-my-data option ships with accounts.
 
 **Slices:** P1a profile schema and gazetteer with the offline timezone lookup, the account and guest profile UI, and the book-creation flow; P1b feed every location-driven calculation from the book's location (verify with a second city and a southern-hemisphere city: sun times, seasons, meteor visibility, timezone), with tests, plus the snapshot scanner rule. Shelbee's Spokane profile must reproduce today's books byte-identically.
+
+## 18. Languages: translated UI and printed books (2026-09-29)
+
+Goal: other people can create journals in their own language, and the printed book (and later the X4) speaks it too. English stays the source language and must stay byte-identical.
+
+**What has to change**
+- **Editor and site UI:** message catalogs (one JSON file per language, ICU-style plurals and variables), a language switcher (browser default, saved in the profile), `lang` and `dir` on the page, and the browser's `Intl` for dates, numbers and month and weekday names. Icons over words already cuts the amount of text.
+- **Printed pages:** every printed string in `pages.mjs`, `daypage.mjs`, `render.mjs` and the handoff, key, care and Keeper pages moves into the same catalogs (keys such as `page.key.title`), including block labels, option names printed on pages, the rotating prompts, the "facts", and the moon, sky and season wording. The book's language comes from the profile (`book.language`, default `en`), separate from the editor's UI language, so a Spanish speaker can design in Spanish and someone else can print a French book.
+- **Calendar and locale:** month and weekday names, first day of the week (Monday, Sunday or Saturday), date order and numerals through `Intl`, still Gregorian first; a secondary calendar line (Hijri, Hebrew, Buddhist, Japanese era) is a later option. Sun, moon and season data come from the book's location, and holidays from a per-region pack.
+- **Fonts and scripts:** an OFL font set (Noto families) chosen per script, embedded and subset in the PDF as real fonts, never Type 3 (the existing `pdffonts` gate stays; colour emoji stay converted to SVG). Latin extended, Greek and Cyrillic first; then Arabic and Hebrew (right to left, with shaping through Chromium's HarfBuzz), Devanagari and Thai; CJK last because of font size, with vertical text left out at first.
+- **Right to left:** the page layout mirrors (binding side, tab and spine side, the send-to strip, the page-code corner, week start), scan zones follow the mirror, and the check runs on mirrored pages. Numerals and mixed text use proper bidi isolation.
+- **Text length:** German and Finnish run 30 percent longer than English. The overflow gate (`check.mjs`) runs per language; labels can abbreviate through a second short-form key; blocks that overflow in a language show up in the editor's overflow meter for that language.
+- **Scan codes, ids and manifests:** ASCII only. Codes and page ids are unchanged; only the printed labels are translated, and each language keeps every printed label unique.
+- **Support and safety content:** stays region packs written in the pack's own language. No translation of a crisis number or its text without a verified pack.
+- **X4:** language packs on the SD card (`/kw/lang/xx.txt`) written by the export pack; fonts for the language on the SD card; the firmware reads strings from the pack and falls back to English. Later slice.
+
+**Translation process (no generative AI in the product)**
+- Catalogs live in the repo (`i18n/<lang>.json`), with a plain contribution guide, a translation status table (percent complete per language), and a review step by a native speaker before a language is marked ready. Untranslated keys fall back to English, and a build for a language that is not marked ready warns before printing.
+- **Checks:** a lint that fails on new hard-coded printed strings, a **pseudo-locale** (accented and lengthened English) and a **mirrored pseudo-locale** that exercise overflow and RTL in CI, and a fingerprint test that the English default books are byte-identical.
+
+**Slices**
+- **I1 (first, no visible change):** move every printed and UI string into `en` catalogs, the string lookup, `book.language`, `Intl` date and weekday handling, pseudo-locales, the lint. English books byte-identical (24/24).
+- **I2:** editor and site translated with the language switcher and the first pilot languages in Latin script (Spanish, French, German), with printed books in those languages passing every gate.
+- **I3:** fonts and scripts, right-to-left printing and mirroring (Arabic and Hebrew pilot), then Devanagari, Thai, and CJK.
+- **I4:** X4 language packs.
