@@ -16,7 +16,7 @@ The product is **Journalwright Studio**; *Keeping Watch* is Shelbee's own book (
 
 ## Site and Pages (added with the README and website unit)
 - `site/` is the product website (plain HTML/CSS/JS). `site/build.sh` assembles it and runs `site/check-links.mjs`; sample page images come from
-  `site/make-samples.py` (generic profile + `test.ics`); `site/tools/build-docs.mjs` turns the methods library and BUILD-PLAN into `/docs/`.
+  `site/make-samples.py` (generic profile + `test.ics`); `site/tools/build-docs.mjs` writes a titles-only `/docs/` index (BUILD-PLAN, docs/review and the method texts hold personal decisions and are never published; `site/build.sh` fails if Spokane, Keeping Watch or Shelbee appear in the site).
 - The Editor workflow publishes one Pages site (per BUILD-PLAN section 12, nothing else deploys to the root): `/` the website, `/editor/` a demo of
   the editor (generic profile, sample data, never saves anywhere, banner says so; `MODE 'demo'` in `journal/editor/template.html`), `/docs/`,
   and `/app/` the working editor that saves in the browser and commits with a token.

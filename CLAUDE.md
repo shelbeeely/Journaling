@@ -23,7 +23,7 @@ the first book made with it. Read README.md, then HANDOFF.md (status + backlog),
   via a fine-grained token) and `dist/artifact.html` (Claude Artifact: saves to the artifact store `layouts/day`).
   `test.mjs` is the smoke test CI runs.
 - `site/`: the product website (plain HTML/CSS/JS). `site/build.sh` assembles it: the site at the root, the editor demo under
-  `/editor/` (generic profile and `test.ics` only, never saving anywhere), the docs under `/docs/`, then runs `check-links.mjs`.
+  `/editor/` (generic profile and `test.ics` only, never saving anywhere), a titles-only docs index under `/docs/`, then runs the privacy gate (no Spokane, Keeping Watch or Shelbee) and `check-links.mjs`.
   The Editor workflow publishes it and puts the working editor under `/app/`. Nothing else deploys to the Pages root.
 - `x4/`: ESP32-C3 firmware on the FreeInk SDK (pinned in `.github/workflows/firmware.yml`). See `x4/CLAUDE.md`.
 
