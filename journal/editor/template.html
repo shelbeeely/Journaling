@@ -195,7 +195,7 @@ dialog .btn { min-height: 44px; }
   <form method="dialog">
     <h3>Save to GitHub</h3>
     <p>Commits <code>journal/content/daypage.json</code>; the Books workflow then rebuilds every month. Use a fine-grained token limited to this one repository with <b>Contents: read and write</b>.</p>
-    <p><b>Also on X4:</b> Checkboxes, Scale, Habit dots, Fill-in blanks, Injection site rotation and (when you turn it on) Feelings, Skills, Urge and Words to circle become X4 check-ins after the next Books build.</p>
+    <p><b>Also on X4:</b> Checkboxes, Scale, Habit dots, Fill-in blanks, Energy types, Focus rounds (a count), Injection site rotation and (when you turn it on) Feelings, Skills, Urge and Words to circle become X4 check-ins after the next Books build.</p>
     <label>Repository <input type="text" id="gh-repo" placeholder="owner/repo" autocomplete="off"></label>
     <label>Branch <input type="text" id="gh-branch" value="main" autocomplete="off"></label>
     <label>Token <input type="password" id="gh-token" autocomplete="off"></label>
@@ -251,6 +251,8 @@ function x4Items(b) {
   switch (b.type) {
     case 'checks': case 'habits': case 'fields': return n;
     case 'scale': return 1;
+    case 'energy': return n;
+    case 'rounds': return 1;
     case 'words': return b.x4 && choiceN(b.words) >= 2 ? 1 : 0;
     case 'sites': return choiceN(b.labels) >= 2 ? 1 : 0;
     case 'feelings': return b.x4 ? n : 0;
