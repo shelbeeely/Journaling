@@ -6,10 +6,12 @@
 //   node check-identical.mjs out/m2026-10    # some books
 //   node check-identical.mjs --update        # rewrite identical.json from the books in out/ (only for an intended change to the default books)
 // Skipped, with a notice, when content/daypage.json or a non-default content/book.json is present (they change the books on purpose).
+// A daypage.json that says exactly the default layout (e.g. one exported from a Studio project that never changed it) is not a change.
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { DEFAULT_BOOK } from './book.mjs';
+import { normalize } from './daypage.mjs';
 
 const FILE = new URL('./identical.json', import.meta.url);
 const args = process.argv.slice(2), update = args.includes('--update');
@@ -21,7 +23,12 @@ const h = (s) => crypto.createHash('sha1').update(s).digest('hex').slice(0, 10);
 const norm = (s) => s.replace(/Built \d{4}-\d{2}-\d{2}/, 'Built DATE');
 
 const custom = [];
-if (fs.existsSync('content/daypage.json')) custom.push('content/daypage.json');
+try {
+  if (fs.existsSync('content/daypage.json')) {
+    const d = JSON.parse(fs.readFileSync('content/daypage.json', 'utf8'));
+    if (JSON.stringify(normalize(d)) !== JSON.stringify(normalize(null))) custom.push('content/daypage.json');
+  }
+} catch { custom.push('content/daypage.json'); }
 try { const b = JSON.parse(fs.readFileSync('content/book.json', 'utf8')); if (JSON.stringify(b) !== JSON.stringify(DEFAULT_BOOK)) custom.push('content/book.json'); } catch { /* none */ }
 if (custom.length && !update) { console.log(`check-identical: skipped, ${custom.join(' and ')} change${custom.length > 1 ? '' : 's'} the books on purpose (the fingerprints are for the default layout).`); process.exit(0); }
 if (custom.length) { console.error(`Refusing to --update with ${custom.join(' and ')} present: the fingerprints must come from the default layout.`); process.exit(1); }

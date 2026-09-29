@@ -1,0 +1,12 @@
+{
+  "name": "journalwright-studio",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Journalwright Studio: projects, commits, branches and drafts for journal books (Phase G1)",
+  "type": "module",
+  "engines": { "node": ">=22.5" },
+  "scripts": {
+    "start": "node bin/studio.mjs serve",
+    "test": "node --no-warnings --test --test-concurrency=1 \"test/*.test.mjs\""
+  }
+}

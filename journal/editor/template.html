@@ -108,7 +108,7 @@ ul.sub .opts { padding-left: 40px; }
 .meter b { color: var(--ink); font-weight: 600; }
 .meter .warn { color: var(--warn); background: var(--warn-bg); padding: 2px 8px; border-radius: 999px; }
 .paper { background: #fff; box-shadow: var(--shadow); border-radius: 3px; overflow: hidden; position: relative; }
-#pv { transform-origin: 0 0; position: absolute; top: 0; left: 0; color: #111; }
+#pv { transform-origin: 0 0; position: absolute; top: 0; left: 0; color: #111; --ink: #111; } /* the page is always ink on white: the page CSS's icons read var(--ink), which the dark theme would otherwise turn light */
 #pv [data-b] { cursor: grab; transition: background .12s, outline-color .12s; outline: 1.5px dashed transparent; outline-offset: 1px; }
 #pv [data-b]:hover { outline-color: #9bb8b2; }
 #pv [data-b].hl { outline-color: #3f5f5a; background: rgba(63, 95, 90, .06); }
@@ -211,7 +211,7 @@ html[data-view="book"], html[data-view="book"] body { overflow: hidden; }
 #bk-view { position: relative; flex: 1; min-height: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: var(--soft); touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; contain: strict; }
 #bk-view.drag { cursor: grabbing; }
 #bk-view:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-#bk-world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+#bk-world { position: absolute; left: 0; top: 0; transform-origin: 0 0; --ink: #111; }
 #bk-view.anim #bk-world { transition: transform .28s ease; }
 .sp { position: absolute; }
 .sp::before { content: ""; position: absolute; inset: -26px -26px -14px; background: rgba(127,120,105,.14); border-radius: 18px; pointer-events: none; }
@@ -241,6 +241,7 @@ html[data-view="book"], html[data-view="book"] body { overflow: hidden; }
   .bk-b .lab { display: none; }
   #bk-jump { flex-basis: 100%; order: 9; }
 }
+/*__VSCSS__*/
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
@@ -252,6 +253,7 @@ html[data-view="book"], html[data-view="book"] body { overflow: hidden; }
     <span class="status" id="status" role="status">Loading…</span>
     <span class="seg" role="group" aria-label="Page layout"><button id="lay-f" aria-pressed="true" title="Blocks stack in order; the writing space takes what is left">Flow</button><button id="lay-g" aria-pressed="false" title="Place blocks on a grid of 4 columns and tight-line rows; blocks can span several">Grid</button></span>
     <span class="seg" role="group" aria-label="Preview size"><button id="sz-s" aria-pressed="true">5.5×8.5</button><button id="sz-l" aria-pressed="false">8.5×11</button></span>
+    <button class="btn" id="v-ver" type="button" aria-haspopup="dialog" aria-label="Versions"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10a6.5 6.5 0 1 0 2-4.7M3.5 3.8v3.4h3.4M10 6.5V10l2.4 1.6"/></svg><span class="lab"> Versions</span></button>
     <button class="btn" id="undo" disabled aria-label="Undo">↶<span class="lab"> Undo</span></button>
     <div class="menu" id="menu"><button class="btn" aria-haspopup="true" aria-expanded="false" id="menubtn">More</button>
       <div role="menu">
@@ -323,6 +325,7 @@ html[data-view="book"], html[data-view="book"] body { overflow: hidden; }
   <div id="bk-view" tabindex="0" role="application" aria-label="Book canvas. Drag to move, scroll or pinch to zoom, arrow keys to move, plus and minus to zoom, 0 whole book, 1 spread, 2 page, bracket keys for the previous and next page."><div id="bk-world"></div></div>
   <div id="bk-info" aria-live="polite"></div>
 </section>
+<!--__VSHTML__-->
 <input type="file" id="file" accept=".json,application/json" hidden>
 <dialog id="gh">
   <form method="dialog">
@@ -531,13 +534,16 @@ $('#list').addEventListener('change', (e) => { if (e.target.matches('[data-text]
 
 // ---------- preview ----------
 const pv = $('#pv'), paper = $('#paper');
-function drawPreview() {
-  const day = dayBlocks(KIT, layout, { tag: true, size });
-  pv.innerHTML = `<style>${KIT.css}#pv .page { width: ${SIZES[size]}in; }</style><div class="page verso dayp m">${day}${KIT.strip}</div>`;
-  pv.querySelectorAll('.lines').forEach((el) => { // same rule-drawing as the print build
+function drawRules(root) { // same rule-drawing as the print build (the compare view uses it too)
+  root.querySelectorAll('.lines').forEach((el) => {
     const pitch = parseFloat(el.dataset.pitch || '0.26') * 96, n = Math.floor((el.clientHeight - 1) / pitch);
     for (let i = 0; i < n; i++) { const d = document.createElement('div'); d.className = 'rule'; d.style.height = pitch + 'px'; el.appendChild(d); }
   });
+}
+function drawPreview() {
+  const day = dayBlocks(KIT, layout, { tag: true, size });
+  pv.innerHTML = `<style>${KIT.css}#pv .page { width: ${SIZES[size]}in; }</style><div class="page verso dayp m">${day}${KIT.strip}</div>`;
+  drawRules(pv);
   fit(); meter(); hl(selected); drawOverlay();
   if (layout.grid) return; // the grid has no drag-to-reorder: blocks are placed on the overlay
   const dayEl = pv.querySelector('.day.full');
@@ -733,6 +739,7 @@ function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add
 const json = () => JSON.stringify(layout, null, 2) + '\n';
 function queueSave() {
   if (MODE === 'demo') { setStatus('Demo: not saved anywhere'); return; }
+  stQueueDraft(); // Studio draft autosave (does nothing unless signed in to a Studio project)
   if (MODE === 'pages') { store.set('kw-daypage', JSON.stringify(layout)); dirty = true; setStatus('Saved in this browser · not on GitHub yet'); return; }
   if (!db || readOnly) { setStatus(db ? 'View only' : 'Preview only: changes aren’t saved here', 'bad'); return; }
   setStatus('Saving…'); clearTimeout(saveTimer); saveTimer = setTimeout(save, 600);
@@ -1081,6 +1088,8 @@ function bkSize() { // 5.5x8.5 <-> 8.5x11: same pages, the page width changes
   BK.cols = bkPickCols(); bkBuild(); bkSelect(n); bkLevel(lv === 'detail' ? 'page' : lv, false);
 }
 
+/*__VSJS__*/
+
 (async function init() {
   if (store.get('kw-size') === 'letter') { size = 'letter'; $('#sz-s').setAttribute('aria-pressed', false); $('#sz-l').setAttribute('aria-pressed', true); }
   drawPalette(); drawList(); drawPreview();
@@ -1101,6 +1110,7 @@ function bkSize() { // 5.5x8.5 <-> 8.5x11: same pages, the page width changes
     } else setStatus('Preview only: changes aren’t saved here', 'bad');
   }
   if (document.fonts) document.fonts.ready.then(() => drawPreview());
+  stInit().then(() => { if (location.hash === '#versions') showVersions(); });
   if (location.hash === '#book') showBook();
 })();
 </script>

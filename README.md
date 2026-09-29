@@ -14,6 +14,8 @@ No account is needed to design and print: your work saves in your browser, and y
 
 Website, live editor demo (`/editor/`, sample data only) and docs (`/docs/`): published to GitHub Pages by the Editor workflow, source in [`site/`](site/).
 
+Versions, branches and history for a book (accounts optional): [studio/README.md](studio/README.md). Guests keep versions in the browser; nothing needs a server.
+
 ## Quick start
 
 Needs Node 20+ (22 in CI), Python 3 with pillow, and Chromium.
