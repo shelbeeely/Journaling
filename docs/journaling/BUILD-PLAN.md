@@ -72,6 +72,7 @@ Milestones (each mergeable on its own):
 | C2 | `book.json` + renderer follows it | Same books, byte-identical |
 | C3 | Read-only canvas | Spreads, zoom, jump to page, page ids shown |
 | C4 | Reorder, hide, add (with rules and validation) | Rules above enforced with clear messages |
+| C4b | Column blocks: a 2- or 3-column row whose cells each hold a block (side by side without free placement); block size options (height in lines or mm) land first in the Tier 2 planning PR | Every cell keeps its own `data-zone`; `layout.json` maps them; overflow check covers cells |
 | C5 | Block-based pages | Month, week, review, notes, back-matter pages editable as blocks |
 | C6 | Per-month overrides + book-level "Start from a method" | Whole-book layouts |
 | C7 | Save/load (commit `book.json` next to `daypage.json`), tests, docs | Editor works end to end |
