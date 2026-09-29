@@ -292,7 +292,7 @@ html[data-view="day"] main, html[data-view="page"] #pageview { animation: kw-in 
   .bar h1, html[data-view="day"] .bar h1 { order: 1; flex: 1 1 auto; min-width: 0; }
   #undo { order: 2; } #menu { order: 3; } #laygrp { order: 4; } .bar > .seg[aria-label="Preview size"] { order: 5; margin-left: auto; }
   .status { order: 6; flex: 1 1 100%; font-size: 11.5px; }
-  .btn { min-height: 44px; }
+  .btn { min-height: 44px; min-width: 44px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
@@ -1260,7 +1260,7 @@ function navSync() {
 // Breadcrumb, Back, level buttons.
 function navRefresh() {
   const crumbs = [{ t: 'Book', go: { level: 'book' } }];
-  if (NAV.level !== 'book' && BK.loaded) crumbs.push({ t: `Spread ${NAV.s + 1}`, go: { level: 'spread', s: NAV.s, n: NAV.level === 'day' ? NAV.n || undefined : undefined } });
+  if (NAV.level !== 'book' && BK.loaded && (NAV.level === 'spread' || NAV.n)) crumbs.push({ t: `Spread ${NAV.s + 1}`, go: { level: 'spread', s: NAV.s, n: NAV.level === 'day' ? NAV.n || undefined : undefined } });
   if (NAV.level === 'day') { const p = NAV.n && BK.loaded ? BK.pages[NAV.n - 1] : null; crumbs.push({ t: NAV.date ? `Day ${dayLabel(NAV.date)}` : p ? pageName(p) : 'Page' }); }
   $('#crumb-list').innerHTML = crumbs.map((c, i) => `<li>${i === crumbs.length - 1 ? `<span aria-current="page">${escH(c.t)}</span>` : `<button type="button" data-crumb="${i}">${escH(c.t)}</button>`}</li>`).join('');
   $('#crumb-list').querySelectorAll('[data-crumb]').forEach((b) => (b.onclick = () => navGo(crumbs[+b.dataset.crumb].go)));
