@@ -72,9 +72,22 @@ Milestones (each mergeable on its own):
 | C2 | `book.json` + renderer follows it | Same books, byte-identical |
 | C3 | Read-only canvas | Spreads, zoom, jump to page, page ids shown |
 | C4 | Reorder, hide, add (with rules and validation) | Rules above enforced with clear messages |
+| C4b | Page grid: predefined rows and columns; blocks span several of each (see 'Page grid' below). Block size options (height in lines or mm) land first in the Tier 2 planning PR | Every block keeps its own `data-zone`; `layout.json` maps it to its cell rectangle; overflow check runs per block |
 | C5 | Block-based pages | Month, week, review, notes, back-matter pages editable as blocks |
 | C6 | Per-month overrides + book-level "Start from a method" | Whole-book layouts |
 | C7 | Save/load (commit `book.json` next to `daypage.json`), tests, docs | Editor works end to end |
+
+### Page grid (C4b, added 2026-09-29)
+Blocks sit on a predefined grid and can span several columns and rows. Rows and columns are fixed by the page, not free-drawn.
+- **Grid per page type (fixed, not user-set):** every page type declares one fixed number of columns and rows per trim in a `GRIDS` table. Nobody picks the counts; blocks only choose where they sit and how far they span. Proposed starting points (the C4b agent measures and confirms): day page = 4 columns, and rows one tight line high (5.6 mm) so rulings and rows align, the count set by the usable height per trim (small and letter differ); month, week, review, notes and back-matter pages each get their own fixed grid. Both trims keep the same column count, so a layout carries across sizes; row counts differ because the page heights differ, and spans are stored in rows so they convert by height.
+- **Placement:** each block gets `{col, row, colSpan, rowSpan}`. Today's layout is the default: one column, blocks stacked in order, Writing space taking the remaining rows. It must reproduce the current pages byte-identically.
+- **Rules (validated with clear messages):** no overlaps; a block has a minimum span (its content must fit: lines, ruled rows, bubbles); locked blocks (DATE/TITLE/TAGS header, SEND TO strip, page code, 9pt frame) never move; spans stay inside the page and its safe margins.
+- **Scan zones:** the zone for a block is its grid rectangle; `layout.json` records it (repeats get `_2`, `_3`); a spanning block has one zone.
+- **Checks:** `check.mjs` runs per cell, so overflow inside a spanning block is caught; the editor overflow meter shows it live.
+- **X4:** unaffected; exported check-in blocks export the same way wherever they sit.
+- **Editor:** snap-to-grid drag and resize handles, span shown as a highlighted rectangle, keyboard moves (arrows, shift for span), undo, 44px targets on a phone.
+- **Stacking on mobile:** the editor previews the grid at true size; on a phone it scrolls the page, not the block list.
+- **Why grid, not free size:** predefined tracks keep scan zones, ruling and the overflow check predictable.
 
 ## 4. Paper and X4 as one system: the split ("both, clearly split")
 
