@@ -89,6 +89,38 @@ check(sum(1 for l in L if '|' in l) == 16, 'at most 16 custom items')
 check('WARNING 2 item(s) dropped (Late scale, Late words)' in out, 'the cap warning names what was dropped')
 check(not any('Late' in l for l in L), 'items past the cap are not written')
 
+# --- Tier 2 care blocks: injection sites (choice), therapy pack (opt-in x4), overload dots, paper-only blocks ---
+L, out = export([blk('sites', 'inj', title='Injection site')])
+check(L == ['@Injection site', 'c_inj|Injection site|choice|0|3|0|L thigh;R thigh;L belly;R belly'], 'injection sites default to four sites and export as a choice with the site words')
+L, out = export([blk('sites', 'inj', title='Site', labels=['L thigh', 'R thigh', 'L glute', 'R glute', 'L arm', 'R arm'], time=True)])
+check(L == ['@Site', 'c_inj|Site|choice|0|5|0|L thigh;R thigh;L glute;R glute;L arm;R arm'], 'six injection sites: choice 0..5, the time blank stays on paper')
+L, out = export([blk('sites', 'inj', labels=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'])])
+check(L[1].count(';') == 7 and L[1].endswith('H'), 'more than 8 sites: the first 8 (the editor caps the list at 8 too)')
+L, out = export([blk('sites', 'inj', labels=['only'])])
+check(L == [] and 'fewer than 2' in out, 'a single site is not a choice: skipped with a warning')
+L, out = export([dict(type='sites', uid='inj', on=False)])
+check(L == [], 'a switched-off sites block is not exported')
+L, _ = export([blk('feelings', 'fe'), blk('skills', 'sk'), blk('urge', 'ur'), blk('thought', 'th', cols=5), blk('bodysig', 'bs'), blk('lines', 'sp', title='Into today')])
+check(L == [], 'therapy blocks stay off the X4 until "Also on X4" is on; thought record, body signals and special interest are paper only')
+L, _ = export([blk('feelings', 'fe', title='Feelings', x4=True)])
+check(L == ['@Feelings', 'c_fe_sad|Sad|scale|0|5|0', 'c_fe_shame|Shame|scale|0|5|0', 'c_fe_anger|Anger|scale|0|5|0', 'c_fe_fear|Fear|scale|0|5|0', 'c_fe_joy|Joy|scale|0|5|0'],
+      'feelings with x4: one 0..5 scale per feeling (six bubbles, 0..5)')
+L, _ = export([blk('feelings', 'fe', title='F', x4=True, labels=['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])])
+check(sum(1 for l in L if '|' in l) == 6, 'feelings take at most 6 labels')
+L, _ = export([blk('skills', 'sk', title='Skills', x4=True)])
+check(L == ['@Skills', 'c_sk|Skills|scale|0|7|0'], 'skills with x4: one 0..7 scale (eight bubbles)')
+L, _ = export([blk('urge', 'ur', title='Urges', x4=True, labels=['Urge A', 'Urge B'])])
+check(L == ['@Urges', 'c_ur_urge_a|Urge A|scale|0|5|0', 'c_ur_urge_a_acted|Urge A acted|toggle|0|1|0', 'c_ur_urge_b|Urge B|scale|0|5|0', 'c_ur_urge_b_acted|Urge B acted|toggle|0|1|0'],
+      'urge with x4: a 0..5 scale and an "acted" tick per urge')
+check(all(l.count('|') == 5 for l in L if '|' in l), 'urge lines have six columns')
+L, _ = export([blk('habits', 'ov', title='Overload', labels=['Overload'])])
+check(L == ['@Overload', 'c_ov_overload|Overload|dots|0|2|0'], 'overload dots export as dots (empty, half, full)')
+# the cap counts the new items
+L, out = export([blk('feelings', 'fe', x4=True), blk('urge', 'ur', x4=True, labels=['Urge A', 'Urge B']), blk('skills', 'sk', x4=True), blk('checks', 'ck', title='Care', labels=[f'c{i}' for i in range(1, 9)]),
+                 blk('sites', 'inj')])
+n = sum(1 for l in L if '|' in l)
+check(n == 16 and 'WARNING 3 item(s) dropped (c7, c8, Site)' in out and not any('inj' in l for l in L), 'the 16-item cap counts the new blocks in layout order (5 + 4 + 1 feelings, urges, skills, then 6 of 8 checks); the rest, and the sites choice, are named and dropped')
+
 # --- every line a firmware line: key rules ---
 L, _ = export([blk('scale', 'a', title='T'), blk('words', 'a', title='U', x4=True, words=['x', 'y'])])
 keys = [l.split('|')[0] for l in L if '|' in l]

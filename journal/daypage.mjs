@@ -45,6 +45,10 @@ export const IC = {
   flag: '<path d="M2.4 11V1.4M2.4 1.8h7l-1.6 2.6 1.6 2.6h-7"/>',
   box: '<rect x="1.4" y="1.4" width="9.2" height="9.2" rx="1"/>',
   log: '<circle cx="2" cy="2.6" r=".6" fill="currentColor"/><circle cx="2" cy="6" r="1.1"/><path d="M1 9.4h2M4.8 2.6h6M4.8 6h6M4.8 9.4h6"/>',
+  thought: '<path d="M3.4 8.6a2.2 2.2 0 0 1-.2-4.4 2.9 2.9 0 0 1 5.5-.4 2.1 2.1 0 0 1 .2 4.8Z"/><circle cx="3.4" cy="10.4" r=".7"/><circle cx="1.6" cy="11.2" r=".4"/>',
+  needle: '<path d="M9.4 2.6 11 4.2M8.2 3.8 3.2 8.8l-.6 1.6 1.6-.6 5-5M6 6l1.4 1.4M4.6 7.4 6 8.8"/><path d="M2.6 10.4 1 12"/>',
+  body: '<circle cx="6" cy="2.4" r="1.4"/><path d="M6 4.2v4M3 5.4h6M6 8.2 4.2 11M6 8.2 7.8 11"/>',
+  wave: '<path d="M.8 6c1.2-3 2.4-3 3.6 0s2.4 3 3.6 0 2-2.4 3.2-.6"/>',
   dots: '<circle cx="3.2" cy="3.2" r="2"/><circle cx="8.8" cy="3.2" r="2"/><circle cx="3.2" cy="8.8" r="2"/><circle cx="8.8" cy="8.8" r="2"/><circle cx="3.2" cy="3.2" r="2" fill="currentColor"/><path d="M8.8 6.8a2 2 0 0 1 0 4Z" fill="currentColor"/>',
   // Tier 2 blocks
   dump: '<path d="M1.6 3.2c1.6-1.2 2.6 1.2 4.2 0s2.6-1.2 4.6.2M1.6 6.2c1.6-1.2 2.6 1.2 4.2 0s2.6-1.2 4.6.2M1.6 9.2c1.6-1.2 2.6 1.2 4.2 0"/>',
@@ -117,6 +121,7 @@ const LST = (k, label, def, max = 10) => ({ k, kind: 'list', label, def, max });
 const PITCH = { k: 'pitch', kind: 'choice', label: 'Line spacing', choices: [[5.6, 'Tight 5.6 mm'], [6.6, 'Standard 6.6 mm'], [8.5, 'Wide 8.5 mm']], def: 5.6 };
 const OMR = B('omr', 'Scan-ready (larger marks)', false);
 export const X4_MAXES = [5, 10, 20, 50, 99, 200, 999]; // "fields": the most the X4 counts up to (paper is unaffected)
+const BODYSIG = { stomach: 'Hungry', water: 'Thirsty', toilet: 'Toilet', temp: 'Hot/cold', tense: 'Tense', heart: 'Heart', tired: 'Tired' };
 const PAPER = { k: 'paper', kind: 'choice', label: 'Paper', choices: [['lines', 'Lines'], ['dots', 'Dot grid'], ['grid', '4 mm grid']], def: 'lines' };
 
 // group: where the block sits in the "Add blocks" palette.
@@ -140,6 +145,14 @@ export const TYPES = {
   habits: { name: 'Habit dots', group: 'Check-ins', icon: 'dots', hint: 'One circle each: leave empty, half-fill or fill · also on X4', opts: [T('Label', 'Habits', 24), LST('labels', 'Habits', ['Stretch', 'Outside', 'Read', 'Water'], 8), B('tiny', 'Legend: half = tiny', false)] },
   fields: { name: 'Fill-in blanks', group: 'Check-ins', icon: 'pen', hint: 'Label + a blank to write a number or word · also on X4', opts: [T('Label', 'Outside', 18), LST('labels', 'Blanks', ['Minutes outside', 'Steps'], 6), { k: 'max', kind: 'choice', label: 'Highest count on X4', choices: X4_MAXES.map((m) => [m, String(m)]), def: 99 }] },
   weather: { name: 'Weather & air', group: 'Check-ins', icon: 'cloud', single: true, hint: 'Circle the sky; high, low and air quality', opts: [B('aqi', 'Air quality (smoke season)')] },
+  // ---- therapy pack (opt-in; use with a therapist) ----
+  feelings: { name: 'Feelings 0–5', group: 'Therapy', icon: 'heart', hint: 'Rate each feeling 0 to 5 · diary card', opts: [T('Label', 'Feelings', 18), LST('labels', 'Feelings', ['Sad', 'Shame', 'Anger', 'Fear', 'Joy'], 6), B('x4', 'Also on X4 (one 0–5 item each)', false)] },
+  skills: { name: 'Skills 0–7', group: 'Therapy', icon: 'sprout', hint: 'How far I got with my skills today, 0 to 7', opts: [T('Label', 'Skills', 18), B('key', 'Print what 0–7 mean', true), B('x4', 'Also on X4 (one 0–7 item)', false)] },
+  urge: { name: 'Urge + acted', group: 'Therapy', icon: 'wave', hint: 'Strength of an urge, 0 to 5, and a box if I acted on it', opts: [T('Label', 'Urges', 18), LST('labels', 'Your own words', ['Urge'], 3), B('x4', 'Also on X4 (a 0–5 item and an "acted" tick each)', false)] },
+  thought: { name: 'Thought record', group: 'Therapy', icon: 'thought', hint: '3, 5 or 7 boxes for a thought that hurt', opts: [{ k: 'cols', kind: 'choice', label: 'Boxes', choices: [[3, '3 boxes'], [5, '5 boxes'], [7, '7 boxes']], def: 3 }, N('n', 'Lines per box', 1, 3, 1)] },
+  // ---- body ----
+  sites: { name: 'Injection site rotation', group: 'Body', icon: 'needle', hint: 'Circle where today’s injection went · also on X4', opts: [T('Label', 'Site', 14), LST('labels', 'Sites', ['L thigh', 'R thigh', 'L belly', 'R belly'], 8), B('time', 'Time blank', false)] },
+  bodysig: { name: 'Body signals', group: 'Body', icon: 'body', hint: 'What my body is telling me, a few times a day', opts: [N('n', 'Times a day', 1, 3, 2), { k: 'items', kind: 'flags', label: 'Signals', items: BODYSIG, def: { stomach: true, water: true, toilet: true, temp: false, tense: true, heart: false, tired: true } }] },
   // ---- writing ----
   lines: { name: 'Lined notes', group: 'Writing', icon: 'pen', hint: 'A label and a few lines', opts: [T('Label', 'Notes'), N('n', 'Lines', 1, 12, 2), PAPER, PITCH] },
   bullets: { name: 'Quick bullets', group: 'Writing', icon: 'log', hint: 'Ruled rows with a bullet spot; optional key', opts: [T('Label', 'Log', 24), N('n', 'Rows', 2, 14, 5), B('key', 'Key strip'), PITCH] },
@@ -198,7 +211,8 @@ P1('fields', 'Deep blocks', { title: 'Deep blocks', labels: ['Deep blocks planne
 P1('fields', 'Focus rounds count', { title: 'Focus rounds', labels: ['Focus rounds'] }, 'Planning');
 P1('checks', 'Supports', { title: 'Supports', labels: ['Headphones', 'Hood', 'Dark room', 'Alone time'] }, 'Check-ins');
 P1('scale', 'Masking', { title: 'Masking', steps: 4, lo: 'none', hi: 'all day' }, 'Check-ins');
-P1('habits', 'Overload', { title: 'Overload', labels: ['Overload'] }, 'Check-ins');
+P1('habits', 'Overload', { title: 'Overload', labels: ['Overload'] }, 'Body');
+P1('lines', 'Special interest', { title: 'Into today', n: 2 }, 'Body');
 P1('scale', 'Felt like me', { title: 'Felt like me', steps: 5, lo: 'not today', hi: 'so me' }, 'Check-ins');
 P1('fields', 'Voice minutes', { title: 'Voice', labels: ['Voice min'] }, 'Check-ins');
 P1('checks', 'Cycle & dose', { title: 'Cycle & dose', labels: ['Period', 'Dose day'] }, 'Check-ins');
@@ -386,7 +400,12 @@ function weekOf(date) {
 }
 // Day pixel swatch: a 10x10 square filled from the bottom, level 0 = empty (SVG, so no font glyphs).
 const swatch = (i, n) => { const h = Math.round((i / (n - 1)) * 8); return `<svg class="pxs" width="12" height="12" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width=".9" role="img" aria-label="level ${i + 1} of ${n}"><rect x="1" y="1" width="8" height="8" rx=".8"/>${h ? `<rect x="1" y="${9 - h}" width="8" height="${h}" fill="#888" stroke="none"/>` : ''}</svg>`; };
-
+// Therapy pack: every block carries a "use with a therapist" note and the same two numbers the book's Support page prints
+// (988 call or text; Trans Lifeline). Keep them in step with content/support.json.
+export const THERAPY_NOTE = '<div class="tn">Use with a therapist. Crisis: call or text <b>988</b> · Trans Lifeline <b>(877) 565-8860</b></div>';
+const SKILLS_KEY = '0 none · 1–2 thought of · 3–5 tried · 6–7 came on their own · 5 and 7 helped';
+// Thought record boxes (CBT): 3 = quick record, 5 = Beck style, 7 = Mind Over Mood style. Feelings/moods are rated 0-100 by hand.
+const THOUGHT_BOXES = { 3: ['Thought', 'Trap', 'Balanced'], 5: ['Situation', 'Feeling %', 'Thought', 'Balanced', 'Outcome'], 7: ['Situation', 'Mood %', 'Thought', 'For', 'Against', 'Balanced', 'Mood now'] };
 function renderBlock(b, parts, zone) {
   const Z = `data-zone="${zone}"`;
   switch (b.type) {
@@ -410,6 +429,18 @@ function renderBlock(b, parts, zone) {
     case 'habits': return b.labels.length ? `<div class="xb xrow wr xhab" ${Z}>${lbl('', b.title)}${b.labels.map((t) => `<span class="hd"><span class="t">${esc(t)}</span><i></i></span>`).join('')}${b.tiny ? mkKey(['half', 'full'], { half: 'tiny', full: 'done' }) : mkKey(['half', 'full'])}</div>` : '';
     case 'fields': return `<div class="xb xrow wr" ${Z}>${lbl('', b.title)}${b.labels.map((t) => `<span class="f">${esc(t)} <span class="blank"></span></span>`).join('')}</div>`;
     case 'weather': return `<div class="xb xrow" ${Z}>${['am', 'cloud', 'rain', 'snow', ...(b.aqi ? ['smoke'] : [])].map((k) => `<span class="cir">${ic(k, k === 'am' ? 'Sun' : k)}</span>`).join('')}<span class="f">hi <span class="blank xs"></span></span><span class="f">lo <span class="blank xs"></span></span>${b.aqi ? '<span class="f">AQI <span class="blank xs"></span></span>' : ''}</div>`;
+    case 'feelings': return b.labels.length ? `<div class="xb" ${Z}>${lbl('heart', b.title)}<div class="frs">${b.labels.map((t) => `<div class="fr"><span>${esc(t)}</span>${nbubs(6, 0)}</div>`).join('')}</div>${THERAPY_NOTE}</div>` : '';
+    case 'skills': return `<div class="xb" ${Z}><div class="xrow">${lbl('sprout', b.title)}<span class="end">not used</span>${nbubs(8, 0)}<span class="end">used, helped</span></div>${b.key ? `<div class="skey">${SKILLS_KEY}</div>` : ''}${THERAPY_NOTE}</div>`;
+    case 'urge': return b.labels.length ? `<div class="xb" ${Z}>${lbl('wave', b.title)}${b.labels.map((t) => `<div class="xrow ur"><span class="ul">${esc(t)}</span><span class="end">none</span>${nbubs(6, 0)}<span class="end">strong</span>${box('<span class="t">acted</span>')}</div>`).join('')}${THERAPY_NOTE}</div>` : '';
+    case 'thought': {
+      const names = THOUGHT_BOXES[b.cols] || THOUGHT_BOXES[3], first = b.cols === 3 ? 3 : Math.ceil(b.cols / 2);
+      return `<div class="xb" ${Z}>${lbl('thought', 'Thought record')}${[names.slice(0, first), names.slice(first)].filter((r) => r.length).map((r) => `<div class="thr">${r.map((t) => `<div><i>${t}</i>${ruled(b.n)}</div>`).join('')}</div>`).join('')}${THERAPY_NOTE}</div>`;
+    }
+    case 'sites': return b.labels.length ? `<div class="xb xrow wr" ${Z}>${lbl('needle', b.title)}${b.labels.map((w) => `<span class="w">${esc(w)}</span>`).join('')}${b.time ? '<span class="f">time <span class="blank xs"></span></span>' : ''}</div>` : '';
+    case 'bodysig': {
+      const it = Object.keys(BODYSIG).filter((k) => b.items[k]);
+      return it.length ? `<div class="xb" ${Z}>${lbl('body', 'Body signals')}${Array(b.n).fill(`<div class="xrow wr"><span class="f">at <span class="blank xs"></span></span>${it.map((k) => box(`<span class="t">${BODYSIG[k]}</span>`)).join('')}</div>`).join('')}</div>` : '';
+    }
     case 'lines': return `<div class="xb" ${Z}>${lbl('', b.title)}${ruled(b.n, PAPER_CLS[b.paper] || '', b.pitch)}</div>`;
     case 'bullets': return `<div class="xb xbul" ${Z}>${b.title || b.key ? `<div class="xrow">${b.title ? lbl('', b.title) : ''}${b.key ? mkKey(['task', 'event', 'note', 'moved', 'done']) : ''}</div>` : ''}${Array(b.n).fill(`<div class="bl"><i></i><span${bs(b.pitch)}></span></div>`).join('')}</div>`;
     case 'split': return `<div class="xb xsplit" ${Z}><div>${lbl('', b.left)}${ruled(b.n, PAPER_CLS[b.paper] || '', b.pitch)}</div><div>${lbl('', b.right)}${ruled(b.n, PAPER_CLS[b.paper] || '', b.pitch)}</div></div>`;
@@ -556,4 +587,10 @@ export const DAYPAGE_CSS = `
 .wsk { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-top: 2px; } .wsc { border: 1px solid #999; border-radius: 2px; padding: 1px 3px; display: flex; justify-content: space-between; align-items: flex-start; font: 500 6pt Inter, sans-serif; color: #444; } .wsc b { font-weight: 600; letter-spacing: 0.4px; } .wsc i { font-style: normal; font-weight: 700; color: #000; } .wsc.td { border: 1.8px solid #000; padding: 0 2px; }
 .pq { font: italic 500 7.5pt/1.2 Inter, sans-serif; color: #222; align-self: center; }
 .xpx { gap: 4px; } .xpx .pxb { width: 0.3in; height: 0.3in; border: 1.4px solid #000; border-radius: 2px; margin-right: 4px; flex: none; } .xpx .pxc { display: inline-flex; flex-direction: column; align-items: center; gap: 1px; } .xpx .pxs { width: 12px; height: 12px; display: block; } .xpx .pxc i { width: 8px; height: 8px; border: 1px solid #000; border-radius: 50%; display: block; }
+/* Tier 2 care blocks: therapy pack (feelings, skills, urge, thought record) and body (sites, body signals) */
+.tn { font: 500 6pt Inter, sans-serif; color: #555; margin-top: 2px; line-height: 1.2; } .tn b { font-weight: 700; color: #333; }
+.frs { display: grid; grid-template-columns: 1fr 1fr; column-gap: 14px; } .fr { display: flex; align-items: center; gap: 3px; min-height: 0.2in; } .fr > span:first-child { flex: none; width: 0.62in; font: 500 7pt Inter, sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.skey { font: 500 6pt Inter, sans-serif; color: #444; margin-top: 1px; line-height: 1.25; }
+.xrow.ur .ul { font: 600 7pt Inter, sans-serif; min-width: 0.5in; max-width: 0.9in; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .xrow.ur .ck { margin-left: auto; }
+.thr { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; column-gap: 8px; margin-top: 1px; } .thr > div { min-width: 0; } .thr i { display: block; font: 600 5.8pt Inter, sans-serif; font-style: normal; text-transform: uppercase; letter-spacing: 0.4px; color: #555; }
 `;
