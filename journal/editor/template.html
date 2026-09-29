@@ -7,17 +7,17 @@
 <style>
 :root {
   --bg: #f4f1ea; --panel: #fbfaf6; --ink: #1f1d1a; --muted: #6b665d; --line: #dcd6ca; --soft: #ece7dc;
-  --accent: #3f5f5a; --accent-ink: #fff; --warn: #8a4b12; --warn-bg: #f7e9d6; --ok: #3f6b45; --focus: #7aa39b; --danger: #9a3b30;
+  --accent: #3f5f5a; --accent-ink: #fff; --warn: #8a4b12; --warn-bg: #f7e9d6; --ok: #3f6b45; --focus: #3f5f5a; --danger: #9a3b30; --ctl: #857e72;
   --shadow: 0 1px 2px rgba(40, 30, 10, .08), 0 6px 20px rgba(40, 30, 10, .08);
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #171715; --panel: #201f1c; --ink: #ebe7df; --muted: #a39d92; --line: #36342f; --soft: #2a2925;
-  --accent: #8fb8b0; --accent-ink: #11201d; --warn: #f0b77a; --warn-bg: #3a2b1a; --ok: #9cc9a2; --focus: #8fb8b0; --danger: #f09a8e;
+  --accent: #8fb8b0; --accent-ink: #11201d; --warn: #f0b77a; --warn-bg: #3a2b1a; --ok: #9cc9a2; --focus: #8fb8b0; --danger: #f09a8e; --ctl: #7d786e;
   --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
 } }
 :root[data-theme="dark"] {
   --bg: #171715; --panel: #201f1c; --ink: #ebe7df; --muted: #a39d92; --line: #36342f; --soft: #2a2925;
-  --accent: #8fb8b0; --accent-ink: #11201d; --warn: #f0b77a; --warn-bg: #3a2b1a; --ok: #9cc9a2; --focus: #8fb8b0; --danger: #f09a8e;
+  --accent: #8fb8b0; --accent-ink: #11201d; --warn: #f0b77a; --warn-bg: #3a2b1a; --ok: #9cc9a2; --focus: #8fb8b0; --danger: #f09a8e; --ctl: #7d786e;
   --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
 }
 * { box-sizing: border-box; }
@@ -242,10 +242,62 @@ html[data-view="book"], html[data-view="book"] body { overflow: hidden; }
   #bk-jump { flex-basis: 100%; order: 9; }
 }
 /*__VSCSS__*/
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+/* ---------- accessibility (A11Y audit: docs/review/accessibility-audit.md; journal/editor/test-a11y.mjs guards it) ---------- */
+.skip { position: absolute; left: 8px; top: -80px; z-index: 30; min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; background: var(--panel); color: var(--ink); border: 2px solid var(--focus); border-radius: 8px; font-weight: 600; text-decoration: none; }
+.skip:focus { top: 8px; }
+html[data-view="book"] .skip-day, html:not([data-view="book"]) .skip-book { display: none; }
+#list:focus { outline: none; }
+/* targets: 44 px, the project rule (WCAG 2.2 needs 24) */
+.btn, .tabs button, .menu > div button { min-height: 44px; }
+.btn { min-width: 44px; }
+.icon-btn { width: 44px; height: 44px; }
+.grip { width: 44px; height: 44px; }
+.grip:focus-visible { background: var(--soft); }
+li.pi { padding: 0 0 0 10px; }
+li.pi .add { width: 44px; height: 44px; border-radius: 10px; }
+.chip { min-height: 44px; }
+.step button { width: 44px; height: 44px; }
+.sw { width: 52px; height: 44px; }
+.sw, .sw[aria-checked="true"] { background: none; }
+.sw::before { content: ""; position: absolute; left: 4px; top: 9px; width: 44px; height: 26px; border-radius: 999px; background: var(--ctl); transition: background .15s; }
+.sw[aria-checked="true"]::before { background: var(--accent); }
+.sw::after { top: 12px; left: 7px; }
+.sw[aria-checked="true"]::after { left: 25px; }
+/* contrast: used palette items keep full-strength muted text (opacity made it 3:1); form fields get a 3:1 border */
+li.pi.used { opacity: 1; border-style: dashed; background: transparent; }
+li.pi.used .n, li.pi.used .ico { color: var(--muted); }
+input[type=text], input[type=password], input[type=url], input:not([type]), select { border-color: var(--ctl) !important; min-height: 44px; }
+.hint { white-space: normal; overflow: visible; text-overflow: clip; } /* no clipped hints: the whole line stays readable at large text and 200% zoom (WCAG 1.4.4) */
+/* a 320 px screen (400% zoom) or a very short one: the wrapped header would cover most of the view, so it scrolls away (WCAG 1.4.10, 2.4.11) */
+@media (max-width: 360px), (max-height: 520px) { .top { position: static; } .pal, .prev { top: 0; } }
+/* narrow screens: the controls take the first line, the name and its hint the second, so 44 px targets still fit at 320 px */
+@media (max-width: 480px) {
+  .row { flex-wrap: wrap; row-gap: 0; }
+  .bico { margin-right: auto; }
+  .txt { order: 9; flex: 1 1 100%; padding: 0 4px 6px 50px; }
+}
+/* high contrast: follows the system setting (the editor's own Settings panel comes later) */
+@media (prefers-contrast: more) {
+  :root:not([data-theme="dark"]) { --bg: #fff; --panel: #fff; --ink: #000; --muted: #333; --line: #000; --soft: #ececec; --accent: #00352f; --accent-ink: #fff; --warn: #5c2e00; --warn-bg: #fff2dc; --ok: #0f4a1a; --focus: #000; --danger: #7a0f05; --ctl: #000; }
+}
+@media (prefers-contrast: more) and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #000; --panel: #000; --ink: #fff; --muted: #ddd; --line: #fff; --soft: #222; --accent: #bfe9e1; --accent-ink: #000; --warn: #ffd399; --warn-bg: #2b1c00; --ok: #b8f0be; --focus: #fff; --danger: #ffb3a8; --ctl: #fff; }
+}
+@media (prefers-contrast: more) { :root[data-theme="dark"] { --bg: #000; --panel: #000; --ink: #fff; --muted: #ddd; --line: #fff; --soft: #222; --accent: #bfe9e1; --accent-ink: #000; --warn: #ffd399; --warn-bg: #2b1c00; --ok: #b8f0be; --focus: #fff; --danger: #ffb3a8; --ctl: #fff; } }
+/* Windows high contrast / forced colors: pressed and on states cannot rely on a background colour */
+@media (forced-colors: active) {
+  .chip[aria-pressed="true"], .seg button[aria-pressed="true"], .bk-b[aria-pressed="true"], .bk-b[aria-expanded="true"], .tabs button[aria-selected="true"], .gtools .btn[aria-pressed="true"], .btn.primary { forced-color-adjust: none; background: Highlight; color: HighlightText; border-color: Highlight; }
+  .sw::before { forced-color-adjust: none; background: Canvas; border: 2px solid ButtonText; }
+  .sw::after { forced-color-adjust: none; background: ButtonText; }
+  .sw[aria-checked="true"]::before { background: Highlight; border-color: Highlight; }
+  .sw[aria-checked="true"]::after { background: HighlightText; }
+  li.blk.sel, .bpg.sel { outline: 3px solid Highlight; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
 </style>
 
 <header class="top">
+  <a class="skip skip-day" href="#list">Skip to the blocks on the page</a><a class="skip skip-book" href="#bk-view">Skip to the book canvas</a>
   <div class="demo" id="demo" hidden><span>Demo · sample data only. Nothing is saved to any server; your changes stay on this page.</span><a href="../">Back to Journalwright Studio</a></div>
   <div class="bar">
     <h1 id="ttl">Day page<small>Keeping Watch · every monthly book</small></h1>
@@ -283,7 +335,7 @@ html[data-view="book"], html[data-view="book"] body { overflow: hidden; }
     <h2 class="sec">On the page</h2>
     <p class="note">Drag <b>⋮⋮</b> to reorder, or drag right on the preview. Switch a block off to hide it for now, or remove it.</p>
     <div class="fixed"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>Date · Title · Tags stay at the top for scanning</div>
-    <ul class="list" id="list"></ul>
+    <ul class="list" id="list" tabindex="-1"></ul>
     <div class="fixed"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>Scan frame, Send-to symbols and page code stay put</div>
   </section>
   <section class="prev" aria-label="Page preview">
@@ -295,7 +347,7 @@ html[data-view="book"], html[data-view="book"] body { overflow: hidden; }
   </section>
 </main>
 
-<section id="book" aria-label="Book canvas, read-only">
+<section id="book" role="main" aria-label="Book canvas, read-only">
   <div class="bk-bar">
     <div class="bk-grp" role="group" aria-label="Zoom">
       <button class="bk-b" id="bk-out" aria-label="Zoom out"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.5"/><path d="M6.8 10h6.4"/></svg></button>
@@ -327,9 +379,9 @@ html[data-view="book"], html[data-view="book"] body { overflow: hidden; }
 </section>
 <!--__VSHTML__-->
 <input type="file" id="file" accept=".json,application/json" hidden>
-<dialog id="gh">
+<dialog id="gh" aria-labelledby="gh-h">
   <form method="dialog">
-    <h3>Save to GitHub</h3>
+    <h3 id="gh-h">Save to GitHub</h3>
     <p>Commits <code>journal/content/daypage.json</code>; the Books workflow then rebuilds every month. Use a fine-grained token limited to this one repository with <b>Contents: read and write</b>.</p>
     <p><b>Also on X4:</b> Checkboxes, Scale, Habit dots, Fill-in blanks, Energy types, Focus rounds (a count), Injection site rotation and (when you turn it on) Feelings, Skills, Urge and Words to circle become X4 check-ins after the next Books build.</p>
     <label>Repository <input type="text" id="gh-repo" placeholder="owner/repo" autocomplete="off"></label>
@@ -356,6 +408,7 @@ html[data-view="book"], html[data-view="book"] body { overflow: hidden; }
   </form>
 </dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="sr" id="live" role="status" aria-live="polite"></div>
 
 <script>
 /*__DAYPAGE__*/
@@ -364,6 +417,8 @@ const MODE = '__MODE__';
 const BOOK_DATA = '__BOOKDATA__'; // Artifact build: the sample book, gzipped + base64. Site build: empty (fetched as pages-sample.json).
 
 const $ = (s, el = document) => el.querySelector(s);
+const ANIM = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 150; // Sortable's slide animation
+document.documentElement.lang ||= 'en'; // the Artifact host writes the <html> skeleton
 const escH = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const SIZES = { small: 5.5, letter: +(8.5 / (11 / 8.5)).toFixed(4) };
 let size = 'small', layout = normalize(null), history = [], selected = null, openIds = new Set(['care']), actualSize = false;
@@ -419,7 +474,7 @@ function drawPalette() {
     const u = TYPES[it.type].single && used.has(it.type);
     return `<li class="pi ${u ? 'used' : ''}" data-key="${it.key}">${icon(it.icon, 'ico')}<span class="n">${escH(it.name)}</span><button class="add" data-add="${it.key}" aria-label="Add ${escH(it.name)}">+</button></li>`;
   }).join('')}</ul>`).join('');
-  document.querySelectorAll('#pal ul.pg').forEach((ul) => Sortable.create(ul, { group: { name: 'blocks', pull: 'clone', put: false }, sort: false, filter: '.used, .add', preventOnFilter: false, animation: 150, delay: 160, delayOnTouchOnly: true, fallbackTolerance: 4 }));
+  document.querySelectorAll('#pal ul.pg').forEach((ul) => Sortable.create(ul, { group: { name: 'blocks', pull: 'clone', put: false }, sort: false, filter: '.used, .add', preventOnFilter: false, animation: ANIM, delay: 160, delayOnTouchOnly: true, fallbackTolerance: 4 }));
 }
 function blockFromKey(key) {
   const it = paletteItems().find((x) => x.key === key); if (!it) return null;
@@ -456,8 +511,8 @@ function optControl(o, v, path) {
     case 'bool': return `<div class="opt"><button class="chip" aria-pressed="${!!v}" data-bool="${P}">${o.label}</button></div>`;
     case 'choice': return `<div class="opt"><label>${o.label}</label>${o.choices.map(([c, t]) => `<button class="chip" aria-pressed="${c == v}" data-choice="${P}" data-v="${escH(c)}">${t}</button>`).join('')}</div>`;
     case 'flags': return `<div class="opt"><label>${o.label}</label>${Object.entries(o.items).map(([k, t]) => `<button class="chip" aria-pressed="${!!v[k]}" data-flag="${P}" data-k="${k}">${o.icons && IC[k] ? icon(k) : ''}${t}</button>`).join('')}</div>`;
-    case 'text': return `<div class="opt"><label>${o.label}</label><input type="text" maxlength="${o.max || 40}" value="${escH(v)}" data-text="${P}"></div>`;
-    case 'list': return `<div class="opt"><label>${o.label}</label><input type="text" value="${escH(v.join(', '))}" data-list="${P}" placeholder="comma, separated"></div>`;
+    case 'text': return `<div class="opt"><label>${o.label}</label><input type="text" aria-label="${escH(o.label)}" maxlength="${o.max || 40}" value="${escH(v)}" data-text="${P}"></div>`;
+    case 'list': return `<div class="opt"><label>${o.label}</label><input type="text" aria-label="${escH(o.label)}" value="${escH(v.join(', '))}" data-list="${P}" placeholder="comma, separated"></div>`;
   }
   return '';
 }
@@ -469,7 +524,7 @@ function summary(b) {
 function rowItem(bu, r) {
   const o = ROW_OPTS[r.id].map((x) => optControl(x, r[x.k], `${bu}/rows/${r.id}/${x.k}`)).join(''), k = 'r:' + r.id;
   return `<li class="blk ${r.on ? '' : 'off'} ${openIds.has(k) ? 'open' : ''}" data-row="${r.id}">
-    <div class="row"><span class="grip" aria-label="Drag to reorder">${GRIP}</span>${icon(CARE_ROWS[r.id].icon, 'bico')}
+    <div class="row"><span class="grip" role="button" tabindex="0" aria-label="Move ${CARE_ROWS[r.id].name}. Up and Down arrow keys reorder it.">${GRIP}</span>${icon(CARE_ROWS[r.id].icon, 'bico')}
       <span class="txt" data-open="${k}"><span class="name">${CARE_ROWS[r.id].name}</span>${CARE_ROWS[r.id].x4 ? '<span class="hint">X4 has this · off on paper by default</span>' : ''}</span>
       <button class="icon-btn more" ${o ? '' : 'hidden'} data-open="${k}" aria-label="Options" aria-expanded="${openIds.has(k)}">${CHEV}</button>
       <button class="sw" role="switch" aria-checked="${r.on}" aria-label="${CARE_ROWS[r.id].name}" data-bool="${bu}/rows/${r.id}/on"></button></div>
@@ -489,7 +544,7 @@ function drawList() {
     const o = (layout.grid ? placePanel(b) : '') + (b.type === 'care' ? `<ul class="sub" data-care="${b.uid}">${b.rows.map((r) => rowItem(b.uid, r)).join('')}</ul>` : t.opts.map((x) => optControl(x, b[x.k], `${b.uid}/${x.k}`)).join(''));
     const gp = layout.grid && b.on ? `col ${b.col} · row ${b.row} · ${b.colSpan}×${b.rowSpan} · ` : '';
     return `<li class="blk ${b.on ? '' : 'off'} ${open ? 'open' : ''} ${selected === b.uid ? 'sel' : ''} ${probs.some((p) => p.uid === b.uid) ? 'prob' : ''}" data-uid="${b.uid}">
-      <div class="row"><span class="grip" aria-label="Drag to reorder">${GRIP}</span>${icon(t.icon, 'bico')}
+      <div class="row"><span class="grip" role="button" tabindex="0" aria-label="Move ${escH(t.name)}. Up and Down arrow keys reorder it.">${GRIP}</span>${icon(t.icon, 'bico')}
         <span class="txt" data-open="${b.uid}"><span class="name">${escH(t.name)}</span>${onX4(b) ? X4_MARK : ''}<span class="hint">${escH(gp + summary(b))}</span></span>
         <button class="icon-btn more" ${o ? '' : 'hidden'} data-open="${b.uid}" aria-label="Options for ${escH(t.name)}" aria-expanded="${open}">${CHEV}</button>
         <button class="icon-btn del" ${t.locked ? 'hidden' : ''} data-del="${b.uid}" aria-label="Remove ${escH(t.name)}">${BIN}</button>
@@ -497,10 +552,10 @@ function drawList() {
       ${o ? `<div class="opts">${o}</div>` : ''}</li>`;
   }).join('');
   const old = Sortable.get(ul); if (old) old.destroy();
-  Sortable.create(ul, { group: { name: 'blocks', pull: false, put: true }, handle: '.grip', animation: 150, ghostClass: 'ghost', chosenClass: 'chosen', fallbackTolerance: 3,
+  Sortable.create(ul, { group: { name: 'blocks', pull: false, put: true }, handle: '.grip', animation: ANIM, ghostClass: 'ghost', chosenClass: 'chosen', fallbackTolerance: 3,
     onAdd: (e) => { const key = e.item.dataset.key, next = e.item.nextElementSibling; e.item.remove(); const b = blockFromKey(key); if (b) insertBlock(b, next && next.dataset.uid); else drawList(); },
     onEnd: (e) => { if (e.from !== e.to || e.oldIndex === e.newIndex) return; const order = [...ul.children].map((li) => li.dataset.uid); change((L) => { L.blocks = order.map((u) => L.blocks.find((b) => b.uid === u)); }); } });
-  ul.querySelectorAll('ul.sub').forEach((sub) => Sortable.create(sub, { handle: '.grip', animation: 150, ghostClass: 'ghost', chosenClass: 'chosen', fallbackTolerance: 3,
+  ul.querySelectorAll('ul.sub').forEach((sub) => Sortable.create(sub, { handle: '.grip', animation: ANIM, ghostClass: 'ghost', chosenClass: 'chosen', fallbackTolerance: 3,
     onEnd: (e) => { if (e.oldIndex === e.newIndex) return; const order = [...sub.children].map((li) => li.dataset.row), u = sub.dataset.care; change((L) => { const c = L.blocks.find((b) => b.uid === u); c.rows = order.map((id) => c.rows.find((r) => r.id === id)); }); } }));
 }
 // path "uid/key" or "uid/rows/rowId/key"
@@ -523,6 +578,20 @@ $('#list').addEventListener('click', (e) => {
     else if (d.choice) o[k] = isNaN(+d.v) ? d.v : +d.v;
     else if (d.flag) o[k][d.k] = !o[k][d.k];
   });
+});
+// Keyboard reorder (WCAG 2.1.1, 2.5.7): focus a block's handle, Up/Down moves it one place. The move is announced in the live region.
+function announce(t) { const el = $('#live'); el.textContent = ''; setTimeout(() => { el.textContent = t; }, 40); }
+$('#list').addEventListener('keydown', (e) => {
+  const g = e.target.closest('.grip'); if (!g || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
+  e.preventDefault();
+  const li = g.closest('li'), care = li.dataset.row ? li.closest('ul.sub').dataset.care : null, key = li.dataset.row || li.dataset.uid, d = e.key === 'ArrowUp' ? -1 : 1;
+  const id = (x) => (care ? x.id : x.uid), rows = () => (care ? find(care).rows : layout.blocks), n = rows().length, at = rows().findIndex((x) => id(x) === key);
+  const name = care ? CARE_ROWS[key].name : TYPES[find(key).type].name;
+  if (at + d < 0 || at + d >= n) { announce(`${name} is already ${d < 0 ? 'first' : 'last'}.`); return; }
+  change((L) => { const arr = care ? L.blocks.find((b) => b.uid === care).rows : L.blocks; [arr[at], arr[at + d]] = [arr[at + d], arr[at]]; });
+  const h = care ? $(`#list ul.sub[data-care="${care}"] > li[data-row="${key}"] > .row > .grip`) : $(`#list > li[data-uid="${key}"] > .row > .grip`);
+  if (h) h.focus();
+  announce(`${name} moved to position ${rows().findIndex((x) => id(x) === key) + 1} of ${n}.`);
 });
 // Text boxes: live preview while typing, one undo step per edit, list redrawn when you leave the box.
 $('#list').addEventListener('focusin', (e) => { if (e.target.matches('[data-text],[data-list]')) snapshot(); });
@@ -547,7 +616,7 @@ function drawPreview() {
   fit(); meter(); hl(selected); drawOverlay();
   if (layout.grid) return; // the grid has no drag-to-reorder: blocks are placed on the overlay
   const dayEl = pv.querySelector('.day.full');
-  Sortable.create(dayEl, { group: { name: 'blocks', pull: false, put: true }, draggable: '[data-b]', animation: 150, ghostClass: 'ghost', delay: 180, delayOnTouchOnly: true, fallbackTolerance: 4,
+  Sortable.create(dayEl, { group: { name: 'blocks', pull: false, put: true }, draggable: '[data-b]', animation: ANIM, ghostClass: 'ghost', delay: 180, delayOnTouchOnly: true, fallbackTolerance: 4,
     onAdd: (e) => { const key = e.item.dataset.key; let n = e.item.nextElementSibling; while (n && !n.dataset.b) n = n.nextElementSibling; e.item.remove(); const b = blockFromKey(key); if (b) insertBlock(b, n ? n.dataset.b : afterLastVisible()); else drawPreview(); },
     onEnd: (e) => { if (e.from !== e.to || e.oldIndex === e.newIndex) return; movedOnPage([...dayEl.querySelectorAll(':scope > [data-b]')].map((el) => el.dataset.b)); } });
 }
@@ -574,6 +643,8 @@ function meter() {
   const x4n = layout.blocks.reduce((t, b) => t + x4Items(b), 0), cap = x4n > 16 ? `<span class="warn">X4 holds 16 custom items; you have ${x4n}. The last ${x4n - 16} stay on paper.</span>` : '';
   $('#meter').innerHTML = cap + (over ? `<span class="warn">Too full: the page overflows. Switch something off or shorten a block.</span>`
     : `Writing space <b>${h.toFixed(1)} in</b> <span>· ${(h * 2.54).toFixed(1)} cm</span>${h < 1.3 ? '<span class="warn">Too full for busy days</span>' : h < 1.7 ? '<span class="warn">Getting tight</span>' : ''}`);
+  const w = over ? 'Too full: the page overflows. Switch something off or shorten a block.' : h < 1.3 ? 'Too full for busy days.' : h < 1.7 ? 'Getting tight.' : ''; // announce a warning once, when it appears or changes
+  if (w !== meter.w) { meter.w = w; if (w) announce(w); }
 }
 function hl(uid) {
   const b = uid && find(uid), prev = b ? (layout.blocks[layout.blocks.indexOf(b) - 1] || {}).uid : null;
@@ -583,7 +654,7 @@ function hl(uid) {
 function select(uid, scroll = true) {
   selected = uid; hl(uid);
   document.querySelectorAll('#list > li').forEach((li) => li.classList.toggle('sel', li.dataset.uid === uid));
-  if (scroll) { const li = $(`#list > li[data-uid="${uid}"]`); if (li) li.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+  if (scroll) { const li = $(`#list > li[data-uid="${uid}"]`); if (li) li.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }
 }
 pv.addEventListener('click', (e) => {
   const el = e.target.closest('[data-b]'); if (!el) return;
@@ -729,13 +800,19 @@ document.addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && !e
 function tab(t) { $('#main').dataset.tab = t; document.querySelectorAll('.tabs button').forEach((b) => b.setAttribute('aria-selected', b.dataset.tab === t)); if (t === 'preview') { fit(); meter(); drawOverlay(); } }
 document.querySelectorAll('.tabs button').forEach((b) => (b.onclick = () => tab(b.dataset.tab)));
 const menu = $('#menu');
-$('#menubtn').onclick = (e) => { e.stopPropagation(); menu.classList.toggle('open'); $('#menubtn').setAttribute('aria-expanded', menu.classList.contains('open')); };
+const menuItems = () => [...menu.querySelectorAll('[role=menuitem]')].filter((x) => !x.hidden);
+$('#menubtn').onclick = (e) => { e.stopPropagation(); menu.classList.toggle('open'); $('#menubtn').setAttribute('aria-expanded', menu.classList.contains('open')); if (menu.classList.contains('open') && e.detail === 0) menuItems()[0]?.focus(); }; // opened from the keyboard: land on the first item
+menu.addEventListener('keydown', (e) => { // Escape closes and returns to the button; Up/Down/Home/End move between items
+  if (e.key === 'Escape' && menu.classList.contains('open')) { e.preventDefault(); menu.classList.remove('open'); $('#menubtn').setAttribute('aria-expanded', 'false'); $('#menubtn').focus(); return; }
+  const it = menuItems(), i = it.indexOf(document.activeElement), k = { ArrowDown: i + 1, ArrowUp: i - 1, Home: 0, End: it.length - 1 }[e.key];
+  if (k !== undefined && menu.classList.contains('open')) { e.preventDefault(); it[(k + it.length) % it.length].focus(); }
+});
 document.addEventListener('click', (e) => { if (!menu.contains(e.target)) menu.classList.remove('open'); });
-menu.addEventListener('click', (e) => { if (e.target.closest('[role=menuitem]')) menu.classList.remove('open'); });
+menu.addEventListener('click', (e) => { if (e.target.closest('[role=menuitem]')) { menu.classList.remove('open'); $('#menubtn').setAttribute('aria-expanded', 'false'); } });
 
 // ---------- save / load ----------
 const setStatus = (t, cls = '') => { const s = $('#status'); s.textContent = t; s.className = 'status ' + cls; };
-function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('show'), 2600); }
+function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('show'), Math.max(4000, t.length * 70)); } // long enough to read, even the longer explanations (WCAG 2.2.1)
 const json = () => JSON.stringify(layout, null, 2) + '\n';
 function queueSave() {
   if (MODE === 'demo') { setStatus('Demo: not saved anywhere'); return; }

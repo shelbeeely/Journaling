@@ -29,6 +29,8 @@ jobs:
       - run: node editor/build.mjs
       - name: Editor tests (drag from palette, every block, overflow meter)
         run: node editor/test.mjs
+      - name: Accessibility checks (axe, names, contrast tokens, 44 px targets, reflow at 320/390, focus, reduced motion, keyboard tasks); fails on anything not in the documented allowlist
+        run: node editor/test-a11y.mjs --report
       - name: Assemble the site (root), the editor demo (/editor/) and the working editor (/app/); check links
         run: |
           "$GITHUB_WORKSPACE/site/build.sh" "$GITHUB_WORKSPACE/_site"
