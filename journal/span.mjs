@@ -59,11 +59,12 @@ export async function loadSpan({ ics, quiet = false } = {}) {
     const first = undated ? null : dayIso(full.days[a]), last = undated ? null : dayIso(full.days[b - 1]);
     const n = meta.n || 1, of = meta.of || 1;
     const label = undated ? `${b - a} days` : rangeLabel(first, last);
-    const idBase = undated ? 'undated' : `${plan.scope}-${plan.start.slice(0, 7)}`;
+    const bookIdNow = meta.count ? PROFILE.book.id || null : ensureBookId();
+    const idBase = `${undated ? 'undated' : `${plan.scope}-${plan.start.slice(0, 7)}`}-${(bookIdNow || 'new').toLowerCase()}`; // the book id keeps two books of one kind apart
     const VOL = {
       scoped: true, scope: plan.scope, undated, id: `${idBase}-v${n}`, n, of, isFirst: n === 1, isLast: meta.isLast !== undefined ? meta.isLast : n === of, label, short: label, first, last, days: b - a,
       dayFrom: undated ? full.days[a].no : null, dayTo: undated ? full.days[b - 1].no : null,
-      bookId: meta.count ? PROFILE.book.id || null : ensureBookId(), // the book's own scan-code id (made once, kept in the profile)
+      bookId: bookIdNow, // the book's own scan-code id (made once, kept in the profile)
       edge: { before: n === 1 ? 'before this journal starts' : `in volume ${n - 1}`, after: n === of ? 'after this journal ends' : `in volume ${n + 1}` },
     };
     let D;
@@ -79,8 +80,8 @@ export async function loadSpan({ ics, quiet = false } = {}) {
       const ix = undated ? W.no - 1 : W.gi;
       W.no = undated ? W.no : W.gi - gi0 + 1;
       W.owns = undated ? true : W.days.some((d) => d.weekday === 4);
-      W.pioneer = W.owns ? wrapAt(PIONEERS, ix) || null : null;
-      W.prompt = wrapAt(PROMPTS, ix) || null;
+      W.pioneer = W.owns && !undated ? wrapAt(PIONEERS, ix) || null : null; // pioneer cards mention birthdays and "next Monday": tied to the calendar, so not in an undated book
+      W.prompt = undated ? null : wrapAt(PROMPTS, ix) || null; // the weekly exchange prompts follow the calendar year (undated: the generic line)
       W.label = `Week ${W.no}`;
     }
     if (!undated) for (const M of D.months) M.key = `${M.y}-${pad2(M.m)}`;

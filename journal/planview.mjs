@@ -1,11 +1,12 @@
 // The book plan as data and as words: `node render.mjs plan` prints it, the studio can show it before printing.
 import { rangeLabel, MAX_PAGES, HARDCOVER_MIN, PAPERBACK_MIN } from './plan.mjs';
 import { dayIso } from './span.mjs';
+import { PROFILE } from './profile.mjs';
 
 export function describePlan(span, res) {
   const { plan, full } = span;
   const undated = plan.scope === 'undated';
-  const idBase = undated ? 'undated' : `${plan.scope}-${plan.start.slice(0, 7)}`;
+  const idBase = `${undated ? 'undated' : `${plan.scope}-${plan.start.slice(0, 7)}`}-${(PROFILE.book.id || 'new').toLowerCase()}`;
   const volumes = res.volumes.map((v) => {
     const first = undated ? null : dayIso(full.days[v.a]), last = undated ? null : dayIso(full.days[v.b - 1]);
     return {

@@ -38,6 +38,8 @@ jobs:
         run: node test-busy.mjs
       - name: Profile check (a generic person in a made-up city builds a clean book; module switches remove their pages)
         run: node test-profile.mjs
+      - name: Book plan check (every scope builds; a year splits into volumes that pass every gate; undated books print no dates; codes unique across books)
+        run: node test-scopes.mjs
       - name: Calendars (from the ICS_URLS secret, never committed)
         env: { ICS_URLS: '${{ secrets.ICS_URLS }}' }
         run: |
