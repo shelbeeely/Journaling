@@ -2,7 +2,10 @@
 //   node check-codes.mjs [out/mYYYY-MM ...]        default: every out/m*/ that has a layout.json
 //   DECODE=none|sample|all node check-codes.mjs    default sample (first, last and every 7th page); all = every page
 // Two code formats. A monthly book: KW2|<edition>|<yymm>|<S/L/H><NNN>. Every other book (a volume of a book plan): KW3 + its
-// 8-character book id + volume (1 character) + <S/L/H> + <NNN>, see plan.mjs. Both must be a 16x16 Data Matrix.
+// 8-character book id + volume (1 character) + <S/L/H> + <NNN>, see plan.mjs. The default is a 16x16 Data Matrix.
+// A page can choose (scan.mjs): no code, QR instead of Data Matrix, another corner or size, or content `id` (KWI|<edition>|<book key>|<size>|<PAGE ID>,
+// longer, so a bigger symbol). Every configured code is decoded at its own size and position (a crop of layout.json's code_at_mm), and no
+// module may print under 0.5 mm.
 // Fails (exit 1) when, in any book: two pages share a code; a code isn't the right format for its own page number, book, volume,
 // size and edition; a page has no data-zone map or a duplicate zone name; a page lacks type/section; the code needs more than
 // a 16x16 Data Matrix; a code doesn't decode from the rendered PDF at 200 dpi; manifest.json (code -> page id) disagrees with
@@ -19,6 +22,8 @@ import { LIBRARY, PROFILE_BOOK } from './profile.mjs';
 import { resolveBook } from './library.mjs';
 import { bookDirs } from './bookdirs.mjs';
 import { parseKw3, BOOK_ID_RE } from './plan.mjs';
+import { symbolOpts, modulesOf, KWI_RE, MIN_MODULE_MM, DEFAULT_SIZE_MM, CODE_POSITIONS } from './scan.mjs';
+const V36 = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 const args = process.argv.slice(2);
 const dirs = args.length ? args : bookDirs();
@@ -66,7 +71,8 @@ for (const dir of dirs) {
   const mf = path.join(dir, 'manifest.json');
   const M = fs.existsSync(mf) ? JSON.parse(fs.readFileSync(mf, 'utf8')) : null;
   if (!M) fail(dir, 'no manifest.json');
-  const idOf = new Map((M ? M.pages : []).map((p) => [p.code, p.id])); // code -> page id, as a printed book is read back
+  const idOf = new Map((M ? M.pages : []).filter((p) => p.code).map((p) => [p.code, p.id])); // code -> page id, as a printed book is read back
+  if (M && JSON.stringify(M.pages_without_code || []) !== JSON.stringify(L.pages.filter((p) => !p.code).map((p) => p.id))) fail(dir, 'manifest.json pages_without_code disagrees with layout.json');
   if (M && (M.pages.length !== L.pages.length || M.book !== L.book || M.size !== L.size || M.edition !== L.edition || M.book_id !== L.book_id)) fail(dir, 'manifest.json is for a different build than layout.json');
   if (scoped && M) { // one book id, one book plan: the same id on two different plans would let two books share codes
     const sig = JSON.stringify(M.plan), prev = ids.get(L.book_id);
@@ -78,37 +84,66 @@ for (const dir of dirs) {
   // a library book has its own edition (manifest.library_book); every other build is checked against the profile's
   const ED = M && M.library_book && LIBRARY.books.some((b) => b.id === M.library_book) ? resolveBook(LIBRARY, M.library_book, PROFILE_BOOK).edition : EDITION;
   if (L.edition !== ED) fail(dir, `edition ${L.edition} is not the current ${ED}`);
+  const Z = letter ? 11 / 8.5 : 1; // the 8.5x11 page is laid out at 5.5x8.5 and zoomed, so its code prints 1.294 times the size in layout.json
   L.pages.forEach((p, i) => {
     const at = `${dir} p.${i + 1}`;
     if (p.page !== i + 1) fail(dir, `page ${i + 1} is numbered ${p.page}`);
-    if (scoped) {
-      const k = parseKw3(p.code);
-      if (!k) { fail(dir, `p.${i + 1}: bad code "${p.code}" (a book plan's codes are KW3 + 8-character book id + volume + size + page)`); return; }
-      if (k.page !== i + 1) fail(dir, `p.${i + 1}: code ${p.code} names page ${k.page}`);
-      if (k.bookId !== L.book_id) fail(dir, `p.${i + 1}: code ${p.code} names book ${k.bookId}, not ${L.book_id}`);
-      if (k.vol !== V.n) fail(dir, `p.${i + 1}: code ${p.code} names volume ${k.vol}, this is volume ${V.n}`);
-      if (k.size !== L.size) fail(dir, `p.${i + 1}: code ${p.code} names size ${k.size}, book is ${L.size}`);
+    const sc = p.scan || { frame: true, crop: true, send_to: true, code: true };
+    if (!p.code) { // a page with no code: known by its printed number and label only; the manifest lists it
+      if (sc.code) fail(dir, `p.${i + 1}: no code, but scan.code says the page has one`);
+      if ((p.zones || []).some((z) => z.zone === 'page_code') || p.code_at_mm) fail(dir, `p.${i + 1}: no code, but a page_code zone is mapped`);
     } else {
-      const m = /^KW2\|(\d)\|(\d{4})\|([SLH])(\d{3})$/.exec(p.code || '');
-      if (!m) { fail(dir, `p.${i + 1}: bad code "${p.code}"`); return; }
-      if (+m[4] !== i + 1) fail(dir, `p.${i + 1}: code ${p.code} names page ${+m[4]}`);
-      if (m[2] !== yymm) fail(dir, `p.${i + 1}: code ${p.code} names book ${m[2]}, not ${yymm}`);
-      if (m[3] !== L.size) fail(dir, `p.${i + 1}: code ${p.code} names size ${m[3]}, book is ${L.size}`);
-      if (+m[1] !== ED) fail(dir, `p.${i + 1}: code ${p.code} names edition ${m[1]}`);
+      const fmt = p.code_format, content = p.code_content || 'book';
+      if (!['data_matrix', 'qr'].includes(fmt)) fail(dir, `p.${i + 1}: code format ${JSON.stringify(fmt)} is not data_matrix or qr`);
+      if (content === 'id') {
+        const k = KWI_RE.exec(p.code);
+        if (!k) { fail(dir, `p.${i + 1}: bad code "${p.code}" (content id is KWI|<edition>|<book key>|<size>|<PAGE ID>)`); return; }
+        const key = scoped ? L.book_id + V36[V.n] : yymm;
+        if (+k[1] !== ED) fail(dir, `p.${i + 1}: code ${p.code} names edition ${k[1]}`);
+        if (k[2] !== key) fail(dir, `p.${i + 1}: code ${p.code} names book ${k[2]}, not ${key}`);
+        if (k[3] !== L.size) fail(dir, `p.${i + 1}: code ${p.code} names size ${k[3]}, book is ${L.size}`);
+        if (k[4].toLowerCase() !== p.id) fail(dir, `p.${i + 1}: code ${p.code} names page id ${k[4].toLowerCase()}, not ${p.id}`);
+      } else if (scoped) {
+        const k = parseKw3(p.code);
+        if (!k) { fail(dir, `p.${i + 1}: bad code "${p.code}" (a book plan's codes are KW3 + 8-character book id + volume + size + page)`); return; }
+        if (k.page !== i + 1) fail(dir, `p.${i + 1}: code ${p.code} names page ${k.page}`);
+        if (k.bookId !== L.book_id) fail(dir, `p.${i + 1}: code ${p.code} names book ${k.bookId}, not ${L.book_id}`);
+        if (k.vol !== V.n) fail(dir, `p.${i + 1}: code ${p.code} names volume ${k.vol}, this is volume ${V.n}`);
+        if (k.size !== L.size) fail(dir, `p.${i + 1}: code ${p.code} names size ${k.size}, book is ${L.size}`);
+      } else {
+        const m = /^KW2\|(\d)\|(\d{4})\|([SLH])(\d{3})$/.exec(p.code || '');
+        if (!m) { fail(dir, `p.${i + 1}: bad code "${p.code}"`); return; }
+        if (+m[4] !== i + 1) fail(dir, `p.${i + 1}: code ${p.code} names page ${+m[4]}`);
+        if (m[2] !== yymm) fail(dir, `p.${i + 1}: code ${p.code} names book ${m[2]}, not ${yymm}`);
+        if (m[3] !== L.size) fail(dir, `p.${i + 1}: code ${p.code} names size ${m[3]}, book is ${L.size}`);
+        if (+m[1] !== ED) fail(dir, `p.${i + 1}: code ${p.code} names edition ${m[1]}`);
+      }
+      if (!/^[\x20-\x7e]+$/.test(p.code)) fail(dir, `p.${i + 1}: code ${JSON.stringify(p.code)} is not plain ASCII`);
+      if (M && idOf.get(p.code) !== p.id) fail(dir, `p.${i + 1}: manifest maps ${p.code} to "${idOf.get(p.code)}", layout.json says "${p.id}"`);
+      if (seen.has(p.code)) fail(dir, `p.${i + 1}: code ${p.code} repeats inside the book`);
+      seen.add(p.code);
+      if (owner.has(p.code)) fail(dir, `p.${i + 1}: code ${p.code} is also ${owner.get(p.code)}`);
+      else owner.set(p.code, at);
+      const svg = bwipjs.toSVG(symbolOpts(fmt === 'qr' ? 'qr' : 'data_matrix', p.code)), mods = modulesOf(svg);
+      if (fmt !== 'qr' && content !== 'id' && !/viewBox="0 0 64 64"/.test(svg)) fail(dir, `p.${i + 1}: ${p.code} needs more than 16x16 modules`);
+      if (p.code_modules !== mods) fail(dir, `p.${i + 1}: layout.json says ${p.code_modules} modules, ${p.code} makes ${mods}`);
+      if (!p.type || !p.section || !('date' in p)) fail(dir, `p.${i + 1}: meta incomplete (${JSON.stringify({ type: p.type, section: p.section, format: p.code_format })})`);
+      const pc = (p.zones || []).find((z) => z.zone === 'page_code');
+      // the size the page says, the size the zone measures, and the smallest module that prints and scans
+      if (!pc || Math.abs(pc.w - pc.h) > 0.2 || Math.abs(pc.w - p.code_size_mm * Z) > 0.3 * Z) fail(dir, `p.${i + 1}: page_code zone isn't the ${p.code_size_mm} mm symbol (${JSON.stringify(pc)})`);
+      if (p.code_size_mm / mods < MIN_MODULE_MM - 0.005) fail(dir, `p.${i + 1}: modules print at ${(p.code_size_mm / mods).toFixed(2)} mm, under the ${MIN_MODULE_MM} mm minimum`);
+      if (pc && (pc.w < 8 * Z - 0.1 || pc.w > 14.5 * Z)) fail(dir, `p.${i + 1}: code is ${pc.w} mm wide; safe sizes are 8 to 14 mm`);
+      // quiet zone: the code lies inside the frame, at least 0.3 in from its edge (the frame's own margin is 0.5 in; the strip keeps the rest)
+      if (pc && p.frame_inner_mm && (pc.x < 7.5 || pc.x + pc.w > p.frame_inner_mm.w - 7.5)) fail(dir, `p.${i + 1}: code is too close to the frame edge (quiet zone)`);
+      if (!p.code_at_mm) fail(dir, `p.${i + 1}: layout.json has no code_at_mm for the decoder`);
     }
-    if (M && idOf.get(p.code) !== p.id) fail(dir, `p.${i + 1}: manifest maps ${p.code} to "${idOf.get(p.code)}", layout.json says "${p.id}"`);
-    if (seen.has(p.code)) fail(dir, `p.${i + 1}: code ${p.code} repeats inside the book`);
-    seen.add(p.code);
-    if (owner.has(p.code)) fail(dir, `p.${i + 1}: code ${p.code} is also ${owner.get(p.code)}`);
-    else owner.set(p.code, at);
-    const svg = bwipjs.toSVG({ bcid: 'datamatrix', text: p.code });
-    if (!/viewBox="0 0 64 64"/.test(svg)) fail(dir, `p.${i + 1}: ${p.code} needs more than 16x16 modules`);
-    if (p.code_format !== 'data_matrix' || !p.type || !p.section || !('date' in p)) fail(dir, `p.${i + 1}: meta incomplete (${JSON.stringify({ type: p.type, section: p.section, format: p.code_format })})`);
     const names = (p.zones || []).map((z) => z.zone), content = names.filter((n) => n !== 'page_code' && n !== 'send_to' && !n.startsWith('send_to_'));
     if (!content.length) fail(dir, `p.${i + 1} (${p.type}): no data-zone map`);
     if (new Set(names).size !== names.length) fail(dir, `p.${i + 1} (${p.type}): duplicate zone names`);
-    const pc = (p.zones || []).find((z) => z.zone === 'page_code');
-    if (!pc || Math.abs(pc.w - pc.h) > 0.2 || pc.w < 8 || pc.w > 16) fail(dir, `p.${i + 1}: page_code zone isn't the ${'~10.7 mm'} symbol (${JSON.stringify(pc)})`);
+    // scan options: what layout.json promises scan tooling must match what is mapped
+    if (!sc.frame && names.some((n) => n === 'send_to' || n.startsWith('send_to_'))) fail(dir, `p.${i + 1}: the border is off, but a send_to zone is mapped (no Send-to without the border)`);
+    if (!sc.frame && (sc.send_to || sc.crop)) fail(dir, `p.${i + 1}: the border is off, but scan says send_to or crop work`);
+    if (sc.frame && !names.some((n) => n === 'send_to' || n.startsWith('send_to_'))) fail(dir, `p.${i + 1}: the border is on, but there is no send_to zone`);
     if (p.zones && p.zones.some((z) => !(z.w > 0 && z.h > 0))) fail(dir, `p.${i + 1} (${p.type}): a zone has no size`);
   });
 
@@ -123,24 +158,34 @@ for (const dir of dirs) {
   execFileSync('pdftoppm', ['-r', '200', '-gray', pdf, path.join(tmp, 'p')]);
   const files = fs.readdirSync(tmp).filter((f) => f.endsWith('.pgm')).sort();
   let ok = 0, tried = 0;
+  const custom = (p) => p.code && (p.code_format !== 'data_matrix' || p.code_content !== 'book' || p.code_position !== 'right' || Math.abs(p.code_size_mm - DEFAULT_SIZE_MM) > 0.05);
+  const firstOf = new Map(); // the first page of each distinct code setup is always decoded, sampled or not
+  L.pages.forEach((p, k) => { if (custom(p)) { const key = [p.code_format, p.code_content, p.code_position, p.code_size_mm].join('|'); if (!firstOf.has(key)) firstOf.set(key, k); } });
+  const mustDecode = new Set(firstOf.values());
   for (let i = 0; i < files.length; i++) {
-    if (MODE === 'sample' && !(i === 0 || i === files.length - 1 || i % 7 === 0)) continue;
+    const pg = L.pages[+/(\d+)\.pgm$/.exec(files[i])[1] - 1];
+    if (!pg.code) continue; // no code on this page: nothing to decode
+    if (MODE === 'sample' && !(i === 0 || i === files.length - 1 || i % 7 === 0 || mustDecode.has(i))) continue;
     tried++;
     const buf = fs.readFileSync(path.join(tmp, files[i]));
     const hdr = /^P5\s+(\d+)\s+(\d+)\s+255\s/.exec(buf.subarray(0, 40).toString('latin1'));
     const w = +hdr[1], h = +hdr[2], off = hdr[0].length;
-    const rows = h, y0 = 0, data = new Uint8ClampedArray(w * rows * 4); // whole page: the code must be findable wherever a page puts its strip
-    for (let k = 0; k < w * rows; k++) { const v = buf[off + y0 * w + k]; data[4 * k] = data[4 * k + 1] = data[4 * k + 2] = v; data[4 * k + 3] = 255; }
-    const res = await readBarcodes({ data, width: w, height: rows, colorSpace: 'srgb' }, { formats: ['DataMatrix'], maxNumberOfSymbols: 4, tryHarder: true });
-    const want = L.pages[+/(\d+)\.pgm$/.exec(files[i])[1] - 1].code;
+    // the default code: the whole page (it must be findable wherever a page puts its strip). A configured code: its own box on the page,
+    // 4 mm of white round it, at 200 dpi: what a phone camera would be given
+    let x0 = 0, y0 = 0, cw = w, ch = h;
+    if (custom(pg) && pg.code_at_mm) { const px = (mm) => Math.round((mm / 25.4) * 200), c = pg.code_at_mm; x0 = Math.max(0, px(c.x - 4)); y0 = Math.max(0, px(c.y - 4)); cw = Math.min(w - x0, px(c.w + 8)); ch = Math.min(h - y0, px(c.h + 8)); }
+    const data = new Uint8ClampedArray(cw * ch * 4);
+    for (let r = 0; r < ch; r++) for (let c = 0; c < cw; c++) { const v = buf[off + (y0 + r) * w + x0 + c], k = 4 * (r * cw + c); data[k] = data[k + 1] = data[k + 2] = v; data[k + 3] = 255; }
+    const res = await readBarcodes({ data, width: cw, height: ch, colorSpace: 'srgb' }, { formats: [pg.code_format === 'qr' ? 'QRCode' : 'DataMatrix'], maxNumberOfSymbols: 4, tryHarder: true });
+    const want = pg.code;
     const got = res.filter((r) => r.isValid).map((r) => r.text);
-    const wantId = L.pages[+/(\d+)\.pgm$/.exec(files[i])[1] - 1].id;
+    const wantId = pg.id;
     if (got.length === 1 && got[0] === want && idOf.get(got[0]) === wantId) ok++;
     else if (got.length === 1 && got[0] === want) fail(dir, `p.${i + 1}: code ${want} decodes but the manifest gives page id "${idOf.get(got[0])}", not "${wantId}"`);
     else fail(dir, `p.${i + 1}: expected ${want}, decoded ${JSON.stringify(got)}`);
   }
   fs.rmSync(tmp, { recursive: true, force: true });
-  stats.push(`${dir}: ${L.pages.length} codes unique and well-formed, decoded ${ok}/${tried} (${MODE === 'all' ? 'every page' : 'sample'}) at 200 dpi from ${path.basename(pdf)}`);
+  stats.push(`${dir}: ${L.pages.filter((p) => p.code).length} codes unique and well-formed, decoded ${ok}/${tried} (${MODE === 'all' ? 'every page' : 'sample'})${L.pages.some((p) => !p.code) ? `, ${L.pages.filter((p) => !p.code).length} page(s) without a code (listed in the manifest)` : ''} at 200 dpi from ${path.basename(pdf)}`);
 }
 
 for (const s of stats) console.log(s);

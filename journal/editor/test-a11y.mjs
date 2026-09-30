@@ -242,6 +242,22 @@ const openAllOptions = (p) => p.evaluate(() => { openIds = new Set(layout.blocks
   if (!moved) add('keyboard', 'Grid', 'no arrow key moved the focused block');
   await close(p);
 }
+// 3b) Scan settings (scan.mjs): the sheet open with the border and the code changed, on a desktop and a phone; switches and chips named, 44px, keyboard operable, warnings announced
+for (const w of [1400, 390]) {
+  const p = await open('site', { hash: DAY, w, h: 900 });
+  await p.click('#scan-t'); await p.waitForTimeout(150);
+  await p.click('[data-sc="frame"]'); await p.waitForTimeout(150);
+  await axeRun(p, `Scan settings (${w}px)`); await smallTargets(p, `Scan settings (${w}px)`); await reflow(p, `Scan settings ${w}px`);
+  const names = await p.evaluate(() => [...document.querySelectorAll('#scan [role=switch], #scan .chip, #scan .scan-t')].filter((x) => !(x.getAttribute('aria-label') || x.textContent.trim() || (x.getAttribute('aria-labelledby') && document.getElementById(x.getAttribute('aria-labelledby')).textContent.trim()))).length);
+  if (names) add('names', `Scan settings ${w}px`, `${names} control(s) have no accessible name`);
+  const live = await p.evaluate(() => { const n = document.getElementById('scan-notes'); return n && n.getAttribute('aria-live') === 'polite' && /scanning border is off/.test(n.textContent); });
+  if (!live) add('announce', `Scan settings ${w}px`, 'switching the border off is not stated in a live region');
+  // keyboard: a switch works with Space and keeps the focus
+  await p.focus('#scan [data-sc="frame"]'); await p.keyboard.press('Space'); await p.waitForTimeout(150);
+  const back = await p.evaluate(() => !layout.scan && document.activeElement && document.activeElement.dataset.sc === 'frame');
+  if (!back) add('keyboard', `Scan settings ${w}px`, 'Space on the border switch does not toggle it and keep the focus');
+  await close(p);
+}
 // 4) Book view
 {
   const p = await open('site', { wait: 1500 }); // the editor opens on the Book

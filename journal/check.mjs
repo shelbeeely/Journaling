@@ -15,8 +15,21 @@ const res = await p.evaluate(() => [...document.querySelectorAll('.page')].map((
   const clip = [...pg.querySelectorAll('.cal td, .wev')].filter((el) => el.scrollHeight > el.clientHeight + 1).length;
   // grid layouts: every block sits in its own cell (.gc) and clips what does not fit, so each cell is checked on its own; the names say which block
   const blk = [...pg.querySelectorAll('.gc')].filter((g) => g.scrollHeight > g.clientHeight + 1 || g.scrollWidth > g.clientWidth + 1).map((g) => g.dataset.zone);
-  return { n: i + 1, over, out, cell, clip, ...(blk.length ? { blk } : {}) };
-}).filter((x) => x.over || x.out || x.cell || x.clip || x.blk));
+  // scan marks: nothing in the bottom strip overlaps or spills out of it (a bigger code, a label, a code moved to the other corner), and a page
+  // with the border off really shows no frame and no Send-to block (scan.mjs)
+  let scan = 0;
+  const strip = pg.querySelector('.strip');
+  if (strip) {
+    const kids = [...strip.children].map((k) => k.getBoundingClientRect()).filter((q) => q.width);
+    for (let a = 0; a < kids.length; a++) for (let b = a + 1; b < kids.length; b++) if (kids[a].left < kids[b].right - 0.5 && kids[b].left < kids[a].right - 0.5) scan++;
+    if (strip.scrollWidth > strip.clientWidth + 1) scan++;
+  }
+  if (pg.dataset.scanFrame === 'off') {
+    if (getComputedStyle(pg.querySelector('.frame')).visibility !== 'hidden') scan++;
+    scan += [...pg.querySelectorAll('.sendblk, .strip .send, .strip .sym')].filter((el) => getComputedStyle(el).visibility !== 'hidden').length;
+  }
+  return { n: i + 1, over, out, cell, clip, ...(blk.length ? { blk } : {}), ...(scan ? { scan } : {}) };
+}).filter((x) => x.over || x.out || x.cell || x.clip || x.blk || x.scan));
 console.log(JSON.stringify(res.slice(0, 20)), res.length);
 if (res.length) process.exitCode = 1; // CI fails on any overflow
 await b.close();

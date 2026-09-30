@@ -15,6 +15,7 @@ import { loadSpan, planVolumes, bookEntries as bookEntriesFor } from './span.mjs
 import { bookPlan, kw3Code, MAX_PAGES } from './plan.mjs';
 import { describePlan, printPlan } from './planview.mjs';
 import { assemble, assertBook, entriesFor, normalizeBook } from './book.mjs';
+import { SEND_KEYS, marksHtml, resolveScan, codeText, symbolOpts, modulesOf, fitSize, codeOnLeft, DEFAULT_SIZE_MM, QUIET_MODULES } from './scan.mjs';
 const MODE = process.argv[2];
 if (!['month', 'book', 'plan'].includes(MODE) || (MODE === 'month' && !/^\d{4}-\d{2}$/.test(process.argv[3] || ''))) {
   console.error(`Usage: node render.mjs month <YYYY-MM> [a.ics,b.ics]   (SIZE=letter, HARDCOVER=1)
@@ -43,6 +44,8 @@ const volumeInfo = (V) => ({ scope: V.scope, n: V.n, of: V.of, id: V.id, book_id
 const orderOf = (id) => { const m = /^(day|week|month)\.(\d+)/.exec(id); return m ? { [m[1]]: +m[2] } : {}; };
 async function renderVolume(ctx, OUT, pages) {
 const { D, VOL } = ctx;
+const D_LAYOUT = ctx.dayLayout;
+const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 // ---------- HTML ----------
 // 5.5 x 8.5 in: a KDP.com size for both paperback and hardcover (A5 is only offered on KDP Japan)
 // SIZE=letter: 8.5 x 11 in. The page is laid out at 6.57 x 8.5 (same height as the small book) and zoomed x1.294,
@@ -54,20 +57,9 @@ const INSIDE = 0.5, OUTSIDE = 0.3, TOP = 0.3, BOTTOM = 0.3;
 const BORDER_PT = 9, BORDER = BORDER_PT / 72, QUIET = 0.5, STRIP = 0.42; // 9pt anchor border, 0.5in quiet zone, marker strip height
 const FRAME_PAD = BORDER + QUIET;
 
-// Scan markers: thick border + 7 send-to bubbles + a Data Matrix page code.
+// Scan markers: thick border + the SEND TO symbols + a page code (Data Matrix, or QR when a page asks for it). The symbols, the frame
+// and the code's options live in scan.mjs; the default page prints exactly what it always did.
 // Payload: see pageCode below (KW2|<edition>|<yymm>|<size><page>). Read by the owner's own scanning app, not the Rocketbook app.
-const SYMBOLS = [ // fire (solid △), water (open ▽), air (three winds), earth (⊕), crescent (solid), full moon (solid disc), pentacle
-  // Chosen so no two look alike after a blurry phone photo (tested: worst pair correlation 0.63; the old set had 0.90).
-  '<path d="M7 1.5 L12.5 12 H1.5 Z" fill="#000"/>',
-  '<path d="M7 12.5 L12.5 2 H1.5 Z"/>',
-  '<path d="M1.5 4.5 Q4 2.5 6.5 4.5 T11.5 4.5 M1.5 7.5 Q4 5.5 6.5 7.5 T11.5 7.5 M1.5 10.5 Q4 8.5 6.5 10.5 T11.5 10.5"/>',
-  '<circle cx="7" cy="7" r="5.5"/><path d="M7 1.5 V12.5 M1.5 7 H12.5"/>',
-  '<path d="M9.5 1.8 A5.5 5.5 0 1 0 12.2 9.6 A4.3 4.3 0 1 1 9.5 1.8 Z" fill="#000"/>',
-  '<circle cx="7" cy="7" r="5.5" fill="#000"/>',
-  '<circle cx="7" cy="7" r="6"/><path d="M 7.00 1.70 L 10.12 11.29 L 1.96 5.36 L 12.04 5.36 L 3.88 11.29 Z"/>',
-];
-const SYMBOL_NAMES = ['fire', 'water', 'air', 'earth', 'crescent_moon', 'full_moon', 'pentacle'];
-const symbolRow = SYMBOLS.map((s, i) => `<span class="sym" data-zone="send_to_${SYMBOL_NAMES[i]}"><i></i><svg width="17" height="17" viewBox="0 0 14 14" fill="none" stroke="#000" stroke-width="1.1">${s}</svg></span>`).join('');
 // Hardcover (HARDCOVER=1) pads to an even count >= 76 (KDP needs 75+), paperback to >= 24: assemble() in book.mjs.
 // Page code: Data Matrix, payload "KW2|<edition>|<yymm>|<size><page>", e.g. KW2|1|2610|S026 (15 chars = 16x16 modules, the
 // same symbol size as the old KW1|2610|026, so modules stay 0.42in / 16 = 0.66 mm). Size: S 5.5x8.5, L 8.5x11, H 5.5x8.5
@@ -78,7 +70,29 @@ const SIZE_CODE = HARDCOVER ? 'H' : LETTER ? 'L' : 'S';
 const pageCode = (i) => (VOL.scoped ? kw3Code(VOL.bookId, VOL.n, SIZE_CODE, i + 1) : `KW2|${EDITION}|${VOL.id.slice(2).replace('-', '')}|${SIZE_CODE}${String(i + 1).padStart(3, '0')}`);
 // Rulings for print: drawRulings() (rulings.mjs) redraws every ruled line, dot grid and 4 mm grid as vector SVG; keep its SPECS in sync with the CSS below and in daypage.mjs.
 
-const qrSvgs = pages.map((p, i) => bwipjs.toSVG({ bcid: 'datamatrix', text: pageCode(i) }));
+// Per page scan settings: the book's default (content/book.json `scan`), the day page layout's (day pages), then the page's own entry.
+const bookKey = VOL.scoped ? VOL.bookId + VOL.n.toString(36).toUpperCase() : VOL.id.slice(2).replace('-', ''); // what makes this book's codes its own
+const scans = pages.map((p) => resolveScan(book.scan, p.type === 'dayp' ? D_LAYOUT.scan : undefined, p.scan));
+const sendBlockOn = (p) => p.type === 'dayp' && D_LAYOUT.blocks.some((b) => b.type === 'sendto' && b.on);
+// The code of each page: its text (null when the page has none), symbol, module count and printed size. A longer text moves to the next
+// symbol size, and a chosen size too small for its symbol is raised: both are said once, below.
+const notes = { bigger: new Map(), raised: new Map() };
+const codes = pages.map((p, i) => {
+  const sc = scans[i].code;
+  if (!sc.on) return null;
+  const std = pageCode(i), text = codeText(sc.content, { standard: std, edition: EDITION, bookKey, size: SIZE_CODE, pageId: p.id });
+  const svg = bwipjs.toSVG(symbolOpts(sc.format, text)), modules = modulesOf(svg), fit = fitSize(modules, sc.size);
+  if (fit.error) throw new Error(`Page ${i + 1} (${p.id}): ${fit.error}.`);
+  const base = sc.format === 'qr' ? 0 : 16;
+  if (base && modules > base) notes.bigger.set(`${modules}x${modules}`, (notes.bigger.get(`${modules}x${modules}`) || 0) + 1);
+  if (fit.raised) notes.raised.set(`${fit.mm} mm`, (notes.raised.get(`${fit.mm} mm`) || 0) + 1);
+  const moduleMm = fit.mm / modules, gap = 0.1, quiet = sc.format === 'qr' ? Math.max(0, (QUIET_MODULES * moduleMm) / 25.4 - gap) : 0;
+  const label = sc.label ? (sc.content === 'id' ? p.id : VOL.scoped ? `${VOL.bookId}-${VOL.n} ${SIZE_CODE}${String(i + 1).padStart(3, '0')}` : `${bookKey} ${SIZE_CODE}${String(i + 1).padStart(3, '0')}`) : '';
+  return { text, svg, modules, mm: fit.mm === sc.size && Math.abs(sc.size - DEFAULT_SIZE_MM) < 0.05 ? DEFAULT_SIZE_MM : fit.mm, quiet, label, format: sc.format, content: sc.content };
+});
+const qrSvgs = codes.map((c) => (c ? c.svg : ''));
+for (const [k, n] of notes.bigger) console.log(`scan: ${n} page code(s) need a ${k} Data Matrix (their content is longer than the default 16x16 holds)`);
+for (const [k, n] of notes.raised) console.log(`scan: ${n} page code(s) printed at ${k}: raised so no module is under 0.5 mm`);
 const html = `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/600.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/700.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/400-italic.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/noto-serif-jp/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/noto-serif-jp/600.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/noto-sans-jp/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/dejavu-sans/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/inter/500.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/inter/700.css"><style>
 @page { size: ${TRIM_W}in ${TRIM_H}in; margin: 0; }
 * { box-sizing: border-box; }
@@ -234,7 +248,7 @@ table { border-collapse: collapse; }
 ${DAYPAGE_CSS}${VOL.undated ? `
 .dno { font: 600 7pt Inter, sans-serif; text-transform: uppercase; letter-spacing: 0.6px; color: #333; text-align: right; margin: -2px 0 1px; }` : ''}
 </style></head><body>
-${pages.map((p, i) => { const n = i + 1; const side = n % 2 ? 'recto' : 'verso'; const marks = `<div class="frame"></div><div class="strip"><span class="pno">${n}</span><span class="send">SEND TO</span>${symbolRow}<span class="qr">${qrSvgs[i]}</span></div>`; return `<div class="page ${side} ${p.cls} m" data-page-id="${p.id}">${p.html}${marks}</div>`; }).join('\n')}
+${pages.map((p, i) => { const n = i + 1; const side = n % 2 ? 'recto' : 'verso'; const c = codes[i], sc = scans[i], marks = marksHtml({ n, sc, side, sendBlock: sendBlockOn(p), svg: c && c.svg, mm: c && c.mm, quiet: c && c.quiet, label: c && esc(c.label) }); const grow = c && c.mm > DEFAULT_SIZE_MM + 0.05 ? ` style="padding-bottom:${(BOTTOM + FRAME_PAD + c.mm / 25.4 + 0.08).toFixed(3)}in"` : ''; return `<div class="page ${side} ${p.cls} m" data-page-id="${p.id}"${sc.frame === 'off' ? ' data-scan-frame="off"' : ''}${grow}>${p.html}${marks}</div>`; }).join('\n')}
 <script>
 document.querySelectorAll('.lines').forEach((el) => {
   const pitch = parseFloat(el.dataset.pitch || '0.26') * 96;
@@ -260,25 +274,33 @@ const layout = await page.evaluate(() => {
     const ox = f.left + bw, oy = f.top + bw, fw = f.width - 2 * bw, fh = f.height - 2 * bw;
     const rect = (el) => { const e = el.getBoundingClientRect(); return { x: +((e.left - ox) * px2mm).toFixed(1), y: +((e.top - oy) * px2mm).toFixed(1), w: +(e.width * px2mm).toFixed(1), h: +(e.height * px2mm).toFixed(1) }; };
     // repeated zone names get _2, _3 ... (same rule as the day page blocks). A grid layout's block cell (.gc) is one zone, its grid rectangle: parts inside it (the care rows) are not listed
-    const seen = {};
-    const zones = [...pg.querySelectorAll('[data-zone]')].filter((el) => !el.parentElement.closest('.gc')).map((el) => { const n = el.dataset.zone; seen[n] = (seen[n] || 0) + 1; return { zone: seen[n] > 1 ? `${n}_${seen[n]}` : n, ...rect(el) }; });
-    if (!zones.some((z) => !z.zone.startsWith('send_to_'))) { // a page with no labelled block (title, key, directories ...): one zone for everything inside the frame
+    const seen = {}, noFrame = pg.dataset.scanFrame === 'off'; // a page with no border has no Send-to: its block does not print
+    const zones = [...pg.querySelectorAll('[data-zone]')].filter((el) => !el.parentElement.closest('.gc') && !(noFrame && /^send_to(_|$)/.test(el.dataset.zone))).map((el) => { const n = el.dataset.zone; seen[n] = (seen[n] || 0) + 1; return { zone: seen[n] > 1 ? `${n}_${seen[n]}` : n, ...rect(el) }; });
+    if (!zones.some((z) => z.zone !== 'send_to' && !z.zone.startsWith('send_to_'))) { // a page with no labelled block (title, key, directories ...): one zone for everything inside the frame
       const kids = [...pg.children].filter((c) => !c.matches('.frame, .strip, .folio')).map((c) => c.getBoundingClientRect()).filter((r) => r.width && r.height);
       if (!kids.length) kids.push(pg.getBoundingClientRect()); // nothing measurable inside: fall back to the whole page
       const l = Math.min(...kids.map((r) => r.left)), t = Math.min(...kids.map((r) => r.top));
       zones.push({ zone: 'content', ...rect({ getBoundingClientRect: () => ({ left: l, top: t, width: Math.max(...kids.map((r) => r.right)) - l, height: Math.max(...kids.map((r) => r.bottom)) - t }) }) });
     }
-    zones.push({ zone: 'page_code', ...rect(pg.querySelector('.strip .qr')) }, { zone: 'send_to', ...rect(pg.querySelector('.strip')) });
-    return { page: i + 1, frame_inner_mm: { w: +(fw * px2mm).toFixed(1), h: +(fh * px2mm).toFixed(1) }, zones };
+    const qr = pg.querySelector('.strip .qr'), pr = pg.getBoundingClientRect();
+    if (qr) zones.push({ zone: 'page_code', ...rect(qr) });
+    if (pg.querySelector('.strip .send')) zones.push({ zone: 'send_to', ...rect(pg.querySelector('.strip')) }); // the strip's own SEND TO (a sendto block maps its own zone instead)
+    const q = qr && qr.getBoundingClientRect(); // where the code sits on the page (mm from its top-left corner), for the decoder
+    return { page: i + 1, frame_inner_mm: { w: +(fw * px2mm).toFixed(1), h: +(fh * px2mm).toFixed(1) }, ...(q ? { code_at_mm: { x: +((q.left - pr.left) * px2mm).toFixed(1), y: +((q.top - pr.top) * px2mm).toFixed(1), w: +(q.width * px2mm).toFixed(1), h: +(q.height * px2mm).toFixed(1) } } : {}), zones };
   });
 });
-const meta = pages.map((p, i) => ({ id: p.id, label: p.label, ...(p.shared ? { shared: true } : {}), type: p.type, date: p.date || null, ...(p.from && !p.date ? { from: p.from, to: p.to } : {}), section: p.section, code: pageCode(i), code_format: 'data_matrix' }));
-const layoutJson = { book: VOL.id, edition: EDITION, size: SIZE_CODE, code_scheme: VOL.scoped ? 'KW3<book id 8><volume 1><S/L/H><page 3>' : 'KW2|<edition>|<yymm>|<size><page>', ...(VOL.scoped ? { book_id: VOL.bookId, volume: volumeInfo(VOL) } : {}), trim_in: [TRIM_W, TRIM_H], border_pt: BORDER_PT, quiet_zone_in: QUIET, symbols: ['fire', 'water', 'air', 'earth', 'crescent_moon', 'full_moon', 'pentacle'], pages: layout.map((l, i) => ({ ...meta[i], ...l })) };
+const meta = pages.map((p, i) => ({ id: p.id, label: p.label, ...(p.shared ? { shared: true } : {}), type: p.type, date: p.date || null, ...(p.from && !p.date ? { from: p.from, to: p.to } : {}), section: p.section, code: codes[i] ? codes[i].text : null, code_format: codes[i] ? codes[i].format : null,
+  ...(codes[i] ? { code_content: codes[i].content, code_modules: codes[i].modules, code_size_mm: +codes[i].mm.toFixed(1), code_position: codeOnLeft(scans[i].code.position, i % 2 ? 'verso' : 'recto') ? 'left' : 'right' } : {}),
+  // What the scanner can do with this page: with the border off it cannot straighten or crop the page, so no Send-to and no writing-area crops; a page with no code is not identified by scanning
+  scan: { frame: scans[i].frame === 'on', crop: scans[i].frame === 'on', send_to: scans[i].frame === 'on', code: !!codes[i] } }));
+const layoutJson = { book: VOL.id, edition: EDITION, size: SIZE_CODE, code_scheme: VOL.scoped ? 'KW3<book id 8><volume 1><S/L/H><page 3>' : 'KW2|<edition>|<yymm>|<size><page>', ...(VOL.scoped ? { book_id: VOL.bookId, volume: volumeInfo(VOL) } : {}), trim_in: [TRIM_W, TRIM_H], border_pt: BORDER_PT, quiet_zone_in: QUIET, symbols: SEND_KEYS, pages: layout.map((l, i) => ({ ...meta[i], ...l })) };
+const noFrame = layoutJson.pages.filter((p) => !p.scan.frame).map((p) => p.id), noCode = layoutJson.pages.filter((p) => !p.code).map((p) => p.id);
+layoutJson.pages_without_frame = noFrame; layoutJson.pages_without_code = noCode; // scan tooling: no Send-to or crops on the first, no identification on the second
 fs.writeFileSync(`${OUT}/layout.json`, JSON.stringify(layoutJson, null, 1));
 // manifest.json: code -> page id -> section -> zones, plus what identifies this build. Keep it with every proof or print run: a printed
 // page's code decodes through the manifest of the build it came from, even after the layout changes (see README "Page identity").
-const manifest = { book: VOL.id, title: PROFILE.book.title, subtitle: PROFILE.book.subtitle, library_book: PROFILE.library.book, ...(PROFILE.library.series ? { series: { id: PROFILE.library.series.id, title: PROFILE.library.series.title, n: PROFILE.library.series.n, of: PROFILE.library.series.of } } : {}), size: SIZE_CODE, edition: EDITION, hardcover: HARDCOVER, built: D.generated, commit: process.env.GITHUB_SHA || null, page_count: pages.length, code_scheme: layoutJson.code_scheme, ...(VOL.scoped ? { book_id: VOL.bookId, volume: volumeInfo(VOL), plan: planSig(ctx.plan, VOL), ...(VOL.undated ? { undated: true, order: 'pages are identified by their order in the book, never by date' } : {}) } : {}),
-  pages: layoutJson.pages.map((p) => ({ code: p.code, page: p.page, id: p.id, label: p.label, section: p.section, type: p.type, date: p.date, ...(p.from ? { from: p.from, to: p.to } : {}), shared: !!p.shared, ...(VOL.undated ? orderOf(p.id) : {}), zones: p.zones })) };
+const manifest = { book: VOL.id, title: PROFILE.book.title, subtitle: PROFILE.book.subtitle, library_book: PROFILE.library.book, ...(PROFILE.library.series ? { series: { id: PROFILE.library.series.id, title: PROFILE.library.series.title, n: PROFILE.library.series.n, of: PROFILE.library.series.of } } : {}), size: SIZE_CODE, edition: EDITION, hardcover: HARDCOVER, built: D.generated, commit: process.env.GITHUB_SHA || null, page_count: pages.length, code_scheme: layoutJson.code_scheme, pages_without_code: noCode, pages_without_frame: noFrame, ...(VOL.scoped ? { book_id: VOL.bookId, volume: volumeInfo(VOL), plan: planSig(ctx.plan, VOL), ...(VOL.undated ? { undated: true, order: 'pages are identified by their order in the book, never by date' } : {}) } : {}),
+  pages: layoutJson.pages.map((p) => ({ code: p.code, ...(p.code_format ? { code_format: p.code_format, code_content: p.code_content } : {}), scan: p.scan, page: p.page, id: p.id, label: p.label, section: p.section, type: p.type, date: p.date, ...(p.from ? { from: p.from, to: p.to } : {}), shared: !!p.shared, ...(VOL.undated ? orderOf(p.id) : {}), zones: p.zones })) };
 fs.writeFileSync(`${OUT}/manifest.json`, JSON.stringify(manifest, null, 1));
 await page.pdf({ width: `${TRIM_W}in`, height: `${TRIM_H}in`, path: `${OUT}/${PROFILE.book.slug}-${VOL.id}-interior-${HARDCOVER ? 'hardcover-' : ''}${SIZE_TAG}.pdf`, printBackground: true, preferCSSPageSize: true });
 await browser.close();

@@ -1,6 +1,7 @@
-// The rules of a book, pure and import-free so the print build, the studio and the page organiser in the editor all check with the
-// very same code. book.mjs binds them to pages.mjs' PAGE_TYPES; the editor passes the page-type table that rides in its sample data.
-// Every problem comes back as a plain sentence that says where.
+// The rules of a book, pure so the print build, the studio and the page organiser in the editor all check with the very same code.
+// book.mjs binds them to pages.mjs' PAGE_TYPES; the editor passes the page-type table that rides in its sample data.
+// Every problem comes back as a plain sentence that says where. (scan.mjs is pure too: the editor inlines it.)
+import { scanProblems } from './scan.mjs';
 export const ID_RE = /^[a-z0-9_]+(\.[a-z0-9_-]+)*$/;
 const protectedOf = (types) => Object.entries(types).filter(([, t]) => t.protected).map(([k]) => k);
 const nameOf = (types, type) => (type === 'weeks' ? 'Weeks' : types[type] ? types[type].name : type);
@@ -12,7 +13,8 @@ export function validateBookWith(book, PAGE_TYPES) {
   const bad = (where, msg) => errs.push(`${where}: ${msg}`);
   if (!isObj(book)) return ['book.json: must be an object like {"version":1,"default":[...]}'];
   if (book.version !== 1) bad('version', `must be 1 (this build reads version 1), got ${JSON.stringify(book.version)}`);
-  for (const k of Object.keys(book)) if (!['version', 'default', 'months'].includes(k)) bad(k, 'not a book.json key (use version, default, months)');
+  for (const k of Object.keys(book)) if (!['version', 'default', 'months', 'scan'].includes(k)) bad(k, 'not a book.json key (use version, default, months, scan)');
+  errs.push(...scanProblems(book.scan, 'scan'));
   const lists = [['default', book.default]];
   if (book.months !== undefined) {
     if (!isObj(book.months)) bad('months', 'must be an object keyed by month, like {"2027-02": {"pages": [...]}}');
@@ -44,7 +46,8 @@ function checkList(where, list, errs, PAGE_TYPES) {
       else if (/^notes\.\d+$/.test(it.id)) bad(label, `id "${it.id}" is reserved for automatic padding pages`);
       else if (ids.has(it.id)) bad(label, `id "${it.id}" is used twice (also ${ids.get(it.id)}); every page needs its own id`);
       else ids.set(it.id, at);
-      for (const k of Object.keys(it)) if (!['id', 'type', 'on', 'options'].includes(k)) bad(label, `unknown key "${k}" (a page has id, type, on, options)`);
+      for (const k of Object.keys(it)) if (!['id', 'type', 'on', 'options', 'scan'].includes(k)) bad(label, `unknown key "${k}" (a page has id, type, on, options, scan)`);
+      errs.push(...scanProblems(it.scan, `${label} scan`));
       if (it.on !== undefined && typeof it.on !== 'boolean') bad(label, '"on" must be true or false');
       if (it.options !== undefined && !isObj(it.options)) bad(label, '"options" must be an object');
       if (it.type === 'weeks') {
