@@ -141,4 +141,92 @@ if (want('x4')) {
   saveManifest();
 }
 
+// ---------- the editor demo: build it exactly as site/build.sh does, serve it, drive it ----------
+function serve(dir) {
+  const types = { '.html': 'text/html', '.json': 'application/json' };
+  const srv = http.createServer((q, r) => {
+    const f = path.join(dir, decodeURIComponent(q.url.split('?')[0]).replace(/\/$/, '/index.html'));
+    fs.readFile(f, (e, d) => { if (e) { r.writeHead(404); r.end(); } else { r.writeHead(200, { 'Content-Type': types[path.extname(f)] || 'application/octet-stream' }); r.end(d); } });
+  }).listen(0);
+  return { url: `http://127.0.0.1:${srv.address().port}/`, close: () => srv.close() };
+}
+async function editorPage(url, vp) {
+  const pg = await browser.newPage({ viewport: vp, deviceScaleFactor: 1 });
+  await pg.route(/fonts\.(googleapis|gstatic)/, (r) => r.abort());
+  if (process.env.SORTABLE_JS) await pg.route(/cdnjs\.cloudflare\.com/, (r) => r.fulfill({ path: process.env.SORTABLE_JS, contentType: 'text/javascript' }));
+  pg.on('pageerror', (e) => console.log('  PAGE ERROR', e.message));
+  return pg;
+}
+const ALT = {};
+async function snap(pg, name, alt, o = {}) {
+  await pg.waitForTimeout(o.wait ?? 900);
+  await pg.evaluate(() => { const t = document.getElementById('toast'); if (t) t.style.visibility = 'hidden'; });
+  const png = o.el ? await pg.locator(o.el).first().screenshot() : await pg.screenshot({ clip: o.clip });
+  await save(name, png, 0.8, o.maxW || 1200); manifest[name].alt = alt;
+}
+const go = async (pg, base, hash, wait = 1400) => { await pg.goto(base + hash); await pg.waitForTimeout(wait); };
+
+if (want('editor')) {
+  console.log('editor screenshots (demo build)');
+  const demoEnv = { ...process.env, KW_PROFILE: 'content/profile.example.json', KW_OUT: RELOUT + '/demo', EDITOR_DIST: 'editor/dist-shots/' };
+  sh('node', ['render.mjs', 'month', '2026-10', 'test.ics'], { cwd: J, env: demoEnv });
+  sh('node', ['editor/build.mjs'], { cwd: J, env: demoEnv });
+  const demo = serve(path.join(J, 'editor/dist-shots/demo')), U = demo.url;
+  const W = { width: 1280, height: 800 };
+  let pg = await editorPage(U, W);
+  await go(pg, U, '#book');
+  await snap(pg, 'ed-book', 'The Book view: all 72 pages of the sample book laid out in facing spreads, with a page-number box, a zoom control and a legend button.');
+  await go(pg, U, '#spread/12');
+  await snap(pg, 'ed-spread', 'The Spread view: two facing pages, an Exchange page and a Reply page, at reading size.');
+  await pg.setViewportSize({ width: 1280, height: 1000 });
+  await go(pg, U, '#day/2026-10-14');
+  await snap(pg, 'ed-day-view', 'A day page in view mode: only the page, clean and read-only, with an Edit button at the top right.');
+  await pg.setViewportSize({ width: 1600, height: 1000 });
+  await go(pg, U, '#day/2026-10-14/edit');
+  await snap(pg, 'ed-day-edit', 'The day page in edit mode: the palette of blocks on the left, the list of blocks on the page in the middle, and the live page preview on the right.');
+  await pg.evaluate(() => document.querySelector('#scan-t') && document.querySelector('#scan-t').click());
+  await snap(pg, 'ed-scan', 'The Scan settings sheet: switches for the send-to strip and the scanning border, and choices for the matrix code position, size and format.', { el: '#scan' });
+  await pg.click('#lay-g'); await pg.waitForTimeout(4800);
+  await snap(pg, 'ed-grid', 'The page grid: the preview with its rows and columns drawn over it. Blocks such as the moon and sky line span four columns and two rows.', { el: '#paper' });
+  await pg.setViewportSize({ width: 1280, height: 800 });
+  await go(pg, U, '#library');
+  await snap(pg, 'ed-library', 'The Library: a shelf with the book Northlight, a series of season journals and a series of undated practice books, each with its own title.');
+  await go(pg, U, '#series/seasons');
+  await snap(pg, 'ed-series', 'A series shelf: three season journals that share defaults, shown as covers in order.');
+  await go(pg, U, '#library/edit');
+  await snap(pg, 'ed-library-edit', 'The Library in edit mode, with controls for titles, series and the books on the shelf.');
+  await pg.close();
+  // a phone
+  pg = await editorPage(U, { width: 390, height: 844 });
+  await go(pg, U, '#day/2026-10-14/edit');
+  await snap(pg, 'ed-phone', 'The editor on a 390 pixel wide phone: the page preview with the block palette in a sheet at the bottom.', { maxW: 780 });
+  await go(pg, U, '#book');
+  await snap(pg, 'ed-phone-book', 'The Book view on a phone, with the page grid fitted to the width.', { maxW: 780 });
+  await pg.close();
+  demo.close();
+  saveManifest();
+}
+
+// The Versions drawer is hidden in the public demo (it saves nothing), so it is shot on the working-editor build of the SAME generic data
+// (guest mode: versions live in the browser, nothing is uploaded).
+if (want('versions')) {
+  console.log('versions drawer (generic working build, guest mode)');
+  const env = { ...process.env, KW_PROFILE: 'content/profile.example.json', KW_OUT: RELOUT + '/demo', EDITOR_DIST: 'editor/dist-shots/' };
+  sh('node', ['render.mjs', 'month', '2026-10', 'test.ics'], { cwd: J, env });
+  sh('node', ['editor/build.mjs'], { cwd: J, env });
+  const app = serve(path.join(J, 'editor/dist-shots/site')), U = app.url;
+  const pg = await editorPage(U, { width: 1400, height: 900 });
+  await go(pg, U, '#day/2026-10-14/edit');
+  await pg.click('#v-ver'); await pg.waitForSelector('#versions[open]');
+  await pg.fill('#vs-msg', 'The original page'); await pg.click('#vs-savebtn'); await pg.waitForTimeout(500);
+  await pg.click('#vs-close'); await pg.waitForTimeout(300);
+  await pg.click('#pal [data-add="t:checks"]'); await pg.waitForTimeout(400);
+  await pg.evaluate(() => { const b = layout.blocks.find((x) => x.type === 'fact'); if (b) { b.on = false; layout = normalize(layout); drawList(); drawPreview(); } });
+  await pg.click('#v-ver'); await pg.waitForSelector('#versions[open]');
+  await pg.fill('#vs-msg', 'Added checkboxes, hid the fact line'); await pg.click('#vs-savebtn'); await pg.waitForTimeout(500);
+  await pg.click('#vs-log [data-cmp]:not([data-cmp="draft"])'); await pg.waitForTimeout(1200);
+  await snap(pg, 'ed-versions', 'The Versions drawer: a history of saved versions on one side, and a comparison on the other that lists what changed and marks the changed blocks on the page.', { el: '#versions' });
+  await pg.close(); app.close(); saveManifest();
+}
+
 await browser.close();

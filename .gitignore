@@ -24,3 +24,4 @@ studio/data/
 site/_out/
 site/tools/node_modules/
 journal/out-shots/
+journal/editor/dist-shots/
