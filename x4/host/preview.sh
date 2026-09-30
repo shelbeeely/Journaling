@@ -104,9 +104,53 @@ runset settings "" KW_NOW="2026-10-14 13:10" KW_KEYS="back down down down down d
 # the settings screen changes and saves: large, bold, swap, sleep 5 min, clean 16, hold off
 runset setchange "" KW_NOW="2026-10-14 13:10" KW_KEYS="back down down down down down down down down confirm confirm down confirm down right confirm down right down right down right right"
 grep -q '^text=large$' /tmp/kwsd/kw/settings.txt && grep -q '^contrast=bold$' /tmp/kwsd/kw/settings.txt && grep -q '^buttons=swap$' /tmp/kwsd/kw/settings.txt && grep -q '^sleep=300$' /tmp/kwsd/kw/settings.txt && grep -q '^clean=16$' /tmp/kwsd/kw/settings.txt && grep -q '^hold=0$' /tmp/kwsd/kw/settings.txt || { echo "FAIL: settings were not saved as expected"; cat /tmp/kwsd/kw/settings.txt; exit 1; }
+# Wi-Fi (Menu > Wi-Fi, the sixth entry): modes, saved networks, joining from the phone, errors. A simulated network stands in for the air
+# (KW_WIFI=ssid=password:signal;...); phone-join is the phone's page posting the join; idle lets the screen poll the radio.
+NETS='HomeNet=hunter22:-48;Neighbor=secretpw1:-71;CoffeeShop=:-80'
+GO="back down down down down down confirm"
+runnet() { name=$1; seed=$2; set=$3; shift; shift; shift; mkdir -p out/$name; rm -rf /tmp/kwsd; cp -r sample /tmp/kwsd; [ -n "$seed" ] && printf "$seed" > /tmp/kwsd/kw/net.txt; printf "$set" > /tmp/kwsd/kw/settings.txt; env KW_SD=/tmp/kwsd KW_OUT=out/$name KW_NOW="2026-10-14 13:10" KW_WIFI="$NETS" KW_PHONE_SSID=HomeNet KW_PHONE_PASS=hunter22 "$@" ./kw_host >/dev/null; }
+SEED3='name=keeping-watch\nlast=0\nnet=HomeNet\thunter22\nnet=Neighbor\tsecretpw1\nnet=Upstairs Family Room Mesh 5GHz\tpassword1\n'
+runnet wifi_home "" "" KW_KEYS="$GO"
+runnet wifi_none "" "" KW_KEYS="$GO down confirm"
+runnet wifi_saved "$SEED3" "" KW_KEYS="$GO down confirm"
+runnet wifi_forget "$SEED3" "" KW_KEYS="$GO down confirm down right"
+runnet wifi_forgot "$SEED3" "" KW_KEYS="$GO down confirm down right confirm"
+grep -q '^net=Neighbor' /tmp/kwsd/kw/net.txt && { echo "FAIL: a forgotten network is still in net.txt"; exit 1; }
+runnet wifi_hotspot "" "" KW_KEYS="$GO confirm"
+runnet wifi_join "" "" KW_KEYS="$GO down down confirm"
+runnet wifi_joining "" "" KW_KEYS="$GO down down confirm phone-join idle"
+runnet wifi_joined "" "" KW_KEYS="$GO down down confirm phone-join idle idle idle"
+# the password the phone typed is saved on the card, the file says what it holds, and a wrong one is never saved
+grep -q '^net=HomeNet	hunter22$' /tmp/kwsd/kw/net.txt && grep -q 'PLAIN TEXT' /tmp/kwsd/kw/net.txt || { echo "FAIL: joining did not save the network as expected"; exit 1; }
+runnet wifi_badpass "" "" KW_PHONE_PASS=wrongpass1 KW_KEYS="$GO down down confirm phone-join idle idle idle"
+[ ! -e /tmp/kwsd/kw/net.txt ] || { echo "FAIL: a wrong password was saved"; exit 1; }
+runnet wifi_lan "$SEED3" "" KW_KEYS="$GO down confirm down confirm idle idle idle"
+runnet wifi_failed 'net=Ghost\tpassword1\n' "" KW_KEYS="$GO down confirm idle idle idle"
+runnet wifi_timeout 'net=HomeNet\thunter22\n' "" KW_WIFI_HANG=1 KW_KEYS="$GO down confirm idle idle skip26000 idle"
+runnet wifi_locked 'net=HomeNet\thunter22\n' "" KW_KEYS="$GO down confirm idle idle idle phone-badpin phone-badpin phone-badpin phone-badpin phone-badpin idle"
+runnet wifi_retry 'net=Ghost\tpassword1\n' "" KW_KEYS="$GO down confirm idle idle idle confirm idle idle idle"
+# Large, Bold and remapped buttons on the new screens
+runnet l_wifi_home "" "$LG" KW_KEYS="$GO"
+runnet l_wifi_saved "$SEED3" "$LG" KW_KEYS="$GO down confirm"
+runnet l_wifi_forget "$SEED3" "$LG" KW_KEYS="$GO down confirm down right"
+runnet l_wifi_hotspot "" "$LG" KW_KEYS="$GO confirm"
+runnet l_wifi_hotspot2 "" "$LG" KW_KEYS="$GO confirm down"
+runnet l_wifi_join2 "" "$LG" KW_KEYS="$GO down down confirm down"
+runnet l_wifi_joined "" "$LG" KW_KEYS="$GO down down confirm phone-join idle idle idle"
+runnet l_wifi_joined2 "" "$LG" KW_KEYS="$GO down down confirm phone-join idle idle idle down"
+runnet l_wifi_failed 'net=Ghost\tpassword1\n' "$LG" KW_KEYS="$GO down confirm idle idle idle"
+runnet l_wifi_badpass "" "$LG" KW_PHONE_PASS=wrongpass1 KW_KEYS="$GO down down confirm phone-join idle idle idle down"
+runnet b_wifi_home "" "$BD" KW_KEYS="$GO"
+runnet b_wifi_saved "$SEED3" "$BD" KW_KEYS="$GO down confirm"
+runnet b_wifi_joined "" "$BD" KW_KEYS="$GO down down confirm phone-join idle idle idle"
+runnet bl_wifi_joined "" "text=large\ncontrast=bold\n" KW_KEYS="$GO down down confirm phone-join idle idle idle"
+runnet r_left_wifi_saved "$SEED3" "buttons=left\n" KW_KEYS="back up up up up up confirm up confirm"
+runnet r_swap_wifi_joined "" "buttons=swap\n" KW_KEYS="confirm down down down down down back down down back phone-join idle idle idle"
 python3 topng.py out
 ./test_settings.sh   # settings file round trip, bad values, button remap tables
 ./test_update.sh
+./test_net.sh      # saved networks, PIN, one client, joining on a simulated network
+./test_off.sh      # nothing is sent anywhere, nothing wakes the radio: the code, the app, and the radio log
 ./test_focus.sh    # round/break schedule, late wakes (also past the 4 a.m. roll), stale runs, month counts
 ./test_legacy.sh   # logs written before the care split (old keys for meds, meals, mood) still read and count
 python3 ../tools/test_export.py

@@ -16,7 +16,7 @@ the three things paper can't:
 - **Support, one long-press away.** Hold **Back** for about a second on any screen: text-first crisis
   numbers, then your safety plan and the "can you text with me" message.
 
-Plus a **Wi-Fi page** (Menu → Wi-Fi sync): the X4 makes its own hotspot, shows a QR code to join, and
+Plus a **Wi-Fi page** (Menu → Wi-Fi, see "Wi-Fi" below): the X4 makes its own hotspot (or joins your own Wi-Fi), shows a QR code to join, and
 serves a page at 192.168.4.1 (labelled fields, 44 px buttons, spoken result messages, no external files) to set the clock from your phone, download your books (PDF/EPUB) and
 check-in logs (download this month's when you close it), edit your safety plan, and upload new month packs. Nothing goes to the internet.
 
@@ -67,6 +67,36 @@ see where you are: **Interrupted** (Confirm, during work) marks an interruption 
   from the clock, so a late wake still credits the rounds that finished. If the X4 was off so long that a phase ended more than 2 hours ago (flat battery), nothing is credited and the run is dropped. Done clears itself after 30 minutes.
 - While a run is going the X4 wakes only for its phases; the 4:31 a.m. Today redraw resumes when the session ends. Focus needs the clock set (it goes to Clock if not). `host/test_focus.sh` checks the arithmetic, including a wake that lands after the day rolls.
 
+## Wi-Fi (Menu, Wi-Fi)
+
+The Wi-Fi screen has two modes, and the radio is **off until you pick one** (it says "radio off" at the top). Leaving the screen, pressing Power or waiting until it sleeps turns the radio and the web server off and frees their memory. Nothing runs in the background, and nothing is sent to the internet in this version (sync with a Studio account is a later, separate step that you start yourself).
+
+| Row | What it does |
+| --- | --- |
+| **Hotspot** | Today's way: the X4 makes its own network (a new name and password each time, shown with a QR code). The page is at `192.168.4.1`. No internet needed. |
+| **On my Wi-Fi** | The X4 joins a network you saved and serves the same page there. With one saved network it joins at once; with several it opens the list. |
+| **Join a network** | Adds a network. The X4 makes its hotspot, you open the page on your phone, pick your network under **Wi-Fi** and type its password **on the phone** (typing on the X4's buttons is painful). The X4 tries it: if it works the network is saved and the X4 moves onto it, if not the reason is shown on both screens and **nothing is saved**. |
+| **Saved networks** | Up to 8. Confirm connects, Forget (Right) asks first and then deletes the network and its password from the card. |
+
+**On your Wi-Fi the screen shows** the address (for example `192.168.1.42`), the name (`keeping-watch.local`, which you choose on the page: letters, digits and hyphens, up to 24; some Android phones do not resolve `.local`, so the address is always shown too), a QR code that opens the page in one scan, and a **PIN**.
+
+- **The PIN** is six digits, shown only on the X4, and **new each time the Wi-Fi screen opens**. Looking at the page needs no PIN. Anything that **changes** something (set the clock, save the plan, upload files, join, forget, rename) and anything **private** (your check-in log, your safety plan, the file list) needs it: type it once on the page and that browser is let in. Five wrong tries lock the page until you leave the screen and open it again.
+- **One device at a time.** The hotspot takes one phone. On your Wi-Fi the first device that types the PIN holds the place until it has been quiet for two minutes; another device sees "Another device is using this X4" and cannot take over, even with the right PIN.
+- **The hotspot needs no PIN** (its own password and its one-client limit are the gate), so nothing changes for how you use it today.
+- Changing networks over the LAN is not allowed from the page: adding a network is a hotspot job, and you switch networks from the X4's own screen.
+- If the network vanishes while you are using it the screen says so ("The X4 lost the network") and waits for you. It does not keep retrying in the background.
+
+**Sleep.** The X4 sleeps by itself when nothing has happened for your **Sleep after** setting, but never in less than **15 minutes on the Wi-Fi screen**, like Support, My safety plan and the Clock: typing a password on a phone is slow. A request from the page counts as activity, just like a button press. Power sleeps at once and turns the radio off first.
+
+**Passwords and privacy.**
+- Wi-Fi passwords live in **`/kw/net.txt` on the SD card, in plain text**, and the file's first lines say so. **This file contains passwords: do not share the card or the file.** It is never uploaded, never logged (no screen, serial line or answer ever carries one), never sent anywhere, and the page cannot download or replace it. Delete the file, or Forget a network on the screen, to remove them. It also holds the name you chose (`name=`). Format: `name=<name>`, `last=<n>`, and one `net=<ssid><TAB><password>` line per network.
+- The radio driver is told not to keep anything of its own (`WiFi.persistent(false)`), so the card file is the only copy.
+- The PIN is never in an answer and never written anywhere; the page keeps its access in a cookie that only that device sends (SameSite=Strict, HttpOnly) and that dies when you leave the screen.
+- Only the joined network's own access point is contacted (its address, gateway and name service): the firmware has **no call that connects to any other host**, no time-from-internet, no timers and no wake source but the 4:31 a.m. and Focus clock. `host/test_off.sh` proves it: it audits the source, runs every way out of every mode on a simulated network and checks the radio is off, and checks the radio log holds only the allowed calls.
+- On your Wi-Fi the page is plain `http` on your own network. Anyone else on that network can see the traffic and the PIN as you type it, and could try the PIN (five tries, then locked). Use it on a network you trust, and prefer the hotspot when you are away from home.
+
+**Memory.** The screen owns the radio and its RAM while it runs. Everything big is static (the answer buffer is one 3 KB array), nothing large is on the 16 KB loop stack, and the web server is created when a mode starts and deleted when it stops. `pio run -e x4-tls` links the SDK's SecureNet (wolfSSL TLS 1.3) so CI can size it for sync; CI prints RAM, flash and the wolfSSL heap peak from a real handshake run on a PC, and fails if less than 32 KB would be left with a TLS session open (`tls/budget.py`). At N1: static RAM +7 KB, flash +69 KB for everything in this section; with TLS linked, another +0.7 KB RAM and +165 KB flash; wolfSSL's own heap peak is 19 to 28 KB. The device prints `[mem]` lines on its USB serial at each stage and `GET /api/info` carries the same three numbers, so the real figure can be read on hardware.
+
 ## Which build am I on?
 
 Every pack, `support.txt` and `checkins.txt` carries the journal build date on its first line
@@ -84,7 +114,7 @@ screen is drawn, the sleep screen included. Left/Right or Confirm change the hig
 | **Text size** | Normal, Large | Large is about 1.3x on every screen (Inter, 23/28 px captions and rows, 42 px titles, 52 px numbers). Nothing is squeezed: Check in rows are taller (long custom labels take two lines, long scales show their number), **Today** becomes pages (the glance, then the rest of the calendar if there is more than 3 lines, then the season, moon and "on this day"), **This month** is two pages (boxes, then the calendar), Support and My safety plan just page more, and no line is cut with "..." any more. Hint-bar labels break onto two lines. |
 | **Contrast** | Normal, Bold | Text and icons are struck twice, and every hairline, frame, ring and dotted rule is at least 2 px thick. 1-bit, so there was never light grey; this removes the thin strokes. Works together with Large. |
 | **Buttons** | Standard, Left-handed, Confirm and Back swapped, both | Left-handed swaps Left with Right and Up with Down; the other swaps Confirm and Back. The hint bar labels move to the button that now does each thing. Power and the long presses are never remapped. Every option leaves Back and Confirm reachable, so the Settings screen can always be used to undo it. |
-| **Sleep after** | 90 seconds, 5 minutes, 15 minutes | Idle time before it sleeps on Today. Support, My safety plan and the Clock always wait at least 15 minutes: nothing is thrown away for reading or typing slowly. Check-ins are saved on each press, so an idle sleep never loses one. |
+| **Sleep after** | 90 seconds, 5 minutes, 15 minutes | Idle time before it sleeps on Today. Support, My safety plan, the Wi-Fi screen and the Clock always wait at least 15 minutes: nothing is thrown away for reading or typing slowly. Check-ins are saved on each press, so an idle sleep never loses one. |
 | **Clean the screen** | Every 4, 8, 16 moves | Every Nth move within a screen is a cleaning (half) refresh instead of a fast partial one. 4 = less ghosting, 16 = fewer flashes. |
 | **Hold Back for Support** | 1.2 s, 2.5 s, off | Off means no long press at all: reach Support from Menu. |
 
@@ -101,6 +131,9 @@ The `/kw/settings.txt` keys are `text=normal|large`, `contrast=normal|bold`, `bu
 | This month | back | | previous / next month | |
 | Focus setup | back | next row / Start | less / more | move |
 | Focus running | end | Interrupted (work only) | | |
+| Wi-Fi (rows) | back | open | | move (Up/Down) |
+| Wi-Fi saved networks | back | connect | Right: forget | move (Up/Down) |
+| Wi-Fi running | stop (radio off) | | previous / next page (Large text) | |
 
 **This month** opens on the month just finished during the first 3 days of a new month (the Closing page is for that one); ▶ reaches the new month.
 | Support | back | safety plan | pages | pages |
@@ -120,6 +153,8 @@ With **large text** on, Up/Down page through Today and This month (Left/Right st
 /kw/library/*.pdf, *.epub       your books (not the KDP covers), downloadable from the Wi-Fi page
 /kw/focus.txt                   the Focus run in progress and its settings (safe to delete)
 /kw/clock.txt                   last known time (used after the battery runs flat)
+/kw/net.txt                     saved Wi-Fi networks. CONTAINS WI-FI PASSWORDS IN PLAIN TEXT: never uploaded or logged; do not share the card
+/kw/net.tmp                     only exists for an instant while net.txt is saved (safe to delete)
 /kw-update/                     the update inbox (below); empty and deleted after each boot
 ```
 
