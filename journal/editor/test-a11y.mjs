@@ -321,6 +321,50 @@ for (const [w, scheme] of [[1400, 'light'], [1400, 'dark'], [390, 'light'], [390
   await motionCheck(m, 'Library'); await go(m, '#series/seasons'); await motionCheck(m, 'Series');
   await close(m);
 }
+// 4c) Page organiser (C4): the Book in edit mode: panel, selected-page toolbar, Move to, the pointer warning. Desktop and phone, light and dark.
+for (const [w, scheme, h] of [[1400, 'light', 900], [1400, 'dark', 900], [390, 'light', 844], [390, 'dark', 844]]) {
+  const p = await open('site', { hash: '#book/edit', w, h, scheme, wait: 1200 });
+  await p.waitForFunction(() => typeof ORG !== 'undefined' && ORG.on);
+  const L = `Page organiser ${w}px ${scheme}`;
+  await p.evaluate(() => bkSelect(BK.pages.findIndex((x) => x.id === 'bus.net.1') + 1));
+  await axeRun(p, L + ', toolbar'); await smallTargets(p, L + ', toolbar'); await reflow(p, L + ', toolbar');
+  if (w === 390) { await p.evaluate(() => document.querySelector('#og-toggle').click()); await p.waitForTimeout(250); }
+  await axeRun(p, L); await smallTargets(p, L); await reflow(p, L);
+  if (w === 1400 && scheme === 'light') {
+    await focusRing(p, L, 12);
+    // a move by keyboard is announced, and focus stays where the person is
+    await p.focus('#bk-view'); const before = await p.textContent('#org-live'); await p.keyboard.press('Alt+ArrowLeft'); await p.waitForTimeout(250);
+    const after = await p.textContent('#org-live');
+    if (before === after || !/Moved .* to page \d+/.test(after)) add('announce', L, 'moving a page with Alt+Left is not announced ("Moved … to page N")');
+    if (!(await p.evaluate(() => document.activeElement.id === 'bk-view'))) add('keyboard', L, 'focus is lost from the canvas after a keyboard move');
+    // a move from the list keeps focus on the same button
+    await p.focus('#og-list [data-fk="up:lineage"]'); await p.keyboard.press('Enter'); await p.waitForTimeout(250);
+    if (!(await p.evaluate(() => document.activeElement.dataset.fk === 'up:lineage'))) add('keyboard', L, 'focus is lost from the row button after a move in the list');
+    // a locked page explains itself to a screen reader (aria-describedby) and a refused action is announced
+    await p.focus('#og-list [data-fk="eye:safety"]');
+    if (!(await p.evaluate(() => { const b = document.activeElement, d = document.getElementById(b.getAttribute('aria-describedby') || '-'); return b.getAttribute('aria-disabled') === 'true' && !!d && /never be hidden/.test(d.textContent); }))) add('names', L, 'the lock on a protected page has no reason for a screen reader');
+    await p.keyboard.press('Enter'); await p.waitForTimeout(250);
+    if (!/never be hidden/.test(await p.textContent('#org-live'))) add('announce', L, 'pressing the lock does not announce why the page cannot be hidden');
+    // the Move to… dialog
+    await p.evaluate(() => bkSelect(BK.pages.findIndex((x) => x.id === 'bus.net.1') + 1)); await p.click('#os-moveto'); await p.waitForTimeout(250);
+    await axeRun(p, L + ', Move to dialog'); await smallTargets(p, L + ', Move to dialog');
+    if (!(await p.evaluate(() => document.querySelector('#org-move').contains(document.activeElement)))) add('focus', L, 'the Move to… dialog does not take focus');
+    await p.keyboard.press('Escape'); await p.waitForTimeout(200);
+    if (!(await p.evaluate(() => document.activeElement.id === 'os-moveto'))) add('focus', L, 'closing Move to… does not return focus to its button');
+    // the warning about a pointer with nowhere to go
+    await p.evaluate(() => { ORG.cat.occ.week_left.forEach((o) => o.forEach((s) => { if (s.html) s.html += '{{P_BUS}}'; else s.variants = s.variants.map((x) => x + '{{P_BUS}}'); })); orgRender(null); bkSelect(BK.pages.findIndex((x) => x.id === 'bus.net.1') + 1); });
+    await p.click('#os-eye'); await p.waitForSelector('#org-warn[open]'); await axeRun(p, L + ', pointer warning'); await smallTargets(p, L + ', pointer warning');
+    if (!(await p.evaluate(() => document.querySelector('#org-warn').contains(document.activeElement)))) add('focus', L, 'the pointer warning does not take focus');
+    await p.click('#ow-go'); await p.waitForTimeout(250);
+    await axeRun(p, L + ', pointer warning shown in the panel');
+    if (!(await p.evaluate(() => document.querySelector('#og-missing')?.getAttribute('role') === 'alert'))) add('announce', L, 'the list of pointers with nowhere to go is not an alert');
+  }
+  await close(p);
+}
+{
+  const p = await open('site', { hash: '#book/edit', reduce: true, wait: 1000 }); await p.waitForFunction(() => ORG.on);
+  await p.evaluate(() => bkSelect(20)); await motionCheck(p, 'Page organiser'); await close(p);
+}
 // 5) mobile: tabs, dialogs, reflow, targets
 for (const w of [320, 390]) {
   const p = await open('site', { hash: DAY, w, h: 800 });

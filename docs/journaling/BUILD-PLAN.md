@@ -71,7 +71,7 @@ Milestones (each mergeable on its own):
 | C1 | Pages as shared functions | Same books, byte-identical; editor can render any page |
 | C2 | `book.json` + renderer follows it | Same books, byte-identical |
 | C3 | Read-only canvas | Spreads, zoom, jump to page, page ids shown |
-| C4 | Reorder, hide, add (with rules and validation) | Rules above enforced with clear messages |
+| C4 | Reorder, hide, add (with rules and validation). **Done** (page organiser, Book view edit mode; per-month overrides and `book.json` save included, so C6 and C7 keep only the method layouts and block-based pages) | Rules above enforced with clear messages |
 | C4b | Page grid: predefined rows and columns; blocks span several of each (see 'Page grid' below). Block size options (height in lines or mm) land first in the Tier 2 planning PR | Every block keeps its own `data-zone`; `layout.json` maps it to its cell rectangle; overflow check runs per block |
 | C5 | Block-based pages | Month, week, review, notes, back-matter pages editable as blocks |
 | C6 | Per-month overrides + book-level "Start from a method" | Whole-book layouts |

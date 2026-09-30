@@ -1,0 +1,230 @@
+// The page organiser's brain (Book view, edit mode): lay a book out live, and change it with the rules of book.mjs. Pure and
+// import-light (only bookrules.mjs), so the editor inlines it and a Node test runs the very same code.
+//   flowBook(entries, cat, opts)   the pages a list of entries makes, in order: the same alignment and padding as book.mjs assemble()
+//                                  (test-organiser.mjs proves they agree), from a catalog of the sample book's pages
+//   moveEntry / setOn / addEntry / removeEntry / duplicateEntry / setTitle / resetMonth   one change each: { book } or { err }
+// `cat` is what editor/samples.mjs puts in pages-sample.json:
+//   { meta: typeMeta(PAGE_TYPES), occ: { type: [ [spec, ...], ... ] }, weeks: [{ month: n | -1 }], notes: html with a title marker,
+//     defaultBook, builtIn: [ids of the default book] }
+// A spec is one page: { id, type, cls, label, shared, html } with {{P_x}} markers still in the html. occ[type][k] is what the page type
+// makes for the k-th month (month pages), the k-th week (week pages) or once (the rest); [] where it makes nothing.
+// Never hand-set, only shown: recto/verso alignment, padding to an even count (>= 24, hardcover >= 76), page numbers, {{P_x}} refs.
+import { validateBookWith } from './bookrules.mjs';
+
+export const NOTES_MARK = '\u0001TITLE\u0001';
+export const MAX_PAGES = 110;
+export const typeMeta = (types) => Object.fromEntries(Object.entries(types).map(([k, t]) => [k, { name: t.name, scope: t.scope, protected: !!t.protected, align: t.align || null, ref: t.ref || null, when: t.when || null, module: t.module || null, options: t.options || {} }]));
+const clone = (x) => JSON.parse(JSON.stringify(x));
+const escT = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+export const notesHtml = (cat, title) => cat.notes.split(NOTES_MARK).join(escT(title));
+export const fillRefs = (html, refs) => html.replace(/\{\{P_(\w+)\}\}/g, (_, k) => refs[k.toLowerCase()] ?? '?');
+export const checkBook = (book, cat) => validateBookWith(book, cat.meta);
+export const bookJson = (book) => JSON.stringify(book, null, 1) + '\n'; // the layout content/book.json is written in
+export const sameBook = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+
+// ---------- laying out ----------
+export function flowBook(entries, cat, opts = {}) {
+  const meta = cat.meta, pages = [], refs = {}, hidden = [];
+  let sec = 'front', notesN = 0;
+  const push = (s, entry, auto) => pages.push({ cls: '', date: '', shared: false, label: '', ...s, section: sec, eid: auto ? '' : entry.id, etype: auto ? 'notes' : entry.type, auto: !!auto });
+  const addNotes = () => { notesN++; const t = `Notes ${notesN}`; push({ cls: 'notes', type: 'notes', id: `notes.${notesN}`, label: t, html: notesHtml(cat, t) }, null, true); };
+  const alignToVerso = () => { if ((pages.length + 1) % 2 === 1) addNotes(); }; // the next page must be a left-hand (even) page
+  const specsOf = (entry, k) => {
+    if (entry.type === 'notes') { const t = (entry.options && entry.options.title) || 'Notes'; return [{ cls: 'notes', type: 'notes', id: entry.id, label: t, html: notesHtml(cat, t) }]; }
+    return ((cat.occ || {})[entry.type] || [])[k] || [];
+  };
+  const emit = (entry, k) => {
+    if (entry.on === false) return;
+    const specs = specsOf(entry, k);
+    if (!specs.length) return;
+    const T = meta[entry.type];
+    if (T.align === 'verso') alignToVerso();
+    if (T.ref && refs[T.ref] === undefined) refs[T.ref] = pages.length + 1;
+    specs.forEach((s) => push(s, entry));
+  };
+  for (const entry of entries) {
+    if (entry.type !== 'weeks') { emit(entry, 0); continue; }
+    const o = entry.options || {};
+    (cat.weeks || []).forEach((w, wi) => {
+      if (w.month >= 0) { sec = 'month'; for (const s of o.month || []) emit(s, w.month); }
+      sec = 'week'; for (const s of o.week || []) emit(s, wi);
+    });
+    sec = 'back';
+  }
+  const min = opts.hardcover ? 76 : 24;
+  while (pages.length < min || pages.length % 2) addNotes();
+  // pages the book leaves out: one card per switched-off entry (the first page it would make)
+  const seen = (list) => { for (const e of list) { if (e.type === 'weeks') { seen((e.options && e.options.month) || []); seen((e.options && e.options.week) || []); continue; } if (e.on !== false) continue; const s = specsOf(e, 0).length ? specsOf(e, 0)[0] : ((cat.occ || {})[e.type] || []).flat()[0]; if (s) hidden.push({ cls: '', date: '', shared: false, label: '', ...s, section: '', eid: e.id, etype: e.type, auto: false, hidden: true }); } };
+  seen(entries);
+  // {{P_x}} pointers: filled where the page exists, listed where it does not (the build refuses those)
+  const miss = new Map();
+  const htmlOf = (p) => { const h = p.variants ? p.variants[p.refKeys.reduce((m, k, i) => m | (refs[k] !== undefined ? 1 << i : 0), 0)] : p.html; delete p.variants; delete p.refKeys; return h; };
+  pages.forEach((p, i) => {
+    p.html = htmlOf(p);
+    for (const m of p.html.matchAll(/\{\{P_(\w+)\}\}/g)) {
+      const k = m[1].toLowerCase();
+      if (refs[k] !== undefined) continue;
+      const tt = Object.entries(meta).find(([, t]) => t.ref === k);
+      const g = miss.get(k) || { ref: k, target: tt ? tt[1].name : k, targetType: tt ? tt[0] : k, from: [] };
+      const who = (meta[p.etype] || {}).name || p.label || p.id; if (!g.from.includes(who)) g.from.push(who); miss.set(k, g);
+    }
+    p.html = fillRefs(p.html, refs); p.n = i + 1;
+  });
+  hidden.forEach((p) => { p.html = fillRefs(htmlOf(p), refs); p.n = 0; });
+  return { pages, refs, hidden, missing: [...miss.values()], autoNotes: pages.filter((p) => p.auto).length };
+}
+
+// What KDP says about a page count, and what the plan does about it.
+export function kdpNote(count, hardcover = false) {
+  const lo = hardcover ? 76 : 24;
+  if (count > MAX_PAGES) { const v = Math.ceil(count / MAX_PAGES); return { ok: false, volumes: v, text: `${count} pages is over the ${MAX_PAGES}-page limit for one printed book. The plan would split it into about ${v} volumes; take pages out or hide some to keep one book.` }; }
+  if (count < lo) return { ok: false, volumes: 1, text: `${count} pages is under the ${lo}-page minimum for ${hardcover ? 'a hardcover' : 'a paperback'}.` };
+  return { ok: true, volumes: 1, text: `${count} pages: inside the KDP range (${lo} to ${MAX_PAGES}, ${hardcover ? 'hardcover' : 'paperback'}).` };
+}
+
+// ---------- reading a book ----------
+export const listFor = (book, mon) => (mon && book.months && book.months[mon] ? book.months[mon].pages : book.default);
+export const overridden = (book) => Object.keys(book.months || {}).sort();
+const SCOPE_WORDS = { book: 'front and back pages', month: 'month pages (calendar, sky, tracker, moon)', week: 'week pages' };
+export function locate(list, id) {
+  const at = (arr, scope) => { const i = arr.findIndex((e) => e.id === id); return i < 0 ? null : { arr, i, scope, entry: arr[i] }; };
+  let r = at(list, 'book'); if (r) return r;
+  for (const w of list) if (w.type === 'weeks') { r = at((w.options && w.options.month) || [], 'month') || at((w.options && w.options.week) || [], 'week'); if (r) return r; }
+  return null;
+}
+const scopeArr = (list, scope) => { if (scope === 'book') return list; const w = list.find((e) => e.type === 'weeks'); if (!w) return null; w.options = w.options || {}; return (w.options[scope] = w.options[scope] || []); };
+export const flatIds = (list) => list.flatMap((e) => (e.type === 'weeks' ? [e.id, ...((e.options && e.options.month) || []).map((x) => x.id), ...((e.options && e.options.week) || []).map((x) => x.id)] : [e.id]));
+const nameOf = (cat, e) => { if (e.type === 'notes') return (e.options && e.options.title) || (/^notes_(\d+)$/.test(e.id) ? `Notes ${e.id.split('_')[1]}` : 'Notes'); return e.type === 'weeks' ? 'The weeks' : (cat.meta[e.type] || {}).name || e.type; };
+export const entryName = nameOf;
+export const PROTECT_WHY = {
+  safety: 'My safety plan can move but never be hidden or removed. It must be in every printed book so it is always within reach.',
+  support: 'Support can move but never be hidden or removed. Its numbers must be in every printed book.',
+  closing: 'Closing the month can move but never be hidden or removed. It is where each month is wrapped up and handed on.',
+};
+export const protectWhy = (cat, e) => PROTECT_WHY[e.type] || `${nameOf(cat, e)} can move but never be hidden or removed.`;
+
+// ---------- changing a book ----------
+function prep(book, mon) { const b = clone(book); if (mon) { b.months = b.months || {}; if (!b.months[mon]) b.months[mon] = { pages: clone(b.default) }; } return { b, list: mon ? b.months[mon].pages : b.default }; }
+function tidy(b) { for (const k of Object.keys(b.months || {})) if (sameBook(b.months[k].pages, b.default)) delete b.months[k]; return b; } // an override that says the same as the default is no override
+// Every page prints its own title, and the page checks refuse two pages with the same one (check-pages.mjs). Notes pages are the only
+// pages whose title a person can set, so a change that leaves two the same (or the same as an automatic "Notes 3") is refused.
+export function labelClash(entries, cat) {
+  for (const hardcover of [false, true]) {
+    const seen = new Map();
+    for (const p of flowBook(entries, cat, { hardcover }).pages) { if (!p.label) continue; const k = `${p.label}|${p.date || ''}`; if (seen.has(k)) return { label: p.label, first: seen.get(k), second: p.n }; seen.set(k, p.n); }
+  }
+  return null;
+}
+const done = (b, cat, msg, extra = {}, mon = null) => {
+  const errs = validateBookWith(b, cat.meta);
+  if (errs.length) return { err: `That change would break the book: ${errs[0]}` };
+  const c = labelClash(listFor(b, mon), cat);
+  if (c) return { err: `That would leave two pages titled "${c.label}" (pages ${c.first} and ${c.second}). Every page needs its own title so it can be told apart and scanned; give one a different title.` };
+  return { book: tidy(b), msg, ...extra };
+};
+const wrongList = (cat, e, scope, tgt, side) => {
+  const n = nameOf(cat, e), tn = nameOf(cat, tgt.entry);
+  if (e.type === 'weeks') return `The weeks group can only sit at the top level of the book: it can't go ${side} ${tn}, which is inside it.`;
+  if (scope === 'book' && (tgt.scope === 'month' || tgt.scope === 'week')) return `${n} can't go ${side} ${tn}: that page is inside the weeks, and only ${SCOPE_WORDS[tgt.scope]} live there. Drop it before the weeks start or after they end.`;
+  if (tgt.scope === 'book') return `${n} is one of the ${SCOPE_WORDS[scope]}, so it can only be placed among them, not ${side} ${tn}.`;
+  return `${n} is one of the ${SCOPE_WORDS[scope]}. It can only be placed among them, not ${side} ${tn}, which is one of the ${SCOPE_WORDS[tgt.scope]}.`;
+};
+
+// spec: { step: -1 | 1 } or { before: id } or { after: id }. Only inside its own list: month pages among month pages, week pages among week pages.
+export function moveEntry(book, cat, mon, id, spec) {
+  const { b, list } = prep(book, mon), from = locate(list, id);
+  if (!from) return { err: 'That page is not in this book.' };
+  const e = from.entry, n = nameOf(cat, e);
+  let to = -1, arr = from.arr;
+  if (spec.step) {
+    to = from.i + spec.step;
+    if (to < 0 || to >= arr.length) {
+      const where = from.scope === 'book' ? `${spec.step < 0 ? 'first' : 'last'} in the book` : `${spec.step < 0 ? 'first' : 'last'} of the ${SCOPE_WORDS[from.scope]}`;
+      return { err: from.scope === 'book' ? `${n} is already ${where}.` : `${n} is already ${where}. It stays among them: ${SCOPE_WORDS[from.scope]} can't go past the ends of their own list.` };
+    }
+  } else {
+    const tid = spec.before || spec.after, tgt = locate(list, tid);
+    if (!tgt) return { err: 'That page is not in this book.' };
+    if (tid === id) return { err: `${n} is already there.` };
+    if (tgt.arr !== from.arr) return { err: wrongList(cat, e, from.scope, tgt, spec.before ? 'before' : 'after') };
+    to = tgt.i + (spec.after ? 1 : 0); if (to > from.i) to--;
+    if (to === from.i) return { err: `${n} is already there.` };
+  }
+  const [x] = arr.splice(from.i, 1); arr.splice(to, 0, x);
+  return done(b, cat, from.scope === 'book' ? '' : `every ${from.scope}`, { id, scope: from.scope }, mon);
+}
+
+export function setOn(book, cat, mon, id, on) {
+  const { b, list } = prep(book, mon), at = locate(list, id);
+  if (!at) return { err: 'That page is not in this book.' };
+  const e = at.entry, n = nameOf(cat, e);
+  if (!on && e.type === 'weeks') return { err: 'The weeks are the journal itself, so they cannot be hidden.' };
+  if (!on && (cat.meta[e.type] || {}).protected) return { err: protectWhy(cat, e), protected: true };
+  if ((e.on !== false) === on) return { err: `${n} is already ${on ? 'shown' : 'hidden'}.` };
+  e.on = on;
+  return done(b, cat, `${on ? 'Showing' : 'Hiding'} ${n}`, { id }, mon);
+}
+
+const findType = (list, type) => { for (const arr of [list, ...list.filter((e) => e.type === 'weeks').flatMap((e) => [(e.options || {}).month || [], (e.options || {}).week || []])]) { const h = arr.find((e) => e.type === type); if (h) return h; } return null; };
+const notesTitles = (list) => new Set(flatEntries(list).filter((e) => e.type === 'notes').map((e) => (e.options && e.options.title) || 'Notes'));
+const flatEntries = (list) => list.flatMap((e) => (e.type === 'weeks' ? [...((e.options || {}).month || []), ...((e.options || {}).week || [])] : [e]));
+const freshTitle = (list, base) => { const used = notesTitles(list); if (!used.has(base) && base !== 'Notes') return base; let i = 2; while (used.has(`${base} ${i}`)) i++; return `${base} ${i}`; };
+const nextNotesId = (list) => { const ids = new Set(flatIds(list)); let i = 1; while (ids.has(`notes_${i}`)) i++; return `notes_${i}`; };
+// Add a page of `type`. where: { before: id } | { after: id } | {} (the end of its list). Only Notes pages can be added more than once.
+export function addEntry(book, cat, mon, type, where = {}, options = {}) {
+  const T = cat.meta[type];
+  if (!T || type === 'weeks') return { err: 'That is not a page type you can add.' };
+  const { b, list } = prep(book, mon), arr = scopeArr(list, T.scope);
+  if (!arr) return { err: 'This book has no weeks group to put that page in.' };
+  const have = type !== 'notes' ? findType(list, type) : null;
+  if (have) return { err: `${T.name} is already in this book${have.on === false ? ' (hidden: switch it back on with the eye)' : ''}. Only Notes pages can be added more than once.` };
+  const e = { id: type === 'notes' ? nextNotesId(list) : type, type, on: true, options: type === 'notes' ? { title: String(options.title || freshTitle(list, 'Notes page')).slice(0, 40) } : {} };
+  let at = arr.length;
+  const tid = where.before || where.after;
+  if (tid) {
+    const tgt = locate(list, tid);
+    if (!tgt) return { err: 'That page is not in this book.' };
+    if (tgt.arr !== arr) return { err: wrongList(cat, e, T.scope, tgt, where.before ? 'before' : 'after') };
+    at = tgt.i + (where.after ? 1 : 0);
+  }
+  arr.splice(at, 0, e);
+  return done(b, cat, `Added ${nameOf(cat, e)}`, { id: e.id }, mon);
+}
+
+// A page the person added can be deleted; a built-in page (one the default book has) can only be hidden.
+export function removeEntry(book, cat, mon, id) {
+  const { b, list } = prep(book, mon), at = locate(list, id);
+  if (!at) return { err: 'That page is not in this book.' };
+  const e = at.entry, n = nameOf(cat, e);
+  if ((cat.builtIn || []).includes(id) || e.type === 'weeks') return { err: `${n} is part of the book, so it can be hidden but not deleted. Use the eye to hide it.${(cat.meta[e.type] || {}).protected ? ' ' + protectWhy(cat, e) : ''}` };
+  at.arr.splice(at.i, 1);
+  return done(b, cat, `Removed ${n}`, { id }, mon);
+}
+
+export function duplicateEntry(book, cat, mon, id) {
+  const { b, list } = prep(book, mon), at = locate(list, id);
+  if (!at) return { err: 'That page is not in this book.' };
+  const e = at.entry;
+  if (e.type !== 'notes') return { err: `Only Notes pages can be duplicated. ${nameOf(cat, e)} can appear once in a book.` };
+  const base = ((e.options && e.options.title) || 'Notes page').replace(/ \d+$/, ''), c = { ...clone(e), id: nextNotesId(list), options: { ...(e.options || {}), title: freshTitle(list, base) } };
+  at.arr.splice(at.i + 1, 0, c);
+  return done(b, cat, `Duplicated ${nameOf(cat, e)}`, { id: c.id }, mon);
+}
+
+export function setTitle(book, cat, mon, id, title) {
+  const { b, list } = prep(book, mon), at = locate(list, id);
+  if (!at || at.entry.type !== 'notes') return { err: 'Only Notes pages have a title you can change.' };
+  const t = String(title).trim();
+  if (t.length > 40) return { err: 'A title can be up to 40 characters.' };
+  at.entry.options = t ? { ...(at.entry.options || {}), title: t } : Object.fromEntries(Object.entries(at.entry.options || {}).filter(([k]) => k !== 'title'));
+  return done(b, cat, 'Renamed the page', { id }, mon);
+}
+
+export function resetMonth(book, cat, mon) {
+  if (!book.months || !book.months[mon]) return { err: 'That month already follows the default.' };
+  const b = clone(book); delete b.months[mon];
+  return done(b, cat, `${mon} follows the default again`, {}, null);
+}
+
+// Where the dangling pointers are new: the pointers a change would leave dangling that were not dangling before.
+export const newlyMissing = (before, after) => after.filter((m) => !before.some((x) => x.ref === m.ref));
