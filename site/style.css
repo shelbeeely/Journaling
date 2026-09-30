@@ -170,3 +170,5 @@ tbody th { font-weight: 600; white-space: nowrap; }
 @media (min-width: 820px) { .road { grid-template-columns: repeat(2, 1fr); } }
 .btn:focus-visible, .link:focus-visible { outline-offset: 3px; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+@media (min-width: 560px) { .fv { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fv > figure:first-child, .fv > figure.svgf:last-child:nth-child(odd) { grid-column: 1 / -1; } .fv > figure.narrow { max-width: none; } .fv > figure.pair { grid-column: span 1; } .fv > figure.pair > div { grid-template-columns: 1fr 1fr; max-width: none; } }
+.ft .btn { margin-top: 8px; }
