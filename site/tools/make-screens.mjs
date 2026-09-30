@@ -26,7 +26,7 @@ const want = (g) => !only.length || only.includes(g);
 fs.mkdirSync(IMG, { recursive: true }); fs.mkdirSync(TMP, { recursive: true });
 const MAN = path.join(IMG, 'manifest.json');
 const manifest = fs.existsSync(MAN) ? JSON.parse(fs.readFileSync(MAN, 'utf8')) : {};
-const saveManifest = () => fs.writeFileSync(MAN, JSON.stringify(manifest, null, 1) + '\n');
+const saveManifest = () => { for (const k of Object.keys(manifest)) if (k[0] !== '_' && !fs.existsSync(path.join(IMG, k + '.webp'))) delete manifest[k]; fs.writeFileSync(MAN, JSON.stringify(manifest, null, 1) + '\n'); };
 const sh = (cmd, args, opt = {}) => execFileSync(cmd, args, { stdio: ['ignore', 'pipe', 'inherit'], ...opt });
 
 const { launch } = await import(path.join(J, 'browser.mjs'));
@@ -188,6 +188,14 @@ if (want('editor')) {
   await snap(pg, 'ed-scan', 'The Scan settings sheet: switches for the send-to strip and the scanning border, and choices for the matrix code position, size and format.', { el: '#scan' });
   await pg.click('#lay-g'); await pg.waitForTimeout(4800);
   await snap(pg, 'ed-grid', 'The page grid: the preview with its rows and columns drawn over it. Blocks such as the moon and sky line span four columns and two rows.', { el: '#paper' });
+  // worked examples: the same page, arranged for a different life
+  const arrange = (blocks) => pg.evaluate((b) => { layout = normalize({ v: 2, blocks: b }); drawList(); drawPalette(); drawPreview(); }, blocks);
+  await pg.setViewportSize({ width: 1280, height: 1000 });
+  await go(pg, U, '#day/2026-10-14/edit');
+  await arrange([{ type: 'sky' }, { type: 'shift' }, { type: 'tl24', actual: true, shade: true }, { type: 'care' }, { type: 'body' }, { type: 'actions' }]);
+  await snap(pg, 'ex-shift', 'A day page arranged for a night-shift worker: the work shift, a 24-hour time line with plan over actual and the night shaded from the day\'s sunrise and sunset, a care check-in and a writing space.', { el: '#paper' });
+  await arrange([{ type: 'actions', count: 4, h: 0.36 }, { type: 'good', n: 3, pitch: 0.335 }, { type: 'body' }]);
+  await snap(pg, 'ex-roomy', 'A day page with roomy rows: four wide action lines, three widely spaced lines for small good things, and a large writing space.', { el: '#paper' });
   await pg.setViewportSize({ width: 1280, height: 800 });
   await go(pg, U, '#library');
   await snap(pg, 'ed-library', 'The Library: a shelf with the book Northlight, a series of season journals and a series of undated practice books, each with its own title.');

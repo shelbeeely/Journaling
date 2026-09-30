@@ -191,5 +191,17 @@
   "h": 900,
   "kb": 47,
   "alt": "The Versions drawer: a history of saved versions on one side, and a comparison on the other that lists what changed and marks the changed blocks on the page."
+ },
+ "ex-shift": {
+  "w": 430,
+  "h": 665,
+  "kb": 13,
+  "alt": "A day page arranged for a night-shift worker: the work shift, a 24-hour time line with plan over actual and the night shaded from the day's sunrise and sunset, a care check-in and a writing space."
+ },
+ "ex-roomy": {
+  "w": 430,
+  "h": 665,
+  "kb": 8,
+  "alt": "A day page with roomy rows: four wide action lines, three widely spaced lines for small good things, and a large writing space."
  }
 }

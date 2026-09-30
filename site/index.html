@@ -18,8 +18,8 @@
       <span>Journalwright <b>Studio</b></span>
     </a>
     <nav aria-label="Sections">
-      <a href="#make">Make</a>
-      <a href="#editor">Editor</a>
+      <a href="#today">Today</a>
+      <a href="#examples">In action</a>
       <a href="#samples">Pages</a>
       <a href="docs/">Docs</a>
       <a href="#start">Start</a>
@@ -51,96 +51,93 @@
       <p class="note">The demo uses sample data only. Nothing is saved to a server.</p>
     </div>
     <figure class="hero-fig">
-      <img src="img/sample-day.png" width="535" height="850" alt="A printed day page from the sample book: date, title and tags at the top, a row of check-in boxes, a dotted writing area, action items, and a scan strip at the bottom.">
+      <img src="img/shots/page-day.webp" width="605" height="935" decoding="async" alt="A printed day page from the sample book: date, title and tags at the top, a row of check-in boxes, a dotted writing area, action items, and a scan strip at the bottom.">
     </figure>
   </div>
 </section>
 
-<section id="what" class="band">
-  <div class="wrap">
-    <h2>What it is</h2>
-    <p class="lede">Journalwright Studio turns a small set of building blocks into a whole book: a day page you arrange, weekly and monthly spreads, a calendar, a tracker, back matter. You choose what goes on the page. The studio keeps the printing rules straight.</p>
-    <ul class="cards four">
-      <li>
-        <svg class="ic big" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
-        <h3>Block editor</h3>
-        <p>Drag check-ins, notes, time blocks and more onto the day page. See it at real size as you go.</p>
-      </li>
-      <li>
-        <svg class="ic big" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h8v13H3z"/><path d="M13 6h8v13h-8z"/><path d="M11 6l1-1 1 1"/></svg>
-        <h3>Book canvas</h3>
-        <p>Every page of the book in spreads. Zoom out to plan, zoom in to fix one page.</p>
-      </li>
-      <li>
-        <svg class="ic big" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/><path d="M9 13h7M9 17h5"/></svg>
-        <h3>Print-ready</h3>
-        <p>KDP trims, no Type 3 fonts, page limits and an overflow check on every page.</p>
-      </li>
-      <li>
-        <svg class="ic big" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M10 6.5h4M10 10h4"/><circle cx="12" cy="18" r="1"/></svg>
-        <h3>E-ink companion</h3>
-        <p>Optional. An Xteink X4 shows today, takes button check-ins and stays offline.</p>
-      </li>
-    </ul>
-  </div>
+<section id="today" class="wrap">
+  <h2>What you can do today</h2>
+  <p class="lede">Everything here is built and on the main branch. The screenshots are from the editor demo with sample data only.</p>
+  <figure class="svgf wide"><svg class="dg" viewBox="0 0 400 240" role="img" aria-labelledby="dt1 dd1"><title id="dt1">The three layers</title><desc id="dd1">Blocks are arranged into a page on a grid, and pages are put in order to make a book.</desc>
+<g class="ln"><rect class="pn" x="20" y="20" width="360" height="56" rx="10"/><rect class="pn" x="20" y="92" width="360" height="56" rx="10"/><rect class="pn acc" x="20" y="164" width="360" height="56" rx="10"/>
+<path d="M200 164v-16M194 154l6-6 6 6M200 92V76M194 82l6-6 6 6"/></g>
+<g class="tx"><text x="40" y="44" class="b">3  Book</text><text x="40" y="64">pages in order: a month, a season, a year, undated</text>
+<text x="40" y="116" class="b">2  Page</text><text x="40" y="136">blocks placed on a grid, one layout for every day</text>
+<text x="40" y="188" class="b">1  Blocks</text><text x="40" y="208">check-ins, notes, time lines, trackers, writing space</text></g></svg><figcaption>Three layers: blocks make a page, pages make a book.</figcaption></figure>
+  <article class="feat" id="f-blocks" aria-labelledby="f-blocks-h">
+  <div class="ft"><h3 id="f-blocks-h">Block editor</h3><p>Arrange a day page from blocks. See it at real size while you work, and get a warning before a page runs out of room.</p><ul class="ticks"><li><b>70+ palette items</b>: check-ins, time lines, trackers, thought records, brain dump, sketch box and one-click presets.</li><li>Therapy, body and planning blocks, each with options and sizes.</li><li>A grid mode: blocks span several columns and rows, with overlap and minimum-size checks that explain themselves.</li></ul><p><a class="btn" href="editor/#day/2026-10-14/edit">Try it: edit a day page</a></p></div>
+  <div class="fv"><figure><img src="img/shots/ed-day-edit.webp" width="1200" height="750" loading="lazy" decoding="async" alt="The day page in edit mode: the palette of blocks on the left, the list of blocks on the page in the middle, and the live page preview on the right."><figcaption>Edit mode: the palette, the block list and the live page.</figcaption></figure><figure class="narrow"><img src="img/shots/ed-grid.webp" width="491" height="757" loading="lazy" decoding="async" alt="The page grid: the preview with its rows and columns drawn over it. Blocks such as the moon and sky line span four columns and two rows."><figcaption>Grid mode: the moon and sky line spans four columns.</figcaption></figure><figure class="svgf"><svg class="dg" viewBox="0 0 400 310" role="img" aria-labelledby="dt2 dd2"><title id="dt2">A page built from blocks on a grid</title><desc id="dd2">A page outline with four columns. A wide block spans all four columns, two blocks sit side by side, a tall writing block fills the middle, a wide block follows, and a dashed scan strip is fixed at the bottom.</desc>
+<g class="ln"><rect class="pn" x="60" y="10" width="200" height="290" rx="4"/>
+<path class="gl" d="M110 18v274M160 18v274M210 18v274"/>
+<rect class="bl" x="68" y="18" width="184" height="36" rx="4"/><rect class="bl" x="68" y="62" width="88" height="44" rx="4"/><rect class="bl acc" x="164" y="62" width="88" height="44" rx="4"/>
+<rect class="bl" x="68" y="114" width="184" height="100" rx="4"/><rect class="bl" x="68" y="222" width="184" height="32" rx="4"/>
+<rect class="bl" x="68" y="262" width="184" height="30" rx="4" stroke-dasharray="4 3"/></g>
+<g class="tx"><text x="76" y="40">Moon and sky  4 x 1</text><text x="76" y="88">Habits  2 x 1</text><text x="172" y="88">Mood  2 x 1</text><text x="76" y="168">Writing space  4 x 3</text><text x="76" y="242">Action items  4 x 1</text><text x="76" y="281">Scan strip (fixed)</text>
+<text x="276" y="40" class="m">4 columns</text><text x="276" y="168" class="m">blocks span</text><text x="276" y="184" class="m">columns and rows</text><text x="276" y="281" class="m">fixed scan zone</text></g></svg><figcaption>A page is blocks on a grid; the scan zones stay fixed.</figcaption></figure></div>
+</article>
+<article class="feat rev" id="f-canvas" aria-labelledby="f-canvas-h">
+  <div class="ft"><h3 id="f-canvas-h">Book, spread and day</h3><p>The editor opens on the whole book and zooms one step at a time. Pages open for viewing; the palette appears only when you press Edit.</p><ul class="ticks"><li>Every page in spreads, with page ids, jump-to-page, a legend and a breadcrumb that always works.</li><li>View mode is clean and read-only. Edit and Done switch the tools on and off.</li><li>Switch between 5.5 x 8.5 and 8.5 x 11 and see the same pages at the new size.</li></ul><p><a class="btn" href="editor/#book">Try it: open the book</a></p></div>
+  <div class="fv"><figure><img src="img/shots/ed-book.webp" width="1200" height="750" loading="lazy" decoding="async" alt="The Book view: all 72 pages of the sample book laid out in facing spreads, with a page-number box, a zoom control and a legend button."><figcaption>The Book view: 72 pages in 37 spreads.</figcaption></figure><figure><img src="img/shots/ed-spread.webp" width="1200" height="750" loading="lazy" decoding="async" alt="The Spread view: two facing pages, an Exchange page and a Reply page, at reading size."><figcaption>The Spread view: two facing pages.</figcaption></figure><figure class="narrow"><img src="img/shots/ed-day-view.webp" width="1200" height="938" loading="lazy" decoding="async" alt="A day page in view mode: only the page, clean and read-only, with an Edit button at the top right."><figcaption>A day page in view mode.</figcaption></figure><figure class="svgf"><svg class="dg" viewBox="0 0 400 195" role="img" aria-labelledby="dt3 dd3"><title id="dt3">Book, spread, day</title><desc id="dd3">Three steps of one zoom. The book shows every page as a small card, the spread shows two facing pages, and the day shows one page at full size.</desc>
+<g class="ln"><rect class="pn" x="10" y="30" width="110" height="110" rx="6"/><rect class="bl" x="18" y="38" width="20" height="26" rx="2"/><rect class="bl" x="43" y="38" width="20" height="26" rx="2"/><rect class="bl" x="68" y="38" width="20" height="26" rx="2"/><rect class="bl" x="93" y="38" width="20" height="26" rx="2"/><rect class="bl" x="18" y="63" width="20" height="26" rx="2"/><rect class="bl" x="43" y="63" width="20" height="26" rx="2"/><rect class="bl" x="68" y="63" width="20" height="26" rx="2"/><rect class="bl" x="93" y="63" width="20" height="26" rx="2"/><rect class="bl" x="18" y="88" width="20" height="26" rx="2"/><rect class="bl" x="43" y="88" width="20" height="26" rx="2"/><rect class="bl" x="68" y="88" width="20" height="26" rx="2"/><rect class="bl" x="93" y="88" width="20" height="26" rx="2"/><rect class="bl" x="18" y="113" width="20" height="26" rx="2"/><rect class="bl" x="43" y="113" width="20" height="26" rx="2"/><rect class="bl" x="68" y="113" width="20" height="26" rx="2"/><rect class="bl" x="93" y="113" width="20" height="26" rx="2"/>
+<path d="M130 85h24M148 79l6 6-6 6"/>
+<rect class="pn" x="162" y="30" width="110" height="110" rx="6"/><rect class="bl" x="172" y="46" width="42" height="78" rx="2"/><rect class="bl acc" x="220" y="46" width="42" height="78" rx="2"/>
+<path d="M282 85h24M300 79l6 6-6 6"/>
+<rect class="pn" x="314" y="30" width="76" height="110" rx="6"/><rect class="bl acc" x="326" y="42" width="52" height="86" rx="2"/></g>
+<g class="tx"><text x="65" y="164" text-anchor="middle" class="b">Book</text><text x="217" y="164" text-anchor="middle" class="b">Spread</text><text x="352" y="164" text-anchor="middle" class="b">Day</text>
+<text x="65" y="182" text-anchor="middle" class="m">all pages</text><text x="217" y="182" text-anchor="middle" class="m">two facing pages</text><text x="352" y="182" text-anchor="middle" class="m">edit one page</text></g></svg><figcaption>One continuous zoom.</figcaption></figure></div>
+</article>
+<article class="feat" id="f-library" aria-labelledby="f-library-h">
+  <div class="ft"><h3 id="f-library-h">Library and series</h3><p>Every book gets a title of your own. Keep several books in one project, and group them in a series that shares defaults.</p><ul class="ticks"><li>A shelf of covers: books, series and their order.</li><li>Series share a book length, cover and front matter; each book can still differ.</li><li>Zoom from library to series to book to spread to page.</li></ul><p><a class="btn" href="editor/#library">Try it: browse the library</a></p></div>
+  <div class="fv"><figure><img src="img/shots/ed-library.webp" width="1200" height="750" loading="lazy" decoding="async" alt="The Library: a shelf with the book Northlight, a series of season journals and a series of undated practice books, each with its own title."><figcaption>The Library shelf.</figcaption></figure><figure><img src="img/shots/ed-series.webp" width="1200" height="750" loading="lazy" decoding="async" alt="A series shelf: three season journals that share defaults, shown as covers in order."><figcaption>A series of three season journals.</figcaption></figure></div>
+</article>
+<article class="feat rev" id="f-scan" aria-labelledby="f-scan-h">
+  <div class="ft"><h3 id="f-scan-h">Unique pages and scan codes</h3><p>Every page has its own id and scan code, and the build checks that none repeat, inside a book or across books. You decide how the scan marks look.</p><ul class="ticks"><li>Send-to block, scanning border on or off, and the matrix code: position, size, format and an optional tiny label.</li><li>The header, the 9 pt frame and the code stay in fixed zones so every page can be identified.</li></ul><p><a class="btn" href="editor/#day/2026-10-14/edit">Try it: open Scan settings</a></p></div>
+  <div class="fv"><figure><img src="img/shots/ed-scan.webp" width="688" height="495" loading="lazy" decoding="async" alt="The Scan settings sheet: switches for the send-to strip and the scanning border, and choices for the matrix code position, size and format."><figcaption>The Scan settings sheet.</figcaption></figure></div>
+</article>
+<article class="feat" id="f-print" aria-labelledby="f-print-h">
+  <div class="ft"><h3 id="f-print-h">Print-ready output, scopes and volumes</h3><p>KDP interiors and covers in 5.5 x 8.5 and 8.5 x 11, with an overflow check on every page and no Type 3 fonts.</p><ul class="ticks"><li>A book can be a month, quarter, season, half-year, year, a custom range, or undated.</li><li>Past the paperback limit it splits itself into balanced volumes, each with its own cover, codes and manifest.</li><li>Profiles: one file says who and where: names, time zone, day start, trim and modules.</li></ul></div>
+  <div class="fv"><figure><img src="img/shots/cover-month.webp" width="800" height="613" loading="lazy" decoding="async" alt="A wrap-around cover for the sample book Northlight, deep blue with a row of moon phases and the title in cream."><figcaption>A wrap-around cover.</figcaption></figure><figure><img src="img/shots/volume-1-cover.webp" width="805" height="613" loading="lazy" decoding="async" alt="The wrap-around cover of volume 1 of 2 of a quarter book, with its own title block and date range."><figcaption>Volume 1 of a quarter book, split automatically.</figcaption></figure><figure><img src="img/shots/volume-2-cover.webp" width="805" height="613" loading="lazy" decoding="async" alt="The wrap-around cover of volume 2 of 2 of a quarter book, with its own title block and date range."><figcaption>Volume 2 of the same book.</figcaption></figure></div>
+</article>
+<article class="feat rev" id="f-versions" aria-labelledby="f-versions-h">
+  <div class="ft"><h3 id="f-versions-h">Versions, forks and merges</h3><p>Optional accounts keep projects with full history. Guests keep local versions in the browser and never need an account to design or print.</p><ul class="ticks"><li>History, compare with changed blocks marked, restore, branches and autosaved drafts.</li><li>Fork a shared project, propose changes back with page and block diffs, discuss them, then merge.</li><li>A three-way merge with a resolver that shows both versions when the same item changed on both sides.</li></ul></div>
+  <div class="fv"><figure><img src="img/shots/ed-versions.webp" width="1040" height="900" loading="lazy" decoding="async" alt="The Versions drawer: a history of saved versions on one side, and a comparison on the other that lists what changed and marks the changed blocks on the page."><figcaption>The Versions drawer, comparing two saved versions.</figcaption></figure><figure class="svgf"><svg class="dg" viewBox="0 0 400 195" role="img" aria-labelledby="dt5 dd5"><title id="dt5">Fork, propose, merge</title><desc id="dd5">A shared project is forked into your own copy. You propose your changes back with page and block diffs. The owner merges them, and a resolver shows both versions if the same item changed on both sides.</desc>
+<g class="ln"><rect class="pn" x="10" y="20" width="100" height="56" rx="10"/><rect class="pn" x="150" y="20" width="100" height="56" rx="10"/><rect class="pn acc" x="290" y="20" width="100" height="56" rx="10"/>
+<path d="M112 48h36M142 42l6 6-6 6M252 48h36M282 42l6 6-6 6"/>
+<path d="M340 76v44h-80M200 76v44" stroke-dasharray="4 3"/><rect class="pn" x="140" y="120" width="120" height="40" rx="10"/></g>
+<g class="tx"><text x="60" y="44" text-anchor="middle" class="b">Fork</text><text x="60" y="62" text-anchor="middle" class="m">your own copy</text>
+<text x="200" y="44" text-anchor="middle" class="b">Propose</text><text x="200" y="62" text-anchor="middle" class="m">page and block diffs</text>
+<text x="340" y="44" text-anchor="middle" class="b">Merge</text><text x="340" y="62" text-anchor="middle" class="m">three-way</text>
+<text x="200" y="145" text-anchor="middle">Resolver: both versions</text><text x="200" y="182" text-anchor="middle" class="m">only when one item changed on both sides</text></g></svg><figcaption>The fork, propose and merge flow.</figcaption></figure></div>
+</article>
+<article class="feat" id="f-access" aria-labelledby="f-access-h">
+  <div class="ft"><h3 id="f-access-h">Accessible by default</h3><p>A full audit against WCAG 2.2, and a check in CI that fails on new problems.</p><ul class="ticks"><li>Keyboard reordering of blocks, skip links, focus rings, 44 px targets and reduced motion.</li><li>Light and dark mode, and a layout that works on a 390 px phone.</li></ul></div>
+  <div class="fv"><figure class="narrow"><img src="img/shots/ed-phone.webp" width="390" height="844" loading="lazy" decoding="async" alt="The editor on a 390 pixel wide phone: the page preview with the block palette in a sheet at the bottom."><figcaption>The editor on a phone.</figcaption></figure><figure class="narrow"><img src="img/shots/ed-phone-book.webp" width="390" height="844" loading="lazy" decoding="async" alt="The Book view on a phone, with the page grid fitted to the width."><figcaption>The Book view on a phone.</figcaption></figure></div>
+</article>
+<article class="feat rev" id="f-x4" aria-labelledby="f-x4-h">
+  <div class="ft"><h3 id="f-x4-h">E-ink companion</h3><p>An optional Xteink X4 shows today without power and takes a one-press check-in. It stays offline.</p><ul class="ticks"><li>Check-ins with zero-based and signed scales and pick-one items, and a silent focus timer.</li><li>The care split: what lives on paper and what lives on the device.</li><li>Settings for large text, bold type and a button remap; a hotspot page and Wi-Fi modes with a PIN.</li></ul></div>
+  <div class="fv"><figure class="svgf"><svg class="dg" viewBox="0 0 400 230" role="img" aria-labelledby="dt4 dd4"><title id="dt4">Paper and e-ink, split</title><desc id="dd4">Paper on the left holds writing, the plan and the safety plan. The e-ink companion on the right holds today, quick check-ins and a silent focus timer. A scan code on each paper page links the two.</desc>
+<g class="ln"><rect class="pn" x="14" y="14" width="150" height="200" rx="6"/><rect class="pn acc" x="236" y="14" width="150" height="200" rx="14"/><path d="M172 114h56M220 108l8 6-8 6"/><rect class="bl" x="130" y="182" width="22" height="22"/></g>
+<g class="tx"><text x="89" y="42" text-anchor="middle" class="b">Paper</text><text x="311" y="42" text-anchor="middle" class="b">E-ink</text>
+<text x="89" y="76" text-anchor="middle">writing</text><text x="89" y="100" text-anchor="middle">the day plan</text><text x="89" y="124" text-anchor="middle">safety plan</text><text x="89" y="148" text-anchor="middle">the record</text>
+<text x="311" y="76" text-anchor="middle">today, no power</text><text x="311" y="100" text-anchor="middle">one-press check-in</text><text x="311" y="124" text-anchor="middle">silent focus timer</text><text x="311" y="148" text-anchor="middle">large text, bold</text>
+<text x="200" y="104" text-anchor="middle" class="m">scan</text></g></svg><figcaption>Paper holds the record; e-ink holds today.</figcaption></figure><figure class="pair"><div><img src="img/shots/x4-checkin.webp" width="480" height="800" loading="lazy" decoding="async" alt=""><img src="img/shots/x4-checkin-large.webp" width="480" height="800" loading="lazy" decoding="async" alt=""></div><figcaption>Check-in, normal and large bold.</figcaption></figure><figure class="pair"><div><img src="img/shots/x4-scales.webp" width="480" height="800" loading="lazy" decoding="async" alt=""><img src="img/shots/x4-scales-large.webp" width="480" height="800" loading="lazy" decoding="async" alt=""></div><figcaption>Scales, counts and pick-one.</figcaption></figure><figure class="pair"><div><img src="img/shots/x4-settings.webp" width="480" height="800" loading="lazy" decoding="async" alt=""><img src="img/shots/x4-settings-large.webp" width="480" height="800" loading="lazy" decoding="async" alt=""></div><figcaption>Settings: text size, contrast, buttons.</figcaption></figure><figure class="pair"><div><img src="img/shots/x4-wifi.webp" width="480" height="800" loading="lazy" decoding="async" alt=""><img src="img/shots/x4-wifi-large.webp" width="480" height="800" loading="lazy" decoding="async" alt=""></div><figcaption>Wi-Fi: its own hotspot or your network.</figcaption></figure></div>
+</article>
 </section>
 
-<section id="make" class="wrap two">
-  <div>
-    <h2>Paper first, e-ink alongside</h2>
-    <p class="lede">The paper book is the record. The X4 does the few things paper cannot: it shows today without power, and it takes a one-press check-in when you have no pen.</p>
-    <ul class="list">
-      <li>
-        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>
-        <span><b>Paper</b> holds the writing, the plan and your safety plan. Monthly books in 5.5×8.5 and 8.5×11.</span>
-      </li>
-      <li>
-        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M10 6.5h4"/></svg>
-        <span><b>E-ink</b> holds today on the sleep screen and the quick counts. Firmware for the Xteink X4.</span>
-      </li>
-      <li>
-        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
-        <span><b>Offline.</b> No accounts, no feeds, no notifications. It only talks over its own hotspot.</span>
-      </li>
-    </ul>
-  </div>
-  <figure>
-    <img src="img/sample-cover.png" width="799" height="612" alt="A wrap-around cover for the sample book Northlight, deep blue with a row of moon phases and the title in cream.">
-    <figcaption>A sample cover, made from the generic profile.</figcaption>
-  </figure>
-</section>
-
-<section id="editor" class="band">
+<section id="examples" class="band">
   <div class="wrap">
-    <h2>The book canvas and the block editor</h2>
-    <p class="lede">The editor opens on the whole book and zooms in one step at a time: the book, a spread, then a single day.</p>
-    <ul class="cards three">
-      <li>
-        <svg class="ic big" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h8v13H3z"/><path d="M13 6h8v13h-8z"/></svg>
-        <h3>Book</h3>
-        <p>Every page in spreads, with a legend and a jump menu. Hidden pages are shown, so nothing goes missing quietly.</p>
-      </li>
-      <li>
-        <svg class="ic big" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 7h9v11H2z"/><path d="M13 7h9v11h-9z"/><path d="M12 4v16"/></svg>
-        <h3>Spread</h3>
-        <p>Two facing pages, the way they print. Pinch, scroll or tap a page to zoom in, and use Back to zoom out.</p>
-      </li>
-      <li>
-        <svg class="ic big" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
-        <h3>Day</h3>
-        <p>Drag check-ins, notes, time blocks and more onto the page. A writing-space meter warns you before a page runs out of room.</p>
-      </li>
-    </ul>
-    <ul class="ticks">
-      <li>Dozens of block types and presets: care grid, spoons, scales, time blocks, lined notes, sketch box.</li>
-      <li>Start from a method with one click.</li>
-      <li>Fixed scan zones stay fixed, so every page can be identified.</li>
-      <li>No account needed to design and print. Your work saves in your browser, and you can export and import it as a file.</li>
-    </ul>
-    <p><a class="btn primary" href="editor/">
-      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1 11-11-3-3L5 16z"/></svg>
-      Open the live editor demo</a></p>
-    <p class="note">Sample data only. A banner in the editor says so, and nothing is sent anywhere.</p>
+    <h2>See it in action</h2>
+    <p class="lede">Four ways to use the same tools. Each opens the demo at the right place; the demo saves nothing.</p>
+    <article class="ex" id="ex1" aria-labelledby="ex1-h"><figure class="exf"><div class="exi"><img src="img/shots/ex-shift.webp" width="430" height="665" loading="lazy" decoding="async" alt="A day page arranged for a night-shift worker: the work shift, a 24-hour time line with plan over actual and the night shaded from the day's sunrise and sunset, a care check-in and a writing space."></div><figcaption>A night-shift page.</figcaption></figure>
+<div class="ext"><h3 id="ex1-h">A shift worker's 24 h time line</h3><p>Nights one week, days the next: a page that shows the whole 24 hours.</p><ol class="stp"><li>Open the editor and press Edit on any day.</li><li>Add <b>Work shift</b> and <b>Time line 24 h</b> from the palette.</li><li>Turn on <b>Actual row</b> and <b>Shade night</b>, so sunrise and sunset mark the dark hours.</li><li>Drag the time line where you want it and press Done.</li></ol><p><a class="btn" href="editor/#day/2026-10-14/edit">Open the day editor</a></p></div></article>
+<article class="ex" id="ex2" aria-labelledby="ex2-h"><figure class="exf"><div class="exi"><img src="img/shots/page-undated.webp" width="605" height="935" loading="lazy" decoding="async" alt="An undated day page: the date box is blank and the page says Day 3, so the book can start on any day."></div><figcaption>Day 3 of an undated book.</figcaption></figure>
+<div class="ext"><h3 id="ex2-h">An undated journal</h3><p>No dates printed: the date box is blank and pages say Day 1, Day 2. Start on any day and skip a week without guilt.</p><ol class="stp"><li>Open the Library and find the undated practice books.</li><li>Set the length in days; weeks and months follow.</li><li>Build it: the date box stays blank and each week says "Week of ____".</li></ol><p><a class="btn" href="editor/#library">Open the Library</a></p></div></article>
+<article class="ex" id="ex3" aria-labelledby="ex3-h"><figure class="exf"><div class="exi"><img src="img/shots/volume-1-cover.webp" width="805" height="613" loading="lazy" decoding="async" alt="The wrap-around cover of volume 1 of 2 of a quarter book, with its own title block and date range."></div><figcaption>Volume 1 of 2 of a quarter book.</figcaption></figure>
+<div class="ext"><h3 id="ex3-h">A quarter book in a series</h3><p>Three months in one book, grouped with the other seasons, and split into volumes if it is long.</p><ol class="stp"><li>Open the season series.</li><li>Each book shares the series defaults; change any one.</li><li>The build counts pages and splits the book into the fewest balanced volumes, each with its own cover.</li></ol><p><a class="btn" href="editor/#series/seasons">Open the season series</a></p></div></article>
+<article class="ex" id="ex4" aria-labelledby="ex4-h"><figure class="exf"><div class="exi"><img src="img/shots/ex-roomy.webp" width="430" height="665" loading="lazy" decoding="async" alt="A day page with roomy rows: four wide action lines, three widely spaced lines for small good things, and a large writing space."><img src="img/shots/x4-checkin-large.webp" width="480" height="800" loading="lazy" decoding="async" alt="The X4 check-in screen in large, bold type."></div><figcaption>A page with roomy rows, next to a large bold X4 screen.</figcaption></figure>
+<div class="ext"><h3 id="ex4-h">Large print and bold for low vision</h3><p>A roomier page on paper, and a bigger, bolder screen on the e-ink companion.</p><ol class="stp"><li>On paper: give action items and small good things wide rows.</li><li>On the X4: Menu, Settings, Text size Large, Contrast Bold.</li><li>Optionally remap the buttons for one-handed use.</li></ol><p><a class="btn" href="editor/#day/2026-10-14/edit">Open the day editor</a></p></div></article>
+
   </div>
 </section>
 
@@ -159,14 +156,8 @@
 <section id="samples" class="band">
   <div class="wrap">
     <h2>Sample pages</h2>
-    <p class="lede">Rendered from the generic sample profile and sample events. No personal data.</p>
-    <ul class="gallery" tabindex="0" aria-label="Sample pages, scrolls sideways on a narrow screen">
-      <li><img src="img/sample-title.png" width="535" height="850" alt="Sample title page for the book Northlight."><span>Title</span></li>
-      <li><img src="img/sample-month.png" width="535" height="850" alt="Sample October calendar: a seven-column month grid with moon phases and a few events."><span>Month</span></li>
-      <li><img src="img/sample-tracker.png" width="535" height="850" alt="Sample monthly tracker page with a grid of daily boxes."><span>Tracker</span></li>
-      <li><img src="img/sample-week.png" width="535" height="850" alt="Sample weekly spread, left page."><span>Week</span></li>
-      <li><img src="img/sample-day.png" width="535" height="850" alt="Sample day page with check-ins, a dotted writing area and action items."><span>Day</span></li>
-    </ul>
+    <p class="lede">Real pages from the generic sample book, rendered at print quality. No personal data.</p>
+    <ul class="gallery" tabindex="0" aria-label="Sample pages. On a narrow screen this row scrolls sideways."><li><img src="img/shots/page-title.webp" width="605" height="935" loading="lazy" decoding="async" alt="The title page of the sample book Northlight."><span>Title</span></li><li><img src="img/shots/page-month.webp" width="605" height="935" loading="lazy" decoding="async" alt="A monthly calendar page: a seven-column grid for October with moon phases and a few events."><span>Month</span></li><li><img src="img/shots/page-week.webp" width="605" height="935" loading="lazy" decoding="async" alt="A weekly page: Monday to Sunday in rows, each with the moon, sunrise and sunset, and ruled space."><span>Week</span></li><li><img src="img/shots/page-day.webp" width="605" height="935" loading="lazy" decoding="async" alt="A day page built from blocks: date, title and tags, care check-ins, a dotted writing area, action items and the scan strip."><span>Day with blocks</span></li><li><img src="img/shots/page-tracker.webp" width="605" height="935" loading="lazy" decoding="async" alt="A monthly tracker: a grid of daily boxes for habits."><span>Tracker</span></li><li><img src="img/shots/page-undated.webp" width="605" height="935" loading="lazy" decoding="async" alt="An undated day page: the date box is blank and the page says Day 3, so the book can start on any day."><span>Undated day</span></li><li><img src="img/shots/page-notes.webp" width="605" height="935" loading="lazy" decoding="async" alt="A notes page with a title box and a dotted grid for free writing."><span>Notes</span></li></ul>
   </div>
 </section>
 
@@ -217,11 +208,11 @@ KW_PROFILE=content/profile.example.json KW_OUT=out-sample node editor/build.mjs 
       </li>
       <li>
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/><path d="M4 4l16 16"/></svg>
-        <span>No account is needed to design and print. Accounts are coming, only for saving versions and sharing.</span>
+        <span>No account is needed to design and print. Accounts are optional, only for saving versions and sharing.</span>
       </li>
       <li>
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><path d="M4 4l16 16"/></svg>
-        <span>The e-ink companion sends nothing anywhere unless you start it. Today it only speaks over its own hotspot; syncing over your own Wi-Fi, when it arrives, will only ever run when you press Sync, and health logs stay off unless you turn them on.</span>
+        <span>The e-ink companion sends nothing anywhere unless you start it. Today it only speaks over its own hotspot or a Wi-Fi network you set up on it. Syncing with your account, when it arrives, will only ever run when you press Sync, and health logs stay off unless you turn them on.</span>
       </li>
     </ul>
   </div>
@@ -229,44 +220,8 @@ KW_PROFILE=content/profile.example.json KW_OUT=out-sample node editor/build.mjs 
 
 <section id="roadmap" class="wrap">
   <h2>Roadmap</h2>
-  <p>What is ready, what is being built now, and what is planned. Order can change; nothing here needs an account to use for designing and printing.</p>
-  <h3>Ready</h3>
-  <p class="rintro">Working today.</p>
-  <ul class="road">
-      <li class="rc"><div class="rh"><h4>Block editor</h4><span class="tag ok">Ready</span></div><p>Day-page blocks with options, presets and one-click method layouts: habits, priorities, time blocks, brain dump, energy, feelings and skills, body and sensory tracking, sketch and writing space. Every block can also be sized, and blocks that make sense on the e-ink companion say so.</p></li>
-      <li class="rc"><div class="rh"><h4>Page grid</h4><span class="tag ok">Ready</span></div><p>Switch a page from a flowing stack to a grid of fixed rows and columns. Blocks span several of each, with overlap and minimum-size checks that explain themselves.</p></li>
-      <li class="rc"><div class="rh"><h4>Book canvas</h4><span class="tag ok">Ready</span></div><p>The editor opens on the whole book, then zooms to a spread, then to a single day. Page ids, jump-to-page, hidden pages and a breadcrumb that always works.</p></li>
-      <li class="rc"><div class="rh"><h4>Unique pages and codes</h4><span class="tag ok">Ready</span></div><p>Every page in a book has its own id and its own scan code, and the build checks that none repeat, inside a book or across books.</p></li>
-      <li class="rc"><div class="rh"><h4>Print-ready output</h4><span class="tag ok">Ready</span></div><p>KDP interiors and covers, in 5.5 by 8.5 and 8.5 by 11, with an overflow check on every page, no Type 3 fonts, and rules that survive printing.</p></li>
-      <li class="rc"><div class="rh"><h4>Book scopes and volumes</h4><span class="tag ok">Ready</span></div><p>A book can be a month, a quarter, a season, a half-year, a year, a custom range or undated. Past the paperback page limit it splits itself into balanced volumes, each with its own cover, codes and manifest.</p></li>
-      <li class="rc"><div class="rh"><h4>Profiles</h4><span class="tag ok">Ready</span></div><p>One file says who and where: names, location, day start, trim and which modules are on. A generic profile builds a complete sample book.</p></li>
-      <li class="rc"><div class="rh"><h4>Versioning and accounts</h4><span class="tag ok">Ready</span></div><p>Optional accounts keep projects with full history: commits, branches, drafts, restore and visual comparisons. Guests keep local versions in the browser and never need an account to design or print.</p></li>
-      <li class="rc"><div class="rh"><h4>Accessibility baseline</h4><span class="tag ok">Ready</span></div><p>A full audit against WCAG 2.2, keyboard reordering of blocks, skip links, focus rings, reduced motion and a check in CI that fails on new problems.</p></li>
-      <li class="rc"><div class="rh"><h4>Methods library</h4><span class="tag ok">Ready</span></div><p>Forty-four researched guides to journaling and planning methods, with sources and what each idea could become in a book or on the e-ink companion.</p></li>
-      <li class="rc"><div class="rh"><h4>E-ink companion</h4><span class="tag ok">Ready</span></div><p>Check-ins with zero-based and signed scales and pick-one items, a silent focus timer, the day starting at 4 a.m., a settings page on its own hotspot, and a clear split between what lives on paper and what lives on the device.</p></li>
-  </ul>
-  <h3>In progress</h3>
-  <p class="rintro">Being built now.</p>
-  <ul class="road">
-      <li class="rc"><div class="rh"><h4>Forks, proposals and merges</h4><span class="tag now">Now</span></div><p>Fork a shared project, propose changes back with visual page and block diffs, discuss them, and merge with a resolver that shows both versions when the same item changed on both sides. In review.</p></li>
-      <li class="rc"><div class="rh"><h4>Editing only when editing</h4><span class="tag now">Now</span></div><p>Pages open for viewing, clean and read-only. The palette and options appear when you press Edit and go away when you press Done.</p></li>
-      <li class="rc"><div class="rh"><h4>Library and series</h4><span class="tag now">Now</span></div><p>A title of your own for every book, several books per project, and series that share defaults. Navigation zooms from library to series to book to spread to page.</p></li>
-      <li class="rc"><div class="rh"><h4>E-ink accessibility</h4><span class="tag now">Now</span></div><p>Large text, bolder type, a button remap for one-handed and left-handed use, adjustable refresh and sleep, and a more accessible settings page.</p></li>
-  </ul>
-  <h3>Planned</h3>
-  <p class="rintro">Designed and queued.</p>
-  <ul class="road">
-      <li class="rc"><div class="rh"><h4>Scan options</h4><span class="tag soon">Planned</span></div><p>The send-to strip becomes a block. The scanning border can be switched off per page. The matrix code can move, resize, switch off, change format and show a printed label. Every page still gets a unique code, across all of a person's books.</p></li>
-      <li class="rc"><div class="rh"><h4>Spread days</h4><span class="tag soon">Planned</span></div><p>A day can cover one page or a whole two-page spread, set per day, with per-weekday defaults. Both pages keep their own scan frame, code and header.</p></li>
-      <li class="rc"><div class="rh"><h4>Releases and reusable pages</h4><span class="tag soon">Planned</span></div><p>Freeze a checked version as a numbered print release with the exact PDFs and manifest kept for good. Reusable pages track their versions and where they are used, so you can review an update before adopting it.</p></li>
-      <li class="rc"><div class="rh"><h4>Accessibility options</h4><span class="tag soon">Planned</span></div><p>A settings panel for text size, contrast, reduced motion, dyslexia-friendly type and spacing. In print: large-print layouts, high-contrast ink, text-size scales, a dyslexia-friendly font, and a left-handed layout.</p></li>
-      <li class="rc"><div class="rh"><h4>Languages</h4><span class="tag soon">Planned</span></div><p>Editor and site in more languages, and printed books in them too: message catalogs, fonts per script, right-to-left layouts, calendars, and a review step before a language is marked ready.</p></li>
-      <li class="rc"><div class="rh"><h4>Account profile and locations</h4><span class="tag soon">Planned</span></div><p>Save places once and every new book uses them for sunrise and sunset, moon times, seasons, time zone and holidays. Your location never travels with a shared or forked project.</p></li>
-      <li class="rc"><div class="rh"><h4>Content packs and onboarding</h4><span class="tag soon">Planned</span></div><p>Regional resource lists and transit as data you can swap, a setup command that asks a few questions, and guides for making your own journal and your own pack.</p></li>
-      <li class="rc"><div class="rh"><h4>E-ink editor and sync</h4><span class="tag soon">Planned</span></div><p>The companion can serve the editor on its own hotspot, or on your Wi-Fi, and sync with your account only when you start a sync on the device. Health logs stay off unless you turn them on.</p></li>
-      <li class="rc"><div class="rh"><h4>More blocks and pages</h4><span class="tag soon">Planned</span></div><p>Matrix and next-action blocks, commonplace and collection pages, a habit plan, a future log, a year-in-pixels page, and more one-click layouts drawn from the methods library.</p></li>
-      <li class="rc"><div class="rh"><h4>Product site and docs</h4><span class="tag soon">Planned</span></div><p>The methods library and guides published here in a form that is written for everyone, once the personal notes are separated out.</p></li>
-  </ul>
+  <p class="lede">Only what is not finished yet. Everything above is ready to use today. Order can change, and nothing here is needed to design and print a book.</p>
+  <ul class="road"><li class="rc"><div class="rh"><h4>Page organiser</h4><span class="tag now">In review</span></div><p>Drag pages in the Book view to reorder, add, hide or remove them, with the codes and page ids kept straight.</p></li><li class="rc"><div class="rh"><h4>Content packs and the pack ecosystem</h4><span class="tag now">In progress</span></div><p>Regional resource lists and transit as swappable data, plus packs made by artists and authors: themes, graphics, icon packs and declarative block packs. Every pack declares what it contains and is checked before use.</p></li><li class="rc"><div class="rh"><h4>Puzzle pages and blocks</h4><span class="tag soon">Planned</span></div><p>Crosswords and word searches as blocks and whole pages, and puzzle packs you can add to a book.</p></li><li class="rc"><div class="rh"><h4>Block-based month, week and notes pages</h4><span class="tag soon">Planned</span></div><p>The month, week and notes pages built from blocks on the grid, like the day page, so they can be rearranged too.</p></li><li class="rc"><div class="rh"><h4>Spread days</h4><span class="tag soon">Planned</span></div><p>A day can cover one page or a whole two-page spread, set per day, with per-weekday defaults. Both pages keep their own scan frame, code and header.</p></li><li class="rc"><div class="rh"><h4>Releases and reusable pages</h4><span class="tag soon">Planned</span></div><p>Freeze a checked version as a numbered print release with the exact PDFs and manifest kept. Reusable pages track their versions and where they are used.</p></li><li class="rc"><div class="rh"><h4>Accessibility settings panel and print options</h4><span class="tag soon">Planned</span></div><p>A settings panel for text size, contrast, reduced motion and dyslexia-friendly type. In print: large-print layouts, high-contrast ink, text-size scales, a dyslexia-friendly font and a left-handed layout.</p></li><li class="rc"><div class="rh"><h4>Languages</h4><span class="tag soon">Planned</span></div><p>The editor and this site in more languages, and printed books in them: message catalogs, fonts per script, right-to-left layouts and calendars.</p></li><li class="rc"><div class="rh"><h4>Account profile and locations</h4><span class="tag soon">Planned</span></div><p>Save places once; every new book uses them for sunrise, moon times, seasons, time zone and holidays. Your location never travels with a shared or forked project.</p></li><li class="rc"><div class="rh"><h4>E-ink editor and sync</h4><span class="tag soon">Planned</span></div><p>The companion can serve the editor on its own hotspot or your Wi-Fi, and sync with your account only when you start a sync on the device. Health logs stay off unless you turn them on.</p></li><li class="rc"><div class="rh"><h4>More blocks and pages</h4><span class="tag soon">Planned</span></div><p>Matrix and next-action blocks, commonplace and collection pages, a habit plan, a future log, a year-in-pixels page and more one-click layouts from the methods library.</p></li></ul>
 </section>
 </main>
 
