@@ -1,0 +1,63 @@
+{
+ "page-month": {
+  "w": 605,
+  "h": 935,
+  "kb": 16,
+  "alt": "A monthly calendar page: a seven-column grid for October with moon phases and a few events."
+ },
+ "page-week": {
+  "w": 605,
+  "h": 935,
+  "kb": 21,
+  "alt": "A weekly page: Monday to Sunday in rows, each with the moon, sunrise and sunset, and ruled space."
+ },
+ "page-day": {
+  "w": 605,
+  "h": 935,
+  "kb": 27,
+  "alt": "A day page built from blocks: date, title and tags, care check-ins, a dotted writing area, action items and the scan strip."
+ },
+ "page-tracker": {
+  "w": 605,
+  "h": 935,
+  "kb": 35,
+  "alt": "A monthly tracker: a grid of daily boxes for habits."
+ },
+ "page-notes": {
+  "w": 605,
+  "h": 935,
+  "kb": 16,
+  "alt": "A notes page with a title box and a dotted grid for free writing."
+ },
+ "page-title": {
+  "w": 605,
+  "h": 935,
+  "kb": 18,
+  "alt": "The title page of the sample book Northlight."
+ },
+ "page-undated": {
+  "w": 605,
+  "h": 935,
+  "kb": 22,
+  "alt": "An undated day page: the date box is blank and the page says Day 3, so the book can start on any day."
+ },
+ "_volumes": 2,
+ "volume-1-cover": {
+  "w": 805,
+  "h": 613,
+  "kb": 27,
+  "alt": "The wrap-around cover of volume 1 of 2 of a quarter book, with its own title block and date range."
+ },
+ "volume-2-cover": {
+  "w": 805,
+  "h": 613,
+  "kb": 27,
+  "alt": "The wrap-around cover of volume 2 of 2 of a quarter book, with its own title block and date range."
+ },
+ "cover-month": {
+  "w": 800,
+  "h": 613,
+  "kb": 26,
+  "alt": "A wrap-around cover for the sample book Northlight, deep blue with a row of moon phases and the title in cream."
+ }
+}
