@@ -32,10 +32,12 @@ bool Canvas::get(int x, int y) const {
   return !(fb_[py * (PANEL_W / 8) + (px >> 3)] & (0x80 >> (px & 7)));
 }
 
-void Canvas::hline(int x, int y, int w, bool b) { for (int i = 0; i < w; i++) pixel(x + i, y, b); }
-void Canvas::vline(int x, int y, int h, bool b) { for (int i = 0; i < h; i++) pixel(x, y + i, b); }
-void Canvas::fill(int x, int y, int w, int h, bool b) { for (int j = 0; j < h; j++) hline(x, y + j, w, b); }
+void Canvas::row(int x, int y, int w, bool b) { for (int i = 0; i < w; i++) pixel(x + i, y, b); }
+void Canvas::hline(int x, int y, int w, bool b) { row(x, y, w, b); if (bold_) row(x, y + 1, w, b); }
+void Canvas::vline(int x, int y, int h, bool b) { for (int i = 0; i < h; i++) { pixel(x, y + i, b); if (bold_) pixel(x + 1, y + i, b); } }
+void Canvas::fill(int x, int y, int w, int h, bool b) { for (int j = 0; j < h; j++) row(x, y + j, w, b); }
 void Canvas::rect(int x, int y, int w, int h, int t, bool b) {
+  if (bold_ && t < 2) t = 2;
   fill(x, y, w, t, b); fill(x, y + h - t, w, t, b); fill(x, y, t, h, b); fill(x + w - t, y, t, h, b);
 }
 void Canvas::invert(int x, int y, int w, int h) {
@@ -47,15 +49,17 @@ void Canvas::fillRound(int x, int y, int w, int h, int r, bool b) {
     int inset = 0;
     const int dy = j < r ? r - j : (j >= h - r ? j - (h - r - 1) : 0);
     if (dy) inset = r - (int)floorf(sqrtf((float)(r * r - dy * dy)) + 0.5f);
-    hline(x + inset, y + j, w - 2 * inset, b);
+    row(x + inset, y + j, w - 2 * inset, b);
   }
 }
 void Canvas::roundRect(int x, int y, int w, int h, int r, int t) {
+  if (bold_ && t < 2) t = 2;
   fillRound(x, y, w, h, r, true);
   fillRound(x + t, y + t, w - 2 * t, h - 2 * t, r > t ? r - t : 0, false);
 }
 
 void Canvas::line(int x0, int y0, int x1, int y1, int t) {
+  if (bold_ && t < 2) t = 2;
   int dx = abs(x1 - x0), sx = x0 < x1 ? 1 : -1, dy = -abs(y1 - y0), sy = y0 < y1 ? 1 : -1, err = dx + dy;
   for (;;) {
     fill(x0 - t / 2, y0 - t / 2, t, t);
@@ -65,15 +69,16 @@ void Canvas::line(int x0, int y0, int x1, int y1, int t) {
     if (e2 <= dx) { err += dx; y0 += sy; }
   }
 }
-void Canvas::dotted(int x, int y, int w, int gap) { for (int i = 0; i < w; i += gap) pixel(x + i, y); }
+void Canvas::dotted(int x, int y, int w, int gap) { for (int i = 0; i < w; i += gap) { pixel(x + i, y); if (bold_) { pixel(x + i + 1, y); pixel(x + i, y + 1); pixel(x + i + 1, y + 1); } } }
 
 void Canvas::fillCircle(int cx, int cy, int r, bool b) {
   for (int dy = -r; dy <= r; dy++) {
     const int dx = (int)floorf(sqrtf((float)(r * r - dy * dy)) + 0.5f);
-    hline(cx - dx, cy + dy, 2 * dx + 1, b);
+    row(cx - dx, cy + dy, 2 * dx + 1, b);
   }
 }
 void Canvas::circle(int cx, int cy, int r, int t) {
+  if (bold_ && t < 2) t = 2;
   for (int dy = -r; dy <= r; dy++) for (int dx = -r; dx <= r; dx++) {
     const float d = sqrtf((float)(dx * dx + dy * dy));
     if (d <= r + 0.5f && d > r - t + 0.5f) pixel(cx + dx, cy + dy);
@@ -117,7 +122,10 @@ void Canvas::bitmap(const uint8_t* bits, int x, int y, int w, int h, bool b) {
 
 void Canvas::icon(int id, int x, int y, int px, bool b) {
   if (id < 0 || id >= IC_COUNT) return;
-  bitmap(px >= 36 ? ICONS36[id] : ICONS24[id], x, y, px >= 36 ? 36 : 24, px >= 36 ? 36 : 24, b);
+  const uint8_t* bits = px >= 36 ? ICONS36[id] : ICONS24[id];
+  const int n = px >= 36 ? 36 : 24;
+  bitmap(bits, x, y, n, n, b);
+  if (bold_) { bitmap(bits, x + 1, y, n, n, b); bitmap(bits, x, y + 1, n, n, b); }  // strokes 2 px -> 3 px
 }
 
 const Glyph* Canvas::find(const Font& f, uint32_t cp) {
@@ -131,8 +139,26 @@ const Glyph* Canvas::find(const Font& f, uint32_t cp) {
 }
 
 int Canvas::glyph(const Font& f, const Glyph* g, int x, int baseline, bool b) {
-  if (g->w && g->h) bitmap(f.bits + g->offset, x + g->xo, baseline + g->yo + f.ascent, g->w, g->h, b);
-  return g->adv;
+  if (g->w && g->h) {
+    bitmap(f.bits + g->offset, x + g->xo, baseline + g->yo + f.ascent, g->w, g->h, b);
+    if (bold_) bitmap(f.bits + g->offset, x + g->xo + 1, baseline + g->yo + f.ascent, g->w, g->h, b);
+  }
+  return g->adv + (bold_ ? 1 : 0);
+}
+
+// Inter has no arrows (they printed as a missing-glyph box, A11Y-51), so they are drawn: a shaft and a two-stroke head,
+// sized from the font's ascent so they sit in the line at any text size. Returns the advance.
+static int arrowSpan(const Font& f) { return f.ascent * 3 / 4 + 6; }
+int Canvas::arrow(const Font& f, int dir, int x, int baseline, bool b) {
+  const int len = f.ascent * 3 / 4, h = f.ascent / 5 + 2, t = (f.ascent >= 27 || bold_) ? 3 : 2, cy = baseline - f.ascent * 3 / 8;
+  const int x0 = x + 2, x1 = x0 + len;
+  const bool wasBold = bold_; bold_ = false;
+  fill(x0, cy - t / 2, len, t, b);
+  const int tip = dir > 0 ? x1 : x0, back = dir > 0 ? -h : h;
+  line(tip, cy, tip + back, cy - h, t);
+  line(tip, cy, tip + back, cy + h, t);
+  bold_ = wasBold;
+  return arrowSpan(f);
 }
 
 // Glyph yo is stored relative to the font's ascent line; shift so `baseline` means the text baseline.
@@ -141,6 +167,7 @@ int Canvas::text(const Font& f, int x, int baseline, const char* s, bool b, cons
   while (*s) {
     const uint32_t cp = utf8Next(s);
     if (cp == 0xFE0E || cp == 0xFE0F) continue;
+    if (cp == 0x2192 || cp == 0x2190) { x += arrow(f, cp == 0x2192 ? 1 : -1, x, baseline, b); continue; }
     const Glyph* g = find(f, cp);
     if (g) { x += glyph(f, g, x, top, b); continue; }
     if (sym) {
@@ -162,10 +189,11 @@ int Canvas::width(const Font& f, const char* s, const Font* sym) const {
   while (*s) {
     const uint32_t cp = utf8Next(s);
     if (cp == 0xFE0E || cp == 0xFE0F) continue;
+    if (cp == 0x2192 || cp == 0x2190) { w += arrowSpan(f); continue; }
     const Glyph* g = find(f, cp);
     if (!g && sym) g = find(*sym, cp);
     if (!g) g = find(f, '?');
-    if (g) w += g->adv;
+    if (g) w += g->adv + (bold_ ? 1 : 0);
   }
   return w;
 }

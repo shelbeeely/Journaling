@@ -12,6 +12,10 @@ class Canvas {
   static constexpr int BYTES = PANEL_W * PANEL_H / 8;
 
   explicit Canvas(uint8_t* fb) : fb_(fb) {}
+  // Bold / high-contrast mode (Settings): text and icons are struck twice one pixel apart, and every hairline, frame,
+  // ring and dotted rule is at least 2 px, so no content is drawn in a thin stroke.
+  void setBold(bool b) { bold_ = b; }
+  bool bold() const { return bold_; }
   uint8_t* buffer() { return fb_; }
 
   void clear(bool black = false);
@@ -48,6 +52,9 @@ class Canvas {
 
  private:
   uint8_t* fb_;
+  bool bold_ = false;
+  void row(int x, int y, int w, bool black);  // raw one-pixel row, never thickened
+  int arrow(const Font& f, int dir, int x, int baseline, bool black);  // U+2190 / U+2192 drawn as a shape (Inter has neither)
   static const Glyph* find(const Font& f, uint32_t cp);
   int glyph(const Font& f, const Glyph* g, int x, int baseline, bool black);
 };

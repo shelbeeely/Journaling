@@ -11,7 +11,7 @@ const srv = http.createServer((q, r) => {
   const f = path.join(SITE, decodeURIComponent(q.url.split('?')[0]).replace(/\/$/, '/index.html'));
   fs.readFile(f, (e, d) => { if (e) { r.writeHead(404); r.end(); } else { r.writeHead(200, { 'Content-Type': f.endsWith('.html') ? 'text/html' : 'application/json' }); r.end(d); } });
 }).listen(0);
-const URL0 = `http://127.0.0.1:${srv.address().port}/`, DAY = URL0 + '#day/2026-10-14'; // the editor opens on the Book; the day-page tests open the day level directly
+const URL0 = `http://127.0.0.1:${srv.address().port}/`, DAY = URL0 + '#day/2026-10-14/edit'; // the editor opens on the Book; the day-page tests open the day level directly
 const atDay = (pg) => pg.waitForFunction(() => document.documentElement.dataset.view === 'day' && document.querySelectorAll('#pv [data-b]').length >= 3);
 const fails = [], ok = (c, m) => { if (!c) fails.push(m); console.log((c ? 'ok   ' : 'FAIL ') + m); };
 const b = await launch(), errs = [];
@@ -252,7 +252,7 @@ await p.screenshot({ path: `${OUT}/desktop.png` });
 const m = await b.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
 m.on('pageerror', (e) => errs.push('phone: ' + e.message));
 await m.goto(DAY, { waitUntil: 'networkidle' }); await atDay(m);
-for (const t of ['edit', 'add', 'preview']) { await m.click(`.tabs [data-tab="${t}"]`); await m.screenshot({ path: `${OUT}/phone-${t}.png` }); }
+for (const t of ['edit', 'add']) { await m.click(`.tabs [data-tab="${t}"]`); await m.screenshot({ path: `${OUT}/phone-${t}.png` }); }
 ok(await m.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'no sideways scroll on a phone');
 await m.click('.tabs [data-tab="edit"]'); await m.click('#menubtn'); await m.click('#m-method');
 await m.screenshot({ path: `${OUT}/phone-methods.png` });
@@ -426,8 +426,7 @@ ok(!errs.length, 'no page errors ' + errs.join(' | '));
     await ph.goto(DAY, { waitUntil: 'networkidle' }); await atDay(ph);
     await ph.click('#lay-g');
     ok(await ph.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'grid phone: no sideways scroll (Blocks tab)');
-    await ph.click('.tabs [data-tab="preview"]');
-    await ph.waitForTimeout(150);
+    await ph.waitForTimeout(150); // the page is always in view above the sheet
     ok(await ph.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.querySelectorAll('#ov .gb').length >= 7 && M && M.cw > 20), 'grid phone: the preview shows the grid and boxes, no sideways scroll');
     ok(await ph.evaluate(() => { const r = document.querySelector('#ov .gb .rh').getBoundingClientRect(); return r.width >= 44 && r.height >= 44; }), 'grid phone: the resize handle is a 44px target');
     await ph.screenshot({ path: `${OUT}/grid-phone-preview.png` });
@@ -578,11 +577,15 @@ ok(!errs.length, 'no page errors ' + errs.join(' | '));
     await nP.click(`.bpg[data-n="${dayN}"]`); await waitView('day'); await nP.waitForTimeout(400);
     r = await st();
     ok(r.level === 'day' && r.hash === '#day/2026-10-14' && r.crumbs === `Book > Spread ${sp(dayN)} > Day Oct 14` && r.main !== 'none' && r.pv === 'none', `tap again: the day-page editor (${r.hash}, "${r.crumbs}")`);
-    ok(await nP.evaluate(() => document.querySelectorAll('#pv [data-b]').length >= 3 && document.querySelectorAll('#pal li.pi').length > 20 && document.querySelectorAll('#list > li').length >= 5 && !document.querySelector('#meter').textContent.includes('Too full') && document.querySelectorAll('#pv .lines .rule').length > 0), 'the day level is the full editor: palette, block list, preview with rules, meter');
+    ok(await nP.evaluate(() => document.querySelectorAll('#pv [data-b]').length >= 3 && document.querySelectorAll('#pv .lines .rule').length > 0 && document.documentElement.dataset.mode === 'view' && document.querySelectorAll('#pal li, #list > li').length === 0), 'the day level opens for viewing: the page with its rules, no palette or block list');
     await nP.screenshot({ path: `${OUT}/nav-desktop-3-day.png` });
-    // the editor still edits from here, and the change survives going up and coming back
+    await nP.click('#edit'); await nP.waitForFunction(() => document.documentElement.dataset.mode === 'edit'); await nP.waitForTimeout(200);
+    ok(await nP.evaluate(() => location.hash === '#day/2026-10-14/edit' && document.querySelectorAll('#pal li.pi').length > 20 && document.querySelectorAll('#list > li').length >= 5 && !document.querySelector('#meter').textContent.includes('Too full')), 'Edit opens the full editor: palette, block list, meter (#day/2026-10-14/edit)');
+    // the editor still edits from here, and the change survives leaving edit mode and going up and coming back
     await nP.evaluate(() => { history = []; }); await nP.locator('#pal [data-add="t:checks"]').click();
     ok(await nP.evaluate(() => layout.blocks.some((x) => x.type === 'checks')), 'the day level edits (add a block)');
+    await nP.click('#done'); await nP.waitForFunction(() => document.documentElement.dataset.mode === 'view'); await nP.waitForTimeout(200);
+    ok(await nP.evaluate(() => location.hash === '#day/2026-10-14' && !!document.querySelector('#pv [data-zone="checks"]')), 'Done returns to viewing with the edit kept in the page');
     // Back / forward
     await nP.click('#nv-back'); await waitView('book'); await nP.waitForTimeout(600);
     r = await st(); ok(r.level === 'spread' && r.hash === `#spread/${sp(dayN)}` && r.crumbs === `Book > Spread ${sp(dayN)}`, 'Back from the day returns to the spread');
@@ -668,7 +671,7 @@ ok(!errs.length, 'no page errors ' + errs.join(' | '));
     // accessibility: live region, focus, keyboard reach, reduced motion
     await goHash('#book');
     await nP.evaluate((n) => KW.go({ level: 'day', n }), dayN); await waitView('day');
-    ok(await nP.evaluate(() => /Now at: Book, Spread \d+, Day Oct 14\. Day page editor/.test(document.querySelector('#nav-live').textContent) && document.querySelector('#nav-live').getAttribute('aria-live') === 'polite'), 'a live region announces the current level');
+    ok(await nP.evaluate(() => /Now at: Book, Spread \d+, Day Oct 14\. Day page, viewing/.test(document.querySelector('#nav-live').textContent) && document.querySelector('#nav-live').getAttribute('aria-live') === 'polite'), 'a live region announces the current level');
     ok(await nP.evaluate(() => !!(document.activeElement && document.activeElement.closest('#crumbs') && document.querySelector('nav#crumbs').getAttribute('aria-label') === 'Breadcrumb' && document.querySelector('#crumb-list [aria-current="page"]'))), 'focus lands on the current crumb; the breadcrumb is a labelled nav with aria-current');
     await nP.keyboard.press('Shift+Tab');
     ok(await nP.evaluate(() => { const e = document.activeElement; return !!e && e.matches('button') && getComputedStyle(e).outlineStyle !== 'none'; }), 'keyboard focus is visible on the navigation controls');
@@ -704,9 +707,13 @@ ok(!errs.length, 'no page errors ' + errs.join(' | '));
   await ph.tap(`.bpg[data-id="day.2026-10-14"]`); await ph.waitForFunction(() => document.documentElement.dataset.view === 'day'); await ph.waitForTimeout(500);
   ok(await noScroll() && (await fitCrumbs()) && (await tiny()).length === 0, 'Day level: no sideways scroll, breadcrumb fits, 44px targets ' + (await tiny()).join(','));
   const hh = await ph.evaluate(() => document.querySelector('.top').getBoundingClientRect().height); ok(hh < 270, `Day level: the header leaves room to work (${hh.toFixed(0)} of 844 px)`);
+  await ph.screenshot({ path: `${OUT}/nav-phone-3-day-view.png` });
+  await ph.click('#edit'); await ph.waitForFunction(() => document.documentElement.dataset.mode === 'edit'); await ph.waitForTimeout(300);
+  ok(await noScroll() && (await fitCrumbs()) && (await tiny()).length === 0, 'Day level, editing: no sideways scroll, 44px targets ' + (await tiny()).join(','));
   await ph.screenshot({ path: `${OUT}/nav-phone-3-day.png` });
-  for (const t of ['add', 'preview']) { await ph.click(`.tabs [data-tab="${t}"]`); await ph.screenshot({ path: `${OUT}/nav-phone-3-day-${t}.png` }); }
+  await ph.click('.tabs [data-tab="add"]'); await ph.screenshot({ path: `${OUT}/nav-phone-3-day-add.png` });
   ok(await noScroll(), 'Day level tabs: no sideways scroll');
+  await ph.click('#done'); await ph.waitForFunction(() => document.documentElement.dataset.mode === 'view'); await ph.waitForTimeout(200);
   await ph.click('#nv-back'); await ph.waitForFunction(() => document.documentElement.dataset.view === 'book'); await ph.waitForTimeout(600);
   ok((await ph.evaluate(() => NAV.level)) === 'spread', 'Back on a phone returns to the spread');
   await ph.click('#crumb-list [data-crumb="0"]'); await ph.waitForFunction(() => NAV.level === 'book'); await ph.waitForTimeout(400);
@@ -733,19 +740,135 @@ ok(!errs.length, 'no page errors ' + errs.join(' | '));
   ok(await ap.locator('#versions[open] #vs-guest').isVisible() && await ap.locator('#vs-save').isVisible(), 'Artifact build: the Versions drawer opens and keeps versions in the browser (a Studio server is optional)');
   await ap.click('#vs-close');
   await ap.evaluate(() => KW.go({ level: 'spread', s: 7 })); await ap.waitForFunction(() => NAV.level === 'spread' && BK.level !== 'book'); await ap.waitForTimeout(400);
-  await ap.evaluate(() => KW.go({ level: 'day', date: '2026-10-14' })); await ap.waitForFunction(() => document.documentElement.dataset.view === 'day' && !NAV.busy());
+  await ap.evaluate(() => KW.go({ level: 'day', date: '2026-10-14', edit: true })); await ap.waitForFunction(() => document.documentElement.dataset.view === 'day' && !NAV.busy());
   ok(await ap.evaluate(() => document.querySelectorAll('#pv [data-b]').length >= 3 && document.querySelectorAll('#pal li.pi').length > 20 && /Day Oct 14/.test(document.querySelector('#crumbs').textContent)), 'Artifact build: the day level is the editor, with its breadcrumb');
   await ap.click('#nv-back'); await ap.waitForFunction(() => document.documentElement.dataset.view === 'book'); ok(true, 'Artifact build: Back works without history support');
   await ap.close();
 }
 ok(!errs.length, 'no page errors after the Book view ' + errs.join(' | '));
+// View versus edit (E1, BUILD-PLAN section 16): the day is viewed first; the editor UI exists only while editing.
+{
+  const VIEW = URL0 + '#day/2026-10-14', e1 = [];
+  const inMode = (pg, m) => pg.waitForFunction((x) => document.documentElement.dataset.view === 'day' && document.documentElement.dataset.mode === x && document.querySelectorAll('#pv [data-b]').length >= 3, m);
+  const vis = (pg, sel) => pg.evaluate((q) => [...document.querySelectorAll(q)].some((el) => el.offsetParent !== null || (getComputedStyle(el).position === 'fixed' && getComputedStyle(el).display !== 'none')), sel);
+  const v = await b.newPage({ viewport: { width: 1400, height: 900 } });
+  v.on('pageerror', (e) => e1.push(e.message));
+  await v.goto(VIEW, { waitUntil: 'networkidle' }); await inMode(v, 'view');
+  // viewing: clean and read-only
+  ok(await v.evaluate(() => document.querySelectorAll('#pal *, #list *, #ov *, #problems > *').length === 0 && !document.querySelector('[data-add], .grip, .sw, [data-bool], [data-num], [data-place]')), 'view: the palette, block list, options and grid overlay are not in the DOM');
+  ok(!(await vis(v, '#panels, #undo, #laygrp, #done, #edit-pill, #meter, #dragtip, .tabs, #m-method, #m-import, #m-reset, #m-ghload')), 'view: no palette panel, undo, Flow/Grid, Done, Editing pill, meter or layout menu items');
+  ok((await v.locator('#edit').isVisible()) && (await v.locator('#v-ver').isVisible()) && (await v.locator('#menubtn').isVisible()), 'view: Edit, Versions and More stay reachable');
+  ok(await v.evaluate(() => { const r = document.querySelector('#paper').getBoundingClientRect(); return r.width > 440 && r.left > 0 && r.right < innerWidth && Math.abs((r.left + r.right) / 2 - innerWidth / 2) < 4; }), 'view: the page is larger than the editing preview and centered');
+  const snap = await v.locator('body').ariaSnapshot();
+  ok(/Edit/.test(snap) && !/Undo|Flow|Grid|Add blocks|On the page|Remove |Drag to reorder/i.test(snap), 'view: the accessibility tree has Edit and no editing controls');
+  ok(/Day page, viewing/.test(await v.textContent('#nav-live')), 'view: the live region says the day is being viewed');
+  const before = await v.evaluate(() => JSON.stringify(layout));
+  await v.mouse.click(700, 300); await v.keyboard.press('Control+z');
+  ok((await v.evaluate(() => JSON.stringify(layout))) === before && await v.evaluate(() => !document.querySelector('#pv .hl')), 'view: clicking the page and Ctrl+Z change nothing');
+  ok(await v.evaluate(() => getComputedStyle(document.querySelector('#pv [data-b]')).cursor !== 'grab'), 'view: blocks are not draggable (no grab cursor)');
+  await v.screenshot({ path: `${OUT}/e1-view-desktop.png` });
+  // the menu in view mode: only exports
+  await v.click('#menubtn');
+  ok(await v.evaluate(() => { const on = [...document.querySelectorAll('#menu [role=menuitem]')].filter((x) => x.offsetParent).map((x) => x.id); return on.includes('m-dl') && on.includes('m-copy') && !on.some((x) => ['m-method', 'm-import', 'm-reset', 'm-ghload'].includes(x)); }), 'view: the More menu offers exports only (no methods, import, reset or load)');
+  await v.evaluate(() => document.body.click());
+  // Versions works from view
+  await v.click('#v-ver'); await v.waitForSelector('#versions[open]'); ok(await v.locator('#vs-close').isVisible(), 'view: the Versions drawer opens'); await v.click('#vs-close');
+  // Edit by keyboard: E, then focus is on the first editing control
+  await v.evaluate(() => document.activeElement && document.activeElement.blur()); await v.keyboard.press('e'); await inMode(v, 'edit');
+  ok(await v.evaluate(() => location.hash === '#day/2026-10-14/edit' && !!document.querySelector('#pal li.pi') && document.querySelectorAll('#list > li').length >= 5 && !document.querySelector('#undo').hidden && !document.querySelector('#laygrp').hidden), 'E enters edit mode: palette, options list, Flow/Grid and Undo appear; the hash records it');
+  ok(await v.evaluate(() => document.activeElement && document.activeElement.closest('#laygrp') !== null), 'edit: focus moves to the first editing control (the Flow/Grid switch)');
+  ok(await v.evaluate(() => document.querySelector('#edit-pill').textContent.trim() === 'Editing' && !document.querySelector('#edit-pill').hidden && document.querySelector('#edit').hidden && !document.querySelector('#done').hidden), 'edit: a clear "Editing" indicator and a Done button show');
+  ok(/Day page editor, editing/.test(await v.textContent('#nav-live')), 'edit: the live region announces editing');
+  ok(await v.evaluate(() => [...document.querySelectorAll('#edit-pill, #done, #undo, #laygrp button, #sz-s, #sz-l')].every((el) => el.getBoundingClientRect().height >= 43.5)), 'edit: header controls are 44px targets');
+  await v.screenshot({ path: `${OUT}/e1-edit-desktop.png` });
+  // an edit, then Escape leaves edit mode
+  await v.locator('#pal [data-add="t:checks"]').click();
+  ok(await v.evaluate(() => layout.blocks.some((x) => x.type === 'checks') && !document.querySelector('#undo').disabled), 'edit: adding a block works and enables Undo');
+  await v.evaluate(() => document.activeElement.blur()); await v.keyboard.press('Escape'); await inMode(v, 'view');
+  ok(await v.evaluate(() => location.hash === '#day/2026-10-14' && document.activeElement && document.activeElement.id === 'edit' && document.querySelectorAll('#pal *, #list *').length === 0), 'Escape is Done: back to viewing, focus returns to the Edit button, the panels leave the DOM');
+  ok(await v.evaluate(() => layout.blocks.some((x) => x.type === 'checks') && !!document.querySelector('#pv [data-zone="checks"]')), 'the edit is kept as the draft after Done (it shows in the viewed page)');
+  ok(/Day page, viewing/.test(await v.textContent('#nav-live')), 'Done: the live region announces viewing again');
+  // Enter also edits; re-entering keeps the draft and its Undo history
+  await v.evaluate(() => document.activeElement.blur()); await v.keyboard.press('Enter'); await inMode(v, 'edit');
+  ok(await v.evaluate(() => !document.querySelector('#undo').disabled && layout.blocks.some((x) => x.type === 'checks')), 'Enter enters edit mode; the draft and Undo are still there');
+  // hash routing: history keeps view and edit apart
+  await v.goBack(); await inMode(v, 'view'); ok((await v.evaluate(() => location.hash)) === '#day/2026-10-14', 'browser Back from edit returns to viewing');
+  await v.goForward(); await inMode(v, 'edit'); ok((await v.evaluate(() => location.hash)) === '#day/2026-10-14/edit', 'browser Forward returns to editing');
+  await v.reload({ waitUntil: 'networkidle' }); await inMode(v, 'edit'); ok(await v.evaluate(() => !!document.querySelector('#pal li.pi')), 'reload on #day/.../edit restores edit mode');
+  await v.click('#done'); await inMode(v, 'view'); ok(await v.evaluate(() => document.activeElement.id === 'edit' && location.hash === '#day/2026-10-14'), 'Done after a reload: replaces the hash, keeps focus sensible');
+  await v.reload({ waitUntil: 'networkidle' }); await inMode(v, 'view'); ok(await v.evaluate(() => !NAV.edit), 'reload on #day/... restores viewing');
+  // Escape from viewing goes up one level (the spread)
+  await v.evaluate(() => document.activeElement && document.activeElement.blur()); await v.keyboard.press('Escape'); await v.waitForFunction(() => NAV.level === 'spread');
+  ok(true, 'Escape while viewing goes up to the spread');
+  await v.waitForTimeout(500);
+  ok(await v.evaluate(() => document.querySelector('#edit').offsetParent === null && document.querySelector('#undo').offsetParent === null), 'spread level: pages are for viewing, no Edit or Undo');
+  await v.evaluate(() => KW.go({ level: 'day', date: '2026-10-14', edit: true })); await inMode(v, 'edit');
+  await v.evaluate(() => { location.hash = '#day/2026-10-15'; }); await inMode(v, 'view'); ok(await v.evaluate(() => NAV.date === '2026-10-15' && !NAV.edit), 'a typed hash without /edit opens the day for viewing');
+  // a page that is not a day page: view only, with its note; /edit is ignored
+  await v.evaluate(() => { location.hash = '#page/safety/edit'; }); await v.waitForFunction(() => document.documentElement.dataset.view === 'page'); await v.waitForTimeout(200);
+  ok(await v.evaluate(() => location.hash === '#page/safety' && document.querySelector('#edit').offsetParent === null && document.querySelector('#pageview .pgv-note') !== null && document.documentElement.dataset.mode === 'view'), 'a non-day page stays view-only with its note; #page/…/edit falls back to viewing');
+  await v.evaluate(() => document.activeElement.blur()); await v.keyboard.press('e'); ok(!(await v.evaluate(() => NAV.edit)), 'E on a non-day page does not edit');
+  ok(!e1.length, 'no page errors in view/edit ' + e1.join(' | '));
+  await v.close();
+
+  // phone: viewing is just the page; editing is a bottom sheet under the page
+  const ph = await b.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
+  ph.on('pageerror', (e) => e1.push('phone: ' + e.message));
+  await ph.goto(VIEW, { waitUntil: 'networkidle' }); await inMode(ph, 'view');
+  ok(await ph.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.querySelector('#paper').getBoundingClientRect().width > 300 && !document.querySelector('#panels').offsetParent), 'phone view: full-width page, no panels, no sideways scroll');
+  ok(await ph.evaluate(() => [...document.querySelectorAll('.top button, .top .btn, .top input')].filter((x) => x.offsetParent).every((x) => x.getBoundingClientRect().height >= 43.5 && x.getBoundingClientRect().width >= 43.5)), 'phone view: 44px targets in the header');
+  await ph.screenshot({ path: `${OUT}/e1-view-phone.png` });
+  await ph.click('#edit'); await inMode(ph, 'edit'); await ph.waitForTimeout(250);
+  const g = await ph.evaluate(() => { const s = document.querySelector('#panels').getBoundingClientRect(), pp = document.querySelector('#paper').getBoundingClientRect(); return { fixed: getComputedStyle(document.querySelector('#panels')).position, top: s.top, bottom: s.bottom, vh: innerHeight, pTop: pp.top, pBottom: pp.bottom, w: document.documentElement.scrollWidth <= innerWidth }; });
+  ok(g.fixed === 'fixed' && Math.abs(g.bottom - g.vh) < 2 && g.top > g.vh * 0.4 && g.pTop < g.top - 100 && g.w, `phone edit: the panels are a bottom sheet (${Math.round(g.top)}-${Math.round(g.bottom)} of ${g.vh}); the page is visible above it`);
+  ok(await ph.evaluate(() => [...document.querySelectorAll('.top button, .panels [role=tab], .panels .sheet-t')].filter((x) => x.offsetParent).every((x) => x.getBoundingClientRect().height >= 43.5)), 'phone edit: header and sheet controls are 44px');
+  await ph.screenshot({ path: `${OUT}/e1-edit-phone.png` });
+  await ph.click('#sheet-t'); await ph.waitForTimeout(200);
+  ok(await ph.evaluate(() => document.documentElement.dataset.sheet === 'min' && document.querySelector('#panels').getBoundingClientRect().height < 90 && !document.querySelector('#list').offsetParent && document.querySelector('#sheet-t').getAttribute('aria-expanded') === 'false'), 'phone edit: the sheet folds away to its tab bar and says so');
+  await ph.screenshot({ path: `${OUT}/e1-edit-phone-folded.png` });
+  await ph.click('#sheet-t');
+  await ph.click('.tabs [data-tab="add"]'); await ph.screenshot({ path: `${OUT}/e1-edit-phone-add.png` });
+  await ph.click('#done'); await inMode(ph, 'view'); ok(await ph.evaluate(() => !document.querySelector('#panels').offsetParent && document.documentElement.scrollWidth <= innerWidth), 'phone: Done clears the sheet');
+  await ph.close();
+
+  // dark mode: view and edit
+  const dk = await b.newPage({ viewport: { width: 1200, height: 800 }, colorScheme: 'dark' });
+  await dk.goto(VIEW, { waitUntil: 'networkidle' }); await inMode(dk, 'view'); await dk.screenshot({ path: `${OUT}/e1-view-dark.png` });
+  ok(await dk.evaluate(() => getComputedStyle(document.body).backgroundColor !== 'rgb(244, 241, 234)'), 'dark: view mode follows the system');
+  await dk.click('#edit'); await inMode(dk, 'edit'); await dk.screenshot({ path: `${OUT}/e1-edit-dark.png` });
+  ok(await dk.evaluate(() => getComputedStyle(document.querySelector('#edit-pill')).color !== 'rgb(63, 95, 90)'), 'dark: the Editing pill uses the dark accent');
+  await dk.close();
+  const dkp = await b.newPage({ viewport: { width: 390, height: 844 }, colorScheme: 'dark', deviceScaleFactor: 2 });
+  await dkp.goto(VIEW + '/edit', { waitUntil: 'networkidle' }); await inMode(dkp, 'edit'); await dkp.screenshot({ path: `${OUT}/e1-edit-phone-dark.png` });
+  await dkp.evaluate(() => document.querySelector('#done').click()); await inMode(dkp, 'view'); await dkp.screenshot({ path: `${OUT}/e1-view-phone-dark.png` }); await dkp.close();
+
+  // reduced motion: no transition or animation in the mode switch, and it still works
+  const rm = await b.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
+  await rm.goto(VIEW, { waitUntil: 'networkidle' }); await inMode(rm, 'view');
+  const t0 = Date.now(); await rm.click('#edit'); await inMode(rm, 'edit');
+  ok(await rm.evaluate(() => getComputedStyle(document.querySelector('#main')).animationName === 'none' && getComputedStyle(document.querySelector('#sheet-t svg')).transitionDuration === '0s') && Date.now() - t0 < 1500, 'reduced motion: entering edit mode has no animation or transition');
+  await rm.close();
+
+  // the Artifact build: the same modes
+  const art = fs.readFileSync(new URL('./dist/artifact.html', import.meta.url), 'utf8');
+  const ap = await b.newPage({ viewport: { width: 1200, height: 800 } });
+  ap.on('pageerror', (e) => e1.push('artifact: ' + e.message));
+  await ap.setContent('<!doctype html><html lang="en"><head><meta charset="utf-8">' + art + '</html>', { waitUntil: 'load' });
+  await ap.waitForFunction(() => typeof BK !== 'undefined' && BK.ready, null, { timeout: 8000 }).catch(() => {});
+  await ap.evaluate(() => KW.go({ level: 'day', date: '2026-10-14' })); await inMode(ap, 'view');
+  ok(await ap.evaluate(() => document.querySelectorAll('#pal *, #list *').length === 0 && !!document.querySelector('#edit').offsetParent), 'Artifact build: the day opens for viewing');
+  await ap.click('#edit'); await inMode(ap, 'edit');
+  ok(await ap.evaluate(() => document.querySelectorAll('#pal li.pi').length > 20 && !!document.querySelector('#done').offsetParent), 'Artifact build: Edit shows the editor, Done is there');
+  await ap.click('#done'); await inMode(ap, 'view'); await ap.close();
+  ok(!e1.length, 'no page errors on the phone, dark, reduced-motion or Artifact runs ' + e1.join(' | '));
+}
 // Versions drawer (Journalwright Studio) with no server configured: versions are kept in this browser, and the editor is untouched
 {
   const vp = await b.newPage({ viewport: { width: 390, height: 844 } }), api = [], verrs = [];
   vp.on('pageerror', (e) => verrs.push(e.message)); vp.on('request', (r) => { if (r.url().includes('/api/') && !r.url().endsWith('/api/health')) api.push(r.url()); });
   await vp.goto(URL0, { waitUntil: 'networkidle' }); await vp.waitForFunction(() => BK.ready);
   const before = await vp.evaluate(() => JSON.stringify(layout));
-  ok(await vp.locator('#v-ver').isVisible(), 'the Versions button is in the header of the Book view too'); await vp.evaluate(() => KW.go({ level: 'day', date: '2026-10-14' })); await atDay(vp);
+  ok(await vp.locator('#v-ver').isVisible(), 'the Versions button is in the header of the Book view too'); await vp.evaluate(() => KW.go({ level: 'day', date: '2026-10-14', edit: true })); await atDay(vp);
   await vp.click('#v-ver'); await vp.waitForSelector('#versions[open]');
   ok(/Sign in to save versions/.test(await vp.textContent('#vs-guest')) && await vp.locator('#vs-save').isVisible(), 'Versions drawer without a server: "Sign in to save versions", and a guest can still save versions here');
   ok(await vp.evaluate(() => document.getElementById('versions').scrollWidth <= innerWidth + 1 && document.documentElement.scrollWidth <= innerWidth + 1), 'Versions drawer: no sideways scroll at 390px');

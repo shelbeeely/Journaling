@@ -22,6 +22,7 @@ static size_t keyPos = 0;
 static int frame = 0;
 static time_t offset = 0;  // simulated clock = real clock + offset
 static bool timerWake = false;
+static uint32_t backHoldMs = 1200;
 static bool clockSet = true;  // KW_CLOCK=unset simulates a flat battery: not set until Clock > Save
 
 static std::string env(const char* k, const char* d = "") { const char* v = getenv(k); return v ? v : d; }
@@ -65,6 +66,7 @@ Btn waitButton(uint32_t) {
   if (k == "idle") return Btn::None;
   return Btn::None;
 }
+void setBackHold(uint32_t ms) { backHoldMs = ms; printf("back hold %u ms\n", (unsigned)ms); }
 uint32_t millis() { using namespace std::chrono; return (uint32_t)duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count(); }
 time_t now() { return time(nullptr) + offset; }
 void setTime(time_t utc) { offset = utc - time(nullptr); clockSet = true; }
