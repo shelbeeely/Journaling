@@ -47,7 +47,7 @@ the first book made with it. Read README.md, then HANDOFF.md (status + backlog),
   (44px targets, labels, light and dark mode), no sideways scroll at 390px.
 - **Default layout must not drift.** After touching `daypage.mjs` or the render CSS, diff the day pages of a default
   build against the previous build. Only intentional changes are allowed.
-- **Firmware scope.** No generative AI, no notifications, feeds or badges. Nothing leaves the device except over its own hotspot.
+- **Firmware scope.** No generative AI, no notifications, feeds or badges. Nothing leaves the device except (a) over its own hotspot or (b) an explicit sync the user starts on the device, over Wi-Fi the user configured, to their own Journalwright Studio account (see BUILD-PLAN section 19). No background sync, no analytics, no other cloud.
 
 ## Verify before you say it's done
     cd journal && ./build-all.sh                    # or MONTHS=2026-10 SIZES=small ./build-all.sh while iterating
