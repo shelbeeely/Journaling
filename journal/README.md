@@ -302,6 +302,29 @@ and `test.ics`) with each book's own title, subtitle, plan and, when its series 
   Keeper's handoff page number. Page ids stay `week.03.reply`, `day.2026-10-14` ... whatever the order.
 - `node test-book.mjs` checks the rules and the sequence. A book that differs from the default is skipped by `check-identical.mjs`.
 
+### Page organiser (Book view, edit mode)
+Edit the book (Edit at the whole-book level) and the canvas becomes an organiser; viewing stays read-only.
+- **Move:** drag a page on the canvas (mouse or pen; on a touch screen use Move to…), select a page and press Alt+Left / Alt+Right, use
+  Earlier / Later / Move to… in the toolbar under the canvas, or the arrows and drag handles in the Pages list. A page only moves inside
+  its own list: front and back pages among themselves, month pages among month pages, week pages among week pages (a change to a week page
+  applies to every week). A move that is not allowed says why. The result is announced ("Moved Week 3 review to page 24").
+- **Hide / show:** the eye. Safety plan, Support and Closing the month show a lock and a reason instead; the weeks cannot be hidden.
+  Hidden pages dim, sit apart under the book and are not printed. A change that would leave a page pointing at a page the book no longer
+  has is warned about first; while one dangles the book cannot be downloaded, copied or committed (the build refuses it).
+- **Add:** Notes pages (any number, at a chosen place, with a title; duplicate, retitle, remove). Every other page type appears once, so it
+  can only be hidden, and only pages you added can be removed. Every page needs its own printed title (`check-pages.mjs`).
+- **Months:** "Changes apply to: All months / Only [month]". "Only" writes `months["YYYY-MM"].pages`; months with their own pages are
+  listed with Reset. An override that equals the default is dropped.
+- **Automatic, shown not editable:** recto/verso alignment, padding (>= 24, hardcover >= 76, even), page numbers and pointers, scan codes,
+  the Keeper page. Automatic Notes pages are dashed on the canvas and have no controls. The panel shows the count and the KDP range (24 to
+  110), and warns past 110 (the plan would split it into volumes).
+- **Save:** every change is an undo step (Ctrl+Z, Ctrl+Shift+Z) and is saved as it happens: this browser (`kw-book`), the Artifact store
+  (`layouts/book`), the Studio draft (`book` part, also carried by versions); Download or Copy `book.json`; Save to GitHub commits
+  `journal/content/book.json`. Import checks a file with `validateBook`.
+- **Code:** `bookrules.mjs` (the rules, shared with `book.mjs`), `bookedit.mjs` (`flowBook` lays a list of pages out from the sample catalog
+  that `editor/samples.mjs` builds; `moveEntry`, `setOn`, `addEntry`, ...), `editor/organiser.{html,css,js}` (the UI).
+  `node test-organiser.mjs` proves `flowBook` equals `assemble` and that an organised book builds and passes `check.mjs`, `check-pages.mjs` and `check-codes.mjs`.
+
 ## Day page editor
 (This is the day level of the editor: open a day page from the Book, or `#day/2026-10-14`.)
 `daypage.mjs` is the block library: order, on/off and options for every day page block. `content/daypage.json`

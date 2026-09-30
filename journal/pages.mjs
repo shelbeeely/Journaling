@@ -41,7 +41,7 @@ export function headerZone(dateText, titleText = '') {
   return `<div class="hz"><div class="zbox zdate" data-zone="date"><span class="zl">DATE:</span><span class="zv">${dateText}</span></div><div class="zbox ztitle" data-zone="title"><span class="zl">TITLE:</span><span class="zv">${titleText}</span></div><div class="zbox ztags" data-zone="tags"><span class="zl">TAGS:</span></div></div>`;
 }
 
-export const notesPage = (title) => `${headerZone('', title)}<div class="dots fill" data-zone="body"></div>${actionZone(4)}`;
+export const notesPage = (title) => `${headerZone('', esc(title))}<div class="dots fill" data-zone="body"></div>${actionZone(4)}`;
 // ---------- content ----------
 const LINEAGE = [
   ['Fixed date header', 'Diary of Merer, Egypt, c. 2566 BC — dated day-by-day log'],
