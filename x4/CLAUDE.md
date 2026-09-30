@@ -25,7 +25,9 @@ the sibling `journal/` project). Target: Xteink X4 (ESP32-C3, no PSRAM, ~380 KB 
 - Sleep: CrossPoint's "off" drops GPIO13 and cuts the battery. We hold GPIO13 high through deep sleep
   so the RTC and the 4:31 a.m. timer keep working. Don't copy CrossPoint's power-off path.
 - Privacy: packs contain her calendar events and the log holds health check-ins. Nothing leaves the
-  device except over its own hotspot, on request. No cloud, no analytics, no generative AI features.
+  device except over its own hotspot, or an explicit sync the user starts on the device over Wi-Fi they configured, to
+  their own Studio account (BUILD-PLAN section 19; each category is opt-in, the log is off by default). No background sync,
+  no analytics, no other cloud, no generative AI features.
 - Data safety: the safety plan (`/kw/me.txt`) and the log (`/kw/log/`) exist only on the card. Nothing exported, uploaded or
   updated may overwrite or delete them (`host/test_update.sh` guards it).
 - Accessibility: every new screen or line of text must work at Large and Bold (`preview.sh` renders `l_*`, `b_*`, `r_*` PNGs: look at them). Never draw a state as a thin stroke; never cut content with "..." in Large: page it. Nothing may time out on someone reading or typing slowly.
