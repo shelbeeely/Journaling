@@ -1,6 +1,17 @@
+---
+title: "The Bullet Journal Method"
+slug: bullet-journal
+category: bujo-family
+evidenceLevel: anecdotal
+lastReviewed: 2026-09-30
+status: reviewed
+contributors:
+  - Journalwright Studio contributors
+---
+
 # The Bullet Journal Method (Ryder Carroll)
 
-A reference for the original Bullet Journal ("BuJo"): what it is, where it came from, how every part works, how people bend it, and what Keeping Watch should take from it.
+A reference for the original Bullet Journal ("BuJo"): what it is, where it came from, how every part works, how people bend it, and what a printed journal with an e-ink companion can take from it.
 
 Checked against sources on 2026-09-28. Where a detail couldn't be confirmed from a primary source, it's marked **(unconfirmed)**.
 
@@ -503,11 +514,11 @@ Reflection note written beside the month: "3 things kept moving: coat (money), p
 - **E-ink**
   - **reMarkable, Kindle Scribe, Boox, Supernote:** dot-grid templates and hyperlinked PDF planners with tabs for index, months and days. The PDF links make the index and threading tap-to-jump.
   - **Handwriting recognition** varies by device.
-  - **The Keeping Watch X4** is a reader, not a writing slate. It can show logs, not take handwriting.
-- **Scanning.** Phone scans (Apple Notes, Google Drive, Microsoft Lens) give you a searchable archive, and the Companion app does this. Keeping Watch's printed pages add a Data Matrix and scan zones, so a photo can be filed automatically.
+  - **The X4 e-ink companion** is a reader, not a writing slate. It can show logs, not take handwriting.
+- **Scanning.** Phone scans (Apple Notes, Google Drive, Microsoft Lens) give you a searchable archive, and the Companion app does this. Journalwright Studio's printed pages add a Data Matrix and scan zones, so a photo can be filed automatically.
 - **Hybrid pattern.** Calendar in an app, tasks and notes on paper. Or quick capture on the phone, migrated to paper at night.
 - **Lost without paper:** the slow, deliberate rewrite, handwriting's engagement, and screen-free time.
-- **Gained with digital:** alerts (which Keeping Watch deliberately avoids), search and portability.
+- **Gained with digital:** alerts (which Journalwright Studio deliberately avoids), search and portability.
 
 ---
 
@@ -643,7 +654,7 @@ Reflection note written beside the month: "3 things kept moving: coat (money), p
 - **With gratitude or "small good things".** A nested note each evening.
 - **With expressive or reflective journaling.** Keep long writing in a collection, or a second notebook threaded from the Daily Log.
 - **With time-blocking.** A column of hours beside the Daily Log for shift days.
-- **With a printed planner** like Keeping Watch. Printed pages carry the calendar and check-ins. The BuJo notation and migration run inside them.
+- **With a printed planner** like a Journalwright Studio book. Printed pages carry the calendar and check-ins. The BuJo notation and migration run inside them.
 
 ---
 
@@ -744,47 +755,49 @@ Reflection note written beside the month: "3 things kept moving: coat (money), p
 
 ---
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
-Keeping Watch is a **pre-printed**, dated monthly book, which is the opposite of "build as you go". What transfers well is the **notation**, the **migration loop** and the **index and threading**. Page architecture doesn't transfer, because it's already printed.
+A Journalwright Studio book is a **pre-printed**, dated monthly book, which is the opposite of "build as you go". What transfers well is the **notation**, the **migration loop** and the **index and threading**. Page architecture doesn't transfer, because it's already printed.
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Already built? |
 |---|---|---|---|---|
-| Bullet key (task, event, note, done, migrated, scheduled, priority, idea, explore) | Front matter key | High | Symbols as SVG, not font glyphs (no Type 3). One line of icons | **Being added** (Quick bullets block and key) |
-| Quick bullets lines (rapid log area) | Day block | High | Lines with a small bullet gutter. `data-zone="bullets"` | **Being added** |
-| Monthly task page (right of the calendar) with a "migrated in" column | Month page | High | Checkbox gutter plus `>` / `<` / `X` column. `data-zone="month_tasks"` | No (there's a calendar, but no task page) |
-| Future Log: six-box and Alastair column versions | Back matter, once per book (next 6 months) | High | Six-month columns as a narrow dot strip. `data-zone="future_log"` | No |
+| Bullet key (task, event, note, done, migrated, scheduled, priority, idea, explore) | Front matter key | High | Symbols as SVG, not font glyphs (no Type 3). One line of icons | Partly (the Quick bullets block has an optional key strip; a front matter key page is planned) |
+| Quick bullets lines (rapid log area) | Day block | High | Lines with a small bullet gutter. `data-zone="bullets"` | **Built** (`bullets` block) |
+| Monthly task page (right of the calendar) with a "migrated in" column | Month page | High | Checkbox gutter plus `>` / `<` / `X` column. `data-zone="month_tasks"` | Planned (there's a calendar, but no task page) |
+| Future Log: six-box and Alastair column versions | Back matter, once per book (next 6 months) | High | Six-month columns as a narrow dot strip. `data-zone="future_log"` | Planned |
 | Migration checklist at month close | "Closing the month" back matter | High | Checkboxes: review tasks, strike, `>`, `<`, update the Future Log | Partly (Closing the month exists) |
-| Index page (blank, page numbers) | Back matter | Medium | The book's page numbers already exist. A blank two-column "topic ... pages" ruled page | No |
+| Index page (blank, page numbers) | Back matter | Medium | The book's page numbers already exist. A blank two-column "topic ... pages" ruled page | Planned |
 | Threading marks | Page footer | Low | The footer is a fixed scan zone, so don't add to it. Use a text line inside a collection instead | Don't |
 | Weekly log (dates left, tasks right) | Week spread | High | Already close to the week spread. Add a "carried from last week" mini-list | Partly |
 | Collections pages (blank topic pages) | Back matter or exchange pages | Medium | Dot grid with a topic header. Scan header already there | Partly (exchange pages) |
-| Mental inventory (Need / Should / Want) | Month page or front of month | Medium | Three columns. `data-zone="inventory"` | No |
-| Yearly migration spread | Keeper | Medium | Keeper has no scan codes, which is fine | No |
+| Mental inventory (Need / Should / Want) | Month page or front of month | Medium | Three columns. `data-zone="inventory"` | Planned |
+| Yearly migration spread | Keeper | Medium | Keeper has no scan codes, which is fine | Planned |
 
-### b. X4
+### b. E-ink companion (X4)
 
 | Idea | Where | Fit | RAM, scope and calm notes |
 |---|---|---|---|
 | Show "carried tasks" count (tasks marked `>`) for the month | Month stats screen | Low | Needs a scan pipeline. Skip until page OCR exists |
-| "Today's 3" priorities as a check-in toggle list | Check-in item kind `toggle` | Medium | Up to 3 toggles, labels set in the editor. Tiny RAM. No reminders |
-| Future Log month glance (next 6 months) | A screen (read-only) | Low–Med | Static text file from the Wi-Fi page. About 1 KB. No alerts |
-| Migration prompt at month end | Sleep screen line ("Month closes: migrate?") | Low | Calm, static text on the date only. Not a notification; it's a printed-style line. Consider carefully |
-| Key reference card | Books library (one-page EPUB) | High | Static. No RAM concerns |
+| "Today's 3" priorities as a check-in toggle list | Check-in item kind `toggle` | Medium | Up to 3 toggles, labels set in the editor. Tiny RAM. No reminders. **Built**: a "Today's 3" Checkboxes preset exports as toggles |
+| Future Log month glance (next 6 months) | A screen (read-only) | Low–Med | Static text file from the Wi-Fi page. About 1 KB. No alerts. Planned |
+| Migration prompt at month end | Sleep screen line ("Month closes: migrate?") | Low | Calm, static text on the date only. Not a notification; it's a printed-style line. Consider carefully. Planned |
+| Key reference card | Books library (one-page EPUB) | High | Static. No RAM concerns. Planned |
 
-### c. Proposed editor blocks
+### c. Editor blocks (built and proposed)
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `bullets` | Quick bullets (being built) | lines (num 3–14), key strip (bool), paper (dots/lines) | `bullets` | Not exported (free text) |
-| `migrate` | Carried over | lines (num 1–6), label (text, def "Carried from yesterday") | `carried` | Not exported |
-| `checks` preset "Today's 3" | Top priorities as toggles | labels (list, max 3) | `checks` (`checks_2` on repeats) | `toggle` × up to 3 |
-| `inventory` | Need / Should / Want | columns (flags: need, should, want), lines (num 2–6) | `inventory` | Not exported |
-| `futurestrip` | Months ahead | months (num 3–6), rows (num 2–6) | `future_strip` | Not exported |
+| `bullets` (**built**) | Quick bullets | rows, key strip (bool), label, row spacing | `bullets` | Not exported (free text) |
+| `migrate` | Carried over | lines (num 1–6), label (text, def "Carried from yesterday") | `carried` | Not exported. Planned as its own block; `top` already has an optional "Carried" column |
+| `checks` preset "Today's 3" (**built**) | Top priorities as toggles | labels (list, max 3) | `checks` (`checks_2` on repeats) | `toggle` × up to 3 |
+| `inventory` | Need / Should / Want | columns (flags: need, should, want), lines (num 2–6) | `inventory` | Not exported. Planned |
+| `futurestrip` | Months ahead | months (num 3–6), rows (num 2–6) | `future_strip` | Not exported. Planned |
 
-### d. Proposed method layout: "Bullet Journal"
+### d. Method layout: "Bullet Journal"
+A simple version is **built**: "Bullet Journal daily" in the editor's "Start from a method" list (Moon, sun and season, Events, Quick bullets with the key strip, a dot grid and Action items). The fuller version below is proposed.
+
 Ordered blocks for one click:
 1. `sky` (Moon, sun and season): kept small, for the date anchor
 2. `events` (Events)
@@ -794,15 +807,15 @@ Ordered blocks for one click:
 6. `review`: only "Tomorrow"
 7. `body` (Writing space, dots): takes the rest
 
-Care check-in stays optional; Shelbee can add `care` and `spoons`.
+Care check-in stays optional; you can add `care` and `spoons`.
 
 ### e. Don't adopt
 
-- **"Build as you go" blank pages for the whole book.** Keeping Watch's value is pre-printed, calm structure and scan zones. Blank books break `layout.json` mapping.
+- **"Build as you go" blank pages for the whole book.** The value of a Journalwright Studio book is pre-printed, calm structure and scan zones. Blank books break `layout.json` mapping.
 - **Decorative spreads, hand lettering and themed covers.** Busy ornament. They clash with the calm, low-stimulation design.
-- **Colour-coded keys.** The book is black-and-white print. Use shape, not colour.
+- **Colour-coded keys.** The printed book is black-and-white. Use shape, not colour.
 - **Threading in the footer.** The footer is a fixed scan zone.
-- **Daily task counters or streaks on the X4.** They drift toward badges and pressure.
+- **Daily task counters or streaks on the e-ink companion.** They drift toward badges and pressure.
 - **Emoji signifiers as font glyphs.** They'd create Type 3 fonts. Draw them as SVG.
 
 ---

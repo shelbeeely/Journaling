@@ -1,3 +1,14 @@
+---
+title: "Commonplace book"
+slug: commonplace-book
+category: reflective-writing
+evidenceLevel: some
+lastReviewed: 2026-09-30
+status: reviewed
+contributors:
+  - Journalwright Studio contributors
+---
+
 # Commonplace book
 
 A notebook of things worth keeping (quotes, facts, ideas, recipes, lines overheard), sorted under headings so you can find them again.
@@ -589,7 +600,7 @@ No study tests "keeping a commonplace book" as a whole. The evidence is about pa
 
 ## 21. Combining
 
-- **With a daily journal (Keeping Watch day pages):** the strongest pairing. The day page catches lines as they happen ("Words to keep"). The weekly review moves them into the commonplace section under heads. The day page stays about *when*, and the commonplace about *what*.
+- **With a daily journal (Journalwright Studio day pages):** the strongest pairing. The day page catches lines as they happen ("Words to keep"). The weekly review moves them into the commonplace section under heads. The day page stays about *when*, and the commonplace about *what*.
 - **Bullet Journal** ([bullet-journal.md](bullet-journal.md), sibling doc): use collections as commonplace heads and the BuJo index as the index.
 - **Dutch door** ([dutch-door-method.md](dutch-door-method.md)): the rest spreads between Dutch door sets are a natural home for a "Quotes and words to keep" collection.
 - **Stoic journaling** ([stoic-journaling.md](stoic-journaling.md)): Marcus Aurelius and Seneca are classic commonplace sources, and Seneca's bee letter is the tradition's motto. A Stoic evening review can end with one line to keep.
@@ -628,13 +639,13 @@ Sibling files are written in parallel. If a link breaks, the index in `docs/jour
 **Collection ideas:**
 19. Things strangers said that were kind
 20. Lines from songs that got me through a shift
-21. Facts about Spokane birds and weather
+21. Facts about local birds and weather
 22. Words for feelings I didn't have words for
 23. Recipes that take under 20 minutes
 24. Advice I'd give myself last year
 25. Moments I felt like me (quoted from day pages)
 26. Book lines on rest and slowness
-27. Community wisdom (trans elders, forums, support groups)
+27. Community wisdom (elders, forums, support groups)
 
 **Symbols:**
 28. `"` quote
@@ -699,41 +710,41 @@ Weekly for new entries, monthly for one or two heads, yearly for the whole book.
 Commonplace: filed by topic, many quotes, for keeping. Zettelkasten: numbered and linked notes, your own ideas, for generating new work.
 
 **Can I keep one inside my bullet journal or day planner?**
-Yes. Use a section at the back or collection pages, and index them. Keeping Watch's "Words to keep" preset is a daily feeder for this.
+Yes. Use a section at the back or collection pages, and index them. The Studio's "Words to keep" preset is a daily feeder for this.
 
 **Is it okay to include recipes, lists, and practical info?**
 Yes. The Italian zibaldone and many household books mixed recipes and remedies with poetry.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
-Keeping Watch already has a **"Words to keep"** preset on day pages. That is the capture step. What's missing is the *home*: somewhere entries go under heads, with an index.
+Journalwright Studio already has a **"Words to keep"** preset and a `keep` block on day pages (with an optional source line and a "moved" box), and an "A month ago today" look-back block. That is the capture step. What's still planned is the *home*: somewhere entries go under heads, with an index.
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Built? |
 |---|---|---|---|---|
-| "Words to keep" with a head blank and a "moved" box | Day block | High | Line art. Zone `keep`. The head blank is a short box so scanning can read a tag. | Partly (preset exists; no head or moved box) |
-| Commonplace pages: ruled pages with a margin for heads (Locke-style), 4–6 per monthly book | Back matter (before "Looking back") | High | 1-inch left margin, lined body. Each page keeps the standard header/frame/SEND TO/page code. The TAGS header field doubles as the head. Zone `commonplace`. | No |
-| Back index: A–Z grid for heads and page numbers | Back matter | High | Simple grid, B&W. Zone `cpindex`. Page numbers must be printed on commonplace pages. | No |
-| Locke grid as an optional index style | Back matter or Keeper | Low | Beautiful but fussy; 100 cells. Maybe one explainer page in the Keeper. | No |
-| Weekly "transfer" prompt on the weekly review: "Lines to move this week" with 3 checkboxes | Week spread / weekly review | High | Three short lines and boxes. Zone `transfer`. | No |
-| Yearly commonplace in the Keeper: heads carried over, best lines from each month | Keeper | Med | The Keeper has no scan codes, which suits this. Plain ruled pages with a head margin. | No |
-| "Words to keep" SEND TO symbol, so a scanned day page routes a line to a commonplace file | Scan system | Med | Uses an existing SEND TO strip symbol if one fits; otherwise needs a design decision (7 symbols are fixed). | No |
+| "Words to keep" with a head blank and a "moved" box | Day block | High | Line art. Zone `keep`. The head blank is a short box so scanning can read a tag. | Mostly **built** (`keep` block: label, lines, source line and moved box; the head blank is planned) |
+| Commonplace pages: ruled pages with a margin for heads (Locke-style), 4–6 per monthly book | Back matter (before "Looking back") | High | 1-inch left margin, lined body. Each page keeps the standard header/frame/SEND TO/page code. The TAGS header field doubles as the head. Zone `commonplace`. | Planned |
+| Back index: A–Z grid for heads and page numbers | Back matter | High | Simple grid, B&W. Zone `cpindex`. Page numbers must be printed on commonplace pages. | Planned |
+| Locke grid as an optional index style | Back matter or Keeper | Low | Beautiful but fussy; 100 cells. Maybe one explainer page in the Keeper. | Planned |
+| Weekly "transfer" prompt on the weekly review: "Lines to move this week" with 3 checkboxes | Week spread / weekly review | High | Three short lines and boxes. Zone `transfer`. | Planned |
+| Yearly commonplace in the Keeper: heads carried over, best lines from each month | Keeper | Med | The Keeper has no scan codes, which suits this. Plain ruled pages with a head margin. | Planned |
+| "Words to keep" SEND TO symbol, so a scanned day page routes a line to a commonplace file | Scan system | Med | Uses an existing SEND TO strip symbol if one fits; otherwise needs a design decision (7 symbols are fixed). | Planned |
 
-### b. X4
+### b. E-ink companion (X4)
 
 | Idea | Where | Fit | RAM, scope and calm notes |
 |---|---|---|---|
-| A line to keep on the sleep screen: one entry from Shelbee's own commonplace file, rotated nightly | Sleep screen | High | Read one line from a text file on SD at the 12:31 a.m. redraw. Static 256-byte buffer. No AI, no feed: only her own words. |
-| Commonplace library: a "Words" book built from her commonplace file, browsable by head | Books library (as an EPUB/text book) | High | Built off-device by `epub.py` or the hotspot. No new RAM beyond the reader. |
-| Upload commonplace file | Wi-Fi page | Med | Plain text upload over the hotspot, like packs. Nothing leaves the device. |
+| A line to keep on the sleep screen: one entry from the user's own commonplace file, rotated nightly | Sleep screen | High | Read one line from a text file on SD at the nightly sleep-screen redraw. Static 256-byte buffer. No AI, no feed: only the user's own words. Planned |
+| Commonplace library: a "Words" book built from the user's commonplace file, browsable by head | Books library (as an EPUB/text book) | High | Built off-device by `epub.py` or the hotspot. No new RAM beyond the reader. Planned |
+| Upload commonplace file | Wi-Fi page | Med | Plain text upload over the hotspot, like packs. Nothing leaves the device. Planned |
 | "Kept a line today" toggle | Check-in item kind `toggle` | Low | Possible via Checkboxes → bridge, but tracking it risks a streak feel. Leave out by default. |
 
 ### c. Proposed editor blocks
 
 | type | Name | Options | data-zone | X4 export kind |
 |---|---|---|---|---|
-| `keep` | Words to keep | `label`: text (default "Words to keep"); `lines`: num 1–4; `head`: bool (head blank); `moved`: bool (moved box); `source`: bool (who/where line) | `keep` | None (text) |
+| `keep` (**built**, without `head`) | Words to keep | `label`: text (default "Words to keep"); `n`: lines 1–6; `head`: bool (head blank, planned); `moved`: bool (moved box); `source`: bool (who/where line) | `keep` | None (text) |
 | `commonplace` | Commonplace page (back matter) | `margin`: num (tenths of an inch, default 10); `ruling`: choice (lines, dots) | `commonplace` | None |
 | `cpindex` | Commonplace index (back matter) | `style`: choice (az, locke) | `cpindex` | None |
 
@@ -751,13 +762,13 @@ A day page for reading and collecting days:
 6. `good` (n 2)
 7. `review` (items: well, tomorrow)
 
-Until `keep` exists, use the existing "Words to keep" preset in position 5.
+The `keep` block already exists (without the head blank), so this layout can be built by hand in the editor today. It is not yet in the "Start from a method" list.
 
 ### e. Don't adopt
 
 - **A full Locke grid on every book.** Too fussy and dense for calm design. Offer an A–Z index; mention Locke in the Keeper only.
-- **Quote-of-the-day feeds from outside sources on the X4.** That's a feed. Only Shelbee's own kept lines.
-- **Auto-generated summaries or "insights" from her entries.** No generative AI.
+- **Quote-of-the-day feeds from outside sources on the e-ink companion.** That's a feed. Only the user's own kept lines.
+- **Auto-generated summaries or "insights" from a person's entries.** No generative AI.
 - **Streaks or counts of lines kept.** Invites hoarding and guilt.
 - **Decorative ephemera pages.** Busy, and they break scan zones.
 

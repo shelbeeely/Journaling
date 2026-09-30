@@ -1,9 +1,20 @@
+---
+title: "Digital daily notes"
+slug: digital-daily-notes
+category: paper-and-hybrid
+evidenceLevel: some
+lastReviewed: 2026-09-30
+status: reviewed
+contributors:
+  - Journalwright Studio contributors
+---
+
 # Digital daily notes
 
 Daily notes in software: Obsidian Daily Notes and Periodic Notes, Logseq journals, Day One (templates, On
 This Day), Notion templates, Apple's Journal app, and plain text (todo.txt, Org mode). Covers sync,
 privacy, encryption, export formats and paper-to-digital workflows, and what a paper-first system like
-Keeping Watch should borrow.
+Journalwright Studio should borrow.
 
 Checked: 2026-09-28. Points marked **(uncertain)** could not be confirmed from a primary source.
 
@@ -37,7 +48,7 @@ per day. The best ideas worth taking back to paper are small: a fixed template s
 dates as the backbone, tags you can count, a weekly and monthly note that sums the days, and gentle
 resurfacing of past entries. The research on "technology-mediated reflection" suggests that looking back at
 your own entries can lift mood, especially when you reflect rather than only record, but the effect
-depends on mood and memory valence. For Keeping Watch, paper stays first; the digital side is a thin,
+depends on mood and memory valence. For Journalwright Studio, paper stays first; the digital side is a thin,
 private layer for tallies, resurfacing and archive.
 
 ## 3. History and origin
@@ -270,7 +281,7 @@ Oct 1st, 2026
 
 ```
 +----------------------------------------+
-| Thu, Oct 1, 2026  8:05 PM   Spokane 7C  |  metadata row (auto)
+| Thu, Oct 1, 2026  8:05 PM   Cloudy 7C   |  metadata row (auto)
 |----------------------------------------|
 | Morning                                 |
 | [x] meds  [ ] water                     |
@@ -365,7 +376,7 @@ On this day last year: first time I wore the green coat out.
 | Database journal | Notion | Properties per day; views and charts. |
 | Plain-text diary | todo.txt users, Org mode | One file or date tree; no app lock-in. |
 | One-line-a-day digital | many apps | A single line; resurfaced yearly. |
-| Paper-first hybrid | Keeping Watch, BuJo users who scan | Write on paper; scan or tally into digital. |
+| Paper-first hybrid | Journalwright Studio, BuJo users who scan | Write on paper; scan or tally into digital. |
 
 ## 12. Community practice
 
@@ -398,7 +409,7 @@ Release cycles: continuous app updates; Apple features arrive with yearly iOS re
 - A phone for capture, a computer for weekly and monthly notes.
 - A keyboard (Bluetooth) if typing on a tablet.
 - Backup: an external drive or a second folder; test restore yearly.
-- For hybrid: a phone scanner app or the Keeping Watch scan pipeline; a pen and the monthly book.
+- For hybrid: a phone scanner app or the Studio's scan pipeline; a pen and the monthly book.
 - Not needed: stickers, stamps, rulers.
 
 ## 15. Digital and hybrid versions
@@ -409,7 +420,7 @@ This doc is itself the digital version. Hybrid (paper → digital) patterns:
 |---|---|---|---|
 | Scan-and-file | Photograph each page into the day note | handwriting, drawings | search (unless OCR) |
 | Tally transfer | Copy only numbers (mood, sleep) into properties | trends, charts | the story |
-| Keeping Watch codes | Data Matrix page code + data-zones map each block | per-block crops, dates | nothing if the scan is good |
+| Journalwright Studio codes | Data Matrix page code + data-zones map each block | per-block crops, dates | nothing if the scan is good |
 | Weekly digest | Type 3 lines from the paper week | highlights | detail |
 | Device tallies | X4 check-ins CSV (`2026-10-14T13:05,med_am,1`) | numbers without typing | anything not a button |
 
@@ -509,7 +520,7 @@ Notes: exports are usually **unencrypted** (Day One says so). Obsidian Sync E2EE
 
 ## 20. Comparison
 
-| | Digital daily notes | Paper Bullet Journal | One line a day | E-ink tablet | Keeping Watch |
+| | Digital daily notes | Paper Bullet Journal | One line a day | E-ink tablet | Journalwright Studio |
 |---|---|---|---|---|---|
 | Start-up friction | very low (template) | low | very low | low | very low (printed) |
 | Search | full | index | none | partial | page codes |
@@ -524,8 +535,8 @@ Notes: exports are usually **unencrypted** (Day One says so). Obsidian Sync E2EE
 - **E-ink:** [`e-ink-templates.md`](e-ink-templates.md): e-ink as capture, daily notes as archive.
 - **Bullet Journal:** rapid logging symbols work in Markdown (`- [ ]`, `- [x]`, `- [>]`).
 - **One line a day / five-year journals:** On This Day is a digital five-year journal.
-- **Keeping Watch:** paper page is the entry; X4 CSV and scans can be imported into a private daily-note
-  vault if Shelbee ever wants search. The book's Looking back pages are the paper On This Day.
+- **Journalwright Studio:** paper page is the entry; X4 CSV and scans can be imported into a private daily-note
+  vault if you want search. The book's Looking back pages are the paper On This Day.
 
 ## 22. Ready-to-use bank
 
@@ -620,8 +631,8 @@ low mood can sting. Let yourself skip.
 
 **6. Which export format lasts?** Markdown for text, CSV for numbers, PDF for reading.
 
-**7. Can I combine paper and digital?** Yes: write on paper, move only numbers or highlights. Keeping Watch
-already logs numbers on the X4.
+**7. Can I combine paper and digital?** Yes: write on paper, move only numbers or highlights. The X4 e-ink
+companion already logs numbers.
 
 **8. Isn't a phone journal distracting?** Often. Widgets and one-tap entry help; paper helps more.
 
@@ -631,52 +642,53 @@ category can be turned off in Settings → Privacy & Security → Journaling Sug
 **10. Is Logseq's new database version safe?** It is beta; Logseq itself warns data loss is possible. Keep
 backups.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
 ### 25a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Built? |
 |---|---|---|---|---|
-| Personal "on this day": a small line "A month ago today:" to fill from last month's page | Day block (new, optional) | med | one line; zone `lookback`; lets paper do what Day One's On This Day does, by hand | no |
+| Personal "on this day": a small line "A month ago today:" to fill from last month's page | Day block (optional) | med | one line; zone `lookback`; lets paper do what Day One's On This Day does, by hand | **yes** (`lookback` block, "A month ago today", month or year) |
 | Looking back pages with "this day last month" prompts | Back matter | high | text only | partly (Looking back) |
-| Tag strip in the header | Page header | high | TAGS header field exists; add a printed tag key (#good #hard #shift…) in front matter | header yes; key no |
-| Countable tags → monthly tally page | Month page | med | tag list × weeks grid, outlined | no |
+| Tag strip in the header | Page header | high | TAGS header field exists; add a printed tag key (#good #hard #shift…) in front matter | header yes; key planned |
+| Countable tags → monthly tally page | Month page | med | tag list × weeks grid, outlined | planned |
 | Week summary box ("numbers, three to keep, change") | Weekly review | high | matches weekly note template | partly (weekly review) |
 | Monthly note mirror: "Numbers / Best days / Change" | Closing the month | high | the X4 provides numbers | partly |
 | Template consistency: one default layout, optional presets | Editor | high | already the model | yes |
 | Dates as the backbone (ISO date on every page) | Header | high | DATE field + Data Matrix code already | yes |
 | Printed "export" (a CSV-like table of the month's numbers) | Keeper handoff | med | copy from X4 "This month" | partly |
-| Prompt bank from section 22 | Front or back matter | med | text only | no |
+| Prompt bank from section 22 | Front or back matter | med | text only | planned (a Rotating prompt block exists for day pages) |
 
-### 25b. X4
+### 25b. E-ink companion (X4)
 
 | Idea | Where | Fit | RAM, scope and calm notes |
 |---|---|---|---|
 | Logs stay CSV, one line per change, "last value wins" | Data format | high, **built** | Plain, durable; matches "file over app." |
 | Download logs on the Wi-Fi page | Wi-Fi page | high, **built** | Local only; no cloud. |
-| Personal On This Day: last month's same date (mood, spoons, care done) | Today screen footer (opt-in) | med | Reads one CSV day; small buffer. Neutral wording, no comparison arrows. Off by default; needs Shelbee's yes. |
-| Weekly numbers (7-day mood avg, care done) | This month screen, a second page | med | Reuse `monthStats`; no charts that shout; dots. |
-| Tags as check-in toggles (e.g. #good day, #hard day) | Check-in item kinds (toggle) | med | Via the bridge from a `checks` block titled "Tags"; counts roll into month stats only if added there. |
-| Template-driven check-ins (`/kw/checkins.txt`) | Check-in kinds | high, **being added** | The digital "template" idea done offline. |
-| Export a Markdown month summary (`/kw/log/2026-10.md`) | Wi-Fi page download | med | Generated on request, streamed, no big buffer; lets Shelbee paste into any notes app if she wants. |
-| Day boundary set by sleep, not midnight | Setting | med | Shift-worker lesson from Logseq's midnight page; see e-ink doc. |
+| Personal On This Day: last month's same date (mood, spoons, care done) | Today screen footer (opt-in) | med | Reads one CSV day; small buffer. Neutral wording, no comparison arrows. Off by default; needs the user's explicit opt-in. Planned |
+| Weekly numbers (7-day mood avg, care done) | This month screen, a second page | med | Reuse `monthStats`; no charts that shout; dots. Planned |
+| Tags as check-in toggles (e.g. #good day, #hard day) | Check-in item kinds (toggle) | med | Via the bridge from a `checks` block titled "Tags"; counts roll into month stats only if added there. Works today with a `checks` block |
+| Template-driven check-ins (`/kw/checkins.txt`) | Check-in kinds | high, **built** | The digital "template" idea done offline. |
+| Export a Markdown month summary (`/kw/log/2026-10.md`) | Wi-Fi page download | med | Generated on request, streamed, no big buffer; lets you paste it into any notes app. Planned |
+| Day boundary set by sleep, not midnight | Setting | med | Shift-worker lesson from Logseq's midnight page; see e-ink doc. Partly built: the X4 rolls the day at 4 a.m., not midnight |
 | Reminders to reflect | none | **don't** | Pensieve shows reminders help, but they are notifications. The sleep screen is the passive reminder. |
-| Sync to Day One / Obsidian | none | **don't** | Nothing leaves the device except over its own hotspot on request. |
+| Sync to Day One / Obsidian | none | **don't** | Nothing leaves the device except over its own hotspot, or an explicit sync you start on the device to your own Studio account. No third-party sync. |
 | Suggestions from activity (Apple style) | none | **don't** | Surveillance-shaped and out of scope. |
 
-### 25c. Proposed editor blocks
+### 25c. Editor blocks (built and proposed)
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `lookback` | A month ago today | `title` ("A month ago today"), `n` lines (1–2), `period` choice (month/year) | `lookback` | not exported (text) |
-| `tags` (preset of `checks`) | Day tags | labels: good, hard, rest, firsts | `checks` | `toggle` each |
-| `fields` preset | Numbers | labels: Sleep hours, Minutes outside | `fields` | `count` 0..99 |
-| `keep` (preset of `lines`) | Words to keep | 2 lines (exists) | `lines` | not exported |
+| `lookback` (**built**) | A month ago today | `n` lines (1–4), `period` choice (month/year), row height | `lookback` | not exported (text) |
+| `tags` (preset of `checks`) | Day tags | labels: good, hard, rest, firsts | `checks` | `toggle` each. Preset planned (the `checks` block is built) |
+| `fields` preset | Numbers | labels: Sleep hours, Minutes outside | `fields` | `count` 0..99. Preset planned (the `fields` block is built) |
+| `keep` (**built**) | Words to keep | label, lines, optional source line and moved box (a "Words to keep" `lines` preset also exists) | `keep` | not exported |
 
-`lookback` is the only new type. It prints a light label and one or two lines; the book can pre-fill a
-greyed "Oct 1 page" reference so she knows where to look.
+`lookback` prints the date a month (or year) ago so you know which page to look at.
 
 ### 25d. Proposed method layout: "Daily note"
+
+Planned: not in the editor's "Start from a method" list yet, but every block it needs exists today.
 
 A one-click layout that mirrors a well-pruned digital daily note:
 
@@ -695,7 +707,7 @@ Exports: 2 counts + 4 toggles = 6 of 16 slots.
 
 ### 25e. Don't adopt
 
-- **Cloud sync or accounts** for journal content: breaks the privacy rule.
+- **Third-party cloud sync or accounts** for journal content: breaks the privacy rule.
 - **Activity-based suggestions** (Apple): need data collection the system avoids.
 - **Streaks and "You journaled 30 days!"** badges: firmware rule; guilt on bad weeks.
 - **AI summaries of the month:** no generative AI.
@@ -705,7 +717,7 @@ Exports: 2 counts + 4 toggles = 6 of 16 slots.
 
 ## 26. Open questions
 
-- Does resurfacing past entries help Shelbee specifically, and which period (last month vs last year)?
+- Does resurfacing past entries help people in general, and which period (last month vs last year)?
 - Should "a month ago" draw from paper (by hand) or from the X4 CSV (automatically)? Paper keeps the story;
   the CSV only has numbers.
 - Would a Markdown month export from the X4 get used, or is the CSV enough?
@@ -759,4 +771,4 @@ All opened on 2026-09-28.
 23. Umejima K. et al., "Paper Notebooks vs. Mobile Devices," Frontiers in Behavioral Neuroscience, 2021.
     https://www.frontiersin.org/articles/10.3389/fnbeh.2021.634158/full
 24. Morehead K., Dunlosky J., Rawson K.A., 2019 (ERIC record). https://eric.ed.gov/?id=EJ1225471
-25. Keeping Watch repo: `x4/README.md` (log format), `journal/daypage.mjs` (blocks), bridge format brief.
+25. Journalwright Studio repo: `x4/README.md` (log format), `journal/daypage.mjs` (blocks), bridge format brief.

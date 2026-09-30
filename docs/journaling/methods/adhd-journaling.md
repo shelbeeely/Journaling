@@ -1,6 +1,17 @@
+---
+title: "ADHD Journaling and Planning"
+slug: adhd-journaling
+category: neurodivergent-and-creative
+evidenceLevel: strong
+lastReviewed: 2026-09-30
+status: reviewed
+contributors:
+  - Journalwright Studio contributors
+---
+
 # ADHD Journaling and Planning
 
-A reference for planning and journaling with adult ADHD: the science under it (Barkley's executive function model, time perception, CBT trials), the practical tools people actually use (brain dumps, done lists, visual timers, time estimates, body doubling), why systems get dropped, and what Keeping Watch should take from it.
+A reference for planning and journaling with adult ADHD: the science under it (Barkley's executive function model, time perception, CBT trials), the practical tools people actually use (brain dumps, done lists, visual timers, time estimates, body doubling), why systems get dropped, and what a printed journal with an e-ink companion can take from it.
 
 Checked against sources on 2026-09-28. Where a detail couldn't be confirmed from a primary source, it's marked **(unconfirmed)**. Where a claim is popular but not tested, it's marked **(claimed)**.
 
@@ -154,7 +165,7 @@ Working with another person present, in the room or on video, who isn't doing yo
 Mahan's model: repeated failure, disappointment, rejection and shame stack up as emotional bricks in front of a task. He names five approaches: the Stare, Going Around, the Hulk Smash (powering through at a cost), Climbing (sitting with the emotion and understanding it) and Putting a Door In (changing your emotional state, e.g. a walk or music, which can slide into procrastination). On paper this becomes one prompt: "What's the brick?"
 
 ### Energy, spoons and meds
-A capacity check before planning. Keeping Watch already has Care check-in and Spoons. Tie planning to capacity: low spoons, one priority.
+A capacity check before planning. Journalwright Studio already has a Care check-in block and a Spoons block. Tie planning to capacity: low spoons, one priority.
 
 ### Weekly reset
 A short look-back and a clean restart. CBT programmes review the week's planner use each session. The community version is "no catch-up": you don't fill in missed days.
@@ -383,7 +394,7 @@ Next month: drop time blocks; add "Later" box; new pen colour.
 
 **Common customisations:** a "brain dump" page at the front of each week; habit trackers limited to 3–4 items; colour for categories (in colour books); stickers as rewards; putting the planner on the kitchen counter, open.
 
-**Aesthetic vs minimalist camps.** The aesthetic camp says decoration is the reward that brings them back. The minimalist camp says set-up becomes a procrastination task and blank beautiful spreads trigger shame. Many ADHD adults swing between the two. For Keeping Watch, the calm printed page handles the look so no set-up time is needed.
+**Aesthetic vs minimalist camps.** The aesthetic camp says decoration is the reward that brings them back. The minimalist camp says set-up becomes a procrastination task and blank beautiful spreads trigger shame. Many ADHD adults swing between the two. For Journalwright Studio, the calm printed page handles the look so no set-up time is needed.
 
 ---
 
@@ -424,7 +435,7 @@ Release cycle: undated planners are sold all year. Dated planners follow academi
 
 - **Apps:** Tiimo (visual timeline), Structured, Sunsama, Todoist, Apple Reminders, Google Calendar; Focusmate for body doubling; Forest-style focus timers. Some now include generative AI to split tasks (Tiimo Pro; Goblin Tools' "Magic ToDo").
 - **E-ink:** reMarkable, Kindle Scribe and Boox tablets run PDF planners with hyperlinks. Fewer notifications than a phone, which helps focus; but a hyperlinked PDF adds navigation steps.
-- **Scanning:** Keeping Watch's scan system lets paper pages flow into a digital archive without re-typing.
+- **Scanning:** The Studio's scan system lets paper pages flow into a digital archive without re-typing.
 - **Gained digitally:** reminders at the point of performance (Barkley's key idea), recurring tasks, search, syncing.
 - **Lost digitally:** the phone is also the biggest distraction. Notifications fragment attention. Stawarz et al. (2015) found reminders supported repetition but hindered habit development. Paper is always "on", never buzzes, and handwriting may aid memory **(claimed; not reviewed here)**.
 - **Hybrid that works for many:** the phone holds alarms and fixed appointments; paper holds the day's plan, the dump and the done list.
@@ -626,64 +637,65 @@ Release cycle: undated planners are sold all year. Dated planners follow academi
 
 ---
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
-Keeping Watch already has much of the scaffolding: Care check-in, Spoons, Top priorities with 15-minute time circles, Time blocks, Work shift, Quick bullets, Checkboxes, Habit dots and "Went well · Was hard · Tomorrow". What's missing is the **estimate-vs-actual** loop, the **brain dump → first step** move, a **Later** box, a **Done** list and a **gentle re-entry** path.
+Journalwright Studio already has much of the scaffolding for ADHD planning: a Care check-in block, Spoons, Top priorities (with 15-minute time circles and an optional guess/took pair of columns), Time blocks, Work shift, Quick bullets, Checkboxes, Habit dots, a Brain dump, a Later box, a Done list, a Wall of Awful block, Focus rounds and "Went well · Was hard · Tomorrow". What is still planned is the **time multiplier log**, a **gentle re-entry** page and the smaller front-matter and back-matter pages below.
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Already built? |
 |---|---|---|---|---|
 | Top 3 with 15-minute time circles | Day block | High | Circles as SVG outlines | **Built** (`top` with `bubbles`) |
-| Guess / took columns on Top 3 | Day block | High | Two short blanks per line. Inside `top` zone | No |
-| Brain dump area | Day block | High | Dot grid box, `data-zone="dump"` | Partly (Writing space, Quick bullets) |
-| First tiny step line | Day block | High | One line with a small arrow icon, `data-zone="firststep"` | Partly (preset "Tomorrow's first step") |
-| Later / parking lot | Day block | High | Narrow box, `data-zone="later"` | No |
-| Done list | Day block | High | Lines with a "+" gutter icon, `data-zone="done"` | Partly ("Went well" column) |
-| Wall of Awful card | Back matter page (tear-out) and a small day block | Med | Circle-to-answer words, no colour | No |
-| Time multiplier log | Month page or week spread | Med | Table: task, guess, actual, x. `data-zone="estimates"` | No |
-| Weekly reset with "kept carrying" | Week spread / weekly review | High | Tally marks column | Partly (weekly review exists) |
-| Re-entry page "Back after a gap" | Front matter (one page) | High | Short calm text, three steps | No |
-| Dopamine menu | Front matter or month page | Med | Three columns: quick / medium / big | No |
-| Body double log | Back matter | Low | Simple table | No |
-| Undated "spare day" pages | Back of each month | Med | Scan header with DATE blank. Fits the existing header | No |
-| Meds + focus scale | Day block | Med | Use `scale` 1–5 labelled "Focus" | **Built** (Scale block) |
+| Guess / took columns on Top 3 | Day block | High | Two short blanks per line. Inside `top` zone | **Built** (`top` with `est`, off by default) |
+| Brain dump area | Day block | High | Dot grid box, `data-zone="dump"` | **Built** (`dump` block) |
+| First tiny step line | Day block | High | One line with a small arrow icon | Partly (preset "Tomorrow's first step" on a `lines` block) |
+| Later / parking lot | Day block | High | Narrow box, `data-zone="later"` | **Built** (`later` block) |
+| Done list | Day block | High | Lines with a tick-box gutter, `data-zone="done"` | **Built** (`done` block) |
+| Wall of Awful card | Back matter page (tear-out) and a small day block | Med | Circle-to-answer words, no colour | Day block **built** (`wall`, paper only); tear-out page planned |
+| Time multiplier log | Month page or week spread | Med | Table: task, guess, actual, x. `data-zone="estimates"` | Planned |
+| Weekly reset with "kept carrying" | Week spread / weekly review | High | Tally marks column | Partly (a "Weekly review" habit preset and the `top` "Carried" column exist) |
+| Re-entry page "Back after a gap" | Front matter (one page) | High | Short calm text, three steps | Planned |
+| Dopamine menu | Front matter or month page | Med | Three columns: quick / medium / big | Planned |
+| Body double log | Back matter | Low | Simple table | Planned |
+| Undated "spare day" pages | Back of each month | Med | Scan header with DATE blank. Fits the existing header | Planned |
+| Meds + focus scale | Day block | Med | Use `scale` 1-5 labelled "Focus" | **Built** (Scale block; Care check-in has the meds row) |
 
-### b. X4
+### b. E-ink companion (X4)
 
 | Idea | Where | Fit | RAM, scope and calm notes |
 |---|---|---|---|
-| One-thing-today line | Sleep screen | High | Short text copied at the Wi-Fi page or chosen from Top 3 at check-in. Static; redrawn at 12:31 a.m. Few bytes |
-| Focus 1–5 | Check-in item `scale` | High | From a `scale` block. Fits the bridge |
-| Done count (0–9) | Check-in item `count` | Med | From a `fields` block labelled "Things done". No goal, no badge |
-| Body double today | Check-in item `toggle` | Low | From `checks` |
-| Visual 15-minute timer | A screen | Med | Fills a ring of 4 segments, one per 15 minutes, redraw once a minute or on button press. **No alarm, no buzz**: silent visual only, so it isn't a notification. Needs a partial refresh budget; RAM tiny |
-| Time multiplier from month stats | Month stats screen | Low | Needs guess/actual data; only if typed at the Wi-Fi page. Otherwise skip |
-| Re-entry card | Books library | High | One-page EPUB: "Back after a gap". Static |
-| Wall of Awful card | Books library | Med | One-page EPUB with the five approaches |
+| One-thing-today line | Sleep screen | High | Short text copied at the Wi-Fi page or chosen from Top 3 at check-in. Static; redrawn with the nightly sleep-screen redraw. Few bytes. Planned |
+| Focus 1-5 | Check-in item `scale` | High | From a `scale` block. Fits the bridge. **Built** for any `scale` block marked for the X4 |
+| Done count (0-9) | Check-in item `count` | Med | From a `fields` block labelled "Things done". No goal, no badge. **Built** (`fields` exports as a count) |
+| Body double today | Check-in item `toggle` | Low | From `checks`. **Built** for any `checks` block |
+| Visual 15-minute timer | A screen | Med | Fills a ring of 4 segments, one per 15 minutes, redraw once a minute or on button press. **No alarm, no buzz**: silent visual only, so it isn't a notification. Needs a partial refresh budget; RAM tiny. Partly built: the Focus rounds screen is silent and draws each phase once, but has no ring |
+| Time multiplier from month stats | Month stats screen | Low | Needs guess/actual data; only if typed at the Wi-Fi page. Otherwise skip. Planned |
+| Re-entry card | Books library | High | One-page EPUB: "Back after a gap". Static. Planned |
+| Wall of Awful card | Books library | Med | One-page EPUB with the five approaches. Planned |
 
-### c. Proposed editor blocks
+### c. Editor blocks (built and proposed)
 
-| Type | Name | Options | `data-zone` | X4 export kind |
-|---|---|---|---|---|
-| `top` (extend) | Top priorities | add `est` (bool) "Guess / took columns" | `top` | Not exported |
-| `dump` | Brain dump | label (text, def "Brain dump"), h (num 8–30 tenths), paper (dots/lines/blank) | `dump` | Not exported |
-| `later` | Later | label (text, def "Later"), n (num 2–6) | `later` | Not exported |
-| `done` | Done list | label (text, def "Done"), n (num 2–8), icon gutter (bool) | `done` | Not exported (use `fields` "Things done" for a count) |
-| `wall` | Wall of Awful | words (list, def: fear, shame, boring, too big, unclear, tired), ways (list, def: climb, door, tiny step, ask) | `wall` | Not exported |
-| `fields` preset | Things done | labels ["Things done"] | `fields` | `count` 0..99 |
-| `scale` preset | Focus | Label "Focus", steps 5, lo "scattered", hi "locked in" | `scale` | `scale` 1..5 |
+| Type | Name | Options | `data-zone` | X4 export kind | Status |
+|---|---|---|---|---|---|
+| `top` (extend) | Top priorities | add `est` (bool) "Guess / took columns" | `top` | Not exported | **Built** |
+| `dump` | Brain dump | label (text, def "Brain dump"), rows, paper (dots/lines/blank), row height | `dump` | Not exported | **Built** (options differ slightly from the first proposal) |
+| `later` | Later | label (text, def "Later"), rows, row height | `later` | Not exported | **Built** |
+| `done` | Done list | label (text, def "Done"), rows, tick-box gutter (bool), row height | `done` | Not exported (use `fields` "Things done" for a count) | **Built** |
+| `wall` | Wall of Awful | words (list, def: scary, boring, too big, unclear, tired, stuck), ways (list, def: tiny step, ask, 5 minutes, not today) | `wall` | Not exported | **Built** (default words differ from the first proposal) |
+| `fields` preset | Things done | labels ["Things done"] | `fields` | `count` 0..99 | Planned as a named preset (the `fields` block itself is built) |
+| `scale` preset | Focus | Label "Focus", steps 5, lo "scattered", hi "locked in" | `scale` | `scale` 1..5 | Planned as a named preset (the `scale` block itself is built) |
 
 ### d. Proposed method layout: "ADHD day"
+Not yet in the editor's "Start from a method" list, but every block it needs exists today.
 1. `sky` (Moon, sun and season), for the date anchor
 2. `events` (Events)
 3. `spoons` (Spoons), count 10
 4. `care` (Care check-in): meds and meals matter for focus
-5. `dump` (Brain dump), h 12, dots
+5. `dump` (Brain dump), dots
 6. `top` (Top priorities), n 3, bubbles 4, est on
 7. `lines` labelled "First tiny step", n 1
 8. `split` left "Later", right "Done", n 4
-9. `scale` "Focus" 1–5
+9. `scale` "Focus" 1-5
 10. `review` with only "Tomorrow"
 11. `body` (Writing space, dots): takes the rest
 
@@ -692,11 +704,11 @@ Shift-day variant: swap 5 for `shift` (Work shift) and set `timeline` from the s
 ### e. Don't adopt
 
 - **Streaks, scores, points or "productivity %".** They turn gaps into failure, the opposite of low-shame design.
-- **Countdown alarms or reminders on the X4.** Notifications are out of scope, and alarms spike anxiety.
+- **Countdown alarms or reminders on the e-ink companion.** Notifications are out of scope, and alarms spike anxiety.
 - **AI task breakdown (like Tiimo Pro or Goblin Tools).** Generative AI is out of scope for the firmware, and pre-printed prompts can do the core job ("first tiny step").
-- **Colour-coded timelines.** The book is B&W. Use shape and position.
+- **Colour-coded timelines.** The printed book is B&W. Use shape and position.
 - **Dated guilt.** No "missed days" counters, no "you skipped" messages anywhere.
-- **Heavy daily layouts.** More than 6–7 blocks overwhelms. Keep it to one page.
+- **Heavy daily layouts.** More than 6-7 blocks overwhelms. Keep it to one page.
 - **Diagnostic language on the page.** No "symptom" checklists that feel clinical; this is a calm notebook.
 
 ---
@@ -709,7 +721,7 @@ Shift-day variant: swap 5 for `shift` (Work shift) and set `timeline` from the s
 - Is a done list at the end of the day helpful for ADHD adults' mood and sleep, given Scullin's finding for to-do lists at bedtime?
 - How much do novelty and rotation help long-term use, and how much do they just restart the cycle?
 - Do adults show the same time-perception pattern (overestimation) found in children's studies?
-- Is a silent visual timer on e-ink calming or distracting? Needs a trial with Shelbee.
+- Is a silent visual timer on e-ink calming or distracting? Needs a trial with real users.
 
 ---
 

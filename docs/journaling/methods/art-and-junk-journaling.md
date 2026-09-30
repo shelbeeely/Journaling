@@ -1,6 +1,17 @@
+---
+title: "Art journaling and junk journaling"
+slug: art-and-junk-journaling
+category: neurodivergent-and-creative
+evidenceLevel: some
+lastReviewed: 2026-09-30
+status: reviewed
+contributors:
+  - Journalwright Studio contributors
+---
+
 # Art journaling and junk journaling
 
-Art journals (also called visual journals) use paint, drawing, collage and handwriting on the same page. Junk journals are handmade books built from found paper and ephemera: envelopes, receipts, tickets, packaging. Sketchbook diaries record days in drawings. Sticker and washi tape culture overlaps with all three. This doc covers what each one is, where it came from, how people do it, what the research on art-making and art therapy does and doesn't show, and how it can sit next to Keeping Watch's structured, scanned pages.
+Art journals (also called visual journals) use paint, drawing, collage and handwriting on the same page. Junk journals are handmade books built from found paper and ephemera: envelopes, receipts, tickets, packaging. Sketchbook diaries record days in drawings. Sticker and washi tape culture overlaps with all three. This doc covers what each one is, where it came from, how people do it, what the research on art-making and art therapy does and doesn't show, and how it can sit next to a printed book's structured, scanned pages.
 
 Uncertain points are marked **(unverified)** or **(uncertain)**. All sources were checked on 2026-09-28.
 
@@ -240,7 +251,7 @@ Rule of thumb: one focal point per spread, lots of empty space around it (Wakley
 +-----------------------------+
 ```
 
-### D. Structured page with a Sketch box (Keeping Watch style)
+### D. Structured page with a Sketch box (Journalwright Studio style)
 
 ```
 +------------------------------------------+
@@ -363,7 +374,7 @@ Not a branded method, but related products:
 - 70–90 gsm printer paper: fine for collage and pen, buckles with paint.
 - 120–160 gsm: sketch paper; light wash OK.
 - 180–300 gsm: mixed media and watercolour.
-- Keeping Watch's printed books are thin KDP paper: dry media only (pencil, pen, crayon), tape and glue stick. No paint or heavy layers on day pages; they'll show through and cockle.
+- Printed Journalwright Studio books are thin KDP paper: dry media only (pencil, pen, crayon), tape and glue stick. No paint or heavy layers on day pages; they'll show through and cockle.
 
 **Rulers and cutters**
 - A metal ruler and a craft knife for straight edges; a cutting mat.
@@ -374,7 +385,7 @@ Not a branded method, but related products:
 - **Apps:** Procreate and other drawing apps; digital scrapbook kits (PNG stickers, washi). Instagram and Pinterest are where many people share pages.
 - **E-ink:** reMarkable, Kindle Scribe and Boox handle line drawing and sketches well, but not colour or collage. Good for a sketchbook diary; poor for junk journals.
 - **Scanning:** flat pages scan well; bumpy collage casts shadows. Photograph at an angle with soft light instead.
-- **Keeping Watch's X4:** a 1-bit reader with buttons; it can't draw. It could show a scanned sketch from your book on the sleep screen, dithered, if you load it over the hotspot (optional, and see RAM notes below).
+- **The X4 e-ink companion:** a 1-bit device with buttons; it can't draw. It could show a scanned sketch from your book on the sleep screen, dithered, if you load it over the hotspot (optional, and see RAM notes below).
 - **What's lost on screen:** texture, touch, the object itself, and the pleasure of glue. **What's gained:** undo, no mess, no supply cost after the device.
 
 ## 16. Evidence and research
@@ -544,7 +555,7 @@ A stapled booklet of printer paper, a glue stick, and your recycling.
 **5. How do I keep the book from getting too fat?**
 Fewer layers, thinner paper, a wider spine, or remove a page for every two you add stuff to.
 
-**6. Can I do this in my printed Keeping Watch book?**
+**6. Can I do this in a printed Journalwright Studio book?**
 Yes, in the Sketch box, with dry media, tape and glue stick. Keep the header, frame, SEND TO strip and page code clear.
 
 **7. What should I never glue in?**
@@ -559,28 +570,28 @@ If you're anxious, a pattern to colour seems to calm more than a blank page in t
 **10. Is washi tape archival?**
 It's low-tack and can lift over years. For keepsakes, add a dot of glue under it (general craft advice, not tested here).
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan notes | Built? |
 |---|---|---|---|---|
-| Sketch box (empty frame) | Day block | High | Already has `data-zone`; art stays inside | **Yes** |
-| "Tape here" corner marks in the Sketch box | Day block option | Med | Thin corner ticks only; no ornament | No |
-| Pattern to colour (plaid, grid, simple mandala) | Day block or month page | Med | Line art, B&W; generous line weight; low-energy calming option; must be SVG line art (no Type 3 fonts) | No |
-| Glue-book strip (7 small boxes, one per day) | Week spread | Med | Small squares; scans fine if collage stays inside | No |
-| Pocket page (fold-line guide for an envelope) | Back matter, end of month | Med | Dotted fold lines; outside scan zones | No |
-| Month title page (blank frame for collage) | Month page | Med | Keep the header clear | No |
-| "What I kept" page | Closing the month | High | A Sketch-box-sized frame + 1 line | No |
-| Paper note: dry media only | Front matter key | High | One line in the care/usage notes | No |
-| Art in the Keeper | Keeper | Low | Keeper holds hints and recovery codes; keep it plain | Not a fit |
+| Sketch box (empty frame) | Day block | High | Already has `data-zone`; art stays inside | **Yes** (`sketch` block) |
+| "Tape here" corner marks in the Sketch box | Day block option | Med | Thin corner ticks only; no ornament | **Yes** (`corners` option on the `sketch` block) |
+| Pattern to colour (plaid, grid, simple mandala) | Day block or month page | Med | Line art, B&W; generous line weight; low-energy calming option; must be SVG line art (no Type 3 fonts) | Planned |
+| Glue-book strip (7 small boxes, one per day) | Week spread | Med | Small squares; scans fine if collage stays inside | Planned |
+| Pocket page (fold-line guide for an envelope) | Back matter, end of month | Med | Dotted fold lines; outside scan zones | Planned |
+| Month title page (blank frame for collage) | Month page | Med | Keep the header clear | Planned |
+| "What I kept" page | Closing the month | High | A Sketch-box-sized frame + 1 line | Planned |
+| Paper note: dry media only | Front matter key | High | One line in the care/usage notes | Planned |
+| Art in the Keeper | Keeper | Low | Keeper holds password hints and where recovery codes are kept (never the codes); keep it plain | Not a fit |
 
-### b. X4
+### b. E-ink companion (X4)
 
 | Idea | Where | Fit | RAM, scope and calm notes |
 |---|---|---|---|
-| Show a scanned sketch on the sleep screen | Sleep screen | Low–Med | 480×800 1-bit = 48 KB per full image; load from SD row by row, never whole on the 16 KB loop stack; optional, user-loaded over hotspot |
-| "Made something today" toggle | Check-in `toggle` (from a Checkboxes block) | High | Already possible via the bridge |
+| Show a scanned sketch on the sleep screen | Sleep screen | Low–Med | Planned. 480×800 1-bit = 48 KB per full image; load from SD row by row, never whole on the 16 KB loop stack; optional, user-loaded over hotspot |
+| "Made something today" toggle | Check-in `toggle` (from a Checkboxes block) | High | **Built**: the "Made something" Checkboxes preset exports through the bridge |
 | Upload a pattern-to-colour pack | Wi-Fi page (packs) | Low | The X4 can't draw; patterns belong in print |
 | Generated art or prompts | none | No | Out of scope: no generative AI |
 
@@ -588,17 +599,19 @@ It's low-tack and can lift over years. For keepsakes, add a dot of glue under it
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `sketch` (existing) | Sketch box: new options | `corners` bool (tape marks), `prompt` text (small caption, e.g. "colour of today") | `sketch` (existing; `sketch_2`…) | Not exported |
+| `sketch` (**built**) | Sketch box: options | `corners` bool (tape marks, built), `caption` text (small caption, e.g. "colour of today", built) | `sketch` (existing; `sketch_2`…) | Not exported |
 | `pattern` | Pattern to colour | `kind` choice (plaid, grid, circles), `h` height in tenths of an inch (5–30) | `pattern` | Not exported |
 | `gluestrip` | Glue strip | `n` boxes (3–7), `labels` bool (day letters) | `gluestrip` | Not exported |
-| `checks` (existing) | "Made something" preset | labels: Made something, Went outside | `checks` | One `toggle` per label |
+| `checks` (**built**) | "Made something" preset | labels: Made something, Went outside | `checks` | One `toggle` per label |
 
 ### d. Proposed method layout: "Art journal day"
+
+Planned: not in the editor's "Start from a method" list yet. Every block except `pattern` exists today.
 
 1. `sky`
 2. `events`
 3. `care`
-4. `sketch` (h 30, prompt "today in a picture", corners on)
+4. `sketch` (h 30, caption "today in a picture", corners on)
 5. `words` (circle a feeling)
 6. `lines` (n 2, label "Words for it")
 7. `checks` (Made something)
@@ -612,7 +625,7 @@ Low-spoons variant: swap `sketch` for `pattern` (h 20).
 - **Instructions to paint on day pages.** KDP paper is thin; wet media will cockle and bleed through.
 - **Calling any of it "art therapy."** AATA is clear that products and apps aren't; claims would mislead.
 - **Supply shopping lists or brand pushes.** Against the low-cost ethic.
-- **Generated images or AI prompts on the X4.** Out of scope.
+- **Generated images or AI prompts on the e-ink companion.** Out of scope.
 - **Ephemera printed with real names, addresses or barcodes** as sample content. The editor and samples use generic data only.
 
 ## 26. Open questions
