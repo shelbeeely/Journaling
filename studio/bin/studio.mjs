@@ -5,6 +5,9 @@
 //   node bin/studio.mjs import <journal-dir> --user <name> [--name "Title"] [--public]   book.json + daypage.json -> a new project
 //   node bin/studio.mjs export --user <name> --project <id|slug> [--ref main] [--out <journal-dir>]   a commit -> content/*.json
 //   node bin/studio.mjs projects --user <name>
+//   node bin/studio.mjs library list --user <name> --project <id|slug> [--ref main]        books and series of a project (an old project is a library of one book)
+//   node bin/studio.mjs library init --user <name> --project <id|slug> [--branch main]     save that library into the project as a commit (migration; changes nothing else)
+//   node bin/studio.mjs export ... --book <book id>      with a library: content/library.json with that book as the default, plus book.json and daypage.json
 // Environment: STUDIO_DB (default studio/data/studio.db), PORT (8787), HOST (127.0.0.1), STUDIO_STATIC (folder to serve, default the built
 // editor), STUDIO_CORS (comma list of allowed origins for a separately hosted editor), STUDIO_REGISTRATION=closed.
 import fs from 'node:fs';
@@ -14,6 +17,8 @@ import { openDb } from '../src/db.mjs';
 import { Studio } from '../src/repo.mjs';
 import { listen } from '../src/server.mjs';
 import { readJournal, snapshotFromJournal, exportJournal } from '../src/pipeline.mjs';
+import { libraryOf } from '../src/snapshot.mjs';
+import { shelf } from '../../journal/library.mjs';
 
 const HERE = path.dirname(new URL(import.meta.url).pathname);
 const args = process.argv.slice(2);
@@ -56,8 +61,26 @@ if (cmd === 'serve') {
   if (!row) die(`No project "${key}".`);
   const { commit, snapshot } = s.getCommit(user, row.id, typeof flag('ref') === 'string' ? flag('ref') : 'main');
   const out = typeof flag('out') === 'string' ? flag('out') : path.join(HERE, '../../journal');
-  const written = exportJournal(snapshot, out);
+  const written = exportJournal(snapshot, out, { book: typeof flag('book') === 'string' ? flag('book') : undefined });
   console.log(`Exported ${commit.short} (${commit.message}) to:\n  ${written.join('\n  ')}`);
+} else if (cmd === 'library') {
+  const db = openDb(DB), s = new Studio(db), user = asUser(db, flag('user'));
+  const key = String(flag('project'));
+  const row = db.prepare('SELECT id FROM projects WHERE id = ? OR slug = ?').get(key, key);
+  if (!row) die(`No project "${key}".`);
+  const branch = typeof flag('branch') === 'string' ? flag('branch') : typeof flag('ref') === 'string' ? flag('ref') : 'main';
+  const { commit, snapshot } = s.getCommit(user, row.id, branch);
+  if (args[1] === 'list') {
+    console.log(`${snapshot.meta.library ? 'library saved in the project' : 'no library saved: the project is a library of one book'} (${commit.short})`);
+    for (const x of shelf(libraryOf(snapshot))) {
+      if (x.kind === 'book') console.log(`  ${x.book.id}  "${x.book.title}"  (standalone)`);
+      else { console.log(`  series ${x.series.id}  "${x.series.title}"`); x.books.forEach((b, i) => console.log(`    ${i + 1}. ${b.id}  "${b.title}"`)); }
+    }
+  } else if (args[1] === 'init') {
+    if (snapshot.meta.library) die('This project already has a library.');
+    const c = s.commit(user, row.id, { branch, expectedHead: commit.id, message: 'Save the library (one book)', snapshot: { meta: { ...snapshot.meta, library: libraryOf(snapshot) } } });
+    console.log(`Saved the library into ${row.id} on ${branch}: ${c.unchanged ? 'unchanged' : `commit ${c.commit ? c.commit.short : ''}`}. Nothing else changed.`);
+  } else die('Usage: library list|init --user <name> --project <id|slug>');
 } else if (cmd === 'projects') {
   const db = openDb(DB), s = new Studio(db);
   for (const p of s.listProjects(asUser(db, flag('user')))) console.log(`${p.id}  ${p.slug}  ${p.visibility}  ${p.role}`);

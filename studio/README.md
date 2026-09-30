@@ -42,6 +42,16 @@ says exactly the default layout as "not custom").
     assets      [{name, hash, mime, size}]: images and fonts, bytes stored by hash
     components  reusable pages [{id, name, version, page}] (reserved for G3, empty in G1)
 
+**Library (L1a, additive).** `meta.library` holds the whole library: `books`, `series`, `layouts` (each a `book` page structure and a `day`
+layout), `defaultBook` (see `journal/library.mjs`, `journal/README.md` "Library"). It rides inside `meta` on purpose: no schema change, no new
+object kind, and a snapshot without it hashes exactly as before. Rules: the serializer copies allowlisted book, series and layout fields only
+(the scanner has already refused person, location, packs, calendars and paths by name); a `meta` sent without `library` keeps the stored one
+(`library: null` drops it); the diff reports it apart from meta, by book, series and layout id (`diff.library`, `summary.library`).
+**Migration:** an existing project is a library of one book without writing anything (`libraryOf(snapshot)`); `node bin/studio.mjs library init
+--user u --project p` saves it as a commit. **Export for a book:** `export --book <id>` writes `content/library.json` (layouts inline, that
+book as `defaultBook`) next to the project's own `book.json` and `daypage.json`; `KW_BOOK=<id>` builds any other. For G2: merging treats
+`meta.library` as one value (a same-field conflict is reported, never lost); per-book and per-series merging by id is a follow-up.
+
 **Never** in a snapshot: private pages, filled-in personal data, account settings, profile secrets (person, place, coordinates, crisis lines,
 file paths), calendars (.ics, `ICS_URLS`), the support/trans/clinic packs, passwords, tokens, recovery codes. Two layers (`src/snapshot.mjs`):
 

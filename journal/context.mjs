@@ -44,8 +44,9 @@ export async function loadContext({ month, ics, size = 'small', quiet = false })
     PROFILE,
     SUPPORT: readContent('support'), TRANS: moduleOn('trans_support') ? readContent('trans') : null, CLINIC: readContent('clinic'),
     keeperPage: ki && ki.handoff_page ? ki.handoff_page[VOL.id] : undefined,
-    dayLayout: applyModules(normalize(readJson('./content/daypage.json'))),
+    dayLayout: applyModules(normalize(PROFILE.library.layouts.day || readJson('./content/daypage.json'))),
     refs: {},
   };
 }
-export const loadBook = () => readJson('./content/book.json');
+// A library book can carry its own page structure and day layout (library.mjs layouts); otherwise the project's content/*.json files.
+export const loadBook = () => PROFILE.library.layouts.book || readJson('./content/book.json');

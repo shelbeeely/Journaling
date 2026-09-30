@@ -11,6 +11,11 @@ if not re.fullmatch(r'm\d{4}-\d{2}', ARG):
 OUT = f"{os.environ.get('KW_OUT') or 'out'}/{ARG}"
 # content/profile.json (or KW_PROFILE): title, place, modules and content paths (see profile.mjs; the node build has already validated it)
 PROFILE = json.load(open(os.environ.get('KW_PROFILE') or 'content/profile.json'))
+# A library book (KW_BOOK, KW_LIBRARY or content/library.json) lays its own title, plan and modules over the profile: ask the node side,
+# which resolves it in one place (library.mjs), instead of repeating the rules here.
+if os.environ.get('KW_BOOK') or os.environ.get('KW_LIBRARY') or (not os.environ.get('KW_PROFILE') and os.path.exists('content/library.json')):
+    import subprocess
+    PROFILE = json.loads(subprocess.run(['node', 'library-cli.mjs', 'effective'], check=True, capture_output=True, text=True).stdout)
 BOOK, LOC, MODS, PATHS, TRANSIT = PROFILE['book'], PROFILE['location'], PROFILE['modules'], PROFILE.get('paths', {}), PROFILE.get('transit') or {}
 TITLE, SLUG = BOOK['title'], BOOK['slug']
 def content(key):  # a profile content path, parsed; None when the profile has none or the file is absent

@@ -40,6 +40,8 @@ jobs:
         run: node test-profile.mjs
       - name: Book plan check (every scope builds; a year splits into volumes that pass every gate; undated books print no dates; codes unique across books)
         run: node test-scopes.mjs
+      - name: Library check (books and series, custom titles on covers and title pages, series defaults with per-book override, a single-book profile migrates and builds the same book)
+        run: node test-library.mjs
       - name: 'Studio tests (versioning - commits, branches, drafts, forbidden content, authorization, import/export round trip, editor to print)'
         # Sample data only (test.ics). The Keeper, the sample month and the editor are built here just for these tests; the Build step below
         # overwrites all of them, so nothing from this step is packaged. Needs Node 22.13+ (built-in SQLite).

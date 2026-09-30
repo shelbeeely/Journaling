@@ -10,7 +10,9 @@ import fs from 'node:fs';
 import { launch } from './browser.mjs';
 import { PROFILE, bookNo, yearLabel } from './profile.mjs';
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-const { title: TITLE, subtitle: SUBTITLE, slug: SLUG } = PROFILE.book, LOC = PROFILE.location;
+const { title: TITLE, subtitle: SUBTITLE, slug: SLUG } = PROFILE.book, LOC = PROFILE.location, LIB = PROFILE.library;
+// "Book 3 of 12 in <series>" under the range, when the book is in a series that asks for it (library.mjs `show`)
+const SERIES_LINE = LIB.series && LIB.show.includes("cover") ? LIB.series.line : null;
 
 const KEEPER = process.argv[2] === 'keeper', VOLUME = process.argv[2] === 'book' && /^[a-z0-9-]+-v\d+$/.test(process.argv[3] || '');
 if (!KEEPER && !VOLUME && !(process.argv[2] === 'month' && /^\d{4}-\d{2}$/.test(process.argv[3] || ''))) { console.error('usage: node cover.mjs month <YYYY-MM> | book <volume id, e.g. year-2026-10-v3> | keeper'); process.exit(1); }
@@ -77,12 +79,12 @@ ${KEEPER ? `<h2>The book that stays home.</h2>
   <ul><li>${VV && VV.undated ? 'Full-page days with no printed dates: you write them' : `Full-page days with sunrise, sunset, moon phase and sign for ${esc(LOC.place)}`}</li>${VV && VV.undated ? '' : '<li>72 micro-seasons and the planetary week</li>'}<li>Mood, sleep${PROFILE.modules.spoons ? ' and spoons' : ''} check-ins</li><li>${VV && VV.undated ? 'Weekly spreads, blank month grids and trackers' : 'Weekly spreads, monthly calendars and trackers'}</li><li>Exchange pages to share with someone</li></ul>
   <p style="font-size:8pt;opacity:.75">${VV ? (VV.of > 1 ? `Volume ${VN} of ${VV.of}` : 'One volume') + (VV.undated ? ' · Undated' : '') : `Book ${VN} of 12`} · ${VOL.label} · Test edition</p>`}
 </div>
-<div class="panel spine">${SPINE >= 0.25 ? `<span>${esc(TITLE.toUpperCase())} · ${KEEPER ? 'THE KEEPER' : VV ? (VV.of > 1 ? 'VOL ' + VN + ' OF ' + VV.of + ' · ' : '') + VOL.short.toUpperCase() : 'BOOK ' + VN + ' · ' + VOL.short.toUpperCase()}</span>` : ''}</div>
+<div class="panel spine">${SPINE >= 0.25 ? `<span>${esc((LIB.spineTitle || TITLE).toUpperCase())} · ${KEEPER ? 'THE KEEPER' : VV ? (VV.of > 1 ? 'VOL ' + VN + ' OF ' + VV.of + ' · ' : '') + VOL.short.toUpperCase() : 'BOOK ' + VN + ' · ' + VOL.short.toUpperCase()}</span>` : ''}</div>
 <div class="panel front">
   <div class="row">${phases}</div>
   <h1>${esc(TITLE)}</h1>
   <p class="sub">${KEEPER ? 'The Keeper' : esc(SUBTITLE)}</p>
-  <p class="range">${KEEPER ? 'Contacts · accounts · important info' : VV ? (VV.of > 1 ? `Volume ${VN} of ${VV.of}` : VV.undated ? 'Undated' : 'One volume') : `Book ${VN} of 12`} · ${VOL.label}</p>${VV && VV.undated && VV.of > 1 ? '<p class="sub" style="margin-top:0.1in">Undated</p>' : ''}
+  <p class="range">${KEEPER ? 'Contacts · accounts · important info' : VV ? (VV.of > 1 ? `Volume ${VN} of ${VV.of}` : VV.undated ? 'Undated' : 'One volume') : `Book ${VN} of 12`} · ${VOL.label}</p>${VV && VV.undated && VV.of > 1 ? '<p class="sub" style="margin-top:0.1in">Undated</p>' : ''}${SERIES_LINE ? `<p class="sub" style="margin-top:0.1in">${esc(SERIES_LINE)}</p>` : ''}
 </div>
 <div class="foot">${KEEPER ? "Private · keep at home" : VV && VV.undated ? '' : `Sky data for ${esc(LOC.city)}, ${esc(LOC.region)}`}</div>
 </body></html>`;
