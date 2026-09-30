@@ -15,6 +15,8 @@ const URL0 = `http://127.0.0.1:${srv.address().port}/`, DAY = URL0 + '#day/2026-
 const atDay = (pg) => pg.waitForFunction(() => document.documentElement.dataset.view === 'day' && document.querySelectorAll('#pv [data-b]').length >= 3);
 const fails = [], ok = (c, m) => { if (!c) fails.push(m); console.log((c ? 'ok   ' : 'FAIL ') + m); };
 const b = await launch(), errs = [];
+// Offline sandbox: fonts are not fetched, and SORTABLE_JS=/path/Sortable.min.js serves the drag library locally (CI has the network).
+{ const np = b.newPage.bind(b); b.newPage = async (o) => { const pg = await np(o); await pg.route(/fonts\.(googleapis|gstatic)/, (r) => r.abort()); if (process.env.SORTABLE_JS) await pg.route(/cdnjs\.cloudflare\.com/, (r) => r.fulfill({ path: process.env.SORTABLE_JS, contentType: 'text/javascript' })); return pg; }; }
 const p = await b.newPage({ viewport: { width: 1400, height: 950 } });
 p.on('pageerror', (e) => errs.push(e.message));
 await p.goto(DAY, { waitUntil: 'networkidle' }); await atDay(p);
@@ -467,7 +469,7 @@ ok(!errs.length, 'no page errors ' + errs.join(' | '));
   const N = S.pages.length, bp = await b.newPage({ viewport: { width: 1400, height: 900 } });
   bp.on('pageerror', (e) => errs.push('book: ' + e.message));
   const t0 = Date.now(); await bp.goto(URL0, { waitUntil: 'networkidle' });
-  ok(await bp.evaluate(() => document.documentElement.dataset.view === 'book' && NAV.level === 'book' && location.hash === '#book' && !!document.querySelector('#main') && getComputedStyle(document.querySelector('#main')).display === 'none'), 'the editor opens on the Book view (#book), not the day editor');
+  ok(await bp.evaluate(() => document.documentElement.dataset.view === 'book' && NAV.level === 'book' && /^#book\//.test(location.hash) && !!document.querySelector('#main') && getComputedStyle(document.querySelector('#main')).display === 'none'), 'the editor opens on the Book view (#book), not the day editor');
   await bp.waitForFunction(() => BK.ready && BK.painted.size >= 60 && BK.queue.size === 0, null, { timeout: 15000 }); const paintMs = Date.now() - t0; await bp.waitForTimeout(300);
   ok(paintMs < 8000, `the whole book (${N} thumbnails) is drawn in ${paintMs} ms`);
   ok(await bp.evaluate(() => getComputedStyle(document.querySelector('#main')).display === 'none' && getComputedStyle(document.querySelector('#book')).display !== 'none'), 'the Book view shows the canvas and hides the day editor');
@@ -562,21 +564,22 @@ ok(!errs.length, 'no page errors ' + errs.join(' | '));
     const waitView = (v) => nP.waitForFunction((x) => document.documentElement.dataset.view === x && !NAV.busy(), v, { timeout: 8000 });
     const dayN = S.pages.find((x) => x.id === 'day.2026-10-14').n, safeN = S.pages.find((x) => x.id === 'safety').n, sp = (n) => Math.floor(n / 2) + 1;
     await goHash('');
+    const BT = await nP.evaluate(() => LB.lib.books[0].title), LBT = 'Library > ' + BT; // a one-book library opens straight to its book; the breadcrumb starts at the Library
     let r = await st();
-    ok(r.view === 'book' && r.level === 'book' && r.hash === '#book' && r.crumbs === 'Book' && r.back && r.main === 'none', 'default view: the Book, #book in the URL, breadcrumb "Book", Back disabled');
+    ok(r.view === 'book' && r.level === 'book' && /^#book\//.test(r.hash) && r.crumbs === LBT && !r.back && r.main === 'none', 'default view: the one book opens (no empty shelves), #book/<id> in the URL, breadcrumb "Library > title", Back goes up to the library');
     ok(await nP.evaluate(() => !document.querySelector('#v-day') && !document.querySelector('[aria-label="View"]') && ![...document.querySelectorAll('.top button')].some((x) => x.textContent.trim() === 'Day' && x.closest('.seg'))), 'the Day tab is gone as a top-level tab');
     ok(await nP.evaluate(() => !!document.querySelector('.top #v-ver') && typeof KW.on === 'function' && typeof KW.go === 'function'), 'the Versions button sits in the header, and KW.on / KW.go are the hooks for panels');
     await nP.screenshot({ path: `${OUT}/nav-desktop-1-book.png` });
     // tap: book -> spread -> day
     await nP.click(`.bpg[data-n="${dayN}"]`); await nP.waitForFunction(() => NAV.level === 'spread' && BK.level !== 'book'); await nP.waitForTimeout(1000);
     r = await st();
-    ok(r.level === 'spread' && r.hash === `#spread/${sp(dayN)}` && r.crumbs === `Book > Spread ${sp(dayN)}` && !r.back, `tap a page: zooms to its spread (${r.hash}, "${r.crumbs}")`);
+    ok(r.level === 'spread' && r.hash === `#spread/${sp(dayN)}` && r.crumbs === `${LBT} > Spread ${sp(dayN)}` && !r.back, `tap a page: zooms to its spread (${r.hash}, "${r.crumbs}")`);
     ok(await nP.evaluate((n) => { const q = document.querySelector(`.bpg[data-n="${n}"]`).getBoundingClientRect(), v = document.querySelector('#bk-view').getBoundingClientRect(); window.__d = [q.left, q.right, q.width, v.left, v.right, BK.z]; return q.width > 200 && q.left >= v.left - 2 && q.right <= v.right + 2; }, dayN), 'the spread level shows the two pages large enough to read, live thumbnails ' + JSON.stringify(await nP.evaluate(() => window.__d)));
     ok(await nP.evaluate(() => document.querySelector('[data-nav-level="spread"]').getAttribute('aria-pressed') === 'true'), 'the Spread level button is pressed');
     await nP.screenshot({ path: `${OUT}/nav-desktop-2-spread.png` });
     await nP.click(`.bpg[data-n="${dayN}"]`); await waitView('day'); await nP.waitForTimeout(400);
     r = await st();
-    ok(r.level === 'day' && r.hash === '#day/2026-10-14' && r.crumbs === `Book > Spread ${sp(dayN)} > Day Oct 14` && r.main !== 'none' && r.pv === 'none', `tap again: the day-page editor (${r.hash}, "${r.crumbs}")`);
+    ok(r.level === 'day' && r.hash === '#day/2026-10-14' && r.crumbs === `${LBT} > Spread ${sp(dayN)} > Day Oct 14` && r.main !== 'none' && r.pv === 'none', `tap again: the day-page editor (${r.hash}, "${r.crumbs}")`);
     ok(await nP.evaluate(() => document.querySelectorAll('#pv [data-b]').length >= 3 && document.querySelectorAll('#pv .lines .rule').length > 0 && document.documentElement.dataset.mode === 'view' && document.querySelectorAll('#pal li, #list > li').length === 0), 'the day level opens for viewing: the page with its rules, no palette or block list');
     await nP.screenshot({ path: `${OUT}/nav-desktop-3-day.png` });
     await nP.click('#edit'); await nP.waitForFunction(() => document.documentElement.dataset.mode === 'edit'); await nP.waitForTimeout(200);
@@ -588,24 +591,24 @@ ok(!errs.length, 'no page errors ' + errs.join(' | '));
     ok(await nP.evaluate(() => location.hash === '#day/2026-10-14' && !!document.querySelector('#pv [data-zone="checks"]')), 'Done returns to viewing with the edit kept in the page');
     // Back / forward
     await nP.click('#nv-back'); await waitView('book'); await nP.waitForTimeout(600);
-    r = await st(); ok(r.level === 'spread' && r.hash === `#spread/${sp(dayN)}` && r.crumbs === `Book > Spread ${sp(dayN)}`, 'Back from the day returns to the spread');
+    r = await st(); ok(r.level === 'spread' && r.hash === `#spread/${sp(dayN)}` && r.crumbs === `${LBT} > Spread ${sp(dayN)}`, 'Back from the day returns to the spread');
     ok(await nP.evaluate((n) => BK.sel === n && BK.level !== 'book', dayN), 'coming back keeps the page selected and the spread zoomed');
     await nP.goForward(); await waitView('day'); r = await st(); ok(r.level === 'day' && r.hash === '#day/2026-10-14', 'browser forward goes back into the day');
     ok(await nP.evaluate(() => layout.blocks.some((x) => x.type === 'checks')), 'the day editor kept its unsaved change while you moved around the book');
     await nP.goBack(); await waitView('book'); await nP.waitForTimeout(500);
     await nP.click('#nv-back'); await nP.waitForFunction(() => NAV.level === 'book'); await nP.waitForTimeout(500);
-    r = await st(); ok(r.level === 'book' && r.hash === '#book' && r.back, 'Back again returns to the whole book (and Back is then disabled)');
+    r = await st(); ok(r.level === 'book' && /^#book\//.test(r.hash) && !r.back, 'Back again returns to the whole book (Back then goes up to the library)');
     // breadcrumb
     await nP.evaluate((n) => KW.go({ level: 'day', n }), dayN); await waitView('day');
-    await nP.click('#crumb-list [data-crumb="1"]'); await waitView('book'); await nP.waitForTimeout(500);
+    await nP.click('#crumb-list [data-crumb="2"]'); await waitView('book'); await nP.waitForTimeout(500);
     r = await st(); ok(r.level === 'spread' && r.hash === `#spread/${sp(dayN)}`, 'breadcrumb: the Spread crumb goes up one level');
-    await nP.click('#crumb-list [data-crumb="0"]'); await nP.waitForFunction(() => NAV.level === 'book'); await nP.waitForTimeout(500);
-    r = await st(); ok(r.level === 'book' && r.crumbs === 'Book', 'breadcrumb: the Book crumb goes to the whole book');
+    await nP.click('#crumb-list [data-crumb="1"]'); await nP.waitForFunction(() => NAV.level === 'book'); await nP.waitForTimeout(500);
+    r = await st(); ok(r.level === 'book' && r.crumbs === LBT, 'breadcrumb: the Book crumb goes to the whole book');
     ok(await nP.evaluate(() => [...document.querySelectorAll('#crumb-list button')].every((x) => x.getBoundingClientRect().height >= 43.5) && document.querySelector('#nv-back').getBoundingClientRect().height >= 43.5), 'breadcrumb and Back are 44px targets');
     // level buttons
     await nP.click('[data-nav-level="spread"]'); await nP.waitForFunction(() => NAV.level === 'spread'); await nP.click('[data-nav-level="day"]'); await waitView('day');
     ok((await st()).level === 'day', 'level buttons: Spread then Day');
-    await nP.click('[data-nav-level="book"]'); await nP.waitForFunction(() => NAV.level === 'book' && document.documentElement.dataset.view === 'book'); ok((await st()).hash === '#book', 'level button: Book');
+    await nP.click('[data-nav-level="book"]'); await nP.waitForFunction(() => NAV.level === 'book' && document.documentElement.dataset.view === 'book'); ok(/^#book\//.test((await st()).hash), 'level button: Book');
     // keyboard
     await nP.evaluate(() => document.querySelector('#bk-view').focus()); await nP.keyboard.press('Enter'); await nP.waitForFunction(() => NAV.level === 'spread');
     await nP.keyboard.press('Enter'); await waitView('day'); r = await st(); ok(r.level === 'day', 'keyboard: Enter goes in a level (book, spread, day)');
@@ -632,26 +635,26 @@ ok(!errs.length, 'no page errors ' + errs.join(' | '));
     const h0 = await nP.evaluate(() => [location.hash, window.history.length]);
     await nP.mouse.move(700, 450); for (let i = 0; i < 3; i++) { await nP.mouse.wheel(0, -350); await nP.waitForTimeout(80); } await nP.waitForTimeout(700);
     const h1 = await nP.evaluate(() => [location.hash, window.history.length, NAV.level]);
-    ok(h0[0] === '#book' && /^#spread\/\d+$/.test(h1[0]) && h1[2] === 'spread' && h1[1] === h0[1] + 1, `pinch or wheel between levels updates the URL (${h0[0]} -> ${h1[0]}) and adds one history entry`);
+    ok(/^#book\//.test(h0[0]) && /^#spread\/\d+$/.test(h1[0]) && h1[2] === 'spread' && h1[1] === h0[1] + 1, `pinch or wheel between levels updates the URL (${h0[0]} -> ${h1[0]}) and adds one history entry`);
     // double tap: all the way in
     await nP.click('[data-nav-level="book"]'); await nP.waitForFunction(() => NAV.level === 'book'); await nP.waitForTimeout(600);
     const box = await nP.locator(`.bpg[data-n="${dayN}"]`).boundingBox();
     await nP.mouse.click(box.x + box.width / 2, box.y + box.height / 2); await nP.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
     await waitView('day'); r = await st(); ok(r.level === 'day' && r.hash === '#day/2026-10-14', 'double-tap on a page goes straight to its day');
     // reload / deep links restore the level
-    await goHash('#day/2026-10-14'); r = await st(); ok(r.level === 'day' && r.view === 'day' && r.crumbs === `Book > Spread ${sp(dayN)} > Day Oct 14` && r.main !== 'none', 'reload on #day/2026-10-14 restores the day (with its breadcrumb)');
+    await goHash('#day/2026-10-14'); r = await st(); ok(r.level === 'day' && r.view === 'day' && r.crumbs === `${LBT} > Spread ${sp(dayN)} > Day Oct 14` && r.main !== 'none', 'reload on #day/2026-10-14 restores the day (with its breadcrumb)');
     await goHash(`#spread/${sp(dayN)}`); r = await st();
     ok(r.level === 'spread' && r.view === 'book' && (await nP.evaluate((n) => { const q = document.querySelector(`.bpg[data-n="${n}"]`).getBoundingClientRect(), v = document.querySelector('#bk-view').getBoundingClientRect(); return q.left >= v.left - 2 && q.right <= v.right + 2 && q.width > 200; }, dayN)), `reload on #spread/${sp(dayN)} restores that spread, zoomed`);
     await goHash('#book'); r = await st(); ok(r.level === 'book' && r.view === 'book', 'reload on #book restores the whole book');
-    await goHash('#spread/999'); r = await st(); ok(r.level === 'book' && r.hash === '#book', 'a spread that does not exist falls back to the book');
+    await goHash('#spread/999'); r = await st(); ok(r.level === 'book' && /^#book\//.test(r.hash), 'a spread that does not exist falls back to the book');
     await goHash('#nonsense'); r = await st(); ok(r.level === 'book', 'an unknown hash opens the book');
     // a typed hash and browser history move the level too
     await nP.evaluate(() => { location.hash = '#day/2026-10-20'; }); await waitView('day'); r = await st(); ok(r.level === 'day' && r.crumbs.endsWith('Day Oct 20'), 'editing the hash by hand changes the level');
     // a day outside the sample month still opens the editor
-    await goHash('#day/2027-03-05'); r = await st(); ok(r.level === 'day' && r.view === 'day' && r.crumbs === 'Book > Day Mar 5', 'a day that is not in the sample book still opens the day editor');
+    await goHash('#day/2027-03-05'); r = await st(); ok(r.level === 'day' && r.view === 'day' && r.crumbs === LBT + ' > Day Mar 5', 'a day that is not in the sample book still opens the day editor');
     // non-day pages: read-only page view with the note
     await goHash(`#page/safety`); r = await st();
-    ok(r.level === 'day' && r.view === 'page' && r.main === 'none' && r.pv !== 'none' && r.crumbs === `Book > Spread ${sp(safeN)} > My safety plan`, `a page that is not a day page opens its page view (${r.hash}, "${r.crumbs}")`);
+    ok(r.level === 'day' && r.view === 'page' && r.main === 'none' && r.pv !== 'none' && r.crumbs === `${LBT} > Spread ${sp(safeN)} > My safety plan`, `a page that is not a day page opens its page view (${r.hash}, "${r.crumbs}")`);
     ok(await nP.evaluate(() => /read-only for now/.test(document.querySelector('.pgv-note').textContent) && /later step/.test(document.querySelector('.pgv-note').textContent) && document.querySelectorAll('#pgv .page').length === 1 && /safety plan/i.test(document.querySelector('#pgv').textContent)), 'the page view says editing arrives in a later step and shows the real page');
     ok(await nP.evaluate(() => document.querySelector('#pgv .page').getBoundingClientRect().width > 300 && document.querySelector('#laygrp').offsetParent === null && document.querySelector('#undo').offsetParent === null), 'the page view hides the day editor controls');
     await nP.screenshot({ path: `${OUT}/nav-desktop-4-page.png` });
@@ -671,7 +674,7 @@ ok(!errs.length, 'no page errors ' + errs.join(' | '));
     // accessibility: live region, focus, keyboard reach, reduced motion
     await goHash('#book');
     await nP.evaluate((n) => KW.go({ level: 'day', n }), dayN); await waitView('day');
-    ok(await nP.evaluate(() => /Now at: Book, Spread \d+, Day Oct 14\. Day page, viewing/.test(document.querySelector('#nav-live').textContent) && document.querySelector('#nav-live').getAttribute('aria-live') === 'polite'), 'a live region announces the current level');
+    ok(await nP.evaluate(() => /Now at: Library, .+, Spread \d+, Day Oct 14\. Day page, viewing/.test(document.querySelector('#nav-live').textContent) && document.querySelector('#nav-live').getAttribute('aria-live') === 'polite'), 'a live region announces the current level');
     ok(await nP.evaluate(() => !!(document.activeElement && document.activeElement.closest('#crumbs') && document.querySelector('nav#crumbs').getAttribute('aria-label') === 'Breadcrumb' && document.querySelector('#crumb-list [aria-current="page"]'))), 'focus lands on the current crumb; the breadcrumb is a labelled nav with aria-current');
     await nP.keyboard.press('Shift+Tab');
     ok(await nP.evaluate(() => { const e = document.activeElement; return !!e && e.matches('button') && getComputedStyle(e).outlineStyle !== 'none'; }), 'keyboard focus is visible on the navigation controls');
@@ -716,7 +719,7 @@ ok(!errs.length, 'no page errors ' + errs.join(' | '));
   await ph.click('#done'); await ph.waitForFunction(() => document.documentElement.dataset.mode === 'view'); await ph.waitForTimeout(200);
   await ph.click('#nv-back'); await ph.waitForFunction(() => document.documentElement.dataset.view === 'book'); await ph.waitForTimeout(600);
   ok((await ph.evaluate(() => NAV.level)) === 'spread', 'Back on a phone returns to the spread');
-  await ph.click('#crumb-list [data-crumb="0"]'); await ph.waitForFunction(() => NAV.level === 'book'); await ph.waitForTimeout(400);
+  await ph.click('#crumb-list [data-crumb="1"]'); await ph.waitForFunction(() => NAV.level === 'book'); await ph.waitForTimeout(400);
   await ph.evaluate(() => KW.go({ level: 'day', id: 'safety' })); await ph.waitForFunction(() => document.documentElement.dataset.view === 'page'); await ph.waitForTimeout(400);
   ok(await noScroll() && (await fitCrumbs()) && (await tiny()).length === 0, 'Page view: no sideways scroll, breadcrumb fits, 44px targets');
   await ph.screenshot({ path: `${OUT}/nav-phone-4-page.png` });
@@ -861,6 +864,208 @@ ok(!errs.length, 'no page errors after the Book view ' + errs.join(' | '));
   ok(await ap.evaluate(() => document.querySelectorAll('#pal li.pi').length > 20 && !!document.querySelector('#done').offsetParent), 'Artifact build: Edit shows the editor, Done is there');
   await ap.click('#done'); await inMode(ap, 'view'); await ap.close();
   ok(!e1.length, 'no page errors on the phone, dark, reduced-motion or Artifact runs ' + e1.join(' | '));
+}
+// ---------- Library and Series (L1b): two levels above the Book, on the generic sample library ----------
+{
+  const { SAMPLE_LIBRARY } = await import('./sample-library.mjs');
+  const { validateLibrary } = await import('../library.mjs');
+  const { serializeSnapshot } = await import('../../studio/src/snapshot.mjs');
+  ok(validateLibrary(SAMPLE_LIBRARY).length === 0 && SAMPLE_LIBRARY.series.length === 2 && SAMPLE_LIBRARY.books.some((x) => !x.seriesId), 'the sample library is valid: a standalone book and two series');
+  ok(!/Spokane|Keeping Watch|Shelbee/i.test(JSON.stringify(SAMPLE_LIBRARY)), 'the sample library holds no personal data');
+  const perrs = [];
+  const seeded = async (vp = { width: 1400, height: 900 }, o = {}) => {
+    const pg = await b.newPage({ viewport: vp, ...o }); pg.on('pageerror', (e) => perrs.push(e.message));
+    await pg.addInitScript((l) => { try { if (!localStorage.getItem('kw-library')) localStorage.setItem('kw-library', JSON.stringify(l)); } catch {} }, SAMPLE_LIBRARY);
+    return pg;
+  };
+  const open = async (pg, hash) => { await pg.goto('about:blank'); await pg.goto(URL0 + hash, { waitUntil: 'networkidle' }); await pg.waitForFunction(() => window.KW && document.documentElement.dataset.view); await pg.waitForTimeout(700); };
+  const at = (pg) => pg.evaluate(() => { const it = document.activeElement && document.activeElement.closest && document.activeElement.closest('.sh-item'); return { level: NAV.level, view: document.documentElement.dataset.view, hash: location.hash, crumbs: [...document.querySelectorAll('#crumb-list li')].map((x) => x.textContent.trim()).join(' > '), edit: NAV.edit, mode: document.documentElement.dataset.mode, live: document.querySelector('#nav-live').textContent, focusKey: it ? it.dataset.key : '' }; });
+  const settle = (pg, level) => pg.waitForFunction((l) => NAV.level === l && !NAV.busy(), level, { timeout: 8000 }).then(() => pg.waitForTimeout(350));
+  const libIds = (pg) => pg.evaluate(() => JSON.stringify({ b: LB.lib.books.map((x) => x.id + (x.seriesId ? '@' + x.seriesId : '')), s: LB.lib.series.map((x) => x.id + ':' + x.order.join('+')) }));
+  const lp = await seeded();
+  await open(lp, '#library');
+  let r = await at(lp);
+  ok(r.level === 'library' && r.view === 'shelf' && r.hash === '#library' && r.crumbs === 'Library', 'Library: #library opens the shelves, breadcrumb "Library"');
+  ok(await lp.evaluate(() => [...document.querySelectorAll('#sh-list .sh-item')].map((x) => x.dataset.key).join() === 'book:northlight,series:seasons,series:practice'), 'the shelf lists the standalone book and the two series, series as stacks');
+  ok(await lp.evaluate(() => [...document.querySelectorAll('#sh-list .cv .title h1')].map((x) => x.textContent).join() === 'Northlight,Autumn,Practice book one' && document.querySelectorAll('#sh-list .sh-stack.st').length === 2), 'covers are the real title page (pages.mjs) with each book’s own title; a series is a stack');
+  ok(/^Now at: Library\b/.test(r.live), `announces the level ("${r.live.slice(0, 40)}...")`);
+  ok(await lp.evaluate(() => document.activeElement.classList.contains('sh-open')), 'focus lands on a cover');
+  ok(await lp.evaluate(() => document.querySelector('#edit').offsetParent !== null && document.querySelector('#sh-new-book').offsetParent === null && document.querySelectorAll('.sh-tools').length === 0), 'viewing the library: Edit is offered, no editing controls exist');
+  await lp.screenshot({ path: `${OUT}/lib-1-library.png` });
+  // in: series, book; out: Escape, and focus returns to the cover left
+  await lp.focus('#sh-list .sh-item[data-id="seasons"] .sh-open'); await lp.keyboard.press('Enter'); await settle(lp, 'series'); r = await at(lp);
+  ok(r.hash === '#series/seasons' && r.crumbs === 'Library > Season journals' && /^Now at: Library, Season journals\b/.test(r.live), `Enter on a series opens it (${r.hash}, "${r.crumbs}")`);
+  ok(await lp.evaluate(() => [...document.querySelectorAll('#sh-list .sh-item')].map((x) => x.dataset.id).join() === 'autumn-2026,winter-2026,spring-2027' && [...document.querySelectorAll('#sh-list .sh-n')].map((x) => x.textContent).join() === '1,2,3' && /Book 2 of 3 in Season journals/.test(document.querySelector('[data-id="winter-2026"] .cv').textContent)), 'the series shows its books in order, numbered, with the series line on each cover');
+  await lp.screenshot({ path: `${OUT}/lib-2-series.png` });
+  await lp.keyboard.press('ArrowRight'); await lp.keyboard.press('Enter'); await settle(lp, 'book'); r = await at(lp);
+  ok(r.view === 'book' && r.hash === '#book/winter-2026' && r.crumbs === 'Library > Season journals > Winter', `Enter on a book opens it (${r.hash}, "${r.crumbs}")`);
+  ok(await lp.evaluate(() => /Winter/.test(document.querySelector('.bpg[data-n="1"] .title h1').textContent)), 'the book’s own title is on its title page');
+  await lp.screenshot({ path: `${OUT}/lib-3-book.png` });
+  await lp.keyboard.press('Escape'); await settle(lp, 'series'); r = await at(lp);
+  ok(r.level === 'series' && r.focusKey === 'book:winter-2026', 'Escape from the book goes out to its series, focus on the book it left');
+  await lp.keyboard.press('Escape'); await settle(lp, 'library'); r = await at(lp);
+  ok(r.level === 'library' && r.focusKey === 'series:seasons', 'Escape again goes out to the library, focus on the series it left');
+  await lp.focus('#sh-list .sh-item[data-id="northlight"] .sh-open'); await lp.keyboard.press('Enter'); await settle(lp, 'book'); r = await at(lp);
+  ok(r.crumbs === 'Library > Northlight', 'a standalone book skips the series level');
+  await lp.keyboard.press('Escape'); await settle(lp, 'library'); ok((await at(lp)).level === 'library', 'and Escape from it goes straight to the library');
+  // zoom: buttons, keys, wheel, pinch
+  await lp.click('#sh-list .sh-item[data-id="seasons"] .sh-open'); await settle(lp, 'series');
+  await lp.click('#sh-out'); await settle(lp, 'library'); ok((await at(lp)).level === 'library', 'zoom out button: series to library');
+  await lp.focus('#sh-list .sh-item[data-id="seasons"] .sh-open'); await lp.click('#sh-in'); await settle(lp, 'series'); ok((await at(lp)).level === 'series', 'zoom in button opens the focused cover');
+  await lp.keyboard.press('Minus'); await settle(lp, 'library'); ok((await at(lp)).level === 'library', 'the - key zooms out');
+  await lp.focus('#sh-list .sh-item[data-id="seasons"] .sh-open'); await lp.keyboard.press('Shift+Equal'); await settle(lp, 'series'); ok((await at(lp)).level === 'series', 'the + key zooms in');
+  await lp.evaluate(() => document.querySelector('#shelf').dispatchEvent(new WheelEvent('wheel', { ctrlKey: true, deltaY: 200, bubbles: true, cancelable: true }))); await settle(lp, 'library'); ok((await at(lp)).level === 'library', 'ctrl/cmd + wheel (a trackpad pinch) out goes up a level');
+  await lp.evaluate(() => { const c = document.querySelector('#sh-list [data-id="seasons"] .sh-open').getBoundingClientRect(); document.querySelector('#shelf').dispatchEvent(new WheelEvent('wheel', { ctrlKey: true, deltaY: -200, clientX: c.left + c.width / 2, clientY: c.top + c.height / 2, bubbles: true, cancelable: true })); }); await settle(lp, 'series'); ok((await at(lp)).level === 'series', 'ctrl/cmd + wheel in opens the cover under the pointer');
+  await lp.evaluate(() => { const el = document.querySelector('#shelf'), mk = (t, id, x, y) => el.dispatchEvent(new PointerEvent(t, { pointerId: id, clientX: x, clientY: y, bubbles: true, pointerType: 'touch' })); mk('pointerdown', 31, 600, 400); mk('pointerdown', 32, 800, 400); mk('pointermove', 32, 680, 400); mk('pointermove', 31, 650, 400); }); await settle(lp, 'library'); ok((await at(lp)).level === 'library', 'pinching in on the shelf zooms out');
+  await lp.click('#sh-list .sh-item[data-id="seasons"] .sh-open'); await settle(lp, 'series'); await lp.click('#sh-list .sh-item[data-id="autumn-2026"] .sh-open'); await settle(lp, 'book');
+  await lp.click('#bk-out'); await settle(lp, 'series'); ok((await at(lp)).level === 'series', 'zoom out button at the whole book goes up to its series');
+  await lp.click('#sh-list .sh-item[data-id="autumn-2026"] .sh-open'); await settle(lp, 'book');
+  await lp.mouse.move(700, 450); for (let i = 0; i < 4 && (await lp.evaluate(() => NAV.level)) === 'book'; i++) { await lp.mouse.wheel(0, 300); await lp.waitForTimeout(120); } await settle(lp, 'series'); ok((await at(lp)).level === 'series', 'wheeling out past the whole book goes up to its series');
+  // routes: reload, back and forward, unknown ids
+  await open(lp, '#series/practice'); r = await at(lp); ok(r.level === 'series' && r.crumbs === 'Library > Undated practice books', 'reload on #series/<id> restores the series');
+  await lp.reload({ waitUntil: 'networkidle' }); await lp.waitForTimeout(800); ok((await at(lp)).hash === '#series/practice', 'and again after a plain reload');
+  await open(lp, '#book/spring-2027'); r = await at(lp); ok(r.level === 'book' && r.crumbs === 'Library > Season journals > Spring', 'reload on #book/<id> restores the book');
+  await lp.evaluate(() => KW.go({ level: 'spread', s: 4 })); await settle(lp, 'spread'); await lp.reload({ waitUntil: 'networkidle' }); await lp.waitForTimeout(900); r = await at(lp);
+  ok(r.level === 'spread' && r.hash === '#spread/5' && r.crumbs === 'Library > Season journals > Spring > Spread 5', 'reload on #spread/5 keeps the book it was in');
+  await open(lp, '#series/nope'); ok((await at(lp)).level === 'library', 'an unknown series id falls back to the library');
+  await open(lp, '#book/nope'); ok((await at(lp)).level === 'library', 'an unknown book id falls back to the library');
+  await open(lp, '#nonsense'); ok((await at(lp)).level === 'library', 'an unknown hash opens the library (several books)');
+  await open(lp, '#library'); await lp.click('#sh-list .sh-item[data-id="seasons"] .sh-open'); await settle(lp, 'series'); await lp.click('#sh-list .sh-item[data-id="spring-2027"] .sh-open'); await settle(lp, 'book');
+  await lp.goBack(); await settle(lp, 'series'); r = await at(lp); ok(r.hash === '#series/seasons', 'browser Back from the book returns to the series');
+  await lp.goBack(); await settle(lp, 'library'); r = await at(lp); ok(r.hash === '#library', 'and again to the library');
+  await lp.goForward(); await settle(lp, 'series'); await lp.goForward(); await settle(lp, 'book'); ok((await at(lp)).hash === '#book/spring-2027', 'Forward walks back in');
+  ok(await lp.evaluate(() => document.querySelector('[data-nav-level="library"]').getAttribute('aria-pressed') === 'false' && document.querySelector('[data-nav-level="book"]').getAttribute('aria-pressed') === 'true' && !document.querySelector('[data-nav-level="series"]').disabled), 'level buttons: Library, Series, Book, Spread, Day; the current one is pressed');
+  await lp.keyboard.press('l'); await settle(lp, 'library'); ok((await at(lp)).level === 'library', 'the L key goes to the library');
+  ok(await lp.evaluate(() => document.querySelector('[data-nav-level="series"]').disabled), 'the Series level button is off when no series is in play');
+  ok(!perrs.length, 'no page errors while moving between levels ' + perrs.join(' | '));
+  // one book: no empty shelves
+  const sp1 = await b.newPage({ viewport: { width: 1200, height: 800 } }); sp1.on('pageerror', (e) => perrs.push(e.message));
+  await sp1.goto(URL0, { waitUntil: 'networkidle' }); await sp1.waitForFunction(() => BK.ready); await sp1.waitForTimeout(500); r = await at(sp1);
+  ok(r.level === 'book' && /^#book\//.test(r.hash), 'a library of one book opens straight to the book');
+  await sp1.evaluate(() => KW.go({ level: 'library' })); await settle(sp1, 'library'); ok(await sp1.evaluate(() => document.querySelectorAll('#sh-list .sh-item').length === 1 && /One book so far/.test(document.querySelector('#sh-note').textContent)), 'the library still opens on request, with its one book');
+  await sp1.close();
+  // ---- editing: only in edit mode ----
+  await open(lp, '#library');
+  await lp.click('#edit'); await lp.waitForFunction(() => NAV.edit); r = await at(lp);
+  ok(r.hash === '#library/edit' && r.mode === 'edit' && /Editing the library/.test(r.live), 'Edit: #library/edit, announced');
+  ok(await lp.evaluate(() => document.querySelector('#sh-new-book').offsetParent !== null && document.querySelectorAll('.sh-tools').length === 3 && document.querySelector('#edit').hidden && !document.querySelector('#done').hidden), 'edit mode shows New book, New series, Export, Import and each cover’s tools; Done replaces Edit');
+  await lp.screenshot({ path: `${OUT}/lib-4-library-edit.png` });
+  await lp.reload({ waitUntil: 'networkidle' }); await lp.waitForTimeout(800); ok((await at(lp)).edit, 'reload on #library/edit restores editing');
+  await lp.click('#done'); await lp.waitForFunction(() => !NAV.edit); r = await at(lp); ok(r.hash === '#library' && r.mode === 'view' && await lp.evaluate(() => document.querySelectorAll('.sh-tools').length === 0), 'Done: back to viewing, the tools are gone');
+  await lp.keyboard.press('e'); await lp.waitForFunction(() => NAV.edit); await lp.keyboard.press('Escape'); await lp.waitForFunction(() => !NAV.edit); ok(true, 'E edits and Escape is Done');
+  await open(lp, '#series/seasons/edit'); r = await at(lp); ok(r.level === 'series' && r.edit && await lp.evaluate(() => document.querySelector('#sh-series-set').offsetParent !== null), 'editing a series opens on its books, with the series settings');
+  // new book -> sheet; validation in plain words; save
+  await open(lp, '#library/edit');
+  await lp.click('#sh-new-book'); ok(await lp.evaluate(() => document.querySelector('#lib-sheet').open && document.activeElement.id === 'bs-title' && document.querySelector('#ls-h').textContent === 'New book'), 'New book opens its settings sheet on the title');
+  await lp.fill('#bs-title', ''); await lp.click('#ls-save'); ok(await lp.evaluate(() => { const e = document.querySelector('#ls-errs'); return !e.hidden && /Give the book a title/.test(e.textContent) && !/books\[/.test(e.textContent); }), 'an empty title is refused in plain words');
+  await lp.fill('#bs-title', 'Travel notes'); await lp.fill('#bs-sub', 'Places and plans'); await lp.selectOption('#bs-scope', 'quarter'); await lp.fill('#bs-start', '2027-01'); await lp.click('#ls-save');
+  ok(await lp.evaluate(() => { const bk = LB.lib.books.find((x) => x.id === 'untitled-book'); return !!bk && bk.title === 'Travel notes' && bk.plan.scope === 'quarter' && !document.querySelector('#lib-sheet').open; }), 'saving the sheet creates the book with its title and plan');
+  ok(await lp.evaluate(() => document.querySelector('[data-id="untitled-book"] .sh-name').textContent === 'Travel notes' && /Quarter/.test(document.querySelector('[data-id="untitled-book"] .sh-meta').textContent)), 'the shelf shows it at once');
+  await lp.click('#sh-undo'); ok(!(await libIds(lp)).includes('untitled-book'), 'Undo takes it back');
+  // a monthly clash is explained with titles
+  await lp.click('#sh-new-book'); await lp.fill('#bs-title', 'Clash'); await lp.fill('#bs-start', '2026-11'); await lp.click('#ls-save');
+  ok(await lp.evaluate(() => document.querySelector('#lib-sheet').open && /“Northlight” and “Clash”/.test(document.querySelector('#ls-errs').textContent) && /scan codes would repeat/.test(document.querySelector('#ls-errs').textContent)), 'two monthly books whose codes would repeat: the sheet says so, by title');
+  await lp.click('#ls-cancel'); ok(!(await libIds(lp)).includes('clash'), 'Cancel on a new book takes it back');
+  // rename through settings; the title reaches the cover
+  await lp.click('#sh-list [data-id="northlight"] [data-act="settings"]'); await lp.fill('#bs-title', 'Northlight Two'); await lp.fill('#bs-spine', 'NL2'); await lp.click('#ls-save');
+  ok(await lp.evaluate(() => LB.lib.books[0].title === 'Northlight Two' && LB.lib.books[0].spineTitle === 'NL2' && /Northlight Two/.test(document.querySelector('#sh-list [data-id="northlight"] .cv').textContent)), 'renaming a book (title, spine title) shows on its cover');
+  await lp.screenshot({ path: `${OUT}/lib-5-after-rename.png` });
+  ok(await lp.evaluate(() => document.activeElement.closest('.sh-item') && document.activeElement.closest('.sh-item').dataset.id === 'northlight'), 'after Save focus returns to the cover');
+  // series settings: keyboard order; numbering changes
+  await lp.click('#sh-list [data-id="seasons"] [data-act="settings"]');
+  await lp.click('#ss-order li:nth-child(1) [data-mv="1"]'); await lp.waitForTimeout(120);
+  ok(await lp.evaluate(() => [...document.querySelectorAll('#ss-order .t')].map((x) => x.textContent).join() === 'Winter,Autumn,Spring' && !!document.activeElement.closest('#ss-order') && /Autumn is now book 2 of 3/.test(document.querySelector('#live').textContent)), 'series order by the move buttons: reordered, focus stays, announced');
+  ok(await lp.evaluate(() => document.querySelectorAll('#ss-order [data-grip]').length === 3), 'and each book has a drag grip');
+  await lp.selectOption('#ss-scope', 'quarter'); await lp.selectOption('#ss-cover', 'night'); await lp.click('#ls-save');
+  ok(await lp.evaluate(() => { const rb = LM.resolveBook(LB.lib, 'autumn-2026', {}); return LB.lib.series[0].order.join() === 'winter-2026,autumn-2026,spring-2027' && LB.lib.series[0].defaults.plan.scope === 'quarter' && LB.lib.series[0].defaults.cover.style === 'night' && rb.plan.scope === 'quarter' && rb.from['plan.scope'] === 'series'; }), 'saved: order and defaults; a book resolves its plan from the series');
+  await lp.click('#sh-list [data-id="seasons"] .sh-open'); await settle(lp, 'series');
+  ok(await lp.evaluate(() => [...document.querySelectorAll('#sh-list .sh-item')].map((x) => x.dataset.id).join() === 'winter-2026,autumn-2026,spring-2027' && /Book 1 of 3/.test(document.querySelector('[data-id="winter-2026"] .cv').textContent)), 'the series level and the numbering follow the new order');
+  // book settings: inherited from the series, override, leave the series
+  await lp.click('#edit'); await lp.waitForFunction(() => NAV.edit); await lp.click('#sh-list [data-id="autumn-2026"] [data-act="settings"]');
+  ok(await lp.evaluate(() => /Same as the series \(Quarter\)/.test(document.querySelector('#bs-scope option[value=""]').textContent) && document.querySelector('#bs-series').value === 'seasons'), 'a book’s sheet says what it takes from its series');
+  await lp.selectOption('#bs-scope', 'year'); await lp.selectOption('#bs-series', ''); await lp.click('#ls-save');
+  ok(await lp.evaluate(() => { const bk = LB.lib.books.find((x) => x.id === 'autumn-2026'); return bk.plan.scope === 'year' && !bk.seriesId && !LB.lib.series[0].order.includes('autumn-2026'); }), 'a book can override the plan and leave the series (membership stays consistent)');
+  await lp.click('#sh-undo');
+  // move on the shelf
+  await open(lp, '#library/edit');
+  await lp.click('#sh-list .sh-item:nth-child(1) [data-act="later"]'); await lp.waitForTimeout(120); ok(await lp.evaluate(() => [...document.querySelectorAll('#sh-list .sh-item')].map((x) => x.dataset.key).join() === 'series:seasons,book:northlight,series:practice' && /position 2/.test(document.querySelector('#live').textContent)), 'move later on the shelf reorders the library and announces it');
+  await lp.click('#sh-undo');
+  // delete with a question, cancel, confirm, undo; a series keeps its books
+  await lp.click('#sh-list [data-id="northlight"] [data-act="settings"]'); await lp.click('#bs-del');
+  ok(await lp.evaluate(() => document.querySelector('#lib-confirm').open && /Delete/.test(document.querySelector('#lc-h').textContent)), 'delete asks first');
+  await lp.click('#lc-acts .btn:first-child'); ok(await lp.evaluate(() => LB.lib.books.some((x) => x.id === 'northlight')), 'Cancel keeps the book');
+  await lp.click('#bs-del'); await lp.click('#lc-acts .btn.danger'); ok(await lp.evaluate(() => !LB.lib.books.some((x) => x.id === 'northlight') && !document.querySelector('#lib-snack').hidden && !document.querySelector('#lib-snack-undo').hidden), 'confirmed: the book is deleted and the snackbar offers Undo');
+  await lp.click('#lib-snack-undo'); ok(await lp.evaluate(() => LB.lib.books.some((x) => x.id === 'northlight')), 'Undo brings it back');
+  await lp.click('#sh-list [data-id="practice"] [data-act="settings"]'); await lp.click('#ss-del');
+  ok(await lp.evaluate(() => [...document.querySelectorAll('#lc-acts .btn')].map((x) => x.textContent).join('|') === 'Cancel|Keep the books|Delete series and 2 books'), 'deleting a series asks: keep its books, or delete them with it');
+  await lp.click('#lc-acts .btn:nth-child(2)'); ok(await lp.evaluate(() => !LB.lib.series.some((x) => x.id === 'practice') && LB.lib.books.filter((x) => !x.seriesId).length === 3), 'the books stay on the shelf as books of their own');
+  await lp.click('#sh-undo'); ok(await lp.evaluate(() => LB.lib.series.some((x) => x.id === 'practice')), 'Undo restores the series');
+  // duplicate
+  await lp.click('#sh-list [data-id="northlight"] [data-act="settings"]'); await lp.click('#bs-dup'); ok(await lp.evaluate(() => LB.lib.books.some((x) => x.id === 'northlight-copy' && x.title === 'Northlight Two (copy)' && x.edition === 2 && !x.bookId)), 'duplicate book: a copy with the next edition and no scan-code id yet');
+  await lp.click('#sh-list [data-id="seasons"] [data-act="settings"]'); await lp.click('#ss-dup'); ok(await lp.evaluate(() => { const c = LB.lib.series.find((x) => x.id === 'seasons-copy'); return !!c && c.order.length === 3 && c.title === 'Season journals (copy)'; }), 'duplicate series: a copy with a copy of each book');
+  await lp.screenshot({ path: `${OUT}/lib-6-after-edits.png` });
+  // persistence: this browser keeps it
+  await lp.reload({ waitUntil: 'networkidle' }); await lp.waitForTimeout(800); ok(await lp.evaluate(() => LB.lib.series.length === 3 && LB.lib.books.some((x) => x.id === 'northlight-copy')), 'the library is kept in this browser (localStorage) across a reload');
+  // export and import
+  const [dlw] = await Promise.all([lp.waitForEvent('download'), lp.click('#sh-export')]);
+  await dlw.saveAs(`${OUT}/library-export.json`); const exp = JSON.parse(fs.readFileSync(`${OUT}/library-export.json`, 'utf8'));
+  ok(exp.version === 1 && validateLibrary(exp).length === 0 && exp.books.length === (await lp.evaluate(() => LB.lib.books.length)) && dlw.suggestedFilename() === 'library.json', 'Export gives library.json, a valid library file');
+  fs.writeFileSync(`${OUT}/library-bad.json`, JSON.stringify({ version: 1, books: [{ id: 'x', title: '' }], series: [] }));
+  await lp.setInputFiles('#lib-file', `${OUT}/library-bad.json`); await lp.waitForSelector('#lib-confirm[open]');
+  ok(await lp.evaluate(() => /problems/.test(document.querySelector('#lc-h').textContent) && /Give the book a title/.test(document.querySelector('#lc-list').textContent) && LB.lib.series.length === 3), 'importing a broken file lists the problems in plain words and changes nothing');
+  await lp.click('#lc-acts .btn');
+  fs.writeFileSync(`${OUT}/library-good.json`, JSON.stringify(exp));
+  const before = await libIds(lp);
+  await lp.evaluate(() => { LB.lib = LM.removeBook(LB.lib, 'northlight-copy'); });
+  await lp.setInputFiles('#lib-file', `${OUT}/library-good.json`); await lp.waitForSelector('#lib-confirm[open]'); await lp.click('#lc-acts .btn.primary');
+  ok((await libIds(lp)) === before, 'importing an exported file replaces the library with it');
+  await lp.close();
+  // storage blocked: the library still works in memory, and says so
+  const bl = await b.newPage({ viewport: { width: 1200, height: 800 } }); bl.on('pageerror', (e) => perrs.push('blocked: ' + e.message));
+  await bl.addInitScript(() => { Storage.prototype.setItem = () => { throw new DOMException('blocked', 'SecurityError'); }; Storage.prototype.getItem = () => { throw new DOMException('blocked', 'SecurityError'); }; });
+  await bl.goto(URL0 + '#library/edit', { waitUntil: 'networkidle' }); await bl.waitForFunction(() => window.KW && document.documentElement.dataset.view === 'book' || document.documentElement.dataset.view === 'shelf'); await bl.waitForTimeout(600);
+  await bl.evaluate(() => KW.go({ level: 'library', edit: true })); await bl.waitForFunction(() => NAV.level === 'library' && NAV.edit);
+  await bl.click('#sh-new-book'); await bl.fill('#bs-title', 'In memory'); await bl.click('#ls-save');
+  ok(await bl.evaluate(() => LB.lib.books.some((x) => x.title === 'In memory') && /can.t keep your library/.test(document.querySelector('#lib-snack-t').textContent)), 'with browser storage blocked the library works in memory and says it cannot be kept');
+  ok(!perrs.some((e) => /blocked/.test(e)), 'blocked storage throws nothing'); await bl.close();
+  // the Studio: a project keeps the library in its snapshot
+  const st = await seeded(); await open(st, '#library');
+  const sn = await st.evaluate(() => { ST.headSnap = { meta: { title: 'Sample', subtitle: '', slug: 'sample', description: '' } }; const first = KWLIB.part(); const l = LM.addBook(LB.lib, { title: 'Studio book' }); lbApply(l.library); return { before: first, after: KWLIB.part() }; });
+  ok(JSON.stringify(sn.before) === '{}' && sn.after.meta && sn.after.meta.library.books.some((x) => x.title === 'Studio book'), 'a Studio draft carries the library once it was edited (and not before)');
+  let snapOk = true; try { serializeSnapshot({ meta: sn.after.meta }); } catch { snapOk = false; }
+  ok(snapOk, 'the studio accepts that snapshot (meta.library passes its privacy and shape checks)');
+  ok(await st.evaluate(() => { KWLIB.fromSnapshot({ meta: { title: 'Other', subtitle: '', slug: 'other', description: '' } }); return LB.lib.books.length === 1 && LB.lib.books[0].title === 'Other'; }), 'a project without a library is a library of its one book');
+  await st.close();
+  // the demo: a sample library built in, never saved; the working editor and the Artifact carry none
+  const demo = fs.readFileSync(new URL('./dist/demo/index.html', import.meta.url), 'utf8'), site = fs.readFileSync(new URL('./dist/site/index.html', import.meta.url), 'utf8'), art = fs.readFileSync(new URL('./dist/artifact.html', import.meta.url), 'utf8');
+  ok(/const SAMPLE_LIB = \{"version":1/.test(demo) && /const SAMPLE_LIB = (\/\*__SAMPLELIB__\*\/)?null;/.test(site) && /const SAMPLE_LIB = (\/\*__SAMPLELIB__\*\/)?null;/.test(art), 'the demo carries the generic sample library; the working editor and the Artifact carry none');
+  // phone: each level, no sideways scroll, breadcrumb fits, 44px targets; dark
+  for (const [scheme, tag] of [['light', ''], ['dark', '-dark']]) {
+    const pp = await seeded({ width: 390, height: 844 }, { deviceScaleFactor: 2, hasTouch: true, colorScheme: scheme });
+    const noScroll = () => pp.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.body.scrollWidth <= innerWidth);
+    const tiny = () => pp.evaluate(() => [...document.querySelectorAll('.top button, #shelf button, #book button, #book input, #lib-sheet button, #lib-sheet select, #lib-sheet input:not([type=checkbox])')].filter((x) => x.offsetParent && (x.getBoundingClientRect().height < 43.5 || x.getBoundingClientRect().width < 43.5)).map((x) => x.id || x.dataset.act || x.dataset.navLevel || x.textContent.trim().slice(0, 12)));
+    const fit = () => pp.evaluate(() => { const c = document.querySelector('#crumbs').getBoundingClientRect(), l = document.querySelector('#crumb-list'); return l.scrollWidth <= c.width + 1 && c.right <= innerWidth; });
+    for (const [hash, name] of [['#library', 'library'], ['#series/seasons', 'series'], ['#library/edit', 'library-edit'], ['#series/seasons/edit', 'series-edit']]) {
+      await open(pp, hash);
+      ok(await noScroll() && await fit() && (await tiny()).length === 0, `phone ${scheme}, ${name}: no sideways scroll, breadcrumb fits, 44px targets ${(await tiny()).join(',')}`);
+      await pp.screenshot({ path: `${OUT}/lib-phone${tag}-${name}.png` });
+    }
+    await pp.click('#sh-list .sh-item:nth-child(1) [data-act="settings"]'); await pp.waitForTimeout(300);
+    ok(await noScroll() && (await tiny()).length === 0 && await pp.evaluate(() => { const d = document.querySelector('#lib-sheet').getBoundingClientRect(); return d.left >= 0 && d.right <= innerWidth + 1 && d.bottom <= innerHeight + 1; }), `phone ${scheme}, settings sheet: fits, no sideways scroll, 44px targets ${(await tiny()).join(',')}`);
+    await pp.screenshot({ path: `${OUT}/lib-phone${tag}-sheet.png` }); await pp.keyboard.press('Escape');
+    await open(pp, '#book/winter-2026'); ok(await noScroll() && await fit() && (await tiny()).length === 0, `phone ${scheme}, book in a series: breadcrumb fits ${(await tiny()).join(',')}`);
+    await pp.screenshot({ path: `${OUT}/lib-phone${tag}-book.png` });
+    await pp.close();
+    const dp = await seeded({ width: 1200, height: 800 }, { colorScheme: scheme });
+    for (const [hash, name] of [['#library', 'library'], ['#series/seasons', 'series'], ['#library/edit', 'library-edit']]) { await open(dp, hash); await dp.screenshot({ path: `${OUT}/lib-desktop${tag}-${name}.png` }); }
+    await dp.click('#sh-list .sh-item:nth-child(2) [data-act="settings"]'); await dp.waitForTimeout(300); await dp.screenshot({ path: `${OUT}/lib-desktop${tag}-sheet.png` }); await dp.keyboard.press('Escape');
+    await open(dp, '#book/winter-2026/edit'); await dp.screenshot({ path: `${OUT}/lib-desktop${tag}-book-edit.png` });
+    await dp.close();
+  }
+  // reduced motion: no fade between levels
+  const rmp = await seeded({ width: 1200, height: 800 }, { reducedMotion: 'reduce' }); await open(rmp, '#library');
+  ok(await rmp.evaluate(() => getComputedStyle(document.querySelector('#shelf')).animationName === 'none'), 'reduced motion: the shelves open without a fade'); await rmp.close();
+  ok(!perrs.length, 'no page errors in the Library and Series checks ' + perrs.join(' | '));
 }
 // Versions drawer (Journalwright Studio) with no server configured: versions are kept in this browser, and the editor is untouched
 {
