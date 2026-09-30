@@ -210,6 +210,7 @@ run with the real calendar secrets; order one private KDP proof per size with th
 | E1 | View versus edit: the editor UI (palette, options, panels) shows only while editing a page, not while viewing it (section 16); small, can go now | 1 agent |
 | L1 | Library and series: custom titles for every book, several books per project, series, Library → Series → Book → Spread → Page navigation (section 16); after H1 merges | 1–2 agents |
 | P1 | Account profile with saved locations that feed new books (section 17); pairs with Phase F units 2 and 3 | 1 agent |
+| PACKS | Pack ecosystem: many pack types, artist packs (themes, graphics, icons, fonts), block packs, registry and pack manager (section 20); builds on the F2 content-pack unit | 5–6 agents in slices |
 | I18N | Languages: translated UI and printed books, RTL and other scripts, X4 language packs (section 18); string extraction first | 3–4 agents |
 | A11Y | Accessibility options: editor, printed books, X4, site (section 15); audit first, then units; every new unit follows the checklist | 2–3 agents |
 | X4NET | X4 joins Wi-Fi, serves the editor on any network, and syncs with the Studio when the user starts it (section 19); supersedes the phone-as-courier route in section 14 as the primary path | 2–3 agents |
@@ -464,3 +465,52 @@ Shelbee's decision: in addition to its own hotspot, the X4 can join a Wi-Fi netw
 - **N2 sync client:** TLS with a pinned key, pairing, device token, sync screen with a preview of what will be sent, categories, resumable small transfers, failure handling; server side in `studio/`: device tokens, endpoints, audit and revoke UI, private log storage, permission tests.
 - **N3 editor on the device:** section 14 slices X1 to X3 on top of N1 and N2, with a conflict view for "Studio has newer changes".
 - **Checks:** firmware CI green with RAM and flash numbers; no plain-text credentials on the SD card beyond the saved network (marked as such); an "off" test that proves nothing is sent unless Sync is pressed; the log-off default; privacy tests that a snapshot never contains log data.
+
+## 20. Pack ecosystem (2026-09-30)
+
+Shelbee's decision: support many pack types for any need, including packs made by independent artists: custom themes, graphics packs, icon packs, and **block packs**. F2 (content packs) is the first slice; its manifest and loader are built for extension.
+
+**Pack types (a registry, not a fixed list; each kind is one entry in `journal/packs/kinds.mjs`)**
+| Group | Kinds |
+|---|---|
+| Regional content (F2) | support and resources, clinic and care contacts, trans and LGBTQ+ support, transit feeds, holidays and observances, seasons and local history |
+| Words and language | language packs (strings, calendar names, first weekday), prompt packs (rotating prompts with sources), fact packs ("on this day" and seasonal facts by region), safety-plan templates (structure and style, no numbers) |
+| Method and layout | method layout packs (one-click layouts), page packs (whole pages such as collections, future log, year in pixels), tracker and habit sets, starter kits (a bundle of layouts, blocks, theme and prompts) |
+| Look | themes (type scale, rule weights, tones, spacing, paper styles, cover styles, running heads), fonts (open licences, embedded, never Type 3), icon sets, graphics packs (dividers, borders, corner ornaments, stickers, sketch frames, spot art) |
+| Blocks | block packs: new day-page and page blocks with options, print rendering, zones and optional X4 export |
+| Calendar and sky | secondary-calendar packs (Hijri, Hebrew, Buddhist, Japanese era), moon and sky art |
+| X4 | X4 sleep-screen art, check-in sets, language packs for the device |
+
+**One manifest, every kind:** `pack.json` schema 1 with id, title, semver, `kind`, author, licence (SPDX plus attribution text and a `commercial-print-ok` flag), an engine version range, region and languages where relevant, verification records, and a sha256 for every file. Unknown kinds fail with a clear message. Each kind supplies its own data schema, validator, and rules for how the build consumes it, plus a **privacy class**: `public` (may be shared and forked) or `personal` (personal contacts and support numbers: never in a snapshot or a fork).
+
+**Artist packs and print safety.** Print is unforgiving, so packs are checked before they can be used:
+- **Graphics and icons:** SVG only, sanitised on install (no scripts, no external references, no embedded raster fonts; text converted to outlines); black and white or grayscale-safe; a minimum stroke weight of 0.75 pt so lines survive KDP; size and complexity limits; a preview sheet is generated and checked by the pack validator.
+- **Themes and fonts:** only open-licence or explicitly licensed-for-print fonts, subset and embedded as real fonts (no Type 3; the `pdffonts` gate stays); tones limited to what prints cleanly in black and white; themes cannot move or restyle the fixed scan elements out of their safe rules (frame, code, quiet zone), and they cannot break the overflow check: `check.mjs` runs on a themed book.
+- **Licences and credits:** every pack states its licence; the build refuses a pack with no licence or with `commercial-print-ok: false` for a book marked for sale; used packs are credited automatically on a Credits page (attribution text from the manifest), and the manifest of a book lists every pack and version it used.
+
+**Block packs: declarative, not code.** Third-party code would be a security and print-safety risk, so blocks are described in data, not JavaScript: a block declares its name, group, icon, options (num, bool, choice, flags, text, list, like `TYPES`), and a **render description** built from a fixed set of safe primitives (text, ruled lines, dot and grid areas, boxes, bubbles and scales, checkboxes, columns, icons and graphics from installed packs, spacers, the day's date and sun times as inputs), plus its data-zone name, grid minimum span and whether it exports to the X4 (`checks`, `scale`, `habits`, `fields`, `count`, `choice`) with the existing bridge rules. The engine renders it through the same path as built-in blocks, so print, editor preview, zones, grid placement, overflow checks and X4 export all work unchanged. The pack validator renders every option variant at both trims and fails on overflow, on missing zones, on Type 3 fonts, or on blocks that do not fit their declared minimum span.
+
+**Installing and using packs (editor and studio)**
+- A Packs manager: browse installed packs by kind, enable per book or per series, see what each pack changes, preview themes and icon sets live, install from a file, a URL or a git repository, update and remove. Packs used by a project are pinned by hash in the project, so a fork or a reprint gets the same look.
+- Sources: a bundled core set, the user's own folder, and later a public registry (an index file in a git repository, moderated). Trust levels: built in, verified community, unverified (shown with a warning and limited to the safe primitives above; nothing runs as code).
+- Studio: packs are content-addressed assets; snapshots carry references and hashes, and `personal` packs never travel. Forks keep credits and attribution. Proposals and merges treat a pack change like any other change to the project.
+- X4: X4 kinds are compiled into the export pack; the device never runs pack code.
+
+**For artists:** a pack builder CLI (`packs-cli new <kind>`, `check`, `preview`, `pack`), a template folder per kind, a preview gallery that shows the pack in a sample book and on the X4 where it applies, plain-language documentation, and a licence chooser in the manifest. Payment and a marketplace are **not** planned yet; that is a separate decision (licences and credits are enforced now so paid distribution could be added later).
+
+**Slices**
+- **PK0 core:** the manifest and kind registry, common checks, pinning in the project, credits, privacy classes (extends F2).
+- **PK1 regional content packs (F2)** and the packs CLI.
+- **PK2 look packs:** themes, fonts, icon sets, graphics packs, with the SVG sanitiser and print-safety checks.
+- **PK3 block packs:** the declarative block format and renderer, validator, X4 export mapping.
+- **PK4 words and method packs:** language, prompt, fact, safety-plan template, method layout, page packs, tracker sets, starter kits.
+- **PK5 manager and registry:** the editor's Packs manager, install from file, URL or git, studio pinning and credits, the registry index.
+- **PK6 artist tooling and docs.**
+
+### Puzzle pages and blocks: crosswords and word searches (added 2026-09-30)
+Shelbee asked for crosswords and word searches. They fit the pack system in three places:
+- **Generators (engine, not packs):** deterministic puzzle generators in the engine, seeded from the book id, page id and a puzzle seed, so a reprint gives the same puzzle and every page stays unique. **Word search:** grid size (8 to 20), word count, directions (across and down only, diagonals, backwards), filler letters, a hidden word or theme line, an optional bonus word. **Crossword:** a symmetric or free-form grid built from a word and clue list, numbered cells and across and down clue lists, difficulty by word length and crossing count, with a check that every word crosses at least one other and no dead ends. Both print as black-and-white vectors (real fonts, no Type 3), scan-safe (fixed frame and code), and pass `check.mjs` at both trims.
+- **Blocks and pages:** a Word search block and a Crossword block for the day page (small puzzle, sits in the grid), and full puzzle pages (a whole page, a spread, or a "puzzle corner" at the back) with an **answer key** on a separate page at the back (or a flipped-over strip), generated from the same seed so the key always matches. Options: size, difficulty, theme, large-print mode (bigger cells and type), one puzzle per page or several, number of puzzles per book, and whether the key is included.
+- **Puzzle packs (a pack kind `puzzles`):** word lists with themes (seasons, moon phases, herbs, a city's places, a method's vocabulary), crossword clue sets (word plus clue), difficulty tags, languages (alphabets and right-to-left handled through the language packs), and licences. **Clues must be original or openly licensed**: the validator requires a licence and an author, and the build credits them on the Credits page. No copying of published crossword clues.
+- **X4:** paper only (no puzzle solving on the device in scope). The accessibility options apply: large print and high-contrast ink for cells and letters, dyslexia-friendly type, and answer keys for helpers.
+- **Slice:** PK-puzzles after PK3 (block packs), or earlier as a built-in pair of generators if Shelbee wants them first; generators and tests (every puzzle valid: all words placed and found, crossword crossings correct, deterministic across runs, unique across a book, fits both trims, key matches) come first.
