@@ -22,6 +22,7 @@ const OG_IC = {
   ok: OG_SVG('<circle cx="10" cy="10" r="7.5"/><path d="M6.5 10.2l2.4 2.4 4.6-5"/>'), bad: OG_SVG('<path d="M10 2.8 18 16.5H2z"/><path d="M10 8v4M10 14.2v.1"/>'),
   info: OG_SVG('<circle cx="10" cy="10" r="7.5"/><path d="M10 9v4.5M10 6.6v.1"/>'),
 };
+const orgPlanScope = () => { try { return LM.resolveBook(LB.lib, LB.cur, {}).plan.scope || 'month'; } catch { return 'month'; } }; // volumes (H1) come from the plan; the sample is one month
 const orgOn = () => ORG.on && !!ORG.cat && NAV.view === 'book' && NAV.level === 'book' && NAV.edit;
 
 // ----- loading -----
@@ -180,14 +181,12 @@ function orgRender(say, keepPid, keepEid) {
   }
   orgPanel(); orgSelBar(); orgButtons();
   if (say) orgSay(say(f));
-  else if (say === undefined) { /* a redraw only */ }
 }
 function orgButtons() {
   $('#og-undo').disabled = !ORG.undo.length; $('#og-redo').disabled = !ORG.redo.length;
 }
 
 // ----- the selected page toolbar -----
-const orgWhy = { text: '', bad: false };
 function orgSelBar() {
   const bar = $('#org-sel'); if (!ORG.on || !ORG.cat) { bar.hidden = true; return; }
   const n = BK.sel, p = n ? BK.pages[n - 1] : null, at = orgEntry(), hid = !n && at && ORG.keepHid;
@@ -311,7 +310,7 @@ function orgPanel() {
     <div class="og-sum" id="og-sum"><div><b>${orgPlural(f.pages.length, 'page', 'pages')}</b> <span class="fine">· ${orgPlural(spreads, 'spread', 'spreads')}${ORG.hard ? ' · hardcover' : ' · paperback'}</span></div>
       <div class="kdp ${kdp.ok ? 'ok' : 'bad'}">${kdp.ok ? OG_IC.ok : OG_IC.bad}<span>${escH(kdp.text)}</span></div>
       <button class="og-sw" type="button" role="switch" aria-checked="${ORG.hard}" data-act="hard" data-fk="hard" style="justify-content:flex-start">Count as a hardcover (76 pages at least)</button>
-      <p class="fine" style="margin:0">The sample shows one month. Every month follows the same page list, with its own weeks.</p></div>
+      <p class="fine" style="margin:0">${orgPlanScope() !== 'month' ? `This book’s plan is ${escH(LM.SCOPE_NAMES[orgPlanScope()] || orgPlanScope())}: it prints as volumes of at most 110 pages, cut on month or week boundaries. The sample here is one month.` : 'The sample shows one month. Every month follows the same page list, with its own weeks.'}</p></div>
     ${missing.length ? `<div class="og-warn" id="og-missing" role="alert"><b>This book can’t be saved or printed yet.</b><ul>${missing.map((m) => `<li>${escH(m.from.slice(0, 3).join(', '))}${m.from.length > 3 ? ' and more' : ''} points to <b>${escH(m.target)}</b>, which isn’t in the book. Put ${escH(m.target)} back, or undo.</li>`).join('')}</ul></div>` : ''}
     <h3>Changes apply to</h3>
     <fieldset class="og-scope"><legend class="sr">Which months a change applies to</legend>
@@ -395,7 +394,7 @@ $('#og-body').addEventListener('click', (e) => {
   if (act === 'reset') { $('#org-reset').returnValue = ''; $('#org-reset').showModal(); }
 });
 $('#og-body').addEventListener('change', (e) => {
-  if (e.target.name === 'og-scope') { ORG.only = e.target.value === 'one'; ORG.sel = ORG.sel; orgRender(); orgSay(ORG.only ? `Changes now apply only to ${orgMonthName(ORG.mon)}.` : 'Changes now apply to all months.'); }
+  if (e.target.name === 'og-scope') { ORG.only = e.target.value === 'one'; orgRender(); orgSay(ORG.only ? `Changes now apply only to ${orgMonthName(ORG.mon)}.` : 'Changes now apply to all months.'); }
   else if (e.target.id === 'og-mon') { ORG.mon = e.target.value; ORG.only = true; orgRender(); orgSay(`Showing ${orgMonthName(ORG.mon)}${BKE.overridden(ORG.book).includes(ORG.mon) ? ', which has its own pages' : ', which follows the default'}.`); }
   else if (e.target.id === 'og-where') ORG.whereTouched = true;
 });
