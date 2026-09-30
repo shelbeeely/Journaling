@@ -1,6 +1,17 @@
+---
+title: Full Focus Planner (Michael Hyatt)
+slug: full-focus-planner
+category: planner
+evidenceLevel: anecdotal
+lastReviewed: 2026-09-30
+status: reviewed
+contributors:
+  - Journalwright Studio contributors
+---
+
 # Full Focus Planner (Michael Hyatt)
 
-A reference for the Full Focus Planner: where it came from, how every part works (annual goals, quarterly Big 3, ideal week, weekly preview, Daily Big 3, daily rituals), how people bend it, how it compares with its sibling goal planners (PowerSheets and the SELF Journal), and what Keeping Watch should take from it.
+A reference for the Full Focus Planner: where it came from, how every part works (annual goals, quarterly Big 3, ideal week, weekly preview, Daily Big 3, daily rituals), how people bend it, how it compares with its sibling goal planners (PowerSheets and the SELF Journal), and what Journalwright Studio should take from it.
 
 Checked against sources on 2026-09-28. Where a detail comes only from a secondary source or couldn't be confirmed, it's marked **(unconfirmed)** or **(secondary)**.
 
@@ -408,7 +419,7 @@ STAGE    front   back    front   back    front   off     off
 
 ## 10. Worked examples
 
-A generic example (not Shelbee's data) for someone with an outdoor shift job and a side goal.
+A generic example for someone with an outdoor shift job and a side goal.
 
 ### A day (Wednesday 14 Oct)
 
@@ -744,50 +755,50 @@ No controlled study of the Full Focus Planner exists. Its parts map onto better-
 
 ---
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
-Keeping Watch already has most of the Full Focus daily page: **Top priorities** (`top`, default "Top 3") is the Daily Big 3, **Time blocks** is the schedule, and **Writing space** is the notes page. What's missing is the **week and quarter link** (Weekly Big 3, wins, after-action review, rest plan) and the **four ritual ticks**. The "high achiever" framing should not come across; the structure can, with calm words.
+Journalwright Studio already has most of the Full Focus daily page: **Top priorities** (`top`, default "Top 3") is the Daily Big 3, **Time blocks** is the schedule, and **Writing space** is the notes page. The four **ritual ticks** exist as a "Rituals" preset. What's missing is the **week and quarter link** (Weekly Big 3, wins, after-action review, rest plan). The "high achiever" framing should not come across; the structure can, with calm words.
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Already built? |
 |---|---|---|---|---|
-| Daily Big 3 | Day block | High | `top` block, n 3. `data-zone="top"` | **Yes** |
-| Status marks (done, started, handed off, moved, dropped) | Front matter key + Quick bullets key strip | High | Shapes as SVG; reuse the BuJo key where it overlaps (`>` = deferred, `✗` = dropped) and add `/` and `○` | Partly (**being added** with Quick bullets) |
-| Four ritual ticks (Morning, Start, Shut down, Evening) | Day block | High | Four small boxes with icons (sun, door-in, door-out, moon). `data-zone="rituals"` | No (can be a `checks` preset now) |
-| Weekly Big 3 | Week spread | High | Three numbered lines at the top of the week. `data-zone="week_top"` | No |
-| Wins (3 lines) | Weekly review page | High | `data-zone="wins"` | Partly (weekly review exists; check its prompts) |
-| Keep · Improve · Start · Stop | Weekly review page | Medium | Four short labelled lines or a 2×2 grid. `data-zone="kiss"` | No |
-| Rest plan: sleep, eat, move, connect, relax | Week spread | High | Five icon rows with one line each. `data-zone="rest_plan"`. Matches Keeping Watch's care focus | No |
-| Weeks-left strip | Month page | Low | Keeping Watch is monthly; a "days left in month" strip is pressure without much use | Don't |
-| Month's 3 (instead of Quarterly Big 3) | Month page | Medium | Three lines; carried into Closing the month. `data-zone="month_top"` | No |
-| Ideal week grid | Back matter (once per book) or Keeper | Medium | 7 columns × 3 bands (me / work / people). Label columns by shift, not weekday. `data-zone="ideal_week"` | No |
-| Ritual cards (steps + minutes) | Front matter or Keeper | Medium | Four boxes, filled once a month | No |
-| Goal detail page (why, first step, celebrate) | Month page or Keeper | Low–Med | Keeper suits it (stays home, no scan codes needed) | No |
+| Daily Big 3 | Day block | High | `top` block, n 3. `data-zone="top"` | **Built** |
+| Status marks (done, started, handed off, moved, dropped) | Front matter key + Quick bullets key strip | High | Shapes as SVG; reuse the BuJo key where it overlaps (`>` = deferred, `✗` = dropped) and add `/` and `○` | Partly (Quick bullets has an optional key strip; the full set of status marks is planned) |
+| Four ritual ticks (Morning, Start, Shut down, Evening) | Day block | High | Four small boxes with icons (sun, door-in, door-out, moon). `data-zone="rituals"` | **Built** as a `checks` preset ("Rituals"); the icon version is planned |
+| Weekly Big 3 | Week spread | High | Three numbered lines at the top of the week. `data-zone="week_top"` | Planned |
+| Wins (3 lines) | Weekly review page | High | `data-zone="wins"` | Partly (a weekly review page exists; check its prompts) |
+| Keep · Improve · Start · Stop | Weekly review page | Medium | Four short labelled lines or a 2×2 grid. `data-zone="kiss"` | Planned |
+| Rest plan: sleep, eat, move, connect, relax | Week spread | High | Five icon rows with one line each. `data-zone="rest_plan"`. Matches the care-first focus of the printed book | Planned |
+| Weeks-left strip | Month page | Low | Books are monthly by default; a "days left in month" strip is pressure without much use | Don't |
+| Month's 3 (instead of Quarterly Big 3) | Month page | Medium | Three lines; carried into Closing the month. `data-zone="month_top"` | Planned |
+| Ideal week grid | Back matter (once per book) or Keeper | Medium | 7 columns × 3 bands (me / work / people). Label columns by shift, not weekday. `data-zone="ideal_week"` | Planned |
+| Ritual cards (steps + minutes) | Front matter or Keeper | Medium | Four boxes, filled once a month | Planned |
+| Goal detail page (why, first step, celebrate) | Month page or Keeper | Low–Med | The Keeper suits it (stays home, no scan codes needed) | Planned |
 
-### b. X4
+### b. E-ink companion (X4)
 
 | Idea | Where | Fit | RAM, scope and calm notes |
 |---|---|---|---|
-| Four ritual toggles | Check-in items (`toggle` × 4) via a `checks` block | High | Four slots of the 16 custom. Tiny RAM. No reminders, just a place to tick |
-| "Today's 3" typed on the Wi-Fi page, shown on the sleep screen | Sleep screen + Wi-Fi page | Medium | About 3 × 40 bytes. Static text redrawn at 12:31 a.m. Shows as plain lines, no counts, no checkmarks-left |
-| Weekly rest plan as a read-only card | A screen | Low–Med | Text file from the Wi-Fi page. No alerts |
-| Month stats: ritual days ticked | Month stats for the Keeper handoff | Medium | Count per ritual (0–31). Fits existing stats. Show as numbers, no streaks or badges |
+| Four ritual toggles | Check-in items (`toggle` × 4) via a `checks` block | High | Four slots of the 16 custom. Tiny RAM. No reminders, just a place to tick. **Built** (the "Rituals" preset is a Checkboxes block) |
+| "Today's 3" typed on the Wi-Fi page, shown on the sleep screen | Sleep screen + Wi-Fi page | Medium | Planned. About 3 × 40 bytes. Static text redrawn at 12:31 a.m. Shows as plain lines, no counts, no checkmarks-left |
+| Weekly rest plan as a read-only card | A screen | Low–Med | Planned. Text file from the Wi-Fi page. No alerts |
+| Month stats: ritual days ticked | Month stats | Medium | Planned. Count per ritual (0–31). Show as numbers, no streaks or badges |
 | Weeks-left countdown | Sleep screen | Low | Countdown pressure; against calm design |
 
 ### c. Proposed editor blocks
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `checks` preset "Rituals" | Daily rituals | Label "Rituals"; labels ["Morning", "Start", "Shut down", "Evening"] | `checks` (`checks_2` on repeats) | `toggle` × 4 |
-| `top` (existing) | Top priorities | Label "Today's 3", n 3, (being added) 15-min time bubbles | `top` | Not exported (free text) |
-| `tasks` | Other tasks with status | rows (num 3–8, def 5), status column (bool), sequence column (bool) | `tasks` | Not exported |
-| `restplan` | Rest plan | items (flags: sleep, eat, move, connect, relax; def all), lines per item (num 1–2) | `rest_plan` | Not exported (or `habits` preset: `dots` × 5 if Shelbee wants to log it) |
-| `wins` | Wins | n (num 1–5, def 3), label (text, def "Went right") | `wins` | Not exported |
+| `checks` preset "Rituals" (**built**) | Daily rituals | Label "Rituals"; labels ["Morning", "Start", "Shut down", "Evening"] | `checks` (`checks_2` on repeats) | `toggle` × 4 |
+| `top` (existing) | Top priorities | Label "Today's 3", n 3, optional 15-min time circles (**built**) | `top` | Not exported (free text) |
+| `tasks` (planned) | Other tasks with status | rows (num 3–8, def 5), status column (bool), sequence column (bool) | `tasks` | Not exported |
+| `restplan` (planned) | Rest plan | items (flags: sleep, eat, move, connect, relax; def all), lines per item (num 1–2) | `rest_plan` | Not exported (or `habits` preset: `dots` × 5 if the user wants to log it) |
+| `wins` (planned) | Wins | n (num 1–5, def 3), label (text, def "Went right") | `wins` | Not exported |
 
 Rest plan as a check-in alternative: a `habits` block titled "Rest" with labels Sleep / Eat / Move / Connect / Relax exports five `dots` items (empty, half, full), which is gentler than yes/no.
 
-### d. Proposed method layout: "Full Focus"
+### d. Proposed method layout: "Full Focus" (planned)
 
 Ordered blocks for one click:
 
@@ -809,7 +820,7 @@ Care check-in and Spoons stay optional add-ons.
 - **Weeks-left countdown.** Creates urgency by design; clashes with calm, low-stimulation pages.
 - **SMARTER "risky" goals.** Fine for some; not a default for a care-first journal.
 - **Front stage / back stage / off stage metaphor for everything.** Office-shaped. Shift work needs "work / recover / people" or just time bands.
-- **Quarterly books.** Keeping Watch is monthly with a yearly Keeper; don't add a third cadence.
+- **Quarterly books.** The default book is monthly with a yearly Keeper; don't add a third cadence.
 - **Colour-coded goals.** Print is black and white.
 - **The "42% more likely" statistic.** Weak source; don't print it.
 

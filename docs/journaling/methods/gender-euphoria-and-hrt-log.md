@@ -1,3 +1,14 @@
+---
+title: Gender euphoria journal and HRT log
+slug: gender-euphoria-and-hrt-log
+category: mental-health
+evidenceLevel: some
+lastReviewed: 2026-09-30
+status: reviewed
+contributors:
+  - Journalwright Studio contributors
+---
+
 # Gender euphoria journal and HRT log
 
 > **Not medical advice.** This doc describes journaling and record-keeping. It never tells you what dose, route or schedule to use. Hormone decisions belong to you and your prescriber. Numbers quoted from clinical guidelines are there so you know what your clinic might track, not so you can change anything on your own.
@@ -15,7 +26,7 @@ Last checked: 2026-09-28. Uncertain points are marked **(uncertain)**.
 | **Type** | Journal + tracker. Writing practice (euphoria), health log (HRT, labs, voice), record (milestones, appointments). |
 | **Time per day** | 1–3 min (tick dose, one euphoria line, one scale). Injection or patch days: +1 min for site and time. |
 | **Time per week** | 5–10 min (weekly look-back, voice practice minutes, photo/measure if you do that). |
-| **Cost** | $0 (any notebook) to ~$25 (printed Keeping Watch book). Clinic-grade scales are free to read but some are licensed. |
+| **Cost** | $0 (any notebook) to ~$25 (a printed Journalwright Studio book). Clinic-grade scales are free to read but some are licensed. |
 | **Formats and sizes** | Any. Pocket (A6) for a bag, 5.5×8.5 for daily, 8.5×11 for lab tables and body timelines. |
 | **Best for** | Trans, nonbinary and questioning people who want to notice joy, not just distress; anyone on HRT who wants dose, site and lab history in one place; people preparing for appointments. |
 | **Not ideal for** | Anyone whose book could be found by an unsafe person (see Privacy). People for whom tracking body changes feeds anxiety or checking loops. |
@@ -107,7 +118,7 @@ A gender euphoria journal records the moments you feel right in your gender: bei
 
 ### Dysphoria scale (optional)
 
-- Keeping Watch already prints a **Dysphoria** preset: a 5-step scale from *quiet* to *loud*.
+- Journalwright Studio already has a **Dysphoria** Scale preset: a 5-step scale from *quiet* to *loud*.
 - Clinical scales are longer and made for research: UGDS-GS (18 items, 1–5 agree), GCLS (38 items, past 6 months). Don't take them daily. At most, some people take a validated scale every few months to see trends **(check licensing before copying items)**.
 - Skip it on days it would make things worse. A blank is fine.
 
@@ -245,7 +256,7 @@ A gender euphoria journal records the moments you feel right in your gender: bei
 - Body changes row: what you noticed this month.
 - Optional: one photo in the same light and clothes. Many people do a monthly grid; if photos trigger checking, skip.
 - Carry the starred euphoria lines to a "Moments I felt like me" back page.
-- Keeping Watch: the monthly Keeper handoff is where sensitive facts (account numbers, case numbers) go.
+- Journalwright Studio: the yearly Keeper book (no scan codes) is where sensitive facts (account numbers, case numbers) go.
 
 ### Quarterly (around labs)
 
@@ -261,7 +272,7 @@ A gender euphoria journal records the moments you feel right in your gender: bei
 
 ## 9. Page anatomy
 
-All sketches assume the Keeping Watch frame: DATE/TITLE/TAGS header, 9pt frame, SEND TO strip, Data Matrix code.
+All sketches assume the Journalwright Studio page frame: DATE/TITLE/TAGS header, 9pt frame, SEND TO strip, Data Matrix code.
 
 ### Day block (inside a day page)
 
@@ -422,7 +433,7 @@ SUPPLIES  vial opened 9/28; needles 6 left; refill 11/3; sharps 1/2.
 
 ## 13. Official products and formats
 
-Not applicable. There's no official euphoria journal or HRT log product. Some clinics hand out injection logs; some apps exist (see §15). Keeping Watch already prints the HRT & body care and Dysphoria presets and trans support back matter.
+Not applicable. There's no official euphoria journal or HRT log product. Some clinics hand out injection logs; some apps exist (see §15). Journalwright Studio already offers the HRT & body care and Dysphoria presets and a trans support back page.
 
 ## 14. Tools and supplies
 
@@ -439,7 +450,7 @@ Not applicable. There's no official euphoria journal or HRT log product. Some cl
 - **Apps:** medication reminder apps, voice training apps, notes apps, spreadsheets. Some trans-specific HRT tracking apps exist **(names and privacy policies change; check before use)**.
 - **Risks of apps:** cloud sync, data sale, subpoena, device searches, notifications on lock screens that out you. Health data outside clinics often isn't covered by HIPAA in the US **(uncertain in detail; varies by state)**.
 - **E-ink (reMarkable, Kindle Scribe, Boox):** handwriting with passcode; still synced to a cloud unless you turn it off.
-- **Scanning:** Keeping Watch scans pages by their SEND TO strip. HRT and lab pages should route only somewhere private, or not be scanned at all.
+- **Scanning:** Journalwright Studio scans pages by their SEND TO strip. HRT and lab pages should route only somewhere private, or not be scanned at all.
 - **X4:** offline, no sync, nothing leaves except over its own hotspot. A good fit for dose ticks and euphoria counts.
 - **Lost vs gained:** paper can't be hacked but can be found; apps can remind you but can leak. A hybrid (paper for words, X4 for ticks) keeps both private.
 
@@ -494,7 +505,7 @@ Not applicable. There's no official euphoria journal or HRT log product. Some cl
 - **ADHD:** tie dose tick to an existing habit (brushing teeth). One-line euphoria. Pre-printed site row; circle don't write.
 - **Autism and sensory needs:** icons over words; same layout every day; injection-day checklist to lower demand; note sensory side of dressing (texture of clothes can be euphoric or awful).
 - **Chronic illness and low spoons:** tick-only mode; euphoria can be one word; skip voice on low days.
-- **Depression and anxiety:** euphoria first, scale optional; if the scale shows a long run of 5s, that's a reason to reach out (Keeping Watch Safety plan and Trans support pages).
+- **Depression and anxiety:** euphoria first, scale optional; if the scale shows a long run of 5s, that's a reason to reach out (the Safety plan and Trans support pages in a Journalwright Studio book; a clinician or a line you trust also counts).
 - **Trauma:** body pages can be hard. Skip photos and measurements. Tag "Inside" moments more.
 - **Dyslexia and dysgraphia:** circles, ticks, stars; voice memo instead of lines; larger ruling.
 - **Low vision:** 8.5×11, thick lines, high contrast; X4 large text.
@@ -583,7 +594,7 @@ Not applicable. There's no official euphoria journal or HRT log product. Some cl
 - **Clocked / passing:** being read as trans / being read as your gender (loaded words; use your own).
 - **Outing:** someone revealing you're trans without consent.
 - **Sharps box:** hard container for used needles.
-- **Keeper:** Keeping Watch's yearly home book with no scan codes.
+- **Keeper:** Journalwright Studio's yearly home book with no scan codes.
 
 ## 24. FAQ
 
@@ -598,58 +609,58 @@ Not applicable. There's no official euphoria journal or HRT log product. Some cl
 9. **Can estrogen change my voice?** Not pitch. Voice training (ideally with an SLP) does. Testosterone deepens voice over 6–24 months.
 10. **Is this journaling proven to help?** Euphoria is linked to wellbeing. Writing it down specifically hasn't been studied.
 11. **What if I stop or pause HRT?** Keep the same log. Changes after stopping are information, not failure.
-12. **Where do I get crisis support?** Trans Lifeline (US) 877-565-8860 is peer-run and says it is "divested from police". Keeping Watch prints a Safety plan and Trans support page.
+12. **Where do I get crisis support?** Trans Lifeline (US) 877-565-8860 is peer-run and says it is "divested from police". Journalwright Studio books can include a Safety plan and Trans support page. For anything local, check your local services and your clinician.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Built? |
 |---|---|---|---|---|
-| "A moment I felt like me" line | Day block | High | Lined; `data-zone` from Lined notes | **Yes** (preset) |
-| B / I / P source tags beside the line | Day block | High | Three small circles; add to that block as an option | No |
-| HRT & body care ticks | Day block | High | Checkboxes | **Yes** (preset) |
-| Injection site rotation row | Day block | High | Four circled labels; icons (leg, belly) as SVG | No |
-| Patch on/off + spot | Day block | Med | Two boxes + blank | No |
-| Dysphoria 1–5 | Day block | Med | Scale | **Yes** (preset) |
-| Voice minutes + strain | Day block | Med | Fill-in blank + two-choice | Partly (Fill-in blanks) |
-| HRT week strip | Week spread | Med | 7-column grid; one zone per row | No |
-| Body changes timeline | Month page | High | 12 rows, one per month; no photos printed | No |
-| Lab table | Back matter (8.5×11) or Keeper | High | Ruled table; units column | No |
-| Firsts / milestones | Back matter | High | Two-column ruled | No |
-| Appointment prep half page | Back matter | High | Three sections + tick boxes | No |
-| Documents tracker | Keeper | High | No scan codes there, good for case numbers | No |
-| Regimen history | Keeper | High | Private; no scan | No |
-| Trans support | Back matter | High | Existing page | **Yes** |
+| "A moment I felt like me" line | Day block | High | Lined; `data-zone` from Lined notes | **Built** (preset) |
+| B / I / P source tags beside the line | Day block | High | Three small circles; add to that block as an option | Planned |
+| HRT & body care ticks | Day block | High | Checkboxes | **Built** (preset) |
+| Injection site rotation row | Day block | High | Four circled labels; icons (leg, belly) as SVG | **Built** (Injection site rotation block: up to 8 sites, optional time blank) |
+| Patch on/off + spot | Day block | Med | Two boxes + blank | Planned |
+| Dysphoria 1–5 | Day block | Med | Scale | **Built** (preset) |
+| Voice minutes + strain | Day block | Med | Fill-in blank + two-choice | Partly (a "Voice minutes" Fill-in blanks preset exists; no strain choice) |
+| HRT week strip | Week spread | Med | 7-column grid; one zone per row | Planned |
+| Body changes timeline | Month page | High | 12 rows, one per month; no photos printed | Planned |
+| Lab table | Back matter (8.5×11) or Keeper | High | Ruled table; units column | Planned |
+| Firsts / milestones | Back matter | High | Two-column ruled | Planned |
+| Appointment prep half page | Back matter | High | Three sections + tick boxes | Planned |
+| Documents tracker | Keeper | High | No scan codes there, good for case numbers | Planned |
+| Regimen history | Keeper | High | Private; no scan | Planned |
+| Trans support | Back matter | High | Existing page | **Built** (module switch `trans_support`) |
 
-### b. X4
+### b. E-ink companion (X4)
 
 | Idea | Where | Fit | RAM, scope, calm notes |
 |---|---|---|---|
-| HRT taken | Check-in item, `toggle` | High | One bit/day. Already covered by Meds if the person uses Meds for HRT. |
-| Felt like me 1–5 | Check-in item, `scale` | High | One byte/day. No streaks, no badges. |
-| Dysphoria 1–5 | Check-in item, `scale` | Med | Optional; off by default. |
-| Voice minutes | Check-in item, `count` 0–99 | Med | One byte/day. |
-| Injection site | A screen with 4 choices | Low–med | Would need a new `choice` kind; bridge only has toggle/scale/count/dots. Could map to `scale` 1–4 with a label legend **(awkward)**. |
+| HRT taken | Check-in item, `toggle` | High | One bit/day. Any Checkboxes block exports as toggles. The built-in Meds ticks can also serve this if the person uses them for HRT. |
+| Felt like me 1–5 | Check-in item, `scale` | High | One byte/day. No streaks, no badges. The "Felt like me" Scale preset is **built** |
+| Dysphoria 1–5 | Check-in item, `scale` | Med | Optional; off by default. The Scale block exports to the X4 as a check-in |
+| Voice minutes | Check-in item, `count` 0–99 | Med | One byte/day. The "Voice minutes" Fill-in blanks preset is **built** |
+| Injection site | A screen with 4 choices | Low–med | **Built** as a `choice` check-in: the Injection site rotation block always exports the site words (2 to 8 sites, 12 characters each) |
 | Days since last injection | Sleep screen line | Low | Counts toward a date, feels like a countdown; could nudge. Only if the person asks. |
-| Month stats: euphoria days | Keeper handoff | Med | Count of days scale ≥ 4; no charts. |
+| Month stats: euphoria days | Keeper handoff | Med | Planned. Count of days scale ≥ 4; no charts. |
 | Discreet labels | All | High | Let labels be neutral ("E", "✓", "me") so a glance at the screen doesn't out anyone. |
 
-No reminders or alarms: firmware scope says no notifications.
+No reminders or alarms: the e-ink companion's scope says no notifications.
 
 ### c. Proposed editor blocks
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `lines` preset (existing) + new `tags` flag | A moment I felt like me | title, n lines, **tags: B/I/P (bool)** | `lines` (repeats `lines_2`) | none (writing) |
-| `sites` (new) | Site rotation | labels list (default L thigh, R thigh, L belly, R belly), time blank (bool), patch mode (bool) | `sites` | `scale` 1..n (site index) **(proposal; needs a legend)** |
+| `lines` preset (existing) + new `tags` flag | A moment I felt like me | title, n lines, **tags: B/I/P (bool, planned)** | `lines` (repeats `lines_2`) | none (writing) |
+| `sites` (**built**) | Site rotation | labels list (default L thigh, R thigh, L belly, R belly), time blank (bool); patch mode (bool, planned) | `sites` | `choice` (the site words) |
 | `checks` preset (existing) | HRT & body care | labels | `checks` | `toggle` per label |
 | `scale` preset (existing) | Dysphoria | steps, lo, hi | `scale` | `scale` 1..steps |
-| `scale` preset (new) | Felt like me | steps 5, lo "not today", hi "so me" | `scale` | `scale` 1..5 |
-| `fields` preset (new) | Voice | labels ["Voice min"] | `fields` | `count` 0..99 |
-| `words` preset (new) | Body notes | words: headache, tired, tender, hot flash, dizzy, calm, clear | `words` | none |
+| `scale` preset (**built**) | Felt like me | steps 5, lo "not today", hi "so me" | `scale` | `scale` 1..5 |
+| `fields` preset (**built**) | Voice | labels ["Voice min"] | `fields` | `count` 0..99 |
+| `words` preset (planned) | Body notes | words: headache, tired, tender, hot flash, dizzy, calm, clear | `words` | none |
 
-### d. Proposed method layout: "Euphoria & HRT"
+### d. Proposed method layout: "Euphoria & HRT" (planned)
 
 1. `sky` (Moon, sun & season)
 2. `events`
@@ -665,10 +676,10 @@ No reminders or alarms: firmware scope says no notifications.
 
 ### e. Don't adopt
 
-- **Dose fields with numbers pre-filled.** Keeping Watch shouldn't print or suggest doses. A tick is enough.
+- **Dose fields with numbers pre-filled.** Journalwright Studio shouldn't print or suggest doses. A tick is enough.
 - **Validated scale items (GCLS, UGDS-GS, TWVQ) printed verbatim.** Licensing and misuse risk; they're for clinical use.
 - **Photo grids or body measurement charts on day pages.** Feeds checking; also high outing risk if found.
-- **Countdown or streak displays on the X4.** Pressure and badges are out of scope.
+- **Countdown or streak displays on the e-ink companion.** Pressure and badges are out of scope.
 - **"Trans", "HRT" or "transition" on the cover or spine by default.** Outing risk. Let the person choose.
 - **Scanning HRT/lab pages to a shared destination.** Route them to a private SEND TO symbol or don't scan.
 - **Lab values on the X4 or in exported logs.** Not needed on-device; more exposure if the device is lost.
