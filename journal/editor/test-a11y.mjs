@@ -8,6 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { launch } from '../browser.mjs';
+import { SAMPLE_LIBRARY } from './sample-library.mjs';
 
 const REPORT = process.argv.includes('--report');
 const DIST = new URL('./dist/', import.meta.url).pathname, PRODUCT = new URL('../../site/', import.meta.url).pathname;
@@ -39,15 +40,17 @@ const b = await launch();
 const found = [];
 const add = (rule, where, msg) => found.push({ rule, where, msg, key: `${where}: ${msg}` });
 
-async function open(target, { hash = "", w = 1400, h = 900, scheme = 'light', reduce = false, forced = false, contrast = null, wait = 350 } = {}) {
+async function open(target, { hash = "", w = 1400, h = 900, scheme = 'light', reduce = false, forced = false, contrast = null, wait = 350, lib = false } = {}) {
   const ctx = await b.newContext({ viewport: { width: w, height: h }, colorScheme: scheme, reducedMotion: reduce ? 'reduce' : 'no-preference', forcedColors: forced ? 'active' : 'none' });
   const p = await ctx.newPage();
   await p.route(/fonts\.(googleapis|gstatic)/, (r) => r.abort());
   if (process.env.SORTABLE_JS) await p.route(/cdnjs\.cloudflare\.com/, (r) => r.fulfill({ path: process.env.SORTABLE_JS, contentType: 'text/javascript' }));
   const errs = []; p.on('pageerror', (e) => errs.push(e.message));
+  if (lib) await p.addInitScript((l) => { try { localStorage.setItem('kw-library', JSON.stringify(l)); } catch {} }, SAMPLE_LIBRARY); // the generic sample library (L1b): a library with two series and a standalone book
   await p.goto(`${ORIGIN}/${target}/${hash}`, { waitUntil: 'load' });
   if (contrast) await p.emulateMedia({ contrast });
   if (hash.startsWith("#day")) await p.waitForFunction((ed) => document.documentElement.dataset.view === "day" && (ed ? document.querySelectorAll("#list > li").length > 3 : document.querySelectorAll("#pv [data-b]").length >= 3), hash.endsWith("/edit"), { timeout: 15000 }); // (viewing has no block list)
+  if (/^#(library|series)/.test(hash)) await p.waitForFunction(() => document.documentElement.dataset.view === 'shelf' && document.querySelectorAll('#sh-list .sh-item').length > 0, null, { timeout: 15000 });
   await p.waitForTimeout(wait);
   p.errs = errs; p.ctx = ctx;
   return p;
@@ -130,7 +133,7 @@ async function motionCheck(p, label) {
 // ---------- token contrast ----------
 const full = (h) => (/^#[0-9a-f]{3}$/i.test(h) ? "#" + [...h.slice(1)].map((x) => x + x).join("") : h);
 const DAY = '#day/2026-10-14/edit'; // the editor UI exists only while editing (E1); the view-mode checks are near the end
-async function go(p, hash) { await p.evaluate((h) => { location.hash = h; }, hash); const v = hash.startsWith("#day") ? "day" : hash.startsWith("#page") ? "page" : "book"; await p.waitForFunction((v) => document.documentElement.dataset.view === v, v, { timeout: 15000 }); await p.waitForTimeout(700); }
+async function go(p, hash) { await p.evaluate((h) => { location.hash = h; }, hash); const v = hash.startsWith("#day") ? "day" : hash.startsWith("#page") ? "page" : /^#(library|series)/.test(hash) ? "shelf" : "book"; await p.waitForFunction((v) => document.documentElement.dataset.view === v, v, { timeout: 15000 }); await p.waitForTimeout(700); }
 const lum = (h) => { h = full(h); const c = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
 const ratio = (a, c) => { const [x, y] = [lum(a), lum(c)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
 const PAIRS = [['ink', 'bg', 4.5], ['ink', 'panel', 4.5], ['muted', 'bg', 4.5], ['muted', 'panel', 4.5], ['muted', 'soft', 4.5], ['accent-ink', 'accent', 4.5], ['warn', 'warn-bg', 4.5], ['warn', 'bg', 4.5], ['ok', 'bg', 4.5], ['danger', 'bg', 4.5],
@@ -270,6 +273,69 @@ for (const w of [1400, 390]) {
   await go(p, '#page/safety'); await axeRun(p, 'Page view'); await smallTargets(p, 'Page view');
   const pm = await p.evaluate(() => [...document.querySelectorAll('main, [role=main]')].filter((e) => e.offsetParent !== null).length); if (pm !== 1) add('landmarks', 'Page view', `${pm} visible main landmarks (needs 1)`);
   await close(p);
+}
+// 4b) Library and Series (L1b): the shelves, the level above the book, and the settings sheets
+for (const [w, scheme] of [[1400, 'light'], [1400, 'dark'], [390, 'light'], [390, 'dark']]) {
+  for (const hash of ['#library', '#series/seasons']) {
+    const lv = hash.slice(1).split('/')[0], tag = `${lv === 'library' ? 'Library' : 'Series'} (${w}px ${scheme})`;
+    const p = await open('site', { hash, w, h: 900, scheme, lib: true });
+    await axeRun(p, tag); await reflow(p, tag); await smallTargets(p, tag);
+    const main = await p.evaluate(() => [...document.querySelectorAll('main, [role=main]')].filter((e) => e.offsetParent !== null).length);
+    if (main !== 1) add('landmarks', tag, `${main} visible main landmarks (needs 1)`);
+    if (w === 1400 && scheme === 'light') {
+      // the level is announced, Enter goes in, Escape comes out and puts focus back on the cover it came from
+      const say = () => p.evaluate(() => document.querySelector('#nav-live').textContent);
+      if (!/^Now at: Library/.test(await say())) add('announce', tag, 'the level is not announced ("Now at: Library ...")');
+      const first = await p.evaluate(() => document.activeElement && document.activeElement.classList.contains('sh-open'));
+      if (!first) add('keyboard', tag, 'focus does not land on a cover when the level opens');
+      const key = await p.evaluate(() => document.activeElement.closest('.sh-item') && document.activeElement.closest('.sh-item').dataset.key);
+      await p.keyboard.press('Enter'); await p.waitForTimeout(900);
+      if ((await p.evaluate(() => NAV.level)) === lv) add('keyboard', tag, 'Enter on a cover does not go in one level');
+      await p.keyboard.press('Escape'); await p.waitForTimeout(900);
+      if ((await p.evaluate(() => NAV.level)) !== lv) add('keyboard', tag, 'Escape does not go back out one level');
+      if ((await p.evaluate(() => { const c = document.activeElement.closest('.sh-item'); return c ? c.dataset.key : ''; })) !== key) add('keyboard', tag, 'coming back out does not put focus on the cover it left');
+      // skip link and arrow keys
+      await p.focus('.skip-shelf'); await p.keyboard.press('Enter');
+      if (!(await p.evaluate(() => !!document.activeElement.closest('#sh-list')))) add('skip-link', tag, 'the skip link does not move focus to the shelf');
+      const a0 = await p.evaluate(() => document.activeElement.getAttribute('aria-label')); await p.keyboard.press('ArrowRight');
+      if (a0 === (await p.evaluate(() => document.activeElement.getAttribute('aria-label')))) add('keyboard', tag, 'ArrowRight does not move to the next cover');
+      await close(p);
+      const q = await open('site', { hash, w, h: 900, scheme, lib: true }); await focusRing(q, tag, 10); await close(q);
+      continue;
+    }
+    await close(p);
+  }
+}
+{ // edit mode: the settings sheets, the delete question, undo; keyboard order
+  const p = await open('site', { hash: '#library/edit', lib: true });
+  await axeRun(p, 'Library, editing'); await smallTargets(p, 'Library, editing');
+  await p.click('#sh-list .sh-item[data-id="seasons"] [data-act="settings"]'); await p.waitForTimeout(250);
+  if (!(await p.evaluate(() => document.querySelector('#lib-sheet').open && !!document.activeElement.closest('#lib-sheet')))) add('keyboard', 'Series settings sheet', 'opening it does not move focus inside');
+  await axeRun(p, 'Series settings sheet'); await smallTargets(p, 'Series settings sheet');
+  await p.focus('#ss-order li:first-child [data-mv="1"]'); await p.keyboard.press('Enter'); await p.waitForTimeout(150);
+  if (!/Autumn is now book 2 of 3/.test(await p.evaluate(() => document.querySelector('#live').textContent))) add('announce', 'Series order', 'moving a book with the arrow buttons is not announced');
+  if (!(await p.evaluate(() => !!document.activeElement.closest('#ss-order')))) add('keyboard', 'Series order', 'focus is lost after moving a book');
+  await p.keyboard.press('Escape'); await p.waitForTimeout(250);
+  if (!(await p.evaluate(() => !document.querySelector('#lib-sheet').open && !!document.activeElement.closest('#sh-list')))) add('keyboard', 'Series settings sheet', 'Escape does not close the sheet and return focus to the shelf');
+  await p.click('#sh-list .sh-item[data-id="northlight"] [data-act="settings"]'); await p.waitForTimeout(250);
+  await axeRun(p, 'Book settings sheet'); await smallTargets(p, 'Book settings sheet');
+  await p.fill('#bs-title', ''); await p.click('#ls-save'); await p.waitForTimeout(150);
+  if (!(await p.evaluate(() => { const e = document.querySelector('#ls-errs'); return !e.hidden && e.getAttribute('role') === 'alert' && /title/i.test(e.textContent); }))) add('announce', 'Book settings sheet', 'a problem with the title is not shown in an alert');
+  await p.click('#bs-del'); await p.waitForTimeout(250);
+  await axeRun(p, 'Delete question'); await smallTargets(p, 'Delete question');
+  await p.keyboard.press('Escape'); await p.waitForTimeout(150);
+  await p.click('#ls-cancel'); await p.waitForTimeout(150);
+  await close(p);
+  const q = await open('site', { hash: '#library/edit', w: 390, h: 844, lib: true });
+  await q.click('#sh-list .sh-item[data-id="seasons"] [data-act="settings"]'); await q.waitForTimeout(250);
+  await reflow(q, 'Series settings sheet 390px'); await smallTargets(q, 'Series settings sheet 390px');
+  await close(q);
+  const r = await open('site', { hash: '#book/northlight/edit', lib: true, wait: 900 });
+  await axeRun(r, 'Book, editing'); await smallTargets(r, 'Book, editing');
+  await close(r);
+  const m = await open('site', { hash: '#library', lib: true, reduce: true });
+  await motionCheck(m, 'Library'); await go(m, '#series/seasons'); await motionCheck(m, 'Series');
+  await close(m);
 }
 // 5) mobile: tabs, dialogs, reflow, targets
 for (const w of [320, 390]) {

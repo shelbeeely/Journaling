@@ -190,7 +190,7 @@ dialog .btn { min-height: 44px; }
    With no data-view yet the canvas is shown, so the editor never flashes. */
 #book, #pageview { display: none; }
 html:not([data-view="day"]) main, html:not([data-view="day"]) .tabs, html:not([data-view="day"]) #undo, html:not([data-view="day"]) #menu, html:not([data-view="day"]) #status, html:not([data-view="day"]) #laygrp { display: none !important; }
-html:not([data-view="day"]):not([data-view="page"]) #book { display: flex; }
+html:not([data-view="day"]):not([data-view="page"]):not([data-view="shelf"]) #book { display: flex; }
 html[data-view="page"] #pageview { display: flex; }
 html:not([data-view="day"]), html:not([data-view="day"]) body { overflow: hidden; }
 html[data-view="page"], html[data-view="page"] body { overflow: auto; }
@@ -333,10 +333,11 @@ html[data-mode="view"] #pv [data-b]:hover { outline: none; }
   #edit, #done, #edit-pill { order: 2; }
 }
 /*__VSCSS__*/
+/*__LIBCSS__*/
 /* ---------- accessibility (A11Y audit: docs/review/accessibility-audit.md; journal/editor/test-a11y.mjs guards it) ---------- */
 .skip { position: absolute; left: 8px; top: -80px; z-index: 30; min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; background: var(--panel); color: var(--ink); border: 2px solid var(--focus); border-radius: 8px; font-weight: 600; text-decoration: none; }
 .skip:focus { top: 8px; }
-html:not([data-view="day"]) .skip-day, html[data-view="day"] .skip-book, html[data-view="page"] .skip-book { display: none; }
+html:not([data-view="day"]) .skip-day, html[data-view="day"] .skip-book, html[data-view="page"] .skip-book, html[data-view="shelf"] .skip-book, html:not([data-view="shelf"]) .skip-shelf { display: none; }
 #list:focus { outline: none; }
 /* targets: 44 px, the project rule (WCAG 2.2 needs 24) */
 .btn, .tabs button, .menu > div button { min-height: 44px; }
@@ -388,7 +389,7 @@ input[type=text], input[type=password], input[type=url], input:not([type]), sele
 </style>
 
 <header class="top">
-  <a class="skip skip-day" href="#list" data-skip="list">Skip to the blocks on the page</a><a class="skip skip-book" href="#bk-view" data-skip="bk-view">Skip to the book canvas</a><a class="skip skip-view" href="#paper" data-skip="paper">Skip to the page</a>
+  <a class="skip skip-shelf" href="#sh-first" data-skip="sh-first">Skip to the shelf</a><a class="skip skip-day" href="#list" data-skip="list">Skip to the blocks on the page</a><a class="skip skip-book" href="#bk-view" data-skip="bk-view">Skip to the book canvas</a><a class="skip skip-view" href="#paper" data-skip="paper">Skip to the page</a>
   <div class="demo" id="demo" hidden><span>Demo · sample data only. Nothing is saved to any server; your changes stay on this page.</span><a href="../">Back to Journalwright Studio</a></div>
   <div class="bar">
     <h1 id="ttl">Book editor<small>Keeping Watch · every monthly book</small></h1>
@@ -415,7 +416,10 @@ input[type=text], input[type=password], input[type=url], input:not([type]), sele
   <div class="navbar" id="navbar">
     <button class="nv-b" id="nv-back" type="button" aria-label="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4.5M9.5 5 4.5 10l5 5"/></svg><span class="lab">Back</span></button>
     <nav id="crumbs" aria-label="Breadcrumb"><ol id="crumb-list"></ol></nav>
+    <button class="nv-b" id="nv-home" type="button" aria-label="Library" title="Library"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4" width="3.6" height="12" rx=".8"/><rect x="7.2" y="4" width="3.6" height="12" rx=".8"/><path d="m12.7 5.4 3.4-.9 2.4 10.6-3.4.9z"/></svg></button>
     <div class="nv-lv" role="group" aria-label="Zoom level">
+      <button class="nv-b" type="button" data-nav-level="library" aria-pressed="false" aria-label="Library" title="Library (L)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4" width="3.6" height="12" rx=".8"/><rect x="7.2" y="4" width="3.6" height="12" rx=".8"/><path d="m12.7 5.4 3.4-.9 2.4 10.6-3.4.9z"/></svg><span class="lab">Library</span></button>
+      <button class="nv-b" type="button" data-nav-level="series" aria-pressed="false" aria-label="Series" title="This book’s series"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2.5" width="12" height="4" rx="1"/><rect x="4" y="8" width="12" height="4" rx="1"/><rect x="4" y="13.5" width="12" height="4" rx="1"/></svg><span class="lab">Series</span></button>
       <button class="nv-b" type="button" data-nav-level="book" aria-pressed="true" aria-label="Whole book" title="Whole book (0)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="4" height="5" rx=".8"/><rect x="8" y="2.5" width="4" height="5" rx=".8"/><rect x="13.5" y="2.5" width="4" height="5" rx=".8"/><rect x="2.5" y="10.5" width="4" height="5" rx=".8"/><rect x="8" y="10.5" width="4" height="5" rx=".8"/><rect x="13.5" y="10.5" width="4" height="5" rx=".8"/></svg><span class="lab">Book</span></button>
       <button class="nv-b" type="button" data-nav-level="spread" aria-pressed="false" aria-label="One spread" title="One spread (1)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="3.5" width="7" height="13" rx="1"/><rect x="10.5" y="3.5" width="7" height="13" rx="1"/></svg><span class="lab">Spread</span></button>
       <button class="nv-b" type="button" data-nav-level="day" aria-pressed="false" aria-label="One page: the day page editor" title="Day: edit the page (2)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2.5" width="10" height="15" rx="1.2"/><path d="M7.5 7h5M7.5 10h5"/></svg><span class="lab">Day</span></button>
@@ -473,6 +477,7 @@ input[type=text], input[type=password], input[type=url], input:not([type]), sele
       <datalist id="bk-ids"></datalist>
       <button class="bk-b" type="submit" aria-label="Go to page"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h11M10.5 5.5 15 10l-4.5 4.5"/></svg></button>
     </form>
+    <button class="bk-b editonly" id="bk-set" type="button" aria-label="Book settings" title="Book settings"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="2.6"/><path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M4.7 15.3l1.4-1.4M13.9 6.1l1.4-1.4"/></svg><span class="lab">Book settings</span></button>
     <button class="bk-b" id="bk-leg" aria-expanded="false" aria-controls="bk-legend" aria-label="Legend"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.5"/><path d="M10 9v4.5M10 6.6v.1"/></svg></button>
   </div>
   <div id="bk-legend" hidden>
@@ -490,6 +495,7 @@ input[type=text], input[type=password], input[type=url], input:not([type]), sele
   <div class="pgv-note" role="note"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2.5" width="10" height="15" rx="1.2"/><path d="M7.5 7h5M7.5 10h5"/></svg><div><b id="pgv-title"></b><span id="pgv-meta"></span><p>This page is read-only for now. Editing month, week, notes and the other pages arrives in a later step; day pages are editable today.</p></div></div>
   <div class="pgv-stage" id="pgv-stage"><div class="sheet" id="pgv-paper"><div id="pgv"></div></div></div>
 </section>
+<!--__LIBHTML__-->
 <!--__VSHTML__-->
 <input type="file" id="file" accept=".json,application/json" hidden>
 <dialog id="gh" aria-labelledby="gh-h">
@@ -1189,6 +1195,10 @@ function bkRect(x, y, w, h, anim, pad = 12) { // fit a world rectangle in the vi
   BK.x = (bkView.clientWidth - w * z) / 2 - x * z; BK.y = (bkView.clientHeight - h * z) / 2 - y * z; bkApply(anim);
 }
 function bkZoomAt(cx, cy, f, anim) {
+  if (f < 1 && NAV.level === 'book' && BK.z <= bkBookZ() * 1.02 && !NAV.busy()) { // zooming out past the whole book is the next level up: its series, or the library
+    NAV.outAcc = (NAV.outAcc || 0) + Math.log(f); clearTimeout(NAV.outT); NAV.outT = setTimeout(() => { NAV.outAcc = 0; }, 450);
+    if (NAV.outAcc < -0.35) { NAV.outAcc = 0; return navOut(); }
+  }
   if (f > 1 && !NAV.busy()) { // zooming in past one whole page is the next level: the day
     const pz = bkPageZ();
     if (BK.z >= pz * 0.9 && BK.z * f > pz * 1.15) { const n = bkPageAt((cx - BK.x) / BK.z, (cy - BK.y) / BK.z) || bkFocusPage(); return navGo({ level: 'day', n }); }
@@ -1305,7 +1315,7 @@ bkView.addEventListener('keydown', (e) => {
   else if (k === '[' || k === 'PageUp') bkSelect(Math.max(1, (BK.sel || 2) - 1), { center: true });
   else if (k === 'Home') bkSelect(1, { center: true }); else if (k === 'End') bkSelect(BK.pages.length, { center: true });
   else if (k === 'Enter') navIn(); // one level in: book to spread, spread to the day
-  else if (k === 'Escape' || k === 'Backspace') { if (NAV.level === 'book') { bkSelect(0); bkMsg(''); } else navOut(); }
+  else if (k === 'Escape' || k === 'Backspace') { if (NAV.level === 'book') { bkSelect(0); bkMsg(''); NAV.edit ? editOff() : navOut(); } else navOut(); } // out one level: the whole book goes up to its series (or the library)
   else if (k === 'e' || k === 'E') navGo({ level: 'day', n: bkFocusPage(), edit: true }); // Edit the focused page (a page that is not a day page opens for viewing)
   else if (k === 'g' || k === '/') { $('#bk-go').focus(); }
   else used = false;
@@ -1330,9 +1340,10 @@ async function ensureData() {
   if (BK.loaded) return;
   const d = await bkLoadData(); BK.data = d; BK.pages = d.pages; BK.hidden = d.hidden || [];
   const st = document.createElement('style'); st.textContent = d.css.replace(/#pv /g, '#bk-world ') + '#bk-world .page { width: var(--pw); height: 8.5in; }'
-    + d.css.replace(/#pv /g, '#pgv ') + '#pgv .page { width: var(--pw); height: 8.5in; }'; document.head.appendChild(st);
+    + d.css.replace(/#pv /g, '#pgv ') + '#pgv .page { width: var(--pw); height: 8.5in; }'
+    + d.css.replace(/#pv /g, '#shelf ') + '#shelf .cv { --pw: 5.5in; } #shelf .page { width: var(--pw); height: 8.5in; }'; document.head.appendChild(st);
   $('#bk-ids').innerHTML = d.pages.map((p) => `<option value="${escH(p.id)}"></option>`).join('');
-  BK.loaded = true;
+  BK.loaded = true; lbApplyTitlePage();
 }
 function bkResize() { // keep the current level fitted when the window changes
   if (!BK.ready) return;
@@ -1350,24 +1361,32 @@ function bkSize() { // 5.5x8.5 <-> 8.5x11: same pages, the page width changes
 // one whole page, tapping a page, Enter or the level buttons cross into the day. The URL hash mirrors the level:
 //   #book   #spread/12 (1-based)   #day/2026-10-14 (viewing)   #day/2026-10-14/edit (editing)   #page/safety (a page that is not a day page)
 // and back/forward and reload restore it. Everything else in the script asks for a level through navGo(); nothing else touches the hash.
-const NAV = { level: 'book', view: 'book', s: 0, n: 0, id: '', date: '', edit: false, tok: 0, lockUntil: 0, tap: null, busy() { return performance.now() < this.lockUntil; } };
+const NAV = { level: 'book', view: 'book', s: 0, n: 0, id: '', date: '', sid: '', edit: false, tok: 0, lockUntil: 0, tap: null, busy() { return performance.now() < this.lockUntil; } };
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const dateOf = (id) => { const m = /^day\.(\d{4}-\d{2}-\d{2})$/.exec(id || ''); return m ? m[1] : ''; };
 const dayLabel = (d) => new Date(d + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
 const pageName = (p) => p.label || (BK.data.types.find((t) => t.key === p.type) || {}).name || p.id;
-const navHash = () => (NAV.level === 'book' ? '#book' : NAV.level === 'spread' ? `#spread/${NAV.s + 1}` : NAV.date ? `#day/${NAV.date}${NAV.edit ? '/edit' : ''}` : NAV.id ? `#page/${encodeURIComponent(NAV.id)}` : '#book');
-function navParse(h) { // a hash -> a target for navGo (unknown hashes open the book)
+const navHash = () => {
+  const e = NAV.edit ? '/edit' : '', bk = encodeURIComponent(LB.cur);
+  return NAV.level === 'library' ? '#library' + e : NAV.level === 'series' ? `#series/${encodeURIComponent(NAV.sid)}${e}` : NAV.level === 'book' ? `#book/${bk}${e}` : NAV.level === 'spread' ? `#spread/${NAV.s + 1}` : NAV.date ? `#day/${NAV.date}${e}` : NAV.id ? `#page/${encodeURIComponent(NAV.id)}` : `#book/${bk}`;
+};
+const navState = () => { try { return HIST.state; } catch { return null; } };
+function navParse(h) { // a hash -> a target for navGo. Unknown ids fall back to the library; anything else opens where the library lands (a single book opens straight to it).
   const [k, v = '', m = ''] = decodeURIComponent(h.replace(/^#/, '')).split('/');
-  if (k === 'spread' && +v >= 1) return { level: 'spread', s: +v - 1 };
-  if (k === 'day' && DATE_RE.test(v)) return { level: 'day', date: v, edit: m === 'edit' };
-  if (k === 'page' && v) return /^\d+$/.test(v) ? { level: 'day', n: +v } : { level: 'day', id: v };
-  return { level: 'book' };
+  const st = navState(), bid = st && st.bk && lbBook(st.bk) ? st.bk : ''; // spread/day/page hashes carry no book: the history entry remembers which
+  if (k === 'library') return { level: 'library', edit: v === 'edit' };
+  if (k === 'series') return lbSeries(v) ? { level: 'series', sid: v, edit: m === 'edit' } : { level: 'library' };
+  if (k === 'book') return !v || v === 'edit' ? { level: 'book', edit: v === 'edit' } : lbBook(v) ? { level: 'book', bid: v, edit: m === 'edit' } : { level: 'library' };
+  if (k === 'spread' && +v >= 1) return { level: 'spread', s: +v - 1, bid };
+  if (k === 'day' && DATE_RE.test(v)) return { level: 'day', date: v, edit: m === 'edit', bid };
+  if (k === 'page' && v) return /^\d+$/.test(v) ? { level: 'day', n: +v, bid } : { level: 'day', id: v, bid };
+  return lbLanding();
 }
 const HIST = window.history; // the editor's undo stack is also called "history", so the browser's is always reached as HIST
 const navDepth = () => { try { return (HIST.state && HIST.state.kw) || 0; } catch { return 0; } };
 function navWrite(push, ed) { // mirror the level into the URL. History can be missing (sandboxed frame): the level still works. ed marks the entry Edit pushed, so Done can step back over it.
   const h = navHash(); if (location.hash === h) return;
-  try { const k = navDepth(); HIST[push ? 'pushState' : 'replaceState']({ kw: push ? k + 1 : k, ...(ed ? { ed: 1 } : {}) }, '', h); } catch {}
+  try { const k = navDepth(); HIST[push ? 'pushState' : 'replaceState']({ kw: push ? k + 1 : k, bk: LB.cur, ...(ed ? { ed: 1 } : {}) }, '', h); } catch {}
 }
 const navPage = (t) => !BK.loaded ? null : t.n ? BK.pages[t.n - 1] || null : t.id ? BK.pages.find((p) => p.id === t.id) || null : t.date ? BK.pages.find((p) => p.id === 'day.' + t.date) || null : null;
 const navCanvas = () => NAV.view === 'book';
@@ -1376,32 +1395,42 @@ const navCurrentPage = () => (navCanvas() ? (BK.ready ? bkFocusPage() : 1) : NAV
 // Viewing and editing (E1). The day opens for viewing: the page, clean and read-only. Edit draws the palette, options, layout switch and undo;
 // Done takes them away again. Nothing editable is in the page while viewing (the panels are not drawn, so they are not in the accessibility tree either).
 function applyMode() {
-  const day = NAV.view === 'day', ed = day && NAV.edit;
+  const day = NAV.view === 'day', shelf = NAV.view === 'shelf', bookLv = NAV.view === 'book' && NAV.level === 'book';
+  const canEdit = day || shelf || bookLv, ed = canEdit && NAV.edit, dayEd = day && ed; // Library, Series and Book edit their settings; the day edits its blocks
   document.documentElement.dataset.mode = ed ? 'edit' : 'view';
-  $('#edit').hidden = !day || ed; $('#done').hidden = !ed; $('#edit-pill').hidden = !ed;
-  $('#undo').hidden = !ed; $('#laygrp').hidden = !ed; $('#panels').hidden = !ed;
-  $('#meter').hidden = !ed; $('#dragtip').hidden = !ed; $('#viewnote').hidden = ed;
-  if (!ed) { $('#problems').hidden = true; $('#ov').hidden = true; }
+  $('#edit').hidden = !canEdit || ed; $('#done').hidden = !ed; $('#edit-pill').hidden = !ed;
+  $('#edit').title = shelf ? (NAV.level === 'series' ? 'Edit this series (E)' : 'Edit the library (E)') : bookLv ? 'Edit this book’s settings' : 'Edit this page (E)';
+  $('#edit').setAttribute('aria-label', shelf ? (NAV.level === 'series' ? 'Edit this series' : 'Edit the library') : bookLv ? 'Edit this book’s settings' : 'Edit this page');
+  $('#done').title = shelf || bookLv ? 'Done editing (Escape)' : 'Done editing (Escape)';
+  $('#undo').hidden = !dayEd; $('#laygrp').hidden = !dayEd; $('#panels').hidden = !dayEd;
+  $('#meter').hidden = !dayEd; $('#dragtip').hidden = !dayEd; $('#viewnote').hidden = ed;
+  $('#bk-set').hidden = !bookLv;
+  if (!dayEd) { $('#problems').hidden = true; $('#ov').hidden = true; }
   hhSync();
 }
 function sheetSet(min) { document.documentElement.dataset.sheet = min ? 'min' : 'half'; const b = $('#sheet-t'); b.setAttribute('aria-expanded', !min); b.setAttribute('aria-label', min ? 'Expand the panel' : 'Collapse the panel'); if (editing()) { fit(); drawOverlay(); } }
 $('#sheet-t').onclick = () => sheetSet(document.documentElement.dataset.sheet !== 'min');
-function editOn(push = true) { // Edit: only for a day page (other pages stay view-only until C5)
-  if (NAV.view !== 'day') { if (NAV.view === 'page') toast('This page is view-only for now.'); return; }
+function editOn(push = true) { // Edit: a day page (its blocks), the Library, a Series or the Book (their settings). Other pages stay view-only until C5.
+  if (NAV.view === 'page') { toast('This page is view-only for now.'); return; }
+  if (NAV.view === 'book' && NAV.level !== 'book') return;
   if (NAV.edit) return;
-  NAV.edit = true; navWrite(push, true); showDay(); navRefresh();
+  NAV.edit = true; navWrite(push, true); if (NAV.view === 'day') showDay(); else if (NAV.view === 'shelf') shelfDraw(); navRefresh();
 }
 function editOff() { // Done: your changes are already saved as the draft; back to viewing. Steps back over the entry Edit pushed, else replaces the URL.
-  if (!editing()) return;
+  if (!NAV.edit) return;
   let st = null; try { st = HIST.state; } catch {}
   if (st && st.ed) { try { return HIST.back(); } catch {} }
-  NAV.edit = false; navWrite(false); showDay(); navRefresh();
+  NAV.edit = false; navWrite(false); if (NAV.view === 'day') showDay(); else if (NAV.view === 'shelf') shelfDraw(); navRefresh();
 }
 $('#edit').onclick = () => editOn(); $('#done').onclick = editOff;
+function showShelf() { // Library and Series: shelves of covers
+  NAV.view = 'shelf'; document.documentElement.dataset.view = 'shelf'; applyMode(); hhSync(); shelfDraw();
+}
 function showCanvas() {
   NAV.view = 'book'; document.documentElement.dataset.view = 'book'; applyMode();
   hhSync();
   if (BK.loaded && !BK.ready) { BK.cols = bkPickCols(); bkBuild(); BK.ready = true; bkMsg(''); bkInfo(); bkLevel('book', false); }
+  else if (BK.ready && BK.stale) { BK.stale = false; const n = BK.sel; BK.cols = bkPickCols(); bkBuild(); bkSelect(n); bkLevel('book', false); } // another book's title page (L1b)
   else if (BK.ready) bkResize();
 }
 function showDay() {
@@ -1423,12 +1452,20 @@ function showPage(p) {
 async function navGo(t, { push = true, anim = true } = {}) {
   const tok = ++NAV.tok, wasCanvas = navCanvas();
   NAV.lockUntil = performance.now() + 600; ptrs.clear(); gest = null; clearTimeout(navGo.t);
+  if (t.level === 'library' || t.level === 'series') { // the two levels above the Book (L1b); covers are drawn from the sample book's title page
+    try { await ensureData(); } catch { /* the shelf still works: its covers fall back to plain text */ }
+    if (tok !== NAV.tok) return;
+    if (t.level === 'series' && !lbSeries(t.sid)) t = { level: 'library' };
+    Object.assign(NAV, { level: t.level, sid: t.level === 'series' ? t.sid : '', n: 0, id: '', date: '', edit: !!t.edit }); navWrite(push, !!t.edit && push);
+    showShelf(); navRefresh(); return;
+  }
   if (t.level === 'book' || t.level === 'spread') {
     try { await ensureData(); } catch { NAV.level = 'book'; showCanvas(); bkMsg('Couldn’t load the sample book. Reload the page to try again.', true); navRefresh(); return; }
     if (tok !== NAV.tok) return;
+    if (t.bid) lbSetBook(t.bid); else lbApplyTitlePage();
     const s = t.s != null ? t.s : t.n ? bkSpreadOf(t.n) : NAV.s, n = t.n || 0;
     if (t.level === 'spread' && (s < 0 || s >= bkSpreadCount())) { toast(`This book has spreads 1 to ${bkSpreadCount()}.`); t = { level: 'book' }; }
-    Object.assign(NAV, { level: t.level, s: t.level === 'book' ? NAV.s : s, n: 0, id: '', date: '', edit: false }); navWrite(push);
+    Object.assign(NAV, { level: t.level, s: t.level === 'book' ? NAV.s : s, n: 0, id: '', date: '', sid: '', edit: t.level === 'book' && !!t.edit }); navWrite(push, t.level === 'book' && !!t.edit && push);
     showCanvas(); if (!BK.ready) return navRefresh();
     if (!wasCanvas && n) { bkSelect(n); const p = bkSlotPos(n); bkRect(p.x, p.y, BK.geo.pw, BK.geo.ph + 60, false); void bkWorld.offsetWidth; } // back from the day: start on the page, zoom out from it
     else if (n) bkSelect(n);
@@ -1438,11 +1475,12 @@ async function navGo(t, { push = true, anim = true } = {}) {
   // the day level
   try { await ensureData(); } catch { /* the editor works without the book; only the breadcrumb loses its spread */ }
   if (tok !== NAV.tok) return;
+  if (t.bid) lbSetBook(t.bid); else lbApplyTitlePage();
   const p = navPage(t); let date = t.date || '';
   if (p && p.type === 'dayp') date = dateOf(p.id) || date;
   if (!p && !date) { toast('That page isn’t in the sample book.'); return navGo({ level: 'book' }, { push: false }); }
   const isDay = !!date && (!p || p.type === 'dayp');
-  Object.assign(NAV, { level: 'day', s: p ? bkSpreadOf(p.n) : NAV.s, n: p ? p.n : 0, id: isDay ? '' : p.id, date: isDay ? date : '', edit: isDay && !!t.edit }); navWrite(push, isDay && !!t.edit && push);
+  Object.assign(NAV, { level: 'day', sid: '', s: p ? bkSpreadOf(p.n) : NAV.s, n: p ? p.n : 0, id: isDay ? '' : p.id, date: isDay ? date : '', edit: isDay && !!t.edit }); navWrite(push, isDay && !!t.edit && push);
   if (wasCanvas && BK.ready && p && anim && !reduceMotion()) { // zoom onto the page first, then open it
     bkSelect(p.n); bkLevel('page', true); NAV.lockUntil = performance.now() + 900;
     await new Promise((r) => (navGo.t = setTimeout(r, 230))); if (tok !== NAV.tok) return;
@@ -1451,10 +1489,12 @@ async function navGo(t, { push = true, anim = true } = {}) {
   if (p && BK.ready) bkSelect(p.n);
   navRefresh();
 }
-const navIn = () => (NAV.level === 'day' ? editOn() : navGo(NAV.level === 'book' ? { level: 'spread', n: navCurrentPage() } : { level: 'day', n: navCurrentPage() }));
+const navIn = () => (NAV.level === 'library' || NAV.level === 'series' ? lbZoomIn() : NAV.level === 'day' ? editOn() : navGo(NAV.level === 'book' ? { level: 'spread', n: navCurrentPage() } : { level: 'day', n: navCurrentPage() }));
 const navOut = () => {
   if (NAV.level === 'day') return navGo({ level: 'spread', n: NAV.n || undefined, s: NAV.s });
   if (NAV.level === 'spread') return navGo({ level: 'book' });
+  if (NAV.level === 'book') { const sr = lbSeriesOfBook(LB.cur); LB.focus = 'book:' + LB.cur; return navGo(sr ? { level: 'series', sid: sr.id } : { level: 'library' }); } // a standalone book has no series level
+  if (NAV.level === 'series') { LB.focus = 'series:' + NAV.sid; return navGo({ level: 'library' }); }
 };
 function navTap(n, x, y) { // a tap on a page: one level in. A quick second tap on the same page goes all the way in.
   const now = performance.now(), t = NAV.tap;
@@ -1474,31 +1514,53 @@ function navSync() {
   const lv = BK.level === 'book' ? 'book' : 'spread';
   let s = NAV.s; if (lv === 'spread') s = bkSpreadOf(bkPageAt((bkView.clientWidth / 2 - BK.x) / BK.z, (bkView.clientHeight / 2 - BK.y) / BK.z));
   if (lv === NAV.level && (lv === 'book' || s === NAV.s)) return;
-  const cross = lv !== NAV.level; Object.assign(NAV, { level: lv, s }); navWrite(cross); navRefresh();
+  const cross = lv !== NAV.level; Object.assign(NAV, { level: lv, s, edit: lv === 'book' ? NAV.edit : false }); navWrite(cross); navRefresh();
 }
 // Breadcrumb, Back, level buttons.
 function navRefresh() {
-  const crumbs = [{ t: 'Book', go: { level: 'book' } }];
-  if (NAV.level !== 'book' && BK.loaded && (NAV.level === 'spread' || NAV.n)) crumbs.push({ t: `Spread ${NAV.s + 1}`, go: { level: 'spread', s: NAV.s, n: NAV.level === 'day' ? NAV.n || undefined : undefined } });
+  applyMode();
+  const crumbs = [{ t: 'Library', go: { level: 'library' } }];
+  const sr = NAV.level === 'series' ? lbSeries(NAV.sid) : NAV.level !== 'library' ? lbSeriesOfBook(LB.cur) : null, bk = lbBook(LB.cur);
+  if (NAV.level === 'series') crumbs.push({ t: sr ? sr.title : 'Series' });
+  else if (NAV.level !== 'library') { if (sr) crumbs.push({ t: sr.title, go: { level: 'series', sid: sr.id } }); crumbs.push({ t: bk ? bk.title : 'Book', go: { level: 'book' } }); }
+  if ((NAV.level === 'spread' || NAV.level === 'day') && BK.loaded && (NAV.level === 'spread' || NAV.n)) crumbs.push({ t: `Spread ${NAV.s + 1}`, go: { level: 'spread', s: NAV.s, n: NAV.level === 'day' ? NAV.n || undefined : undefined } });
   if (NAV.level === 'day') { const p = NAV.n && BK.loaded ? BK.pages[NAV.n - 1] : null; crumbs.push({ t: NAV.date ? `Day ${dayLabel(NAV.date)}` : p ? pageName(p) : 'Page' }); }
   $('#crumb-list').innerHTML = crumbs.map((c, i) => `<li>${i === crumbs.length - 1 ? `<span aria-current="page">${escH(c.t)}</span>` : `<button type="button" data-crumb="${i}">${escH(c.t)}</button>`}</li>`).join('');
   $('#crumb-list').querySelectorAll('[data-crumb]').forEach((b) => (b.onclick = () => navGo(crumbs[+b.dataset.crumb].go)));
   document.querySelectorAll('[data-nav-level]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.navLevel === NAV.level));
-  $('#nv-back').disabled = NAV.level === 'book' && navDepth() === 0;
+  document.querySelector('[data-nav-level="series"]').disabled = !sr;
+  $('#nv-back').disabled = NAV.level === 'library' && navDepth() === 0;
+  const nb = LB.lib.books.length;
+  $('#ttl small').textContent = NAV.level === 'library' ? `Library · ${nb} ${nb === 1 ? 'book' : 'books'}` : NAV.level === 'series' ? (sr ? sr.title : 'Series') : bk ? bk.title : '';
   hhSync();
   // Screen readers: say the level whenever it changes; after a move into the day or a page, focus lands on the current crumb.
-  const said = crumbs.map((c) => c.t).join(', ') + (NAV.level === 'book' ? '. Whole book.' : NAV.level === 'spread' ? '. Spread level.' : NAV.view === 'page' ? '. Page view, read only.' : NAV.edit ? '. Day page editor, editing. Done or Escape to finish.' : '. Day page, viewing. Edit or E to change it.');
+  const said = crumbs.map((c) => c.t).join(', ') + (NAV.level === 'library' ? `. Shelves of books and series. ${NAV.edit ? 'Editing the library. Done or Escape to finish.' : 'Enter opens the selected one, Escape goes out. Edit or E to change the library.'}`
+    : NAV.level === 'series' ? `. Series with ${sr ? sr.order.length : 0} books, in order. ${NAV.edit ? 'Editing the series. Done or Escape to finish.' : 'Enter opens the selected book, Escape goes out. Edit or E to change the series.'}`
+    : NAV.level === 'book' ? `. Whole book.${NAV.edit ? ' Editing the book’s settings. Done or Escape to finish.' : ''}` : NAV.level === 'spread' ? '. Spread level.' : NAV.view === 'page' ? '. Page view, read only.' : NAV.edit ? '. Day page editor, editing. Done or Escape to finish.' : '. Day page, viewing. Edit or E to change it.');
   if (navRefresh.said !== said) { navRefresh.said = said; $('#nav-live').textContent = 'Now at: ' + said; }
-  if (NAV.view !== 'book') {
+  if (NAV.view === 'shelf') { // the shelves: focus lands on the cover you came from, else the first; Edit lands on its first control, Done on Edit
+    const fk = 'shelf' + NAV.level + NAV.sid, mk = fk + (NAV.edit ? 'E' : 'V');
+    if (navRefresh.focusFor !== fk) { navRefresh.focusFor = fk; navRefresh.modeFor = mk; shelfFocus(LB.focus); LB.focus = null; }
+    else if (navRefresh.modeFor !== mk) { navRefresh.modeFor = mk; const to = NAV.edit ? $(NAV.level === 'series' ? '#sh-series-set' : '#sh-new-book') : $('#edit'); if (to) to.focus(); }
+  } else if (NAV.view !== 'book') {
     const fk = NAV.view + NAV.n + NAV.date, mk = fk + (NAV.edit ? 'E' : 'V');
     if (navRefresh.focusFor !== fk) { navRefresh.focusFor = fk; navRefresh.modeFor = mk; const cur = $('#crumb-list [aria-current]'); if (cur) { cur.tabIndex = -1; cur.focus({ preventScroll: true }); } }
     else if (navRefresh.modeFor !== mk) { navRefresh.modeFor = mk; const to = NAV.edit ? $('#laygrp [aria-pressed="true"]') : $('#edit'); if (to) to.focus(); } // Edit: first editing control; Done: back on the Edit button
+  } else {
+    navRefresh.focusFor = null;
+    if (navRefresh.bookMode !== NAV.edit && NAV.level === 'book') { const was = navRefresh.bookMode; navRefresh.bookMode = NAV.edit; if (was !== undefined) { const to = NAV.edit ? $('#bk-set') : $('#edit'); if (to) to.focus(); } }
   }
-  dispatchEvent(new CustomEvent('kw:nav', { detail: { level: NAV.level, spread: NAV.s + 1, page: NAV.n, id: NAV.id, date: NAV.date, hash: navHash() } }));
+  dispatchEvent(new CustomEvent('kw:nav', { detail: { level: NAV.level, spread: NAV.s + 1, page: NAV.n, id: NAV.id, date: NAV.date, book: LB.cur, series: NAV.sid, hash: navHash() } }));
 }
 function hhSync() { document.documentElement.style.setProperty('--hh', document.querySelector('.top').offsetHeight + 'px'); }
 $('#nv-back').onclick = navBack;
-document.querySelectorAll('[data-nav-level]').forEach((b) => (b.onclick = () => { const l = b.dataset.navLevel; navGo(l === 'book' ? { level: 'book' } : { level: l, n: navCurrentPage() }); }));
+document.querySelectorAll('[data-nav-level]').forEach((b) => (b.onclick = () => {
+  const l = b.dataset.navLevel;
+  if (l === 'library') { LB.focus = null; return navGo({ level: 'library' }); }
+  if (l === 'series') { const sr = NAV.level === 'series' ? lbSeries(NAV.sid) : lbSeriesOfBook(LB.cur); return sr ? navGo({ level: 'series', sid: sr.id }) : undefined; }
+  navGo(l === 'book' ? { level: 'book' } : { level: l, n: navCurrentPage() });
+}));
+$('#nv-home').onclick = () => navGo({ level: 'library' });
 function onHash() { if (location.hash !== navHash()) navGo(navParse(location.hash), { push: false, anim: false }); } // back, forward, a typed hash
 addEventListener('popstate', onHash); addEventListener('hashchange', onHash);
 addEventListener('resize', () => { hhSync(); if (NAV.view === 'book') bkResize(); else if (NAV.view === 'page') pgvFit(); });
@@ -1508,7 +1570,8 @@ document.addEventListener('keydown', (e) => {
   if (e.defaultPrevented || e.ctrlKey || e.metaKey) return;
   const typing = e.target.closest && e.target.closest('input, textarea, select, [contenteditable="true"], dialog[open]');
   if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) { e.preventDefault(); return e.key === 'ArrowUp' ? navOut() : navIn(); }
-  if (e.key === 'Escape' && !typing && !e.altKey && NAV.view !== 'book' && !menu.classList.contains('open')) { e.preventDefault(); editing() ? editOff() : navOut(); } // Escape: Done first, then up a level
+  if (e.key === 'Escape' && !typing && !e.altKey && NAV.view !== 'book' && !menu.classList.contains('open')) { e.preventDefault(); NAV.edit ? editOff() : navOut(); } // Escape: Done first, then up a level
+  if ((e.key === 'l' || e.key === 'L') && !typing && !e.altKey && !e.shiftKey && NAV.level !== 'library') { e.preventDefault(); LB.focus = null; navGo({ level: 'library' }); } // L: the Library
   if (!typing && !e.altKey && !e.shiftKey && NAV.view === 'day' && !NAV.edit && (e.key === 'e' || e.key === 'E' || (e.key === 'Enter' && !e.target.closest('button, a, [role="button"]')))) { e.preventDefault(); editOn(); }
 });
 // Zoom out from the day or a page: a pinch on the page, or ctrl/cmd + wheel (a trackpad pinch) over it. Plain wheel scrolls; the browser's own zoom elsewhere is untouched.
@@ -1522,7 +1585,8 @@ function zoomOutGestures(el) {
 }
 zoomOutGestures($('#paper')); zoomOutGestures($('#pgv-paper'));
 // The hooks other panels use (the Versions dialog is its own module below): KW.on(fn) hears every level change, KW.go(target) moves.
-window.KW = { get level() { return NAV.level; }, go: navGo, in: navIn, out: navOut, on: (fn) => addEventListener('kw:nav', (e) => fn(e.detail)) };
+window.KW = { get level() { return NAV.level; }, get book() { return LB.cur; }, get library() { return LB.lib; }, go: navGo, in: navIn, out: navOut, on: (fn) => addEventListener('kw:nav', (e) => fn(e.detail)) };
+/*__LIBJS__*/
 /*__VSJS__*/
 
 (async function init() {
@@ -1545,6 +1609,7 @@ window.KW = { get level() { return NAV.level; }, go: navGo, in: navIn, out: navO
     } else setStatus('Preview only: changes aren’t saved here', 'bad');
   }
   if (document.fonts) document.fonts.ready.then(() => drawPreview());
+  await lbLoad(); // the library (this browser, the artifact's store, or the demo's sample) before the first level is chosen
   // The book opens first; a hash (#spread/12, #day/2026-10-14) restores the level. #versions opens the Versions panel over the book.
   const wantVersions = location.hash === '#versions';
   navGo(navParse(location.hash), { push: false, anim: false });

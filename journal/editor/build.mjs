@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import zlib from 'node:zlib';
 import { samplePages } from './samples.mjs';
 import { PROFILE, firstMonthId } from '../profile.mjs';
+import { SAMPLE_LIBRARY } from './sample-library.mjs';
 const M0 = firstMonthId(); // the profile's first month: the book the editor's preview is cut from
 const SAMPLE_DATE = `${M0}-${new Date(Date.UTC(+M0.slice(0, 4), +M0.slice(5), 0)).getUTCDate()}`; // its last day (Oct 31 2026 for Shelbee)
 const root = new URL('../', import.meta.url);
@@ -40,7 +41,10 @@ const lib = read('scan.mjs').replace(/^export /gm, '') + '\n' + read('daypage.mj
 // The Versions view (Journalwright Studio) computes its compare view in the browser with the same diff code the Studio server uses (studio/src/diff.mjs).
 const studioCode = ['../studio/src/canonical.mjs', '../studio/src/diff.mjs'].map((f) => read(f).replace(/^import .*$/gm, '').replace(/^export /gm, '')).join('\n');
 const studio = `(() => {\n${studioCode}\nreturn { canonical, diffSnapshots };\n})()`;
-const tpl = read('editor/template.html').replace('Keeping Watch · every monthly book', () => `${PROFILE.book.title.replace(/&/g, '&amp;').replace(/</g, '&lt;')} · every monthly book`).replace('/*__DAYPAGE__*/', () => lib).replace('/*__VSCSS__*/', () => read('editor/versions.css')).replace('<!--__VSHTML__-->', () => read('editor/versions.html')).replace('/*__VSJS__*/', () => read('editor/versions.js').replace('/*__STUDIO__*/', () => studio)).replace('/*__KIT__*/', () => `const KIT = ${JSON.stringify(kit)};`);
+// The library (journal/library.mjs, with the plan and module tables it reads): the editor validates and edits with the very same code as the builds and the studio.
+const libCode = ['plan.mjs', 'modules.mjs', 'library.mjs'].map((f) => read(f).replace(/^import .*$/gm, '').replace(/^export \{[^}]*\};?$/gm, '').replace(/^export /gm, '')).join('\n');
+const libm = `(() => {\n${libCode}\nreturn { validateLibrary, shelf, bookOf, seriesOf, seriesOfBook, resolveBook, addBook, addSeries, removeBook, removeSeries, moveBookToSeries, reorderSeries, duplicateBook, duplicateSeries, seriesLine, slugify, uniqueId, SCOPES, MODULES, COVER_STYLES, SCOPE_NAMES };\n})()`;
+const tpl = read('editor/template.html').replace('Keeping Watch · every monthly book', () => `${PROFILE.book.title.replace(/&/g, '&amp;').replace(/</g, '&lt;')} · every monthly book`).replace('/*__DAYPAGE__*/', () => lib).replace('/*__VSCSS__*/', () => read('editor/versions.css')).replace('<!--__VSHTML__-->', () => read('editor/versions.html')).replace('/*__VSJS__*/', () => read('editor/versions.js').replace('/*__STUDIO__*/', () => studio)).replace('/*__LIBCSS__*/', () => read('editor/library-ui.css')).replace('<!--__LIBHTML__-->', () => read('editor/library-ui.html')).replace('/*__LIBJS__*/', () => read('editor/library-ui.js').replace('/*__LIBM__*/', () => libm)).replace('/*__KIT__*/', () => `const KIT = ${JSON.stringify(kit)};`);
 
 const dist = new URL(DIST, root);
 fs.mkdirSync(new URL('site/', dist), { recursive: true });
@@ -61,7 +65,7 @@ fs.writeFileSync(new URL('site/.nojekyll', dist), '');
 // 3) The public demo (the product site links to it at /editor/): built from the generic profile and test.ics only, never saves anywhere
 // (no GitHub, no browser storage of the layout), and shows a "demo, sample data" banner. Same pages-sample.json.
 fs.mkdirSync(new URL('demo/', dist), { recursive: true });
-fs.writeFileSync(new URL('demo/index.html', dist), site.replace("'pages'", "'demo'").replace('<meta name="robots" content="noindex">', '<meta name="robots" content="index">').replace('<title>Day Page Editor</title>', '<title>Journalwright Studio editor demo</title>').replaceAll('Keeping Watch', () => PROFILE.book.title));
+fs.writeFileSync(new URL('demo/index.html', dist), site.replace("'pages'", "'demo'").replace('/*__SAMPLELIB__*/null', () => JSON.stringify(SAMPLE_LIBRARY)).replace('<meta name="robots" content="noindex">', '<meta name="robots" content="index">').replace('<title>Day Page Editor</title>', '<title>Journalwright Studio editor demo</title>').replaceAll('Keeping Watch', () => PROFILE.book.title));
 fs.writeFileSync(new URL('demo/pages-sample.json', dist), sample);
 fs.writeFileSync(new URL('demo/daypage.json', dist), '{}\n');
 fs.writeFileSync(new URL('demo/.nojekyll', dist), '');

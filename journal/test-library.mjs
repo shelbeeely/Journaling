@@ -8,7 +8,7 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import {
   validateLibrary, resolveBook, effectiveProfile, libraryFromProfile, seriesLine, shelf, layoutsFor, slugify, addBook, addSeries, removeBook, removeSeries,
-  moveBookToSeries, reorderSeries, duplicateBook, DEFAULT_LAYOUT,
+  moveBookToSeries, reorderSeries, duplicateBook, duplicateSeries, DEFAULT_LAYOUT,
 } from './library.mjs';
 import { validateProfile } from './profile.mjs';
 import { DEFAULT_BOOK } from './book.mjs';
@@ -133,6 +133,8 @@ function sortKeys(x) { return Array.isArray(x) ? x.map(sortKeys) : x && typeof x
   const ro = reorderSeries(l, 'moods', 0, 1); ok(ro.series[0].order.join() === 'harbor-log,ocean-notes' && seriesLine(ro, 'harbor-log').n === 1, 'reordering changes the numbering');
   const d = duplicateBook(l, 'ocean-notes'); const dup = d.library.books.find((b) => b.id === d.id);
   ok(dup.title === 'Ocean Notes (copy)' && dup.edition === 2 && !dup.bookId && d.library.series[0].order.join() === 'ocean-notes,ocean-notes-copy,harbor-log' && validateLibrary(d.library).length === 0, 'a copy sits next to its original, takes the next edition (monthly codes), and never copies a book id');
+  const ds = duplicateSeries(l, 'moods'), sc = ds.library.series.find((x) => x.id === ds.id);
+  ok(sc.title === 'Moods of the Sea (copy)' && sc.order.length === 2 && sc.order.every((id) => id !== 'ocean-notes' && id !== 'harbor-log' && ds.library.books.find((b) => b.id === id).seriesId === ds.id) && ds.library.series.find((x) => x.id === 'moods').order.join() === 'ocean-notes,harbor-log' && ds.library.books.length === 5 && validateLibrary(ds.library).length === 0, 'a copied series has copies of its books (new ids, same titles) and leaves the original alone');
   ok(JSON.stringify(l) === JSON.stringify(LIB()), 'editing helpers never change the library they were given');
 }
 

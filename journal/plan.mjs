@@ -6,7 +6,7 @@
 //                         book.id      8 characters (0-9 A-Z without I L O U), the book's own scan-code id; made once, written back
 //                         book.keeper  twelve-book (default) | per-book | none
 //                         book.closing month (default) | end              one Closing page per month, or once at the end of each volume
-// Volumes (Shelbee's rule): paperback is 24-110 pages, hardcover 76-110. A span whose pages go past 110 is cut into the fewest
+// Volumes (the product's rule): paperback is 24-110 pages, hardcover 76-110. A span whose pages go past 110 is cut into the fewest
 // volumes that each fit, as evenly as it can be done, on month boundaries where that works, else on week boundaries.
 // splitVolumes() is the whole rule; the caller says how many pages any run of days makes (render.mjs counts with the real page
 // builders), so the split is always the one the printed book has. Deterministic: the same span gives the same volumes.

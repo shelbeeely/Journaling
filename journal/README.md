@@ -212,22 +212,26 @@ references. `render.mjs` only adds the frame, scan markers and page codes. The e
 The editor opens on the **Book**: the whole book on a pan/zoom canvas, spreads laid out as it opens (title page alone on the
 right, then left|right pairs, the last even page alone on the left). Every page is a live thumbnail drawn by `pages.mjs` from the
 sample calendar (`test.ics`, never your data; no clinic details), painted lazily near the view. There are no tabs: zoom is one
-continuous semantic zoom through three levels.
+continuous semantic zoom through five levels (the top two, Library and Series, are described under
+[Library and Series navigation](#library-and-series-navigation-l1b) below).
 
 | Level | What you see | URL hash |
 | --- | --- | --- |
-| Book | every spread | `#book` |
+| Library | shelves of covers: series as stacks, standalone books | `#library` |
+| Series | the books of one series, in order | `#series/<id>` |
+| Book | every spread | `#book/<id>` (`#book` is the current book) |
 | Spread | two facing pages, large | `#spread/12` (1-based) |
 | Day | the day page, viewed first (clean, read-only); **Edit** opens the editor (Flow/Grid, palette, options, undo, save, methods). A read-only page view for any other page until block pages arrive (C5) | `#day/2026-10-14` (view), `#day/2026-10-14/edit` (editing), `#page/safety` |
 
 - **Move between levels:** tap a page (book to spread, spread to day; a quick double tap goes straight to the day), zoom in past
-  one whole page (wheel, pinch, `+`), the Book / Spread / Day buttons, the breadcrumb (`Book > Spread 12 > Day Oct 14`), Back.
+  one whole page (wheel, pinch, `+`), the Library / Series / Book / Spread / Day buttons, the breadcrumb (`Library > Series > Book > Spread 12 > Day Oct 14`), Back.
   Out: breadcrumb, Back, `Escape`, a pinch in or ctrl/cmd + wheel over the page at the day level. Plain wheel zooms the canvas
   (it does not scroll); the browser's own zoom is left alone everywhere else.
 - **Keys:** `Enter` in, `Escape` out, `Alt+Up` / `Alt+Down` out / in from anywhere, `0` book, `1` spread, `2` day (canvas);
   `+` `-` zoom, arrows pan, `[` `]` previous/next page, `Home` `End`, `g` or `/` jumps.
 - **URL:** the hash records the level, so links, reload and the browser's Back and Forward restore it (an unknown or out-of-range
-  hash opens the book). Back (the button) uses history when there is some, else goes up one level.
+  hash opens where the library lands: the book of a one-book library, else the library; an unknown series or book id opens the library).
+  Spread, day and page hashes belong to the book last opened (the browser's history entry remembers which). Back (the button) uses history when there is some, else goes up one level.
 - **Accessibility:** every control is a labelled 44px button; the breadcrumb is a labelled `nav` with `aria-current`; a live region
   says "Now at: ..." on every level change and focus moves to the current crumb; focus is visible; with reduced motion the zoom
   between levels is instant.
@@ -252,6 +256,34 @@ continuous semantic zoom through three levels.
 
 `identical.json` holds a fingerprint per page HTML of the default books (from `test.ics`). A change that is meant to alter the
 default books: rebuild them all, then `node check-identical.mjs --update` and commit the new file with the change.
+
+### Library and Series navigation (L1b)
+Two levels sit above the Book, in the same continuous zoom: **Library** (shelves of covers: a series is a stack, a standalone book is
+a cover) and **Series** (its books, numbered in order). The covers are the real title page (`pages.mjs`, drawn from the sample calendar
+and `test.ics`) with each book's own title, subtitle, plan and, when its series asks (`show`), "Book 3 of 12 in ...".
+
+- **Routes:** `#library`, `#series/<id>`, `#book/<id>`, then `#spread/N`, `#day/date[/edit]`, `#page/id`. Add `/edit` to the first three
+  for edit mode. Reload, Back and Forward restore the level; an unknown id opens the library. A library of one book opens straight
+  to the book (no empty shelves); the Library button, the breadcrumb and `L` still open the shelf. A standalone book has no series level:
+  out from it goes to the library. Editing a series (`#series/<id>/edit`) opens on its books.
+- **Move:** `Enter` or a click goes in, `Escape` (or `-`, the zoom button, ctrl/cmd + wheel, a pinch in, wheeling out past the whole book)
+  goes out; arrows, `Home` and `End` move between covers; `+` goes in. Focus lands on the cover you came from. "Now at: Library" is
+  announced on every change; a phone shows the current level and its parent in the breadcrumb, with a Library button beside Back.
+- **Edit mode (view versus edit):** viewing shows covers only. **Edit** (or `E`) shows New book, New series, Undo, Export, Import and
+  per cover a drag grip, Move earlier / later and **Settings**; **Done** or `Escape` leaves. At the Book level Edit adds Book settings.
+- **Settings sheets** (a side sheet on a wide window, a bottom sheet on a phone; `library.mjs` does the validation, its messages are shown
+  in plain words, by title): *Book*: title, subtitle, spine title, series, length (scope), first month, edition, cover style, modules,
+  each saying what it takes from the series ("Same as the series (Season)"); Duplicate and Delete. *Series*: title, subtitle, its books in
+  order (move up / down buttons and a drag grip, announced), the defaults every book takes unless it sets its own (length, Keeper, closing
+  page, edition, cover style, modules), the series line on the cover and title page; Duplicate (a copy with a copy of each book) and Delete
+  (keep its books, or delete them too). Delete always asks first and is undone from the snackbar or the Undo button (40 steps).
+- **Where it lives:** guests keep the library in this browser (`localStorage`, key `kw-library`; if storage is blocked it works in memory and
+  says so); Export writes `library.json`, Import checks a file and replaces the library after a question. In the Artifact it is saved to the
+  store (`layouts/library`). Signed in to a Studio project it is `meta.library` of the project's draft (sent with the next autosave once
+  edited) and follows Versions: restore, branches and forks carry it. The demo starts from a generic sample library
+  (`editor/sample-library.mjs`), saves nothing, and never holds real titles.
+- **Tests:** `editor/test.mjs` (every level, keys, gestures, routes, edits, undo, import and export, blocked storage, the studio snapshot,
+  phone and dark screenshots) and `editor/test-a11y.mjs` (axe, targets, reflow, focus, announcements and reduced motion at the new levels).
 
 ### The book layout (`content/book.json`)
 `book.mjs` `DEFAULT_BOOK` is the page order; `content/book.json` (the committed copy equals the default) overrides it and
