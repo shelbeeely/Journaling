@@ -5,6 +5,8 @@
 #include <SPI.h>
 #include <WiFi.h>
 #include <WebServer.h>
+#include <ESPmDNS.h>
+#include <esp_random.h>
 #include <sys/time.h>
 #include <esp_sleep.h>
 #include <driver/gpio.h>
@@ -16,7 +18,11 @@
 #include <PowerManager.h>
 #include <XteinkDetect.h>
 #include "../net/webpage.h"
+#include "../core/net.h"
 
+#ifdef FREEINK_NET_WOLFSSL
+bool kwTlsProbe();  // net/tlsprobe.cpp
+#endif
 static EInkDisplay display(BoardConfig::ACTIVE.display.sclk, BoardConfig::ACTIVE.display.mosi, BoardConfig::ACTIVE.display.cs,
                            BoardConfig::ACTIVE.display.dc, BoardConfig::ACTIVE.display.rst, BoardConfig::ACTIVE.display.busy);
 static InputManager input;
@@ -38,6 +44,9 @@ void begin() {
   SPI.begin(BoardConfig::ACTIVE.display.sclk, BoardConfig::ACTIVE.sd.miso, BoardConfig::ACTIVE.display.mosi, BoardConfig::ACTIVE.display.cs);
   display.begin();
   input.begin();
+#ifdef FREEINK_NET_WOLFSSL
+  Serial.printf("[tls] probe %d\n", kwTlsProbe() ? 1 : 0);  // x4-tls only: keeps wolfSSL linked so CI can size it
+#endif
   sdOk = sdcard.begin();
   if (sdOk) { sdcard.mkdir("/kw"); sdcard.mkdir("/kw/log"); sdcard.mkdir("/kw/library"); }
   // After a battery power-off the RTC restarts at 1970: fall back to the last saved time so the
@@ -143,11 +152,22 @@ bool removeEmptyDir(const char* path) { return sdOk && sdcard.rmdir(path); }  //
 int batteryPercent() { static const BatteryMonitor battery; return battery.readPercentage(); }
 bool woke_by_timer() { return esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_TIMER; }
 
-// ---------- Wi-Fi hotspot + local web page ----------
+// ---------- Wi-Fi: hotspot or the user's own network, and the local web page ----------
+// The radio and the web server belong to the Wi-Fi screen (core/net.cpp starts and stops them); nothing here runs by itself.
+// The driver is told not to persist anything (WiFi.persistent(false)): the only place a network password is kept is /kw/net.txt.
+// No call in this file opens a connection to a host: the station side only joins the user's access point (DHCP, its gateway, DNS).
+//
+// Who may do what (core/net.cpp, NetGuard): on the user's Wi-Fi every write and every read of private data needs the PIN shown on
+// the device (sent as a cookie after /api/unlock); the hotspot is gated by its own password and its one-client limit.
+static uint8_t joinState = 0;  // 0 not joining, 1 joining, 2 up
+static void logMem(const char* tag) {
+  Serial.printf("[mem] %s free=%u low=%u block=%u\n", tag, (unsigned)ESP.getFreeHeap(), (unsigned)ESP.getMinFreeHeap(), (unsigned)ESP.getMaxAllocHeap());
+}
+
 // Where an uploaded file may go: month packs, check-ins and support list in /kw; books in /kw/library.
 // Anything else is refused, and names can't climb out of those folders. `me.txt` (her safety plan) is
 // never accepted as an upload: only the safety-plan editor (POST /api/me) writes it. Nothing here can
-// reach /kw/log (no folder names pass), so check-ins are never overwritten.
+// reach /kw/log (no folder names pass), so check-ins are never overwritten. /kw/net.txt (Wi-Fi passwords) is not on the list either.
 static String uploadDir(const String& n) {
   if (n.indexOf('/') >= 0 || n.indexOf('\\') >= 0 || n.startsWith(".")) return "";
   if (n == "support.txt" || n == "checkins.txt") return "/kw/";
@@ -167,14 +187,50 @@ static void sendFile(FsFile& f, const char* type, const String& downloadName) {
 }
 static FsFile uploadFile;
 static String uploadName, uploadRefused;
+static Verdict uploadVerdict = Verdict::Ok;
 
-bool wifiStart(const char* ssid, const char* pass) {
-  WiFi.mode(WIFI_AP);
-  if (!WiFi.softAP(ssid, pass)) return false;
+// A request that came in on the hotspot's own address is a hotspot request; anything else arrived over the user's Wi-Fi.
+static bool viaLan() { return server->client().localIP() != WiFi.softAPIP(); }
+static uint32_t peerIp() { return (uint32_t)server->client().remoteIP(); }
+static String cookieToken() {
+  const String c = server->header("Cookie");
+  int i = c.indexOf("kw=");
+  if (i < 0) return "";
+  i += 3;
+  const int e = c.indexOf(';', i);
+  return e < 0 ? c.substring(i) : c.substring(i, e);
+}
+static void reply(const NetResp& r) {
+  if (r.cookie) server->sendHeader("Set-Cookie", r.cookie);
+  server->sendHeader("Cache-Control", "no-store");
+  server->send(r.code, r.type, r.body);
+}
+static bool allow(Route r) {
+  const Verdict v = NC.gate(r, viaLan(), peerIp(), cookieToken().c_str());
+  if (v == Verdict::Ok) return true;
+  reply(NC.denied(v));
+  return false;
+}
+static void wipe(String& s) { for (unsigned i = 0; i < s.length(); i++) s[i] = 0; }
+
+static bool serverStart() {
   server = new (std::nothrow) WebServer(80);
   if (!server) return false;
-  server->on("/", HTTP_GET, [] { server->send(200, "text/html; charset=utf-8", WEB_PAGE); });
+  static const char* HDRS[] = {"Cookie"};
+  server->collectHeaders(HDRS, 1);
+  server->on("/", HTTP_GET, [] { NC.lastReq = ::millis(); server->send(200, "text/html; charset=utf-8", WEB_PAGE); });
+  server->on("/api/info", HTTP_GET, [] { reply(NC.info(viaLan(), peerIp(), cookieToken().c_str())); });
+  server->on("/api/unlock", HTTP_POST, [] { String p = server->arg("pin"); reply(NC.unlock(viaLan(), peerIp(), p.c_str())); wipe(p); });
+  server->on("/api/net/scan", HTTP_GET, [] { reply(NC.scan(viaLan(), peerIp(), cookieToken().c_str())); });
+  server->on("/api/net/join", HTTP_POST, [] {
+    String s = server->arg("ssid"), p = server->arg("pass");
+    reply(NC.join(viaLan(), peerIp(), cookieToken().c_str(), s.c_str(), p.c_str()));
+    wipe(p);  // the password lives on in one place only: the join in flight, then /kw/net.txt
+  });
+  server->on("/api/net/forget", HTTP_POST, [] { reply(NC.forget(viaLan(), peerIp(), cookieToken().c_str(), server->arg("ssid").c_str())); });
+  server->on("/api/net/name", HTTP_POST, [] { reply(NC.rename(viaLan(), peerIp(), cookieToken().c_str(), server->arg("name").c_str())); });
   server->on("/api/lib", HTTP_GET, [] {
+    if (!allow(Route::Read)) return;
     const String n = server->arg("f");
     if (uploadDir(n) != "/kw/library/") { server->send(400, "text/plain", "Not a book."); return; }
     FsFile f = sdcard.open(("/kw/library/" + n).c_str(), O_RDONLY);
@@ -182,10 +238,11 @@ bool wifiStart(const char* ssid, const char* pass) {
     sendFile(f, n.endsWith(".pdf") ? "application/pdf" : "application/epub+zip", n);
   });
   server->on("/api/status", HTTP_GET, [] {
+    if (!allow(Route::Read)) return;
     String j = "{\"now\":" + String((long long)time(nullptr)) + ",\"trusted\":" + (clockTrusted ? "true" : "false") +
                ",\"battery\":" + String(batteryPercent()) + ",\"files\":[";
     bool first = true;
-    for (auto& n : sdcard.listFiles("/kw", 100)) { j += (first ? "\"" : ",\"") + n + "\""; first = false; }
+    for (auto& n : sdcard.listFiles("/kw", 100)) { if (n == "net.txt" || n == "net.tmp") continue; j += (first ? "\"" : ",\"") + n + "\""; first = false; }
     j += "],\"logs\":[";
     first = true;
     for (auto& n : sdcard.listFiles("/kw/log", 100)) { j += (first ? "\"" : ",\"") + n + "\""; first = false; }
@@ -200,26 +257,30 @@ bool wifiStart(const char* ssid, const char* pass) {
     server->send(200, "application/json", j);
   });
   server->on("/api/time", HTTP_POST, [] {
+    if (!allow(Route::Write)) return;
     const long long t = server->arg("plain").toInt();
     if (t < MIN_VALID) { server->send(400, "text/plain", "That time looks wrong."); return; }
     setTime((time_t)t);
     server->send(200, "text/plain", "Clock set.");
   });
   server->on("/api/log", HTTP_GET, [] {
+    if (!allow(Route::Read)) return;
     const String m = server->arg("m");
     if (m.length() != 7) { server->send(400, "text/plain", "Pick a month."); return; }
     FsFile f = sdcard.open(("/kw/log/" + m + ".csv").c_str(), O_RDONLY);
     if (!f) { server->send(404, "text/plain", "No check-ins that month."); return; }
     sendFile(f, "text/csv", "keeping-watch-" + m + ".csv");
   });
-  server->on("/api/me", HTTP_GET, [] { std::string s; readFile("/kw/me.txt", s); server->send(200, "text/plain; charset=utf-8", s.c_str()); });
+  server->on("/api/me", HTTP_GET, [] { if (!allow(Route::Read)) return; std::string s; readFile("/kw/me.txt", s); server->send(200, "text/plain; charset=utf-8", s.c_str()); });
   server->on("/api/me", HTTP_POST, [] {
+    if (!allow(Route::Write)) return;
     const String body = server->arg("plain");
     if (body.length() > 8000) { server->send(413, "text/plain", "That is too long for the device."); return; }
     writeFile("/kw/me.txt", std::string(body.c_str()));
     server->send(200, "text/plain", "Saved.");
   });
   server->on("/api/upload", HTTP_POST, [] {
+      if (uploadVerdict != Verdict::Ok) { reply(NC.denied(uploadVerdict)); return; }
       if (uploadName.length()) { server->send(200, "text/plain", "Uploaded " + uploadName); return; }
       const bool plan = uploadRefused == "me.txt";
       server->send(plan ? 403 : 400, "text/plain", plan ? "Not uploaded: me.txt is your safety plan. Change it in the My safety plan box above." : "Not uploaded: the X4 doesn't take that file name.");
@@ -227,7 +288,9 @@ bool wifiStart(const char* ssid, const char* pass) {
     [] {
       HTTPUpload& up = server->upload();
       if (up.status == UPLOAD_FILE_START) {
+        uploadVerdict = NC.gate(Route::Write, viaLan(), peerIp(), cookieToken().c_str());   // checked before the first byte is stored
         uploadName = up.filename; uploadRefused = "";
+        if (uploadVerdict != Verdict::Ok) { uploadName = ""; return; }
         const String dir = uploadDir(uploadName);
         if (!dir.length()) { uploadRefused = uploadName; uploadName = ""; return; }
         uploadFile = sdcard.open((dir + uploadName).c_str(), O_WRONLY | O_CREAT | O_TRUNC);
@@ -240,12 +303,91 @@ bool wifiStart(const char* ssid, const char* pass) {
   server->begin();
   return true;
 }
+
+bool wifiStart(const char* ssid, const char* pass) {
+  WiFi.persistent(false);
+  WiFi.mode(WIFI_AP_STA);                        // the station half is there so the page can scan and join; nothing connects until she asks
+  WiFi.setAutoReconnect(false);
+  if (!WiFi.softAP(ssid, pass, 1, 0, 1)) return false;   // WPA2, one client at a time
+  logMem("hotspot up");
+  return serverStart();
+}
+bool wifiStartStation(const char* hostname) {
+  WiFi.persistent(false);
+  WiFi.setHostname(hostname);
+  WiFi.mode(WIFI_STA);
+  WiFi.setAutoReconnect(false);
+  return serverStart();
+}
 void wifiLoop() { if (server) server->handleClient(); }
 void wifiStop() {
+  const bool was = server || WiFi.getMode() != WIFI_MODE_NULL;
   if (server) { server->stop(); delete server; server = nullptr; }
-  if (WiFi.getMode() != WIFI_MODE_NULL) { WiFi.softAPdisconnect(true); WiFi.mode(WIFI_OFF); }
+  MDNS.end();
+  if (WiFi.getMode() != WIFI_MODE_NULL) { WiFi.softAPdisconnect(true); WiFi.disconnect(true, false); WiFi.mode(WIFI_OFF); }   // false: leave the driver's own stored settings alone
+  joinState = 0;
+  if (was) logMem("wifi off");
 }
-int wifiClients() { return server ? WiFi.softAPgetStationNum() : 0; }
+int wifiClients() {
+  if (!server) return 0;
+  if (WiFi.getMode() == WIFI_AP_STA || WiFi.getMode() == WIFI_AP) return WiFi.softAPgetStationNum();
+  return NC.guard.held(::millis()) ? 1 : 0;      // on the user's Wi-Fi: the one device that has unlocked the page
+}
+
+int wifiScan(WifiNet* out, int max) {
+  const int n = WiFi.scanNetworks(false, false);   // blocking, hidden networks left out
+  int k = 0;
+  for (int i = 0; i < n; i++) {
+    const String s = WiFi.SSID(i);
+    if (!s.length() || s.length() > 32) continue;
+    int at = -1;
+    for (int j = 0; j < k; j++) if (s == out[j].ssid) at = j;
+    const int8_t r = (int8_t)WiFi.RSSI(i);
+    if (at >= 0) { if (r > out[at].rssi) out[at].rssi = r; continue; }   // the same name on two access points: keep the stronger
+    if (k >= max) continue;
+    snprintf(out[k].ssid, sizeof out[k].ssid, "%s", s.c_str());
+    out[k].rssi = r; out[k].secure = WiFi.encryptionType(i) != WIFI_AUTH_OPEN; k++;
+  }
+  WiFi.scanDelete();
+  for (int a = 1; a < k; a++) { WifiNet t = out[a]; int b = a - 1; while (b >= 0 && out[b].rssi < t.rssi) { out[b + 1] = out[b]; b--; } out[b + 1] = t; }
+  return k;
+}
+bool wifiJoin(const char* ssid, const char* pass) {
+  WiFi.disconnect(false);
+  WiFi.begin(ssid, (pass && *pass) ? pass : nullptr);
+  joinState = 1;
+  return true;
+}
+Link wifiLink(LinkErr* why) {
+  if (why) *why = LinkErr::None;
+  if (!joinState) return Link::Off;
+  const wl_status_t st = WiFi.status();
+  if (st == WL_CONNECTED) { if (joinState == 1) logMem("joined"); joinState = 2; return Link::Up; }
+  if (joinState == 2) return Link::Off;                    // was up, now gone
+  if (st == WL_NO_SSID_AVAIL || st == WL_CONNECT_FAILED || st == WL_CONNECTION_LOST) {
+    if (why) *why = st == WL_NO_SSID_AVAIL ? LinkErr::NotFound : st == WL_CONNECT_FAILED ? LinkErr::BadPassword : LinkErr::Other;
+    WiFi.disconnect(false);                                // stop the driver retrying by itself
+    joinState = 0;
+    return Link::Failed;
+  }
+  return Link::Joining;
+}
+void wifiJoinCancel() { WiFi.disconnect(false); joinState = 0; }
+void wifiDropHotspot() { WiFi.softAPdisconnect(true); WiFi.mode(WIFI_STA); }
+bool wifiAddress(char* out, int cap) {
+  const IPAddress a = WiFi.localIP();
+  if (a == IPAddress((uint32_t)0)) return false;
+  snprintf(out, cap, "%u.%u.%u.%u", a[0], a[1], a[2], a[3]);
+  return true;
+}
+bool wifiMdns(const char* name) {
+  MDNS.end();
+  if (!MDNS.begin(name)) return false;
+  MDNS.addService("http", "tcp", 80);
+  return true;
+}
+uint32_t random32() { return esp_random(); }
+void memInfo(uint32_t* f, uint32_t* lo, uint32_t* blk) { *f = ESP.getFreeHeap(); *lo = ESP.getMinFreeHeap(); *blk = ESP.getMaxAllocHeap(); }
 
 // ---------- sleep ----------
 // Unlike CrossPoint's "off" (which drops GPIO13 and cuts the battery), this keeps the battery latch
