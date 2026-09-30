@@ -37,11 +37,27 @@ bool removeEmptyDir(const char* path);                        // fails if the fo
 int batteryPercent();                   // -1 if unknown
 bool woke_by_timer();                   // this boot came from the midnight timer, not a button
 
-// Wi-Fi hotspot with the local web page (device only; the host build returns false).
-bool wifiStart(const char* ssid, const char* pass);
-void wifiLoop();                        // serve requests; call often while the Sync screen is up
-void wifiStop();
+// Wi-Fi hotspot with the local web page (device only; the host build simulates it).
+// The radio and the web server are owned by the Wi-Fi screen (core/net.cpp): started when it opens a mode, freed by wifiStop().
+bool wifiStart(const char* ssid, const char* pass);  // hotspot (AP + station, so it can scan and join) and the web server; one client
+void wifiLoop();                        // serve requests; call often while the Wi-Fi screen is up
+void wifiStop();                        // web server, mDNS and radio off, memory freed. Safe to call when nothing is running.
 int wifiClients();
+// Station mode (the user's own Wi-Fi). Nothing here opens a connection to anywhere but the joined network's own access point
+// (DHCP, its gateway and DNS); there is deliberately no "connect to host" call. Sync (BUILD-PLAN N2) will add one, and the off test will change with it.
+struct WifiNet { char ssid[33]; int8_t rssi; bool secure; };
+enum class Link : uint8_t { Off, Joining, Up, Failed };
+enum class LinkErr : uint8_t { None, NotFound, BadPassword, Other };
+bool wifiStartStation(const char* hostname);                 // radio in station mode plus the web server, no hotspot
+int wifiScan(WifiNet* out, int max);                         // blocking (a few seconds); strongest first, no duplicates or hidden names
+bool wifiJoin(const char* ssid, const char* pass);           // begin joining; poll wifiLink(). Never persisted by the radio driver.
+Link wifiLink(LinkErr* why);
+void wifiJoinCancel();                                       // stop trying, leave the hotspot (if any) up
+void wifiDropHotspot();                                      // after a phone-driven join: keep only the station side
+bool wifiAddress(char* out, int cap);                        // the station's IPv4 address as text, false if none
+bool wifiMdns(const char* name);                             // announce <name>.local (http, port 80) on the joined network
+uint32_t random32();                                         // hardware random (esp_random) / the host's seeded source
+void memInfo(uint32_t* freeBytes, uint32_t* lowWater, uint32_t* largestBlock);  // heap numbers for the on-device probe (0s on the host)
 
 // Power: show whatever is in the framebuffer and deep-sleep until `wakeAt` (UTC) or the power button.
 [[noreturn]] void sleepUntil(time_t wakeAt);

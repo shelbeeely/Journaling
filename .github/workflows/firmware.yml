@@ -26,7 +26,17 @@ jobs:
         with: { path: ~/.platformio, key: 'pio-${{ hashFiles(''x4/platformio.ini'') }}' }
       - run: pip install platformio "esptool>=4.7,<5"
       - name: Build
-        run: pio run -d x4 -e x4
+        shell: bash
+        run: pio run -d x4 -e x4 2>&1 | tee x4-build.log
+      # Memory: the same firmware with the SDK's SecureNet (wolfSSL TLS 1.3) linked in, to size it. N1 makes no TLS call; sync (N2) will.
+      - name: Build with TLS linked (size only)
+        shell: bash
+        run: pio run -d x4 -e x4-tls 2>&1 | tee x4-tls-build.log
+      - name: TLS heap probe and memory budget (fails if under 32 KB is left with a TLS session open)
+        shell: bash
+        run: |
+          x4/tls/heap_probe.sh | tee heap-probe.txt
+          python3 x4/tls/budget.py x4-build.log x4-tls-build.log heap-probe.txt 66668 1556787   # last two: static RAM and flash of main before N1
       - name: Merge a single flashable image (offset 0x0)
         run: |
           B=x4/.pio/build/x4
