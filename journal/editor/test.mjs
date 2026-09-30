@@ -1217,7 +1217,7 @@ ok(!errs.length, 'no page errors after the Book view ' + errs.join(' | '));
   // protected pages: a lock, a reason on focus and on tap, never hidden
   await pick(op, 'safety');
   ok(await op.evaluate(() => document.querySelector('#os-eye').getAttribute('aria-disabled') === 'true' && /can’t hide/i.test(document.querySelector('#os-eye-t').textContent) && /can move but never be hidden/.test(document.querySelector('#os-why').textContent)), 'organiser: a protected page shows a lock and the reason under the toolbar');
-  await op.click('#os-eye', { force: true }); ok(/My safety plan can move but never be hidden/.test(await op.textContent('#org-live')) && await op.evaluate(() => BK.pages.some((p) => p.id === 'safety')), 'organiser: tapping the lock says why and hides nothing');
+  await op.click('#os-eye', { force: true }); ok(await said(op, /My safety plan can move but never be hidden/) && await op.evaluate(() => BK.pages.some((p) => p.id === 'safety')), 'organiser: tapping the lock says why and hides nothing');
   await op.focus('#og-list [data-fk="eye:safety"]');
   ok(await op.evaluate(() => { const r = document.getElementById('ogw-safety'); return r && getComputedStyle(r).display !== 'none' && /never be hidden/.test(r.textContent) && document.activeElement.getAttribute('aria-describedby') === 'ogw-safety'; }), 'organiser: on focus, the list row shows the reason and the button is described by it');
   ok(await op.evaluate(() => ['support', 'closing', 'safety'].every((id) => document.querySelector(`#og-list li[data-eid="${id}"] [data-act="eye"]`).getAttribute('aria-disabled') === 'true')), 'organiser: Support, Closing the month and My safety plan are all locked');
