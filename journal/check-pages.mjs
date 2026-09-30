@@ -20,7 +20,7 @@ const fail = (dir, msg) => errors.push(`${dir}: ${msg}`);
 // The page as it prints, minus the things that are meant to differ per position: page number, scan code, recto/verso.
 const normalize = (h) => h
   .replace(/<span class="pno">\d+<\/span>/, '')
-  .replace(/<span class="qr">[\s\S]*?<\/svg>\s*<\/span>/, '')
+  .replace(/<span class="qr"[^>]*>[\s\S]*?<\/svg>\s*<\/span>/, '')
   .replace(/^(?:recto|verso)/, '')
   .replace(/ data-page-id="[^"]*"/, '');
 const hash = (s) => crypto.createHash('sha1').update(s).digest('hex').slice(0, 12);

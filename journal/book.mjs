@@ -9,6 +9,7 @@
 //   {{P_x}} page references, scan codes and the Keeper's handoff page number.
 // Protected pages (Safety plan, Support, Closing the month) can be moved but never hidden or removed.
 import { PAGE_TYPES, notesPage, fillRefs } from './pages.mjs';
+import { scanProblems, mergeScan, cleanScan } from './scan.mjs';
 
 const e = (type, options = {}) => ({ id: type, type, on: true, options });
 export const DEFAULT_BOOK = {
@@ -34,7 +35,8 @@ export function validateBook(book) {
   const bad = (where, msg) => errs.push(`${where}: ${msg}`);
   if (!isObj(book)) return ['book.json: must be an object like {"version":1,"default":[...]}'];
   if (book.version !== 1) bad('version', `must be 1 (this build reads version 1), got ${JSON.stringify(book.version)}`);
-  for (const k of Object.keys(book)) if (!['version', 'default', 'months'].includes(k)) bad(k, 'not a book.json key (use version, default, months)');
+  for (const k of Object.keys(book)) if (!['version', 'default', 'months', 'scan'].includes(k)) bad(k, 'not a book.json key (use version, default, months, scan)');
+  errs.push(...scanProblems(book.scan, 'scan'));
   const lists = [['default', book.default]];
   if (book.months !== undefined) {
     if (!isObj(book.months)) bad('months', 'must be an object keyed by month, like {"2027-02": {"pages": [...]}}');
@@ -65,7 +67,8 @@ function checkList(where, list, errs) {
       else if (/^notes\.\d+$/.test(it.id)) bad(label, `id "${it.id}" is reserved for automatic padding pages`);
       else if (ids.has(it.id)) bad(label, `id "${it.id}" is used twice (also ${ids.get(it.id)}); every page needs its own id`);
       else ids.set(it.id, at);
-      for (const k of Object.keys(it)) if (!['id', 'type', 'on', 'options'].includes(k)) bad(label, `unknown key "${k}" (a page has id, type, on, options)`);
+      for (const k of Object.keys(it)) if (!['id', 'type', 'on', 'options', 'scan'].includes(k)) bad(label, `unknown key "${k}" (a page has id, type, on, options, scan)`);
+      errs.push(...scanProblems(it.scan, `${label} scan`));
       if (it.on !== undefined && typeof it.on !== 'boolean') bad(label, '"on" must be true or false');
       if (it.options !== undefined && !isObj(it.options)) bad(label, '"options" must be an object');
       if (it.type === 'weeks') {
@@ -112,7 +115,8 @@ export const entriesFor = (book, volId) => (book.months && book.months[volId] ? 
 export function assemble(ctx, entries, opts = {}) {
   const pages = [], refs = (ctx.refs = {}), scoped = !!ctx.scoped;
   let sec = 'front', span = null, notesN = 0;
-  const push = (s) => pages.push({ cls: '', date: '', shared: false, label: '', ...s, section: sec, from: span ? span[0] : null, to: span ? span[1] : null });
+  let scanNow; // the scan settings of the entry being emitted (its own over its group's): rides along on each of its pages
+  const push = (s) => pages.push({ cls: '', date: '', shared: false, label: '', ...(scanNow ? { scan: scanNow } : {}), ...s, section: sec, from: span ? span[0] : null, to: span ? span[1] : null });
   const addNotes = () => { notesN++; const t = `Notes ${notesN}`; push({ cls: 'notes', type: 'notes', id: `notes.${notesN}`, label: t, html: () => notesPage(t) }); };
   const alignToVerso = () => { if ((pages.length + 1) % 2 === 1) addNotes(); }; // the next page must be a left-hand (even) page
   const emit = (entry, at = {}) => {
@@ -124,7 +128,9 @@ export function assemble(ctx, entries, opts = {}) {
     if (T.align === 'verso') alignToVerso();
     if (T.ref && refs[T.ref] === undefined) refs[T.ref] = pages.length + 1;
     if (scoped && T.ref && at.M && refs[`${T.ref}_${at.M.key.replace('-', '')}`] === undefined) refs[`${T.ref}_${at.M.key.replace('-', '')}`] = pages.length + 1; // {{P_TRACKER_202610}}: that month's page
+    scanNow = cleanScan(mergeScan(at.gscan, entry.scan));
     specs.forEach(push);
+    scanNow = undefined;
   };
   const monthStartWeek = (M) => ctx.D.weeks.find((W) => W.days.some((d) => d.m === M.m && d.y === M.y));
   // ---- books longer than a month (ctx.scoped, see span.mjs) ----
@@ -138,7 +144,7 @@ export function assemble(ctx, entries, opts = {}) {
   const lastDay = ctx.D.days[ctx.D.days.length - 1];
   const needsEnd = scoped && (ctx.undated || ctx.closingPolicy === 'end' || lastDay.d !== eomOf(lastDay));
   const closingEntry = entries.find((e) => e.type === 'closing');
-  function scopedWeeks(o) {
+  function scopedWeeks(o, gscan) {
     const weeks = ctx.D.weeks;
     let cur = null;
     const monthOf = (W) => (ctx.undated ? ctx.D.months.find((M) => M.startWeek === W.no - 1) : ctx.D.months.find((M) => M.y === W.days[0].y && M.m === W.days[0].m));
@@ -152,11 +158,11 @@ export function assemble(ctx, entries, opts = {}) {
       if (M && (ctx.undated || M !== cur)) {
         if (!ctx.undated) closeCurrent();
         cur = M; sec = 'month'; span = ctx.undated ? null : [M.days[0].date, M.days[M.days.length - 1].date];
-        for (const s of o.month || []) if (!skipUndated(s.type)) emit(s, { M });
+        for (const s of o.month || []) if (!skipUndated(s.type)) emit(s, { M, gscan });
       }
       sec = 'week'; span = ctx.undated ? null : [W.days[0].date, W.days[W.days.length - 1].date];
       const endsHere = ctx.undated || W.days[W.days.length - 1].weekday === 0 || (wi === weeks.length - 1 && ctx.VOL.isLast);
-      for (const s of o.week || []) { if (PAGE_TYPES[s.type].when === 'weekEnd' && !endsHere) continue; emit(s, { W }); }
+      for (const s of o.week || []) { if (PAGE_TYPES[s.type].when === 'weekEnd' && !endsHere) continue; emit(s, { W, gscan }); }
     });
     closeCurrent();
     sec = 'back'; span = null;
@@ -166,13 +172,14 @@ export function assemble(ctx, entries, opts = {}) {
     if (scoped && skipUndated(entry.type)) continue;
     if (entry.type !== 'weeks') { emit(entry); continue; }
     const o = entry.options || {};
-    if (scoped) { scopedWeeks(o); continue; }
+    const gscan = entry.scan;
+    if (scoped) { scopedWeeks(o, gscan); continue; }
     for (const W of ctx.D.weeks) {
       const M = ctx.D.months.find((M) => monthStartWeek(M) === W);
-      if (M) { sec = 'month'; span = [M.days[0].date, M.days[M.days.length - 1].date]; for (const s of o.month || []) emit(s, { M }); }
+      if (M) { sec = 'month'; span = [M.days[0].date, M.days[M.days.length - 1].date]; for (const s of o.month || []) emit(s, { M, gscan }); }
       sec = 'week'; span = [W.days[0].date, W.days[W.days.length - 1].date];
       const endsHere = W.days[W.days.length - 1].weekday === 0 || (W === ctx.D.weeks[ctx.D.weeks.length - 1] && W.gi === 52);
-      for (const s of o.week || []) { if (PAGE_TYPES[s.type].when === 'weekEnd' && !endsHere) continue; emit(s, { W }); }
+      for (const s of o.week || []) { if (PAGE_TYPES[s.type].when === 'weekEnd' && !endsHere) continue; emit(s, { W, gscan }); }
     }
     sec = 'back'; span = null;
   }

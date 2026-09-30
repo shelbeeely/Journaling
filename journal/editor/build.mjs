@@ -32,10 +32,11 @@ const kit = {
   fact: pick(/<div class="fact".*?<\/div>/s),
   day: sampleDay,
   routines: ['7:30a Morning routine', '8:00p Evening routine'], // a busy day, so the meter errs on the safe side
+  code: (seg.match(/<span class="qr"[^>]*>(<svg.*?<\/svg>)\s*<\/span>/s) || [, ''])[1], // a real page's code, drawn as the sample in the preview
   strip: seg.slice(seg.indexOf('<div class="frame">'), seg.trimEnd().lastIndexOf('</div>')),
 };
-// Method layouts ride along after the block library (their import of daypage.mjs is already in scope).
-const lib = read('daypage.mjs').replace(/^export /gm, '') + '\n' + read('content/layouts.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '');
+// scan.mjs comes first (the block library uses it), then the block library, then the method layouts (their import of daypage.mjs is already in scope).
+const lib = read('scan.mjs').replace(/^export /gm, '') + '\n' + read('daypage.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '') + '\n' + read('content/layouts.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '');
 // The Versions view (Journalwright Studio) computes its compare view in the browser with the same diff code the Studio server uses (studio/src/diff.mjs).
 const studioCode = ['../studio/src/canonical.mjs', '../studio/src/diff.mjs'].map((f) => read(f).replace(/^import .*$/gm, '').replace(/^export /gm, '')).join('\n');
 const studio = `(() => {\n${studioCode}\nreturn { canonical, diffSnapshots };\n})()`;
