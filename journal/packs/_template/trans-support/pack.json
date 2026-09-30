@@ -1,0 +1,27 @@
+{
+ "schema": 1,
+ "id": "my-trans-support",
+ "title": "Template: trans and LGBTQ+ support",
+ "version": "0.1.0",
+ "kind": "trans-support",
+ "author": {
+  "name": "Your name"
+ },
+ "license": {
+  "spdx": "CC0-1.0",
+  "attribution": "",
+  "commercialPrintOk": true
+ },
+ "engine": ">=1.0.0 <2.0.0",
+ "region": "XX-YY",
+ "languages": [
+  "en"
+ ],
+ "verified": [],
+ "files": [
+  {
+   "path": "trans.json",
+   "sha256": "a32a35569367fae159e42b7c966cf43b15589ccc8993615d53127c42fd0dd3a8"
+  }
+ ]
+}

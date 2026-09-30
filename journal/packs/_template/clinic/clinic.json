@@ -1,0 +1,14 @@
+{
+ "name": "Your clinic",
+ "address": "Street, City",
+ "checked": "Month Year",
+ "lines": [
+  {
+   "id": "phone",
+   "name": "Phone",
+   "text": "Add the number here.",
+   "chips": "CALL",
+   "placeholder": true
+  }
+ ]
+}

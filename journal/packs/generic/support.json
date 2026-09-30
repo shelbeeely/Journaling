@@ -33,7 +33,7 @@
     {
      "id": "local-crisis-line",
      "name": "Your local crisis line",
-     "text": "Write the number and what it is for. Replace this list with people and services near you (a content pack: see journal/README.md).",
+     "text": "Add your local numbers here: the number and what it is for. Replace this list with people and services near you by making a content pack (journal/PACKS.md).",
      "chips": "",
      "placeholder": true
     }

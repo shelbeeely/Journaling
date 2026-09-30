@@ -1,0 +1,27 @@
+{
+ "schema": 1,
+ "id": "my-holidays",
+ "title": "Template: holidays and observances",
+ "version": "0.1.0",
+ "kind": "holidays",
+ "author": {
+  "name": "Your name"
+ },
+ "license": {
+  "spdx": "CC0-1.0",
+  "attribution": "",
+  "commercialPrintOk": true
+ },
+ "engine": ">=1.0.0 <2.0.0",
+ "region": "XX-YY",
+ "languages": [
+  "en"
+ ],
+ "verified": [],
+ "files": [
+  {
+   "path": "holidays.json",
+   "sha256": "3c7083b0dd8218606e54d7a7730b5aad353cbaf71837ff762cc4e3cb615e13f8"
+  }
+ ]
+}

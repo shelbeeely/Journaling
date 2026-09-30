@@ -26,7 +26,8 @@ if (cmd === 'list') {
   if (!ps.length) console.log('no packs installed');
   for (const p of ps) {
     const m = p.manifest;
-    console.log(m ? `${p.id}  ${m.version}  ${m.kind}  ${privacyClass(m)}  ${m.title}` : `${p.id}  (pack.json is not readable: run check)`);
+    let cls; try { cls = m && privacyClass(m); } catch { cls = 'unknown kind'; }
+    console.log(m ? `${p.id}  ${m.version}  ${m.kind}  ${cls}  ${m.title}` : `${p.id}  (pack.json is not readable: run check)`);
   }
 } else if (cmd === 'kinds') {
   for (const [k, d] of Object.entries(KINDS)) console.log(`${k}  [${d.privacy}]\n  format:  ${d.schema}\n  build:   ${d.consumedBy}\n  print:   ${d.print}`);

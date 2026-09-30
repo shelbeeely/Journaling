@@ -1,0 +1,27 @@
+{
+ "schema": 1,
+ "id": "my-clinic",
+ "title": "Template: my clinic",
+ "version": "0.1.0",
+ "kind": "clinic",
+ "author": {
+  "name": "Your name"
+ },
+ "license": {
+  "spdx": "CC0-1.0",
+  "attribution": "",
+  "commercialPrintOk": true
+ },
+ "engine": ">=1.0.0 <2.0.0",
+ "region": "XX-YY",
+ "languages": [
+  "en"
+ ],
+ "verified": [],
+ "files": [
+  {
+   "path": "clinic.json",
+   "sha256": "3b5e62b0f7e6c2da3d3f7fed417f12ecabfacaec0d33d4e6353c242cbf788334"
+  }
+ ]
+}
