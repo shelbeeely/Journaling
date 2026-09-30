@@ -56,6 +56,8 @@ void show(Refresh mode, const char*) {
                         : mode == Refresh::Half ? EInkDisplay::HALF_REFRESH : EInkDisplay::FAST_REFRESH);
 }
 
+static uint32_t backHoldMs = 1200;  // Settings: 1200, 2500 or 0 (no long press)
+void setBackHold(uint32_t ms) { backHoldMs = ms; }
 uint32_t millis() { return ::millis(); }
 
 // Buttons: short press on release, long-press Back (1.2 s) = Support, long-press Power (3 s) = sleep.
@@ -68,8 +70,8 @@ Btn waitButton(uint32_t timeoutMs) {
     input.update();
     for (int i = 0; i < 7; i++) {
       if (!input.wasPressed(MAP[i])) continue;
-      if (OUT[i] == Btn::Back || OUT[i] == Btn::Power) {
-        const uint32_t t0 = ::millis(), holdMs = OUT[i] == Btn::Back ? 1200 : 3000;
+      if ((OUT[i] == Btn::Back && backHoldMs) || OUT[i] == Btn::Power) {
+        const uint32_t t0 = ::millis(), holdMs = OUT[i] == Btn::Back ? backHoldMs : 3000;
         while (input.isPressed(MAP[i])) {
           input.update();
           if (::millis() - t0 > holdMs) {

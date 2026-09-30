@@ -106,7 +106,7 @@ nav = []
 
 intro = page(TITLE, f'''<h1>{e(TITLE)}</h1>
 <p>Companion almanac for the paper journal,  {e(VOL["label"])}. Sky data for {e(D['config']['place'])}, {e(re.sub(r' Time$', ' time', LOC['timezone_name']))}.</p>
-<h3>How to use it</h3><ul><li>Open a week from the contents (each day is listed under its week): each day has its moon, sunrise and sunset, micro-season and events.</li><li>Write in the paper book; use this for reference away from it.</li></ul>
+<h2>How to use it</h2><ul><li>Open a week from the contents (each day is listed under its week): each day has its moon, sunrise and sunset, micro-season and events.</li><li>Write in the paper book; use this for reference away from it.</li></ul>
 <p class="dim">Astrology is included as a reflection prompt, not a forecast. Astronomy is calculated with astronomy-engine. Daily facts: Computer History Museum “This Day in History” and Wikipedia date pages.</p>''')
 files['intro.xhtml'] = (intro, 'application/xhtml+xml'); spine.append('intro.xhtml')
 
@@ -175,7 +175,7 @@ for M in D['months']:
         for c in d['jp']['koChange']:
             rows.append(f"<li><b>{d['d']}</b> Season: {e(c['en'])} <span class='dim'>— {e(c.get('note', ''))}</span></li>")
     f, l = M['days'][0], M['days'][-1]
-    body = f"<h1>{M['name']} {M['y']}</h1><p>Daylight: {dur(f['sun']['lengthMin'])} on {M['name'][:3]} 1 → {dur(l['sun']['lengthMin'])} on {M['name'][:3]} {l['d']}.</p><h3>Sky &amp; seasons</h3><ul>{''.join(rows)}</ul>"
+    body = f"<h1>{M['name']} {M['y']}</h1><p>Daylight: {dur(f['sun']['lengthMin'])} on {M['name'][:3]} 1 → {dur(l['sun']['lengthMin'])} on {M['name'][:3]} {l['d']}.</p><h2>Sky &amp; seasons</h2><ul>{''.join(rows)}</ul>"
     files[name] = (page(M['name'], body), 'application/xhtml+xml'); spine.append(name)
     wk_items = []
     for W in D['weeks']:
@@ -194,7 +194,8 @@ assert len([s for s in spine if s.startswith('w')]) == len(D['weeks']), [s for s
 
 navdoc = f'''<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en"><head><meta charset="utf-8"/><title>Contents</title></head>
-<body><nav epub:type="toc" id="toc"><h1>Contents</h1><ol><li><a href="intro.xhtml">About</a></li>{'<li><a href="support.xhtml">Support</a></li>' if 'support.xhtml' in files else ''}{'<li><a href="bus.xhtml">' + str(TRANSIT.get('agency')) + ' buses</a></li>' if 'bus.xhtml' in files else ''}{''.join(nav)}</ol></nav></body></html>'''
+<body><nav epub:type="toc" id="toc"><h1>Contents</h1><ol><li><a href="intro.xhtml">About</a></li>{'<li><a href="support.xhtml">Support</a></li>' if 'support.xhtml' in files else ''}{'<li><a href="bus.xhtml">' + str(TRANSIT.get('agency')) + ' buses</a></li>' if 'bus.xhtml' in files else ''}{''.join(nav)}</ol></nav>
+<nav epub:type="landmarks" hidden="hidden"><h2>Landmarks</h2><ol><li><a epub:type="toc" href="nav.xhtml#toc">Contents</a></li><li><a epub:type="bodymatter" href="intro.xhtml">Start of the book</a></li></ol></nav></body></html>'''
 
 # EPUB 2 NCX for older readers
 pts = []; order = 1
@@ -212,7 +213,12 @@ manifest += ''.join(f'<item id="{n.split(".")[0]}" href="{n}" media-type="image/
 manifest += '<item id="css" href="style.css" media-type="text/css"/><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/><item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>'
 opf = f'''<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="bookid" xml:lang="en">
-<metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="bookid">{BOOK_ID}</dc:identifier><dc:title>{e(TITLE)} — {e(VOL['label'])} Almanac</dc:title><dc:language>en</dc:language><dc:creator>{e(PROFILE['person']['name'])}</dc:creator><meta property="dcterms:modified">{now}</meta></metadata>
+<metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="bookid">{BOOK_ID}</dc:identifier><dc:title>{e(TITLE)} — {e(VOL['label'])} Almanac</dc:title><dc:language>en</dc:language><dc:creator>{e(PROFILE['person']['name'])}</dc:creator><meta property="dcterms:modified">{now}</meta>
+<meta property="schema:accessMode">textual</meta><meta property="schema:accessMode">visual</meta>
+<meta property="schema:accessModeSufficient">textual</meta>
+<meta property="schema:accessibilityFeature">structuralNavigation</meta><meta property="schema:accessibilityFeature">tableOfContents</meta><meta property="schema:accessibilityFeature">readingOrder</meta><meta property="schema:accessibilityFeature">alternativeText</meta>
+<meta property="schema:accessibilityHazard">none</meta>
+<meta property="schema:accessibilitySummary">All text is real text that a reader can resize, with a contents list, one top-level heading per page and days as sub-headings. The moon images have alternative text. The reading order follows the visual order.</meta></metadata>
 <manifest>{manifest}</manifest>
 <spine toc="ncx"><itemref idref="nav"/>{''.join(f'<itemref idref="{s.split(".")[0]}"/>' for s in spine)}</spine></package>'''
 
