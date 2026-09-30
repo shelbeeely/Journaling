@@ -1,3 +1,13 @@
+---
+title: "Passion Planner"
+slug: passion-planner
+category: planner
+evidenceLevel: anecdotal
+lastReviewed: 2026-09-30
+status: reviewed
+contributors: ['Journalwright Studio contributors']
+---
+
 # Passion Planner
 
 A paper planner that starts with your dreams (the Passion Roadmap), breaks one down into dated steps, and gives every week a scheduled half and a blank half.
@@ -734,7 +744,7 @@ No study tests Passion Planner itself. Its parts map onto established research.
 - **With the Bullet Journal** (sibling doc `bullet-journal.md`). Use a BuJo key in the to-do lists (• task, × done, > moved), and the Space of Infinite Possibility as a rapid log.
 - **With gratitude journaling.** Good Things That Happened already covers it weekly; add one daily line if you want.
 - **With spoon theory.** Replace hours with a spoon budget on low days.
-- **With Keeping Watch as it is today.** The week spreads and the weekly review already exist. Good Things maps to Small good things; Personal/Work maps to Two columns; the Space of Infinite Possibility maps to Writing space or Sketch box; the monthly reflection maps to Closing the month.
+- **With Journalwright Studio as it is today.** The week spreads and the weekly review already exist. Good Things maps to Small good things; Personal/Work maps to Two columns; the Space of Infinite Possibility maps to Writing space or Sketch box; the monthly reflection maps to Closing the month.
 
 ---
 
@@ -774,7 +784,7 @@ No study tests Passion Planner itself. Its parts map onto established research.
 25. Lessons-learned running list
 26. Thank-you-notes list
 27. Monthly 1–10 bar chart
-28. Places to go (a Spokane list)
+28. Places to go (a list of local places)
 29. Things to learn
 30. A 30-day journal challenge, one prompt a day
 
@@ -841,59 +851,61 @@ No study tests Passion Planner itself. Its parts map onto established research.
 
 ---
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
+
+Journalwright Studio makes printed journals and planners designed in a block editor, with an optional e-ink companion (the X4 companion). This section turns the research above into day page blocks, X4 items and a method layout.
 
 ### a. Printed book
 
 | Idea | Where it goes | Fit | B&W and scan-zone notes | Already built? |
 |---|---|---|---|---|
-| **Space of Infinite Possibility** (a labelled blank box) | Day block (Sketch box) and week spread | High | Blank frame; zone `sketch`. Label "Anything" with a small ∞ icon as SVG. | Yes (Sketch box, Writing space: blank) |
-| **Good Things That Happened** (weekly) | Week spread | High | 5 lines; zone `week_good`. | Partly (Small good things is a day block) |
-| **Home / Shift focus** (the Personal/Work split) | Week spread top | High | Two one-liners; zones `focus_home`, `focus_shift`. | No |
-| **Home / Shift to-dos** | Day block (Two columns) | High | Reuse `split` with "Home" and "Shift". | Yes (Two columns) |
-| **Monthly reflection page** (7 softened questions plus 1–10) | Back of each month, before Closing the month | High | Lines plus a 1–10 circle row; zones `refl_1`…`refl_7`, `refl_rate`. The rating is a scan-friendly circled number. | Partly (Closing the month, Looking back) |
-| **Year in Pixels** (months × days grid) | Back matter of each monthly book (the month's column), and the Keeper (full year) | High | 5 shades are hard in B&W. Use fill patterns (empty, dot, hatch, cross-hatch, solid) as SVG. Each cell ≥ 4 mm. Zones per month column. **Keeper has no scan codes**, so the Keeper grid is print-only. | No |
-| **Mini Roadmap** (3 months / 1 year, one circle, next step) | Keeper yearly pages, or front matter of the January book | Med | Two quadrants, not four. No lifetime pressure. Zones `road_3m`, `road_1y`, `road_next`. | No |
-| **Not-To-Do list** | Month page | Med | 3 lines, a boundaries icon; zone `not_todo`. | No |
-| **People to see / Places to go** | Month page | Med | Two short lists. Overlaps with Reach out. | Partly (Reach out) |
-| **Weekly quote and challenge** | Week spread | Low | Busy, and adds reading. A calm one-line "this week, try:" at most. | No |
-| **Hourly grid 6 a.m.–10:30 p.m.** | Day block | Low | Time blocks already exists, with configurable hours. | Yes (Time blocks) |
+| **Space of Infinite Possibility** (a labelled blank box) | Day page block (Sketch box) and week spread | High | Blank frame; zone `sketch`. Label "Anything" with a small ∞ icon as SVG. | **Yes** (Sketch box with label and caption, Writing space: blank) |
+| **Good Things That Happened** (weekly) | Week spread | High | 5 lines; zone `week_good`. | **Partly** (Small good things is a day page block) |
+| **Home / Shift focus** (the Personal/Work split) | Week spread top | High | Two one-liners; zones `focus_home`, `focus_shift`. | Planned |
+| **Home / Shift to-dos** | Day page block (Two columns) | High | Reuse `split` with "Home" and "Shift". | **Yes** (Two columns) |
+| **Monthly reflection page** (7 softened questions plus 1–10) | Back of each month, before Closing the month | High | Lines plus a 1–10 circle row; zones `refl_1`…`refl_7`, `refl_rate`. The rating is a scan-friendly circled number. | **Partly** (Closing the month, Looking back) |
+| **Year in Pixels** (months × days grid) | Back matter of each monthly book (the month's column), and the Keeper (full year) | High | 5 shades are hard in B&W. Use fill patterns (empty, dot, hatch, cross-hatch, solid) as SVG. Each cell ≥ 4 mm. Zones per month column. **The Keeper has no scan codes**, so the Keeper grid is print-only. | **Partly**: the day page has a Day pixel block (one square per day, 5 or 7 level swatches). The month column and the full-year Keeper grid are planned |
+| **Mini Roadmap** (3 months / 1 year, one circle, next step) | Keeper yearly pages, or front matter of the first book of the year | Med | Two quadrants, not four. No lifetime pressure. Zones `road_3m`, `road_1y`, `road_next`. | Planned |
+| **Not-To-Do list** | Month page | Med | 3 lines, a boundaries icon; zone `not_todo`. | Planned |
+| **People to see / Places to go** | Month page | Med | Two short lists. Overlaps with Reach out. | **Partly** (Reach out) |
+| **Weekly quote and challenge** | Week spread | Low | Busy, and adds reading. A calm one-line "this week, try:" at most. | Planned (not recommended) |
+| **Hourly grid 6 a.m.–10:30 p.m.** | Day page block | Low | Time blocks already exists, with configurable hours. | **Yes** (Time blocks) |
 
-### b. X4
+### b. X4 companion
 
-| Idea | Where it goes | Fit | RAM, scope and calm notes |
-|---|---|---|---|
-| **Year in Pixels view** | A screen: 12 × 31 grid, 1-bit patterns from the daily mood check-in | High | 366 bytes; static buffer. Draw once per open, no animation. Read-only, no streaks. Mood data is already on the device. |
-| **Monthly 1–10 rating** | Check-in item kind `scale` (1..10), shown on the last day of the month or any day | Med | Via the bridge (a Scale block with steps = 10). One byte a month. |
-| **Good Things count** | Check-in `count` (0..9) | Low | A number loses the content. Better on paper. |
-| **Home / Shift focus word** | Sleep screen, one line | Med | ≤ 24 chars, set on the Wi-Fi page. No reminders. |
-| **Monthly reflection export** | Wi-Fi page: download the month's ratings and pixels as CSV for the Keeper handoff | Med | Fits the month stats already there. Nothing leaves except over the hotspot. |
-
-### c. Proposed editor blocks
-
-| Type | Name | Options | `data-zone` | X4 export kind |
+| Idea | Where it goes | Fit | RAM, scope and calm notes | Already built? |
 |---|---|---|---|---|
-| `sketch` *(existing)* | Anything box (Space of Infinite Possibility) | `label` "Anything", `h` (height) | `sketch` | — |
-| `split` *(existing)* | Home · Shift to-dos | `left` "Home", `right` "Shift", `n` lines | `split` | — |
-| `scale` *(existing)* | Day rating | `label` "Today", `steps` 10, `lo` "rough", `hi` "good" | `scale` | `scale` 1..10 |
-| `good` *(existing)* | Good things | `n` 3 | `gratitude` | — |
-| `focus` *(new)* | Focus line | `left` (text, def "Home"), `right` (text, def "Shift"), `icon` (bool) | `focus` | — |
-| `pixel` *(new)* | Mood pixel | `label` (text, def "Mood"), `shades` (num 3–5, def 5), `key` (bool: print the pattern key) | `pixel` | `scale` 1..shades |
-| `notdo` *(new)* | Not-to-do | `n` (num 1–3 lines) | `notdo` | — |
+| **Year in Pixels view** | A screen: 12 × 31 grid, 1-bit patterns from a daily rating check-in | High | 366 bytes; static buffer. Draw once per open, no animation. Read-only, no streaks. The rating would have to be a custom Scale check-in on the device (mood itself is on paper) | Planned |
+| **Monthly 1–10 rating** | Check-in item kind `scale` (1..10), shown on the last day of the month or any day | Med | Via the pack export (a Scale block with steps = 10). One byte a month. | **Yes** as a Scale block with 10 steps (set up by hand) |
+| **Good Things count** | Check-in `count` (0..9) | Low | A number loses the content. Better on paper. | **Yes** as a Fill-in blanks block, but not recommended |
+| **Home / Shift focus word** | Sleep screen, one line | Med | ≤ 24 chars, set on the Wi-Fi page. No reminders. | Planned |
+| **Monthly reflection export** | Wi-Fi page: download the month's ratings and pixels as CSV | Med | Fits the month stats already there. Nothing leaves except over the device's own hotspot (or your own Wi-Fi, when you start it). | **Partly** (the Wi-Fi page downloads the month's check-in log) |
+
+### c. Editor blocks
+
+| Type | Name | Options | `data-zone` | X4 export kind | Built? |
+|---|---|---|---|---|---|
+| `sketch` *(existing)* | Anything box (Space of Infinite Possibility) | `label` "Anything", `h` (height), optional tape corners and caption | `sketch` | — | **Yes** |
+| `split` *(existing)* | Home · Shift to-dos | `left` "Home", `right` "Shift", `n` lines | `split` | — | **Yes** |
+| `scale` *(existing)* | Day rating | `label` "Today", `steps` 10, `lo` "rough", `hi` "good" | `scale` | `scale` 1..10 | **Yes** (Scale allows 3–11 steps) |
+| `good` *(existing)* | Good things | `n` 3 | `gratitude` | — | **Yes** |
+| `focus` *(new)* | Focus line | `left` (text, default "Home"), `right` (text, default "Shift"), `icon` (bool) | `focus` | — | Planned |
+| `pixel` | Day pixel | Built: `levels` (5 or 7), `key` (bool: low and high words). Proposed: `label` (text), `shades` (3–5) | `pixel` | None today (a `scale` export is planned) | **Yes** (proposed options planned) |
+| `notdo` *(new)* | Not-to-do | `n` (num 1–3 lines) | `notdo` | — | Planned |
 
 ### d. Proposed method layout: "Passion Planner"
 
-Ordered blocks for a one-click day layout:
+This layout is not among the built-in method layouts yet (today: original, Bullet Journal daily, Hobonichi, Five Minute, Theme System). Ordered blocks for a one-click day layout:
 
 1. `sky`
 2. `events`
-3. `focus` — Home / Shift
+3. `focus` — Home / Shift (planned; until then a Lined notes block)
 4. `top` — label "Next step", n = 1 (the GameChanger step)
 5. `split` — Home / Shift to-dos, 3 lines
 6. `timeline` — from 6 to 22, every 2 hours (off if a shift day uses `shift`)
 7. `care` — the self-care practice lives here
 8. `good` — 3 lines
-9. `pixel` — Mood, 5 shades
+9. `pixel` — Day pixel, 5 levels
 10. `body` — Writing space, blank: the Space of Infinite Possibility
 
 The fixed header, frame, SEND TO strip and page code stay unchanged. The week spread and month pages get Good Things (weekly), the monthly reflection and the Year in Pixels column as printed features, not day blocks.
@@ -901,12 +913,12 @@ The fixed header, frame, SEND TO strip and page code stay unchanged. The week sp
 ### e. Don't adopt
 
 - **"Passion" and "GameChanger" language.** It's hype and pressure. Use plain words: "Next step", "What matters".
-- **Lifetime wishlist on a timer.** Too heavy for low-spoon periods, and can surface grief. Offer 3 months and 1 year only, untimed, in the Keeper.
-- **"If you skip a day, make up for it the next day."** Guilt, and not supported (Lally 2010). Keeping Watch never asks you to catch up.
+- **Lifetime wishlist on a timer.** Too heavy for low-energy periods, and can surface grief. Offer 3 months and 1 year only, untimed, in the Keeper (the home-kept companion book).
+- **"If you skip a day, make up for it the next day."** Guilt, and not supported (Lally 2010). Journalwright Studio never asks you to catch up.
 - **Weekly quotes and challenges.** Adds reading and stimulation. Skip it.
 - **Dense spreads.** Keep the calm, spaced look. Pick 3–4 elements, not all ten.
 - **Colour-coded mood pixels.** The print is B&W and the X4 is 1-bit. Use patterns.
-- **Any buddy or sharing feature on the X4.** Out of scope (nothing leaves the device except over the hotspot, and there are no feeds).
+- **Any buddy or sharing feature on the X4.** Out of scope (nothing leaves the device except over its own hotspot, or an explicit sync you start to your own account, and there are no feeds).
 
 ---
 

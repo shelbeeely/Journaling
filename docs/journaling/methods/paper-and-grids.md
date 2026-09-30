@@ -1,8 +1,18 @@
+---
+title: "Paper and Grids (page ruling as a method)"
+slug: paper-and-grids
+category: paper-and-hybrid
+evidenceLevel: some
+lastReviewed: 2026-09-30
+status: reviewed
+contributors: ['Journalwright Studio contributors']
+---
+
 # Paper and Grids (page ruling as a method)
 
-A reference for the "hidden method" under every journal: the ruling printed on the page (lines, dots, squares, Cornell, isometric, blank) and the paper it sits on (weight, bleed, ghosting, Tomoe River). What each is for, where the numbers come from, how they print on Amazon KDP black-and-white paper, how they survive a phone scan, and what Keeping Watch should take from them.
+A reference for the "hidden method" under every journal: the ruling printed on the page (lines, dots, squares, Cornell, isometric, blank) and the paper it sits on (weight, bleed, ghosting, Tomoe River). What each is for, where the numbers come from, how they print on Amazon KDP black-and-white paper, how they survive a phone scan, and what Journalwright Studio should take from them.
 
-Checked against sources on 2026-09-28. Where a detail couldn't be confirmed from a primary source, it's marked **(unconfirmed)**. Numbers about Keeping Watch come from `journal/render.mjs` and `journal/daypage.mjs` on `main` at that date.
+Checked against sources on 2026-09-28. Where a detail couldn't be confirmed from a primary source, it's marked **(unconfirmed)**. Numbers about Journalwright Studio come from `journal/render.mjs` and `journal/daypage.mjs` on `main` at that date.
 
 ---
 
@@ -15,7 +25,7 @@ Checked against sources on 2026-09-28. Where a detail couldn't be confirmed from
 | **Type** | Page system: the physical layer every planner, journal and tracker sits on |
 | **Time per day** | None on its own. Choosing a ruling takes minutes once. Testing pens on a new paper takes 10–15 minutes |
 | **Time per week** | None |
-| **Cost** | $0 (print your own) to about $35 for a premium notebook. A KDP-printed Keeping Watch book is a few dollars in print cost |
+| **Cost** | $0 (print your own) to about $35 for a premium notebook. A KDP-printed Journalwright Studio book is a few dollars in print cost |
 | **Formats and sizes** | Any size. Common: A6, A5 (148 × 210 mm), B6, 5.5 × 8.5 in, 8.5 × 11 in |
 | **Best for** | Anyone whose writing looks messy, wanders, or feels cramped: the right ruling fixes more than a new pen does. People who scan pages. People with dysgraphia or low vision |
 | **Not ideal for** | People who find any printed mark "busy" (use blank). People who want the paper to decide the layout for them (use a planner) |
@@ -135,7 +145,7 @@ The problem it solves: "my journal looks messy", "I can't make tables", "I can't
 - **Sizes:**
   - **5 mm:** European standard; two squares per line of average writing if you skip a row, or one square per line for small hands.
   - **1/4 in (6.35 mm):** US quad ruled; four squares per inch.
-  - **4 mm:** a common planner size (Keeping Watch's grid option).
+  - **4 mm:** a common planner size (the editor's grid option).
   - **3.7 mm:** Hobonichi daily pages. One character per square in Japanese; in English, most people write across about two squares per line of text or one square per line in very small writing.
   - **Engineering paper:** faint green or tan grid printed on the back so it shows through but disappears in photocopies. [Graph paper, Wikipedia]
 - **Weakness:** a full grid is the busiest ruling. Make it faint, dashed or dotted.
@@ -191,7 +201,7 @@ Definitions from Goulet Pens and others:
 - **The change:** Tomoegawa announced it would transfer the Tomoe River "product sales contract, trademark rights and inventory" to Sanzen Paper Manufacturing Co., Ltd. of Kanazawa, with the transfer planned for 28 November 2021, as part of a restructuring of its functional paper business. [Tomoegawa, 28 Oct 2021]
 - **What changed in the paper:** one side-by-side test found Sanzen's paper "a little thicker and slightly toothier", with sheen and shading kept and no feathering in either, but "some" bleed-through on the Sanzen paper where the Tomoegawa had none. [Inkcredible Colours, 2023] Others report slightly longer dry times **(unconfirmed)**.
 - **Now:** Sanzen refined the paper in 2024–2025 ("Tomoe River S"), and Hobonichi uses it in all planners from 2025 (Wikipedia; not confirmed on Hobonichi's own page).
-- **Why it matters here:** KDP can't print on Tomoe River. It's a reference point for what "fountain-pen friendly" means, not an option for Keeping Watch books.
+- **Why it matters here:** KDP can't print on Tomoe River. It's a reference point for what "fountain-pen friendly" means, not an option for Journalwright Studio books.
 
 ### 5.11 Line weight and colour for print
 
@@ -204,7 +214,7 @@ KDP's rules for interiors [KDP Paperback Submission Guidelines]:
 
 KDP prints black-and-white interiors on a toner or inkjet press, so very thin or very pale marks can break up, vanish or print unevenly between copies and printing plants ("paper weight varies based on printing location"). [KDP Print Options]
 
-Keeping Watch's current rulings, measured from the source:
+Journalwright Studio's current rulings, measured from the source:
 
 | Ruling | Where | Pitch | Mark | Grey | Against KDP |
 |---|---|---|---|---|---|
@@ -235,7 +245,7 @@ Most scanning apps (Apple Notes, OneDrive, Rocketbook, Adobe Scan) crop the page
 - **Dots** survive worse than lines (they're small), which is one reason dot grid scans look clean.
 - **Colour:** pale blue ("non-photo blue") was traditionally invisible to photocopiers. A B&W KDP book can't print colour, so grey is the only lever.
 
-The Keeping Watch approach follows this split: faint dots and grey lines for the hand, a solid 9 pt black frame, solid symbols and a black Data Matrix for the camera. See the [scan systems doc](rocketbook-and-scan-systems.md).
+The Journalwright Studio approach follows this split: faint dots and grey lines for the hand, a solid 9 pt black frame, solid symbols and a black Data Matrix for the camera. See the [scan systems doc](rocketbook-and-scan-systems.md).
 
 ---
 
@@ -276,7 +286,7 @@ Ruling isn't a daily ritual, but a few habits help:
 ## 8. Rhythms
 
 - **Weekly:** none needed. If you tried a new pen, add a line to your pen test page.
-- **Monthly:** with a new Keeping Watch book, re-check the paper choice for each block in the editor. Was the grid or lined paper right for how the month went?
+- **Monthly:** with a new book, re-check the paper choice for each block in the editor. Was the grid or lined paper right for how the month went?
 - **Quarterly:** do a fresh handwriting check. Stress, fatigue, pain and meds change handwriting size.
 - **Yearly:** order a proof of any new layout and do a full pen and scan test on the real KDP paper (printing plants vary).
 - **Archiving:** store finished books upright, away from damp. Gel and fountain inks can transfer in heat.
@@ -380,16 +390,16 @@ On a 5.5 × 8.5 page, scale down: cue column about 1.3 in (a third of the writin
 +-------------------------------------+
 ```
 
-### 9.8 Keeping Watch day page (current default, 5.5 × 8.5)
+### 9.8 Journalwright Studio day page (current default, 5.5 × 8.5)
 
 ```
 +=====================================+  <- 9 pt black frame
 |  DATE        TITLE          TAGS    |  fixed header
 |  sky · notes · events               |
 |  care check-in · spoons             |
-|  . . . . . . . . . . . . . . . . .  |  Writing space: 5 mm dots,
-|  . . . . . . . . . . . . . . . . .  |  #DCDCDC, 0.6 mm dots
-|  . . . . . . . . . . . . . . . . .  |  (or 6.6 mm lines #999,
+|  . . . . . . . . . . . . . . . . .  |  Writing space: 5.6 mm dots,
+|  . . . . . . . . . . . . . . . . .  |  50% grey, 0.71 mm dots
+|  . . . . . . . . . . . . . . . . .  |  (or 6.6 mm lines 37% grey,
 |  . . . . . . . . . . . . . . . . .  |   4 mm grid, blank)
 |  [] action items                    |
 |  went well | was hard | tomorrow    |  5.6 mm lines
@@ -402,13 +412,13 @@ On a 5.5 × 8.5 page, scale down: cue column about 1.3 in (a third of the writin
 
 ## 10. Worked examples
 
-### 10.1 A day: choosing rulings for a Keeping Watch day page
+### 10.1 A day: choosing rulings for a day page
 
-Shelbee's handwriting: x-height about 2.5 mm at a table, 3.5 mm on a clipboard at work.
+Example writer's handwriting: x-height about 2.5 mm at a table, 3.5 mm on a clipboard at work.
 
-- Writing space: **Lines** (6.6 mm) on workdays because she writes on a clipboard; **Dot grid** on days off for sketches.
+- Writing space: **Lines** (6.6 mm) on workdays because the writer uses a clipboard; **Dot grid** on days off for sketches.
 - Lined notes "What I ate": 2 lines at 5.6 mm. Tight but fine for short words.
-- Two columns "Morning | Evening": switched to **Dot grid** paper so she can make tiny tables.
+- Two columns "Morning | Evening": switched to **Dot grid** paper to make tiny tables.
 
 Filled page (excerpt):
 
@@ -480,7 +490,7 @@ Nov book: Writing space = lines, add Sketch box on weekends only
 | Raised-line paper | Occupational therapy suppliers | Tactile lines you can feel |
 | Genkō yōshi | Japanese manuscript paper | One box per character, columns for furigana |
 | Graph paper sideways | Dysgraphia practice | Lined paper rotated 90° to make columns for maths |
-| "Baseline dots" | Planner designers | A dot on each line's baseline instead of full lines (Keeping Watch's Quick bullets uses a bullet spot at line start) |
+| "Baseline dots" | Planner designers | A dot on each line's baseline instead of full lines (the Quick bullets block uses a bullet spot at line start) |
 
 ---
 
@@ -542,7 +552,7 @@ No single official product. Reference products:
 - **Printable PDFs:** dozens of free generators make dot, grid and isometric PDFs at any pitch and grey. Printing at home lets you pick paper.
 - **E-ink:**
   - reMarkable, Kindle Scribe and Boox tablets ship with lined, dot and grid templates and let you load custom PDF templates.
-  - E-ink greys are limited (the Keeping Watch X4 is 1-bit: black or white only), so faint rulings become dithered dots or vanish.
+  - E-ink greys are limited (the X4 companion is 1-bit: black or white only), so faint rulings become dithered dots or vanish.
 - **Scanning:** see [Rocketbook and scan systems](rocketbook-and-scan-systems.md). Faint rulings help both OCR and human reading because they drop out.
 - **Lost versus paper:** the feel of a pen on a particular paper, the "one book" archive, no battery.
 - **Gained:** change ruling per page, no ghosting, infinite undo, zoom for large print.
@@ -618,7 +628,7 @@ No single official product. Reference products:
 - **Depression and anxiety:** blank pages can feel like a demand. A few printed lines with a small label ("one line is enough") lowers the bar.
 - **Trauma:** lined paper can recall school or forms; dots or blank may feel safer. Keep private pages free of scan codes if they shouldn't be scanned.
 - **Dyslexia and dysgraphia:** coloured or raised lines, a ruling with a clear baseline, graph paper for numbers, wider pitch. Seyès-style sub-lines can help letter sizing. [Understood]
-- **Low vision:** bold-line paper (7/16 or 9/16 in), black ink, felt-tip pens, high contrast, no faint dots. The 8.5 × 11 Keeping Watch size gives 1.29× bigger everything.
+- **Low vision:** bold-line paper (7/16 or 9/16 in), black ink, felt-tip pens, high contrast, no faint dots. The 8.5 × 11 size gives 1.29× bigger everything.
 - **Motor or hand pain:** wider pitch, thicker grip pens, ballpoint or gel that needs little pressure, less writing and more circling. A spoon-friendly day page uses bubbles and checkboxes.
 - **Trans and gender-diverse people:** handwriting can be tied to identity; some people practise a new hand. A Seyès-like or guided ruling on a practice page helps. Name and signature practice pages are a gentle use.
 - **Shift workers:** writing on clipboards and knees favours wider pitch and quick-dry pens. Books that lie flat help.
@@ -636,7 +646,7 @@ No single official product. Reference products:
 | Scan cleanliness (pale print) | Good | Very good | Good if faint | Good | Best |
 | Handwriting guidance | Strong baseline | Moderate | Strong, both axes | Strong | None |
 | Accessibility | Wide or bold versions exist | Weak for low vision | Good for dysgraphia maths | Good for structure | Poor for dysgraphia |
-| Keeping Watch has it | Yes (6.6 / 5.6 mm) | Yes (5 mm) | Yes (4 mm) | No | Yes |
+| Journalwright Studio has it | Yes (6.6 / 5.6 mm) | Yes (5 mm) | Yes (4 mm) | No | Yes |
 
 Related method docs: [Bullet Journal](bullet-journal.md) (dot grid), [Hobonichi Techo](hobonichi-techo.md) (3.7 mm grid, Tomoe River), [Rocketbook and scan systems](rocketbook-and-scan-systems.md).
 
@@ -717,7 +727,7 @@ Paper tests and ruling-based collections you can copy:
 - **Guide sheet:** dark-lined sheet placed under thin paper.
 - **Grey level / fill %:** how dark a tint prints; KDP minimum 10%.
 - **Point (pt):** 1/72 in (0.353 mm).
-- **Bleed (print):** artwork running past the trim; Keeping Watch uses no bleed.
+- **Bleed (print):** artwork running past the trim; Journalwright Studio books use no bleed.
 - **Trim size:** finished page size (5.5 × 8.5 or 8.5 × 11 in).
 - **Threshold (scanning):** the grey level above which a scan filter turns pixels white.
 
@@ -728,7 +738,7 @@ Paper tests and ruling-based collections you can copy:
 1. **Dots, lines or grid?** Mostly sentences: lines. Mixed: dots. Tables, numbers or tiny handwriting: grid.
 2. **What pitch should I use?** Start at college rule (7.1 mm). If letters touch lines, go wider; if lines look empty, go narrower.
 3. **Why 5 mm for dot grid?** It's the common European squared-paper size and suits small-to-average handwriting; 1 cm squares for trackers are two dots.
-4. **Can I use a fountain pen in a Keeping Watch book?** A fine, dry nib with a well-behaved ink may be fine; test on the pen test page first. KDP's 74–90 gsm uncoated paper isn't made for wet nibs.
+4. **Can I use a fountain pen in a Journalwright Studio book?** A fine, dry nib with a well-behaved ink may be fine; test on the pen areas of the proof test sheet first. KDP's 74–90 gsm uncoated paper isn't made for wet nibs.
 5. **Why does my writing ghost?** Thin paper plus dark, wet ink. Use a finer pen or a lighter ink, or write on one side.
 6. **Is Tomoe River still the same paper?** No. Sanzen took over in 2021; testers find it slightly thicker and toothier, with a bit more bleed in some tests. The 2024–2025 "S" version is the current one.
 7. **Why are the dots so pale?** So they guide your hand but drop out of scans and don't distract. KDP recommends at least 10% grey; the dots are about 14%, though tiny pale dots should still be checked on a proof.
@@ -740,53 +750,57 @@ Paper tests and ruling-based collections you can copy:
 
 ---
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
+
+Journalwright Studio makes printed journals and planners designed in a block editor, with an optional e-ink companion (the X4 companion). This section turns the research above into day page blocks, X4 items and a method layout.
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Built? |
 |---|---|---|---|---|
-| Paper choice per block (lines, dots, 4 mm grid) | Day block (Lined notes, Two columns, Writing space) | High | Grey only; keep inside block zones | **Yes** (4 mm grid and block paper option being added) |
-| Line pitch option: tight 5.6 mm / standard 6.6 mm / wide 8.5 mm | Day block option on lined blocks and Writing space | High | Wider pitch fits fewer lines; `check.mjs` must still pass | No |
-| Bold-line (large print) ruling: black 1.5 pt lines at 9/16 in | Writing space choice; also a letter-size preset | Med | Dark lines will show in scans; fine, they're guides for low vision | No |
-| Thicken the 4 mm grid to meet KDP's 0.75 pt line guidance, or switch it to faint dots at the crossings | Paper CSS | High | Keep grey ≤ ~20% so it still drops from scans | No (needs a proof) |
-| Cornell block: cue column + lines + summary line | Day block | Med | One `data-zone` with sub-zones `cornell_cue`, `cornell_notes`, `cornell_summary` would help OCR; or one zone to stay simple | No |
-| Pen test page | Front matter, after the key | High | No scan codes needed? It's harmless to include the normal frame | No |
-| Handwriting size check with a pitch sampler | Front matter or first month only | Med | Printed grey lines at 5.6 / 6.6 / 7.1 / 8.7 mm | No |
-| Scan test square (grey ramp 5–40%) | Pen test page | Low | Shows which greys your phone drops; tiny | No |
-| Isometric page | Back matter notes page option | Low | Busy; niche | No |
-| "Write on one side" hint in the key | Front matter | Med | Text only | No |
-| Seyès practice page for name/signature | Back matter (Trans support) | Low | Gentle, optional | No |
+| Paper choice per block (lines, dots, 4 mm grid) | Day page block (Lined notes, Two columns, Writing space) | High | Grey only; keep inside block zones | **Yes**: Writing space offers Dot grid, Lines, Bold lines, 4 mm grid, 3.7 mm grid and Blank; Lined notes and Two columns offer a paper option; Brain dump offers Dots, Lines or Blank |
+| Line pitch option: tight 5.6 mm / standard 6.6 mm / wide 8.5 mm | Day page block option on lined blocks | High | Wider pitch fits fewer lines; `check.mjs` must still pass | **Yes**: the Line spacing / Row height option (`pitch`) on Lined notes, Two columns, Top priorities, Time blocks, Quick bullets and more. Writing space has Lines (6.6 mm) and Bold lines rather than a pitch option |
+| Bold-line (large print) ruling: black 1.5 pt lines at 9/16 in | Writing space choice; also a letter-size preset | Med | Dark lines will show in scans; fine, they're guides for low vision | **Yes**: Writing space "Bold lines" (1.5 pt black at 9/16 in). A letter-size preset is planned |
+| Thicken the 4 mm grid to meet KDP's 0.75 pt line guidance, or switch it to faint dots at the crossings | Paper CSS | High | Keep grey ≤ ~20% so it still drops from scans | **Partly**: the grid is now dashed 0.75 pt at 22% grey; a proof copy is needed to confirm (see section 5) |
+| Cornell block: cue column + lines + summary line | Day page block | Med | One `data-zone` with sub-zones `cornell_cue`, `cornell_notes`, `cornell_summary` would help OCR; or one zone to stay simple | Planned |
+| Pen test page | Proof test sheet (not a front matter page) | High | No scan codes needed; the normal frame is harmless | **Yes** as part of the proof test sheet (`journal/proof-test.mjs`): pen test areas for fine liner, ballpoint, gel and pencil on the back. A front matter page is planned |
+| Handwriting size check with a pitch sampler | Front matter or first month only | Med | Printed grey lines at 5.6 / 6.6 / 7.1 / 8.7 mm | Planned |
+| Scan test square (grey ramp 5–40%) | Pen test page | Low | Shows which greys your phone drops; tiny | **Partly**: the proof test sheet prints grey tones, dot sizes and a line-weight ladder |
+| Isometric page | Back matter notes page option | Low | Busy; niche | Planned (not recommended) |
+| "Write on one side" hint in the key | Front matter | Med | Text only | Planned |
+| Seyès practice page for name/signature | Back matter | Low | Gentle, optional | Planned |
 | Tomoe River or heavier paper | — | Not possible | KDP offers only 74–90 gsm B&W | n/a |
 
-### b. X4
+### b. X4 companion
 
-| Idea | Where | Fit | RAM, scope and calm notes |
-|---|---|---|---|
-| Show which pen/paper combo you settled on (a line from the pen test) | Keeper handoff stats screen | Low | Text only; tiny; no nagging |
-| Paper-style preview when downloading a book pack (dots/lines/grid icon) | Wi-Fi page book list | Low | 1-bit icons only; static |
-| Large-print mode note (the letter-size book is 1.29× bigger) | Books library | Low | Info only |
-| No ruling on e-ink screens | — | n/a | 1-bit display turns faint rulings into noise; not needed |
-
-The X4 doesn't take handwriting, so rulings mostly don't apply. No notifications, feeds or AI involved.
-
-### c. Proposed editor blocks
-
-| Type | Name | Options | `data-zone` | X4 export kind |
+| Idea | Where | Fit | RAM, scope and calm notes | Built? |
 |---|---|---|---|---|
-| `cornell` | Cornell notes | `title` (text, default "Notes"), `n` (num 3–10 lines), `cue` (choice: narrow ⅓ / wide ½), `summary` (bool, default on), `paper` (choice: lines / dots / 4 mm grid) | `cornell` (repeats `cornell_2`) | none (writing block) |
-| `lines` (option) | Lined notes: pitch | add `pitch` (choice: tight 5.6 / standard 6.6 / wide 8.5 mm) | unchanged | none |
-| `body` (option) | Writing space: bold lines | add `bold` to `style` choices | `body` | none |
-| `pentest` | Pen test (back matter, not a day block) | `pens` (num 3–8 rows) | `pen_test` | none |
+| Show which pen/paper combo you settled on (a line from the pen test) | Stats screen | Low | Text only; tiny; no nagging | Planned |
+| Paper-style preview when downloading a book pack (dots/lines/grid icon) | Wi-Fi page book list | Low | 1-bit icons only; static | Planned |
+| Large-print mode note (the letter-size book is 1.29× bigger) | Books library | Low | Info only | Planned |
+| No ruling on e-ink screens | — | n/a | 1-bit display turns faint rulings into noise; not needed | n/a |
 
-### d. Proposed method layout
+The X4 doesn't take handwriting, so rulings mostly don't apply. No notifications, feeds or AI involved. (The X4 companion does have a Text size setting, Normal or Large, and a Bold contrast setting, which serve the same low-vision needs on screen.)
+
+### c. Editor blocks
+
+| Type | Name | Options | `data-zone` | X4 export kind | Built? |
+|---|---|---|---|---|---|
+| `cornell` | Cornell notes | `title` (text, default "Notes"), `n` (num 3–10 lines), `cue` (choice: narrow ⅓ / wide ½), `summary` (bool, default on), `paper` (choice: lines / dots / 4 mm grid) | `cornell` (repeats `cornell_2`) | none (writing block) | Planned |
+| `lines` (option) | Lined notes: pitch | `pitch` (choice: tight 5.6 / standard 6.6 / wide 8.5 mm) | unchanged | none | **Yes** |
+| `body` (option) | Writing space: bold lines | `bold` in the `style` choices | `body` | none | **Yes** |
+| `pentest` | Pen test (back matter, not a day block) | `pens` (num 3–8 rows) | `pen_test` | none | Planned as a book page; the proof test sheet already has pen areas |
+
+### d. Proposed method layouts
+
+These layouts are not among the built-in method layouts yet (today: original, Bullet Journal daily, Hobonichi, Five Minute, Theme System).
 
 **"Cornell day"** (one click):
 
 1. `sky`
 2. `events`
 3. `care`
-4. `cornell` (n 8, cue ⅓, summary on, paper lines)
+4. `cornell` (n 8, cue ⅓, summary on, paper lines); until it exists, use Two columns or Lined notes
 5. `body` (style lines; takes the remaining room)
 6. `actions`
 7. `review` (went well, tomorrow)
@@ -813,10 +827,10 @@ The X4 doesn't take handwriting, so rulings mostly don't apply. No notifications
 
 ## 26. Open questions
 
-- **Does the 4 mm grid print on KDP?** Its dashed lines are about 0.1 mm (≈ 0.28 pt) and 16% grey, thinner than KDP's 0.75 pt line guidance. A proof copy should settle whether it prints evenly or breaks up; if it breaks up, try 0.75 pt at 12% or crossing dots.
-- **Is 5.6 mm too tight for block lines?** It's below US narrow rule. Worth testing with Shelbee's work handwriting.
+- **Does the 4 mm grid print on KDP?** Its dashed lines were about 0.1 mm (≈ 0.28 pt) and 16% grey, thinner than KDP's 0.75 pt line guidance, and were changed to 0.75 pt at 22% grey (section 5 table). A proof copy should settle whether they print evenly or break up; if they break up, try crossing dots.
+- **Is 5.6 mm too tight for block lines?** It's below US narrow rule. Worth testing with your own work handwriting.
 - **Does the 0.26 in body line pitch suit clipboard writing?** Possibly too tight when standing.
-- **Which greys drop out in Shelbee's scanning app?** Scan-filter thresholds vary by app and lighting; a grey-ramp test page would answer it.
+- **Which greys drop out in your scanning app?** Scan-filter thresholds vary by app and lighting; a grey-ramp test page would answer it.
 - **Tomoe River weights and current spec:** Sanzen's official numbers weren't confirmed from a primary source here.
 - **Leuchtturm1917 dot spacing** wasn't stated on the official page opened.
 - **No evidence** was found comparing dot grid, lines and grid for adult journaling outcomes.
@@ -830,7 +844,7 @@ The X4 doesn't take handwriting, so rulings mostly don't apply. No notifications
 - Goulet Pens, "Why Paper Matters": plain guide to feathering, bleed and ghosting.
 - Inkcredible Colours, "Comparing Tomoegawa vs Sanzen Tomoe River papers": side-by-side test.
 - Hobonichi, "History" and "Original" pages: how the 3.7 mm grid was tuned.
-- KDP, "Paperback Submission Guidelines": the print limits that matter for Keeping Watch.
+- KDP, "Paperback Submission Guidelines": the print limits that matter for Journalwright Studio.
 - Morehead, Dunlosky & Rawson (2019): the careful replication of the "pen is mightier" study.
 - Understood.org, "Classroom accommodations for dysgraphia": paper-based supports.
 - The Well-Appointed Desk: long-running paper reviews, including Whitelines Link.

@@ -1,6 +1,16 @@
+---
+title: "Progoff Intensive Journal"
+slug: progoff-intensive-journal
+category: reflective-writing
+evidenceLevel: anecdotal
+lastReviewed: 2026-09-30
+status: reviewed
+contributors: ['Journalwright Studio contributors']
+---
+
 # Progoff Intensive Journal
 
-Ira Progoff's workshop method: a loose-leaf binder split into tabbed sections, each one looking at your life from a different side, with written dialogues and quiet imagery tying them together. This doc covers its history, every section, how the sections feed each other, what's known about whether it works, and what Keeping Watch can take from it.
+Ira Progoff's workshop method: a loose-leaf binder split into tabbed sections, each one looking at your life from a different side, with written dialogues and quiet imagery tying them together. This doc covers its history, every section, how the sections feed each other, what's known about whether it works, and what Journalwright Studio can take from it.
 
 > "Intensive Journal" is a registered trademark held by Dialogue House Associates. This doc describes the method for reference; it doesn't reproduce the workbook. Section names follow *At a Journal Workshop* as reported by the sources in section 28. Where sources disagree or are secondhand, it says so.
 
@@ -134,7 +144,7 @@ Rituals and procedures that aren't sections:
 
 ### Period Log
 
-The entry point. You mark the "recent relevant past": the period you're in now, which might be weeks or years, beginning with some change ("since I started HRT", "since the move"). Then you describe it: what's going on, who's there, what your body's like, what you're working on, what's hard. Accounts describe a quiet step first, eyes closed, letting an image of the period come (that image goes to the Twilight Imagery Log). The Period Log is the hub everything else points back to.
+The entry point. You mark the "recent relevant past": the period you're in now, which might be weeks or years, beginning with some change ("since I started the new job", "since the move"). Then you describe it: what's going on, who's there, what your body's like, what you're working on, what's hard. Accounts describe a quiet step first, eyes closed, letting an image of the period come (that image goes to the Twilight Imagery Log). The Period Log is the hub everything else points back to.
 
 ### Daily Log
 
@@ -396,7 +406,7 @@ DIALOGUE WITH THE BODY   14 Oct
 Statement: My knees have hurt since spring. I push past it
   on shift and pay at night.
 Body's stepping stones: running as a kid; the fall at 19;
-  the warehouse years; starting HRT; this job outside.
+  the warehouse years; the new medication; this job outside.
 Me:    Why now? I'm finally doing work I like.
 Knees: You like it. We carry it. Nine hours on wet ground.
 Me:    I can't stop.
@@ -608,9 +618,8 @@ There's very little outcome research on the Intensive Journal itself.
 - **With the [CBT thought record](./cbt-thought-record.md):** a Daily Log item that's a stuck thought can go to a thought record instead of a Dialogue.
 - **With the [commonplace book](./commonplace-book.md):** lines from other people go there; your own distilled phrases go in Mantra/Crystals.
 - **With a bullet journal:** the rapid log can serve as a Daily Log if you add the arrow column.
-- **With Keeping Watch's Keeper:** Stepping Stones and the Period Log fit the monthly handoff spread (see below).
+- **With Journalwright Studio's Keeper (the home-kept companion book):** Stepping Stones and the Period Log fit the monthly handoff spread (see section 25).
 
-(Sibling docs are being written in parallel; links point to their planned paths.)
 
 ---
 
@@ -727,48 +736,50 @@ No; it's a registered trademark. Describing a method as "inspired by Progoff" is
 
 ---
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
-Progoff's privacy rule matters here: dialogues and life review are the most private writing in any journal. Keeping Watch's day pages carry scan codes and a SEND TO strip; the Keeper stays home and has none. That makes the Keeper the natural home for the life-review parts.
+Journalwright Studio makes printed journals and planners designed in a block editor, with an optional e-ink companion (the X4 companion). This section turns the research above into day page blocks, X4 items and a method layout.
+
+Progoff's privacy rule matters here: dialogues and life review are the most private writing in any journal. Journalwright Studio's day pages carry scan codes and a SEND TO strip; the Keeper (the companion book that stays home) has none. That makes the Keeper the natural home for the life-review parts.
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W / scan-zone notes | Already built? |
 |---|---|---|---|---|
-| Daily Log with an arrow column ("→ where next") | Day block | High | Lined rows with a narrow right column; arrow icon in the header | No (`lines` is close but has no side column) |
-| Period Log ("this period began when...") | Month page (Closing the month) or Keeper handoff spread | High | A few lines and "same period / new period" tick | No |
-| Stepping Stones list (8–12 numbered lines) | Keeper (yearly), with one fresh list per quarter | High | Numbered lines; no scan code, stays home | No |
-| Dialogue page (statement + script lines) | Back matter, 1–2 pages per month | Med | Two-voice ruled lines with a narrow speaker column; a "private" mark and no SEND TO targets on this page, or make it Keeper-only | No |
-| Intersections (road taken / not taken) | Keeper, once or twice a year | Med | Two columns; `split` could print it on a day page | Partly: `split` |
-| Twilight imagery / dream box | Day block | Low–med | `sketch` box works for an image or a word | Partly: `sketch` |
-| Dialogue with the Body | Day block preset or back matter | Med | Pairs with "HRT & body care" and "Pain" presets | No |
-| Index of cross-links | Back matter | Low | A table: date · section · topic · → | No |
-| Full 16–21 section binder | — | Low | See Don't adopt | No |
+| Daily Log with an arrow column ("→ where next") | Day page block | High | Lined rows with a narrow right column; arrow icon in the header | **Partly** (Lined notes and Quick bullets are close but have no side column; Time stamps has an optional "resume with" arrow row) |
+| Period Log ("this period began when...") | Month page (Closing the month) or Keeper handoff spread | High | A few lines and "same period / new period" tick | Planned |
+| Stepping Stones list (8–12 numbered lines) | Keeper (yearly), with one fresh list per quarter | High | Numbered lines; no scan code, stays home | Planned |
+| Dialogue page (statement + script lines) | Back matter, 1–2 pages per month | Med | Two-voice ruled lines with a narrow speaker column; a "private" mark and no SEND TO targets on this page, or make it Keeper-only | Planned |
+| Intersections (road taken / not taken) | Keeper, once or twice a year | Med | Two columns; `split` could print it on a day page | **Partly**: `split` (Two columns) |
+| Twilight imagery / dream box | Day page block | Low–med | `sketch` box works for an image or a word | **Partly**: `sketch` |
+| Dialogue with the Body | Day page block preset or back matter | Med | Pairs with the "HRT & body care" and "Pain" presets | Planned (the presets exist; the dialogue layout does not) |
+| Index of cross-links | Back matter | Low | A table: date · section · topic · → | Planned |
+| Full 16–21 section binder | — | Low | See Don't adopt | Not adopted |
 
-### b. X4
+### b. X4 companion
 
-| Idea | Where | Fit | RAM / scope / calm notes |
-|---|---|---|---|
-| "Session done" toggle (did a longer journal session today) | Check-in (`toggle`) via `checks` | Med | 1 slot; no text on device; fine |
-| "Same period / new period?" monthly question | Month stats for the Keeper handoff | Med | One boolean per month; appears in the existing handoff stats; no nagging |
-| Entrance-style settling text (public domain or self-written, not Progoff's copyrighted meditations) | Books library as a short EPUB | Low | Static reading; no audio, no timers |
-| Stepping Stones on the device | — | Low | Needs text entry; 7 buttons make it painful; keep on paper |
-| Dialogues on device | — | None | Private writing shouldn't sit on a device that serves files over Wi-Fi; paper only |
-
-### c. Proposed editor blocks
-
-| Type | Name | Options | `data-zone` | X4 export kind |
+| Idea | Where | Fit | RAM / scope / calm notes | Already built? |
 |---|---|---|---|---|
-| `dlog` | Daily log (→) | `title` (text, def "Log"), `n` (num 2–8 rows, def 4), `arrow` (bool, def true: prints the narrow "→" column) | `dlog` (`dlog_2` on repeat) | none |
-| `dialogue` | Dialogue | `with` (choice: person, work, body, event, society, wisdom; prints the matching icon), `statement` (bool, def true: 2 lines), `n` (num 4–12 script lines, def 6) | `dialogue` | none |
-| `stones` | Stepping stones | `n` (num 8–12, def 10), `first` (bool: pre-print "I was born.", def false) | `stones` | none |
-| (reuse) `checks` | Journal session | labels: "Session", "Read back" | existing `checks` | `toggle` ×2 |
+| "Session done" toggle (did a longer journal session today) | Check-in (`toggle`) via `checks` | Med | 1 slot; no text on device; fine | **Yes** as a Checkboxes block (set up by hand) |
+| "Same period / new period?" monthly question | Month stats for the Keeper handoff | Med | One boolean per month; appears in the existing handoff stats; no nagging | Planned |
+| Entrance-style settling text (public domain or self-written, not Progoff's copyrighted meditations) | Books library as a short EPUB | Low | Static reading; no audio, no timers | Planned |
+| Stepping Stones on the device | — | Low | Needs text entry; 7 buttons make it painful; keep on paper | Not planned |
+| Dialogues on device | — | None | Private writing shouldn't sit on a device that serves files over Wi-Fi; paper only | Not planned |
 
-Keeping Watch practice for these blocks: don't set SEND TO targets on `dialogue` by default, and warn in the editor hint that page scans include everything on the page.
+### c. Editor blocks
+
+| Type | Name | Options | `data-zone` | X4 export kind | Built? |
+|---|---|---|---|---|---|
+| `dlog` | Daily log (→) | `title` (text, default "Log"), `n` (num 2–8 rows, default 4), `arrow` (bool, default true: prints the narrow "→" column) | `dlog` (`dlog_2` on repeat) | none | Planned |
+| `dialogue` | Dialogue | `with` (choice: person, work, body, event, society, wisdom; prints the matching icon), `statement` (bool, default true: 2 lines), `n` (num 4–12 script lines, default 6) | `dialogue` | none | Planned |
+| `stones` | Stepping stones | `n` (num 8–12, default 10), `first` (bool: pre-print "I was born.", default false) | `stones` | none | Planned |
+| (reuse) `checks` | Journal session | labels: "Session", "Read back" | existing `checks` | `toggle` ×2 | **Yes** (set up by hand) |
+
+Practice for these blocks: don't set SEND TO targets on `dialogue` by default, and warn in the editor hint that page scans include everything on the page.
 
 ### d. Proposed method layout: "Progoff day"
 
-For a day with room for a short session:
+This layout is not among the built-in method layouts yet (today: original, Bullet Journal daily, Hobonichi, Five Minute, Theme System). For a day with room for a short session:
 
 1. `sky` (Moon, sun & season)
 2. `events`
@@ -785,7 +796,7 @@ And for the month: a Period Log block on the Closing the month page, and a Stepp
 - **The full 16–21 section structure in a bound monthly book.** It needs loose-leaf filing and moving pages; a bound book can't do that. Take the procedures, not the binder.
 - **The trademarked name and workbook wording.** Use plain names ("Daily log", "Dialogue", "Stepping stones") and credit Progoff in the Lineage page.
 - **Progoff's Entrance Meditations** reprinted in the book or on the X4. They're in-copyright.
-- **Long depth/imagery sessions as a default.** Too heavy for low-spoon days and risky for trauma; offer them only as an opt-in back-matter page.
+- **Long depth/imagery sessions as a default.** Too heavy for low-energy days and risky for trauma; offer them only as an opt-in back-matter page.
 - **Scanning or uploading Dialogues.** It breaks the method's core privacy rule; keep them unscanned or in the Keeper.
 - **Dialogue with an abuser as a prompt.** Don't suggest it anywhere in print.
 

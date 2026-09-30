@@ -1,8 +1,18 @@
+---
+title: "Hobonichi Techo"
+slug: hobonichi-techo
+category: japanese
+evidenceLevel: anecdotal
+lastReviewed: 2026-09-30
+status: reviewed
+contributors: ['Journalwright Studio contributors']
+---
+
 # Hobonichi Techo
 
 A one-page-per-day Japanese planner that people use as a diary, scrapbook, schedule and "Life Book". Grid paper,
 a thin timeline, a daily quote and a lot of open space. This doc covers every edition, the page anatomy, the paper,
-the culture around it and what Keeping Watch can borrow.
+the culture around it and what Journalwright Studio can borrow.
 
 > Facts checked on the official Hobonichi site (1101.com) on 2026-09-28 unless marked otherwise. The 2027 lineup
 > went on sale on 1 September 2026, so some pages describe 2026 books and some 2027. Where they differ, both are given.
@@ -37,7 +47,7 @@ made by a Tokyo web publisher in 2001 as "the best techo in the world" for its o
 revises it from user feedback. It has no rules. The company's line is that "for every hundred users, the Hobonichi
 Techo has a hundred different ways to use it", and the hoped-for result is a "Life Book": a year of your life in a
 book that exists nowhere else. Around it has grown a large international culture of covers, stickers, washi tape,
-"hobo" journaling and yearly shelf rows. For Keeping Watch the lessons are the page anatomy (grid, secret line,
+"hobo" journaling and yearly shelf rows. For Journalwright Studio the lessons are the page anatomy (grid, secret line,
 daily line, mini calendar), the permission to leave pages half-empty, and the idea that the book is a calm
 container rather than a productivity system.
 
@@ -645,7 +655,7 @@ and dates are exactly the detail memory loses first.
   (sibling doc: `bullet-journal.md`, if present).
 - **With gratitude journaling:** one "good thing" per day at the foot of the page.
 - **With habit trackers:** mark habits in the yearly index or the back graph tracking sheet.
-- **With Keeping Watch:** the monthly book already carries planning and check-ins; a Techo-style day page adds free
+- **With Journalwright Studio:** the printed book already carries planning and check-ins; the built-in "Hobonichi" method layout (time blocks, a 4 mm grid, small good things and an "On this day" line at the foot) adds free
   space and the "nothing special day" mindset.
 
 ## 22. Ready-to-use bank
@@ -722,49 +732,53 @@ Trackers and collections (back pages or yearly index):
 9. **Can I start mid-year?** Yes. Start on today's page. April-start books suit a spring start.
 10. **Is it a journaling method?** Not really. It's a book with light structure; the "method" is whatever you do daily.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
+
+Journalwright Studio makes printed journals and planners designed in a block editor, with an optional e-ink companion (the X4 companion). This section turns the research above into day page blocks, X4 items and a method layout. A one-click "Hobonichi" method layout already exists in the editor (Moon, sun & season; Time blocks 8–22 every 2 hours; Writing space on a 4 mm grid; Small good things; "On this day" at the foot).
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Built? |
 |---|---|---|---|---|
-| Faint grid writing area (3.7 mm option alongside 4 mm) | Day block (Writing space paper option) | high | Light grey grid prints fine on KDP; keep it inside a `data-zone`; don't let grid reach the 9pt frame | Partly (4 mm grid option being added) |
-| Secret line: narrow left strip for times/icons, wide right for text | Day block option on Writing space / Lined notes | high | A single hairline; no extra zone needed | No |
-| Daily quote line at page foot | Day block "Words to keep" preset or new "Daily line" | med | Must sit above the SEND TO strip; use public-domain or Shelbee's own lines, never Hobonichi's quotes | No |
-| Moon phase + day-of-year in header | Day block (Moon/sun/season) | high | Moon already SVG | Mostly (moon built; day-of-year count not) |
-| Mini month calendar on the day page | Day block | med | Small; keep outside scan header | No |
-| Yearly index (one line per day) | Keeper back matter | high | Keeper has no scan codes; fine | No |
-| "My 100" list | Back matter (Looking back) or Keeper | med | Plain list, B&W | No |
-| Favourites with stars | Back matter | med | Stars as SVG, not a glyph font | No |
-| Gift log | Keeper | low | Private; fine in Keeper | No |
-| Month tabs on edge | Month page | low | KDP bleed and trim risk; skip for now | No |
-| 5 a.m.–4 a.m. timeline for shift days | Time blocks option | high | Keep labels numeric, no Type 3 | Partly (Time blocks exist, range fixed) |
-| "Blank is a record" note in the front matter | Front matter (key) | high | One line of text | No |
+| Faint grid writing area (3.7 mm option alongside 4 mm) | Day page block (Writing space paper option) | high | Light grey grid prints fine on KDP; keep it inside a `data-zone`; don't let grid reach the 9pt frame | **Yes**: Writing space paper offers Dot grid, Lines, Bold lines, 4 mm grid, 3.7 mm grid and Blank |
+| Secret line: narrow left strip for times/icons, wide right for text | Day page block option on Writing space | high | A single hairline; no extra zone needed | **Yes**: the Writing space "Secret line" option (a faint vertical line 0.9 in from the left). Not yet an option on Lined notes |
+| Daily quote line at page foot | Day page block "Words to keep" preset or "On this day" | med | Must sit above the SEND TO strip; use public-domain or your own lines, never Hobonichi's quotes | **Partly**: the "On this day" block (one line of history) and the Keep block ("Words to keep") exist; a dedicated "Daily line" block is planned |
+| Moon phase + day-of-year in header | Day page block (Moon, sun & season) | high | Moon already SVG | **Mostly**: moon, sun and season are built; the day-of-year count is planned |
+| Mini month calendar on the day page | Day page block | med | Small; keep outside scan header | Planned (the Week at a glance strip exists, a mini month does not) |
+| Yearly index (one line per day) | Keeper back matter | high | The Keeper has no scan codes; fine | Planned |
+| "My 100" list | Back matter (Looking back) or Keeper | med | Plain list, B&W | Planned |
+| Favourites with stars | Back matter | med | Stars as SVG, not a glyph font | Planned |
+| Gift log | Keeper | low | Private; fine in the Keeper | Planned |
+| Month tabs on edge | Month page | low | KDP bleed and trim risk; skip for now | Planned (not recommended, see "Don't adopt") |
+| 5 a.m.–4 a.m. timeline for shift days | Time blocks option | high | Keep labels numeric, no Type 3 | **Partly**: Time blocks take a From and To hour (From down to 0, To up to 24), and the Time line 24 h block starts at any hour 0–23; a single axis that runs past midnight (5 to 4) is planned |
+| "Blank is a record" note in the front matter | Front matter (key) | high | One line of text | Planned |
 
-### b. X4
+### b. X4 companion
 
-| Idea | Where | Fit | RAM, scope and calm notes |
-|---|---|---|---|
-| Day-of-year and moon on the sleep screen | Sleep screen | high | Two small numbers; already computing date. No new buffer |
-| "Small good thing" toggle ("I noted one") | Check-in item (toggle) | med | 1 slot; no text entry on device |
-| Mini month grid with filled days | A screen | med | 7×6 cells from the existing log; static buffer |
-| Download a Techo-style printable pack | Wi-Fi page | med | Pack file only; nothing leaves except over the hotspot |
-| Daily quote on the sleep screen | Sleep screen | low | Needs a quote file; must be Shelbee's own or public-domain; keep it optional and calm |
+| Idea | Where | Fit | RAM, scope and calm notes | Built? |
+|---|---|---|---|---|
+| Day-of-year and moon on the sleep screen | Sleep screen | high | Two small numbers; the date is already computed. No new buffer | The moon is on the sleep screen today; day-of-year is planned |
+| "Small good thing" toggle ("I noted one") | Check-in item (toggle) | med | 1 slot; no text entry on device | **Yes** as a Checkboxes block (or the "One small good thing" blank preset, a count used as 0/1) |
+| Mini month grid with filled days | A screen | med | 7×6 cells from the existing log; static buffer | **Partly**: This month shows the month's calendar and check-in stats; a filled-days grid is planned |
+| Download a Techo-style printable pack | Wi-Fi page | med | Pack file only; nothing leaves except over the device's own hotspot (or your own Wi-Fi, when you start it) | Planned |
+| Daily quote on the sleep screen | Sleep screen | low | Needs a quote file; must be your own or public-domain; keep it optional and calm | Planned; the sleep screen already shows an "On this day" line |
 
 Scope: no reminders to "fill your page", no streaks, no badges.
 
-### c. Proposed editor blocks
+### c. Editor blocks
 
-| Type | Name | Options | `data-zone` | X4 export kind |
-|---|---|---|---|---|
-| `write` (existing) | Writing space, secret-line option | `paper: grid37 \| grid4 \| dots \| lines \| blank`, `secretLine: bool`, `strip: num (squares)` | `write` | none |
-| `dayline` (new) | Daily line | `text: text` (fixed line), `source: choice(own \| none)` | `dayline` | none |
-| `minical` (new) | Mini calendar | `highlight: bool` (circle today), `weekStart: choice(mon \| sun)` | `minical` | none |
-| `timeaxis` (new, or Time blocks option) | Time axis | `from: num (0–23)`, `to: num`, `marks: choice(hours \| half)` | `timeaxis` | none |
-| `checks` (existing) | To-do boxes (3) | `labels: list` blank | `checks` | `toggle` per label |
-| `onething` (preset of Fill-in blanks) | One small good thing | `labels: ["Good thing"]` | `fields` | `count` (use as 0/1) |
+| Type | Name | Options | `data-zone` | X4 export kind | Built? |
+|---|---|---|---|---|---|
+| `body` (existing) | Writing space, secret-line option | `style`: dots \| lines \| bold \| grid \| grid37 \| blank; `secretLine: bool` | `body` | none | **Yes**. A `strip` option (squares) is planned |
+| `dayline` (new) | Daily line | `text: text` (fixed line), `source: choice(own \| none)` | `dayline` | none | Planned |
+| `minical` (new) | Mini calendar | `highlight: bool` (circle today), `weekStart: choice(mon \| sun)` | `minical` | none | Planned |
+| `timeline` / `tl24` (existing) | Time blocks / Time line 24 h | Time blocks: `from`, `to`, `every`, `actual`, `replan`. Time line 24 h: `start` hour, `every`, `actual`, `shade` | `timeline` / `tl24` | none | **Yes**. A `marks: hours \| half` option is planned |
+| `checks` (existing) | To-do boxes (3) | `labels: list` blank | `checks` | `toggle` per label | **Yes** |
+| `fields` (existing) | One small good thing | `labels: ["Good thing"]` | `fields` | `count` (use as 0/1) | **Yes** (preset "One small good thing") |
 
-### d. Proposed method layout: "Hobonichi day"
+### d. Method layout: "Hobonichi day"
+
+A "Hobonichi" layout is built in (Start from a method). Its block order is: Moon, sun & season; Time blocks (8 to 22, every 2 hours); Writing space (4 mm grid); Small good things (2 lines); On this day at the foot. The fuller proposal below adds the planned blocks:
 
 1. Moon/sun/season (with day-of-year)
 2. Checkboxes: 3 blank to-dos
@@ -776,11 +790,11 @@ Scope: no reminders to "fill your page", no streaks, no badges.
 
 ### e. Don't adopt
 
-- **Hobonichi's quotes, logo, fonts or cover art:** copyrighted and branded. Use Shelbee's own words.
+- **Hobonichi's quotes, logo, fonts or cover art:** copyrighted and branded. Use your own words.
 - **Tomoe River-style thin paper:** KDP paper is fixed; thin paper is not an option anyway.
 - **Month edge tabs:** trim risk and visual busyness.
 - **Sticker-heavy aesthetic prompts:** conflicts with calm, low-stimulation design.
-- **Japanese-only calendar data (rokuyō, solar terms):** not relevant to Spokane life.
+- **Japanese-only calendar data (rokuyō, solar terms):** a local calendar choice, not a default for a general audience.
 - **Serial numbers:** the Data Matrix page code already identifies pages.
 
 ## 26. Open questions

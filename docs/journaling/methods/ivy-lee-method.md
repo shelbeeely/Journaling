@@ -1,6 +1,16 @@
+---
+title: "The Ivy Lee Method"
+slug: ivy-lee-method
+category: productivity
+evidenceLevel: anecdotal
+lastReviewed: 2026-09-30
+status: reviewed
+contributors: ['Journalwright Studio contributors']
+---
+
 # The Ivy Lee Method
 
-A reference for the Ivy Lee method: six tasks, ranked, done one at a time. It covers the famous Charles Schwab and Bethlehem Steel story (and how weak its sourcing is), the modern versions (1-3-5, MITs, Big 3), the research on to-do lists and plan-making, and what Keeping Watch should take from it.
+A reference for the Ivy Lee method: six tasks, ranked, done one at a time. It covers the famous Charles Schwab and Bethlehem Steel story (and how weak its sourcing is), the modern versions (1-3-5, MITs, Big 3), the research on to-do lists and plan-making, and what Journalwright Studio should take from it.
 
 Checked against sources on 2026-09-28. Where a detail couldn't be confirmed from a primary source, it's marked **(unconfirmed)**. Where a story is probably legend, it's marked **(apocryphal)**.
 
@@ -42,7 +52,7 @@ At the end of each workday, write down the **six most important things** to do t
 - He did advise **Bethlehem Steel**. Wikipedia's article says he advised its executives to "list and number their top priorities every day, and work on tasks in the order of their importance" (citing secondary sources).
 - **The dark part.** From the late 1920s he worked for the German chemical company **I.G. Farben**. He met Hitler in January 1934 and advised on Nazi Germany's image. Congress investigated him in 1934. He died on 8 November 1934. (Fortune, 2022, drawing on Scott Cutlip's history of PR.)
 
-So the man was a PR pioneer, not a productivity consultant, and part of his career was spent polishing the image of a regime. That doesn't change whether the list works; it's context Keeping Watch should know before printing his name.
+So the man was a PR pioneer, not a productivity consultant, and part of his career was spent polishing the image of a regime. That doesn't change whether the list works; it's context Journalwright Studio should know before printing his name.
 
 ### The Schwab story, and how well it's sourced
 
@@ -301,7 +311,7 @@ Schwab's supposed letter calling it the most valuable lesson "from a money stand
 
 ## 10. Worked examples
 
-A generic example (not Shelbee's data), for someone who works outdoor shifts and has a few life-admin goals.
+A generic example, for someone who works outdoor shifts and has a few life-admin goals.
 
 ### A day
 
@@ -599,50 +609,52 @@ See [full-focus-planner.md](full-focus-planner.md) and [bullet-journal.md](bulle
 7. **What if I finish all six?** Stop, or pull the next item from your master list. Many people say finishing early is itself a good sign the list was right-sized.
 8. **Does it work for home life?** Yes, for chores and admin. For caregiving or reactive days, use a shorter list.
 9. **Isn't this just a to-do list?** It's a to-do list with three extra rules: a cap, a rank and a strict order.
-10. **Should I worry about Ivy Lee's history?** It's worth knowing: he later did PR for I.G. Farben and Nazi Germany. You can use the method without honouring the man; Keeping Watch can call it "Six, in order".
+10. **Should I worry about Ivy Lee's history?** It's worth knowing: he later did PR for I.G. Farben and Nazi Germany. You can use the method without honouring the man; Journalwright Studio can call it "Six, in order".
 
 ---
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
-The method is a small, calm block, and Keeping Watch almost has it: **Top priorities** (`top`) prints numbered lines (1–5, default 3). What's missing is the **sixth line, the "in order" framing, a carried marker, and a night-before placement**.
+Journalwright Studio makes printed journals and planners designed in a block editor, with an optional e-ink companion (the X4 companion). This section turns the research above into day page blocks, X4 items and a method layout.
+
+The method is a small, calm block, and the editor almost has it: **Top priorities** (`top`) prints numbered lines (1–6, default 3), with optional 15-minute time circles, "Guess / took" columns and a "carried" tick column. What's missing is the **"in order" framing as a ready-made preset and a night-before placement**.
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Already built? |
 |---|---|---|---|---|
-| "Tomorrow, in order" (up to 6 numbered lines with boxes) | Day block, near the bottom (end of day) | High | Numbers 1–6, a box per line. `data-zone="next6"`. Lines at ruled height, no ornament | Partly (`top` goes to 5; needs n up to 6 and a label) |
-| Carried marker (small `→` column) | Same block | Medium | One narrow column; `→` drawn as SVG | No |
-| "First thing" line at the top of the day, copied from last night's #1 | Day block (top) | Medium | One line with a small arrow icon. `data-zone="first"` | No |
-| Sick-day rule in front matter ("On hard days, 1–3 is a full list") | Front matter, key or care plan | High | Plain text, one line | No |
-| Someday / let-go list | Month page or back matter | Medium | Ruled list. `data-zone="someday"` | No |
-| "#1 done" row | Month tracker page | Medium | One box per day; fits the tracker grid | Partly (tracker pages exist) |
-| Ivy Lee story in back matter | Lineage | Low | If included, with the caveats and Lee's later history | No |
+| "Tomorrow, in order" (up to 6 numbered lines with boxes) | Day page block, near the bottom (end of day) | High | Numbers 1–6, a box per line. Own `data-zone`. Lines at ruled height, no ornament | **Partly**: Top priorities takes 1–6 lines and a custom label; a ready-made "Tomorrow, in order" preset is planned |
+| Carried marker (small `→` column) | Same block | Medium | One narrow column; `→` drawn as SVG | **Yes**: the Top priorities "Carried column" option (a tick box for "carried again") |
+| "First thing" line at the top of the day, copied from last night's #1 | Day page block (top) | Medium | One line with a small arrow icon. Own `data-zone` | Planned |
+| Sick-day rule in front matter ("On hard days, 1–3 is a full list") | Front matter, key or care plan | High | Plain text, one line | Planned |
+| Someday / let-go list | Month page or back matter | Medium | Ruled list. Own `data-zone` | Planned (the Later block parks a thought on a day page) |
+| "#1 done" row | Month tracker page | Medium | One box per day; fits the tracker grid | Planned (tracker pages exist) |
+| Ivy Lee story in back matter | Lineage | Low | If included, with the caveats and Lee's later history | Planned |
 
-### b. X4
+### b. X4 companion
 
-| Idea | Where | Fit | RAM, scope and calm notes |
-|---|---|---|---|
-| "#1 done?" toggle | Check-in item (`toggle`) via a `checks` block labelled "First thing" | High | One slot. No reminders; ticked when she chooses |
-| List size chosen today (1–6) | Check-in item (`count` 0..6) via `fields` "Tasks planned" | Low–Med | `fields` exports `count` 0..99; fine. Risk: turns into a score. Optional |
-| Show tomorrow's #1 on the sleep screen | Sleep screen, typed on the Wi-Fi page | Medium | About 40 bytes, one line, redrawn at 12:31 a.m. No pressure wording; plain text |
-| Month stat: days with #1 done | Month stats for the Keeper handoff | Medium | A count, no streaks, no badges |
-| A "six in order" editable list on-device | A screen | Low | Typing on 7 buttons is slow; paper is better. Skip |
-
-### c. Proposed editor blocks
-
-| Type | Name | Options | `data-zone` | X4 export kind |
+| Idea | Where | Fit | RAM, scope and calm notes | Already built? |
 |---|---|---|---|---|
-| `top` (existing, extended) | Top priorities | Label (text, def "Top 3"; preset "Tomorrow, in order"); How many (num 1–**6**); (being added) 15-min time bubbles; **new:** carried column (bool) | `top` (`top_2` on repeats) | Not exported (free text) |
-| `checks` preset "First thing" | #1 done | Label "First thing"; labels ["#1 done"] | `checks` | `toggle` × 1 |
-| `lines` preset "Someday" | Let go / later | Label "Someday", n 2 | `lines` | Not exported |
-| `fields` preset "Planned" (optional) | List size | Label "Planned"; labels ["Tasks on list"] | `fields` | `count` 0..99 |
+| "#1 done?" toggle | Check-in item (`toggle`) via a `checks` block labelled "First thing" | High | One slot. No reminders; ticked when you choose | **Yes** as a Checkboxes block; no preset |
+| List size chosen today (1–6) | Check-in item (`count`) via `fields` "Tasks planned" | Low–Med | `fields` exports `count` 0..99; fine. Risk: turns into a score. Optional | **Yes** as a manual Fill-in blanks setup |
+| Show tomorrow's #1 on the sleep screen | Sleep screen, typed on the Wi-Fi page | Medium | About 40 bytes, one line, redrawn at 4:31 a.m. (the existing rule). No pressure wording; plain text | Planned |
+| Month stat: days with #1 done | Month stats | Medium | A count, no streaks, no badges | Planned |
+| A "six in order" editable list on-device | A screen | Low | Typing on 7 buttons is slow; paper is better. Skip | Not planned |
 
-Raising `top`'s maximum from 5 to 6 is the only change needed for the classic method. It must not change the default (3), so default builds don't drift.
+### c. Editor blocks
+
+| Type | Name | Options | `data-zone` | X4 export kind | Built? |
+|---|---|---|---|---|---|
+| `top` (existing) | Top priorities | Label (text, default "Top 3"); How many (num 1–**6**); 15-min time circles (`bubbles`, 0–8); Guess / took columns (`est`); Carried column (`carried`); row height | `top` (`top_2` on repeats) | Not exported (free text) | **Yes**. A "Tomorrow, in order" preset is planned |
+| `checks` preset "First thing" | #1 done | Label "First thing"; labels ["#1 done"] | `checks` | `toggle` × 1 | Set up by hand; no preset |
+| `lines` preset "Someday" | Let go / later | Label "Someday", n 2 | `lines` | Not exported | Set up by hand; no preset |
+| `fields` preset "Planned" (optional) | List size | Label "Planned"; labels ["Tasks on list"] | `fields` | `count` 0..99 | Set up by hand; no preset |
+
+Raising `top`'s maximum from 5 to 6 was the only change needed for the classic method, and it kept the default (3), so default builds don't drift.
 
 ### d. Proposed method layout: "Six in order" (Ivy Lee)
 
-Ordered blocks for one click:
+This layout is not among the built-in method layouts yet (today: original, Bullet Journal daily, Hobonichi, Five Minute, Theme System). Ordered blocks for one click:
 
 1. `sky` (Moon, sun and season): small date anchor
 2. `events` (Events)
