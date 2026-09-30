@@ -38,7 +38,9 @@ jobs:
         run: node test-busy.mjs
       - name: Profile check (a generic person in a made-up city builds a clean book; module switches remove their pages)
         run: node test-profile.mjs
-      - name: Studio tests (versioning, forks, proposals, three-way merge, conflicts, forbidden content, authorization, import/export round trip, editor to print)
+      - name: Book plan check (every scope builds; a year splits into volumes that pass every gate; undated books print no dates; codes unique across books)
+        run: node test-scopes.mjs
+      - name: 'Studio tests (versioning - commits, branches, drafts, forbidden content, authorization, import/export round trip, editor to print)'
         # Sample data only (test.ics). The Keeper, the sample month and the editor are built here just for these tests; the Build step below
         # overwrites all of them, so nothing from this step is packaged. Needs Node 22.13+ (built-in SQLite).
         run: |

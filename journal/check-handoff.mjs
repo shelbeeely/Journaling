@@ -4,6 +4,7 @@
 import fs from 'node:fs';
 import { HANDOFF_BOXES as ALL_BOXES, SRC } from './handoff.mjs';
 import { moduleOn } from './profile.mjs';
+import { bookDirs } from './bookdirs.mjs';
 const HANDOFF_BOXES = ALL_BOXES.filter((b) => b.id !== 'spoons' || moduleOn('spoons')); // the spoons module off drops the Good-spoon box from the printed pages
 
 const fails = [];
@@ -22,7 +23,7 @@ for (const b of x4) {
 for (const b of HANDOFF_BOXES.filter((x) => x.src === 'paper')) need(!app.includes(`"${b.label}", "${b.unit}"`), `X4 draws paper-owned box "${b.label}"`);
 
 // 2. Closing pages and the Keeper: all six labels, units and both source captions.
-const dirs = process.argv.slice(2).length ? process.argv.slice(2) : fs.readdirSync('out').filter((d) => /^m\d{4}-\d{2}(-letter)?$/.test(d)).map((d) => `out/${d}`);
+const dirs = process.argv.slice(2).length ? process.argv.slice(2) : bookDirs();
 const files = dirs.map((d) => `${d}/journal.html`);
 if (fs.existsSync('out/keeper/keeper.html')) files.push('out/keeper/keeper.html');
 for (const f of files) {

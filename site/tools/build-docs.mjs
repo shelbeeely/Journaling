@@ -12,8 +12,9 @@ const shell = (title, body, up) => `<!doctype html>
 <title>${esc(title)}</title><link rel="icon" href="${up}img/icon.svg" type="image/svg+xml"><link rel="stylesheet" href="${up}style.css">
 <style>.doc{max-width:46rem;overflow-wrap:break-word;padding-top:24px;padding-bottom:56px}.doc table{display:block;overflow-x:auto;max-width:100%;border-collapse:collapse}.doc th,.doc td{border:1px solid var(--line);padding:8px 10px}.doc img{max-width:100%}.doc pre{overflow-x:auto}.crumb{display:inline-flex;align-items:center;min-height:44px}</style>
 </head><body>
+<a class="skip" href="#main">Skip to content</a>
 <header class="nav"><div class="wrap nav-in"><a class="brand" href="${up}"><span>Journalwright <b>Studio</b></span></a><nav aria-label="Sections"><a href="${up}docs/">Docs</a><a href="${up}editor/">Editor demo</a></nav></div></header>
-<main class="wrap doc">${body}</main>
+<main id="main" class="wrap doc">${body}</main>
 <script src="${up}app.js"></script></body></html>
 `;
 const files = fs.readdirSync(path.join(root, 'docs/journaling/methods')).filter((f) => f.endsWith('.md')).sort();

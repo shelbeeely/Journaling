@@ -1,25 +1,44 @@
 // Scan-code gate. Run after render.mjs (build-all.sh and CI do):
 //   node check-codes.mjs [out/mYYYY-MM ...]        default: every out/m*/ that has a layout.json
 //   DECODE=none|sample|all node check-codes.mjs    default sample (first, last and every 7th page); all = every page
-// Fails (exit 1) when, in any book: two pages share a code; a code isn't KW2|<edition>|<yymm>|<size><NNN> for its own
-// page number, book, size and edition; a page has no data-zone map or a duplicate zone name; a page lacks type/section;
-// the code needs more than a 16x16 Data Matrix; a code doesn't decode from the rendered PDF at 200 dpi; manifest.json
-// (code -> page id) disagrees with layout.json, or a decoded code doesn't map to that page's id. Across books:
-// any code shared by two book variants.
+// Two code formats. A monthly book: KW2|<edition>|<yymm>|<S/L/H><NNN>. Every other book (a volume of a book plan): KW3 + its
+// 8-character book id + volume (1 character) + <S/L/H> + <NNN>, see plan.mjs. Both must be a 16x16 Data Matrix.
+// Fails (exit 1) when, in any book: two pages share a code; a code isn't the right format for its own page number, book, volume,
+// size and edition; a page has no data-zone map or a duplicate zone name; a page lacks type/section; the code needs more than
+// a 16x16 Data Matrix; a code doesn't decode from the rendered PDF at 200 dpi; manifest.json (code -> page id) disagrees with
+// layout.json, or a decoded code doesn't map to that page's id. Across books: any code shared by two books, and any book id used by
+// two different book plans. That check covers every book present in out/ (or KW_OUT, and the folders in KW_REGISTRY, comma
+// separated), not only the ones being decoded, so books built on different days still can't collide.
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { execFileSync } from 'child_process';
 import bwipjs from 'bwip-js';
 import { EDITION } from './content/edition.mjs';
+import { bookDirs } from './bookdirs.mjs';
+import { parseKw3, BOOK_ID_RE } from './plan.mjs';
 
 const args = process.argv.slice(2);
-const dirs = args.length ? args : fs.existsSync('out') ? fs.readdirSync('out').filter((d) => /^m\d{4}-\d{2}(-letter)?$/.test(d)).sort().map((d) => `out/${d}`) : [];
+const dirs = args.length ? args : bookDirs();
 const MODE = process.env.DECODE || 'sample';
 const errors = [];
 const fail = (dir, msg) => { errors.push(`${dir}: ${msg}`); };
 const owner = new Map(); // code -> "dir p.N"
 const stats = [];
+const ids = new Map(); // book id -> { sig, dir } of the first book plan that has it
+
+// Registry: every other book present in out/ (or KW_OUT / KW_REGISTRY) counts for uniqueness, decoded or not
+const rootOf = (d) => path.dirname(d);
+for (const root of new Set([process.env.KW_OUT || 'out', ...(process.env.KW_REGISTRY || '').split(',').filter(Boolean)])) {
+  for (const d of bookDirs(root)) {
+    if (dirs.some((x) => path.resolve(x) === path.resolve(d))) continue;
+    const mf = path.join(d, 'manifest.json');
+    if (!fs.existsSync(mf)) continue;
+    const M = JSON.parse(fs.readFileSync(mf, 'utf8'));
+    for (const pg of M.pages) if (!owner.has(pg.code)) owner.set(pg.code, `${d} p.${pg.page} (registry)`);
+    if (M.book_id && M.plan && !ids.has(M.book_id)) ids.set(M.book_id, { sig: JSON.stringify(M.plan), dir: d });
+  }
+}
 
 let readBarcodes = null;
 if (MODE !== 'none') {
@@ -34,24 +53,45 @@ for (const dir of dirs) {
   if (!fs.existsSync(lf)) { fail(dir, 'no layout.json'); continue; }
   const L = JSON.parse(fs.readFileSync(lf, 'utf8'));
   const letter = dir.endsWith('-letter');
-  const yymm = L.book.slice(2).replace('-', '');
+  const scoped = !!L.book_id; // a volume of a book plan: KW3 codes
+  const yymm = scoped ? null : L.book.slice(2).replace('-', '');
+  const V = L.volume || {};
+  if (scoped) {
+    if (!BOOK_ID_RE.test(L.book_id)) fail(dir, `book id ${JSON.stringify(L.book_id)} is not 8 characters of 0-9 A-Z without I L O U`);
+    if (!(V.n >= 1 && V.of >= V.n && V.of <= 35) || V.book_id !== L.book_id) fail(dir, `volume ${V.n} of ${V.of} (book id ${V.book_id}) doesn't fit layout.json (book id ${L.book_id})`);
+  }
   const seen = new Set();
   const mf = path.join(dir, 'manifest.json');
   const M = fs.existsSync(mf) ? JSON.parse(fs.readFileSync(mf, 'utf8')) : null;
   if (!M) fail(dir, 'no manifest.json');
   const idOf = new Map((M ? M.pages : []).map((p) => [p.code, p.id])); // code -> page id, as a printed book is read back
-  if (M && (M.pages.length !== L.pages.length || M.book !== L.book || M.size !== L.size || M.edition !== L.edition)) fail(dir, 'manifest.json is for a different build than layout.json');
+  if (M && (M.pages.length !== L.pages.length || M.book !== L.book || M.size !== L.size || M.edition !== L.edition || M.book_id !== L.book_id)) fail(dir, 'manifest.json is for a different build than layout.json');
+  if (scoped && M) { // one book id, one book plan: the same id on two different plans would let two books share codes
+    const sig = JSON.stringify(M.plan), prev = ids.get(L.book_id);
+    if (!M.plan || !M.volume || M.volume.n !== V.n) fail(dir, 'manifest.json has no plan or volume for this book id');
+    if (prev && prev.sig !== sig) fail(dir, `book id ${L.book_id} is also used by a different book (${prev.dir}: ${prev.sig}); every book needs its own id (changed the plan? delete book.id from the profile so the build makes a new one, or remove the old folder)`);
+    else if (!prev) ids.set(L.book_id, { sig, dir });
+  }
   if (!['S', 'L', 'H'].includes(L.size) || (letter ? L.size !== 'L' : L.size === 'L')) fail(dir, `size ${L.size} doesn't fit the folder`);
   if (L.edition !== EDITION) fail(dir, `edition ${L.edition} is not the current ${EDITION}`);
   L.pages.forEach((p, i) => {
     const at = `${dir} p.${i + 1}`;
     if (p.page !== i + 1) fail(dir, `page ${i + 1} is numbered ${p.page}`);
-    const m = /^KW2\|(\d)\|(\d{4})\|([SLH])(\d{3})$/.exec(p.code || '');
-    if (!m) { fail(dir, `p.${i + 1}: bad code "${p.code}"`); return; }
-    if (+m[4] !== i + 1) fail(dir, `p.${i + 1}: code ${p.code} names page ${+m[4]}`);
-    if (m[2] !== yymm) fail(dir, `p.${i + 1}: code ${p.code} names book ${m[2]}, not ${yymm}`);
-    if (m[3] !== L.size) fail(dir, `p.${i + 1}: code ${p.code} names size ${m[3]}, book is ${L.size}`);
-    if (+m[1] !== EDITION) fail(dir, `p.${i + 1}: code ${p.code} names edition ${m[1]}`);
+    if (scoped) {
+      const k = parseKw3(p.code);
+      if (!k) { fail(dir, `p.${i + 1}: bad code "${p.code}" (a book plan's codes are KW3 + 8-character book id + volume + size + page)`); return; }
+      if (k.page !== i + 1) fail(dir, `p.${i + 1}: code ${p.code} names page ${k.page}`);
+      if (k.bookId !== L.book_id) fail(dir, `p.${i + 1}: code ${p.code} names book ${k.bookId}, not ${L.book_id}`);
+      if (k.vol !== V.n) fail(dir, `p.${i + 1}: code ${p.code} names volume ${k.vol}, this is volume ${V.n}`);
+      if (k.size !== L.size) fail(dir, `p.${i + 1}: code ${p.code} names size ${k.size}, book is ${L.size}`);
+    } else {
+      const m = /^KW2\|(\d)\|(\d{4})\|([SLH])(\d{3})$/.exec(p.code || '');
+      if (!m) { fail(dir, `p.${i + 1}: bad code "${p.code}"`); return; }
+      if (+m[4] !== i + 1) fail(dir, `p.${i + 1}: code ${p.code} names page ${+m[4]}`);
+      if (m[2] !== yymm) fail(dir, `p.${i + 1}: code ${p.code} names book ${m[2]}, not ${yymm}`);
+      if (m[3] !== L.size) fail(dir, `p.${i + 1}: code ${p.code} names size ${m[3]}, book is ${L.size}`);
+      if (+m[1] !== EDITION) fail(dir, `p.${i + 1}: code ${p.code} names edition ${m[1]}`);
+    }
     if (M && idOf.get(p.code) !== p.id) fail(dir, `p.${i + 1}: manifest maps ${p.code} to "${idOf.get(p.code)}", layout.json says "${p.id}"`);
     if (seen.has(p.code)) fail(dir, `p.${i + 1}: code ${p.code} repeats inside the book`);
     seen.add(p.code);
