@@ -9,7 +9,7 @@ ICS=${ICS:-test.ics}
 MONTHS=${MONTHS:-"2026-10 2026-11 2026-12 2027-01 2027-02 2027-03 2027-04 2027-05 2027-06 2027-07 2027-08 2027-09"}
 SIZES=${SIZES:-"small letter"}
 # book.keeper "none" in the profile: no Keeper (the Closing pages then don't point to one)
-if node -e "process.exit(JSON.parse(require('fs').readFileSync('content/profile.json')).book.keeper === 'none' ? 0 : 1)"; then echo "keeper: none (profile)"; else node keeper.mjs && node cover.mjs keeper; fi
+if node --input-type=module -e "import { PROFILE } from './profile.mjs'; process.exit(PROFILE.book.keeper === 'none' ? 0 : 1)"; then echo "keeper: none (profile)"; else node keeper.mjs && node cover.mjs keeper; fi
 fail=0
 dirs=()
 for m in $MONTHS; do

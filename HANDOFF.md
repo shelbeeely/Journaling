@@ -62,7 +62,9 @@ The product is **Journalwright Studio**; *Keeping Watch* is Shelbee's own book (
   immutable content-hashed commits, snapshots as content-addressed objects, branches, per-user autosaved drafts, restore-as-new-commit,
   structured diff by page id and block uid, import from / export to `content/book.json` + `daypage.json` (byte-identical books), a scanner
   that keeps private data out of a snapshot, and the editor's **Versions** drawer (guests keep local versions in the browser; accounts use a server; public projects readable without an account). `cd studio && npm start`, `npm test`; see `studio/README.md`.
-  Left for G2/G3: forks, proposals, three-way merge, releases, component adoption, an editor for the book structure, an image picker.
+  **G2 (done):** forks (only where the creator allowed reuse; attribution kept; forbidden content never forked), change proposals with visual
+  diffs, discussion, review status and accept-selected-changes, three-way merge by page/block id with explicit conflict kinds, and the
+  Proposals view + conflict resolver in the Versions drawer. Left for G3: releases, component adoption, an editor for the book structure, an image picker.
 
 ## Next, in order
 1. **First CI run.** Push, add the secrets (SETUP.md) and get all four workflows green. Likely snags:

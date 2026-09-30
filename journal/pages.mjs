@@ -77,7 +77,8 @@ function titlePage() {
     <div class="tmoon">${moon(90, 64)}${moon(180, 64)}${moon(270, 64)}</div>
     <h1>${esc(BOOK.title)}</h1>
     <p class="sub">${esc(BOOK.subtitle)}</p>
-    <p class="range">${rangeLine}</p>
+    <p class="range">${rangeLine}</p>${PROFILE.library?.series && PROFILE.library.show.includes("titlepage") ? `
+    <p class="sub">${esc(PROFILE.library.series.line)}</p>` : ""}
     ${mod('sky') ? `<p class="place">Sky data for ${esc(D.config.place)} · ${coords} · ${esc(LOC.timezone_name)}</p>` : ''}
     <p class="built">${UND ? `Build ${buildStamp()}` : `Built ${D.generated.slice(0, 10)}`}</p>
     <p class="owner">This journal belongs to<br><span class="line"></span></p>

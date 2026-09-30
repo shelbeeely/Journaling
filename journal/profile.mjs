@@ -3,30 +3,21 @@
 //   content/profile.json          the committed profile (Shelbee's; today's books are built from it, byte for byte)
 //   content/profile.example.json  a generic person in a made-up city: copy it to start your own
 //   KW_PROFILE=path node render.mjs ...   build with another profile (test-profile.mjs does; nothing else needs it)
+//   content/library.json          optional: several books and series (library.mjs). KW_BOOK=<id> builds one of them; KW_LIBRARY=path
+//                                 uses another file. The library only lays a book's own fields (title, plan, ...) over this profile's
+//                                 `book` section; the person, place and packs stay here. Without it the library is this profile's one book.
 // A missing or wrong field stops the build with one message that lists every problem (assertProfile).
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { planProblems, newBookId } from './plan.mjs';
+import { assertLibrary, effectiveProfile, libraryFromProfile } from './library.mjs';
 
 const HERE = path.dirname(new URL(import.meta.url).pathname);
 export const PROFILE_FILE = process.env.KW_PROFILE ? path.resolve(process.env.KW_PROFILE) : path.join(HERE, 'content/profile.json');
 
-// Module switches. Off = the module's pages and blocks are left out of the book (never a dangling page reference).
-export const MODULES = {
-  bus: 'Bus schedule pages (needs a transit feed: paths.transit and the transit section)',
-  sky: 'Moon and sky: the sky & seasons and moon pages, and the day page moon/sun/season line',
-  trans_support: 'The trans support directory page (needs paths.trans)',
-  therapy: 'Therapy pack day-page blocks (feelings, skills, urge, thought record)',
-  spoons: 'Spoon counting: spoons and energy account blocks, the spoon notes and the Good-spoon box',
-  pay_periods: 'Pay period and payday marks (needs your own pay sheet in payperiods.mjs)',
-};
-// Day-page block types each module owns (daypage.mjs TYPES). Off = those blocks are switched off in the layout.
-export const MODULE_BLOCKS = {
-  sky: ['sky'],
-  spoons: ['spoons', 'accounts'],
-  therapy: ['feelings', 'skills', 'urge', 'thought'],
-};
+import { MODULES, MODULE_BLOCKS } from './modules.mjs';
+export { MODULES, MODULE_BLOCKS };
 // Page types each module owns are declared on the page types themselves (pages.mjs PAGE_TYPES, `module`).
 
 const isObj = (x) => x && typeof x === 'object' && !Array.isArray(x);
@@ -99,13 +90,30 @@ function read(file) {
   return assertProfile(raw, path.relative(process.cwd(), file) || file);
 }
 const DEFAULT_CRISIS = ['988 (call or text)', 'text HOME to 741741'];
-const raw = read(PROFILE_FILE);
+const raw0 = read(PROFILE_FILE);
+// The library: content/library.json when there is one (a KW_PROFILE build uses a library only through KW_LIBRARY), else the profile's own book.
+export const LIBRARY_FILE = process.env.KW_LIBRARY ? path.resolve(process.env.KW_LIBRARY) : !process.env.KW_PROFILE && fs.existsSync(path.join(HERE, 'content/library.json')) ? path.join(HERE, 'content/library.json') : null;
+const relName = (f) => path.relative(process.cwd(), f) || f;
+export const LIBRARY = LIBRARY_FILE
+  ? assertLibrary((() => { try { return JSON.parse(fs.readFileSync(LIBRARY_FILE, 'utf8')); } catch (e) { throw new Error(`${LIBRARY_FILE} is not valid JSON: ${e.message}`); } })(), relName(LIBRARY_FILE))
+  : libraryFromProfile(raw0);
+export const BOOK_KEY = process.env.KW_BOOK || LIBRARY.defaultBook || LIBRARY.books[0].id; // which library book this build is
+if (!LIBRARY.books.some((b) => b.id === BOOK_KEY)) throw new Error(`KW_BOOK "${BOOK_KEY}" is not a book in the library (books: ${LIBRARY.books.map((b) => b.id).join(', ')}).`);
+let raw = raw0, EXTRA = null;
+if (LIBRARY_FILE || process.env.KW_BOOK) {
+  const eff = effectiveProfile(raw0, LIBRARY, BOOK_KEY);
+  raw = assertProfile(eff.profile, `${relName(LIBRARY_FILE || PROFILE_FILE)} (book "${BOOK_KEY}" over the profile)`);
+  EXTRA = eff.library;
+}
+export const PROFILE_BOOK = raw0.book; // the profile's own book section, before a library book is laid over it
 export const PROFILE = Object.freeze({
   ...raw,
   location: { elevation: 0, ...raw.location },
   crisis: { lines: DEFAULT_CRISIS, ...(raw.crisis || {}) },
   paths: { support: null, trans: null, clinic: null, transit: 'gtfs', seasons: null, ...(raw.paths || {}) },
   transit: raw.transit || null,
+  // this book within its library: series line, spine title, cover style, and page layouts from the library (null: the content/*.json files)
+  library: EXTRA || { book: BOOK_KEY, spineTitle: null, series: null, show: [], cover: { style: 'night' }, layouts: { book: null, day: null } },
 });
 
 // The book's own id for scan codes (every book except the monthly ones has one: see plan.mjs, "scan-code space"). It is made once, the
@@ -113,6 +121,13 @@ export const PROFILE = Object.freeze({
 export function ensureBookId() {
   if (PROFILE.book.id) return PROFILE.book.id;
   const id = newBookId(crypto.randomBytes(5));
+  if (LIBRARY_FILE) { // a library book keeps its id in its own library entry
+    const lib = JSON.parse(fs.readFileSync(LIBRARY_FILE, 'utf8'));
+    lib.books.find((b) => b.id === BOOK_KEY).bookId = id;
+    fs.writeFileSync(LIBRARY_FILE, JSON.stringify(lib, null, 1) + '\n');
+    PROFILE.book.id = id;
+    return id;
+  }
   const text = fs.readFileSync(PROFILE_FILE, 'utf8');
   const m = /("book"\s*:\s*\{)(\s*)/.exec(text); // the id goes first in the book section, with the section's own indentation
   if (!m) throw new Error(`Cannot add book.id to ${PROFILE_FILE}: no "book" section found. Add "id": "${id}" to it by hand.`);

@@ -82,14 +82,31 @@ function blockFields(a, b) {
 }
 export const diffDay = (a, b) => diffKeyed((a.blocks || []).map((x) => ({ ...x, id: x.uid })), (b.blocks || []).map((x) => ({ ...x, id: x.uid })), blockFields, (x) => ({ id: x.uid, type: x.type }));
 
+// ---------- library (books and series, by id; meta.library) ----------
+// Books and series are keyed by their ids; a series' order is compared as its own list (the numbering); layouts by id.
+const libLists = (l) => ({ books: (l && l.books) || [], series: (l && l.series) || [], layouts: (l && l.layouts) || [] });
+export function diffLibrary(la, lb) {
+  const A = libLists(la), B = libLists(lb);
+  const strip = (x, drop) => Object.fromEntries(Object.entries(x).filter(([k]) => !drop.includes(k)));
+  const books = diffKeyed(A.books, B.books, (x, y) => fieldDiff(strip(x, ['id']), strip(y, ['id'])), (x) => ({ id: x.id, type: 'book' }));
+  const series = diffKeyed(A.series, B.series, (x, y) => fieldDiff(strip(x, ['id']), strip(y, ['id'])), (x) => ({ id: x.id, type: 'series' }));
+  const layouts = diffKeyed(A.layouts, B.layouts, (x, y) => fieldDiff({ name: x.name, book: x.book, day: x.day }, { name: y.name, book: y.book, day: y.day }), (x) => ({ id: x.id, type: 'layout' }));
+  const defaultBook = (la && la.defaultBook) !== (lb && lb.defaultBook) ? { before: (la && la.defaultBook) ?? null, after: (lb && lb.defaultBook) ?? null } : null;
+  return { books, series, layouts, defaultBook };
+}
+const libCount = (d) => count(d.books) + count(d.series) + count(d.layouts) + (d.defaultBook ? 1 : 0);
+
 // ---------- everything ----------
 export function diffSnapshots(a, b) {
   const assets = diffKeyed(a.assets.map((x) => ({ ...x, id: x.name })), b.assets.map((x) => ({ ...x, id: x.name })), (x, y) => fieldDiff({ hash: x.hash, mime: x.mime, size: x.size }, { hash: y.hash, mime: y.mime, size: y.size }), (x) => ({ id: x.name, type: x.mime }));
   const components = diffKeyed(a.components, b.components, (x, y) => fieldDiff({ name: x.name, version: x.version, page: x.page }, { name: y.name, version: y.version, page: y.page }), (x) => ({ id: x.id, type: x.page && x.page.type }));
-  const r = { meta: fieldDiff(a.meta, b.meta), print: fieldDiff(a.print, b.print), book: diffBook(a.book, b.book), day: diffDay(a.day, b.day), assets, components };
+  const noLib = (m) => Object.fromEntries(Object.entries(m || {}).filter(([k]) => k !== 'library'));
+  const r = { meta: fieldDiff(noLib(a.meta), noLib(b.meta)), print: fieldDiff(a.print, b.print), book: diffBook(a.book, b.book), day: diffDay(a.day, b.day), assets, components };
+  const lib = diffLibrary(a.meta && a.meta.library, b.meta && b.meta.library);
+  if (libCount(lib)) r.library = lib; // only when there is something to say: snapshots without a library diff exactly as before
   // the Grid layout switch is a property of the whole page, not of one block
   r.day.grid = !!a.day.grid !== !!b.day.grid ? { before: !!a.day.grid, after: !!b.day.grid } : null;
-  r.summary = { meta: r.meta.length, print: r.print.length, book: count(r.book), day: count(r.day) + (r.day.grid ? 1 : 0), assets: count(assets), components: count(components) };
+  r.summary = { meta: r.meta.length, print: r.print.length, book: count(r.book), day: count(r.day) + (r.day.grid ? 1 : 0), assets: count(assets), components: count(components), ...(r.library ? { library: libCount(lib) } : {}) };
   r.summary.total = Object.values(r.summary).reduce((t, n) => t + n, 0);
   return r;
 }
