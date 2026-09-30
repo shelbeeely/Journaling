@@ -61,7 +61,51 @@ focusseed focuslong "plan=25,5,15,4\nrun=W,4,$E,3\n" KW_NOW="2026-10-14 13:10" K
 FLOG="2026-10-14T12:55,focus_rounds,3\\n" focusseed focusdone "plan=25,5,15,4\nrun=B,4,$E,3\n" KW_NOW="2026-10-14 13:10" KW_TIMER=1
 focusseed focusinterrupt "plan=25,5,15,4\nrun=W,2,$((E+1500)),0\n" KW_NOW="2026-10-14 13:10" KW_KEYS="confirm confirm"
 grep -q ',focus_interruptions,2$' /tmp/kwsd/kw/log/2026-10.csv || { echo "FAIL: interruptions were not logged"; exit 1; }
+# Accessibility settings (Menu > Settings, /kw/settings.txt): every main screen at large text, in bold, and with buttons remapped.
+runset() { name=$1; set=$2; shift; shift; mkdir -p out/$name; rm -rf /tmp/kwsd; cp -r sample /tmp/kwsd; printf "$set" > /tmp/kwsd/kw/settings.txt; env KW_SD=/tmp/kwsd KW_OUT=out/$name "$@" ./kw_host >/dev/null; }
+LG="text=large\n"
+runset l_sleep "$LG" KW_NOW="2026-10-14 04:31" KW_TIMER=1
+runset l_today "$LG" KW_NOW="2026-10-14 13:10" KW_KEYS="back"
+runset l_today2 "$LG" KW_NOW="2026-10-14 13:10" KW_KEYS="down"
+runset l_today3 "$LG" KW_NOW="2026-10-14 13:10" KW_KEYS="down down"
+runset l_checkin "$LG" KW_NOW="2026-10-14 13:10" KW_KEYS="confirm left left left down confirm right down right right down confirm"
+runset l_custom "$LG" KW_NOW="2026-10-14 13:10" KW_KEYS="confirm down down down down down down down down confirm down down down right right down confirm confirm down confirm down down right right right up"
+runset l_custom2 "$LG" KW_NOW="2026-10-14 13:10" KW_KEYS="confirm down down down down down down down down down down down down down down down down confirm right right down confirm left left down right right down right right right"
+runset l_menu "$LG" KW_NOW="2026-10-14 13:10" KW_KEYS="back down"
+runset l_month "$LG" KW_NOW="2026-10-14 13:10" KW_KEYS="back down down confirm"
+runset l_month2 "$LG" KW_NOW="2026-10-14 13:10" KW_KEYS="back down down confirm down"
+runset l_support "$LG" KW_NOW="2026-10-14 13:10" KW_KEYS="backhold"
+runset l_support2 "$LG" KW_NOW="2026-10-14 13:10" KW_KEYS="backhold right"
+runset l_support3 "$LG" KW_NOW="2026-10-14 13:10" KW_KEYS="backhold right right"
+runset l_plan "$LG" KW_NOW="2026-10-14 13:10" KW_KEYS="backhold confirm"
+runset l_plan2 "$LG" KW_NOW="2026-10-14 13:10" KW_KEYS="backhold confirm down"
+runset l_plan3 "$LG" KW_NOW="2026-10-14 13:10" KW_KEYS="backhold confirm down down"
+runset l_sync "$LG" KW_NOW="2026-10-14 13:10" KW_KEYS="back down down down down down confirm"
+runset l_clock "$LG" KW_NOW="2026-10-14 13:10" KW_KEYS="back down down down down down down confirm"
+runset l_clockunset "$LG" KW_NOW="2026-10-14 13:10" KW_CLOCK=unset KW_KEYS="confirm"
+runset l_focussetup "$LG" KW_NOW="2026-10-14 13:10" KW_KEYS="back down down down down down down down confirm"
+runset l_settings "$LG" KW_NOW="2026-10-14 13:10" KW_KEYS="back down down down down down down down down confirm"
+runset l_midnight "$LG" KW_NOW="2026-11-01 00:40" KW_KEYS=""
+E=$(TZ=America/Los_Angeles date -d "2026-10-14 13:10" +%s)
+mkdir -p out/l_focusrun; rm -rf /tmp/kwsd; cp -r sample /tmp/kwsd; printf "$LG" > /tmp/kwsd/kw/settings.txt; printf "plan=25,5,15,4\nrun=W,2,$((E+1500)),1\n" > /tmp/kwsd/kw/focus.txt; env KW_SD=/tmp/kwsd KW_OUT=out/l_focusrun KW_NOW="2026-10-14 13:10" KW_KEYS="" ./kw_host >/dev/null
+BD="contrast=bold\n"
+runset b_today "$BD" KW_NOW="2026-10-14 13:10" KW_KEYS="back"
+runset b_checkin "$BD" KW_NOW="2026-10-14 13:10" KW_KEYS="confirm left left left down confirm right down right right down confirm"
+runset b_month "$BD" KW_NOW="2026-10-14 13:10" KW_KEYS="back down down confirm"
+runset b_support "$BD" KW_NOW="2026-10-14 13:10" KW_KEYS="backhold"
+runset b_plan "$BD" KW_NOW="2026-10-14 13:10" KW_KEYS="backhold confirm"
+runset b_menu "$BD" KW_NOW="2026-10-14 13:10" KW_KEYS="back"
+runset bl_today "text=large\ncontrast=bold\n" KW_NOW="2026-10-14 13:10" KW_KEYS="back"
+runset bl_checkin "text=large\ncontrast=bold\n" KW_NOW="2026-10-14 13:10" KW_KEYS="confirm left left left down confirm right down right right down confirm"
+runset r_left "buttons=left\n" KW_NOW="2026-10-14 13:10" KW_KEYS="back down"
+runset r_swap "buttons=swap\n" KW_NOW="2026-10-14 13:10" KW_KEYS="confirm"
+runset r_both_menu "buttons=both\n" KW_NOW="2026-10-14 13:10" KW_KEYS="confirm"
+runset settings "" KW_NOW="2026-10-14 13:10" KW_KEYS="back down down down down down down down down confirm down down"
+# the settings screen changes and saves: large, bold, swap, sleep 5 min, clean 16, hold off
+runset setchange "" KW_NOW="2026-10-14 13:10" KW_KEYS="back down down down down down down down down confirm confirm down confirm down right confirm down right down right down right right"
+grep -q '^text=large$' /tmp/kwsd/kw/settings.txt && grep -q '^contrast=bold$' /tmp/kwsd/kw/settings.txt && grep -q '^buttons=swap$' /tmp/kwsd/kw/settings.txt && grep -q '^sleep=300$' /tmp/kwsd/kw/settings.txt && grep -q '^clean=16$' /tmp/kwsd/kw/settings.txt && grep -q '^hold=0$' /tmp/kwsd/kw/settings.txt || { echo "FAIL: settings were not saved as expected"; cat /tmp/kwsd/kw/settings.txt; exit 1; }
 python3 topng.py out
+./test_settings.sh   # settings file round trip, bad values, button remap tables
 ./test_update.sh
 ./test_focus.sh    # round/break schedule, late wakes (also past the 4 a.m. roll), stale runs, month counts
 ./test_legacy.sh   # logs written before the care split (old keys for meds, meals, mood) still read and count

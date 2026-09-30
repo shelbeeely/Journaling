@@ -15,6 +15,7 @@ uint8_t* framebuffer();                 // 800x480 1-bit, bit set = white
 void show(Refresh mode, const char* tag);  // push the framebuffer to the panel
 Btn waitButton(uint32_t timeoutMs);     // Btn::None on timeout
 uint32_t millis();
+void setBackHold(uint32_t ms);          // how long Back is held to become Btn::BackHold (0 = never: Back is always a plain press)
 
 // Clock (local time comes from TZ; the device keeps UTC).
 time_t now();

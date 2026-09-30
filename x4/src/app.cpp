@@ -6,9 +6,11 @@
 #include "core/canvas.h"
 #include "core/data.h"
 #include "core/focus.h"
+#include "core/settings.h"
 #include "core/update.h"
 #include "hal/hal.h"
 #include "gen/assets.h"
+#include "gen/assets_large.h"
 #include "lib/qrcodegen.hpp"
 
 // ---------------------------------------------------------------------------------------------
@@ -18,10 +20,9 @@
 // ---------------------------------------------------------------------------------------------
 static const int M = 28;          // side margin
 static const int CW = Canvas::W - 2 * M;
-static const int HINT_Y = 760;    // top of the hint bar
-static const uint32_t IDLE_MS = 90000;  // go to sleep (showing Today) after 90 s untouched
+static int HINT_Y = 760;          // top of the hint bar (taller in large text, so labels can take two lines)
 
-enum class Scr { Today, Checkin, Menu, Month, Support, Plan, Sync, Clock, Focus };
+enum class Scr { Today, Checkin, Menu, Month, Support, Plan, Sync, Clock, Focus, Settings };
 struct State {
   Scr scr = Scr::Today;
   int dayOffset = 0;      // Today screen: browse other days with Left/Right
@@ -37,6 +38,28 @@ struct State {
 static uint8_t* FB;
 static Canvas* C;
 static State S;
+
+// ---------------------------------------------------------------------------------------------
+// Settings (Menu, Settings; /kw/settings.txt): large text, bold, button remap, sleep and refresh timing.
+// Every screen asks these accessors for its type, so large text is one switch, not a second app.
+// ---------------------------------------------------------------------------------------------
+static Settings ST;
+static bool LG() { return ST.large; }
+static const Font& fS() { return LG() ? FL_UI_S : F_UI_S; }        // captions, hint labels
+static const Font& fUI() { return LG() ? FL_UI : F_UI; }           // rows, buttons
+static const Font& fB() { return LG() ? FL_UI_B : F_UI_B; }        // emphasis
+static const Font& fXL() { return LG() ? FL_UI_XL : F_UI_XL; }     // big numbers
+static const Font& fBody() { return LG() ? FL_UI : F_BODY; }       // reading text (large text is Inter: Lora is only cut at one size)
+static const Font& fBodyI() { return LG() ? FL_UI : F_BODY_I; }
+static const Font& fTitle() { return LG() ? FL_TITLE : F_TITLE; }
+static const Font& fSym() { return LG() ? FL_SYM : F_SYM; }
+// Vertical rhythm that changes with the type size.
+static int ROW_H = 43, LIST_Y = 100, HEAD_H = 36, VIEW_H = 660;   // Check in rows
+static void applyStyle() {
+  HINT_Y = LG() ? 724 : 760;
+  ROW_H = LG() ? 62 : 43; HEAD_H = LG() ? 44 : 36; VIEW_H = HINT_Y - LIST_Y;
+  C->setBold(ST.bold);
+}
 
 // The day she is living: before 4 a.m. that is still yesterday (README: "day rolls over at 4 a.m."),
 // so a 00:40 "Evening meds" lands on the page she has open on paper. Today's Left/Right steps from here.
@@ -57,28 +80,41 @@ static bool clockOk() { return clockProblem().empty(); }
 // ---------------------------------------------------------------------------------------------
 // Shared pieces
 // ---------------------------------------------------------------------------------------------
+// Labels are given in the order Back, Confirm, Left, Right. The four slots line up with the four front buttons, and with a
+// button remap (Settings) a slot triggers a different action, so each label moves to the slot that now does it.
 static void hintBar(const char* a, const char* b, const char* c, const char* d) {
   C->hline(0, HINT_Y, Canvas::W, true);
   const char* L[4] = {a, b, c, d};
-  for (int i = 0; i < 4; i++) {
-    if (!L[i] || !*L[i]) continue;
-    const int cx = Canvas::W * (2 * i + 1) / 8;
-    C->textCenter(F_UI_S, cx, HINT_Y + 28, L[i], &F_SYM);
+  static const Btn LOGICAL[4] = {Btn::Back, Btn::Confirm, Btn::Left, Btn::Right};
+  for (int slot = 0; slot < 4; slot++) {
+    const char* t = nullptr;
+    for (int k = 0; k < 4; k++) if (settingsMap(ST, LOGICAL[slot]) == LOGICAL[k]) t = L[k];  // the action this physical button now does
+    if (!t || !*t) continue;
+    const int cx = Canvas::W * (2 * slot + 1) / 8;
+    if (!LG()) { C->textCenter(fS(), cx, HINT_Y + 28, t, &fSym()); continue; }
+    // Large text: a label wider than its slot breaks at its last space onto a second line.
+    const int room = Canvas::W / 4 - 6;
+    char one[40]; snprintf(one, sizeof one, "%s", t);
+    char* sp = strrchr(one, ' ');
+    if (C->width(fS(), t, &fSym()) <= room || !sp) { C->textCenter(fS(), cx, HINT_Y + 46, t, &fSym()); continue; }
+    *sp = 0;
+    C->textCenter(fS(), cx, HINT_Y + 34, one, &fSym());
+    C->textCenter(fS(), cx, HINT_Y + 62, sp + 1, &fSym());
   }
 }
 
 static void header(const char* title, const char* sub, int icon = -1) {
   int x = M;
-  if (icon >= 0) { C->icon(icon, M, 30, 36); x = M + 46; }
-  C->text(F_TITLE, x, 62, title);
-  if (sub && *sub) C->textRight(F_UI_S, Canvas::W - M, 60, sub, &F_SYM);
+  if (icon >= 0) { C->icon(icon, M, LG() ? 26 : 30, 36); x = M + 46; }
+  C->text(fTitle(), x, 62, title);
+  if (sub && *sub) C->textRight(fS(), Canvas::W - M, 60, sub, &fSym());
   C->fill(M, 80, CW, 3);
 }
 
 static void chip(int x, int baseline, const char* t, bool inverse) {
-  const int w = C->width(F_UI_S, t) + 10;
-  if (inverse) C->fill(x, baseline - 16, w, 21); else C->rect(x, baseline - 16, w, 21, 1);
-  C->text(F_UI_S, x + 5, baseline, t, !inverse);
+  const int w = C->width(fS(), t) + 10, up = LG() ? 21 : 16, h = LG() ? 28 : 21;
+  if (inverse) C->fill(x, baseline - up, w, h); else C->rect(x, baseline - up, w, h, 1);
+  C->text(fS(), x + 5, baseline, t, !inverse);
 }
 
 static int chips(int right, int baseline, const std::string& how) {
@@ -87,10 +123,45 @@ static int chips(int right, int baseline, const std::string& how) {
   while (a < how.size()) { size_t b = how.find(' ', a); if (b == std::string::npos) b = how.size(); if (b > a) v.push_back(how.substr(a, b - a)); a = b + 1; }
   int x = right;
   for (int i = (int)v.size() - 1; i >= 0; i--) {
-    const int w = C->width(F_UI_S, v[i].c_str()) + 10;
+    const int w = C->width(fS(), v[i].c_str()) + 10;
     x -= w; chip(x, baseline, v[i].c_str(), v[i] == "TEXT"); x -= 5;
   }
   return x;
+}
+
+// Break text into lines no wider than w, greedily by words (same rule as Canvas::wrap), without
+// drawing. A word wider than the box is split between code points so nothing runs off the edge.
+static void breakLines(const Font& f, const std::string& s, int w, std::vector<std::string>& out) {
+  std::string line;
+  size_t i = 0;
+  while (i < s.size()) {
+    while (i < s.size() && s[i] == ' ') i++;
+    if (i >= s.size()) break;
+    size_t j = s.find(' ', i); if (j == std::string::npos) j = s.size();
+    std::string word = s.substr(i, j - i); i = j;
+    std::string trial = line.empty() ? word : line + " " + word;
+    if (C->width(f, trial.c_str()) <= w) { line = trial; continue; }
+    if (!line.empty()) { out.push_back(line); line.clear(); }
+    while (C->width(f, word.c_str()) > w) {  // one over-long word: hard-split it
+      size_t k = 0, fit = 0;
+      while (k < word.size()) {
+        size_t n = k + 1; while (n < word.size() && (word[n] & 0xC0) == 0x80) n++;
+        if (fit && C->width(f, word.substr(0, n).c_str()) > w) break;
+        fit = k = n;
+      }
+      out.push_back(word.substr(0, fit)); word.erase(0, fit);
+    }
+    line = word;
+  }
+  if (!line.empty()) out.push_back(line);
+}
+
+// Draws every line of `text` (no cutting, no "…"), one after another. Returns the baseline after the last line.
+static int wrapAll(const Font& f, int x, int baseline, int w, const std::string& text, int lineH = 0, const Font* sym = nullptr) {
+  std::vector<std::string> ls; breakLines(f, text, w, ls);
+  const int lh = lineH ? lineH : f.lineHeight + 3;
+  for (auto& l : ls) { C->text(f, x, baseline, l.c_str(), true, sym); baseline += lh; }
+  return baseline;
 }
 
 static void battery(int x, int baseline) {
@@ -99,13 +170,128 @@ static void battery(int x, int baseline) {
   C->rect(x, baseline - 14, 30, 15, 2); C->fill(x + 30, baseline - 10, 3, 7);
   C->fill(x + 3, baseline - 11, 24 * p / 100, 9);
   char b[12]; snprintf(b, sizeof b, "%d%%", p);
-  C->text(F_UI_S, x + 40, baseline, b);
+  C->text(fS(), x + 40, baseline, b);
 }
 
 // ---------------------------------------------------------------------------------------------
 // TODAY — also the sleep screen. Everything a glance needs, nothing to operate.
 // ---------------------------------------------------------------------------------------------
+// Large text: Today does not shrink to fit. Page 1 is the glance (date, sun, the first three calendar lines, care ticks,
+// spoons/sleep/anxiety); Down goes on to the rest: every calendar line (only when there are more than three), then the
+// season, the moon and "on this day". The sleep screen is always page 1.
+static int todayPages = 1;
+static void drawTodayLarge(bool sleeping, const std::string& date, const Day& d, const DayLog& log) {
+  struct Row { int kind; std::string t; };  // 0 holiday, 1 note, 2 event, 3 routine
+  std::vector<Row> rows;
+  for (auto& n : d.notes) { const bool hol = n[0] == '!'; rows.push_back({hol ? 0 : 1, hol ? n.substr(1) : n}); }
+  for (auto& e : d.events) rows.push_back({2, e});
+  for (auto& r : d.routines) rows.push_back({3, r});
+  const bool calPage = rows.size() > 3;
+  todayPages = 1 + (calPage ? 1 : 0) + 1;
+  if (sleeping || S.page >= todayPages) S.page = sleeping ? 0 : todayPages - 1;
+  const int pg = S.page;
+  const int aboutPg = todayPages - 1;
+  auto rowMark = [&](const Row& r, int y) {  // the same marks as the small page
+    if (r.kind == 2) C->circle(M + 9, y - 10, 8, 2);
+    else if (r.kind == 3) C->icon(IC_PRN, M - 2, y - 26, 36);
+  };
+  const int mon = atoi(date.substr(5, 2).c_str()), dd = atoi(date.substr(8, 2).c_str());
+  int y;
+  if (pg == 0) {
+    std::string cap = d.weekday + " · " + monthName(mon);
+    for (auto& ch : cap) if (ch >= 'a' && ch <= 'z') ch -= 32;
+    C->text(fB(), M, 44, cap.c_str());
+    if (rolledBack() && S.dayOffset == 0) C->text(fS(), M, 72, ("last night · ▶ " + prettyDate(addDays(date, 1)).substr(5)).c_str(), true, &fSym());
+    else if (rolledBack() && S.dayOffset == 1) C->text(fS(), M, 72, "new day · ◀ back", true, &fSym());
+    else if (S.dayOffset) C->text(fS(), M, 72, S.dayOffset > 0 ? "future day" : "past day");
+    char num[4]; snprintf(num, sizeof num, "%d", dd);
+    const int nx = C->text(F_HUGE, M - 4, 178, num);
+    C->text(fS(), nx + 10, 150, date.substr(0, 4).c_str());
+    if (d.page > 0) { char pgs[24]; snprintf(pgs, sizeof pgs, "book p. %d", d.page); C->text(fS(), nx + 10, 178, pgs); }
+    C->moon(Canvas::W - M - 42, 112, 40, d.moonDeg);
+    char mp[64]; snprintf(mp, sizeof mp, "%d%% lit", d.lit);
+    C->textRight(fS(), Canvas::W - M, 176, mp, &fSym());
+    C->fill(M, 194, CW, 3);
+    // Sun: two icons and times on one row, the length of the day under it.
+    y = 240;
+    C->icon(IC_SUNRISE, M, y - 28, 36); int x = C->text(fUI(), M + 44, y, d.rise.c_str());
+    C->icon(IC_SUNSET, x + 22, y - 28, 36); C->text(fUI(), x + 66, y, d.set.c_str());
+    C->text(fS(), M + 44, y + 30, (d.daylight + " of light").c_str());
+    y += 46;
+    C->hline(M, y, CW); y += 40;
+    int shown = 0;
+    for (auto& r : rows) {
+      if (shown >= 3) break;
+      rowMark(r, y);
+      const int tx = r.kind >= 2 ? M + 34 : M;
+      if (C->width(r.kind == 0 ? fB() : fUI(), r.t.c_str(), &fSym()) > CW - (tx - M)) { std::vector<std::string> one; breakLines(fUI(), r.t, CW - (tx - M) - 34, one); std::string cut = one.empty() ? r.t : one[0] + "…"; C->text(fUI(), tx, y, cut.c_str(), true, &fSym()); }
+      else C->text(r.kind == 0 ? fB() : fUI(), tx, y, r.t.c_str(), true, &fSym());
+      y += 40; shown++;
+    }
+    if (!shown) { C->text(fBodyI(), M, y, "Nothing on the calendar."); y += 40; }
+    else if ((int)rows.size() > shown) { C->text(fS(), M + 34, y - 6, (calPage ? "+" + std::to_string(rows.size() - shown) + " more: press down" : "").c_str()); y += 30; }
+    y += 2;
+    C->hline(M, y, CW); y += 16;
+    static const int tiles[] = {I_SHOWER, I_TEETH, I_JOY, I_TEXTED, I_SNACK};
+    for (int i = 0; i < 5; i++) {
+      const int tx = M + i * 84, idx = tiles[i];
+      const bool on = log.has(idx) && log.get(idx);
+      if (on) { C->fillRound(tx, y, 68, 60, 6); C->icon(ITEMS[idx].icon, tx + 16, y + 12, 36, false); }
+      else { C->roundRect(tx, y, 68, 60, 6, 2); C->icon(ITEMS[idx].icon, tx + 16, y + 12, 36, true); }
+    }
+    y += 62 + 34;
+    char a[32], b[40], sv[8] = "–", zv[8] = "–", av[8] = "–";
+    if (log.has(I_SPOONS)) snprintf(sv, sizeof sv, "%d", log.get(I_SPOONS));
+    if (log.has(I_SLEEP)) snprintf(zv, sizeof zv, "%dh", log.get(I_SLEEP));
+    if (log.has(I_ANXIETY)) snprintf(av, sizeof av, "%d", log.get(I_ANXIETY));
+    if (log.has(I_SPOONS) || log.has(I_SLEEP) || log.has(I_ANXIETY)) {
+      snprintf(a, sizeof a, "%s spoons left", sv); snprintf(b, sizeof b, "Sleep %s · Anxiety %s", zv, av);
+      C->text(fUI(), M, y, a); C->text(fUI(), M, y + 36, b, true, &fSym()); y += 36;
+    } else C->text(fUI(), M, y, "No check-in yet today.");
+    y += 32;
+    C->text(fS(), M, y, "Meds, meals, water, mood: on paper");
+    if (log.orphans) { y += 28; C->text(fS(), M, y, (std::to_string(log.orphans) + " older custom entr" + (log.orphans == 1 ? "y" : "ies") + " kept").c_str()); }
+  } else if (calPage && pg == 1) {
+    header("Calendar", prettyDate(date).c_str(), IC_CAL);
+    y = 134;
+    for (auto& r : rows) {
+      if (y > HINT_Y - 40) break;
+      const int tx = r.kind >= 2 ? M + 34 : M;
+      rowMark(r, y);
+      const int ny = wrapAll(r.kind == 0 ? fB() : fUI(), tx, y, CW - (tx - M), r.t, 34, &fSym());
+      y = ny + 12;
+    }
+  } else {
+    header("This day", prettyDate(date).c_str(), IC_LEAF);
+    y = 128;
+    C->icon(IC_LEAF, M, y - 30, 36);
+    y = wrapAll(fBodyI(), M + 46, y, CW - 46, d.season, 34);
+    { char mp[80]; snprintf(mp, sizeof mp, "Moon %d%% lit · %s", d.lit, d.moonSign.c_str()); C->text(fS(), M + 46, y, mp, true, &fSym()); y += 30; }
+    if (!d.moonIn.empty()) { C->text(fS(), M + 46, y, ("enters " + d.moonIn).c_str(), true, &fSym()); y += 34; }
+    y += 8; C->hline(M, y, CW); y += 36;
+    if (!d.fact.empty()) {
+      C->text(fS(), M, y, "ON THIS DAY"); y += 38;
+      wrapAll(fBody(), M, y, CW, d.fact, 34);
+    }
+  }
+  (void)aboutPg;
+  if (sleeping) {
+    C->hline(0, HINT_Y, Canvas::W);
+    battery(M, HINT_Y + 34);
+    C->textRight(fS(), Canvas::W - M, HINT_Y + 34, clockOk() ? ("Updated " + clockStr(hal::now())).c_str() : "Clock not set");
+    C->textCenter(fS(), Canvas::W / 2, HINT_Y + 66, "Press power to wake");
+  } else {
+    hintBar(S.dayOffset ? "Today" : "Menu", "Check in", "◀ day", "day ▶");
+    if (todayPages > 1) {
+      char pgs[24]; snprintf(pgs, sizeof pgs, "%d / %d  down: more", pg + 1, todayPages);
+      if (pg + 1 == todayPages) snprintf(pgs, sizeof pgs, "%d / %d  up: back", pg + 1, todayPages);
+      C->textRight(fS(), Canvas::W - M, HINT_Y - 10, pgs, &fSym());
+    }
+  }
+}
+
 static void drawToday(bool sleeping) {
+  todayPages = 1;
   const std::string date = addDays(baseDay(), S.dayOffset);
   Day d; loadDay(date, d);
   DayLog log; loadDayLog(date, log);
@@ -113,38 +299,39 @@ static void drawToday(bool sleeping) {
   int y;
   if (!d.ok) {
     header("Keeping Watch", prettyDate(date).c_str());
-    C->wrap(F_BODY, M, 150, CW, ("No day pack for " + date.substr(0, 7) + " on the card. Copy the kw-update folder "
+    C->wrap(fBody(), M, 150, CW, ("No day pack for " + date.substr(0, 7) + " on the card. Copy the kw-update folder "
                                  "from the journal build to the SD card, or upload it from the Wi-Fi page (Menu, then Wi-Fi sync).").c_str());
     hintBar("Menu", "Check in", "◀ day", "day ▶");
     return;
   }
+  if (LG()) { drawTodayLarge(sleeping, date, d, log); return; }
   // Masthead: weekday · month, huge date numeral, moon on the right.
   int mon = atoi(date.substr(5, 2).c_str()), dd = atoi(date.substr(8, 2).c_str());
   std::string cap = d.weekday + " · " + monthName(mon);
   for (auto& ch : cap) if (ch >= 'a' && ch <= 'z') ch -= 32;
-  C->text(F_UI_B, M, 52, cap.c_str());
+  C->text(fB(), M, 52, cap.c_str());
   char num[4]; snprintf(num, sizeof num, "%d", dd);
   const int nx = C->text(F_HUGE, M - 4, 160, num);
-  C->text(F_UI_S, nx + 10, 158, date.substr(0, 4).c_str());
-  C->text(F_BODY, nx + 10, 132, d.planet.c_str(), true, &F_SYM);
+  C->text(fS(), nx + 10, 158, date.substr(0, 4).c_str());
+  C->text(fBody(), nx + 10, 132, d.planet.c_str(), true, &fSym());
   C->moon(Canvas::W - M - 50, 104, 46, d.moonDeg);
   char mp[64]; snprintf(mp, sizeof mp, "%d%% · %s", d.lit, d.moonSign.c_str());
-  C->textRight(F_UI_S, Canvas::W - M, 176, mp, &F_SYM);
-  if (rolledBack() && S.dayOffset == 0) C->textRight(F_UI_S, Canvas::W - M, 36, ("last night · ▶ " + prettyDate(addDays(date, 1)).substr(5)).c_str(), &F_SYM);
-  else if (rolledBack() && S.dayOffset == 1) C->textRight(F_UI_S, Canvas::W - M, 36, "new day · ◀ back", &F_SYM);
-  else if (S.dayOffset) C->textRight(F_UI_S, Canvas::W - M, 36, S.dayOffset > 0 ? "future day" : "past day");
-  if (d.page > 0) { char pgs[24]; snprintf(pgs, sizeof pgs, "book p. %d", d.page); C->text(F_UI_S, nx + 10, 184, pgs); }
+  C->textRight(fS(), Canvas::W - M, 176, mp, &fSym());
+  if (rolledBack() && S.dayOffset == 0) C->textRight(fS(), Canvas::W - M, 36, ("last night · ▶ " + prettyDate(addDays(date, 1)).substr(5)).c_str(), &fSym());
+  else if (rolledBack() && S.dayOffset == 1) C->textRight(fS(), Canvas::W - M, 36, "new day · ◀ back", &fSym());
+  else if (S.dayOffset) C->textRight(fS(), Canvas::W - M, 36, S.dayOffset > 0 ? "future day" : "past day");
+  if (d.page > 0) { char pgs[24]; snprintf(pgs, sizeof pgs, "book p. %d", d.page); C->text(fS(), nx + 10, 184, pgs); }
   C->fill(M, 192, CW, 3);
 
   // Sun and season.
   y = 228;
-  C->icon(IC_SUNRISE, M, y - 20); int x = C->text(F_UI, M + 30, y, d.rise.c_str());
-  C->icon(IC_SUNSET, x + 22, y - 20); x = C->text(F_UI, x + 52, y, d.set.c_str());
-  C->textRight(F_UI_S, Canvas::W - M, y, (d.daylight + " of light").c_str());
+  C->icon(IC_SUNRISE, M, y - 20); int x = C->text(fUI(), M + 30, y, d.rise.c_str());
+  C->icon(IC_SUNSET, x + 22, y - 20); x = C->text(fUI(), x + 52, y, d.set.c_str());
+  C->textRight(fS(), Canvas::W - M, y, (d.daylight + " of light").c_str());
   y += 40;
   C->icon(IC_LEAF, M, y - 20);
-  y = C->wrap(F_BODY_I, M + 32, y, CW - 32, d.season.c_str(), 2);
-  if (!d.moonIn.empty()) { C->text(F_UI_S, M + 32, y - 4, ("Moon enters " + d.moonIn).c_str(), true, &F_SYM); y += 24; }
+  y = C->wrap(fBodyI(), M + 32, y, CW - 32, d.season.c_str(), 2);
+  if (!d.moonIn.empty()) { C->text(fS(), M + 32, y - 4, ("Moon enters " + d.moonIn).c_str(), true, &fSym()); y += 24; }
   y += 6;
   C->hline(M, y, CW); y += 34;
 
@@ -154,23 +341,23 @@ static void drawToday(bool sleeping) {
   for (auto& n : d.notes) {
     if (shown >= 3) break;
     const bool hol = n[0] == '!';
-    C->text(hol ? F_UI_B : F_UI, M, y, hol ? n.c_str() + 1 : n.c_str(), true, &F_SYM); y += 30; shown++;
+    C->text(hol ? fB() : fUI(), M, y, hol ? n.c_str() + 1 : n.c_str(), true, &fSym()); y += 30; shown++;
   }
   for (auto& e : d.events) {
     if (shown >= 5) break;
-    C->circle(M + 7, y - 7, 6, 2); C->wrap(F_UI, M + 24, y, CW - 24, e.c_str(), 1); y += 30; shown++;
+    C->circle(M + 7, y - 7, 6, 2); C->wrap(fUI(), M + 24, y, CW - 24, e.c_str(), 1); y += 30; shown++;
   }
   for (auto& r : d.routines) {
     if (shown >= 6) break;
-    C->icon(IC_PRN, M - 2, y - 20, 24); C->wrap(F_UI, M + 30, y, CW - 30, r.c_str(), 1); y += 30; shown++;
+    C->icon(IC_PRN, M - 2, y - 20, 24); C->wrap(fUI(), M + 30, y, CW - 30, r.c_str(), 1); y += 30; shown++;
   }
-  if (!shown) { C->text(F_BODY_I, M, y, "Nothing on the calendar."); y += 30; }
-  else if (total > shown) { C->text(F_UI_S, M + 24, y - 6, ("+" + std::to_string(total - shown) + " more on paper").c_str()); y += 26; }
+  if (!shown) { C->text(fBodyI(), M, y, "Nothing on the calendar."); y += 30; }
+  else if (total > shown) { C->text(fS(), M + 24, y - 6, ("+" + std::to_string(total - shown) + " more on paper").c_str()); y += 26; }
   y += 4;
   C->hline(M, y, CW); y += 14;
 
   // Today's care at a glance, the X4's half of the split: filled tile = done. Same icons as the paper page.
-  C->text(F_UI_S, M, y + 14, "CARE TICKS");
+  C->text(fS(), M, y + 14, "CARE TICKS");
   static const int tiles[] = {I_SHOWER, I_TEETH, I_JOY, I_TEXTED, I_SNACK};
   y += 26;
   for (int i = 0; i < 5; i++) {
@@ -187,25 +374,25 @@ static void drawToday(bool sleeping) {
   if (log.has(I_SLEEP)) snprintf(zv, sizeof zv, "%dh", log.get(I_SLEEP));
   if (log.has(I_ANXIETY)) snprintf(av, sizeof av, "%d", log.get(I_ANXIETY));
   snprintf(feel, sizeof feel, "%s spoons left  ·  Sleep %s  ·  Anxiety %s", sv, zv, av);
-  C->text(F_UI, M, y, (log.has(I_SPOONS) || log.has(I_SLEEP) || log.has(I_ANXIETY)) ? feel : "No check-in yet today.");
+  C->text(fUI(), M, y, (log.has(I_SPOONS) || log.has(I_SLEEP) || log.has(I_ANXIETY)) ? feel : "No check-in yet today.");
   y += 26;
-  C->text(F_UI_S, M, y, "Meds, meals, water, mood: on paper");
+  C->text(fS(), M, y, "Meds, meals, water, mood: on paper");
   y += 16;
-  if (log.orphans) { C->text(F_UI_S, M, y + 6, (std::to_string(log.orphans) + " older custom entr" + (log.orphans == 1 ? "y" : "ies") + " kept in the log").c_str()); y += 26; }
+  if (log.orphans) { C->text(fS(), M, y + 6, (std::to_string(log.orphans) + " older custom entr" + (log.orphans == 1 ? "y" : "ies") + " kept in the log").c_str()); y += 26; }
 
   // On this day (the footer fact from the paper page).
   if (!d.fact.empty()) {
     const int bh = HINT_Y - 18 - y;
     if (bh > 90) {
       C->rect(M, y, CW, bh, 2);
-      C->text(F_UI_S, M + 14, y + 28, "ON THIS DAY");
-      C->wrap(F_BODY, M + 14, y + 58, CW - 28, d.fact.c_str(), (bh - 50) / F_BODY.lineHeight);
+      C->text(fS(), M + 14, y + 28, "ON THIS DAY");
+      C->wrap(fBody(), M + 14, y + 58, CW - 28, d.fact.c_str(), (bh - 50) / fBody().lineHeight);
     }
   }
   if (sleeping) {
     C->hline(0, HINT_Y, Canvas::W);
     battery(M, HINT_Y + 28);
-    C->textRight(F_UI_S, Canvas::W - M, HINT_Y + 28,
+    C->textRight(fS(), Canvas::W - M, HINT_Y + 28,
                  clockOk() ? ("Updated " + clockStr(hal::now()) + " · press power to wake").c_str() : "Clock not set · press power");
   } else {
     hintBar(S.dayOffset ? "Today" : "Menu", "Check in", "◀ day", "day ▶");
@@ -215,7 +402,6 @@ static void drawToday(bool sleeping) {
 // ---------------------------------------------------------------------------------------------
 // CHECK IN — the X4's half of the care split (spoons left, sleep, anxiety, care ticks), one press per item.
 // ---------------------------------------------------------------------------------------------
-static const int ROW_H = 43, LIST_Y = 100, HEAD_H = 36, VIEW_H = HINT_Y - LIST_Y;
 
 // Paper-owned built-ins (meds, meals, mood) stay in ITEMS so old logs read, but they are not rows here.
 static int prevShown(int i) { for (int k = i - 1; k >= 0; k--) if (!ITEMS[k].hidden) return k; return -1; }
@@ -252,6 +438,16 @@ static void fitText(const Font& f, int x, int baseline, int w, const char* s) {
   if (n > 0) C->text(f, x, baseline, b);
 }
 
+// Large text: a label that does not fit its width goes onto two lines of the caption size instead of being cut at "…".
+static void labelLarge(int x, int y, int w, const char* s) {
+  if (C->width(fUI(), s, &fSym()) <= w) { C->text(fUI(), x, y + 40, s, true, &fSym()); return; }
+  std::vector<std::string> ls; breakLines(fS(), s, w, ls);
+  if (ls.size() < 2) { fitText(fS(), x, y + 40, w, s); return; }
+  C->text(fS(), x, y + 27, ls[0].c_str());
+  std::string rest = ls[1]; for (size_t k = 2; k < ls.size(); k++) rest += " " + ls[k];
+  fitText(fS(), x, y + 55, w, rest.c_str());
+}
+
 // Dots item: an empty, half-filled or full circle (1-bit).
 static void dotState(int cx, int cy, int r, int v) {
   if (v >= 2) { C->fillCircle(cx, cy, r); return; }
@@ -286,44 +482,58 @@ static void drawCheckin() {
     if (hasHeading(i) && ry - HEAD_H >= 0 && ry <= VIEW_H) {
       std::string H = it.group; for (auto& ch : H) if (ch >= 'a' && ch <= 'z') ch -= 32;
       C->hline(M, LIST_Y + ry - HEAD_H, CW);
-      C->wrap(F_UI_S, M, LIST_Y + ry - HEAD_H + 27, CW, H.c_str(), 1);
+      C->wrap(fS(), M, LIST_Y + ry - HEAD_H + (LG() ? 32 : 27), CW, H.c_str(), 1);
     }
     if (ry < 0 || ry + ROW_H > VIEW_H) continue;  // off screen: rows are drawn whole or not at all
     const int y = LIST_Y + ry;
     if (newGroup(i) && !hasHeading(i)) C->hline(M, y, CW);
-    const int base = y + 29;
-    if (it.icon >= 0) C->icon(it.icon, M + 4, y + 9);
-    else C->fillCircle(M + 16, y + 21, 4);  // custom items: a neutral dot
+    const bool lg = LG();
+    const int base = y + (lg ? 40 : 29), mid = y + ROW_H / 2, lx = M + (lg ? 56 : 40);
+    if (it.icon >= 0) { if (lg) C->icon(it.icon, M + 2, y + 13, 36); else C->icon(it.icon, M + 4, y + 9); }
+    else C->fillCircle(M + (lg ? 20 : 16), mid, lg ? 6 : 4);  // custom items: a neutral dot
     const int R = Canvas::W - M - 8;
     int ctrl = 0;  // width of the control on the right, so long custom labels can be cut short
     switch (it.kind) {
-      case Kind::Toggle: C->checkbox(R - 24, y + 9, 26, log.get(i)); ctrl = 26; break;
-      case Kind::Dots: dotState(R - 12, y + 21, 12, log.get(i)); ctrl = 26; break;
+      case Kind::Toggle: if (lg) C->checkbox(R - 34, y + 14, 34, log.get(i)); else C->checkbox(R - 24, y + 9, 26, log.get(i)); ctrl = lg ? 34 : 26; break;
+      case Kind::Dots: dotState(R - (lg ? 16 : 12), mid, lg ? 16 : 12, log.get(i)); ctrl = lg ? 34 : 26; break;
       case Kind::Stamp: {
         std::string t = log.stamps.empty() ? "tap to log time" : log.stamps.back();
         if (log.stamps.size() > 1) t += " (" + std::to_string(log.stamps.size()) + ")";
-        C->textRight(F_UI, R, base, t.c_str());
+        C->textRight(fUI(), R, base, t.c_str());
         break;
       }
       case Kind::Scale: {
-        const int n = it.hi - it.lo + 1, r = n > 8 ? 7 : 9, gap = n > 8 ? 4 : 7, w = n * (2 * r) + (n - 1) * gap;
-        C->bubbles(R - w, y + 21, n, log.has(i) ? log.get(i) - it.lo : -1, r, gap);
+        if (lg && it.hi - it.lo + 1 > 6) {  // large text: a long scale is its number ("7 / 10", "-2"), not eleven small circles
+          char nb[24];
+          if (!log.has(i)) strcpy(nb, "–");
+          else if (it.lo < 0) snprintf(nb, sizeof nb, log.get(i) > 0 ? "+%d" : "%d", log.get(i));
+          else snprintf(nb, sizeof nb, "%d / %d", log.get(i), it.hi);
+          C->textRight(fB(), R, base, nb, &fSym());
+          ctrl = C->width(fB(), it.lo < 0 ? "+0" : "00 / 00", &fSym());
+          break;
+        }
+        const int n = it.hi - it.lo + 1, r = lg ? (n > 8 ? 9 : 12) : (n > 8 ? 7 : 9), gap = n > 8 ? 4 : (lg ? 8 : 7), w = n * (2 * r) + (n - 1) * gap;
+        C->bubbles(R - w, mid, n, log.has(i) ? log.get(i) - it.lo : -1, r, gap);
         ctrl = w;
         if (i >= BUILTIN_COUNT) {  // custom scales can start at 0 or run -k..+k, so say the number: "+2", "-1", "0", "–" when unset
           char nb[12]; if (log.has(i)) snprintf(nb, sizeof nb, it.lo < 0 && log.get(i) > 0 ? "+%d" : "%d", log.get(i)); else strcpy(nb, "–");
-          C->textRight(F_UI_B, R - w - 10, base, nb, &F_SYM);
-          ctrl += 10 + C->width(F_UI_B, "+00", &F_SYM);
+          C->textRight(fB(), R - w - 10, base, nb, &fSym());
+          ctrl += 10 + C->width(fB(), "+00", &fSym());
         }
         break;
       }
       case Kind::Choice: {  // the chosen word (–  when unset); the label gives way to the longest option so it never jumps as you cycle
-        C->textRight(F_UI_B, R, base, log.has(i) ? it.opts[log.get(i)] : "–", &F_SYM);
-        for (int k = 0; k < it.nopts; k++) { const int cw = C->width(F_UI_B, it.opts[k], &F_SYM); if (cw > ctrl) ctrl = cw; }
+        C->textRight(fB(), R, base, log.has(i) ? it.opts[log.get(i)] : "–", &fSym());
+        for (int k = 0; k < it.nopts; k++) { const int cw = C->width(fB(), it.opts[k], &fSym()); if (cw > ctrl) ctrl = cw; }
         break;
       }
       case Kind::Count: {
         char b[16]; snprintf(b, sizeof b, "%d", log.get(i));
-        if (i == I_SPOONS) {  // spoons: draw them, filled = left
+        if (i == I_SPOONS && lg) {  // large text: the number, not twelve small spoons
+          char sb[16]; snprintf(sb, sizeof sb, "%s / 12", log.has(i) ? b : "–");
+          C->textRight(fB(), R, base, sb);
+          ctrl = C->width(fB(), "12 / 12");
+        } else if (i == I_SPOONS) {  // spoons: draw them, filled = left
           for (int k = 0; k < 12; k++) {
             const int sx = R - (12 - k) * 15, on = log.has(i) && k < log.get(i);  // unset: all outlines, not 12 full
             if (on) { C->fillCircle(sx + 5, y + 16, 5); C->fill(sx + 4, y + 20, 3, 11); }
@@ -332,18 +542,19 @@ static void drawCheckin() {
         } else {
           if (i >= BUILTIN_COUNT && it.hi < 99) {  // a capped count says its cap: "3 / 10"
             char cb[24]; snprintf(cb, sizeof cb, "%s / %d", log.has(i) ? b : "–", it.hi);
-            C->textRight(F_UI_B, R, base, cb);
-            ctrl = C->width(F_UI_B, "99 / 99");
+            C->textRight(fB(), R, base, cb);
+            ctrl = C->width(fB(), "99 / 99");
           } else {
-            C->textRight(F_UI_B, R, base, log.has(i) ? b : "–");
-            ctrl = C->width(F_UI_B, "999");
+            C->textRight(fB(), R, base, log.has(i) ? b : "–");
+            ctrl = C->width(fB(), "999");
           }
         }
         break;
       }
     }
-    if (i < BUILTIN_COUNT) C->text(F_UI, M + 40, base, it.label);
-    else fitText(F_UI, M + 40, base, R - ctrl - 16 - (M + 40), it.label);
+    if (lg) labelLarge(lx, y, R - ctrl - 16 - lx, it.label);
+    else if (i < BUILTIN_COUNT) C->text(fUI(), lx, base, it.label);
+    else fitText(fUI(), lx, base, R - ctrl - 16 - lx, it.label);
     if (i == S.sel) C->invert(M - 8, y + 2, CW + 16, ROW_H - 4);
   }
   if (total > VIEW_H) {  // a quiet scroll bar in the right margin
@@ -391,30 +602,37 @@ static const MenuEntry MENU[] = {
   {"Support", "numbers to text or call", IC_HEART, Scr::Support},
   {"My safety plan", "and people to text", IC_PERSON, Scr::Plan},
   {"Wi-Fi sync", "upload packs, download your log", IC_WIFI, Scr::Sync},
-  {"Clock", "set the date and time", IC_GEAR, Scr::Clock},
+  {"Clock", "set the date and time", IC_PRN, Scr::Clock},
   {"Focus", "silent work rounds and breaks", IC_WORK, Scr::Focus},
+  {"Settings", "text size, buttons, sleep", IC_GEAR, Scr::Settings},
 };
 static const int MENU_N = sizeof(MENU) / sizeof(MENU[0]);
 static int menuIndex(Scr s) { for (int i = 0; i < MENU_N; i++) if (MENU[i].to == s) return i; return 0; }
 static void drawMenu() {
   C->clear();
-  header("Keeping Watch", prettyDate(baseDay()).c_str());
+  header("Keeping Watch", LG() ? "" : prettyDate(baseDay()).c_str());
+  const int rh = LG() ? 58 : 66;
   for (int i = 0; i < MENU_N; i++) {
-    const int y = 110 + i * 76;
-    C->icon(MENU[i].icon, M + 4, y + 12, 36);
-    C->text(F_UI_B, M + 60, y + 32, MENU[i].label);
-    C->text(F_UI_S, M + 60, y + 56, MENU[i].sub);
-    if (i < MENU_N - 1) C->hline(M, y + 72, CW);
-    if (i == S.sel) C->invert(M - 8, y + 2, CW + 16, 68);
+    const int y = 100 + i * rh;
+    C->icon(MENU[i].icon, M + 4, y + (rh - 36) / 2, 36);
+    if (LG()) C->text(fB(), M + 60, y + 38, MENU[i].label);  // large text: the one-line description of the highlighted entry goes below the list
+    else { C->text(fB(), M + 60, y + 28, MENU[i].label); C->text(fS(), M + 60, y + 50, MENU[i].sub); }
+    if (i < MENU_N - 1) C->hline(M, y + rh - 4, CW);
+    if (i == S.sel) C->invert(M - 8, y + 2, CW + 16, rh - 8);
   }
-  battery(M, HINT_Y - 16);
+  if (LG()) {
+    wrapAll(fS(), M, HINT_Y - 74, CW - 96, MENU[S.sel].sub, 29);
+    battery(Canvas::W - M - 84, HINT_Y - 14);
+  } else battery(M, HINT_Y - 16);
   hintBar("Close", "Open", "", "");
 }
 
 // ---------------------------------------------------------------------------------------------
 // THIS MONTH — the numbers the Keeper's "Closing <month>" page asks for, already added up.
 // ---------------------------------------------------------------------------------------------
+static int monthPages = 1;
 static void drawMonth() {
+  monthPages = 1;
   const std::string bd = baseDay();
   int y0 = atoi(bd.c_str()), m0 = atoi(bd.c_str() + 5) + S.monthOffset;
   while (m0 < 1) { m0 += 12; y0--; }
@@ -425,7 +643,7 @@ static void drawMonth() {
   char sub[16]; snprintf(sub, sizeof sub, "%d", y0);
   C->clear();
   header(monthName(m0).c_str(), sub, IC_CHART);
-  if (!built.empty()) C->textRight(F_UI_S, Canvas::W - M, 36, ("pack " + built).c_str());
+  if (!built.empty()) C->textRight(fS(), Canvas::W - M, LG() ? 32 : 36, ("pack " + built).c_str());
   // Two big tiles are Keeper boxes (labels match the Closing page and the Keeper: journal/handoff.mjs, check-handoff.mjs);
   // the rest is what only the X4 counts. Mood, meds, meals and work hours are on the paper tracker.
   struct Stat { const char* label; char val[16]; const char* unit; };
@@ -437,12 +655,87 @@ static void drawMonth() {
   set(1, "Avg sleep", "hours", "%.1f", s.avgSleep, s.sleepN);
   set(2, "Avg spoons left", "of 12", "%.1f", s.avgSpoons, s.spoonsN);
   set(3, "Avg anxiety", "0–3", "%.1f", s.avgAnxiety, s.anxietyN);
+  if (LG()) {
+    // Large text: page 1 is the two Keeper boxes, the other two averages and the care-tick counts; page 2 is the calendar
+    // of care ticks by day (Up/Down turn pages, Left/Right change month).
+    monthPages = 2;
+    if (S.page >= monthPages) S.page = monthPages - 1;
+    if (S.page == 0) {
+      // The two Keeper boxes are full-width rows (their labels are long); the two other averages sit side by side under them.
+      for (int i = 0; i < 2; i++) {
+        const int y = 104 + i * 92;
+        C->rect(M, y, CW, 84, 3);
+        C->text(fS(), M + 12, y + 34, st[i].label);
+        C->text(fS(), M + 12, y + 68, st[i].unit, true, &fSym());
+        const int uw = C->width(fS(), st[i].unit, &fSym());
+        (void)uw;
+        C->textRight(fXL(), Canvas::W - M - 14, y + 66, st[i].val);
+      }
+      for (int i = 2; i < 4; i++) {
+        const int x = M + (i - 2) * (CW / 2 + 6), y = 292;
+        C->rect(x, y, CW / 2 - 6, 108, 1);
+        C->text(fS(), x + 10, y + 30, st[i].label);
+        const int ex = C->text(fXL(), x + 10, y + 88, st[i].val);
+        C->text(fS(), ex + 8, y + 88, st[i].unit, true, &fSym());
+      }
+      static const int ic4[] = {IC_SHOWER, IC_TEETH, IC_JOY, IC_TEXT};
+      static const char* nm4[] = {"Showers", "Teeth", "Enjoyed", "Texted"};
+      const int cnt[4] = {s.showers, s.teeth, s.joy, s.texted}, w = CW / 2 - 6;
+      for (int i = 0; i < 4; i++) {
+        const int x = M + (i % 2) * (w + 12), y = 412 + (i / 2) * 68;
+        char b[8]; if (s.loggedDays) snprintf(b, sizeof b, "%d", cnt[i]); else strcpy(b, "–");
+        C->rect(x, y, w, 60, 1);
+        C->icon(ic4[i], x + 8, y + 12, 36);
+        C->text(fS(), x + 52, y + 38, nm4[i]);
+        C->textRight(fB(), x + w - 10, y + 40, b);
+      }
+      std::string pack; int kp = 0;
+      char path[24]; snprintf(path, sizeof path, "/kw/%04d-%02d.txt", y0, m0);
+      if (hal::readFile(path, pack)) { size_t p = pack.find("\nkeeper="); if (p != std::string::npos) kp = atoi(pack.c_str() + p + 8); }
+      char foot[96];
+      if (kp) snprintf(foot, sizeof foot, "Keeper p. %d: copy the two bold boxes.", kp);
+      else snprintf(foot, sizeof foot, "Keeper handoff: copy the two bold boxes.");
+      int fy = wrapAll(fS(), M, 570, CW, foot, 29);
+      wrapAll(fS(), M, fy + 6, CW, "Mood, meds, meals, work hours: paper tracker.", 29);
+    } else {
+      int y = 132;
+      C->text(fS(), M, y, "CARE TICKS, BY DAY");
+      struct tm first = {}; first.tm_year = y0 - 1900; first.tm_mon = m0 - 1; first.tm_mday = 1; first.tm_hour = 12; mktime(&first);
+      const int lead = (first.tm_wday + 6) % 7, cellW = CW / 7, rows = (lead + s.days + 6) / 7, cellH = rows > 5 ? 60 : 68;
+      static const char* WD = "MTWTFSS";
+      y += 14;
+      for (int i = 0; i < 7; i++) { char b[2] = {WD[i], 0}; C->textCenter(fS(), M + i * cellW + cellW / 2, y + 22, b); }
+      y += 32;
+      for (int d = 1; d <= s.days; d++) {
+        const int k = lead + d - 1, cx = M + (k % 7) * cellW + cellW / 2, cy = y + (k / 7) * cellH + cellH / 2, n = s.doneByDay[d];
+        char b[4]; snprintf(b, sizeof b, "%d", d);
+        if (n) { C->fillCircle(cx, cy, 14 + n * 8 / 5); C->text(fS(), cx - C->width(fS(), b) / 2, cy + 8, b, false); }
+        else C->text(fS(), cx - C->width(fS(), b) / 2, cy + 8, b);
+      }
+      int ly = y + rows * cellH + 26;
+      C->text(fS(), M, ly, "Bigger dot: more care ticks that day.");
+      if (s.focusRounds || s.focusInterruptions) {
+        char fb[48]; snprintf(fb, sizeof fb, s.focusInterruptions ? "Focus %d · %d interrupted" : "Focus %d rounds", s.focusRounds, s.focusInterruptions);
+        ly += 34; C->text(fS(), M, ly, fb, true, &fSym());
+      }
+      if (s.moodN || s.medsAny) {
+        char old[80];
+        if (s.moodN) snprintf(old, sizeof old, "Earlier X4 entries: mood %+.1f avg, meds %d days", s.avgMood, s.medsBoth);
+        else snprintf(old, sizeof old, "Earlier X4 entries: meds %d days", s.medsBoth);
+        wrapAll(fS(), M, ly + 34, CW, old, 29);
+      }
+    }
+    char pgs[24]; snprintf(pgs, sizeof pgs, S.page == 0 ? "1 / 2  down: more" : "2 / 2  up: back");
+    C->textRight(fS(), Canvas::W - M, HINT_Y - 10, pgs, &fSym());
+    hintBar("Back", "", "◀ month", S.monthOffset == -1 && atoi(bd.c_str() + 8) <= 3 ? "this month ▶" : "month ▶");
+    return;
+  }
   for (int i = 0; i < 4; i++) {
     const int col = i % 2, row = i / 2, x = M + col * (CW / 2 + 6), y = 104 + row * 108;
     C->rect(x, y, CW / 2 - 6, 96, i < 2 ? 3 : 1);  // the two Keeper boxes get the heavier frame
-    C->text(F_UI_S, x + 12, y + 26, st[i].label);
-    const int ex = C->text(F_UI_XL, x + 12, y + 76, st[i].val);
-    C->text(F_UI_S, ex + 8, y + 76, st[i].unit);
+    C->text(fS(), x + 12, y + 26, st[i].label);
+    const int ex = C->text(fXL(), x + 12, y + 76, st[i].val);
+    C->text(fS(), ex + 8, y + 76, st[i].unit);
   }
   // Care ticks: days each was ticked.
   {
@@ -454,22 +747,22 @@ static void drawMonth() {
       char b[8]; if (s.loggedDays) snprintf(b, sizeof b, "%d", cnt[i]); else strcpy(b, "–");
       C->rect(x, y, w, 76, 1);
       C->icon(ic4[i], x + 8, y + 8, 24);
-      C->text(F_UI_S, x + 8, y + 68, nm4[i]);
-      C->textRight(F_UI_B, x + w - 8, y + 30, b);
+      C->text(fS(), x + 8, y + 68, nm4[i]);
+      C->textRight(fB(), x + w - 8, y + 30, b);
     }
   }
   // Calendar: each day's dot grows with the care ticks done that day.
   int y = 424;
-  C->text(F_UI_S, M, y, "CARE TICKS, BY DAY");
+  C->text(fS(), M, y, "CARE TICKS, BY DAY");
   if (s.focusRounds || s.focusInterruptions) {  // a count, nothing more: no streaks, no goals
     char fb[48]; snprintf(fb, sizeof fb, s.focusInterruptions ? "Focus %d · %d interrupted" : "Focus %d rounds", s.focusRounds, s.focusInterruptions);
-    C->textRight(F_UI_S, Canvas::W - M, y, fb, &F_SYM);
+    C->textRight(fS(), Canvas::W - M, y, fb, &fSym());
   }
   y += 8;
   struct tm first = {}; first.tm_year = y0 - 1900; first.tm_mon = m0 - 1; first.tm_mday = 1; first.tm_hour = 12; mktime(&first);
   const int lead = (first.tm_wday + 6) % 7, cellW = CW / 7, rows = (lead + s.days + 6) / 7, cellH = rows > 5 ? 38 : 44;
   static const char* WD = "MTWTFSS";
-  for (int i = 0; i < 7; i++) { char b[2] = {WD[i], 0}; C->textCenter(F_UI_S, M + i * cellW + cellW / 2, y + 18, b); }
+  for (int i = 0; i < 7; i++) { char b[2] = {WD[i], 0}; C->textCenter(fS(), M + i * cellW + cellW / 2, y + 18, b); }
   y += 26;
   for (int d = 1; d <= s.days; d++) {
     const int k = lead + d - 1, cx = M + (k % 7) * cellW + cellW / 2, cy = y + (k / 7) * cellH + cellH / 2;
@@ -477,14 +770,14 @@ static void drawMonth() {
     char b[4]; snprintf(b, sizeof b, "%d", d);
     if (n) C->fillCircle(cx, cy, 5 + n * 12 / 5 > 17 ? 17 : 5 + n * 12 / 5);
     else C->circle(cx, cy, 5, 1);
-    if (!n) C->text(F_UI_S, cx + 8, cy - 6, b);
+    if (!n) C->text(fS(), cx + 8, cy - 6, b);
   }
   // Logs from before the care split may still hold mood and meds: read, never lost, shown as one quiet line.
   if (s.moodN || s.medsAny) {
     char old[80];
     if (s.moodN) snprintf(old, sizeof old, "Earlier X4 entries: mood %+.1f avg, meds %d days", s.avgMood, s.medsBoth);
     else snprintf(old, sizeof old, "Earlier X4 entries: meds %d days", s.medsBoth);
-    C->text(F_UI_S, M, HINT_Y - 52, old);
+    C->text(fS(), M, HINT_Y - 52, old);
   }
   // Where it goes in the Keeper.
   std::string pack; int kp = 0;
@@ -493,8 +786,8 @@ static void drawMonth() {
   char foot[96];
   if (kp) snprintf(foot, sizeof foot, "Keeper p. %d: copy the two bold boxes.", kp);
   else snprintf(foot, sizeof foot, "Keeper handoff: copy the two bold boxes.");
-  C->text(F_UI_S, M, HINT_Y - 30, foot);
-  C->text(F_UI_S, M, HINT_Y - 10, "Mood, meds, meals, work hours: paper tracker.");
+  C->text(fS(), M, HINT_Y - 30, foot);
+  C->text(fS(), M, HINT_Y - 10, "Mood, meds, meals, work hours: paper tracker.");
   // First days of a month open on the month just finished (its totals go to the Keeper); ▶ reaches the new one.
   hintBar("Back", "", "◀ month", S.monthOffset == -1 && atoi(bd.c_str() + 8) <= 3 ? "this month ▶" : "month ▶");
 }
@@ -527,62 +820,40 @@ static void drawSupport() {
   auto v = loadEntries("/kw/support.txt");
   C->clear();
   C->fill(0, 0, Canvas::W, 92);
-  C->icon(IC_HEART, M, 28, 36, false);
-  C->text(F_TITLE, M + 48, 62, "Support", false);
-  C->text(F_UI_B, Canvas::W - M - C->width(F_UI_B, "Emergency 911"), 60, "Emergency 911", false);
-  // paginate: lay out entries top to bottom, a page ends when the next entry would not fit
+  C->icon(IC_HEART, M, LG() ? 26 : 28, 36, false);
+  C->text(fTitle(), M + 48, 62, "Support", false);
+  C->text(fB(), Canvas::W - M - C->width(fB(), "Emergency 911"), 60, "Emergency 911", false);
+  // Paginate: lay out entries top to bottom with every line of every entry (nothing is cut with "…"); a page ends when the
+  // next entry would not fit. Large text just means fewer entries per page.
+  const int nameLH = fB().lineHeight + 2, detLH = LG() ? 36 : fUI().lineHeight, detOff = LG() ? 40 : 28, gap = LG() ? 46 : 40, headAdv = LG() ? 54 : 40, chipW = LG() ? 88 : 64;
   int page = 0, y = 120; std::string lastH;
   supportPages = 1;
   for (size_t i = 0; i < v.size(); i++) {
     const Entry& e = v[i];
-    const int need = (e.h != lastH ? 40 : 0) + 30 + 26 * ((C->width(F_UI, e.detail.c_str()) / (CW - 10)) + 1) + 12;
-    if (y + need > HINT_Y - 10) { page++; y = 120; lastH = ""; supportPages = page + 1; }
+    const bool canText = e.how.find("TEXT") != std::string::npos;
+    std::vector<std::string> nl, dl;
+    breakLines(fB(), e.name, canText ? CW - chipW : CW, nl);
+    breakLines(fUI(), e.detail, CW, dl);
+    if (nl.empty()) nl.push_back("");
+    const int need = (e.h != lastH ? headAdv : 0) + (int)(nl.size() - 1) * nameLH + detOff + (dl.empty() ? 0 : ((int)dl.size() - 1) * detLH) + gap;
+    if (y + need > HINT_Y - 10 && y > 120) { page++; y = 120; lastH = ""; supportPages = page + 1; }
     const bool draw = page == S.page;
     if (e.h != lastH) {
-      if (draw) { std::string H = e.h; for (auto& ch : H) if (ch >= 'a' && ch <= 'z') ch -= 32; C->text(F_UI_S, M, y + 10, H.c_str()); C->hline(M, y + 18, CW); }
-      y += 40; lastH = e.h;
+      if (draw) { std::string H = e.h; for (auto& ch : H) if (ch >= 'a' && ch <= 'z') ch -= 32; C->text(fS(), M, y + 10, H.c_str()); C->hline(M, y + 18, CW); }
+      y += headAdv; lastH = e.h;
     }
     if (draw) {
       // Only TEXT gets a badge: it is the one thing worth spotting at a glance.
-      const bool canText = e.how.find("TEXT") != std::string::npos;
-      const int nameW = canText ? CW - 64 : CW;
-      C->wrap(F_UI_B, M, y, nameW, e.name.c_str(), 1);
-      if (canText) chip(Canvas::W - M - 54, y, "TEXT", true);
-      C->wrap(F_UI, M, y + 28, CW, e.detail.c_str(), 3);
+      for (size_t k = 0; k < nl.size(); k++) C->text(fB(), M, y + (int)k * nameLH, nl[k].c_str());
+      if (canText) chip(Canvas::W - M - (LG() ? 70 : 54), y, "TEXT", true);
+      for (size_t k = 0; k < dl.size(); k++) C->text(fUI(), M, y + (int)(nl.size() - 1) * nameLH + detOff + (int)k * detLH, dl[k].c_str());
     }
-    y += 30 + 26 * ((C->width(F_UI, e.detail.c_str()) / (CW - 10)) + 1) + 12;
+    y += (int)(nl.size() - 1) * nameLH + detOff + (dl.empty() ? 0 : ((int)dl.size() - 1) * detLH) + gap;
   }
-  if (v.empty()) C->wrap(F_BODY, M, 150, CW, "Call or text 988, any hour. Text HOME to 741741. Copy the kw-update folder to the card for the full list.");
+  if (v.empty()) wrapAll(fBody(), M, 150, CW, "Call or text 988, any hour. Text HOME to 741741. Copy the kw-update folder to the card for the full list.", LG() ? 36 : 28);
   char pg[16]; snprintf(pg, sizeof pg, "%d / %d", S.page + 1, supportPages);
   hintBar("Back", "Safety plan", S.page ? "◀ page" : "", S.page + 1 < supportPages ? "page ▶" : "");
-  C->textRight(F_UI_S, Canvas::W - M, HINT_Y - 10, pg);
-}
-
-// Break text into lines no wider than w, greedily by words (same rule as Canvas::wrap), without
-// drawing. A word wider than the box is split between code points so nothing runs off the edge.
-static void breakLines(const Font& f, const std::string& s, int w, std::vector<std::string>& out) {
-  std::string line;
-  size_t i = 0;
-  while (i < s.size()) {
-    while (i < s.size() && s[i] == ' ') i++;
-    if (i >= s.size()) break;
-    size_t j = s.find(' ', i); if (j == std::string::npos) j = s.size();
-    std::string word = s.substr(i, j - i); i = j;
-    std::string trial = line.empty() ? word : line + " " + word;
-    if (C->width(f, trial.c_str()) <= w) { line = trial; continue; }
-    if (!line.empty()) { out.push_back(line); line.clear(); }
-    while (C->width(f, word.c_str()) > w) {  // one over-long word: hard-split it
-      size_t k = 0, fit = 0;
-      while (k < word.size()) {
-        size_t n = k + 1; while (n < word.size() && (word[n] & 0xC0) == 0x80) n++;
-        if (fit && C->width(f, word.substr(0, n).c_str()) > w) break;
-        fit = k = n;
-      }
-      out.push_back(word.substr(0, fit)); word.erase(0, fit);
-    }
-    line = word;
-  }
-  if (!line.empty()) out.push_back(line);
+  C->textRight(fS(), Canvas::W - M, HINT_Y - 10, pg);
 }
 
 // The plan is laid out as a flat list of lines, then paged with Up/Down like Support. A page breaks
@@ -591,8 +862,12 @@ static void breakLines(const Font& f, const std::string& s, int w, std::vector<s
 struct PlanLine { uint8_t kind; bool start; std::string s; int adv; };  // kind: 0 heading, 1 body, 2 dotted, 3 note, 4 gap
 static int planPages = 1;
 static void drawPlan() {
-  static const int TOP = 120, BOX_Y = HINT_Y - 162;
-  static const int LIMIT = HINT_Y - 44, LIMIT_LAST = BOX_Y - 14;  // lowest baseline on a page
+  static const char* const HELP = "“Hey, I’m having a hard time. I’m not up for a call. Can you text with me for a bit?”";
+  std::vector<std::string> helpLines; breakLines(fBody(), HELP, CW - 28, helpLines);
+  const int helpLH = LG() ? 38 : fBody().lineHeight;
+  const int BOX_H = LG() ? 58 + (int)helpLines.size() * helpLH : 130;
+  const int TOP = 120, BOX_Y = LG() ? HINT_Y - 34 - BOX_H : HINT_Y - 162;
+  const int LIMIT = HINT_Y - 44, LIMIT_LAST = BOX_Y - 14;  // lowest baseline on a page
   std::string f; hal::readFile("/kw/me.txt", f);
   size_t a = 0; bool any = false;
   std::vector<std::pair<std::string, std::string>> sec;
@@ -607,16 +882,16 @@ static void drawPlan() {
   std::vector<PlanLine> L;
   std::vector<std::string> tmp;
   for (size_t i = 0; i < sec.size(); i++) {
-    tmp.clear(); breakLines(F_UI_B, std::to_string(i + 1) + ". " + sec[i].first, CW, tmp);
-    for (size_t k = 0; k < tmp.size(); k++) L.push_back({0, k == 0, tmp[k], 28});
-    if (sec[i].second.empty()) { L.push_back({2, false, "", 16}); continue; }
-    tmp.clear(); breakLines(F_BODY, sec[i].second, CW - 24, tmp);
-    for (size_t k = 0; k < tmp.size(); k++) L.push_back({1, false, tmp[k], F_BODY.lineHeight + (k + 1 == tmp.size() ? 8 : 0)});
+    tmp.clear(); breakLines(fB(), std::to_string(i + 1) + ". " + sec[i].first, CW, tmp);
+    for (size_t k = 0; k < tmp.size(); k++) L.push_back({0, k == 0, tmp[k], LG() ? 38 : 28});
+    if (sec[i].second.empty()) { L.push_back({2, false, "", LG() ? 30 : 16}); continue; }
+    tmp.clear(); breakLines(fBody(), sec[i].second, CW - 24, tmp);
+    for (size_t k = 0; k < tmp.size(); k++) L.push_back({1, false, tmp[k], (LG() ? 37 : fBody().lineHeight) + (k + 1 == tmp.size() ? 8 : 0)});
   }
   if (!any) {
     L.push_back({4, true, "", 4});
-    tmp.clear(); breakLines(F_BODY_I, "Empty for now. Fill it in on the Wi-Fi page, or use the safety plan page at the back of your journal.", CW, tmp);
-    for (auto& t : tmp) L.push_back({3, false, t, F_BODY_I.lineHeight});
+    tmp.clear(); breakLines(fBodyI(), "Empty for now. Fill it in on the Wi-Fi page, or use the safety plan page at the back of your journal.", CW, tmp);
+    for (auto& t : tmp) L.push_back({3, false, t, LG() ? 37 : fBodyI().lineHeight});
   }
   // How far lines [from, n) get on one page whose lowest baseline is `limit`.
   const int n = (int)L.size();
@@ -654,23 +929,24 @@ static void drawPlan() {
   int y = TOP;
   for (int i = starts[S.page]; i < endI; i++) {
     const PlanLine& l = L[i];
-    if (l.kind == 0) C->text(F_UI_B, M, y, l.s.c_str());
-    else if (l.kind == 1) C->text(F_BODY, M + 24, y, l.s.c_str());
+    if (l.kind == 0) C->text(fB(), M, y, l.s.c_str());
+    else if (l.kind == 1) C->text(fBody(), M + 24, y, l.s.c_str());
     else if (l.kind == 2) C->dotted(M + 24, y - 6, CW - 24);
-    else if (l.kind == 3) C->text(F_BODY_I, M, y, l.s.c_str());
+    else if (l.kind == 3) C->text(fBodyI(), M, y, l.s.c_str());
     y += l.adv;
   }
   if (last) {
-    C->rect(M, BOX_Y, CW, 130, 3);
-    C->text(F_UI_S, M + 14, BOX_Y + 28, "WHEN TALKING IS TOO HARD, SEND:");
-    C->wrap(F_BODY, M + 14, BOX_Y + 60, CW - 28, "“Hey, I’m having a hard time. I’m not up for a call. Can you text with me for a bit?”", 3);
+    C->rect(M, BOX_Y, CW, BOX_H, 3);
+    C->text(fS(), M + 14, BOX_Y + 30, "WHEN TALKING IS TOO HARD, SEND:");
+    if (LG()) wrapAll(fBody(), M + 14, BOX_Y + 66, CW - 28, HELP, helpLH);
+    else C->wrap(fBody(), M + 14, BOX_Y + 60, CW - 28, HELP, 3);
   } else {  // quiet cue that the plan goes on
     const int x = Canvas::W - M - 14, cy = HINT_Y - 22;
-    C->textRight(F_UI_S, x - 10, HINT_Y - 14, "more");
+    if (!LG()) C->textRight(fS(), x - 10, HINT_Y - 14, "more");
     C->line(x - 6, cy - 3, x, cy + 3, 2); C->line(x, cy + 3, x + 6, cy - 3, 2);
   }
   // The paper safety plan is the source of truth; this is a copy of it.
-  C->text(F_UI_S, M, HINT_Y - 10, "If this differs, trust the book.");
+  C->text(fS(), M, HINT_Y - 10, "If this differs, trust the book.");
   hintBar("Back", "Support", S.page ? "◀ page" : "", S.page + 1 < pages ? "page ▶" : "");
 }
 
@@ -688,21 +964,23 @@ static void drawQr(const char* text, int x, int y, int size) {
 static void drawSync(bool up) {
   C->clear();
   header("Wi-Fi sync", up ? "hotspot on" : "starting…", IC_WIFI);
-  if (!up) { C->wrap(F_BODY, M, 150, CW, "Starting the hotspot…"); hintBar("Stop", "", "", ""); return; }
+  if (!up) { C->wrap(fBody(), M, 150, CW, "Starting the hotspot…"); hintBar("Stop", "", "", ""); return; }
   char wifi[96]; snprintf(wifi, sizeof wifi, "WIFI:T:WPA;S:%s;P:%s;;", SSID, PASS);
-  drawQr(wifi, (Canvas::W - 300) / 2, 104, 300);
-  int y = 440;
-  C->textCenter(F_UI_S, Canvas::W / 2, y, "1. SCAN TO JOIN, OR CONNECT TO"); y += 34;
-  C->textCenter(F_UI_B, Canvas::W / 2, y, SSID); y += 30;
+  const int qr = LG() ? 260 : 300;  // a QR needs its quiet zone and 6+ px modules: 260 px still scans fine
+  drawQr(wifi, (Canvas::W - qr) / 2, LG() ? 100 : 104, qr);
+  int y = LG() ? 396 : 440;
+  C->textCenter(fS(), Canvas::W / 2, y, "1. SCAN TO JOIN, OR CONNECT TO"); y += LG() ? 32 : 34;
+  C->textCenter(fB(), Canvas::W / 2, y, SSID); y += LG() ? 36 : 30;
   char pw[40]; snprintf(pw, sizeof pw, "password %s", PASS);
-  C->textCenter(F_UI, Canvas::W / 2, y, pw); y += 50;
-  C->textCenter(F_UI_S, Canvas::W / 2, y, "2. OPEN"); y += 40;
-  C->textCenter(F_TITLE, Canvas::W / 2, y, "192.168.4.1"); y += 44;
-  C->wrap(F_UI_S, M, y, CW, "Upload month packs, download your check-in log, edit your safety plan, and set the clock from your phone. Nothing leaves this device.", 4);
+  C->textCenter(fUI(), Canvas::W / 2, y, pw); y += LG() ? 48 : 50;
+  C->textCenter(fS(), Canvas::W / 2, y, "2. OPEN"); y += 40;
+  C->textCenter(fTitle(), Canvas::W / 2, y, "192.168.4.1"); y += LG() ? 40 : 44;
+  const char* about = "Upload month packs, download your check-in log, edit your safety plan, and set the clock from your phone. Nothing leaves this device.";
+  if (LG()) wrapAll(fS(), M, y, CW, about, 29); else C->wrap(fS(), M, y, CW, about, 4);
   const std::string built = builtStamp(baseDay().substr(0, 7));
-  if (!built.empty()) C->text(F_UI_S, M, HINT_Y - 10, ("pack " + built).c_str());  // compare with "Built" on the book's title page
+  if (!built.empty()) C->text(fS(), M, HINT_Y - 10, ("pack " + built).c_str());  // compare with "Built" on the book's title page
   char cl[32]; snprintf(cl, sizeof cl, "%d connected", hal::wifiClients());
-  C->textRight(F_UI_S, Canvas::W - M, HINT_Y - 10, cl);
+  C->textRight(fS(), Canvas::W - M, HINT_Y - 10, cl);
   hintBar("Stop", "", "", "");
 }
 
@@ -712,20 +990,26 @@ static void drawSync(bool up) {
 static void drawClock() {
   C->clear();
   const std::string problem = clockProblem();
-  header("Clock", problem.empty() ? "running" : "not set", IC_GEAR);
+  header("Clock", problem.empty() ? "running" : "not set", IC_PRN);
   char f[5][16];
   snprintf(f[0], 16, "%04d", S.edit.tm_year + 1900); snprintf(f[1], 16, "%02d", S.edit.tm_mon + 1);
   snprintf(f[2], 16, "%02d", S.edit.tm_mday); snprintf(f[3], 16, "%02d", S.edit.tm_hour); snprintf(f[4], 16, "%02d", S.edit.tm_min);
   const char* L[5] = {"YEAR", "MONTH", "DAY", "HOUR", "MIN"};
   const int xs[5] = {M, M + 150, M + 250, M + 60, M + 200}, ys[5] = {230, 230, 230, 420, 420};
   for (int i = 0; i < 5; i++) {
-    C->text(F_UI_S, xs[i], ys[i] - 70, L[i]);
-    C->text(F_UI_XL, xs[i], ys[i], f[i]);
-    if (i == S.field) C->fill(xs[i], ys[i] + 12, C->width(F_UI_XL, f[i]), 4);
+    C->text(fS(), xs[i], ys[i] - 70, L[i]);
+    C->text(fXL(), xs[i], ys[i], f[i]);
+    if (i == S.field) C->fill(xs[i], ys[i] + 12, C->width(fXL(), f[i]), 4);
   }
-  C->text(F_UI_XL, M + 150, 420, ":");
-  if (!problem.empty()) C->wrap(F_BODY, M, 500, CW, problem.c_str(), 4);
-  C->wrap(F_BODY_I, M, problem.empty() ? 520 : 640, CW, "Pacific time; daylight saving is handled for you. The Wi-Fi page can also set this from your phone in one tap.", 3);
+  C->text(fXL(), M + 150, 420, ":");
+  const char* tz = "Pacific time; daylight saving is handled for you. The Wi-Fi page can also set this from your phone in one tap.";
+  if (LG()) {
+    if (!problem.empty()) wrapAll(fBody(), M, 500, CW, problem, 36);
+    else wrapAll(fBodyI(), M, 520, CW, tz, 36);
+  } else {
+    if (!problem.empty()) C->wrap(fBody(), M, 500, CW, problem.c_str(), 4);
+    C->wrap(fBodyI(), M, problem.empty() ? 520 : 640, CW, tz, 3);
+  }
   hintBar("Cancel", "Save", "◀ field", "field ▶");
 }
 
@@ -761,16 +1045,24 @@ static void drawFocus(bool sleeping) {
     if (pi >= 0) snprintf(v[0], 24, "%d / %d", PRESETS[pi][0], PRESETS[pi][1]); else strcpy(v[0], "Custom");
     snprintf(v[1], 24, "%d min", FP.work); snprintf(v[2], 24, "%d min", FP.brk); strcpy(v[3], "Start");
     static const char* L[4] = {"PRESET (work / break)", "WORK", "BREAK", ""};
+    const int rowH = LG() ? 100 : 92, pitch = LG() ? 108 : 104, top = LG() ? 100 : 112;
     for (int i = 0; i < 4; i++) {
-      const int y = 112 + i * 104;
-      if (i < 3) { C->text(F_UI_S, M + 12, y + 26, L[i]); C->text(F_UI_XL, M + 12, y + 74, v[i]); }
-      else C->textCenter(F_UI_XL, Canvas::W / 2, y + 60, v[i]);
-      C->rect(M, y, CW, 92, i == 3 ? 3 : 1);
-      if (i == S.sel) C->invert(M, y, CW, 92);
+      const int y = top + i * pitch;
+      if (i < 3) { C->text(fS(), M + 12, y + (LG() ? 30 : 26), L[i]); C->text(fXL(), M + 12, y + (LG() ? 88 : 74), v[i]); }
+      else C->textCenter(fXL(), Canvas::W / 2, y + (LG() ? 68 : 60), v[i]);
+      C->rect(M, y, CW, rowH, i == 3 ? 3 : 1);
+      if (i == S.sel) C->invert(M, y, CW, rowH);
     }
-    char info[160]; snprintf(info, sizeof info, "%d rounds, then a %d min break. No sound: the screen is drawn once, the X4 sleeps and wakes itself.", FP.rounds, FP.longBrk);
-    C->wrap(F_UI_S, M, 550, CW, info, 3);
-    if (rounds) { snprintf(info, sizeof info, "%d round%s finished today.", rounds, rounds == 1 ? "" : "s"); C->text(F_UI_S, M, 640, info); }
+    char info[160];
+    if (LG()) {
+      snprintf(info, sizeof info, "%d rounds, then a %d min break. Silent: no sound, no alarm.", FP.rounds, FP.longBrk);
+      wrapAll(fS(), M, 568, CW, info, 29);
+      if (rounds) { snprintf(info, sizeof info, "%d round%s finished today.", rounds, rounds == 1 ? "" : "s"); C->text(fS(), M, 676, info); }
+    } else {
+      snprintf(info, sizeof info, "%d rounds, then a %d min break. No sound: the screen is drawn once, the X4 sleeps and wakes itself.", FP.rounds, FP.longBrk);
+      C->wrap(fS(), M, 550, CW, info, 3);
+      if (rounds) { snprintf(info, sizeof info, "%d round%s finished today.", rounds, rounds == 1 ? "" : "s"); C->text(fS(), M, 640, info); }
+    }
     hintBar("Back", S.sel == 3 ? "Start" : "Next", S.sel == 3 ? "" : "◀ less", S.sel == 3 ? "" : "more ▶");
     return;
   }
@@ -778,9 +1070,10 @@ static void drawFocus(bool sleeping) {
     header("Focus", "done", IC_WORK);
     char b[48]; snprintf(b, sizeof b, "%d", rounds);
     const int x = C->text(F_HUGE, M, 300, b);
-    C->text(F_UI, x + 14, 296, rounds == 1 ? "round finished today" : "rounds finished today");
-    if (FRUN.interruptions) { snprintf(b, sizeof b, "%d interruption%s this session", FRUN.interruptions, FRUN.interruptions == 1 ? "" : "s"); C->text(F_BODY, M, 380, b); }
-    C->wrap(F_BODY_I, M, FRUN.interruptions ? 430 : 380, CW, "That was the last round. Nothing else to do here.", 2);
+    C->text(fUI(), x + 14, 296, rounds == 1 ? "round finished today" : "rounds finished today");
+    if (FRUN.interruptions) { snprintf(b, sizeof b, "%d interruption%s this session", FRUN.interruptions, FRUN.interruptions == 1 ? "" : "s"); C->text(fBody(), M, 380, b); }
+    if (LG()) wrapAll(fBodyI(), M, FRUN.interruptions ? 440 : 390, CW, "That was the last round. Nothing else to do here.", 36);
+    else C->wrap(fBodyI(), M, FRUN.interruptions ? 430 : 380, CW, "That was the last round. Nothing else to do here.", 2);
     hintBar("Menu", "", "", "");
     return;
   }
@@ -789,20 +1082,74 @@ static void drawFocus(bool sleeping) {
   const std::string until = clockStr(FRUN.end);
   char sub[32]; snprintf(sub, sizeof sub, "round %d of %d", FRUN.round, FP.rounds);
   header(work ? "Focus" : lng ? "Long break" : "Break", sub, IC_WORK);
-  C->textCenter(F_UI_XL, Canvas::W / 2, 300, until.c_str());
+  C->textCenter(fXL(), Canvas::W / 2, 300, until.c_str());
   std::string line = std::string(work ? "Focus" : lng ? "Long break" : "Break") + " until " + until;
   if (work) line += std::string(" · ") + sub;
-  C->wrap(F_BODY, M, 380, CW, line.c_str(), 3, 0, &F_SYM);
-  char b[64]; int y = 470;
-  if (work && FRUN.interruptions) { snprintf(b, sizeof b, "Interrupted %d time%s", FRUN.interruptions, FRUN.interruptions == 1 ? "" : "s"); C->text(F_UI, M, y, b); y += 34; }
-  if (rounds) { snprintf(b, sizeof b, "%d round%s finished today", rounds, rounds == 1 ? "" : "s"); C->text(F_UI_S, M, y, b); }
+  if (LG()) wrapAll(fBody(), M, 390, CW, line, 36, &fSym()); else C->wrap(fBody(), M, 380, CW, line.c_str(), 3, 0, &fSym());
+  char b[64]; int y = LG() ? 500 : 470;
+  if (work && FRUN.interruptions) { snprintf(b, sizeof b, "Interrupted %d time%s", FRUN.interruptions, FRUN.interruptions == 1 ? "" : "s"); C->text(fUI(), M, y, b); y += 34; }
+  if (rounds) { snprintf(b, sizeof b, "%d round%s finished today", rounds, rounds == 1 ? "" : "s"); C->text(fS(), M, y, b); }
   if (sleeping) {
     C->hline(0, HINT_Y, Canvas::W);
-    battery(M, HINT_Y + 28);
-    C->textRight(F_UI_S, Canvas::W - M, HINT_Y + 28, ("Silent · wakes itself " + until).c_str());
+    if (LG()) {
+      battery(M, HINT_Y + 34);
+      C->textRight(fS(), Canvas::W - M, HINT_Y + 34, ("wakes itself " + until).c_str());
+      C->textCenter(fS(), Canvas::W / 2, HINT_Y + 66, "Silent: no sound, no alarm");
+    } else {
+      battery(M, HINT_Y + 28);
+      C->textRight(fS(), Canvas::W - M, HINT_Y + 28, ("Silent · wakes itself " + until).c_str());
+    }
   } else {
     hintBar("End", work ? "Interrupted" : "", "", "");
   }
+}
+
+// ---------------------------------------------------------------------------------------------
+// SETTINGS — text size, contrast, button remap, sleep and refresh timing. Saved to /kw/settings.txt on every change.
+// Left/Right or Confirm change the highlighted value (they follow the button remap like everything else).
+// ---------------------------------------------------------------------------------------------
+static const int SET_N = 6;
+static const char* settingLabel(int i) {
+  static const char* L[SET_N] = {"TEXT SIZE", "CONTRAST", "BUTTONS", "SLEEP AFTER", "CLEAN THE SCREEN", "HOLD BACK FOR SUPPORT"};
+  return L[i];
+}
+static const char* settingValue(int i) {
+  switch (i) {
+    case 0: return ST.large ? "Large" : "Normal";
+    case 1: return ST.bold ? "Bold" : "Normal";
+    case 2: { static const char* V[4] = {"Standard", "Left-handed", "Confirm and Back swapped", "Left-handed + swapped"}; return V[ST.buttons % 4]; }
+    case 3: { static const char* V[3] = {"90 seconds", "5 minutes", "15 minutes"}; return V[ST.sleep % 3]; }
+    case 4: { static const char* V[3] = {"Every 4 moves", "Every 8 moves", "Every 16 moves"}; return V[ST.clean % 3]; }
+    default: { static const char* V[3] = {"1.2 seconds", "2.5 seconds", "Off (use the Menu)"}; return V[ST.hold % 3]; }
+  }
+}
+static const char* settingHelp(int i) {
+  switch (i) {
+    case 0: return "Bigger type on every screen. Long screens get pages (up/down).";
+    case 1: return "Heavier text and lines. Nothing is drawn in a thin stroke.";
+    case 2: {
+      static const char* V[4] = {"The buttons do what their labels say.", "Left and Right trade places, and so do Up and Down. Labels follow.",
+                                 "Confirm and Back trade places. Labels follow.", "Both swaps at once. Labels follow."};
+      return V[ST.buttons % 4];
+    }
+    case 3: return "Time without a press before it sleeps. Support, your plan and the Clock wait at least 15 minutes.";
+    case 4: return "Every Nth move is a full clean redraw. A bigger number means fewer flashes and a little more ghosting.";
+    default: return "How long to hold Back to open Support from anywhere. Off: use Menu, then Support.";
+  }
+}
+static void drawSettings() {
+  C->clear();
+  header("Settings", "saved on the card", IC_GEAR);
+  const int rh = LG() ? 88 : 90, top = 100;
+  for (int i = 0; i < SET_N; i++) {
+    const int y = top + i * rh;
+    C->text(fS(), M + 8, y + (LG() ? 30 : 26), settingLabel(i));
+    C->text(fB(), M + 8, y + (LG() ? 68 : 60), settingValue(i));
+    C->hline(M, y + rh - 6, CW);
+    if (i == S.sel) C->invert(M - 8, y + 2, CW + 16, rh - 12);
+  }
+  wrapAll(fS(), M, top + SET_N * rh + 24, CW, settingHelp(S.sel), LG() ? 29 : 24);
+  hintBar("Back", "Change", "◀", "▶");
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -821,12 +1168,13 @@ static void render(bool sameScreen, bool sleeping = false) {
     case Scr::Sync: drawSync(hal::wifiClients() >= 0 && SSID[0]); break;
     case Scr::Clock: drawClock(); break;
     case Scr::Focus: drawFocus(sleeping); break;
+    case Scr::Settings: drawSettings(); break;
   }
   Refresh r = Refresh::Half;
   if (sleeping) r = Refresh::Full;
-  else if (sameScreen) { r = (++S.changes % 8 == 0) ? Refresh::Half : Refresh::Fast; }
+  else if (sameScreen) { r = (++S.changes % settingsCleanEvery(ST) == 0) ? Refresh::Half : Refresh::Fast; }
   else S.changes = 0;
-  static const char* NAMES[] = {"today", "checkin", "menu", "month", "support", "plan", "sync", "clock", "focus"};
+  static const char* NAMES[] = {"today", "checkin", "menu", "month", "support", "plan", "sync", "clock", "focus", "settings"};
   hal::show(r, NAMES[(int)S.scr]);
 }
 
@@ -861,6 +1209,7 @@ void appMain() {
   timeInit();
   FB = hal::framebuffer();
   static Canvas canvas(FB); C = &canvas;
+  settingsLoad(ST); applyStyle(); hal::setBackHold(settingsHoldMs(ST));  // before anything is drawn, the sleep screen included
   focusLoad(FP, FRUN);  // a Focus run survives deep sleep on the card
   if (hal::woke_by_timer()) {
     // A phase ended: log it, draw the next one, sleep again. Woken early by clock drift: sleep on without redrawing.
@@ -872,9 +1221,15 @@ void appMain() {
 
   render(false);
   for (;;) {
-    uint32_t wait = S.scr == Scr::Sync ? 250 : IDLE_MS;
+    // Idle sleep never discards work in progress (every check-in press is saved when it happens), and it never
+    // cuts short someone reading or setting something slowly: Support, the plan and the Clock wait at least 15 minutes.
+    uint32_t idle = settingsIdleMs(ST);
+    if ((S.scr == Scr::Support || S.scr == Scr::Plan || S.scr == Scr::Clock) && idle < 900000u) idle = 900000u;
+    uint32_t wait = S.scr == Scr::Sync ? 250 : idle;
     if (S.scr == Scr::Focus && focusActive(FRUN)) { const time_t left = FRUN.end - hal::now(); if (left >= 0 && (uint32_t)left * 1000 + 1000 < wait) wait = (uint32_t)left * 1000 + 1000; }
-    const Btn b = hal::waitButton(wait);
+    Btn b = hal::waitButton(wait);
+    if (b == Btn::BackHold && ST.hold == 2) b = Btn::Back;  // "no long press": Support is in the Menu
+    b = settingsMap(ST, b);                                  // the button remap (Power and the holds are never remapped)
     if (S.scr == Scr::Focus && focusTick()) { render(false); if (b == Btn::None) continue; }
     if (b == Btn::None) {
       if (S.scr == Scr::Sync) { static uint32_t last = 0; hal::wifiLoop(); if (hal::millis() - last > 20000) { last = hal::millis(); render(true); } continue; }
@@ -890,8 +1245,12 @@ void appMain() {
     switch (S.scr) {
       case Scr::Today:
         if (b == Btn::Confirm) { if (clockOk()) go(Scr::Checkin); else openClock(); }
-        else if (b == Btn::Left || b == Btn::Right) { S.dayOffset += (b == Btn::Right) ? 1 : -1; render(true); }
-        else if (b == Btn::Back) { if (S.dayOffset) { S.dayOffset = 0; render(true); } else go(Scr::Menu); }
+        else if (b == Btn::Left || b == Btn::Right) { S.dayOffset += (b == Btn::Right) ? 1 : -1; S.page = 0; render(true); }
+        else if (b == Btn::Back) { if (S.dayOffset) { S.dayOffset = 0; S.page = 0; render(true); } else go(Scr::Menu); }
+        else if ((b == Btn::Up || b == Btn::Down) && LG() && todayPages > 1) {  // large text: more of the day on the next page
+          const int np = S.page + (b == Btn::Down ? 1 : -1);
+          if (np >= 0 && np < todayPages) { S.page = np; render(true); }
+        }
         else if (b == Btn::Up || b == Btn::Down) go(Scr::Menu);
         break;
       case Scr::Checkin:
@@ -925,6 +1284,10 @@ void appMain() {
         break;
       case Scr::Month:
         if (b == Btn::Back) go(Scr::Menu);
+        else if (LG() && (b == Btn::Up || b == Btn::Down)) {  // large text: Up/Down turn pages, Left/Right change month
+          const int np = S.page + (b == Btn::Down ? 1 : -1);
+          if (np >= 0 && np < monthPages) { S.page = np; render(true); }
+        }
         else if (b == Btn::Left || b == Btn::Up) { S.monthOffset--; render(true); }
         else if (b == Btn::Right || b == Btn::Down) { if (S.monthOffset < 0) S.monthOffset++; render(true); }
         break;
@@ -962,6 +1325,24 @@ void appMain() {
           FRUN = FocusRun(); focusSave(FP, FRUN); S.scr = Scr::Menu; S.sel = menuIndex(Scr::Focus); render(false);
         } else if (b == Btn::Confirm && FRUN.phase == FPhase::Work) {
           FRUN.interruptions++; focusLogInterruption(hal::now()); focusSave(FP, FRUN); render(true);
+        }
+        break;
+      case Scr::Settings:
+        if (b == Btn::Back) { S.scr = Scr::Menu; S.sel = menuIndex(Scr::Settings); render(false); }
+        else if (b == Btn::Up) { S.sel = (S.sel + SET_N - 1) % SET_N; render(true); }
+        else if (b == Btn::Down) { S.sel = (S.sel + 1) % SET_N; render(true); }
+        else {  // Left = previous value, Right / Confirm = next
+          const int d = b == Btn::Left ? -1 : 1;
+          switch (S.sel) {
+            case 0: ST.large = !ST.large; break;
+            case 1: ST.bold = !ST.bold; break;
+            case 2: ST.buttons = (ST.buttons + 4 + d) % 4; break;
+            case 3: ST.sleep = (ST.sleep + 3 + d) % 3; break;
+            case 4: ST.clean = (ST.clean + 3 + d) % 3; break;
+            default: ST.hold = (ST.hold + 3 + d) % 3; break;
+          }
+          settingsSave(ST); applyStyle(); hal::setBackHold(settingsHoldMs(ST));
+          render(S.sel >= 2);  // text size and contrast redraw everything: a half refresh, not a partial one
         }
         break;
       case Scr::Clock:
