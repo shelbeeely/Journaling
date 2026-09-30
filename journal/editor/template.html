@@ -294,6 +294,8 @@ html[data-view="day"] main, html[data-view="page"] #pageview { animation: kw-in 
 [hidden] { display: none !important; }
 .panels { display: contents; }
 html:not([data-mode="edit"]) .editonly { display: none !important; }
+html:not([data-mode="edit"]) .skip-day, html:not([data-view="day"]) .skip-view, html[data-mode="edit"] .skip-view { display: none; } /* the blocks list exists only while editing; while viewing the skip link goes to the page */
+#paper:focus { outline: none; }
 .editing { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; border-radius: 999px; border: 1.5px solid var(--accent); color: var(--accent); font-size: 13px; font-weight: 600; }
 .editing svg { width: 16px; height: 16px; }
 .bar .btn { min-height: 44px; }
@@ -306,16 +308,19 @@ html[data-mode="view"] .paper { margin: 0 auto; }
 html[data-mode="view"] #pv [data-b] { cursor: default; outline: none; }
 html[data-mode="view"] #pv [data-b]:hover { outline: none; }
 #viewnote { max-width: 46ch; margin: 10px auto 0; }
-.tabs .sheet-t { display: none; }
+.sheet-head { display: contents; }
+.sheet-t { display: none; }
 /* Editing on a phone or narrow window: the page stays in view; Blocks and + Add are a bottom sheet that can be folded away */
 @media (max-width: 960px) {
-  html[data-mode="edit"] { --sh: 46vh; --sh: 46dvh; }
+  html[data-mode="edit"] { --sh: 42vh; --sh: 42dvh; }
+  .prev .paper { margin: 0 auto; }
   html[data-mode="edit"][data-sheet="min"] { --sh: 68px; }
   html[data-mode="edit"] main { padding-bottom: calc(var(--sh) + 16px); }
   .panels:not([hidden]) { display: flex; flex-direction: column; position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; height: var(--sh); background: var(--panel); border-top: 1px solid var(--line); border-radius: 16px 16px 0 0; box-shadow: 0 -6px 24px rgba(0,0,0,.18); }
-  .panels .tabs { display: flex; flex: none; max-width: none; width: 100%; margin: 0; padding: 8px 12px; }
-  .panels .tabs .sheet-t { display: inline-flex; flex: none; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; border: 1px solid var(--line); background: var(--bg); border-radius: 10px; cursor: pointer; }
-  .panels .tabs .sheet-t svg { width: 20px; height: 20px; transition: transform .2s; }
+  .panels .sheet-head { display: flex; flex: none; gap: 6px; padding: 8px 12px; }
+  .panels .tabs { display: flex; flex: 1; max-width: none; margin: 0; padding: 0; }
+  .panels .sheet-t { display: inline-flex; flex: none; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; border: 1px solid var(--line); background: var(--bg); border-radius: 10px; cursor: pointer; }
+  .panels .sheet-t svg { width: 20px; height: 20px; transition: transform .2s; }
   html[data-sheet="min"] .panels .sheet-t svg { transform: rotate(180deg); }
   .panels > .edit, .panels > .pal { flex: 1 1 auto; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 4px 16px 20px; max-height: none; position: static; }
   html[data-sheet="min"] .panels > .edit, html[data-sheet="min"] .panels > .pal { display: none; }
@@ -379,7 +384,7 @@ input[type=text], input[type=password], input[type=url], input:not([type]), sele
 </style>
 
 <header class="top">
-  <a class="skip skip-day" href="#list" data-skip="list">Skip to the blocks on the page</a><a class="skip skip-book" href="#bk-view" data-skip="bk-view">Skip to the book canvas</a>
+  <a class="skip skip-day" href="#list" data-skip="list">Skip to the blocks on the page</a><a class="skip skip-book" href="#bk-view" data-skip="bk-view">Skip to the book canvas</a><a class="skip skip-view" href="#paper" data-skip="paper">Skip to the page</a>
   <div class="demo" id="demo" hidden><span>Demo · sample data only. Nothing is saved to any server; your changes stay on this page.</span><a href="../">Back to Journalwright Studio</a></div>
   <div class="bar">
     <h1 id="ttl">Book editor<small>Keeping Watch · every monthly book</small></h1>
@@ -417,10 +422,12 @@ input[type=text], input[type=password], input[type=url], input:not([type]), sele
 <main id="main" data-tab="edit">
   <!-- EDIT PANELS (E1): drawn and shown only while editing. On a phone they are a bottom sheet under the page. -->
   <div class="panels" id="panels" hidden>
+  <div class="sheet-head">
   <div class="tabs" role="tablist" aria-label="Editing panels">
     <button role="tab" aria-selected="true" data-tab="edit">Blocks</button>
     <button role="tab" aria-selected="false" data-tab="add">+ Add</button>
-    <button class="sheet-t" id="sheet-t" type="button" aria-expanded="true" aria-controls="panels" aria-label="Collapse the panel"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button>
+  </div>
+  <button class="sheet-t" id="sheet-t" type="button" aria-expanded="true" aria-controls="list pal" aria-label="Collapse the panel"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button>
   </div>
   <aside class="pal" aria-label="Add blocks">
     <h2 class="sec">Add blocks</h2>
@@ -439,7 +446,7 @@ input[type=text], input[type=password], input[type=url], input:not([type]), sele
   <section class="prev" aria-label="Page preview">
     <p class="meter" id="meter"></p>
     <ul class="probs" id="problems" aria-live="polite" hidden></ul>
-    <div class="paper" id="paper"><div id="pv"></div><div id="ov" hidden></div></div>
+    <div class="paper" id="paper" tabindex="-1"><div id="pv"></div><div id="ov" hidden></div></div>
     <p class="gtools" id="gtools" hidden><button class="btn" id="actual" aria-pressed="false">Actual size</button><span id="gnote"></span></p>
     <p class="dragtip" id="viewnote">Viewing. Every day page uses this one layout; this is a busy sample day. Press Edit (or E) to change it.</p>
     <p class="dragtip" id="dragtip" hidden>A busy sample day. Tap a block to find it; hold and drag to move it.</p>
@@ -911,7 +918,7 @@ document.addEventListener('keydown', (e) => { if (editing() && (e.ctrlKey || e.m
 function tab(t) { if (t === 'preview') t = 'edit'; $('#main').dataset.tab = t; document.querySelectorAll('.tabs button').forEach((b) => b.setAttribute('aria-selected', b.dataset.tab === t)); fit(); drawOverlay(); }
 document.querySelectorAll('.tabs button').forEach((b) => (b.onclick = () => tab(b.dataset.tab)));
 const menu = $('#menu');
-const menuItems = () => [...menu.querySelectorAll('[role=menuitem]')].filter((x) => !x.hidden);
+const menuItems = () => [...menu.querySelectorAll('[role=menuitem]')].filter((x) => !x.hidden && getComputedStyle(x).display !== 'none'); // (edit-only items are not shown while viewing)
 $('#menubtn').onclick = (e) => { e.stopPropagation(); menu.classList.toggle('open'); $('#menubtn').setAttribute('aria-expanded', menu.classList.contains('open')); if (menu.classList.contains('open') && e.detail === 0) menuItems()[0]?.focus(); }; // opened from the keyboard: land on the first item
 menu.addEventListener('keydown', (e) => { // Escape closes and returns to the button; Up/Down/Home/End move between items
   if (e.key === 'Escape' && menu.classList.contains('open')) { e.preventDefault(); menu.classList.remove('open'); $('#menubtn').setAttribute('aria-expanded', 'false'); $('#menubtn').focus(); return; }
