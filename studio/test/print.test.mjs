@@ -37,7 +37,7 @@ const layoutOf = (outDir) => { const L = JSON.parse(fs.readFileSync(path.join(ou
 
 test('import reads only the book, the day layout and the publishable profile fields; export writes only content/book.json and content/daypage.json', () => {
   const dir = journalCopy();
-  const before = ['content/profile.json', 'content/support.json', 'content/clinic.json', 'content/trans.json'].map((f) => [f, sha(path.join(dir, f))]);
+  const before = ['content/profile.json', 'packs/spokane-wa/pack.json', 'packs/spokane-wa/support.json', 'packs/spokane-wa/clinic.json', 'packs/spokane-wa/trans.json'].map((f) => [f, sha(path.join(dir, f))]);
   const j = readJournal(dir);
   assert.deepEqual(j.book, DEFAULT_BOOK);
   assert.equal(j.day, null); // no daypage.json: the default layout
@@ -48,7 +48,7 @@ test('import reads only the book, the day layout and the publishable profile fie
   // the support / trans / clinic packs: none of their text is in a snapshot (the book lists the pages by type only)
   const strings = (v) => (typeof v === 'string' ? [v] : v && typeof v === 'object' ? Object.values(v).flatMap(strings) : []);
   for (const pack of ['support', 'trans', 'clinic']) {
-    const f = path.join(dir, 'content', `${pack}.json`);
+    const f = path.join(dir, 'packs/spokane-wa', `${pack}.json`);
     if (!fs.existsSync(f)) continue;
     const leaked = strings(JSON.parse(fs.readFileSync(f, 'utf8'))).filter((x) => x.length > 8 && text.includes(JSON.stringify(x).slice(1, -1)));
     assert.deepEqual(leaked, [], `${pack} pack text leaked into the snapshot`);
