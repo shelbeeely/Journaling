@@ -1,3 +1,14 @@
+---
+title: Emergent Task Planner
+slug: emergent-task-planner
+category: planner
+evidenceLevel: anecdotal
+lastReviewed: 2026-09-30
+status: reviewed
+contributors:
+  - Journalwright Studio contributors
+---
+
 # Emergent Task Planner (ETP)
 
 David Seah's one-page daily planning sheet: a time column, three important tasks with 15-minute bubbles, and a notes area for whatever the day throws at you.
@@ -122,7 +133,7 @@ How people use them (Seah's page plus user write-ups):
 3. **Compare.** At the end of the day you see at a glance whether the filled bubbles stop before, at, or past your line.
 4. **Learn.** Over a week, patterns show up: "email always takes double," "writing tasks run 1.5× my guess."
 
-A half-filled bubble can mean "about 7 minutes." Some people slash a bubble to show split attention, a trick from the Emergent Task Timer. Some users skip bubbles entirely; one coach wrote that she never used them because she isn't detail-oriented, and still found the sheet helpful.
+A half-filled bubble can mean "about 7 minutes." Some people slash a bubble to show split attention, a trick from the Emergent Task Timer. Some users skip bubbles entirely; one coach wrote that they never used them because they aren't detail-oriented, and still found the sheet helpful.
 
 ### 5.4 Notes and interruptions
 
@@ -138,7 +149,7 @@ Step 5 of Seah's instructions: review what happened, then prioritize the remaini
 
 1. Download the free PDF (Letter or A4, B&W saves ink) or buy the Mini ETP if you want half-letter.
 2. Print a week's worth (5–7 sheets). Use a laser printer if you can; Seah notes built-in PDF viewers in some browsers may drop the dotted lines, so print from a full PDF reader.
-3. Decide where the sheet lives: clipboard, folder, desk mat. It has to stay in sight. One reviewer quit partly because she left the sheet on another floor.
+3. Decide where the sheet lives: clipboard, folder, desk mat. It has to stay in sight. One reviewer quit partly because they left the sheet on another floor.
 4. Decide your hour range. Write it once on a sticky note so you don't think about it each morning.
 5. Get a timer (phone, kitchen timer). Optional but it makes the bubbles honest.
 
@@ -336,7 +347,7 @@ Note: Thursdays are always low. Plan 1 important task on Thu.
 
 - **What people actually do:** most users treat it as a Big Three sheet with a timeline. The bubbles are the most loved and the most skipped feature. Bloggers describe planning the night before, keeping the sheet on the desk, and carrying tasks forward.
 - **Common customisations:** hand-drawing it in a dot-grid notebook; using only the tasks and notes; using the grid as a time log (what happened) rather than a plan; colouring bubbles by type (deep work versus admin); adding a "tomorrow" line at the bottom; stapling a week together.
-- **Why some quit:** one 2013 reviewer found that committing to tasks in writing made her rebel against them, and that the listed order felt restrictive when she worked in a different order. She moved to an app (Skedpal) that schedules for her.
+- **Why some quit:** one 2013 reviewer found that committing to tasks in writing made them rebel against the tasks, and that the listed order felt restrictive when they worked in a different order. They moved to an app (Skedpal) that schedules for her.
 - **Aesthetic versus minimalist:** the ETP sits firmly in the minimalist, functional camp. People who decorate usually do so with a colour for each task number. Printable-planner communities share restyled versions.
 - **Digital crossover:** people use the form as a template in note apps, PDFs on tablets, or a timer app for the bubbles.
 
@@ -525,42 +536,44 @@ Sibling docs are written in parallel; if a file name differs when they land, fix
 9. **How is it different from a time-block planner?** The ETP plans a few tasks and tracks time; a time-block planner assigns every work minute a job and re-plans when it breaks.
 10. **Should I keep old sheets?** Keep a weekly tally line; the sheets themselves can go.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Built? |
 |---|---|---|---|---|
-| 15-minute bubbles after each Top priorities line, with a printed tick for "estimate" | Day block (Top priorities) | High | Hollow circles at 0.5pt, 7pt apart; no fill in print. Stays inside the priorities zone. | Being added now |
-| Day grid with blank hour labels (write your own), task numbers in circles | Day block (Time blocks) | High | Existing Time blocks block; add a "blank hours" option for shift days | Partly (Time blocks exists with fixed hours) |
+| 15-minute bubbles after each Top priorities line, with a printed tick for "estimate" | Day block (Top priorities) | High | Hollow circles at 0.5pt, 7pt apart; no fill in print. Stays inside the priorities zone. | **Built** (Top priorities has time circles, each = 15 min, and optional "Guess / took" columns; a separate printed estimate tick is planned) |
+| Day grid with blank hour labels (write your own), task numbers in circles | Day block (Time blocks) | High | Existing Time blocks block; add a "blank hours" option for shift days | Partly (Time blocks has a from/to hour range, a 1 or 2 hour step, an optional Actual column and re-plan columns; blank hour labels are planned) |
 | "What else came up" notes area in 3–4 bands | Day block (Lined notes with a title) | High | Plain rules; title as icon + short word | Can be done with Lined notes today |
-| Chore block (3 small tasks with ticks) | Day block (Checkboxes with editable labels) | Med | Checkboxes block with title "Small jobs" | Yes (Checkboxes) |
-| Estimate vs actual weekly tally row | Week spread / weekly review | Med | 7 small cells: est / act; numbers only | No |
-| "My estimate multipliers" collection | Back matter or month page | Low | A short table | No |
-| Compact year strip (weeks without gaps) | Front matter or Keeper | Low | Dense; may be too busy at 5.5×8.5. Keeper is fine (no scan codes). | No |
-| Carry to tomorrow line | Day block (Went well / Was hard / Tomorrow) | High | Already in the existing block | Yes |
+| Chore block (3 small tasks with ticks) | Day block (Checkboxes with editable labels) | Med | Checkboxes block with title "Small jobs" | **Built** (Checkboxes) |
+| Estimate vs actual weekly tally row | Week spread / weekly review | Med | 7 small cells: est / act; numbers only | Planned |
+| "My estimate multipliers" collection | Back matter or month page | Low | A short table | Planned |
+| Compact year strip (weeks without gaps) | Front matter or Keeper | Low | Dense; may be too busy at 5.5×8.5. The Keeper is fine (no scan codes). | Planned |
+| Carry to tomorrow line | Day block (Went well / Was hard / Tomorrow) | High | Already in the existing block; Top priorities also has an optional "Carried" tick column | **Built** |
 
-### b. X4
+### b. E-ink companion (X4)
 
 | Idea | Where | Fit | RAM, scope and calm notes |
 |---|---|---|---|
-| "Top task done" toggle | Check-in item (toggle) | High | 1 slot; comes from a Checkboxes block via the bridge |
-| "15-min blocks on my main thing" count | Check-in item (count, 0..16) | Med | 1 slot via a Fill-in blanks field; no timer, no alerts |
-| Month stat: days with top task done | Month stats for the Keeper handoff | Med | Derived from the toggle; a number, not a streak badge |
-| On-device 15-min timer with buzz | A screen | Don't | A timer that beeps is a notification; out of scope |
+| "Top task done" toggle | Check-in item (toggle) | High | 1 slot; comes from a Checkboxes block in the layout (built) |
+| "15-min blocks on my main thing" count | Check-in item (count, 0..16) | Med | 1 slot via a Fill-in blanks field (built); no timer, no alerts |
+| Month stat: days with top task done | Month stats | Med | Planned. Derived from the toggle; a number, not a streak badge |
+| On-device 15-min timer with buzz | A screen | Don't | A timer that beeps is a notification; out of scope. (The companion's focus rounds are silent: a screen at each change, no sound or countdown.) |
 | Show today's top 3 on the sleep screen | Sleep screen | Low | Would need the text synced from the book; risk of pressure; keep optional and off by default if ever built |
 
 ### c. Proposed editor blocks
 
+The option names below are the original proposal; the real option names are noted in the last column where they differ.
+
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `priorities` (existing) + option | Top priorities with bubbles | `count` (1–6), `bubbles` (0, 4, 8), `estimateTick` (bool), `chore` (0–3 extra lines) | `priorities` | none (writing block) |
-| `timeblocks` (existing) + option | Day grid | `start`, `end`, `blankHours` (bool, write your own), `step` (15/30/60) | `timeblocks` | none |
-| `notes` (existing Lined notes) preset | What else came up | `title`, `lines`, `bands` (1–4) | `notes` | none |
-| `checks` (existing) preset | ETP check | labels: "Planned today", "Top task done", "Reviewed tonight" | `checks` | `toggle` ×3 |
-| `fields` (existing) preset | Bubbles done | labels: "15-min blocks on top task" | `fields` | `count` 0..99 |
+| `top` (existing) + options | Top priorities with bubbles | Built: `n` (1–6), `bubbles` (0–8 time circles), `est` (guess / took columns), `carried`. Planned: `chore` (0–3 extra lines) | `top` | none (writing block) |
+| `timeline` (existing) + option | Day grid | Built: `from`, `to`, `every` (1 or 2 hours), `actual`, `replan`. Planned: `blankHours` (bool, write your own), 15/30 minute steps | `timeline` | none |
+| `lines` (existing Lined notes) preset | What else came up | `title`, `lines`, `bands` (1–4); a preset is planned, the block exists | `lines` | none |
+| `checks` (existing) preset | ETP check | labels: "Planned today", "Top task done", "Reviewed tonight" (preset planned) | `checks` | `toggle` ×3 |
+| `fields` (existing) preset | Bubbles done | labels: "15-min blocks on top task" (preset planned) | `fields` | `count` 0..99 |
 
-### d. Proposed method layout: "Emergent Task Planner"
+### d. Proposed method layout: "Emergent Task Planner" (planned)
 
 1. Moon/sun/season (existing; small)
 2. Events (existing, from your day)
@@ -575,9 +588,9 @@ Sibling docs are written in parallel; if a file name differs when they land, fix
 
 - **Seah's forms verbatim.** They are his design and trademark ("Printable CEO," "Emergent Task Planner"). Borrow the idea (bubbles, grid, notes), not the artwork or names.
 - **Colour-coded versions.** Books are black and white.
-- **An on-device timer that beeps.** Notifications are out of scope for the X4.
+- **An on-device timer that beeps.** Notifications are out of scope for the e-ink companion.
 - **E–A task sizes.** Seah dropped them himself; they add thinking.
-- **Point scores (Concrete Goals Tracker).** Points and totals drift toward gamification and badges, which Keeping Watch avoids.
+- **Point scores (Concrete Goals Tracker).** Points and totals drift toward gamification and badges, which Journalwright Studio avoids.
 
 ## 26. Open questions
 

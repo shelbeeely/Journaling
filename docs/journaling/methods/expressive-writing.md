@@ -1,6 +1,17 @@
+---
+title: Expressive writing (the Pennebaker paradigm)
+slug: expressive-writing
+category: reflective-writing
+evidenceLevel: some
+lastReviewed: 2026-09-30
+status: reviewed
+contributors:
+  - Journalwright Studio contributors
+---
+
 # Expressive writing (the Pennebaker paradigm)
 
-Research doc for Keeping Watch. Sources checked 2026-09-28. Anything marked **[uncertain]** came from memory or a source I could not open; verify before relying on it.
+Research doc for Journalwright Studio. Sources checked 2026-09-28. Anything marked **[uncertain]** came from memory or a source I could not open; verify before relying on it.
 
 **Health note.** This doc describes a research procedure and what studies found. It is not treatment. If you are in crisis, use your safety plan ([safety-planning.md](safety-planning.md)) or call or text 988 (US).
 
@@ -28,7 +39,7 @@ Research doc for Keeping Watch. Sources checked 2026-09-28. Anything marked **[u
 
 ## 2. Summary
 
-Expressive writing is a short experiment that turned into a method. You write, continuously and privately, about your deepest thoughts and feelings on one difficult experience, for 15-20 minutes on each of about four days. You do not share it and nobody grades it. Pennebaker and Beall (1986) found that students who did this went to the health centre less in the following months. Since then researchers have run hundreds of trials. The honest summary is: on average the effect is real but small (Frattaroli 2006: r = .075, roughly d = .15), it is bigger in some conditions and for some outcomes, it feels worse for an hour before it might help, and it does not reliably reduce depression or anxiety in meta-analyses of healthy people (Reinhold 2018; the NIHR review of long-term conditions, Nyssen 2016). A structured form of it, Written Exposure Therapy, does work as a clinician-led treatment for PTSD. For a journal like Keeping Watch it fits best as an occasional, opt-in, four-day "write it out" spread, never as a daily default, and always with a stop rule and an aftercare step.
+Expressive writing is a short experiment that turned into a method. You write, continuously and privately, about your deepest thoughts and feelings on one difficult experience, for 15-20 minutes on each of about four days. You do not share it and nobody grades it. Pennebaker and Beall (1986) found that students who did this went to the health centre less in the following months. Since then researchers have run hundreds of trials. The honest summary is: on average the effect is real but small (Frattaroli 2006: r = .075, roughly d = .15), it is bigger in some conditions and for some outcomes, it feels worse for an hour before it might help, and it does not reliably reduce depression or anxiety in meta-analyses of healthy people (Reinhold 2018; the NIHR review of long-term conditions, Nyssen 2016). A structured form of it, Written Exposure Therapy, does work as a clinician-led treatment for PTSD. For a journal like Journalwright Studio it fits best as an occasional, opt-in, four-day "write it out" spread, never as a daily default, and always with a stop rule and an aftercare step.
 
 ---
 
@@ -119,7 +130,7 @@ Baikie and Wilhelm suggest 30 minutes in total: 20 to write, 10 to compose yours
 ## 6. Setting it up
 
 **First setup (10 minutes, once):**
-1. Choose a notebook you will keep private, or a page in a book that stays home. In Keeping Watch that means the Keeper, not the scannable day pages (see section 25).
+1. Choose a notebook you will keep private, or a page in a book that stays home. In Journalwright Studio that means the Keeper (the yearly book that stays home), not the scannable day pages (see section 25).
 2. Pick a private place where you will not be interrupted. Privacy is one of the moderators.
 3. Pick four days in a row when the next day is not high-stakes. Not before a hard shift or a court date.
 4. Pick a timer (15-20 min). Choose 15 if you have low spoons.
@@ -166,7 +177,7 @@ This day-by-day arc is a common adaptation and is not the standard protocol **[u
 - **Weekly:** in the week of writing, one look-back page on day 5.
 - **Monthly:** decide whether another four-day block is warranted. There is no proven repeat schedule. A booster session in Gortner et al. (2006) did not add benefit.
 - **Quarterly:** at most one block per quarter for most people **[uncertain: my suggestion, not evidence-based]**.
-- **Yearly:** the Keeping Watch "Looking back" pages are a natural place to note "I wrote about X in March, and here is how it looks now."
+- **Yearly:** the "Looking back" pages are a natural place to note "I wrote about X in March, and here is how it looks now."
 - **Delayed effect.** Benefits, when they appear, often show at follow-up and not right away. Guo (2023) says the effect emerged after a delay. Lumley et al. (2012) note improvements often show a month or more later. So check in at 4-6 weeks, not at 4 days.
 
 ---
@@ -242,7 +253,7 @@ Before: 5    Sleep ok. Ate lunch. No shift tomorrow.
 Timer: 15 minutes.
 
 [writing, excerpt] "I keep saying it was fine, but it was not fine.
-The thing with my old manager, the way she made me redo the
+The thing with my old manager, the way they made me redo the
 schedule in front of everyone. I think what I felt was shame, and
 under that, anger. I realise I never told anyone because I thought
 I should have handled it. Because I froze, I have been afraid to
@@ -330,7 +341,7 @@ Not applicable as a product. There is no official planner or edition. Pennebaker
 
 - **Apps and templates.** Any text editor works. Studies have used email and web forms. Frattaroli found no significant difference by mode (handwriting, typing or talking).
 - **E-ink (reMarkable, Kindle Scribe, Boox).** Handwriting on e-ink gives paper-like feel with easy deletion. The deletion option may help people who fear being read.
-- **Scanning.** Do not scan these pages into anything cloud-synced. In Keeping Watch's system, scan zones and SEND TO strips are for pages that are meant to be sent. These pages are not.
+- **Scanning.** Do not scan these pages into anything cloud-synced. In Journalwright Studio, scan zones and SEND TO strips are for pages that are meant to be sent. These pages are not.
 - **Gained by digital:** privacy via lock, no need to store a physical record of hard content, word count.
 - **Lost:** the physical release of closing the book; the option to burn it. Also the temptation to reread and edit on screen.
 - **Speaking.** Talking into a recorder was used in some studies, for example Lyubomirsky et al. (2006): worst experiences were helped by both writing and talking relative to just thinking.
@@ -603,34 +614,34 @@ No. The difference is the topic (emotional, personal), the framing (thoughts and
 
 ---
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
 ### a. Printed book
 
 | Idea | Where it goes | Fit | B&W and scan-zone notes | Already built? |
 |---|---|---|---|---|
-| Four-day "Write it out" spread (start card + four dotted writing pages) | Back matter, or its own insert | Med | **Privacy first.** These pages must not carry scan codes or SEND TO. Only the Keeper is scan-free, so put it in the Keeper (see below), not in the monthly book | No |
-| Distress before/after strip (0-10) | Day block (Scale) | High | Existing Scale block works | Yes (Scale block) |
-| Aftercare checklist | Day block (Checkboxes) | High | Existing Checkboxes block | Yes |
-| Writing space (dots) | Day block | High | Existing Writing space block | Yes |
-| Look-back page 4-6 weeks later | Back matter (Looking back) | High | Fits existing back matter | Partly (Looking back exists) |
-| Stop rule and grounding card | Back matter next to Safety plan | High | One line of text and icons | Partly (Safety plan exists) |
-| BPS page ("Everything went as well as it could") | Week spread or month page | Med | Calm, optional | No |
-| Blank "for me only" pages | Keeper | Med | Keeper has no scan codes | No |
+| Four-day "Write it out" spread (start card + four dotted writing pages) | Back matter, or its own insert | Med | **Privacy first.** These pages must not carry scan codes or SEND TO. Only the Keeper (the yearly book that stays home) is scan-free, so put it in the Keeper (see below), not in a scannable monthly book | Planned |
+| Distress before/after strip (0-10) | Day block (Scale) | High | Existing Scale block works | **Built** (Scale block) |
+| Aftercare checklist | Day block (Checkboxes) | High | Existing Checkboxes block | **Built** |
+| Writing space (dots) | Day block | High | Existing Writing space block | **Built** |
+| Look-back page 4-6 weeks later | Back matter (Looking back) | High | Fits existing back matter | Partly (the Looking back page and block exist) |
+| Stop rule and grounding card | Back matter next to Safety plan | High | One line of text and icons | Partly (a Safety plan page exists) |
+| BPS page ("Everything went as well as it could") | Week spread or month page | Med | Calm, optional | Planned |
+| Blank "for me only" pages | Keeper | Med | The Keeper has no scan codes | Planned |
 
-**Design constraint from CLAUDE.md:** the Keeper "holds password hints and recovery codes, so it never gets scan codes." A private writing page has the same need for no scan and no upload, so a **Keeper "private pages" insert** is the right home. Personal book builds leave CI only in the password 7z, and KDP proofs stay private. Do not put example writing text anywhere in the public editor sample data.
+**Design constraint in Journalwright Studio:** the Keeper holds password hints and where recovery codes are kept (never the codes themselves), so it never gets scan codes. A private writing page has the same need for no scan and no upload, so a **Keeper "private pages" insert** is the right home. Journals that contain personal writing should stay private, never a public listing. Do not put example writing text anywhere in the public editor sample data.
 
-### b. X4
+### b. E-ink companion (X4)
 
 | Idea | Where it goes | Fit | RAM, scope and calm notes |
 |---|---|---|---|
-| "Wrote today" toggle | Check-in item kind `toggle` | Med | Toggle only. No text stored. Scope-safe |
-| Distress before/after 1-5 | Check-in `scale` | Med | 2 slots. Keep out of notifications. Optional |
-| Four-day progress dots | Check-in `dots` | Low | One item. Not a streak |
+| "Wrote today" toggle | Check-in item kind `toggle` | Med | Toggle only. No text stored. Scope-safe. A Checkboxes block exports as toggles today |
+| Distress before/after 1-5 | Check-in `scale` | Med | 2 slots. Keep out of notifications. Optional. A Scale block exports today |
+| Four-day progress dots | Check-in `dots` | Low | One item. Not a streak. A Habit dots block exports today |
 | Aftercare reminder text | Wi-Fi page? no | Low | Would imply prompts. Skip |
 | Sleep screen line "Write it out: day 2 of 4" | Sleep screen | Low | It is today-only info, but reveals private activity on a lock-like screen. Skip |
-| Stop card | Hold Back for Support | High | Already exists as Support. Add a line about grounding there **[uncertain: depends on current Support page content]** |
-| Writing on device | none | Do not build | No text entry on the X4. It has 7 buttons and nothing should leave except over its hotspot |
+| Stop card | Hold Back for Support | High | Support already exists (hold Back). Add a line about grounding there (planned) **[uncertain: depends on current Support page content]** |
+| Writing on device | none | Do not build | No text entry on the X4. It has 7 buttons and nothing should leave except over its own hotspot or an explicit sync the user starts |
 
 Custom items are capped at 16 (the firmware's MAX_CUSTOM); the built-ins take 15.
 
@@ -638,14 +649,14 @@ Custom items are capped at 16 (the firmware's MAX_CUSTOM); the built-ins take 15
 
 | Type | Name | Options | data-zone | X4 export kind |
 |---|---|---|---|---|
-| `expwrite` | Write it out | `day` (choice 1-4), `minutes` (num 10-20, drawn as time circles of 5), `rate` (bool: before/after strip), `aftercare` (list: water, move, outside, text someone), `paper` (dots/lines/grid/blank) | `expwrite` | none for text; the strip maps to `scale`, aftercare maps to `checks` |
+| `expwrite` (planned) | Write it out | `day` (choice 1-4), `minutes` (num 10-20, drawn as time circles of 5), `rate` (bool: before/after strip), `aftercare` (list: water, move, outside, text someone), `paper` (dots/lines/grid/blank) | `expwrite` | none for text; the strip maps to `scale`, aftercare maps to `checks` |
 | (reuse) | Scale | label "Distress", steps 10, lo "calm", hi "high" | existing `scale` | `scale` 1..steps |
 | (reuse) | Checkboxes | label "After", boxes as above | existing `checks` | `toggle` per label |
 | (reuse) | Habit dots | label "Write it out", labels Day 1-4 | existing `habits` | `dots` |
 
-Note the strings would be generated by the block; a `writing` block that stores nothing on the X4 keeps scope clean. I would build only the reuse combination first (no new type), then add `expwrite` if it feels clunky. Ask Shelbee before adding.
+Note the strings would be generated by the block; a `writing` block that stores nothing on the X4 keeps scope clean. Build only the reuse combination first (no new type), then add `expwrite` if it feels clunky. As with any new block, it needs a decision before it is added.
 
-### d. Proposed method layout
+### d. Proposed method layout (planned)
 For a one-click "Write it out" day (private version, Keeper only):
 1. `scale` (Distress before)
 2. `body` (Writing space, dots) locked
