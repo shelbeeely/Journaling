@@ -33,7 +33,7 @@ const SERIES_PLAN_KEYS = ['scope', 'keeper', 'closing', 'undated', 'edition'];
 
 const isObj = (x) => x && typeof x === 'object' && !Array.isArray(x);
 const str = (v, max = 1000) => typeof v === 'string' && v.trim() !== '' && v.length <= max;
-export const slugify = (s) => String(s).toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+export const slugify = (s) => String(s).toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
 const clone = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
 
 // ---------- validation ----------
@@ -316,6 +316,21 @@ export function duplicateBook(lib, id) {
   if (b.plan && b.plan.scope && b.plan.scope !== 'month') { /* a new book id is made at the first build */ } else if (copy.start && (b.edition ?? 1) < 9) copy.edition = (b.edition ?? 1) + 1; // monthly codes hold the edition: a copy takes the next one
   l.books.splice(l.books.findIndex((x) => x.id === id) + 1, 0, copy);
   if (b.seriesId) { const s = seriesOf(l, b.seriesId); s.order.splice(s.order.indexOf(id) + 1, 0, copy.id); }
+  return { library: l, id: copy.id };
+}
+
+// A series copied with a copy of each of its books (new ids, no scan-code id of their own yet, monthly books take the next edition).
+export function duplicateSeries(lib, id) {
+  let l = clone(lib);
+  const s = seriesOf(l, id);
+  const taken = [...l.books.map((x) => x.id), ...(l.series || []).map((x) => x.id)];
+  const copy = { ...clone(s), id: uniqueId(taken, `${s.id}-copy`), title: `${s.title} (copy)`, order: [] };
+  l.series.splice(l.series.findIndex((x) => x.id === id) + 1, 0, copy);
+  for (const bid of s.order) {
+    const r = duplicateBook(l, bid);
+    l = moveBookToSeries(r.library, r.id, copy.id);
+    bookOf(l, r.id).title = bookOf(l, bid).title; // the copies keep their titles: the copied series is the one that says "(copy)"
+  }
   return { library: l, id: copy.id };
 }
 

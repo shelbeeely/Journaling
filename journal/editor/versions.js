@@ -96,7 +96,7 @@ function stDrawCtx() {
 function stQueueDraft() {
   if (!ST.pid && !ST.loading) { stChip(); stDrawLog(); return; } // this browser: no draft to send, just keep the state line and the list honest
   if (!stWrites() || ST.loading) return;
-  if (ST.rev === 0 && !stDirty()) { stChip(); return; }
+  if (ST.rev === 0 && !stDirty() && !KWLIB.touched) { stChip(); return; } // KWLIB: the library (L1b) rides in the same draft
   ST.pending = true; stChip(); clearTimeout(ST.timer); ST.timer = setTimeout(stSaveDraft, 900);
 }
 async function stSaveDraft() {
@@ -105,7 +105,7 @@ async function stSaveDraft() {
   clearTimeout(ST.timer); ST.saving = true; ST.pending = false; stChip();
   let ok = false;
   try {
-    const r = await stApi('PUT', P(`/drafts/${enc(ST.branch)}`), { base: ST.base || undefined, rev: ST.rev, snapshot: { day: layout } });
+    const r = await stApi('PUT', P(`/drafts/${enc(ST.branch)}`), { base: ST.base || undefined, rev: ST.rev, snapshot: { day: layout, ...KWLIB.part() } });
     ST.rev = r.rev; ST.base = r.base; ST.draftAt = r.updatedAt; ok = true;
     if (r.head !== ST.head.id) { ST.behind = true; await stMoved(r.head); } else ST.behind = false;
   } catch (e) {
@@ -148,6 +148,7 @@ async function stGoLocal({ applyNewest = true } = {}) {
   store.set('kw-st-pid', null); stBanner(''); stCmpClear(); vpReset();
   const vs = locRead();
   if (was && applyNewest && vs[0]) { stApply(vs[0].day, true); toast('Back to this browser’s latest version. Undo brings back the project’s page.'); }
+  if (was) KWLIB.local(); // the library goes back to this browser's too
   stLocalRefresh();
 }
 async function stLoad() {
@@ -164,8 +165,8 @@ async function stLoad() {
     let dr = null;
     try { dr = (await stApi('GET', P(`/drafts/${enc(ST.branch)}`))).draft; } catch (e) { if (e.status !== 403) throw e; }
     let changed;
-    if (dr) { ST.rev = dr.rev; ST.base = dr.base; ST.behind = dr.behind; ST.draftAt = dr.updatedAt; changed = stApply(dr.snapshot.day); }
-    else { ST.rev = 0; ST.base = h.commit.id; ST.behind = false; ST.draftAt = ''; changed = stApply(h.snapshot.day); }
+    if (dr) { ST.rev = dr.rev; ST.base = dr.base; ST.behind = dr.behind; ST.draftAt = dr.updatedAt; changed = stApply(dr.snapshot.day); KWLIB.fromSnapshot(dr.snapshot); }
+    else { ST.rev = 0; ST.base = h.commit.id; ST.behind = false; ST.draftAt = ''; changed = stApply(h.snapshot.day); KWLIB.fromSnapshot(h.snapshot); }
     ST.loading = false;
     await stLog();
     if (ST.behind) await stMoved(ST.head.id);

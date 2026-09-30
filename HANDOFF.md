@@ -58,6 +58,7 @@ The product is **Journalwright Studio**; *Keeping Watch* is Shelbee's own book (
 - **CI:** Books (encrypted when personal), Firmware (image + previews + tag releases), Editor (tests + Pages),
   STA schedules (monthly PR).
 
+- **Library and Series in the editor (L1b, `journal/editor/library-ui.*`)**: two levels above the Book (Library shelves, Series), hash routes, breadcrumb, settings sheets, undo, guest storage (localStorage), Studio `meta.library` through the draft. Covers are the real title page. Details: `journal/README.md`, "Library and Series navigation". An exported `library.json` is the file `content/library.json` and `KW_LIBRARY` read.
 - **Studio (Phase G1, `studio/`)**: Node + built-in SQLite + a small HTTP API. Local accounts, projects (private/public, `allowReuse`), roles,
   immutable content-hashed commits, snapshots as content-addressed objects, branches, per-user autosaved drafts, restore-as-new-commit,
   structured diff by page id and block uid, import from / export to `content/book.json` + `daypage.json` (byte-identical books), a scanner
