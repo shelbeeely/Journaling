@@ -22,8 +22,11 @@
       <label class="vs-sel" for="vs-proj"><span>Project</span><select id="vs-proj"></select></label>
       <label class="vs-sel" for="vs-br" id="vs-brwrap"><span>Branch</span><select id="vs-br"></select></label>
       <button class="vs-b" id="vs-nb" type="button" aria-expanded="false" aria-controls="vs-newbr" aria-label="New branch"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5.5" cy="4.5" r="1.8"/><circle cx="5.5" cy="15.5" r="1.8"/><circle cx="14.5" cy="7.5" r="1.8"/><path d="M5.5 6.3v7.4M14.5 9.3c0 3-3 3.2-9 4.6"/></svg><span class="lab">New branch</span></button>
+      <button class="vs-b" id="vs-fork" type="button" hidden aria-haspopup="dialog"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5.5" cy="4.5" r="1.8"/><circle cx="14.5" cy="4.5" r="1.8"/><circle cx="10" cy="15.5" r="1.8"/><path d="M5.5 6.3v1.7A2 2 0 0 0 7.5 10h5a2 2 0 0 0 2-2V6.3M10 10v3.7"/></svg><span class="lab">Fork</span></button>
       <span id="vs-chip" class="vs-chip" role="status" aria-live="polite"></span>
     </div>
+    <p id="vs-attr" class="vs-attr" hidden></p>
+    <div class="seg vs-tabs" id="vs-tabs" role="group" aria-label="Show" hidden><button type="button" id="vs-t-hist" aria-pressed="true">History</button><button type="button" id="vs-t-prop" aria-pressed="false">Proposals<span id="vs-t-n" class="vs-n" hidden></span></button></div>
     <form id="vs-newbr" class="vs-newbr" hidden>
       <label for="vs-brname">Branch name <input id="vs-brname" maxlength="64" placeholder="try-purple" autocomplete="off" autocapitalize="none" spellcheck="false"></label>
       <button class="btn primary" type="submit">Create branch</button><button class="btn" type="button" id="vs-brx">Cancel</button>
@@ -39,6 +42,14 @@
       <div class="vs-logwrap"><h3 class="sec">History</h3><ol id="vs-log" class="vs-log"></ol></div>
       <div id="vs-cmp" class="vs-cmp" aria-live="polite"></div>
     </div>
+    <section id="vp" class="vp" aria-label="Change proposals" hidden>
+      <div id="vp-listv">
+        <div class="vp-head"><h3 class="sec" id="vp-h">Change proposals</h3><button class="btn primary" id="vp-new" type="button" hidden aria-haspopup="dialog">New proposal</button></div>
+        <p id="vp-hint" class="note"></p>
+        <ul id="vp-list" class="vp-list"></ul>
+      </div>
+      <div id="vp-detv" hidden></div>
+    </section>
     <section id="vs-pub" class="vs-pub" aria-labelledby="vs-pubh" hidden><h3 class="sec" id="vs-pubh">Public projects on this server</h3><ul class="vs-pubs" id="vs-publist"></ul></section>
   </div>
 </dialog>
@@ -51,5 +62,28 @@
     <label class="check"><input type="checkbox" id="vs-npreuse"> Allow others to reuse it later</label>
     <label class="check" id="vs-nphistwrap"><input type="checkbox" id="vs-nphist" checked> <span id="vs-nphistl">Include the versions saved in this browser</span></label>
     <div class="acts"><button class="btn" value="cancel">Cancel</button><button class="btn primary" value="create">Create project</button></div>
+  </form>
+</dialog>
+<dialog id="vs-fk" aria-labelledby="vs-fkh">
+  <form id="vs-fkf">
+    <h3 id="vs-fkh">Fork this project</h3>
+    <p id="vs-fkp"></p>
+    <label>Name <input type="text" id="vs-fkname" maxlength="120" autocomplete="off"></label>
+    <label>Who can see your copy <select id="vs-fkvis"><option value="private">Only people I add</option><option value="public">Anyone can read it</option></select></label>
+    <label class="check"><input type="checkbox" id="vs-fkreuse"> Allow others to reuse my copy later</label>
+    <p id="vs-fkerr" class="vs-err" role="alert"></p>
+    <div class="acts"><button class="btn" type="button" id="vs-fkx">Cancel</button><button class="btn primary" type="submit">Make my copy</button></div>
+  </form>
+</dialog>
+<dialog id="vp-np" aria-labelledby="vp-nph">
+  <form id="vp-npf">
+    <h3 id="vp-nph">Propose changes</h3>
+    <p id="vp-npp"></p>
+    <label>Title <input type="text" id="vp-nptitle" maxlength="120" autocomplete="off" placeholder="Habit boxes and a calmer review"></label>
+    <label>What changed and why <textarea id="vp-npdesc" rows="3" maxlength="2000"></textarea></label>
+    <label>My branch <select id="vp-npsrc"></select></label>
+    <label>Into <select id="vp-nptgt"></select></label>
+    <p id="vp-nperr" class="vs-err" role="alert"></p>
+    <div class="acts"><button class="btn" type="button" id="vp-npx">Cancel</button><button class="btn primary" type="submit">Send proposal</button></div>
   </form>
 </dialog>

@@ -9,6 +9,7 @@ import { Auth } from './auth.mjs';
 import { canonical, hashOf, objectHash, sha256, short } from './canon.mjs';
 import { serializeSnapshot, emptySnapshot, toObjects, slugify, scanForbidden, PARTS, ASSET_MIMES } from './snapshot.mjs';
 import { diffSnapshots } from './diff.mjs';
+import { collab } from './collab.mjs';
 
 const RANK = { viewer: 1, editor: 2, owner: 3 };
 const BRANCH_RE = /^[A-Za-z0-9][A-Za-z0-9._\/-]{0,63}$/;
@@ -35,7 +36,7 @@ export class Studio {
     return { p, role: role || 'public' };
   }
   _projectView(p, role) {
-    return { id: p.id, slug: p.slug, name: p.name, description: p.description, visibility: p.visibility, allowReuse: !!p.allow_reuse, defaultBranch: p.default_branch, role, createdAt: p.created_at, updatedAt: p.updated_at, source: p.source_project_id ? { project: p.source_project_id, commit: p.source_commit_id } : null };
+    return { id: p.id, slug: p.slug, name: p.name, description: p.description, visibility: p.visibility, allowReuse: !!p.allow_reuse, defaultBranch: p.default_branch, role, createdAt: p.created_at, updatedAt: p.updated_at, license: p.license || '', credit: p.credit || '', source: p.source_project_id ? { project: p.source_project_id, commit: p.source_commit_id } : null, attribution: p.attribution ? JSON.parse(p.attribution) : null };
   }
   _commitView(c) { return { id: c.id, short: short(c.id), tree: c.tree, parents: JSON.parse(c.parents), author: { id: c.author_id, name: c.author_name }, message: c.message, createdAt: c.created_at }; }
   _userRow(user) { const u = user && this.db.prepare('SELECT id, display_name FROM users WHERE id = ?').get(user.id); if (!u) fail(401, 'login_required', 'Sign in first.'); return u; }
@@ -104,21 +105,22 @@ export class Studio {
   userFor(token) { return this.auth.userFor(token); }
 
   // ---------- projects ----------
-  createProject(user, { name, description = '', visibility = 'private', allowReuse = false, snapshot = null, message = 'Start the project' } = {}) {
+  createProject(user, { name, description = '', visibility = 'private', allowReuse = false, license = '', credit = '', snapshot = null, message = 'Start the project' } = {}) {
     const u = this._userRow(user);
     if (typeof name !== 'string' || !name.trim() || name.length > 120) fail(422, 'invalid_name', 'Give the project a name (up to 120 characters).');
     if (!['private', 'public'].includes(visibility)) fail(422, 'invalid_visibility', 'Visibility is "private" or "public".');
     if (typeof allowReuse !== 'boolean') fail(422, 'invalid_allow_reuse', 'allowReuse is true or false.');
     if (typeof description !== 'string' || description.length > 1000) fail(422, 'invalid_description', 'Description: up to 1000 characters.');
     const first = this._message(message);
+    const terms = this._terms(license, credit);
     const base = emptySnapshot(name.trim());
     const snap = serializeSnapshot(snapshot || {}, base);
     return tx(this.db, () => {
       const id = crypto.randomUUID(), now = this.now();
       let slug = slugify(name), n = 1;
       while (this.db.prepare('SELECT 1 FROM projects WHERE slug = ?').get(slug)) slug = `${slugify(name)}-${++n}`;
-      this.db.prepare('INSERT INTO projects (id, slug, name, description, visibility, allow_reuse, default_branch, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
-        .run(id, slug, name.trim(), description, visibility, allowReuse ? 1 : 0, 'main', u.id, now, now);
+      this.db.prepare('INSERT INTO projects (id, slug, name, description, visibility, allow_reuse, default_branch, license, credit, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+        .run(id, slug, name.trim(), description, visibility, allowReuse ? 1 : 0, 'main', terms.license, terms.credit, u.id, now, now);
       this.db.prepare('INSERT INTO memberships (project_id, user_id, role, created_at) VALUES (?, ?, ?, ?)').run(id, u.id, 'owner', now);
       const p = this.db.prepare('SELECT * FROM projects WHERE id = ?').get(id);
       if (snap.assets.length) fail(422, 'missing_asset', 'Create the project first, then upload assets and commit them.');
@@ -143,13 +145,22 @@ export class Studio {
     if (patch.description !== undefined) { if (typeof patch.description !== 'string' || patch.description.length > 1000) fail(422, 'invalid_description', 'Description: up to 1000 characters.'); set.description = patch.description; }
     if (patch.visibility !== undefined) { if (!['private', 'public'].includes(patch.visibility)) fail(422, 'invalid_visibility', 'Visibility is "private" or "public".'); set.visibility = patch.visibility; }
     if (patch.allowReuse !== undefined) { if (typeof patch.allowReuse !== 'boolean') fail(422, 'invalid_allow_reuse', 'allowReuse is true or false.'); set.allow_reuse = patch.allowReuse ? 1 : 0; }
+    if (patch.license !== undefined || patch.credit !== undefined) { const t = this._terms(patch.license ?? p.license, patch.credit ?? p.credit); set.license = t.license; set.credit = t.credit; }
     const keys = Object.keys(set);
     if (keys.length) this.db.prepare(`UPDATE projects SET ${keys.map((k) => `${k} = ?`).join(', ')}, updated_at = ? WHERE id = ?`).run(...keys.map((k) => set[k]), this.now(), p.id);
     return this.getProject(user, id);
   }
+  // The reuse terms an owner offers: plain text, carried into every fork's attribution.
+  _terms(license, credit) {
+    for (const [v, what] of [[license, 'license'], [credit, 'credit']]) {
+      if (typeof v !== 'string' || v.length > 500) fail(422, `invalid_${what}`, `The ${what} text: up to 500 characters.`);
+      const found = scanForbidden(v); if (found.length) fail(422, 'forbidden_content', `The ${what} text ${found[0].rule}.`, found);
+    }
+    return { license: license.trim(), credit: credit.trim() };
+  }
   deleteProject(user, id) {
     const { p } = this._access(id, user, 'owner');
-    tx(this.db, () => this.db.prepare('DELETE FROM projects WHERE id = ?').run(p.id)); // commits and objects are immutable and stay (unreferenced) until a future garbage collection
+    tx(this.db, () => { this.db.prepare("UPDATE proposals SET status = 'closed' WHERE source_project_id = ? AND status IN ('open', 'changes_requested', 'approved')").run(p.id); this.db.prepare('UPDATE projects SET source_project_id = NULL WHERE source_project_id = ?').run(p.id); this.db.prepare('DELETE FROM projects WHERE id = ?').run(p.id); }); // forks keep their attribution (stored in the fork); commits and objects are immutable and stay (unreferenced) until a future garbage collection
     return { deleted: true };
   }
 
@@ -384,4 +395,5 @@ export class Studio {
     return this.db.prepare('SELECT hash, name, mime, size FROM assets WHERE project_id = ? ORDER BY name').all(p.id).map((r) => ({ ...r }));
   }
 }
+Object.assign(Studio.prototype, collab); // G2: forks, proposals, merges (collab.mjs)
 export { StudioError };
