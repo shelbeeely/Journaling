@@ -1,8 +1,18 @@
+---
+title: "Rocketbook and scan systems"
+slug: rocketbook-and-scan-systems
+category: paper-and-hybrid
+evidenceLevel: none
+lastReviewed: 2026-09-30
+status: reviewed
+contributors: ['Journalwright Studio contributors']
+---
+
 # Rocketbook and Scan Systems (paper that talks to a phone)
 
-A reference for "smart paper": notebooks and pens that turn handwriting into files. Rocketbook, Moleskine Smart Writing, Neo smartpen, Livescribe, Whitelines Link, the Evernote Moleskine, and plain phone scanners (Apple Notes, Microsoft Lens, OneDrive). How each one finds the page, reads marks and handles handwriting, where OCR falls down, the design rules for scan-friendly pages, and how Keeping Watch's own scan system compares.
+A reference for "smart paper": notebooks and pens that turn handwriting into files. Rocketbook, Moleskine Smart Writing, Neo smartpen, Livescribe, Whitelines Link, the Evernote Moleskine, and plain phone scanners (Apple Notes, Microsoft Lens, OneDrive). How each one finds the page, reads marks and handles handwriting, where OCR falls down, the design rules for scan-friendly pages, and how Journalwright Studio's own scan system compares.
 
-Checked against sources on 2026-09-28. Where a detail couldn't be confirmed from a primary source, it's marked **(unconfirmed)**. Keeping Watch numbers come from `journal/render.mjs` on `main` at that date.
+Checked against sources on 2026-09-28. Where a detail couldn't be confirmed from a primary source, it's marked **(unconfirmed)**. Journalwright Studio numbers come from `journal/render.mjs` on `main` at that date.
 
 ---
 
@@ -28,7 +38,7 @@ Checked against sources on 2026-09-28. Where a detail couldn't be confirmed from
 
 ## 2. Summary
 
-Scan systems let paper stay paper while a phone does the filing. They all solve the same three problems: **find the page** (corner markers, a frame, a QR or Data Matrix code, or a hidden dot pattern), **know what the page is** (a code that names the notebook and page), and **know what you want** (symbols you tick to route a scan, a title between `##` marks, checkboxes that become a list). Rocketbook, founded in 2014 and bought by BIC in 2020 for about $40 million, made this mainstream with seven symbols at the bottom of every page, a QR code and erasable pages. Smartpens (Livescribe on Anoto paper, Neo and Moleskine on Ncode) skip the camera: a tiny infrared camera in the pen reads a near-invisible dot pattern and records every stroke. Plain phone scanners (Apple Notes, Microsoft Lens, now retiring, and OneDrive) work on any paper by finding its edges. Handwriting recognition is good for neat print and short titles, weaker for cursive, crowded pages and non-English text, and it usually runs in someone's cloud. Keeping Watch already has its own system: a 9 pt black frame with a 0.5 in quiet zone, a SEND TO strip of seven hand-fillable bubbles with shapes chosen to stay distinct when blurry, a 16 × 16 Data Matrix page code, and a `layout.json` map of every block's zone. This doc sets out what the commercial systems teach and what to add (reading filled bubbles as check-in data, comb fields for clean OCR) and what to leave alone (cloud routing, smartpens, QR).
+Scan systems let paper stay paper while a phone does the filing. They all solve the same three problems: **find the page** (corner markers, a frame, a QR or Data Matrix code, or a hidden dot pattern), **know what the page is** (a code that names the notebook and page), and **know what you want** (symbols you tick to route a scan, a title between `##` marks, checkboxes that become a list). Rocketbook, founded in 2014 and bought by BIC in 2020 for about $40 million, made this mainstream with seven symbols at the bottom of every page, a QR code and erasable pages. Smartpens (Livescribe on Anoto paper, Neo and Moleskine on Ncode) skip the camera: a tiny infrared camera in the pen reads a near-invisible dot pattern and records every stroke. Plain phone scanners (Apple Notes, Microsoft Lens, now retiring, and OneDrive) work on any paper by finding its edges. Handwriting recognition is good for neat print and short titles, weaker for cursive, crowded pages and non-English text, and it usually runs in someone's cloud. Journalwright Studio already has its own system: a 9 pt black frame with a 0.5 in quiet zone, a SEND TO strip of seven hand-fillable bubbles with shapes chosen to stay distinct when blurry, a 16 × 16 Data Matrix page code, and a `layout.json` map of every block's zone. This doc sets out what the commercial systems teach and what to add (reading filled bubbles as check-in data, comb fields for clean OCR) and what to leave alone (cloud routing, smartpens, QR).
 
 ---
 
@@ -95,7 +105,7 @@ Stated goals across the systems:
 
 The problem it solves: handwritten notes are hard to search, share, back up and act on. Scan systems make paper searchable without asking you to type.
 
-Keeping Watch's own philosophy is narrower: the scan system exists so Shelbee's **own** app can file pages, read check-ins and keep a private archive. Nothing routes to third-party clouds by default.
+Journalwright Studio's own philosophy is narrower: the scan system exists so the owner's **own** app can file pages, read check-ins and keep a private archive. Nothing routes to third-party clouds by default.
 
 ---
 
@@ -103,16 +113,16 @@ Keeping Watch's own philosophy is narrower: the scan system exists so Shelbee's 
 
 | Element | What it does | Examples |
 |---|---|---|
-| Page finder | Lets the camera locate and straighten the page | Four corner codes (Whitelines Link), dot grid used as reference (Evernote Page Camera), QR (Rocketbook), black frame (Keeping Watch), page edges (Apple Notes, OneDrive) |
-| Page ID code | Says which notebook, page, size or version | Rocketbook QR (page size and notebook version), Keeping Watch Data Matrix (`KW2\|edition\|yymm\|size+page`) |
+| Page finder | Lets the camera locate and straighten the page | Four corner codes (Whitelines Link), dot grid used as reference (Evernote Page Camera), QR (Rocketbook), black frame (Journalwright Studio), page edges (Apple Notes, OneDrive) |
+| Page ID code | Says which notebook, page, size or version | Rocketbook QR (page size and notebook version), Journalwright Studio Data Matrix (`KW2\|edition\|yymm\|size+page`) |
 | Position pattern | Tells a pen where it is | Anoto dot pattern, Ncode |
-| Routing symbols | Say where the scan goes | Rocketbook's 7 symbols, Whitelines' 3 icons, Keeping Watch's 7 SEND TO bubbles |
-| Title field | Names the file | Rocketbook Smart Title (`##Title##`), Keeping Watch TITLE box |
-| Tag field | Categorises | Rocketbook Smart Tags bar, Evernote Smart Stickers, Keeping Watch TAGS box |
+| Routing symbols | Say where the scan goes | Rocketbook's 7 symbols, Whitelines' 3 icons, Journalwright Studio's 7 SEND TO bubbles |
+| Title field | Names the file | Rocketbook Smart Title (`##Title##`), Journalwright Studio TITLE box |
+| Tag field | Categorises | Rocketbook Smart Tags bar, Evernote Smart Stickers, Journalwright Studio TAGS box |
 | List detection | Turns ☐ into a checklist | Rocketbook Smart Lists |
 | OCR / handwriting recognition | Turns ink into text | Rocketbook app, Moleskine Notes, Livescribe, Google Cloud Vision, Apple |
 | Image clean-up | Crop, flatten, contrast | All camera apps |
-| Zone map | Says which region of the page is which block | Keeping Watch `layout.json` with `data-zone` ids |
+| Zone map | Says which region of the page is which block | Journalwright Studio `layout.json` with `data-zone` ids |
 | Destination connectors | Deliver files | Email, Google Drive, Dropbox, OneNote, OneDrive, Evernote, Trello, Slack, Box, Asana, Todoist |
 | Erasable surface | Reuse pages | Rocketbook synthetic pages + FriXion pens |
 | Audio sync | Tap writing to hear what was said | Livescribe, Moleskine Pen+ |
@@ -193,24 +203,24 @@ Keeping Watch's own philosophy is narrower: the scan system exists so Shelbee's 
 
 Sources: [Data Matrix, Wikipedia; QR code, Wikipedia; Denso Wave, QR history; Denso Wave, error correction]. ISO pages blocked automated access and weren't opened; figures for quiet zones are the well-known values from those standards.
 
-**Why Data Matrix suits Keeping Watch:** the payload is short (`KW2|1|2610|S001`, 15 characters), which fits a 16 × 16 Data Matrix. The smallest QR is 21 × 21 and needs a wider quiet zone, so a QR would be bigger and busier. A phone's camera also won't pop up "open link?" on a journal page.
+**Why Data Matrix suits Journalwright Studio:** the payload is short (`KW2|1|2610|S001`, 15 characters), which fits a 16 × 16 Data Matrix. The smallest QR is 21 × 21 and needs a wider quiet zone, so a QR would be bigger and busier. A phone's camera also won't pop up "open link?" on a journal page.
 
 ### 5.10 Scan-friendly page design rules
 
 Distilled from the systems above and from how scan apps behave (general practice, **not a formal standard** except where marked):
 
-1. **Fiducials:** give the camera strong, unique shapes at known places. Options: four corner codes (Whitelines), a thick frame (Keeping Watch), a code with its own finder (QR, Data Matrix).
-2. **Quiet zones:** keep a clear margin around every code and marker (1 module for Data Matrix, 4 for QR, per their standards). Keeping Watch keeps a 0.5 in clear band inside its frame.
+1. **Fiducials:** give the camera strong, unique shapes at known places. Options: four corner codes (Whitelines), a thick frame (Journalwright Studio), a code with its own finder (QR, Data Matrix).
+2. **Quiet zones:** keep a clear margin around every code and marker (1 module for Data Matrix, 4 for QR, per their standards). Journalwright Studio keeps a 0.5 in clear band inside its frame.
 3. **Contrast:** machine marks solid black; human guides pale grey. KDP needs lines ≥ 0.75 pt and fills ≥ 10% grey to print reliably. [KDP guidelines]
-4. **Size:** codes need modules big enough for a phone at arm's length and for print spread. Keeping Watch's 0.42 in, 16 × 16 code gives modules of about 0.67 mm. **(Adequacy for all phones unconfirmed; test.)**
-5. **Distinct shapes:** routing symbols must stay different when blurred. Keeping Watch tested its set (worst pair correlation 0.63, against 0.90 for an older set).
+4. **Size:** codes need modules big enough for a phone at arm's length and for print spread. Journalwright Studio's 0.42 in, 16 × 16 code gives modules of about 0.67 mm. **(Adequacy for all phones unconfirmed; test.)**
+5. **Distinct shapes:** routing symbols must stay different when blurred. Journalwright Studio tested its set (worst pair correlation 0.63, against 0.90 for an older set).
 6. **Fill, don't draw:** a filled bubble is easier to detect than an X or tick of unknown size. Rocketbook uses an X; optical mark reading (like school test sheets) uses filled bubbles.
 7. **Fixed places:** printed zones (title, tags, send-to, check-ins) at known coordinates, so the app reads them without guessing. This is what `layout.json` does.
 8. **Don't let rulings touch markers.** Dots, lines and stickers stay out of the frame, strip and code.
 9. **Pale rulings drop out.** Light guides vanish in B&W filters; see the [paper and grids doc](paper-and-grids.md).
 10. **Printed box fields ("comb" boxes)** for text you want machine-read: one character per box reads far better than free writing **(standard forms practice)**.
 
-### 5.11 Keeping Watch's scan system
+### 5.11 Journalwright Studio's scan system
 
 | Part | Detail |
 |---|---|
@@ -220,8 +230,8 @@ Distilled from the systems above and from how scan apps behave (general practice
 | SEND TO strip | Page number, "SEND TO", then seven dashed bubbles, each above a symbol: fire (solid △), water (open ▽), air (three waves), earth (⊕), crescent moon (solid), full moon (solid disc), pentacle. Each bubble has `data-zone="send_to_<name>"` |
 | Page code | Data Matrix, 16 × 16 modules, 0.42 in square, at the right of the strip. Payload `KW2\|<edition>\|<yymm>\|<size><page>` (size S, L or H) |
 | Zone map | `layout.json` per book: trim size, `border_pt`, `quiet_zone_in`, symbol names, and each page's type, date, code and zones (in mm from the frame's inner edge) |
-| Reader | Shelbee's own app; the book's key says the Rocketbook app won't read these markers |
-| Exceptions | The Keeper has no scan codes (it holds password hints and recovery codes) |
+| Reader | The owner's own app (a Studio reader is planned); the book's key says the Rocketbook app won't read these markers |
+| Exceptions | The Keeper (a home-only yearly book) has no scan codes: it holds password hints and where recovery codes are kept |
 
 ---
 
@@ -230,12 +240,12 @@ Distilled from the systems above and from how scan apps behave (general practice
 ### Generic (any system)
 
 1. **Pick one inbox.** Decide where scans go (a folder on your phone, a private drive). Fewer destinations is calmer.
-2. **Assign symbols.** Write the meaning of each symbol inside the cover (Rocketbook and Keeping Watch both let you choose).
+2. **Assign symbols.** Write the meaning of each symbol inside the cover (Rocketbook and Journalwright Studio both let you choose).
 3. **Set OCR options.** Turn on titles only if your writing is neat print; skip full transcription for private pages.
 4. **Test scan.** Scan one page in daylight and in lamplight. Check the page is found, straightened and legible.
 5. **Test privacy.** Check where the image and text are stored. Turn off auto-upload for anything personal.
 
-### Keeping Watch
+### Journalwright Studio
 
 1. Open the book's key: note the seven SEND TO shapes.
 2. In your scanning app, map each shape to a folder, for example:
@@ -264,7 +274,7 @@ Distilled from the systems above and from how scan apps behave (general practice
 1. **Write the page** as normal.
 2. **Title** in the TITLE box (or `##Title##` on Rocketbook). Print, don't join letters.
 3. **Tag** one or two words in TAGS.
-4. **Fill a bubble** (Keeping Watch) or X a symbol (Rocketbook) for where it goes. Leave all empty for "don't send".
+4. **Fill a bubble** (Journalwright Studio) or X a symbol (Rocketbook) for where it goes. Leave all empty for "don't send".
 5. **Scan** (about 20 seconds): flat surface, even light, no shadow, whole page and frame in view.
 6. **Check** the result once: page found, code read, title right.
 7. **Smartpens:** check the pen is charged and synced.
@@ -276,7 +286,7 @@ Order matters: title and route before scanning, so the scan needs no typing afte
 ## 8. Rhythms
 
 - **Weekly (10 minutes):** clear the scan inbox; fix wrong titles; delete duplicates.
-- **Monthly:** at month end, scan any pages you skipped; export the month's archive; for Keeping Watch, fill the full moon bubble on pages for the Keeper handoff.
+- **Monthly:** at month end, scan any pages you skipped; export the month's archive; for Journalwright Studio, fill the full moon bubble on pages for the Keeper handoff.
 - **Quarterly:** review which destinations you use; retire unused symbols.
 - **Yearly:** back up the whole archive off the cloud; check apps still exist (Microsoft Lens is the warning: single-purpose scan apps get retired).
 - **Rocketbook:** erase pages after the scan is safely stored.
@@ -336,7 +346,7 @@ Order matters: title and route before scanning, so the scan needs no typing afte
 +------------------------------------------+
 ```
 
-### 9.5 Keeping Watch page (5.5 × 8.5)
+### 9.5 Journalwright Studio page (5.5 × 8.5)
 
 ```
   trim edge
@@ -361,12 +371,12 @@ Order matters: title and route before scanning, so the scan needs no typing afte
 
 ## 10. Worked examples
 
-### 10.1 A day (Keeping Watch)
+### 10.1 A day (Journalwright Studio)
 
 Page 12 of the October book, a day page.
 
 ```
-DATE Tue 6 Oct   TITLE Clinic + short shift   TAGS hrt, work
+DATE Tue 6 Oct   TITLE Appointment + errands   TAGS health, work
 ...
 [x] refill pickup      [ ] email Sam
 ...
@@ -393,7 +403,7 @@ Thu  ##Journal## no symbol                      -> stays in app only
 Fri  erase Mon–Wed pages after checking cloud copies
 ```
 
-### 10.3 A month (Keeping Watch archive)
+### 10.3 A month (Journalwright Studio archive)
 
 ```
 Oct book, 64 pages
@@ -401,7 +411,7 @@ scanned: 31 day pages, 4 week spreads, 1 month page, Closing the month
 bubbles used: fire 18, water 9, earth 22, full moon 5, pentacle 3,
               air 0, crescent 2
 Keeper handoff: 5 pages (full moon) printed into the month spread
-Decision for Nov: map air to "Bus notes" or ignore it
+Decision for Nov: map air to "Travel notes" or ignore it
 ```
 
 ---
@@ -419,7 +429,7 @@ Decision for Nov: map air to "Bus notes" or ignore it
 | Evernote Smart Notebook | Evernote + Moleskine | Dots as skew reference, Smart Stickers |
 | Phone scanners | Apple, Microsoft (Lens retired), Google, Adobe | Any paper; edge detection |
 | Optical mark reading (OMR) | Exam sheets, surveys | Filled bubbles at fixed places |
-| Keeping Watch | Shelbee | Frame + Data Matrix + filled bubbles + zone map; own app; no cloud by default |
+| Journalwright Studio | Journalwright Studio | Frame + Data Matrix + filled bubbles + zone map; own app; no cloud by default |
 
 ---
 
@@ -458,7 +468,7 @@ Decision for Nov: map air to "Bus notes" or ignore it
 - **Pens:**
   - Rocketbook: Pilot FriXion or BIC erasable only.
   - Smartpens: the brand's refills.
-  - Keeping Watch and plain scanning: dark gel or ballpoint. Fill bubbles with a felt-tip or 0.7 mm gel for a solid mark. Pencil scans grey.
+  - Journalwright Studio and plain scanning: dark gel or ballpoint. Fill bubbles with a felt-tip or 0.7 mm gel for a solid mark. Pencil scans grey.
 - **Light:** daylight or a lamp from above-front; avoid a single side lamp (shadows).
 - **Surface:** matte, darker than the page (helps edge detection).
 - **Stand (optional):** a phone stand or document camera for batch scans.
@@ -471,8 +481,8 @@ Decision for Nov: map air to "Bus notes" or ignore it
 ## 15. Digital and hybrid versions
 
 - **Apps:** Rocketbook app; Moleskine Notes; Neo Studio; Livescribe+; Whitelines app; Apple Notes; OneDrive; Google Drive; Adobe Scan.
-- **E-ink:** reMarkable, Kindle Scribe and Boox skip the scan step: you write on the screen and export PDFs or text. They lose the "real paper" feel and the one-book archive. The Keeping Watch X4 is a reader with buttons, not a writing tablet.
-- **Scanning as the hybrid:** the Keeping Watch approach is paper first; the scan adds search, backup and check-in data.
+- **E-ink:** reMarkable, Kindle Scribe and Boox skip the scan step: you write on the screen and export PDFs or text. They lose the "real paper" feel and the one-book archive. The X4 companion is a reader with buttons, not a writing tablet.
+- **Scanning as the hybrid:** the Journalwright Studio approach is paper first; the scan adds search, backup and check-in data.
 - **Lost compared with paper:** privacy (cloud OCR), permanence (apps get retired), calm (phones at the journal).
 - **Gained:** search, backup, sharing with a care team, turning bubbles into data.
 
@@ -537,17 +547,17 @@ Decision for Nov: map air to "Bus notes" or ignore it
 - **Depression and anxiety:** don't let the scan pile become guilt; scanning is optional.
 - **Trauma:** private pages should never go to cloud OCR; use an "unsent" default and on-device storage.
 - **Dyslexia and dysgraphia:** OCR can read back messy notes as text (with errors); comb boxes help recognition; audio sync (Livescribe) helps.
-- **Low vision:** scans can be zoomed and read aloud; codes need decent contrast, which Keeping Watch's solid black markers give.
+- **Low vision:** scans can be zoomed and read aloud; codes need decent contrast, which Journalwright Studio's solid black markers give.
 - **Motor or hand pain:** filled bubbles over writing; a phone stand avoids holding the phone steady.
-- **Trans and gender-diverse people:** routing health pages (HRT, dysphoria) to a private place; share with a gender clinic only by choice.
-- **Shift workers:** scan at the end of a shift in the break room light, or batch on days off.
-- **Low income:** free phone scanners and any paper beat smartpens; Keeping Watch pages work with any scan app for the image, even without the custom reader.
+- **Anyone with sensitive health or identity pages:** route them to a private place; share with a clinician only by choice.
+- **Shift workers:** scan at the end of a shift in good light, or batch on days off.
+- **Low income:** free phone scanners and any paper beat smartpens; Journalwright Studio pages work with any scan app for the image, even without the custom reader.
 
 ---
 
 ## 20. Comparison
 
-| | Keeping Watch | Rocketbook | Smartpen (Ncode/Anoto) | Whitelines Link | Phone scanner on plain paper |
+| | Journalwright Studio | Rocketbook | Smartpen (Ncode/Anoto) | Whitelines Link | Phone scanner on plain paper |
 |---|---|---|---|---|---|
 | Page finder | 9 pt frame + Data Matrix | QR + page | Dot pattern (pen) | 4 corner codes | Page edges |
 | Page ID | `KW2\|edition\|yymm\|size+page` | Page size + notebook version | Page address in pattern | **(unconfirmed)** | None |
@@ -580,9 +590,9 @@ Symbol maps, headings and scan habits to copy:
 
 1. **Seven-symbol map (calm):** Action · Feelings (private) · Ideas · Body · Care team · Keeper · Keep forever.
 2. **Three-symbol map (low spoons):** Do · Keep · Private.
-3. **Work map:** Email boss · Shift notes · Timesheet.
+3. **Work map:** Email manager · Shift notes · Timesheet.
 4. **Title formula:** "Day word + one noun" (e.g., "Tue clinic").
-5. **Tag set:** hrt, work, bus, sleep, pain, joy, money, people.
+5. **Tag set:** health, work, travel, sleep, pain, joy, money, people.
 6. **Scan checklist:** flat · light · whole frame · no fingers · check code.
 7. **Weekly scan ritual:** Sunday, 10 minutes, one cup of tea.
 8. **"Don't send" default:** leave all bubbles empty unless sure.
@@ -600,7 +610,7 @@ Symbol maps, headings and scan habits to copy:
 20. **Retire a symbol:** if unused for a month, remap it.
 21. **Batch day:** scan only on days off.
 22. **Offline archive:** folders by month, file name `yyyy-mm-dd_page`.
-23. **Appointment pack:** scan pages tagged "hrt" before a clinic visit.
+23. **Appointment pack:** scan pages tagged "health" before a clinic visit.
 
 ---
 
@@ -631,16 +641,16 @@ Symbol maps, headings and scan habits to copy:
 - **Page Camera:** Evernote's 2012 notebook capture feature.
 - **Perspective correction / deskew:** straightening a photo of a page.
 - **Threshold / B&W filter:** turning a greyscale scan to black and white.
-- **Zone map (`layout.json`):** Keeping Watch file giving each block's position on each page.
-- **`data-zone`:** the id each Keeping Watch block carries so it appears in the zone map.
-- **SEND TO strip:** Keeping Watch's row of seven routing bubbles.
-- **Page code:** Keeping Watch's Data Matrix, `KW2|edition|yymm|size+page`.
+- **Zone map (`layout.json`):** Journalwright Studio file giving each block's position on each page.
+- **`data-zone`:** the id each Journalwright Studio block carries so it appears in the zone map.
+- **SEND TO strip:** Journalwright Studio's row of seven routing bubbles.
+- **Page code:** Journalwright Studio's Data Matrix, `KW2|edition|yymm|size+page`.
 
 ---
 
 ## 24. FAQ
 
-1. **Will the Rocketbook app read Keeping Watch pages?** No. The key says so. Any scanner will capture the image; only Shelbee's app reads the frame, code and bubbles.
+1. **Will the Rocketbook app read Journalwright Studio pages?** No. The key says so. Any scanner will capture the image; only a reader built for the frame, code and bubbles reads them.
 2. **Why Data Matrix instead of QR?** Smaller for short data, a smaller quiet zone, and phones don't offer to open it as a link.
 3. **Can I scan with Apple Notes?** Yes, for the image. It finds the page edges; it won't read the Data Matrix or bubbles.
 4. **What happened to Microsoft Lens?** Retired in early 2026; use OneDrive's scanner (it saves to OneDrive only).
@@ -651,11 +661,11 @@ Symbol maps, headings and scan habits to copy:
 9. **Why fill a bubble instead of drawing an X?** A filled bubble at a known place is easier to detect reliably (the same idea as exam sheets).
 10. **Do I have to scan?** No. The book works without it. Scanning is for backup, search and check-in data.
 11. **Why no scan codes in the Keeper?** It holds password hints and recovery codes; it should never be photographed into a cloud by accident.
-12. **Can scanned bubbles feed the X4?** Not yet; see section 25.
+12. **Can scanned bubbles feed the X4 companion?** Not yet; see section 25.
 
 ---
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
 ### a. Printed book
 
@@ -663,37 +673,38 @@ Symbol maps, headings and scan habits to copy:
 |---|---|---|---|---|
 | Frame + quiet zone + SEND TO + Data Matrix + zone map | Every page (not the Keeper) | High | Fixed | **Yes** |
 | Symbol legend: "you choose what each shape means" plus blank lines to write meanings | Front matter key | High | Text + the 7 SVG symbols | Partly (key explains; no write-in lines) |
-| Read Checkboxes, Scale, Habit dots and Fill-in blanks by OMR from `layout.json` zones | Day blocks | High | Bubbles must be solid-fillable, ≥ 7 px, with space between; zones already exist | No (the zones exist; the reader doesn't) |
+| Read Checkboxes, Scale, Habit dots and Fill-in blanks by OMR from `layout.json` zones | Day blocks | High | Bubbles must be solid-fillable, ≥ 7 px, with space between; zones already exist | Partly (the zones and a scan-ready `omr` option on Checkboxes and Scale exist; the reader is planned) |
 | Comb boxes for TITLE (e.g., 12 character cells) | Header | Low | Header is fixed; changing it breaks the scan contract | No, and don't without a version bump (`KW2`) |
-| A "don't send" default made explicit (empty strip = keep private) | Front matter key | High | Text only | No |
+| A "don't send" default made explicit (empty strip = keep private) | Front matter key | High | Text only | Planned |
 | Scan tips box (light, flat, whole frame) | Front matter | Med | Text only | Partly |
-| Test page with a grey ramp and sample code to check your phone | Front matter or back matter | Med | Keep grey ramp outside zones | No |
+| Test page with a grey ramp and sample code to check your phone | Front matter or back matter | Med | Keep grey ramp outside zones | Planned |
 | Rocketbook-style `##title##` | — | Low | The TITLE box already does this, more cleanly | n/a |
 | Erasable/reusable pages | — | None | KDP can't print on synthetic paper | n/a |
 
-### b. X4
+### b. X4 companion
 
 | Idea | Where | Fit | RAM, scope and calm notes |
 |---|---|---|---|
-| Import paper check-ins scanned by Shelbee's app, merged with button check-ins | Wi-Fi page (upload a small `checkins-scan.txt` using the same `c_<uid>_<i>` keys) | Med | Tiny text file; parse line by line into static buffers; only over the device's own hotspot; no cloud |
+| Import paper check-ins scanned by a Studio reader, merged with button check-ins | Wi-Fi page (upload a small `checkins-scan.txt` using the same `c_<uid>_<i>` keys) | Med | Tiny text file; parse line by line into static buffers; only over the device's own hotspot; no cloud |
 | Show "paper + buttons" counts in month stats for the Keeper handoff | Month stats screen | Med | Static counters; no badges |
 | Show the symbol legend (what each SEND TO shape means) | A screen under Books or Support | Low | 7 small 1-bit icons + text; calm |
 | Any scanning or OCR on the device | — | None | No camera; out of scope; no AI |
 | Notify when scans are waiting | — | None | Notifications are out of scope |
 
-### c. Proposed editor blocks
+### c. Editor blocks
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `checks` (existing, flag) | Checkboxes: OMR-ready | add `omr` (bool): larger 9 px bubbles, 4 px gaps | `checks` | `toggle` (already via bridge) |
-| `scale` (existing, flag) | Scale: OMR-ready | add `omr` (bool) | `scale` | `scale` |
-| `comb` | Print-clearly boxes | `title` (text), `cells` (num 6–20), `rows` (num 1–3) | `comb` (repeats `comb_2`) | none (text) |
-| `clip` | Clip box (the app crops this box as its own image) | `title` (text), `h` (num, tenths of an inch 5–30), `send` (choice: none / one of the 7 symbols) | `clip` | none |
-| `legend` | Send-to legend | `n` (num 3–7 lines) | `legend` | none |
+| `checks` (built) | Checkboxes: scan-ready | `omr` (bool): 12 px marks with wider gaps, easier to read by optical mark reading | `checks` | `toggle` (already via bridge) |
+| `scale` (built) | Scale: scan-ready | `omr` (bool) | `scale` | `scale` |
+| `sendto` (built) | Send to | Symbol strip placed anywhere on the page; needs the scanning border on | `sendto` | none |
+| `comb` (planned) | Print-clearly boxes | `title` (text), `cells` (num 6–20), `rows` (num 1–3) | `comb` (repeats `comb_2`) | none (text) |
+| `clip` (planned) | Clip box (the app crops this box as its own image) | `title` (text), `h` (num, tenths of an inch 5–30), `send` (choice: none / one of the 7 symbols) | `clip` | none |
+| `legend` (planned) | Send-to legend | `n` (num 3–7 lines) | `legend` | none |
 
 Notes:
-- `clip` looks like Sketch box but tells the scan app "crop and file this region", optionally to a fixed destination, so a page can send one part (say, a question for the clinic) without sending the rest.
-- `legend` belongs on a front-matter or month page rather than every day page; offer it in the editor only if Shelbee wants a per-page reminder.
+- `clip` looks like Sketch box but tells the scan app "crop and file this region", optionally to a fixed destination, so a page can send one part (say, a question for a clinician) without sending the rest.
+- `legend` belongs on a front-matter or month page rather than every day page; offer it in the editor only if an author wants a per-page reminder.
 
 ### d. Proposed method layout
 
@@ -705,7 +716,7 @@ Notes:
 4. `checks` (omr on; labels: Meds, Meals, Outside, Rest)
 5. `scale` (omr on; title "Energy", 5 steps)
 6. `habits` (Stretch, Water, Read)
-7. `clip` (title "For the clinic", h 10, send crescent)
+7. `clip` (title "For the clinic", h 10, send crescent), once `clip` exists
 8. `body` (style dots)
 9. `actions`
 10. `review`
@@ -713,13 +724,13 @@ Notes:
 ### e. Don't adopt
 
 - **QR codes:** bigger, busier, and phones offer to open them.
-- **Cloud routing or cloud OCR by default:** diaries stay private; the Privacy rule forbids unencrypted uploads of personal data.
+- **Cloud routing or cloud OCR by default:** diaries stay private; the Studio's privacy rule forbids unencrypted uploads of personal data.
 - **Smartpens and Ncode/Anoto paper:** KDP can't print the pattern at the needed precision; pens cost money and need charging.
 - **Erasable synthetic pages:** not printable on KDP; erasing loses the archive.
 - **Auto-Send:** sending without a check step invites mistakes with private pages.
 - **Scan codes in the Keeper:** never.
 - **Changing the fixed header, frame, strip or code** without a new code version: breaks old books.
-- **Generative AI "summaries" of scans on the X4:** out of firmware scope.
+- **Generative AI "summaries" of scans on the X4 companion:** out of firmware scope.
 
 ---
 
@@ -731,7 +742,7 @@ Notes:
 - **Whitelines Link corner code and icon details** weren't confirmed from the maker.
 - **Anoto pattern dimensions** weren't confirmed from Anoto.
 - **Handwriting OCR accuracy** figures aren't published comparably by any vendor.
-- **Best on-device OCR** for Shelbee's phone, without cloud upload, wasn't settled.
+- **Best on-device OCR** for a phone, without cloud upload, wasn't settled.
 - **Product prices** here are approximate and unconfirmed.
 
 ---

@@ -1,3 +1,13 @@
+---
+title: "Traveler's Notebook"
+slug: travelers-notebook
+category: paper-and-hybrid
+evidenceLevel: none
+lastReviewed: 2026-09-30
+status: reviewed
+contributors: ['Journalwright Studio contributors']
+---
+
 # TRAVELER'S notebook (and "fauxdori" elastic covers)
 
 A leather cover with an elastic cord along the spine that holds thin, swappable notebooks ("refills" or "inserts").
@@ -33,8 +43,8 @@ card file, dated diaries, brass clips, tin charms. Designphil's Atsuhiko Iijima 
 show contest; it launched in 2006 with five refill types and grew into a brand (renamed TRAVELER'S COMPANY in 2015),
 a Tokyo shop, and a worldwide community. Its promise is to treat every day like a journey: record what you meet, keep
 tickets and scraps, and let the leather wear in. "Fauxdori" is the community name for elastic covers made by anyone
-else, including DIY. For Keeping Watch, the most useful ideas are modular inserts (we already print a book per
-month), a pocket for keeping paper scraps, a travel-style "places and things I met" log, and a passport-size carry
+else, including DIY. For Journalwright Studio, the most useful ideas are modular inserts (a Studio book is already one
+month per volume), a pocket for keeping paper scraps, a travel-style "places and things I met" log, and a passport-size carry
 insert.
 
 ## 3. History and origin
@@ -305,11 +315,11 @@ confirmed; commonly cited as about 5–6 mm lines and 5 mm grid, uncertain).
 
 ```
 +-----------------------+ +-----------------------+
-| TUE 6 OCT  Spokane     | | [ticket pasted here ] |
+| TUE 6 OCT  Riverside   | | [ticket pasted here ] |
 | ~~~~~~~~~~~~~~~~~~~~   | |                       |
-| rode the 33 to the     | |  small sketch of the  |
-| river; heron by the    | |  falls                |
-| falls. cold, bright.   | |                       |
+| rode the bus to the    | |  small sketch of the  |
+| river; heron by the    | |  weir                 |
+| weir. cold, bright.    | |                       |
 |                        | | [stamp]   [leaf]      |
 +-----------------------+ +-----------------------+
 ```
@@ -336,7 +346,7 @@ confirmed; commonly cited as about 5–6 mm lines and 5 mm grid, uncertain).
    16:00 pharmacy
    18:30 dinner w/ J
  Insert 2, Lined notebook:
-   Tue 6 Oct. Rain came in at 11. A kid on the bus had a paper crane on her backpack.
+   Tue 6 Oct. Rain came in at 11. A kid on the bus had a paper crane on their backpack.
    Pharmacy finally had it. Dinner with J; the cat story again. Tired, good tired.
    Kept: bus transfer (glued), pharmacy receipt (pocket, for taxes).
  Insert 3, Kraft folder: receipt tucked in.
@@ -484,7 +494,7 @@ No studies test the TRAVELER'S notebook or elastic-cover systems. What you write
   some; white for others).
 - **Motor or hand pain:** elastics can be fiddly; use one insert, or a multi-cord cover so no connecting bands. Softer
   covers open flatter.
-- **Trans and gender-diverse people:** a private insert for dysphoria, euphoria or HRT notes can be removed before a
+- **Trans and gender-diverse people:** a private insert for sensitive health or identity notes can be removed before a
   doctor's visit or a family visit. Names on insert covers can change as you do.
 - **Shift workers:** the official weekly vertical only covers 8:00–22:00. Use the undated Weekly + Memo, a Jibun-style
   24-hour printed insert, or draw your own.
@@ -591,24 +601,27 @@ No studies test the TRAVELER'S notebook or elastic-cover systems. What you write
 9. **Can I swap a single page?** No. Whole booklets swap, not pages. Use a separate insert per topic.
 10. **Can it do a 24-hour day?** Not with official inserts (weekly vertical is 8:00–22:00). Print your own.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
+
+Journalwright Studio designs printed journals in a block editor, with an optional e-ink companion (the X4 companion). The
+"Already built?" column says what exists today; anything else is planned.
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Already built? |
 |---|---|---|---|---|
-| Monthly book as an "insert" (one book per month) | Whole system | High | Already how Keeping Watch works; frame it this way in docs | Yes |
-| Ephemera box ("paste a scrap here") | Day block | High | Empty frame with a small scissors/glue icon; scan zone still readable if something is pasted (keep it away from header and Data Matrix) | Partly: Sketch box |
-| "Things I met" / "first time today" line | Day block (preset of Fill-in blanks or Lined notes) | High | Plain lines | No |
-| Places this month | Month page | Med | List with small pin icon | No |
-| "Today's route" (where I went) | Day block | Med | Short list; pairs with Bus plan | Partly: Bus plan |
-| Pocket page (fold-in or instruction to add a sticker pocket) | Back matter | Low | KDP can't add a real pocket; print a "tape a pocket here" guide | No |
-| Passport-size carry card (89 × 124 mm) | Back matter cut-out, or a home-print PDF | Med | Not a KDP trim; print as a cut-out page with crop marks; no scan code on the card | No |
-| TN-regular home-print insert (110 × 210 mm) | Separate PDF output | Low | Not a KDP trim; would need a new renderer size; home-print only | No |
-| Weekly "postcard to myself" | Week spread | Med | Five lines in a postcard frame | No |
-| Archive label (dates, theme) | Front matter | Med | A "this book: from / to / theme" line; mirrors labelling finished inserts | Partly: month theme |
+| Monthly book as an "insert" (one book per month) | Whole system | High | Already how Journalwright Studio works; frame it this way in docs | Yes |
+| Ephemera box ("paste a scrap here") | Day block | High | Empty frame with a small scissors/glue icon; scan zone still readable if something is pasted (keep it away from header and Data Matrix) | Partly: Sketch box (with optional tape marks and a caption) |
+| "Things I met" / "first time today" line | Day block (preset of Fill-in blanks or Lined notes) | High | Plain lines | Partly ("Something new" Checkboxes preset and "Made something" preset; Lined notes) |
+| Places this month | Month page | Med | List with small pin icon | Partly ("Places" Fill-in blanks preset counts places; a month list is planned) |
+| "Today's route" (where I went) | Day block | Med | Short list; pairs with Bus plan | Partly: Bus plan block |
+| Pocket page (fold-in or instruction to add a sticker pocket) | Back matter | Low | KDP can't add a real pocket; print a "tape a pocket here" guide | Planned |
+| Passport-size carry card (89 × 124 mm) | Back matter cut-out, or a home-print PDF | Med | Not a KDP trim; print as a cut-out page with crop marks; no scan code on the card | Planned |
+| TN-regular home-print insert (110 × 210 mm) | Separate PDF output | Low | Not a KDP trim; would need a new renderer size; home-print only | Planned |
+| Weekly "postcard to myself" | Week spread | Med | Five lines in a postcard frame | Planned |
+| Archive label (dates, theme) | Front matter | Med | A "this book: from / to / theme" line; mirrors labelling finished inserts | Partly: season theme page |
 
-### b. X4
+### b. X4 companion
 
 | Idea | Where | Fit | RAM, scope and calm notes |
 |---|---|---|---|
@@ -622,12 +635,14 @@ No studies test the TRAVELER'S notebook or elastic-cover systems. What you write
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `ephemera` | Paste a scrap | `height` (num, mm), `label` (text, default "keep something from today"), `icon` (choice: scissors / ticket / leaf / none), `border` (choice: dashed / solid) | `ephemera` | Not exported |
-| `journey` | Today's journey | `lines` (num, 2–8), `prompts` (list; defaults "Where I went", "What I noticed", "What I kept"), `paper` (choice: lines / dots / blank) | `journey` | Not exported |
-| `checks` (existing) preset "Firsts" | Something new today | labels: "Something new", "Went outside", "Talked to someone" | `checks` | `toggle` per label |
-| `fields` (existing) preset "Places" | Places today | labels: "Places visited" | `fields` | `count` 0..99 |
+| `ephemera` (planned; Sketch box covers it today) | Paste a scrap | `height` (num, mm), `label` (text, default "keep something from today"), `icon` (choice: scissors / ticket / leaf / none), `border` (choice: dashed / solid) | `ephemera` | Not exported |
+| `journey` (planned) | Today's journey | `lines` (num, 2–8), `prompts` (list; defaults "Where I went", "What I noticed", "What I kept"), `paper` (choice: lines / dots / blank) | `journey` | Not exported |
+| `checks` (built) preset "Something new" (block title "Firsts") | Something new today | labels: "Something new", "Went outside", "Talked to someone" | `checks` | `toggle` per label |
+| `fields` (built) preset "Places" | Places today | labels: "Places visited" | `fields` | `count` 0..99 |
 
 ### d. Proposed method layout ("Traveler's day")
+
+(Planned: the method layouts in the editor today are the original page, Bullet Journal daily, Hobonichi, Five Minute and Theme System day.)
 
 1. Moon/sun/season
 2. Weather & air
@@ -642,7 +657,7 @@ No studies test the TRAVELER'S notebook or elastic-cover systems. What you write
 
 - **Real leather, charms, elastics** in the printed product: not possible in KDP, and ornament clashes with the calm,
   plain design.
-- **Collecting inserts, stamps or charms as a goal**: invites buying and badges, which the project avoids.
+- **Collecting inserts, stamps or charms as a goal**: invites buying and badges, which Journalwright Studio avoids.
 - **Brand look or TRC names**: don't copy their trade dress or insert numbering.
 - **8:00–22:00 timelines**: they drop night shifts; use full-day timelines instead.
 - **Non-KDP trims inside the main book**: keep passport and TN-regular as optional home-print extras only.

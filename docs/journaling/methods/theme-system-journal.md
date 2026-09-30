@@ -1,3 +1,13 @@
+---
+title: "Theme System journal"
+slug: theme-system-journal
+category: productivity
+evidenceLevel: anecdotal
+lastReviewed: 2026-09-30
+status: reviewed
+contributors: ['Journalwright Studio contributors']
+---
+
 # Theme System Journal
 
 A yearly theme instead of a resolution, a short daily page, and a dot tracker you can half-fill.
@@ -29,7 +39,7 @@ Research checked 2026-09-28. Points the sources couldn't settle are marked **(un
 
 ## 2. Summary
 
-The Theme System swaps a New Year's resolution for a **Yearly Theme**: a word or short phrase, like "Year of Reading" or "Year of Less", that names what you want more of and points in a direction instead of setting a target. Its central promise, in the official words, is that "a good theme can't fail." The Theme System Journal, made by Cortex Brand (Myke Hurley and CGP Grey), makes the idea physical. It has four theme pages where you write the theme, your "why" and the changes you hope to see. Then come 90 undated daily pages, each split into five lightly structured, **unlabelled** boxes you set up yourself; Grey's published pattern is where you are, one personal gratitude, one professional gratitude, a goal and free thoughts. Last come the **Daily Actions** tracker pages: 15 columns of circles you fill fully or halfway, so a partial effort still counts. One volume lasts about a season, so a theme gets a natural check-in every three months. For Keeping Watch, the good parts are the no-fail framing, the half-fill dot, the short daily header and the seasonal cadence. All of them fit a calm, low-spoon practice.
+The Theme System swaps a New Year's resolution for a **Yearly Theme**: a word or short phrase, like "Year of Reading" or "Year of Less", that names what you want more of and points in a direction instead of setting a target. Its central promise, in the official words, is that "a good theme can't fail." The Theme System Journal, made by Cortex Brand (Myke Hurley and CGP Grey), makes the idea physical. It has four theme pages where you write the theme, your "why" and the changes you hope to see. Then come 90 undated daily pages, each split into five lightly structured, **unlabelled** boxes you set up yourself; Grey's published pattern is where you are, one personal gratitude, one professional gratitude, a goal and free thoughts. Last come the **Daily Actions** tracker pages: 15 columns of circles you fill fully or halfway, so a partial effort still counts. One volume lasts about a season, so a theme gets a natural check-in every three months. For Journalwright Studio, the good parts are the no-fail framing, the half-fill dot, the short daily header and the seasonal cadence. All of them fit a calm, low-spoon practice.
 
 ---
 
@@ -166,7 +176,7 @@ The official site describes four prompts:
 - Rows are actions you choose. Columns are days, **15 per page**. Fill a circle fully (done) or halfway (partly done); a reader on the official site calls "the half-split of the circles" "really useful".
 - **12 tracker pages** cover the 90 days: six spreads of 15 days each would give exactly 90, which fits. The page-to-spread arrangement wasn't confirmed **(unverified)**.
 - The number of rows (actions) per page is about 10 in common descriptions, but no official source states it **(unverified)**.
-- **Three states:** empty (not done or not relevant), half (some), full (done). This is the same scale as Keeping Watch's Habit dots and the X4 `dots` kind (0, 1, 2).
+- **Three states:** empty (not done or not relevant), half (some), full (done). This is the same scale as Journalwright Studio's Habit dots block and the X4 companion's `dots` kind (0, 1, 2).
 
 ### 5.6 Notes and index
 - 13 notes pages for overflow, lists or a season review.
@@ -629,7 +639,7 @@ No study has tested the Theme System or its journal directly. Its parts line up 
 - **With Year in Pixels** (sibling doc `year-in-pixels.md`, if present). Add a mood pixel each day. Over a season, compare the mood colours with the theme tracker.
 - **With a gratitude journal.** The two gratitude boxes already are one; don't double up.
 - **With time-blocking.** Keep the goal box to one item, and let the calendar hold the rest.
-- **With Keeping Watch as it is today.** Care check-in, Spoons and Small good things cover the gratitude and minimum-day parts. The theme lives on the month-theme front page. Habit dots are the tracker.
+- **With Journalwright Studio as it is today.** Care check-in, Spoons and Small good things cover the gratitude and minimum-day parts. The theme lives on the season theme page. Habit dots are the tracker, and "Theme System day" is a one-click method layout in the editor.
 
 ---
 
@@ -741,23 +751,26 @@ No study has tested the Theme System or its journal directly. Its parts line up 
 
 ---
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
+
+Journalwright Studio designs printed journals in a block editor, with an optional e-ink companion (the X4 companion). The
+"Already built?" column says what exists today; anything else is planned.
 
 ### a. Printed book
 
 | Idea | Where it goes | Fit | B&W and scan-zone notes | Already built? |
 |---|---|---|---|---|
-| **Theme page** ("This is the season of ___", why, changes I'm excited to see) | Front matter; also a season opener every 3 months | High | Pure text and lines. Needs a `data-zone` for the theme line, why and changes (`theme_word`, `theme_why`, `theme_changes`). | Partly: "month theme" exists in front matter. |
-| **Location line** ("Where I am") | Day block, one line under the header | High | One line; zone `where`. Icon: a map pin as SVG. | No |
-| **Two gratitudes** (me / out in the world) | Day block | High | Two short lines. Could reuse Two columns (`split`), labelled "Me" / "World". | Partly (Small good things, Two columns). |
-| **One goal** | Day block | High | One line, zone `goal`. Could reuse Top priorities with n = 1. | Partly (Top priorities). |
+| **Theme page** ("This is the season of ___", why, changes I'm excited to see) | Front matter; also a season opener every 3 months | High | Pure text and lines. Needs a `data-zone` for the theme line, why and changes (`theme_word`, `theme_why`, `theme_changes`). | Partly: a season theme page exists in front matter. |
+| **Location line** ("Where I am") | Day block, one line under the header | High | One line; zone `where`. Icon: a map pin as SVG. | Partly ("Where I am" line in the "Theme System day" method layout, via Lined notes) |
+| **Two gratitudes** (me / out in the world) | Day block | High | Two short lines. Could reuse Two columns (`split`), labelled "Me" / "World". | Yes (two "Grateful" lines in the "Theme System day" method layout; Small good things, Two columns). |
+| **One goal** | Day block | High | One line, zone `goal`. Could reuse Top priorities with n = 1. | Yes ("One goal" line in the "Theme System day" method layout; Top priorities). |
 | **Free space** | Day block | High | The existing Writing space. | Yes |
-| **15-day Daily Actions grid**, empty/half/full circles | Tracker page (second half of each month: days 1–15 and 16–end) | High | Circles as SVG, not glyphs (no Type 3). Fixed positions for scanning. Read fill by pixel count (<25% empty, 25–75% half, >75% full). Zones `actions_r1`… per row. | Partly: monthly tracker page exists; Habit dots is being added. |
-| **Theme word in the page header** | Every day page, small, next to the title | Med | Must not move the fixed DATE/TITLE/TAGS header. Put it inside the body as a tiny line, not in the header. | No |
+| **15-day Daily Actions grid**, empty/half/full circles | Tracker page (second half of each month: days 1–15 and 16–end) | High | Circles as SVG, not glyphs (no Type 3). Fixed positions for scanning. Read fill by pixel count (<25% empty, 25–75% half, >75% full). Zones `actions_r1`… per row. | Partly: a monthly tracker page and the Habit dots block (empty / half / full) exist; a 15-day grid page is planned. |
+| **Theme word in the page header** | Every day page, small, next to the title | Med | Must not move the fixed DATE/TITLE/TAGS header. Put it inside the body as a tiny line, not in the header. | Planned |
 | **Season review spread** (5 questions) | Back matter, every third month | Med | Lines only. Zones per question. | Partly (Looking back, Closing the month). |
-| **Tear-off corners** | Day pages | Low | KDP can't perforate, and cutting corners would damage the scan frame. Skip. | No |
+| **Tear-off corners** | Day pages | Low | KDP can't perforate, and cutting corners would damage the scan frame. Skip. | n/a (not possible on KDP) |
 
-### b. X4
+### b. X4 companion
 
 | Idea | Where it goes | Fit | RAM, scope and calm notes |
 |---|---|---|---|
@@ -771,10 +784,10 @@ No study has tested the Theme System or its journal directly. Its parts line up 
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `theme` | Theme line | `label` (text, def "Season of"), `word` (text, max 24), `show` (bool: print on every day) | `theme` | — (not exported; the theme word goes to the sleep screen through the Wi-Fi page instead) |
-| `where` | Where I am | `label` (text, def "Where"), `icon` (bool: map pin) | `where` | — |
-| `gratitude2` | Two gratitudes | `left` (text, def "Me"), `right` (text, def "World"), `n` (num 1–2 lines each) | `gratitude2` | — |
-| `habits` *(being added)* | Habit dots / Daily Actions | `title` (text, def "Daily actions"), `labels[]` (list, max 8), `days` (choice: 1 today / 15 grid) | `habits` | `dots` per label |
+| `theme` (planned) | Theme line | `label` (text, def "Season of"), `word` (text, max 24), `show` (bool: print on every day) | `theme` | — (not exported; the theme word goes to the sleep screen through the Wi-Fi page instead) |
+| `where` (planned; Lined notes covers it today) | Where I am | `label` (text, def "Where"), `icon` (bool: map pin) | `where` | — |
+| `gratitude2` (planned; Lined notes covers it today) | Two gratitudes | `left` (text, def "Me"), `right` (text, def "World"), `n` (num 1–2 lines each) | `gratitude2` | — |
+| `habits` *(built)* | Habit dots / Daily Actions | `title` (text), `labels[]` (list, max 8), `tiny` legend; planned: `days` (choice: 1 today / 15 grid) | `habits` | `dots` per label |
 | `top` *(existing)* | Top priorities as "Today's goal" | `label` "Goal", `n` = 1 | `top` | — |
 
 ### d. Proposed method layout: "Theme System"
@@ -796,8 +809,8 @@ The fixed header, frame, SEND TO strip and page code stay unchanged, and every b
 
 - **Tear-off corners.** Not possible on KDP, and they would cut into the scan frame.
 - **Unlabelled boxes by default.** Blank boxes are paralysing for many ND users. Ship labelled, and let people rename.
-- **"Professional gratitude" wording.** Shelbee works shifts, and not everyone has a job. Use "World" or "Out there".
-- **Yearly-only themes.** Offer seasonal ones. They fit shift bids and Spokane's strong seasons.
+- **"Professional gratitude" wording.** Shift workers, students, carers and people between jobs all use this system, and not everyone has a job. Use "World" or "Out there".
+- **Yearly-only themes.** Offer seasonal ones. They fit shift bids and places with strong seasons.
 - **Subscription, or any "streak".** No counters or "days in a row" on print or X4. It works against the no-fail idea and the firmware scope.
 - **Premium paper claims.** KDP paper isn't Munken Lynx. Don't imply it.
 

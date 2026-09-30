@@ -1,10 +1,20 @@
+---
+title: "Safety planning"
+slug: safety-planning
+category: mental-health
+evidenceLevel: some
+lastReviewed: 2026-09-30
+status: reviewed
+contributors: ['Journalwright Studio contributors']
+---
+
 # Safety planning (the Stanley–Brown Safety Planning Intervention)
 
 > **Not medical advice.** This is a research summary to help design journal pages. It is not therapy and does not replace
 > a clinician or crisis service.
 >
 > **If you are in crisis right now:** in the US, call or text **988**, or text **HOME** to **741741**. If you are in
-> immediate danger, call **911**. Trans Lifeline (peer support, trans operators) is **(877) 565-8860**, weekdays
+> immediate danger, call **911**. Outside the US, check your local services and emergency number. Trans Lifeline (peer support, trans operators) is **(877) 565-8860**, weekdays
 > 10 am–6 pm Pacific. You don't have to read the rest of this.
 
 Checked 2026-09-28. Where a point is uncertain it is marked **(uncertain)**. This doc stays factual and non-graphic on
@@ -40,9 +50,11 @@ professionals and crisis lines; and make your surroundings safer, especially by 
 anything you could use to hurt yourself. Many versions add a final line: the thing most worth living for. The plan is
 meant to be made *together* with a clinician or a trusted person, in your own words, and kept where you can reach it. In
 a large study of veterans seen in emergency departments, safety planning plus follow-up phone calls was linked to about
-45% fewer suicidal behaviours over six months and more people attending treatment. Keeping Watch already prints a
-seven-question safety plan page at the back of every monthly book and shows a plan on the X4 after a long press of Back.
-This doc sets out the method, the evidence, and small changes that would bring those closer to the evidence-based form.
+45% fewer suicidal behaviours over six months and more people attending treatment. Journalwright Studio books print a
+seven-question safety plan page at the back (a protected page that can be moved but not removed), and the optional X4
+companion shows a plan after a long press of Back. This doc sets out the method, the evidence, and small changes that
+would bring those closer to the evidence-based form. It is a guide to the structure of the plan, to use with a clinician
+or crisis resources, not a substitute for them.
 
 ## 3. History and origin
 
@@ -94,13 +106,13 @@ they may be alone with something dangerous. The plan answers those questions ahe
 
 ## 5. Core components
 
-| Step (Stanley–Brown order) | Question it answers | Keeping Watch paper page (current) |
+| Step (Stanley–Brown order) | Question it answers | Journalwright Studio paper page (current) |
 |---|---|---|
 | 1. Warning signs | How will I know it's time to use this? | 1. Signs a hard time is starting |
 | 2. Internal coping strategies | What can I do on my own? | 2. Things I can do on my own to feel a little better |
 | 3. People and social settings that provide distraction | Where can I go, who can I be around? | 3. People or places that help me get my mind off it |
-| 4. People I can ask for help | Who can I tell I'm struggling? | 4. People I can text for help |
-| 5. Professionals and agencies to contact | Who do I call in a crisis? | 5. Professionals: therapist, prescriber, 988, crisis line |
+| 4. People I can ask for help | Who can I tell I'm struggling? | 4. People I can text or call for help (name, phone, TEXT OK tick) |
+| 5. Professionals and agencies to contact | Who do I call in a crisis? | 5. Professionals and crisis lines: therapist, prescriber, and the lines set for the book (default 988 and the 741741 text line) |
 | 6. Making the environment safe | How can I put distance between me and means? | 6. How I can make my space safer |
 | (Final line) Reason for living | What is most worth living for? | 7. What matters to me, worth staying for |
 | (Not on SB form) A text script | What can I send when talking is too hard? | "A text I can send…" box |
@@ -125,7 +137,7 @@ a bus ride, a community group, an online game with friends. The goal is distract
 
 ### Step 4: People I can ask for help
 Family or friends you can tell "I'm having a hard time" and ask for support. Names and numbers. Many people prefer
-texting; Keeping Watch's page already leans that way. At least two names, so one busy person doesn't end the plan.
+texting; the Studio's page has a "text OK" tick for each person. At least two names, so one busy person doesn't end the plan.
 
 ### Step 5: Professionals and agencies
 Therapist, prescriber, doctor, local crisis line, 988, Crisis Text Line, the nearest emergency department address, and
@@ -138,7 +150,7 @@ to hurt yourself during a crisis. Covered briefly in the lethal-means subsection
 
 ### Reason for living
 The official form ends with a line for the one thing most important and worth living for. It can be a person, a pet, a
-plan, a value or a small thing. Keeping Watch's version: "What matters to me, worth staying for".
+plan, a value or a small thing. The Studio page's version: "What matters to me, worth staying for".
 
 ### Lethal-means counselling (brief)
 Means Matter (Harvard T.H. Chan School of Public Health) summarises why this matters: many attempts happen with little
@@ -197,14 +209,14 @@ A safety plan isn't a daily practice. It is used **when a warning sign shows up*
 
 You don't have to go in order if a later step fits better right now. Skipping to step 5 is always fine.
 
-**Light daily touchpoints (optional).** Some people pair the plan with a daily mood check (Keeping Watch has a mood and
-anxiety check-in) so warning signs are noticed earlier. Keep this gentle: a daily check is for noticing, not scoring.
+**Light daily touchpoints (optional).** Some people pair the plan with a daily mood check (the Studio's day page has a mood
+and anxiety check-in) so warning signs are noticed earlier. Keep this gentle: a daily check is for noticing, not scoring.
 
 ## 8. Rhythms
 
 - **After using it:** jot what helped and what didn't; update the plan within a few days.
 - **Weekly (optional, 2 minutes):** glance at it so it's familiar. If mood tracking shows a run of hard days, reread it.
-- **Monthly:** Keeping Watch prints a new safety plan page in every book. Copy forward what still fits, or rewrite it.
+- **Monthly:** a monthly Studio book prints a new safety plan page each time. Copy forward what still fits, or rewrite it.
   Check numbers and hours (crisis lines change: 988's LGBTQ+ option ended in July 2025).
 - **With your clinician:** bring it to appointments; review after any crisis, medicine change, move, or relationship
   change.
@@ -239,17 +251,16 @@ anxiety check-in) so warning signs are noticed earlier. Keep this gentle: a dail
 +-----------------------------------------------------------+
 ```
 
-**Keeping Watch's current page (back matter, cut-out note, 7 questions + text script).**
+**Journalwright Studio's current page (back matter, 7 questions + text script, a "last reviewed" line).**
 
 ```
- [scissors] To remove this page, cut along the inside edge of the black frame.
- MY SAFETY PLAN
+ MY SAFETY PLAN                                  Last reviewed ______
  Fill this in on a good day, so it is ready on a hard one. Work down the list until you feel safer.
  1. Signs a hard time is starting (thoughts, moods, situations)   ____ ____
  2. Things I can do on my own to feel a little better               ____ ____
  3. People or places that help me get my mind off it                ____ ____
- 4. People I can text for help                                      ____ ____
- 5. Professionals: my therapist, my prescriber, 988, crisis line    ____ ____
+ 4. People I can text or call for help (name, phone, TEXT OK)       ____ ____
+ 5. Professionals and crisis lines (therapist, prescriber, 988 ...) ____ ____
  6. How I can make my space safer (meds, other things)              ____ ____
  7. What matters to me, worth staying for                           ____ ____
  +-------------------------------------------------------------+
@@ -364,7 +375,7 @@ and writes "reviewed 1 Nov" at the top. The X4 file is updated from the Wi-Fi pa
 - **Customisations.** Adding a "text script"; splitting "people" into "just be with me" and "I can tell them"; adding
   sensory tools (weighted blanket, earplugs); a "comfort box" of objects; a list of reasons for living with photos.
 - **Aesthetic vs minimalist.** Some decorate their plan to make it inviting; others want it stark and fast to read. In a
-  crisis, high contrast, large type and short lines are easier. Keeping Watch's X4 Support screen follows that.
+  crisis, high contrast, large type and short lines are easier. The X4 companion's Support screen follows that.
 - **What people dislike.** Being handed a blank form in an emergency department without help; plans that list only "call
   988"; generic coping ideas that don't fit them.
 
@@ -377,7 +388,7 @@ and writes "reviewed 1 Nov" at the top. The X4 file is updated from the Wi-Fi pa
   page).
 - **Training:** a web course through the University of Pennsylvania (official site).
 - **Apps:** MY3 (free, iOS and Android). Others exist.
-- **Keeping Watch note:** the book's page uses its own wording and does not claim to be the official Stanley–Brown form.
+- **Journalwright Studio note:** the book's page uses its own wording and does not claim to be the official Stanley–Brown form.
   Keep it that way unless permission is obtained.
 
 ## 14. Tools and supplies
@@ -419,7 +430,7 @@ and writes "reviewed 1 Nov" at the top. The X4 file is updated from the Wi-Fi pa
 - *Supported:* safety planning-type interventions reduce suicidal behaviour (meta-analysis), and safety planning with
   follow-up increases treatment engagement.
 - *Not supported:* that a plan reduces suicidal thoughts on its own (no significant effect in the meta-analysis).
-- *Not studied well:* self-made plans with no clinician, and journal-integrated plans like Keeping Watch's. They are
+- *Not studied well:* self-made plans with no clinician, and journal-integrated plans like the Studio's. They are
   reasonable and low risk, but the evidence is for the clinician-guided intervention **(uncertain)**.
 
 ## 17. Benefits
@@ -440,7 +451,7 @@ and writes "reviewed 1 Nov" at the top. The X4 file is updated from the Wi-Fi pa
 | Generic steps ("exercise", "call someone") | Name the exact activity, person, number, place |
 | Plan can't be found when needed | Paper + phone photo + wallet card + X4 |
 | Only one contact, who is unavailable | At least two people in step 4, plus 24/7 lines in step 5 |
-| Old numbers and hours | Check monthly; Keeping Watch reprints a page each book |
+| Old numbers and hours | Check monthly; a monthly Studio book reprints the page each time |
 | "Call 988" is the only step | Fill steps 2–4 so there are earlier options |
 | Lethal means skipped because it's uncomfortable | Keep it short and practical; involve a trusted person |
 | Used as a promise or contract | It's a tool; not a pledge |
@@ -480,12 +491,12 @@ and writes "reviewed 1 Nov" at the top. The X4 file is updated from the Wi-Fi pa
 | Steps | 6 + reason for living | ~5 | None | Many sections | Contacts + plan + resources |
 | Lethal means | Yes | Often | No | Not central | Plan step |
 | Evidence | Cohort + meta-analysis | RCT | None; not recommended | Some studies for wellness outcomes **(uncertain)** | Limited |
-| Keeping Watch fit | High (already adapted) | Med (card idea) | Don't adopt | Med (broader wellness) | Low (app; privacy) |
+| Journalwright Studio fit | High (already adapted) | Med (card idea) | Don't adopt | Med (broader wellness) | Low (app; privacy) |
 
 ## 21. Combining
 
 - **Symptom tracking** ([symptom-tracking.md](symptom-tracking.md)): mood, sleep and anxiety logs can show warning signs
-  early (for example two short nights, a Keeping Watch step 1 item).
+  early (for example two short nights, a step 1 item).
 - **Bullet Journal** ([bullet-journal.md](bullet-journal.md)): keep the plan as a fixed collection at the front or back;
   index it.
 - **Gender euphoria and HRT log** ([gender-euphoria-and-hrt-log.md](gender-euphoria-and-hrt-log.md)): moments of euphoria
@@ -571,10 +582,10 @@ directly about their policy is fine.
 behaviour with safety planning-type interventions. A large VA study found about 45% fewer suicidal behaviours with safety
 planning plus follow-up calls. It didn't clearly reduce suicidal thoughts on their own.
 
-**How often should I update it?** After you use it, after big changes, and at least every few months. Keeping Watch
-prompts a fresh page each month.
+**How often should I update it?** After you use it, after big changes, and at least every few months. A monthly Studio
+book prints a fresh page each month.
 
-**Where should I keep it?** Where you'll be when things get hard: the journal, a phone photo, a wallet card, the X4.
+**Where should I keep it?** Where you'll be when things get hard: the journal, a phone photo, a wallet card, the X4 companion.
 
 **What do I write for "making my space safer" if I don't want to write details?** Just the action and who helps, for
 example "Lee keeps the extra medicine". No details are needed.
@@ -582,34 +593,39 @@ example "Lee keeps the extra medicine". No details are needed.
 **Is 988 still for LGBTQ+ people?** Yes, 988 serves everyone. The specialised LGBTQ+ youth option ("press 3") ended on
 17 July 2025. The Trevor Project and Trans Lifeline remain.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
+
+This section covers how the method maps onto Journalwright Studio: printed books designed in a block editor, plus an
+optional e-ink companion (the X4 companion). The plan pages are a structure to use with a clinician or crisis resources;
+they do not assess risk and do not replace care. Phone lines named on a page come from the book's settings (default:
+988 and the 741741 text line); anyone outside the US should replace them after checking their local services.
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Built? |
 |---|---|---|---|---|
-| Seven-question safety plan page | Back matter (every monthly book) | High | Existing; removable; text script box | Yes |
-| "Last reviewed ___" line | Top of safety plan page | High | One short blank beside the title | No |
-| Numbers next to people (step 4) and "text OK" tick | Safety plan page | High | Small blank + checkbox per line | No (lines only) |
-| Barrier prompt ("what might get in the way?") | Safety plan page, one small line under step 2 | Med | Keeps page to one side | No |
-| Trans Lifeline in step 5 wording | Safety plan page | High | Text only; already on Support page | No (Support page yes) |
-| 24/7 lines named in step 5 | Safety plan page | High | 988 is named; add "text HOME to 741741" | Partly |
-| Wallet card cut-out | Back matter (bottom of a Support page) | Med | Cut line; no scan code on the card | No |
-| Warning-signs reminder on week spread | Weekly review ("any warning signs from my plan?") | Med | One yes/no bubble; no score | No |
-| Plan copy and old versions | Keeper | Med | Keeper is code-free; good for private history | No |
-| Mood/anxiety check-in | Day page Care check-in | High | Existing | Yes |
+| Seven-question safety plan page | Back matter (every monthly book) | High | Protected page (can move, never hidden); text script box | Yes |
+| "Last reviewed ___" line | Top of safety plan page | High | One short blank beside the title | Yes |
+| Numbers next to people (step 4) and "text OK" tick | Safety plan page | High | Small blank + tick per line | Yes (name, phone, TEXT OK) |
+| Barrier prompt ("what might get in the way?") | Safety plan page, one small line under step 2 | Med | Keeps page to one side | Planned |
+| Trans Lifeline in step 5 wording | Safety plan page | High | Text only; on the Support page when that page is on | Support page yes; safety page planned |
+| 24/7 lines named in step 5 | Safety plan page | High | The book's configured lines (default: 988 and the 741741 text line) | Yes |
+| Wallet card cut-out | Back matter (bottom of a Support page) | Med | Cut line; no scan code on the card | Planned |
+| Warning-signs reminder on week spread | Weekly review ("any warning signs from my plan?") | Med | One yes/no bubble; no score | Planned |
+| Plan copy and old versions | Keeper | Med | Keeper is code-free; good for private history | Planned |
+| Mood/anxiety check-in | Day page Care check-in and the X4 companion | High | Existing | Yes |
 
-### b. X4
+### b. X4 companion
 
 | Idea | Where | Fit | RAM, scope and calm notes |
 |---|---|---|---|
 | Hold Back for Support | Global long press → Support → Confirm → My safety plan | High | Built; high contrast, text-first |
-| **Paginate the plan screen** | My safety plan screen | High | `drawPlan()` in `x4/src/app.cpp` stops drawing when `y > HINT_Y - 200` and has no page control, so a long plan silently hides its last sections (often step 6 and the reason for living). Add Up/Down paging like Support. |
-| "Last reviewed" line | Plan screen header | Med | Read a `# reviewed YYYY-MM-DD` line from `me.txt` |
-| Plan template on the Wi-Fi page | Wi-Fi page textarea | High | Pre-fill `me.txt` with the six headings when empty, so the device plan matches the paper order |
+| **Paginate the plan screen** | My safety plan screen | High | Built: a long plan flows onto further pages so no section is silently hidden; keep testing with a long plan |
+| "Last reviewed" line | Plan screen header | Med | Planned: read a `# reviewed YYYY-MM-DD` line from `me.txt` |
+| Plan template on the Wi-Fi page | Wi-Fi page textarea | High | Planned: pre-fill `me.txt` with the six headings when empty, so the device plan matches the paper order |
 | Reason-for-living on the sleep screen | Sleep screen | Low | Could be affirming, but others may see it; opt-in only if ever built |
 | Warning-sign check-in | Check-in `toggle` | Med | Private noticing only; never an alert |
-| Auto-text a contact | — | Not allowed | Nothing leaves the device except over its own hotspot; also no notifications |
+| Auto-text a contact | — | Not allowed | Nothing leaves the device except over its own hotspot or an explicit sync the person starts; also no notifications |
 
 ### c. Proposed editor blocks
 
@@ -617,11 +633,11 @@ example "Lee keeps the extra medicine". No details are needed.
 |---|---|---|---|---|
 | `checks` preset | Warning signs today | labels (up to 3, from the user's plan, e.g. "Short sleep", "Isolating") | `checks` | `toggle` per label |
 | `lines` preset | If today gets hard | title "If today gets hard, I'll…", n 1 | `lines` | not exported |
-| `reach` (existing) | Reach out | n 1–2 | `reach` | not exported |
-| `planref` (new, small) | Safety plan pointer | text line "My plan: p. {{P_SAFETY}} · hold Back on X4"; `lines` bool | `planref` | not exported |
+| `reach` (built) | Reach out | n 1–4 | `reach` | not exported |
+| `planref` (planned, small) | Safety plan pointer | text line "My plan: p. {{P_SAFETY}} · hold Back on X4"; `lines` bool | `planref` | not exported |
 
-The `planref` block is a one-line pointer, not a copy of the plan: the plan stays in one place (back matter), which is
-easier to keep current.
+The presets are planned; the `checks`, `lines` and `reach` blocks they build on exist. The `planref` block is a one-line
+pointer, not a copy of the plan: the plan stays in one place (back matter), which is easier to keep current.
 
 ### d. Proposed method layout: "Steady days" (a gentle layout for people using a safety plan)
 
@@ -636,13 +652,15 @@ easier to keep current.
 9. Writing space (lines)
 10. Went well · Was hard · Tomorrow
 
+This layout is planned; the method layouts built today are listed in the editor's "Start from a method" menu.
+
 ### e. Don't adopt
 
 - **Copying the official Stanley–Brown form verbatim or using its name** on the page without written permission; keep
-  Keeping Watch's own wording.
+  the Studio's own wording.
 - **Risk scores, "danger levels" or colour-coded risk.** Journals shouldn't assess risk; that's clinical work.
-- **Automatic alerts or messages to contacts** from the X4. Out of scope (nothing leaves the device; no notifications),
-  and consent matters.
+- **Automatic alerts or messages to contacts** from the X4 companion. Out of scope (no background sends, no
+  notifications), and consent matters.
 - **Generative AI "crisis chat".** Out of scope and unsafe.
 - **Streaks or badges for "safe days".** Adds pressure and shame.
 - **Method details in lethal-means text.** Keep it general and practical.

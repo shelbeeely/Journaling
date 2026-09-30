@@ -1,3 +1,13 @@
+---
+title: "Spoon theory and energy accounting"
+slug: spoon-theory-energy-accounting
+category: neurodivergent-and-creative
+evidenceLevel: anecdotal
+lastReviewed: 2026-09-30
+status: reviewed
+contributors: ['Journalwright Studio contributors']
+---
+
 # Spoon theory and energy accounting
 
 > **Not medical advice.** This is a research summary for a journaling system. Pacing and energy plans for ME/CFS, long COVID,
@@ -177,7 +187,7 @@ later neurodiversity movement: it treats energy as real, budgetable, and shaped 
 ### Spoon count
 
 Pick your daily total at the start of the day (Miserandino used twelve for the story; real numbers vary). Cross one off per
-task or block. Keeping Watch's day block prints up to 16 spoons, default 12, with the X4 storing "spoons left".
+task or block. Journalwright Studio's Spoons day block prints up to 16 spoons, default 12, and the X4 companion stores "spoons left".
 
 ### Costs
 
@@ -294,7 +304,7 @@ A short scan: which day overdrew? What cost more than expected? What deposits wo
 
 **Monthly (15 minutes, Closing the month)**
 
-- Count "good-spoon days" (Keeping Watch's tracker uses 4 or more left).
+- Count "good-spoon days" (Journalwright Studio's tracker uses 4 or more left).
 - Compare with sleep and mood (see [mood-tracking-year-in-pixels](mood-tracking-year-in-pixels.md)).
 - Decide: raise, keep or lower the daily maximum. NICE says levels may be adjusted "upwards after a period of stability", and
   never automatically.
@@ -477,7 +487,7 @@ Maximum stays at 12 (illness flare mid-month, so not raised).
 **Aesthetic versus minimalist**
 
 - *Aesthetic:* decorated spoon rows, colour keys, stickers.
-- *Minimalist:* a number in a corner. Keeping Watch: a row of simple spoon icons, nothing else.
+- *Minimalist:* a number in a corner. Journalwright Studio: a row of simple spoon icons, nothing else.
 
 **Gatekeeping debate.** Some people with chronic illness ask non-disabled people not to use the word for ordinary tiredness
 (Chainey 2016). Others say the metaphor is for anyone who counts energy. Respect it either way: if you use spoons in shared
@@ -502,7 +512,7 @@ Spoon theory has **no official product**. Related:
 - **Pencil:** cross out, erase, re-count.
 - **Stamp or sticker spoons:** optional; a spoon stamp is fast for people with hand pain.
 - **Highlighters or hatching:** in B&W, three hatch densities replace red/amber/green.
-- **Ruler and 4 mm grid:** for the weekly grid; the 4 mm grid paper option in Keeping Watch makes hand-drawn tables tidy.
+- **Ruler and 4 mm grid:** for the weekly grid; the 4 mm grid paper option in the editor makes hand-drawn tables tidy.
 - **Wearables (optional):** NICE mentions activity trackers and heart-rate monitors as self-monitoring tools **(they are personal
   choices; some people find numbers stressful)**.
 - **Timer:** for pacing chunks. A kitchen timer avoids a phone.
@@ -511,7 +521,7 @@ Spoon theory has **no official product**. Related:
 
 - **Spreadsheets and notes:** columns for start, costs, left.
 - **Apps:** habit and energy trackers exist **(uncertain: no specific validated app reviewed)**; a phone can also remind, but
-  Keeping Watch's approach is pull-only.
+  the Studio's X4 companion is pull-only (no reminders).
 - **Calendars:** colour-code events by cost (the NAS example: red social, green personal).
 - **E-ink:** on reMarkable, Kindle Scribe or Boox, a PDF with spoon rows; no colour, so use hatching.
 - **The X4:** already stores "Spoons left" (0–12, default 12) as a button check-in and reports good-spoon days.
@@ -712,8 +722,8 @@ Spoon theory has **no official product**. Related:
 
 ## 24. FAQ
 
-1. **How many spoons should I start with?** Whatever feels true this week. Miserandino used 12 in the story; the Keeping Watch
-   block defaults to 12. Adjust after a week of data.
+1. **How many spoons should I start with?** Whatever feels true this week. Miserandino used 12 in the story; the Studio's
+   Spoons block defaults to 12. Adjust after a week of data.
 2. **Are spoons the same as energy accounting?** No. Spoons count what you have and spend. Energy accounting adds deposits,
    weights and a balance.
 3. **Do I have to have a diagnosis?** No, but if your energy is very limited or you crash after activity, see a clinician.
@@ -730,7 +740,10 @@ Spoon theory has **no official product**. Related:
 11. **Can I use it with a partner or carer?** Yes. NAS notes energy accounting can be done "yourself or with others helping."
 12. **Where does fork theory fit?** Use forks for stress stacking, spoons for energy. Some people use both.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
+
+Journalwright Studio designs printed journals in a block editor, with an optional e-ink companion (the X4 companion). The
+"Already built?" columns say what exists today; anything else is planned.
 
 ### a. Printed book
 
@@ -738,19 +751,19 @@ Spoon theory has **no official product**. Related:
 |---|---|---|---|---|
 | Spoon row (6–16, default 12) | Day block | High | Icons, no colour; zone `spoons` | **Yes** |
 | Spoon key and definition | Front matter key | High | Cites Miserandino 2003 | **Yes** (Lineage + key) |
-| Reserve spoon box and "borrowed" tick | Day block option on Spoons | High | One boxed spoon + a checkbox; zones `spoons`, `spoons_2` for the tick | No |
-| Start-number field ("woke with ___") | Day block option | Med | Blank `___`; zone `spoons` | No |
+| Reserve spoon box and "borrowed" tick | Day block option on Spoons | High | One boxed spoon + a checkbox; zones `spoons`, `spoons_2` for the tick | Planned |
+| Start-number field ("woke with ___") | Day block option | Med | Blank `___`; zone `spoons` | Planned |
 | Monthly tracker Spoons column | Month page | High | Already printed | **Yes** |
 | Good-spoon days on the Keeper handoff | Keeper | High | Already printed in month stats | **Yes** |
-| Energy accounts page (withdrawals/deposits) | Back matter | High | 8 rows each side, 1–10 weights; page code; no colour | No |
-| Cost list ("what things cost me") | Back matter | High | Fill in once, refer to daily | No |
-| Weekly energy grid | Week spread | Med | Hatch levels; 4 types × 7 days | No |
-| Activity diary (pacing) | Optional back-matter pages | Med | Time / activity / effort / symptoms then / next day | No |
-| Low-energy card | Support back matter | High | Fits with Support and Safety plan | No |
-| Fork tally | Day block | Low | Small/medium/large fork icons; only for people who want it | No |
-| Energy-type mini scales | Day block (Scale presets) | Med | "Physical/Social/Thinking/Sensory 1–5" | Partly (Scale block) |
+| Energy accounts page (withdrawals/deposits) | Back matter | High | 8 rows each side, 1–10 weights; page code; no colour | Partly (Energy accounts day block, 2–6 items; full page planned) |
+| Cost list ("what things cost me") | Back matter | High | Fill in once, refer to daily | Planned |
+| Weekly energy grid | Week spread | Med | Hatch levels; 4 types × 7 days | Planned |
+| Activity diary (pacing) | Optional back-matter pages | Med | Time / activity / effort / symptoms then / next day | Planned |
+| Low-energy card | Support back matter | High | Fits with Support and Safety plan | Planned |
+| Fork tally | Day block | Low | Small/medium/large fork icons; only for people who want it | Planned |
+| Energy-type mini scales | Day block (Scale presets) | Med | "Body/Mind/People/Senses" in 3–5 steps | Yes (Energy types block; Scale block for other labels) |
 
-### b. X4
+### b. X4 companion
 
 | Idea | Where | Fit | RAM, scope and calm notes |
 |---|---|---|---|
@@ -760,7 +773,7 @@ Spoon theory has **no official product**. Related:
 | Start-of-day spoons | Check-in `count` | Med | 0–16; second item; small |
 | Withdrawals/deposits list on device | A screen | Low | Editing text on 7 buttons is painful; keep on paper |
 | Balance from daily items | Month stats | Med | A few ints; computed at draw time |
-| Energy-type scales | Check-in `scale` | Med | 1..steps only (known bridge gap); zero-based not needed here |
+| Energy-type scales | Check-in `scale` | Med | 1..steps only (known bridge gap); zero-based not needed here. Built: the Energy types block exports one `scale` per kind |
 | Weekly spoon trend (7 bars) | Screen | Med | 7 values from the log; small static array |
 | Low-energy card | Wi-Fi page upload, or a screen | Med | Static text file, one screen |
 | Reminders to rest | — | **Out of scope** | No notifications |
@@ -770,19 +783,19 @@ Spoon theory has **no official product**. Related:
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `spoons` (extend) | Spoons | `count` (exists); add `reserve` bool, `borrow` bool, `start` bool | `spoons` | Built-in, already on the device; reserve/borrow via custom `toggle` (not exported automatically: built-ins are skipped) |
-| `accounts` (new) | Energy accounts | `rows` 4–8; `weights` bool; `balance` bool | `accounts` | Not exported (paper only) |
-| `energy` (new) | Energy types | labels list (Physical, Social, Thinking, Sensory); steps 3–5 | `energy` | `scale` per label, 1..steps |
-| `checks` preset | Deposits done | labels ["Rest", "Alone time", "Outside"] | `checks` | `toggle` × 3 (works now) |
-| `forks` (new) | Fork tally | sizes 3; count 8 | `forks` | `count` 0..99 |
-| `lines` preset | Biggest cost | title, n 1 | `lines` | Not exported |
+| `spoons` (built; extension planned) | Spoons | `count` (exists); planned: `reserve` bool, `borrow` bool, `start` bool | `spoons` | Built-in, already on the device; reserve/borrow via custom `toggle` (not exported automatically: built-ins are skipped) |
+| `accounts` (built) | Energy accounts | Built: `n` items 2–6, "left: X4" on. Planned: `weights` bool; `balance` bool | `accounts` | Not exported (paper only; the X4 keeps spoons left) |
+| `energy` (built) | Energy types | labels list (default Body, Mind, People, Senses; up to 6); steps 3–5 | `energy` | `scale` per label, 1..steps |
+| `checks` preset (built) | Deposits done | labels ["Rest", "Alone time", "Outside"] | `checks` | `toggle` × 3 (works now) |
+| `forks` (planned) | Fork tally | sizes 3; count 8 | `forks` | `count` 0..99 |
+| `lines` preset (planned) | Biggest cost | title, n 1 | `lines` | Not exported |
 
 ### d. Proposed method layout: "Spoons and energy"
 
 1. `sky` (moon/sun), for daylight and season.
 2. `care` with meds, meals, sleep & work, mood, anxiety.
-3. `spoons` with reserve on and borrowing on (12 spoons).
-4. `energy` types (Physical, Social, Thinking, Sensory, 1–5), or `sensory` for the autistic version.
+3. `spoons` (12 spoons; reserve and borrowing once those options exist).
+4. `energy` types (Body, Mind, People, Senses), or `sensory` for a sensory-load version.
 5. `checks` Deposits done (Rest, Alone time, Outside).
 6. `lines` Biggest cost today (1 line).
 7. `top` Top priorities (3 lines, time circles 0).
@@ -796,7 +809,7 @@ Spoon theory has **no official product**. Related:
 - **Rising targets ("5% more each week").** NICE says activity is never automatically increased; graded-exercise-style ladders are
   the opposite of spoon logic.
 - **Medical claims** ("this will treat ME/CFS"). Keep the book as a record; leave treatment to clinicians.
-- **Apps that push spoon predictions from wearables or AI.** Out of scope (no AI), and predictions can be wrong.
+- **Apps that push spoon predictions from wearables or AI.** Out of scope (the companion has no AI), and predictions can be wrong.
 - **Decorative spoon art.** Busy; emoji risk Type 3 fonts. Keep the simple SVG spoon.
 - **Forcing weights on everyone.** Numbers can be stressful. Make weights and balance opt-in.
 - **Shame-tinged copy** ("wasted spoons"). Use neutral language: "spent", "held", "borrowed".
