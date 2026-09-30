@@ -1,7 +1,9 @@
 // Day page layout: the blocks of a monthly day page, their order and options.
 // Shared by render.mjs (print) and the page editor (editor/), so the editor preview is the real page.
 // The layout lives in content/daypage.json; anything missing falls back to DEFAULT_LAYOUT.
-// Fixed, never in the layout: the DATE/TITLE/TAGS header (top) and the scan frame + SEND TO strip (bottom).
+// Fixed, never in the layout: the DATE/TITLE/TAGS header (top). The scan frame, the page code and the SEND TO strip (bottom) are
+// the page's scan marks (scan.mjs): on by default; the layout's `scan` setting and a `sendto` block change them, opt-in.
+import { SEND_KEYS, SEND_LABELS, SEND_SIZES, sendBlockHtml, cleanScan, SCAN_CSS } from './scan.mjs';
 
 export const IC = {
   pill: '<rect x="1.3" y="4" width="9.4" height="4" rx="2" transform="rotate(-35 6 6)"/><path d="M6 3.1 L6 8.9" transform="rotate(-35 6 6)"/>',
@@ -57,6 +59,7 @@ export const IC = {
   keep: '<path d="M3 1.2h6v9.6L6 8.4 3 10.8Z"/>',
   back: '<path d="M10.4 6H2.2M5 3 2 6l3 3"/>',
   week: '<rect x="1" y="3" width="10" height="6" rx="1"/><path d="M3.5 3v6M6 3v6M8.5 3v6"/>',
+  send: '<path d="M1.6 9.8h2.6M5 9.8h2.6M8.4 9.8h2"/><circle cx="2.9" cy="6.6" r="1.3" stroke-dasharray="1.4 1"/><path d="M6 6.6 8.2 2.4 10.4 6.6Z" fill="currentColor"/>',
   pixel: '<rect x="1.6" y="1.6" width="8.8" height="8.8" rx="1"/><path d="M1.6 6h8.8v4.4H1.6Z" fill="currentColor"/>',
 };
 export const ic = (k, t = '') => `<svg class="ic" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="${t || k}">${IC[k]}</svg>`;
@@ -184,6 +187,11 @@ export const TYPES = {
   range: { name: 'Low and high', group: 'Check-ins', icon: 'low', hint: 'The lowest and highest point of the day', opts: [T('Label', 'Low and high', 18), N('steps', 'Steps', 3, 7, 5), { k: 'lo', kind: 'text', label: 'Left word', def: 'flat', max: 10 }, { k: 'hi', kind: 'text', label: 'Right word', def: 'bright', max: 10 }] },
   // ---- layout ----
   divider: { name: 'Divider', group: 'Layout', icon: 'calm', hint: 'A thin line', opts: [{ k: 'icon', kind: 'choice', label: 'Icon', choices: [['none', 'None'], ['sun', 'Sun'], ['moon', 'Moon']], def: 'none' }] },
+  sendto: { name: 'Send to', group: 'Layout', icon: 'send', hint: 'The symbol strip the scanner reads, anywhere on the page. Needs the scanning border on', opts: [
+    { k: 'symbols', kind: 'flags', label: 'Symbols', items: SEND_LABELS },
+    { k: 'size', kind: 'choice', label: 'Size', choices: [['s', 'Small'], ['m', 'Standard'], ['l', 'Large']], def: 'm' },
+    { k: 'style', kind: 'choice', label: 'Line', choices: [['rule', 'Rule above'], ['box', 'Box'], ['none', 'None']], def: 'rule' },
+    B('label', 'Print "SEND TO"')] },
   spacer: { name: 'Space', group: 'Layout', icon: 'box', hint: 'Empty room', opts: [N('h', 'Height (tenths of an inch)', 1, 10, 2)] },
 };
 
@@ -263,6 +271,7 @@ function fixOpts(b) {
       return r;
     });
   }
+  if (b.type === 'sendto' && !SEND_KEYS.some((k) => b.symbols[k])) b.symbols = Object.fromEntries(SEND_KEYS.map((k) => [k, true])); // at least one symbol
   if (TYPES[b.type].locked) b.on = true;
   return b;
 }
@@ -291,10 +300,10 @@ export function normalize(L, size = 'small') {
     blocks.push(fixOpts({ ...structuredClone(s), uid, on: s.on === undefined ? true : !!s.on }));
   }
   if (!singles.has('body')) { const i = blocks.findIndex((b) => b.type === 'actions'); blocks.splice(i < 0 ? blocks.length : i, 0, newBlock('body', {}, 'body')); }
-  const grid = !!(L && L.grid && L.v === 2);
+  const scan = cleanScan(L && L.scan), grid = !!(L && L.grid && L.v === 2);
   for (const b of blocks) for (const k of PLACE) { const v = Math.round(+b[k]); if (Number.isFinite(v) && v >= 1 && b[k] !== null && b[k] !== '') b[k] = v; else delete b[k]; }
-  if (!grid) return { v: 2, blocks };
-  const out = { v: 2, grid: true, blocks };
+  if (!grid) return { v: 2, ...(scan ? { scan } : {}), blocks };
+  const out = { v: 2, grid: true, ...(scan ? { scan } : {}), blocks };
   if (blocks.some((b) => PLACE.some((k) => b[k] === undefined))) placeMissing(out, size);
   return out;
 }
@@ -382,6 +391,7 @@ const MINSPAN = {
   prompt: (b, w) => [2, 0.042 + b.n * Pi(b) + (w < 3 ? 0.16 : 0)],
   pixel: (b) => [b.levels > 5 ? 4 : 3, 0.342],
   range: (b, w) => [2, at([0.45, 0.45, 0.31, 0.2], w) * more(b.steps, 5)],
+  sendto: (b) => { const z = SEND_SIZES[b.size] || SEND_SIZES.m, n = SEND_KEYS.filter((k) => b.symbols[k]).length; return [fitCols((b.label ? 55 : 0) + n * z.px + (n - 1) * 9.6 + (b.style === 'box' ? 14 : 0)), (z.bubble + z.px + 8) / 96 + (b.style === 'box' ? 0.06 : 0)]; },
   divider: () => [1, 0.02],
   spacer: (b) => [1, b.h / 10 + 0.01],
   body: () => [BODY_MIN.cols, BODY_MIN.rows * ROW_IN - 0.05],
@@ -664,6 +674,7 @@ function renderBlock(b, parts, zone) {
     case 'pixel': return `<div class="xb xrow xpx" ${Z}>${lbl('pixel', 'Day pixel')}<span class="pxb"></span>${b.key ? '<span class="end">low</span>' : ''}${Array.from({ length: b.levels }, (_, i) => `<span class="pxc">${swatch(i, b.levels)}<i></i></span>`).join('')}${b.key ? '<span class="end">high</span>' : ''}</div>`;
     case 'range': return `<div class="xb xrow wr" ${Z}>${lbl('', b.title)}${[['low', 'Lowest'], ['high', 'Highest']].map(([k, t]) => `<span class="sn">${ic(k, t)}<span class="end">${esc(b.lo)}</span> ${bubs(b.steps)} <span class="end">${esc(b.hi)}</span></span>`).join('')}</div>`;
     case 'divider': return b.icon === 'sun' || b.icon === 'moon' ? `<div class="xdiv xdi"><i></i>${ic(b.icon === 'sun' ? 'am' : 'pm', b.icon === 'sun' ? 'Sun' : 'Moon')}<i></i></div>` : `<div class="xdiv"></div>`;
+    case 'sendto': return sendBlockHtml(b);
     case 'spacer': return `<div class="xsp" style="height:${(b.h / 10).toFixed(1)}in"></div>`;
   }
   return '';
@@ -809,4 +820,4 @@ export const DAYPAGE_CSS = `
 .gc.fill .dbox { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .gc.fill > .xb.xsplit { display: grid; grid-template-rows: minmax(0, 1fr); }
 .gc.fill .xsplit > div { display: flex; flex-direction: column; min-height: 0; } .gc.fill .xsplit > div > .ru { flex: 1; min-height: 0; height: auto !important; }
-`;
+${SCAN_CSS}`;

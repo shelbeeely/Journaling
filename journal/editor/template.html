@@ -53,6 +53,10 @@ h2.sec { font: 600 12px Inter, sans-serif; text-transform: uppercase; letter-spa
 .note { font-size: 13px; color: var(--muted); margin: 0 0 12px; }
 .fixed { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); font-size: 13px; margin: 8px 0; }
 .fixed svg { flex: none; }
+.scan { margin: 10px 0 4px; } .scan-t { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: flex-start; } .scan-t svg { width: 18px; height: 18px; flex: none; } .scan-t .sc-state { margin-left: auto; font-size: 12px; color: var(--muted); font-weight: 400; }
+#scan-body { display: grid; gap: 10px; padding: 10px 2px 2px; } #scan-body .opt > .lab { color: var(--muted); min-width: 92px; }
+#scan-body .sw-row { justify-content: space-between; } #scan-body .sw-row > .lab { color: var(--ink); min-width: 0; }
+.scan-notes { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; } .scan-notes li { font-size: 13px; line-height: 1.4; padding: 8px 12px; border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 10px; background: var(--panel); }
 .pal { position: sticky; top: calc(var(--hh, 84px) + 12px); max-height: calc(100vh - var(--hh, 84px) - 28px); overflow: auto; padding-right: 4px; }
 .pal h3 { font: 600 12.5px Inter, sans-serif; color: var(--muted); margin: 14px 0 6px; }
 .pal h3:first-of-type { margin-top: 0; }
@@ -444,7 +448,10 @@ input[type=text], input[type=password], input[type=url], input:not([type]), sele
     <p class="note">Drag <b>⋮⋮</b> to reorder, or drag right on the preview. Switch a block off to hide it for now, or remove it.</p>
     <div class="fixed"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>Date · Title · Tags stay at the top for scanning</div>
     <ul class="list" id="list" tabindex="-1"></ul>
-    <div class="fixed"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>Scan frame, Send-to symbols and page code stay put</div>
+    <div class="scan" id="scan" hidden>
+      <button class="btn scan-t" id="scan-t" type="button" aria-expanded="false" aria-controls="scan-body"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V4.5A1.5 1.5 0 0 1 4.5 3H7M13 3h2.5A1.5 1.5 0 0 1 17 4.5V7M17 13v2.5a1.5 1.5 0 0 1-1.5 1.5H13M7 17H4.5A1.5 1.5 0 0 1 3 15.5V13M7 10h6"/></svg><span class="sc-name">Scan settings</span><span class="sc-state" id="scan-state"></span></button>
+      <div id="scan-body" hidden></div>
+    </div>
   </section>
   </div>
   <section class="prev" aria-label="Page preview">
@@ -653,11 +660,12 @@ function placePanel(b) {
     <p class="minn ${tight ? 'bad' : ''}">Smallest for its content: ${m.cols} columns × ${m.rows} rows. The page has ${GRIDS.day.cols} columns × ${gridRows(size)} rows.</p></div>`;
 }
 function drawList() {
+  drawScan();
   if (!editing()) { const u = Sortable.get($('#list')); if (u) u.destroy(); $('#list').innerHTML = ''; return; }
   const ul = $('#list'), probs = layout.grid ? gridProblems(layout, size) : [];
   ul.innerHTML = layout.blocks.map((b) => {
     const t = TYPES[b.type], open = openIds.has(b.uid);
-    const o = (layout.grid ? placePanel(b) : '') + (b.type === 'care' ? `<ul class="sub" data-care="${b.uid}">${b.rows.map((r) => rowItem(b.uid, r)).join('')}</ul>` : t.opts.map((x) => optControl(x, b[x.k], `${b.uid}/${x.k}`)).join(''));
+    const o = (layout.grid ? placePanel(b) : '') + (b.type === 'sendto' && layout.scan && layout.scan.frame === 'off' ? '<p class="minn bad" role="note">The scanning border is off for these pages, so this block will not print. Turn the border on in Scan settings.</p>' : '') + (b.type === 'care' ? `<ul class="sub" data-care="${b.uid}">${b.rows.map((r) => rowItem(b.uid, r)).join('')}</ul>` : t.opts.map((x) => optControl(x, b[x.k], `${b.uid}/${x.k}`)).join(''));
     const gp = layout.grid && b.on ? `col ${b.col} · row ${b.row} · ${b.colSpan}×${b.rowSpan} · ` : '';
     return `<li class="blk ${b.on ? '' : 'off'} ${open ? 'open' : ''} ${selected === b.uid ? 'sel' : ''} ${probs.some((p) => p.uid === b.uid) ? 'prob' : ''}" data-uid="${b.uid}">
       <div class="row"><span class="grip" role="button" tabindex="0" aria-label="Move ${escH(t.name)}. Up and Down arrow keys reorder it.">${GRIP}</span>${icon(t.icon, 'bico')}
@@ -719,6 +727,56 @@ $('#list').addEventListener('input', (e) => {
 });
 $('#list').addEventListener('change', (e) => { if (e.target.matches('[data-text],[data-list]')) drawList(); });
 
+// ---------- scan settings (scan.mjs) ----------
+// Day pages only: the scanning border (frame) and the page code. Stored as layout.scan, only what differs from the default.
+// The preview draws the real marks (marksHtml) with a sample code; real codes differ in their size of symbol (a QR, or a code with the
+// page id, needs a bigger one), which the print build measures, raises to a safe size and reports.
+const SCAN_MODULES = { data_matrix: { book: 16, id: 20 }, qr: { book: 25, id: 25 } };
+const sendtoOn = () => layout.blocks.some((b) => b.type === 'sendto' && b.on);
+function scanPreview() {
+  const sc = resolveScan(layout.scan), fit = fitSize(SCAN_MODULES[sc.code.format][sc.code.content], sc.code.size), mm = fit.error ? sc.code.size : fit.mm;
+  const n = (/class="pno">(\d+)/.exec(KIT.strip) || [])[1] || '';
+  const grow = mm > DEFAULT_SIZE_MM + 0.05 ? ` style="padding-bottom:${(0.3 + 9 / 72 + 0.5 + mm / 25.4 + 0.08).toFixed(3)}in"` : '';
+  return { attrs: (sc.frame === 'off' ? ' data-scan-frame="off"' : '') + grow, marks: marksHtml({ n, sc, side: 'verso', sendBlock: sendtoOn(), svg: KIT.code, mm, quiet: 0, label: sc.code.label ? (sc.code.content === 'id' ? 'day.2026-10-31' : '2610 S040') : '' }) };
+}
+const scanOpen = () => store.get('kw-scan-open') === '1';
+function drawScan() {
+  const box = $('#scan'), on = editing();
+  box.hidden = !on; if (!on) { $('#scan-body').innerHTML = ''; return; }
+  const sc = resolveScan(layout.scan), c = sc.code, open = scanOpen(), custom = !!layout.scan;
+  $('#scan-t').setAttribute('aria-expanded', open); $('#scan-body').hidden = !open;
+  $('#scan-state').textContent = custom ? 'Changed' : 'Default';
+  const sw = (id, label, val, key) => `<div class="opt sw-row"><span class="lab" id="${id}">${label}</span><button class="sw" role="switch" aria-checked="${val}" aria-labelledby="${id}" data-sc="${key}"></button></div>`;
+  const grp = (id, label, key, list, cur, txt) => `<div class="opt" role="group" aria-labelledby="${id}"><span class="lab" id="${id}">${label}</span>${list.map((x) => `<button class="chip" type="button" aria-pressed="${x[0] == cur}" data-sc="${key}:${x[0]}">${txt(x)}</button>`).join('')}</div>`;
+  const notes = scanNotes(sc, { sendto: sendtoOn() });
+  $('#scan-body').innerHTML = `<p class="note">These are the scan marks for every day page. The header stays at the top. Other pages keep the book's own settings.</p>
+    ${sw('sc-l-frame', 'Scanning border', sc.frame === 'on', 'frame')}
+    ${sw('sc-l-code', 'Page code', c.on, 'on')}
+    ${c.on ? `${grp('sc-l-pos', 'Code position', 'position', CODE_POSITIONS, c.position, (x) => x[1])}
+    ${grp('sc-l-size', 'Code size', 'size', CODE_SIZES, c.size, (x) => `${x[1]} · ${x[0]} mm`)}
+    ${grp('sc-l-fmt', 'Code type', 'format', CODE_FORMATS, c.format, (x) => x[1])}
+    ${grp('sc-l-cnt', 'Code holds', 'content', CODE_CONTENTS, c.content, (x) => x[1])}
+    ${sw('sc-l-lab', 'Tiny printed label by the code', c.label, 'label')}` : ''}
+    <div id="scan-notes" role="status" aria-live="polite">${notes.length ? `<ul class="scan-notes">${notes.map((t) => `<li>${escH(t)}</li>`).join('')}</ul>` : ''}</div>`;
+}
+$('#scan-t').onclick = () => { store.set('kw-scan-open', scanOpen() ? '0' : '1'); drawScan(); };
+$('#scan').addEventListener('click', (e) => {
+  const t = e.target.closest('[data-sc]'); if (!t) return;
+  const [k, v] = t.dataset.sc.split(':'), cur = resolveScan(layout.scan), before = scanNotes(cur, { sendto: sendtoOn() });
+  change((L) => {
+    const s = { frame: cur.frame, code: { ...cur.code } };
+    if (k === 'frame') s.frame = cur.frame === 'on' ? 'off' : 'on';
+    else if (k === 'on' || k === 'label') s.code[k] = !cur.code[k];
+    else s.code[k] = k === 'size' ? +v : v;
+    L.scan = s; // normalize() keeps only what differs from the default
+  }, { list: false });
+  drawScan();
+  const after = scanNotes(resolveScan(layout.scan), { sendto: sendtoOn() }), fresh = after.filter((x) => !before.includes(x));
+  const say = fresh.length ? fresh.join(' ') : after.length ? '' : 'Scan settings are back to the default.';
+  if (say) { announce(say); if (k === 'frame' || k === 'on') toast(fresh[0] || say); }
+  const f = $(`#scan [data-sc="${t.dataset.sc}"]`); if (f) f.focus(); // the redraw replaced the button: keep the keyboard where it was
+});
+
 // ---------- preview ----------
 const pv = $('#pv'), paper = $('#paper');
 function drawRules(root) { // same rule-drawing as the print build (the compare view uses it too)
@@ -729,7 +787,8 @@ function drawRules(root) { // same rule-drawing as the print build (the compare 
 }
 function drawPreview() {
   const day = dayBlocks(KIT, layout, { tag: true, size });
-  pv.innerHTML = `<style>${KIT.css}#pv .page { width: ${SIZES[size]}in; }</style><div class="page verso dayp m">${day}${KIT.strip}</div>`;
+  const pm = scanPreview();
+  pv.innerHTML = `<style>${KIT.css}#pv .page { width: ${SIZES[size]}in; }</style><div class="page verso dayp m"${pm.attrs}>${day}${pm.marks}</div>`;
   drawRules(pv);
   fit(); meter(); hl(selected); drawOverlay();
   if (layout.grid || !editing()) return; // viewing is read-only; the grid has no drag-to-reorder: blocks are placed on the overlay

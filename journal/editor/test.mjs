@@ -865,6 +865,68 @@ ok(!errs.length, 'no page errors after the Book view ' + errs.join(' | '));
   await ap.click('#done'); await inMode(ap, 'view'); await ap.close();
   ok(!e1.length, 'no page errors on the phone, dark, reduced-motion or Artifact runs ' + e1.join(' | '));
 }
+// Scan options (scan.mjs): the Send-to block, the Scan settings sheet (edit mode only), the preview, and the plain-language warnings.
+{
+  const sp = await b.newPage({ viewport: { width: 1400, height: 950 } }), serr = [];
+  sp.on('pageerror', (e) => serr.push(e.message));
+  await sp.goto(URL0 + '#day/2026-10-14', { waitUntil: 'networkidle' }); await atDay(sp);
+  ok(await sp.locator('#scan').isHidden(), 'Scan settings: not shown while only viewing');
+  await sp.evaluate(() => KW.go({ level: 'day', date: '2026-10-14', edit: true })); await atDay(sp);
+  ok(await sp.locator('#scan-t').isVisible() && (await sp.getAttribute('#scan-t', 'aria-expanded')) === 'false', 'Scan settings: a labelled button in the edit panel, closed at first');
+  await sp.click('#scan-t');
+  ok(await sp.locator('#scan-body').isVisible() && (await sp.getAttribute('#scan-t', 'aria-expanded')) === 'true', 'Scan settings: it opens');
+  ok(await sp.evaluate(() => document.querySelectorAll('#pv .frame:not(.off)').length === 1 && document.querySelectorAll('#pv .strip .send').length === 1 && document.querySelectorAll('#pv .strip .qr svg').length === 1 && !layout.scan), 'default: the border, SEND TO strip and code as printed, and no scan setting stored');
+  // switch the border off: what stops working is said in words, announced, and the preview loses the border and the strip's symbols
+  await sp.click('[data-sc="frame"]');
+  ok(await sp.evaluate(() => layout.scan && layout.scan.frame === 'off' && document.querySelectorAll('#pv .frame.off').length === 1 && document.querySelectorAll('#pv .strip .send, #pv .strip .sym').length === 0 && document.querySelectorAll('#pv .strip .qr').length === 1), 'border off: no border, no SEND TO strip, the page code stays (code only)');
+  ok(/no longer straighten or crop/.test(await sp.textContent('#scan-notes')) && /Send-to symbols and the writing-area crops do not work/.test(await sp.textContent('#scan-notes')), 'border off: the sheet says what stops working');
+  await sp.waitForTimeout(120);
+  ok(/no longer straighten or crop/.test(await sp.textContent('#live')) && await sp.evaluate(() => document.activeElement && document.activeElement.dataset.sc === 'frame'), 'border off: announced to screen readers, and the focus stays on the switch');
+  ok(await sp.evaluate(() => document.querySelector('#scan [data-sc="frame"]').getAttribute('aria-checked') === 'false' && document.querySelector('#scan [aria-labelledby="sc-l-frame"]') !== null), 'the switch has a name and reports its state');
+  // a Send-to block on a page with no border: warned in the block and in the sheet, and it does not print
+  await sp.locator('#pal [data-add="t:sendto"]').click();
+  ok(await sp.evaluate(() => layout.blocks.some((x) => x.type === 'sendto') && document.querySelector('#pv [data-zone="send_to"]') !== null && getComputedStyle(document.querySelector('#pv .sendblk')).visibility === 'hidden'), 'Send-to block on a page with no border: not printed');
+  ok(/Send-to block is on this page/.test(await sp.textContent('#scan-notes')), 'Send-to block on a page with no border: the sheet says so');
+  await sp.click('[data-sc="frame"]');
+  ok(await sp.evaluate(() => !layout.scan && document.querySelectorAll('#pv .strip .send').length === 0 && getComputedStyle(document.querySelector('#pv .sendblk')).visibility === 'visible' && document.querySelectorAll('#pv .sendblk .sym').length === 7), 'border back on: the block prints its 7 symbols, and the strip hands its symbols to the block');
+  ok(await sp.evaluate(() => layout.scan === undefined), 'back to the default: no scan setting is stored');
+  // the block's options: symbols, size, line style; at least one symbol stays on
+  await sp.evaluate(() => { const b = layout.blocks.find((x) => x.type === 'sendto'); openIds.add(b.uid); drawList(); });
+  await sp.evaluate(() => { const b = layout.blocks.find((x) => x.type === 'sendto'); change((L) => { const x = L.blocks.find((y) => y.uid === b.uid); x.symbols = { fire: false, water: true, air: false, earth: false, crescent_moon: false, full_moon: false, pentacle: true }; x.size = 'l'; x.style = 'box'; }); });
+  ok(await sp.evaluate(() => document.querySelectorAll('#pv .sendblk .sym').length === 2 && document.querySelector('#pv .sendblk').classList.contains('sb-box') && !!document.querySelector('#pv [data-zone="send_to_water"]') && !document.querySelector('#pv [data-zone="send_to_fire"]')), 'Send-to block: two symbols, boxed, each with its own zone');
+  ok(await sp.evaluate(() => { const L = normalize({ v: 2, blocks: [{ type: 'sendto', symbols: {} }, { type: 'body' }] }); return Object.values(L.blocks[0].symbols).every(Boolean); }), 'Send-to block: a block with every symbol off gets them all back');
+  ok(await sp.evaluate(() => { const f = (t) => { const L = normalize({ v: 2, blocks: [{ type: 'sendto', uid: 'a' }, { type: 'sendto', uid: 'b' }, { type: 'body' }] }); return L.blocks.filter((x) => x.type === t).length; }; return f('sendto') === 2; }), 'Send-to block: it can repeat (zones send_to, send_to_2)');
+  // code options
+  await sp.click('[data-sc="position:left"]'); await sp.click('[data-sc="size:14"]'); await sp.click('[data-sc="format:qr"]'); await sp.click('[data-sc="label"]');
+  ok(await sp.evaluate(() => { const c = layout.scan && layout.scan.code; return c && c.position === 'left' && c.size === 14 && c.format === 'qr' && c.label === true && document.querySelector('#pv .strip.cl .qr') && document.querySelector('#pv .strip .qr .qrl'); }), 'code options: position, size, type and label reach the preview and the layout');
+  ok(await sp.evaluate(() => { const q = document.querySelector('#pv .strip .qr').getBoundingClientRect(), pg = document.querySelector('#pv .page').getBoundingClientRect(); return q.width > 40 && q.height > 40 && q.left >= pg.left && q.bottom <= pg.bottom; }), 'code options: the large code sits inside the page');
+  ok(/bigger than a Data Matrix/.test(await sp.textContent('#scan-notes')) && /takes a little room/.test(await sp.textContent('#scan-notes')), 'code options: the sheet says a QR or a larger code prints bigger and takes room');
+  await sp.click('[data-sc="on"]');
+  ok(await sp.evaluate(() => layout.scan.code.on === false && document.querySelectorAll('#pv .strip .qr').length === 0 && !document.querySelector('#scan [data-sc="position:left"]')), 'code off: no code in the preview, and the code options go');
+  ok(/cannot tell which page this is/.test(await sp.textContent('#scan-notes')), 'code off: the sheet says the page is no longer identified by scanning');
+  await sp.click('[data-sc="frame"]');
+  ok(/cannot be scanned at all/.test(await sp.textContent('#scan-notes')), 'border and code off: the sheet says the page cannot be scanned at all');
+  await sp.screenshot({ path: `${OUT}/scan-off.png` });
+  await sp.click('[data-sc="frame"]'); await sp.click('[data-sc="on"]');
+  await sp.screenshot({ path: `${OUT}/scan-code.png` });
+  // undo walks back through scan changes; a saved layout round-trips them
+  await sp.click('#undo');
+  ok(await sp.evaluate(() => JSON.stringify(normalize(JSON.parse(JSON.stringify(layout))).scan) === JSON.stringify(layout.scan)), 'scan settings survive normalize (saved and reloaded layouts keep them)');
+  await sp.click('[data-sc="on"]');
+  await sp.evaluate(() => KW.go({ level: 'day', date: '2026-10-14', edit: false }));
+  ok(await sp.locator('#scan').isHidden(), 'Scan settings: hidden again when Edit ends, while the preview keeps showing the settings');
+  ok(!serr.length, 'no page errors in the scan settings ' + serr.join(' | '));
+  await sp.close();
+  // phone: the sheet is reachable, 44px targets, no sideways scroll
+  const sm = await b.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
+  await sm.goto(DAY, { waitUntil: 'networkidle' }); await atDay(sm);
+  await sm.click('#scan-t');
+  const smallT = await sm.evaluate(() => [...document.querySelectorAll('#scan button')].filter((x) => x.offsetParent && (x.getBoundingClientRect().height < 43.5 || x.getBoundingClientRect().width < 43.5)).length);
+  ok(smallT === 0, 'Scan settings on a phone: every control is 44px or more');
+  ok(await sm.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1 && document.getElementById('scan').scrollWidth <= innerWidth + 1), 'Scan settings on a phone: no sideways scroll');
+  await sm.screenshot({ path: `${OUT}/scan-phone.png` });
+  await sm.close();
+}
 // ---------- Library and Series (L1b): two levels above the Book, on the generic sample library ----------
 {
   const { SAMPLE_LIBRARY } = await import('./sample-library.mjs');

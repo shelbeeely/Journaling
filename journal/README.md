@@ -313,7 +313,7 @@ and `test.ics`) with each book's own title, subtitle, plan and, when its series 
 
 The Pages editor saves in the browser and commits `journal/content/daypage.json` with a fine-grained token.
 The Artifact editor saves to its store at `layouts/day`; copy that `layout` object into `content/daypage.json`.
-The DATE/TITLE/TAGS header and the scan frame, strip and page code are fixed. The X4 firmware is unaffected.
+The DATE/TITLE/TAGS header is fixed. The scan frame, SEND TO strip and page code are on by default and change only by opt-in scan options (see "Scan options"). The X4 firmware is unaffected.
 
 ### Presets and options (Tier 1)
 Every option is off (or at today's value) by default, so an unchanged layout prints exactly the same page.
@@ -509,3 +509,11 @@ A project can hold many books and series. `content/library.json` is optional; wi
 - [KDP.md](KDP.md): uploading to KDP
 - [NEW-EDITION.md](NEW-EDITION.md): setting up the next year
 - [private/README.md](private/README.md): exporting your calendars
+
+## Scan options
+All opt-in; the default book prints exactly as before (`check-identical.mjs`). `scan.mjs` holds the rules.
+- **Send-to block** (`sendto` in `daypage.mjs`): symbols (all seven), size, line (rule/box/none), label. Own zone `send_to` (`_2`, `_3`). When a day layout has one on, the strip drops its symbols.
+- **`scan` settings**, partial objects: `{ "frame": "off", "code": { "on": false, "position": "right|left|outer|inner", "size": 9|10.7|12|14, "format": "data_matrix|qr", "content": "book|id", "label": true } }`. Layers, most specific first: a page entry's `scan` in `book.json`, the day layout's `scan` (`daypage.json`, edited in the editor's Scan settings while editing), the book's top-level `scan`.
+- **Border off**: no frame; the code stays. No Send-to (a Send-to block does not print) and no crops; `layout.json` and the manifest list `pages_without_frame` and each page's `scan` flags.
+- **Code**: `content: id` is `KWI|<edition>|<book key>|<size>|<PAGE ID>` (stable when pages move, longer, so a bigger symbol; a repeat across books would fail the check, so the book is always in it). No module prints under 0.5 mm: sizes are raised and the build says so. Pages with `on: false` have no code and are listed in `pages_without_code`. Top-of-page positions are not offered: they would take writing room and break the grid's fixed 24 rows.
+- **Gates**: `check.mjs` (strip overlap, frame really hidden), `check-spreads.mjs`, `check-codes.mjs` (decodes each configured code from a crop at its own size and position; codes unique across every book present), `test-scan.mjs`.
