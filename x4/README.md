@@ -17,7 +17,7 @@ the three things paper can't:
   numbers, then your safety plan and the "can you text with me" message.
 
 Plus a **Wi-Fi page** (Menu → Wi-Fi sync): the X4 makes its own hotspot, shows a QR code to join, and
-serves a page at 192.168.4.1 to set the clock from your phone, download your books (PDF/EPUB) and
+serves a page at 192.168.4.1 (labelled fields, 44 px buttons, spoken result messages, no external files) to set the clock from your phone, download your books (PDF/EPUB) and
 check-in logs (download this month's when you close it), edit your safety plan, and upload new month packs. Nothing goes to the internet.
 
 ## The day starts when you wake
@@ -74,6 +74,23 @@ Every pack, `support.txt` and `checkins.txt` carries the journal build date on i
 This month and the Wi-Fi page show `pack 2026-09-28`. The printed book is fixed; the pack may be newer
 and that's fine for events, but if the dates differ and page numbers look off, re-export.
 
+## Settings (Menu, Settings)
+
+Saved on the card in `/kw/settings.txt` (plain `key=value` lines, safe to delete: everything falls back to the defaults) and read before the first
+screen is drawn, the sleep screen included. Left/Right or Confirm change the highlighted value; Up/Down move.
+
+| Setting | Choices | What it does |
+| --- | --- | --- |
+| **Text size** | Normal, Large | Large is about 1.3x on every screen (Inter, 23/28 px captions and rows, 42 px titles, 52 px numbers). Nothing is squeezed: Check in rows are taller (long custom labels take two lines, long scales show their number), **Today** becomes pages (the glance, then the rest of the calendar if there is more than 3 lines, then the season, moon and "on this day"), **This month** is two pages (boxes, then the calendar), Support and My safety plan just page more, and no line is cut with "..." any more. Hint-bar labels break onto two lines. |
+| **Contrast** | Normal, Bold | Text and icons are struck twice, and every hairline, frame, ring and dotted rule is at least 2 px thick. 1-bit, so there was never light grey; this removes the thin strokes. Works together with Large. |
+| **Buttons** | Standard, Left-handed, Confirm and Back swapped, both | Left-handed swaps Left with Right and Up with Down; the other swaps Confirm and Back. The hint bar labels move to the button that now does each thing. Power and the long presses are never remapped. Every option leaves Back and Confirm reachable, so the Settings screen can always be used to undo it. |
+| **Sleep after** | 90 seconds, 5 minutes, 15 minutes | Idle time before it sleeps on Today. Support, My safety plan and the Clock always wait at least 15 minutes: nothing is thrown away for reading or typing slowly. Check-ins are saved on each press, so an idle sleep never loses one. |
+| **Clean the screen** | Every 4, 8, 16 moves | Every Nth move within a screen is a cleaning (half) refresh instead of a fast partial one. 4 = less ghosting, 16 = fewer flashes. |
+| **Hold Back for Support** | 1.2 s, 2.5 s, off | Off means no long press at all: reach Support from Menu. |
+
+The `/kw/settings.txt` keys are `text=normal|large`, `contrast=normal|bold`, `buttons=standard|left|swap|both`, `sleep=90|300|900`, `clean=4|8|16`, `hold=1200|2500|0`.
+`host/test_settings.sh` (run by `preview.sh`) checks the file round trip, bad values and the remap tables.
+
 ## Buttons
 
 | Screen | Back | Confirm | Left / Right | Up / Down |
@@ -89,7 +106,8 @@ and that's fine for events, but if the dates differ and page numbers look off, r
 | Support | back | safety plan | pages | pages |
 | Safety plan | menu | Support | pages (opens on page 1, "1 / 3" top right) | pages |
 
-Power: press to sleep now. Idle for 90 s: sleeps by itself. **Hold Back 1.2 s anywhere: Support.**
+Power: press to sleep now. Idle for 90 s (Settings: 5 or 15 min): sleeps by itself. **Hold Back 1.2 s anywhere: Support** (Settings: 2.5 s, or off and use Menu, Support).
+With **large text** on, Up/Down page through Today and This month (Left/Right still change day and month).
 
 ## SD card
 
@@ -193,6 +211,8 @@ The host build compiles the same app, drawing and data code as the device; only 
 differs (a folder for the SD card, PNG frames for the panel, scripted buttons).
 
 ## Known limits (read before relying on it)
+
+- **Large text** uses Inter for reading text too (the normal set uses Lora, which is only cut at one size). The arrow in `->` style text (U+2192, U+2190) is drawn by the canvas, not a font glyph, so it never shows a missing-glyph box. Bold is drawn by striking each glyph twice; look at it on the panel before trusting the weight.
 
 - **Not yet run on an X4.** It compiles for the ESP32-C3 against FreeInk, and every screen renders in
   the host preview, but buttons, refresh modes, sleep current and the web page need a hardware pass.

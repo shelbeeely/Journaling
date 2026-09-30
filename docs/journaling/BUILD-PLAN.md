@@ -212,6 +212,7 @@ run with the real calendar secrets; order one private KDP proof per size with th
 | P1 | Account profile with saved locations that feed new books (section 17); pairs with Phase F units 2 and 3 | 1 agent |
 | I18N | Languages: translated UI and printed books, RTL and other scripts, X4 language packs (section 18); string extraction first | 3–4 agents |
 | A11Y | Accessibility options: editor, printed books, X4, site (section 15); audit first, then units; every new unit follows the checklist | 2–3 agents |
+| X4NET | X4 joins Wi-Fi, serves the editor on any network, and syncs with the Studio when the user starts it (section 19); supersedes the phone-as-courier route in section 14 as the primary path | 2–3 agents |
 
 Every unit follows the same proof as the fixes: reproduce, fix, rebuild all 12 months at both sizes with the checks
 (overflow, spreads, scan codes, fonts), look at the pages, editor and X4 previews, Firmware CI green, PR.
@@ -432,3 +433,34 @@ Goal: other people can create journals in their own language, and the printed bo
 - **I2:** editor and site translated with the language switcher and the first pilot languages in Latin script (Spanish, French, German), with printed books in those languages passing every gate.
 - **I3:** fonts and scripts, right-to-left printing and mirroring (Arabic and Hebrew pilot), then Devanagari, Thai, and CJK.
 - **I4:** X4 language packs.
+
+## 19. X4 on Wi-Fi: editor on any network and sync with the Studio (2026-09-29)
+
+Shelbee's decision: in addition to its own hotspot, the X4 can join a Wi-Fi network, serve the editor there, and sync with her Journalwright Studio account. This changes the old rule ("nothing leaves the device except over its own hotspot"). New rule, written into `CLAUDE.md` and `x4/CLAUDE.md`: **nothing leaves the device except over its own hotspot, or an explicit sync the user starts on the device, over Wi-Fi the user configured, to their own Studio account.** Still no background sync, notifications, feeds, badges, analytics, other cloud or generative AI.
+
+**Feasibility.** The FreeInk SDK already has what this needs (checked in `freeink-sdk/libs/network`): **SecureNet**, a TLS 1.3 client on wolfSSL (used because the mbedTLS bundled with the ESP-IDF package cannot complete some TLS 1.3 handshakes), and **SecureHttpClient** on top of it (GET, POST and PUT with custom headers, chunked and Content-Length bodies, streamed downloads, connection reuse so a whole sync pays for one handshake). It is opt-in in the SDK: the firmware must build with `-DFREEINK_NET_WOLFSSL=1` and add wolfSSL to `lib_deps` (the firmware does neither yet, and the pinned SDK commit must be checked to still carry it). A TLS session needs tens of KB of heap on a chip with no PSRAM and the firmware keeps static buffers, so N1 starts by measuring headroom (CI prints RAM and flash) and runs sync as a separate screen that owns the radio and RAM while it runs, then frees them. Certificates: pin the Studio's CA with `setCACert` (PEM on the SD card) so a wrong server cannot receive data; `setInsecure()` is never used.
+
+**Modes**
+- **Hotspot (today):** its own network, at 192.168.4.1, works with no internet. The lite and full editors are served here (section 14).
+- **On your Wi-Fi (station):** Menu, Wi-Fi sync, Join a network: scan, choose, enter the password using the phone page on the hotspot (typing passwords on an e-ink button pad is painful); saved networks live on the SD card (`/kw/net.txt`, never uploaded). The device then serves the same editor at `http://<name>.local` (mDNS, name chosen by the user) and its LAN address, and shows the address and a QR code. Only devices on the same network can reach it; a local access PIN, shown on the device, is required for edits; HTTP on the local network is limited to local-only actions.
+- **Sync (explicit):** a "Sync now" action on the device. It joins the chosen network, opens TLS to the Studio, does its work, disconnects and sleeps. It never runs on a timer, never wakes the radio by itself, and shows what it is about to send before it sends.
+
+**Pairing and permissions**
+- The device pairs with an account once: the device shows a short pairing code; the user enters it in the Studio (signed in) and confirms the device name; the server issues a **device token** scoped to that account and, optionally, to one project. The token is stored on the SD card and can be revoked from the Studio at any time; a lost SD card means revoke.
+- Server side: device tokens are a separate credential type with the narrowest scope (read the project's X4 pack and check-in list; write log uploads and edits to the device's own draft), rate-limited, audited, and never able to read other projects or private profile data.
+
+**What syncs, and which way (each category is a separate switch, shown on the device)**
+- **Down (Studio to X4):** the X4 pack (checkins list, month packs, support text, theme word, language pack), and edits made in the editor. Default on.
+- **Up (X4 to Studio):** edits made in the on-device editor (project draft), default on; **check-in log and Focus counts, default off** because they are health data. When on, they go only to the user's private storage, are never part of a project's forkable source or any snapshot, and can be deleted from the Studio. The Studio's scanner refuses log data in a snapshot.
+- Conflicts: the device edits a draft; the Studio merges through the existing versioning (three-way merge with a conflict view in the editor). The device never silently overwrites a newer Studio version: it shows "Studio has newer changes" and lets the user choose.
+- Time: sync can set the device clock (as the hotspot page does now) when the user allows it.
+
+**Editor on the device**
+- Lite and full editors (section 14) work the same on the hotspot and on Wi-Fi; on Wi-Fi the phone may also have internet, so a signed-in Studio tab and the device editor can both be open, and "Send to X4" and "Import from X4" go through the device token or the phone, whichever the user picks.
+- Everything the editor saves to the device is small JSON on the SD card; check-in blocks rewrite `/kw/checkins.txt` at once.
+
+**Slices**
+- **N1 firmware networking:** station mode with the saved-network store, join flow via the hotspot page, mDNS name, local PIN, RAM and flash measurement in CI, host tests with a simulated network; the Wi-Fi screen shows mode and address.
+- **N2 sync client:** TLS with a pinned key, pairing, device token, sync screen with a preview of what will be sent, categories, resumable small transfers, failure handling; server side in `studio/`: device tokens, endpoints, audit and revoke UI, private log storage, permission tests.
+- **N3 editor on the device:** section 14 slices X1 to X3 on top of N1 and N2, with a conflict view for "Studio has newer changes".
+- **Checks:** firmware CI green with RAM and flash numbers; no plain-text credentials on the SD card beyond the saved network (marked as such); an "off" test that proves nothing is sent unless Sync is pressed; the log-off default; privacy tests that a snapshot never contains log data.

@@ -218,7 +218,7 @@ continuous semantic zoom through three levels.
 | --- | --- | --- |
 | Book | every spread | `#book` |
 | Spread | two facing pages, large | `#spread/12` (1-based) |
-| Day | the day-page editor (Flow/Grid, palette, options, undo, save, methods) for a day page; a read-only page view for any other page until block pages arrive (C5) | `#day/2026-10-14`, `#page/safety` |
+| Day | the day page, viewed first (clean, read-only); **Edit** opens the editor (Flow/Grid, palette, options, undo, save, methods). A read-only page view for any other page until block pages arrive (C5) | `#day/2026-10-14` (view), `#day/2026-10-14/edit` (editing), `#page/safety` |
 
 - **Move between levels:** tap a page (book to spread, spread to day; a quick double tap goes straight to the day), zoom in past
   one whole page (wheel, pinch, `+`), the Book / Spread / Day buttons, the breadcrumb (`Book > Spread 12 > Day Oct 14`), Back.
@@ -231,6 +231,14 @@ continuous semantic zoom through three levels.
 - **Accessibility:** every control is a labelled 44px button; the breadcrumb is a labelled `nav` with `aria-current`; a live region
   says "Now at: ..." on every level change and focus moves to the current crumb; focus is visible; with reduced motion the zoom
   between levels is instant.
+- **View versus edit (E1):** the editor UI exists only while you edit a page. A day opens for **viewing**: the page at a larger
+  size, centered, read-only (an Actual size button, Versions, and More with Download and Copy). No palette, options, Flow/Grid,
+  undo or meter, and none of it is in the page or the accessibility tree. **Edit** (button, `E` or `Enter`) draws it all, shows an
+  **Editing** pill, and moves focus to the Flow/Grid switch. **Done** (button or `Escape`) takes it away and returns focus to Edit.
+  Edits autosave as before and stay in the draft, and Undo keeps its steps while you are on the day. `Escape` while viewing goes up a
+  level. The hash carries the mode (`#day/2026-10-14/edit`): reload, Back and Forward restore it; Edit pushes one history entry and
+  Done steps back over it. On a phone or narrow window the panels are a bottom sheet under the page (Blocks, + Add; the arrow folds it
+  to its tab bar). Other pages stay view-only with their note until C5. `KW.go({ level: 'day', date, edit: true })` opens straight to editing. Guests, the demo and the Artifact behave the same.
 - **Jump:** type a page number (`30`, `p30`) or an id (`safety`, `week.03.review`, a date like `2026-10-05`).
 - **Legend (i):** lock = protected page (Closing, Support, Safety plan: can move, never hidden); pages a book hides in
   `content/book.json` sit dimmed in a row under the book; the 5.5x8.5 / 8.5x11 switch reflows the same pages.

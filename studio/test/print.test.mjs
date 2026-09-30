@@ -140,3 +140,51 @@ test('editor to print: edit in editor state, commit over the API, export that co
     assert.ok(!pagesOf(await render(dir, 'small')).includes('Studio habits'));
   } finally { await t.close(); fs.rmSync(dir, { recursive: true, force: true }); }
 });
+
+test('editor to print after a fork and a merge: independent edits in a fork and upstream (and one resolved conflict) merge, export, render, check.mjs says "[] 0"', { skip, timeout: 600_000 }, async () => {
+  const t = await serve();
+  const dir = journalCopy();
+  try {
+    const ana = await t.signup('anna-print'), bo = await t.signup('bobo-print');
+    const api = (m, u, token, body) => t.call(m, u, { token, body });
+    const up = (await api('POST', '/api/projects', ana, { name: 'Print Sample', visibility: 'public', allowReuse: true, snapshot: snapshotFromJournal(dir), license: 'CC BY 4.0' })).body.project;
+    const fk = (await api('POST', `/api/projects/${up.id}/forks`, bo, { name: 'Print fork' })).body.project;
+    assert.equal(fk.attribution.license, 'CC BY 4.0');
+    const edit = async (who, pid, message, fn) => {
+      const h = (await api('GET', `/api/projects/${pid}/head`, who)).body, snap = structuredClone(h.snapshot); fn(snap);
+      const r = await api('POST', `/api/projects/${pid}/commits`, who, { branch: 'main', expectedHead: h.commit.id, message, snapshot: { day: snap.day, book: snap.book } });
+      assert.equal(r.status, 201, JSON.stringify(r.body));
+    };
+    const block = (s, u) => s.day.blocks.find((b) => b.uid === u);
+    // the fork: a habits block, no fact line, a Notes page, and a shorter action list
+    await edit(bo, fk.id, 'Habits, no fact, a Trip page', (s) => {
+      s.day.blocks.splice(s.day.blocks.findIndex((b) => b.type === 'actions'), 0, { uid: 'fork-habits', type: 'checks', on: true, title: 'Fork habits', labels: ['Walked', 'Stretched'] });
+      block(s, 'fact').on = false; block(s, 'actions').count = 2;
+      s.book.default.splice(3, 0, { id: 'trip', type: 'notes', on: true, options: { title: 'Trip notes' } });
+    });
+    // upstream, meanwhile: a shorter review, the same action list changed differently (a conflict), lineage page hidden
+    await edit(ana, up.id, 'Shorter review, one action line', (s) => { block(s, 'review').h = 1; block(s, 'actions').count = 1; s.book.default.find((p) => p.id === 'lineage').on = false; });
+    const pr = (await api('POST', `/api/projects/${up.id}/proposals`, bo, { sourceProject: fk.id, sourceBranch: 'main', title: 'Habits and a trip page' })).body.proposal;
+    const cmp = (await api('GET', `/api/projects/${up.id}/proposals/${pr.number}/compare`, ana)).body;
+    assert.deepEqual(cmp.merge.conflicts.map((c) => c.id), ['block:actions']);
+    const expectedHeads = { ours: cmp.commits.ours.id, theirs: cmp.commits.theirs.id };
+    assert.equal((await api('POST', `/api/projects/${up.id}/proposals/${pr.number}/merge`, ana, { expectedHeads })).status, 409);
+    const merged = await api('POST', `/api/projects/${up.id}/proposals/${pr.number}/merge`, ana, { expectedHeads, resolutions: { 'block:actions': { choose: 'manual', value: { ...cmp.merge.conflicts[0].ours, count: 2 } } } });
+    assert.equal(merged.status, 201, JSON.stringify(merged.body)); assert.equal(merged.body.commit.parents.length, 2);
+    // export exactly the merged version into the print pipeline and render both trims
+    const got = (await api('GET', `/api/projects/${up.id}/commits/${merged.body.commit.id}`, ana)).body;
+    exportJournal(got.snapshot, dir);
+    for (const size of ['small', 'letter']) {
+      const out = await render(dir, size), html = pagesOf(out);
+      assert.ok(html.includes('Fork habits'), `${size}: the fork's block is on the printed day pages`);
+      assert.ok(!html.includes('class="fact"'), `${size}: the fork hid the fact line`);
+      assert.ok(html.includes('Trip notes'), `${size}: the fork's Notes page is in the book`);
+      assert.ok(!html.includes('Where each piece comes from'), `${size}: upstream hid the lineage page`);
+      const r = (await run('node', ['check.mjs', path.basename(out)], { cwd: dir }).catch((e) => ({ stdout: `FAILED: ${e.stdout}${e.stderr}` }))).stdout.trim();
+      assert.match(r, /\[\] 0$/, `${size}: check.mjs -> ${r}`);
+    }
+    // page ids stay unique and stable through the merge
+    const L = JSON.parse(fs.readFileSync(path.join(dir, 'out/m2026-10/layout.json'), 'utf8')), ids = L.pages.map((p) => p.id);
+    assert.equal(new Set(ids).size, ids.length); assert.ok(ids.includes('trip'));
+  } finally { await t.close(); fs.rmSync(dir, { recursive: true, force: true }); }
+});

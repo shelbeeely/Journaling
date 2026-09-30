@@ -120,3 +120,12 @@ tbody th { font-weight: 600; white-space: nowrap; }
 .links a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px; }
 @media (min-width: 720px) { .foot-in { grid-template-columns: 1fr auto; align-items: start; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+
+.tag.now { background: var(--panel); color: var(--ink); border: 1px solid var(--accent); }
+.rintro { color: var(--muted); margin: 0 0 12px; }
+.road { list-style: none; padding: 0; margin: 0 0 32px; display: grid; gap: 12px; }
+.rc { border: 1px solid var(--line); border-radius: 12px; background: var(--panel); padding: 14px 16px; }
+.rh { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.rh h4 { margin: 0; font-size: 1.02rem; }
+.rc p { margin: 6px 0 0; }
+@media (min-width: 820px) { .road { grid-template-columns: repeat(2, 1fr); } }
