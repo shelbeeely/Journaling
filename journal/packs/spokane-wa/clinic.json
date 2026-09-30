@@ -1,0 +1,56 @@
+{
+ "name": "Unify Community Health – Mission",
+ "address": "120 W Mission Ave, Spokane 99201",
+ "checked": "Sep 2026",
+ "lines": [
+  {
+   "id": "medical",
+   "name": "Medical",
+   "text": "<b>509-326-4343</b>, you can text this number. After hours: call or text the same number.",
+   "chips": "TEXT CALL",
+   "verified": {
+    "who": "Claude, reviewing for Shelbee (docs/review/support-verification.md)",
+    "date": "2026-09-28",
+    "source": "https://www.yvfwc.com/ (search snippet; site returns 403 here)",
+    "note": "partly"
+   }
+  },
+  {
+   "id": "pharmacy",
+   "name": "Pharmacy",
+   "text": "509-323-8757, Mon–Fri 8 am–7 pm. Walk-in or mail delivery.",
+   "chips": "CALL",
+   "verified": false,
+   "checkBeforePrinting": true,
+   "check": "number, hours and mail delivery (seen only on third-party listings)"
+  },
+  {
+   "id": "messages",
+   "name": "Messages",
+   "text": "MyChart at mychart.yvfwc.org, for messages, results and appointments.",
+   "chips": "ONLINE",
+   "verified": {
+    "who": "Claude, reviewing for Shelbee (docs/review/support-verification.md)",
+    "date": "2026-09-28",
+    "source": "https://mychart.yvfwc.org/MyChart/Authentication/Login"
+   }
+  },
+  {
+   "id": "hours",
+   "name": "Hours",
+   "text": "Medical Mon–Fri 7:45 am–7 pm; closed weekends. Counseling and therapy on site.",
+   "verified": false,
+   "checkBeforePrinting": true,
+   "check": "Mon-Fri 7:45 am-7 pm is partly confirmed; counseling on site is not"
+  },
+  {
+   "id": "also",
+   "name": "Also",
+   "text": "Unify NE, 4001 N Cook St (Northeast Community Center): medical and dental, same medical number.",
+   "chips": "VISIT",
+   "verified": false,
+   "checkBeforePrinting": true,
+   "check": "counseling, the NE address and dental"
+  }
+ ]
+}

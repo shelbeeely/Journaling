@@ -1,9 +1,9 @@
-# Compact STA schedules for the monthly books -> gtfs/network.json
+# Compact STA schedules for the monthly books -> network.json (this folder is part of the spokane-wa pack; after a refresh run: cd journal && node packs-cli.mjs seal spokane-wa)
 #   1. Network summary: every route, first–last bus and typical gap, weekday / Saturday / Sunday.
 #   2. Hour grids for chosen routes: minutes past each hour at the first timepoint, both directions.
 # Each book uses real sample dates inside its own month (2nd Wednesday, 2nd Saturday, 2nd Sunday),
 # so EWU session/break schedules and service changes are right for that month.
-# Refresh: curl -L -o gtfs/sta.zip https://www.spokanetransit.com/gtfs && unzip -o gtfs/sta.zip -d gtfs && python3 gtfs/network.py
+# Refresh (run inside this folder): curl -L -o sta.zip https://www.spokanetransit.com/gtfs && unzip -o sta.zip && python3 network.py && python3 build.py
 import csv, collections, json, os, datetime as dt, statistics
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 R = lambda f: csv.DictReader(open(f, encoding='utf-8-sig'))

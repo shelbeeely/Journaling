@@ -32,7 +32,7 @@
   "lines": ["988 (call or text)", "text HOME to 741741"]
  },
  "paths": {
-  "support": "content/support.generic.json",
+  "support": "generic",
   "trans": null,
   "clinic": null,
   "seasons": null

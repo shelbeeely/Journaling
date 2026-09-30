@@ -1,9 +1,9 @@
 // Everything about place, transit and the year comes from content/profile.json (profile.mjs).
-import { PROFILE, moduleOn, profilePath, epochMs } from './profile.mjs';
+import { PROFILE, moduleOn, packFile, readContent, epochMs } from './profile.mjs';
 import fsBus from 'node:fs';
-// The transit feed (paths.transit, e.g. gtfs/): only read when the bus module is on and the feed is there.
-const feedFile = (name) => (moduleOn('bus') && PROFILE.paths.transit ? profilePath(`${PROFILE.paths.transit}/${name}`) : null);
-const readFeed = (name) => { const f = feedFile(name); return f && fsBus.existsSync(f) ? JSON.parse(fsBus.readFileSync(f)) : null; };
+// The transit feed (the pack named by paths.transit, its gtfs/ folder): only read when the bus module is on and the feed is there.
+const feedFile = (name) => (moduleOn('bus') && PROFILE.paths.transit ? packFile('transit', name) : null);
+export const readFeed = (name) => { const f = feedFile(name); return f && fsBus.existsSync(f) ? JSON.parse(fsBus.readFileSync(f)) : null; };
 const BUS = readFeed('route6.json');
 // How much of a month the transit feed covers, from the feed's own dates (network.json):
 // 'full' = every day inside valid_from..valid_to and the month is in network.json; 'partial' = the feed starts or ends
@@ -26,7 +26,7 @@ import * as A from 'astronomy-engine';
 import fs from 'node:fs';
 import ical from 'node-ical';
 import { WEEKDAYS, SEKKI, KO, koIndex, sekkiIndex } from './japanese.mjs';
-import { holidays } from './holidays.mjs';
+import { holidays, withObservances } from './holidays.mjs';
 import { payEvents } from './payperiods.mjs';
 const PAY = moduleOn('pay_periods') ? payEvents() : {};
 
@@ -36,12 +36,12 @@ export const CONFIG = {
   tz: PROFILE.location.timezone,
 };
 
-// Micro-seasons, keyed by solar-longitude window n (1-72): the profile's paths.seasons file (a module exporting SEASONS or SPOKANE,
-// each n -> [name, note]); without one, the English names of the 72 Japanese seasons and no notes.
+// Micro-seasons, keyed by solar-longitude window n (1-72): the seasons-history pack named by paths.seasons (each n -> [name, note]); without one, the English names of the 72 Japanese seasons and no notes.
 const SEASONS = PROFILE.paths.seasons
-  ? await import(profilePath(PROFILE.paths.seasons)).then((m) => m.SEASONS || m.SPOKANE || m.default)
+  ? readContent('seasons')
   : Object.fromEntries(KO.map((k, i) => [String(i + 1), [k[2], '']]));
-if (!SEASONS || !SEASONS['72']) throw new Error(`profile paths.seasons (${PROFILE.paths.seasons}) must export SEASONS (or SPOKANE) with entries "1" to "72", each [name, note]`);
+if (!SEASONS || !SEASONS['72']) throw new Error(`profile paths.seasons (${PROFILE.paths.seasons}) must give entries "1" to "72", each [name, note]`);
+const OBSERVANCES = PROFILE.paths.holidays ? readContent('holidays') : null; // extra observances from a holidays pack, added to the built-in US list
 const SIGNS = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
 export const GLYPH = { Aries: '♈', Taurus: '♉', Gemini: '♊', Cancer: '♋', Leo: '♌', Virgo: '♍', Libra: '♎', Scorpio: '♏', Sagittarius: '♐', Capricorn: '♑', Aquarius: '♒', Pisces: '♓' };
 const norm = (x) => ((x % 360) + 360) % 360;
@@ -203,7 +203,7 @@ export function build(icsPath, vol, words = []) {
     }
     for (const [name, t] of seasons) if (t.date >= start && t.date < end) notes.push({ kind: 'season', text: `${name} ${fmtTime(t.date)}` });
     const mm = key.slice(5);
-    for (const h of (HOL[y] ||= holidays(y))[mm] || []) notes.unshift({ kind: 'holiday', text: h.name, federal: h.federal });
+    for (const h of (HOL[y] ||= withObservances(holidays(y), y, OBSERVANCES))[mm] || []) notes.unshift({ kind: 'holiday', text: h.name, federal: h.federal });
     for (const t of PAY[key] || []) notes.push({ kind: 'pay', text: t });
     if (BUS && BUS.holiday_service.includes(key) && key >= BUS_START && key <= BUS_END && busCoverage(key.slice(0, 7)) !== 'none') notes.push({ kind: 'bus', text: `${PROFILE.transit.agency}: Sunday bus schedule` });
     if (METEORS[mm]) notes.push({ kind: 'sky', text: METEORS[mm] });
