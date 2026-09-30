@@ -126,7 +126,7 @@ tbody th { font-weight: 600; white-space: nowrap; }
 .road { list-style: none; padding: 0; margin: 0 0 32px; display: grid; gap: 12px; }
 .rc { border: 1px solid var(--line); border-radius: 12px; background: var(--panel); padding: 14px 16px; }
 .rh { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.rh h4 { margin: 0; font-size: 1.02rem; }
+.rh h3 { margin: 0; font-size: 1.02rem; }
 .rc p { margin: 6px 0 0; }
 @media (min-width: 820px) { .road { grid-template-columns: repeat(2, 1fr); } }
 
