@@ -1,3 +1,14 @@
+---
+title: "Dutch door spread"
+slug: dutch-door-method
+category: bujo-family
+evidenceLevel: none
+lastReviewed: 2026-09-30
+status: reviewed
+contributors:
+  - Journalwright Studio contributors
+---
+
 # Dutch door spread
 
 A bullet journal layout where some pages are cut short, so one strip of the spread stays visible while you turn the rest.
@@ -140,7 +151,7 @@ There is no founder statement. The principles below are what the tutorials agree
 - Nothing Dutch-door-specific. People use the BuJo key:
   - `•` task, `×` done, `>` migrated, `<` scheduled;
   - `○` event, `–` note.
-- Keeping Watch's "Quick bullets" block already uses this key.
+- Journalwright Studio's "Quick bullets" block already uses this key.
 
 ### 5.9 Weekly reset
 - At the end of the week, check the strip against the day pages:
@@ -640,41 +651,41 @@ Yes, if you make columns by shift instead of calendar date.
 **Is there research showing it helps?**
 Not for the layout. There is some evidence for writing specific plans and bedtime to-do lists, which you can do in it.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
-Keeping Watch already prints week spreads and day pages as separate pages. A printed book can't be cut by KDP, and asking Shelbee to cut every week isn't calm. So the goal is to get the *effect*: week visible on each day, without cutting.
+Journalwright Studio already prints week spreads and day pages as separate pages. A printed book can't be cut by KDP, and asking anyone to cut every week isn't calm. So the goal is to get the *effect*: week visible on each day, without cutting.
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Built? |
 |---|---|---|---|---|
-| Week strip on every day page: a thin band showing the 7 days with this day circled and the week's shift and event icons | Day block | High | Pure line art. Needs its own `data-zone` (`weekstrip`). Must sit inside the 9pt frame, below the DATE/TITLE/TAGS header. Data comes from the calendar, so it fills itself. | No |
-| Week tracker rows on the week spread, lined up with day columns (meds, outside, spoons) | Week spread | High | Same icons as Habit dots (empty/half/full). One zone per row. | Partly (Habit dots block is being added for day pages; week spreads don't have tracker rows yet) |
-| "Cut line" guide: a dotted line and scissors icon at 40 mm on the week spread for people who want to make a real Dutch door | Week spread | Low | KDP prints fine, but cutting a perfect-bound book tears. Don't add. | No |
-| Fold-under private panel: mark the outer half of a notes page as foldable | Back matter | Low | Folding a KDP page cracks the spine. Skip. | No |
+| Week strip on every day page: a thin band showing the 7 days with this day circled and the week's shift and event icons | Day block | High | Pure line art. Needs its own `data-zone` (`weekstrip`). Must sit inside the 9pt frame, below the DATE/TITLE/TAGS header. Data comes from the calendar, so it fills itself. | **Built** (`weekstrip` block, "Week at a glance": this week as a strip, today ringed; it has a height option only, so the `rows` and `mark` options below are planned) |
+| Week tracker rows on the week spread, lined up with day columns (meds, outside, spoons) | Week spread | High | Same icons as Habit dots (empty/half/full). One zone per row. | Partly (the Habit dots block is built for day pages; week spreads don't have tracker rows yet) |
+| "Cut line" guide: a dotted line and scissors icon at 40 mm on the week spread for people who want to make a real Dutch door | Week spread | Low | KDP prints fine, but cutting a perfect-bound book tears. Don't add. | No (not planned) |
+| Fold-under private panel: mark the outer half of a notes page as foldable | Back matter | Low | Folding a KDP page cracks the spine. Skip. | No (not planned) |
 | Month review "compare four strips" prompt | Month page ("Closing the month") | Med | Text + 4 small grids. Scan zone per grid. | Partly (Closing the month exists) |
-| "Week in one sentence" line on the weekly review | Week spread / weekly review | High | One line. Zone `weeksentence`. | No |
+| "Week in one sentence" line on the weekly review | Week spread / weekly review | High | One line. Zone `weeksentence`. | Planned |
 
-### b. X4
+### b. E-ink companion (X4)
 
 | Idea | Where | Fit | RAM, scope and calm notes |
 |---|---|---|---|
-| Week strip on the sleep screen: 7 small cells under today, each showing the day's check-in state (dot empty/half/full for meds) | Sleep screen | High | 7×N 1-bit cells, tiny static buffer. Redraws at 12:31 a.m. with the rest. No notifications. |
-| Week view screen: the same strip larger, one row per built-in check-in | A screen | High | Reads existing logs. Static array of 7×15 bytes. Calm, no streak counts or badges. |
-| Custom habit rows from the day page layout, shown as week dots | Check-in item kind `dots` + week screen | Med | Uses the bridge. Max 16 custom items. |
-| Download a week's strip as part of the month log | Wi-Fi page | Med | Just adds to the existing log export. Nothing leaves except over the hotspot. |
+| Week strip on the sleep screen: 7 small cells under today, each showing the day's check-in state (dot empty/half/full for meds) | Sleep screen | High | 7×N 1-bit cells, tiny static buffer. Redraws with the rest of the nightly sleep-screen redraw. No notifications. Planned |
+| Week view screen: the same strip larger, one row per built-in check-in | A screen | High | Reads existing logs. Static array of 7×15 bytes. Calm, no streak counts or badges. Planned |
+| Custom habit rows from the day page layout, shown as week dots | Check-in item kind `dots` + week screen | Med | Uses the bridge. Max 16 custom items. **Built** for the `dots` items (Habit dots); the week screen is planned |
+| Download a week's strip as part of the month log | Wi-Fi page | Med | Just adds to the existing log export. Nothing leaves except over the hotspot. The month log download is built; adding a week strip to it is planned |
 
-### c. Proposed editor blocks
+### c. Editor blocks (built and proposed)
 
 | type | Name | Options | data-zone | X4 export kind |
 |---|---|---|---|---|
-| `weekstrip` | Week at a glance | `rows`: flags (shifts, events, bus, moon); `mark`: choice (circle, arrow); `height`: num 4–10 tenths of an inch | `weekstrip` | None (built from calendar data) |
-| `habits` (existing, being added) used as week row | Habit dots | `title`, `labels[]` | `habits` | `dots` per label |
-| `weekline` | Week in a sentence | `label`: text (default "This week in one line") | `weekline` | None |
+| `weekstrip` (**built**, with `height` only: 3–8 tenths of an inch) | Week at a glance | proposed extras: `rows`: flags (shifts, events, bus, moon); `mark`: choice (circle, arrow) | `weekstrip` | None (built from calendar data) |
+| `habits` (**built**) used as week row | Habit dots | `title`, `labels[]` | `habits` | `dots` per label |
+| `weekline` (planned) | Week in a sentence | `label`: text (default "This week in one line") | `weekline` | None |
 
 ### d. Proposed method layout ("Dutch door day")
 
-A one-click layout that gives each day page a week band on top and a roomy daily log.
+A one-click layout that gives each day page a week band on top and a roomy daily log. Planned: it is not in the editor's "Start from a method" list yet, but every block it uses exists today (the `weekstrip` row and mark options are the proposed part).
 
 1. `weekstrip` (rows: shifts, events; mark: circle; height 6)
 2. `divider`
@@ -689,7 +700,7 @@ A one-click layout that gives each day page a week band on top and a roomy daily
 - **Real cutting of printed books.** KDP books are perfect-bound (glued). Cut pages will fall out. It also breaks the frame, header, SEND TO strip and page code, which must stay on every page.
 - **Decorative shaped cuts and heavy doodle themes.** Too busy for the calm design, and not possible in print anyway.
 - **Full empty page per day with no prompts.** The blank page pressure Masha Plans warns about. Keep a small finish line on every day.
-- **Streak-style week rows on the X4.** No badges or streaks; show the dots only.
+- **Streak-style week rows on the e-ink companion.** No badges or streaks; show the dots only.
 
 ## 26. Open questions
 

@@ -1,6 +1,17 @@
+---
+title: "Dream journal"
+slug: dream-journal
+category: reflective-writing
+evidenceLevel: some
+lastReviewed: 2026-09-30
+status: reviewed
+contributors:
+  - Journalwright Studio contributors
+---
+
 # Dream journal (dream diaries, recall, lucid logs, nightmare rescripting)
 
-Research doc for Keeping Watch. Sources checked 2026-09-28. Anything marked **[uncertain]** came from memory or a source I could not open; verify before relying on it.
+Research doc for Journalwright Studio. Sources checked 2026-09-28. Anything marked **[uncertain]** came from memory or a source I could not open; verify before relying on it.
 
 **Health note.** Nightmares and sleep problems can be signs of something a clinician should look at. This doc describes research, not treatment. If you are in crisis, use your safety plan ([safety-planning.md](safety-planning.md)) or call or text 988 (US).
 
@@ -28,7 +39,7 @@ Research doc for Keeping Watch. Sources checked 2026-09-28. Anything marked **[u
 
 ## 2. Summary
 
-A dream journal is a habit of writing down dreams right after waking. It does three separate jobs, and it matters which one you want. First, it trains recall: most people forget almost everything within minutes, and a log makes you notice more (though researchers are still arguing about whether logs enhance recall or just measure it better; Aspy et al. 2015). Second, it makes dreams into data: coding systems like Hall and Van de Castle's, and the 20,000-plus reports on DreamBank (the site says over 20,000; a 2008 paper said over 22,000), show that dream content follows waking concerns in ways you can count. Third, it is the base for two trainable skills: lucid dreaming (MILD and related techniques; success rates in the largest field study I opened were about 16% in the second week) and imagery rehearsal for nightmares (rewrite the nightmare while awake and rehearse the new version; the American Academy of Sleep Medicine recommends this). It is not a proven mood or wellbeing intervention, and the evidence that lucid dreaming helps mental health is thin and comes with cautions about sleep disruption. For Keeping Watch it fits as a small, optional morning block plus a bed-side Keeper insert, with a clear line between "capture" and "rescripting."
+A dream journal is a habit of writing down dreams right after waking. It does three separate jobs, and it matters which one you want. First, it trains recall: most people forget almost everything within minutes, and a log makes you notice more (though researchers are still arguing about whether logs enhance recall or just measure it better; Aspy et al. 2015). Second, it makes dreams into data: coding systems like Hall and Van de Castle's, and the 20,000-plus reports on DreamBank (the site says over 20,000; a 2008 paper said over 22,000), show that dream content follows waking concerns in ways you can count. Third, it is the base for two trainable skills: lucid dreaming (MILD and related techniques; success rates in the largest field study I opened were about 16% in the second week) and imagery rehearsal for nightmares (rewrite the nightmare while awake and rehearse the new version; the American Academy of Sleep Medicine recommends this). It is not a proven mood or wellbeing intervention, and the evidence that lucid dreaming helps mental health is thin and comes with cautions about sleep disruption. In a Journalwright Studio book it fits as a small, optional morning block plus a bed-side Keeper insert, with a clear line between "capture" and "rescripting."
 
 ---
 
@@ -625,52 +636,53 @@ Treat the wake-up after your main sleep as "morning." Protect sleep.
 
 ---
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
 ### a. Printed book
 
 | Idea | Where it goes | Fit | B&W and scan-zone notes | Already built? |
 |---|---|---|---|---|
-| Dream log block: title, recall dots, nightmare and lucid marks, 3-4 lines | Day block | Med | Needs `data-zone`. Keep lines short: dream text is private and should not be a "send to" candidate | No (Writing space and Lined notes exist) |
-| Sleep times | Day block | High | Already there | Yes (Sleep times) |
-| Monthly dream index (recall and nightmare dots) | Month page or tracker page | Med | One row of 31 tiny circles; could reuse Habit dots | Partly (Habit dots) |
-| Dreamsigns list | Back matter or Keeper | Med | Personal, so Keeper is safer | No |
-| Nightmare rescripting page (IRT) | Back matter, next to Support and Safety plan | Med | Text-only, plain; no scan | No |
-| Lucid training card | Keeper insert | Low | Optional; sleep-disrupting so opt-in only | No |
-| Weekly count strip | Weekly review | Med | Simple ticks | Partly |
-| Bedside pocket notebook | Separate product | Low | Outside the monthly book; scope creep | No |
+| Dream log block: title, recall dots, nightmare and lucid marks, 3-4 lines | Day block | Med | Needs `data-zone`. Keep lines short: dream text is private and should not be a "send to" candidate | Planned (Writing space and Lined notes exist) |
+| Sleep times | Day block | High | Already there | Yes (`sleeptimes` block, with an optional quality scale) |
+| Monthly dream index (recall and nightmare dots) | Month page or tracker page | Med | One row of 31 tiny circles; could reuse Habit dots | Partly (Habit dots block is built) |
+| Dreamsigns list | Back matter or Keeper | Med | Personal, so Keeper is safer | Planned |
+| Nightmare rescripting page (IRT) | Back matter, next to Support and Safety plan | Med | Text-only, plain; no scan | Planned |
+| Lucid training card | Keeper insert | Low | Optional; sleep-disrupting so opt-in only | Planned |
+| Weekly count strip | Weekly review | Med | Simple ticks | Partly (the weekly review exists; the strip is planned) |
+| Bedside pocket notebook | Separate product | Low | Outside the monthly book; scope creep | Planned |
 
 **Privacy.** Dream text can include real people and trauma. Personal book builds leave CI only inside the password 7z, and KDP proofs stay private. Do not put sample dream text with any private detail into the public editor. Use generic sample content only.
 
-### b. X4
+### b. E-ink companion (X4)
 
 | Idea | Where it goes | Fit | RAM, scope and calm notes |
 |---|---|---|---|
-| "Recalled a dream" | Check-in `toggle` | Med | One item. No text |
+| "Recalled a dream" | Check-in `toggle` | Med | One item. No text. Works today with a `checks` block |
 | "Nightmare last night" | Check-in `toggle` | Med | One item |
 | "Lucid" | Check-in `toggle` | Low | Optional |
-| Sleep quality | Existing sleep check-in | High | Already built |
+| Sleep hours | Existing sleep check-in | High | Already built (the X4 records sleep hours). A quality rating on the X4 is planned |
 | Recall 0-3 | Check-in `scale` | Low | One item; uses a slot |
-| Month stats for the Keeper handoff | Existing month-stats output | Med | Add "nightmare nights" count; no new screens |
+| Month stats for the Keeper handoff | Existing month-stats output | Med | Add "nightmare nights" count; no new screens. Planned |
 | Wake-time capture on device | none | Do not build | No text entry, no voice, no AI |
 | Bedtime reminder or lucid alarm | none | Do not build | No notifications |
 | Sleep screen dream line | none | Do not build | Private and unneeded |
 
-Custom items are capped at 16 (the firmware's MAX_CUSTOM); the built-ins take 15.
+Custom items are capped at 16 (the firmware's MAX_CUSTOM).
 
-### c. Proposed editor blocks
+### c. Editor blocks (proposed, and existing blocks to reuse)
 
 | Type | Name | Options | data-zone | X4 export kind |
 |---|---|---|---|---|
-| `dream` | Dream log | `lines` (num 2-8), `recall` (bool: 0-3 dots), `marks` (flags: nightmare, lucid, woke), `feeling` (bool), `signs` (bool: dreamsigns line), `paper` (dots, lines, grid, blank) | `dream` | Items map through existing kinds: `toggle` for recalled, nightmare, lucid; `scale` for recall 0-3 if wanted |
-| (reuse) | Habit dots | labels "Recalled", "Nightmare" | existing `habits` | `dots` (0 empty, 1 half, 2 full) |
-| (reuse) | Sleep times | quality scale on | existing `sleeptimes` | built-in, not exported |
-| (reuse) | Words to circle | label "Feeling", words for dream emotions | existing `words` | none |
-| (reuse) | Checkboxes | "Nightmare", "Lucid", "No recall" | existing `checks` | `toggle` per label |
+| `dream` (planned) | Dream log | `lines` (num 2-8), `recall` (bool: 0-3 dots), `marks` (flags: nightmare, lucid, woke), `feeling` (bool), `signs` (bool: dreamsigns line), `paper` (dots, lines, grid, blank) | `dream` | Items map through existing kinds: `toggle` for recalled, nightmare, lucid; `scale` for recall 0-3 if wanted |
+| (reuse, built) | Habit dots | labels "Recalled", "Nightmare" | existing `habits` | `dots` (0 empty, 1 half, 2 full) |
+| (reuse, built) | Sleep times | quality scale on | existing `sleeptimes` | built-in, not exported |
+| (reuse, built) | Words to circle | label "Feeling", words for dream emotions | existing `words` | none |
+| (reuse, built) | Checkboxes | "Nightmare", "Lucid", "No recall" | existing `checks` | `toggle` per label |
 
-Build the reuse combination first; add `dream` only if the combined layout feels clunky. Ask Shelbee before adding.
+Build the reuse combination first; add `dream` only if the combined layout feels clunky. Ask before adding: maintainers decide with contributors whether the extra block is worth it.
 
 ### d. Proposed method layout
+Planned: not in the editor's "Start from a method" list yet, but the reuse blocks below all exist today.
 "Dream journal" one-click layout (morning-first):
 1. `sleeptimes` (quality on)
 2. `checks` (Recalled, Nightmare, Lucid)

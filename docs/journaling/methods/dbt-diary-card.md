@@ -1,3 +1,14 @@
+---
+title: "DBT diary card"
+slug: dbt-diary-card
+category: mental-health
+evidenceLevel: strong
+lastReviewed: 2026-09-30
+status: reviewed
+contributors:
+  - Journalwright Studio contributors
+---
+
 # DBT diary card (Dialectical Behavior Therapy self-monitoring)
 
 > **Not medical advice.** This is a research summary to help design journal pages. It is not therapy. The diary card
@@ -6,7 +17,7 @@
 > **If you are in crisis right now:** in the US, call or text **988** (24/7, or chat at chat.988lifeline.org). If you
 > are in immediate danger, call **911**. **Trans Lifeline** (peer support from trans people; they won't call emergency
 > services without your explicit request) is **(877) 565-8860** in the US and **(877) 330-6366** in Canada, weekdays
-> 10 am–6 pm Pacific. You don't have to read the rest of this.
+> 10 am–6 pm Pacific. Outside the US and Canada, check your local services. You don't have to read the rest of this.
 
 Checked 2026-09-28. Where a point is uncertain it is marked **(uncertain)**. Self-harm and suicide come up because the
 card tracks them; this doc keeps those parts factual and non-graphic on purpose. See also the sibling doc
@@ -252,7 +263,7 @@ Order of operations (2–5 minutes, evening):
 6. **Skills used** (0–7), then circle today on the back for each skill you practised.
 7. **Optional one line:** what helped, or what set things off.
 8. **Check:** if any urge is 4–5, or you acted on a harmful urge, follow your safety plan or contact your therapist's
-   coaching line if you have one. If you're in danger, call or text 988 or call 911.
+   coaching line if you have one. If you're in danger, call your local emergency number (in the US, call or text 988, or call 911).
 
 Prompts for the optional line:
 - What was the prompting event for the highest number today?
@@ -681,7 +692,7 @@ Yes. DBT skills are taught widely for emotion dysregulation, substance use, eati
 change the targets.
 
 **Should the X4 or my journal warn anyone if I rate high?**
-No. Keeping Watch never sends alerts. Your plan and your people are the response; you choose when to reach out.
+No. Journalwright Studio never sends alerts. Your plan and your people are the response; you choose when to reach out.
 
 **How long do people keep cards?**
 Through DBT (often a year) and sometimes long after in a lighter form.
@@ -689,73 +700,72 @@ Through DBT (often a year) and sometimes long after in a lighter form.
 **Can I share it with my doctor or psychiatrist?**
 Yes; a week's card is a good summary of meds taken and hard days.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Built? |
 |---|---|---|---|---|
-| Urge rows 0–5 with an "acted?" box, user-named | Day block | High | Bubbles 0–5 need a **zero-based scale**; each block its own `data-zone`; user labels only, never default to "self-harm" text | No (Scale is 1..steps) |
-| Feelings 0–5 (sad, shame, anger, fear, joy) | Day block | High | A compact multi-row scale; joy always included | Partly (Care check-in mood/anxiety; Scale block is single-row) |
-| Skills used 0–7 with key in back matter | Day block + back matter key | High | 8 bubbles fit a single row at 5.5 in; key printed once, not on every page | No |
-| Circle-the-skills word list | Day block | High | Existing Words to circle block with a skills preset | Yes (block), preset no |
-| PLEASE dots | Day block | High | Existing Habit dots with a preset | Yes (block), preset no |
+| Urge rows 0–5 with an "acted?" box, user-named | Day block | High | Bubbles 0–5 need a **zero-based scale**; each block its own `data-zone`; user labels only, never default to "self-harm" text | **Built** (`urge` block, "Urge + acted", user-named labels) |
+| Feelings 0–5 (sad, shame, anger, fear, joy) | Day block | High | A compact multi-row scale; joy always included | **Built** (`feelings` block, "Feelings 0–5") |
+| Skills used 0–7 with key in back matter | Day block + back matter key | High | 8 bubbles fit a single row at 5.5 in; key printed once, not on every page | Partly (`skills` block, "Skills 0–7", with an optional printed key; a back matter key page is planned) |
+| Circle-the-skills word list | Day block | High | Existing Words to circle block with a skills preset | Yes (block), preset planned |
+| PLEASE dots | Day block | High | Existing Habit dots with a preset | Yes (block), preset planned |
 | Meds am/pm | Day block | High | Care check-in has meds | Yes |
-| Weekly card view (7-day grid) | Week spread or weekly review | Med | A mini grid of highest urge/joy/skills per day; fits the weekly review page | No |
-| Chain analysis page | Back matter (2 copies per month) | Med | Plain lines; scan zones per box; private routing | No |
-| Skills key and module list | Back matter | High | One page: 0–7 key, four modules, acronyms | No |
-| Pointer to the safety plan on the card | Day block text line | High | Reuse planned `planref` idea from safety-planning doc | No |
-| Month graph of joy and skills | Month tracker page | Med | Two small sparkline grids to fill by hand | No |
-| Old cards | Keeper | Low | Keeper has no scan codes; could hold a month summary, not daily cards | No |
+| Weekly card view (7-day grid) | Week spread or weekly review | Med | A mini grid of highest urge/joy/skills per day; fits the weekly review page | Planned |
+| Chain analysis page | Back matter (2 copies per month) | Med | Plain lines; scan zones per box; private routing | Planned |
+| Skills key and module list | Back matter | High | One page: 0–7 key, four modules, acronyms | Planned |
+| Pointer to the safety plan on the card | Day block text line | High | Reuse planned `planref` idea from safety-planning doc | Planned |
+| Month graph of joy and skills | Month tracker page | Med | Two small sparkline grids to fill by hand | Planned |
+| Old cards | Keeper | Low | Keeper has no scan codes; could hold a month summary, not daily cards | Planned |
 
-### b. X4
+Pages that hold these therapy blocks print a short note: "Use with a therapist", with the 988 line and Trans Lifeline.
+
+### b. E-ink companion (X4)
 
 | Idea | Where | Fit | RAM, scope and calm notes |
 |---|---|---|---|
-| Urge 0–5 per user label | Check-in item, `scale` with **lo=0** | High | Needs zero-based scale support in export (see c) |
-| Acted? per urge | Check-in item `toggle` | High | Private record only; no alert, no streak |
-| Skills used 0–7 | Check-in item `scale` 0..7 | High | Show the one-line meaning of the selected number on screen (e.g. "5 · tried, helped"); text table in flash, not RAM |
-| Joy 0–5 | Check-in item `scale` 0..5 | High | Same zero-based fix |
-| Skills list | New "choice" or multi-toggle screen | Med | Up to 8 toggles; stay within 16 custom items |
-| Week card | A screen (read-only 7-day grid) | Med | 7 x ~6 cells fits 480x800; built from existing log; static buffer |
-| Skills key | Support screen / a book page | Med | Plain text in the books library |
+| Urge 0–5 per user label | Check-in item, `scale` zero-based | High | **Built** (the `urge` block can also be an X4 item, one 0–5 item per label) |
+| Acted? per urge | Check-in item `toggle` | High | **Built** (same option); private record only; no alert, no streak |
+| Skills used 0–7 | Check-in item `scale` 0..7 | High | **Built** (`skills` block option "Also on X4"). Showing the one-line meaning of the selected number on screen (e.g. "5 · tried, helped") is planned; text table in flash, not RAM |
+| Joy 0–5 | Check-in item `scale` 0..5 | High | **Built** (`feelings` block option "Also on X4") |
+| Skills list | `choice` or multi-toggle screen | Med | A Words to circle block can export as a `choice` (2 to 8 words); a multi-toggle screen is planned. Stay within 16 custom items |
+| Week card | A screen (read-only 7-day grid) | Med | 7 x ~6 cells fits 480x800; built from existing log; static buffer. Planned |
+| Skills key | Support screen / a book page | Med | Plain text in the books library. Planned |
 | Alerts when urges are high | — | Not allowed | No notifications; nothing leaves the device |
 | Trend "score" or streak | — | Not allowed | No badges; avoid pressure |
 
-### c. Proposed editor blocks
+### c. Editor blocks (built and proposed)
 
-**Known X4 gap:** the bridge exports `scale` as 1..steps and has no zero-based option and no "choice" kind. The
-proposals below say what they need; nothing is assumed built.
+**Bridge note:** the `scale` block now has a "Number from 0" option, exported to the X4 as `0..steps-1`, and Words to circle can export as a `choice` item. Earlier drafts of this table listed both as gaps. The therapy blocks below were built as their own block types rather than as presets.
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `scale` preset (needs `zero: bool`) | Urge (your word) | title (user text, default "Urge"), steps 6, lo "none", hi "strong", **zero true** → prints 0–5 | `scale` (`scale_2`…) | `scale` 0..5 (**needs** a zero-based export: `lo=0`, `hi=steps-1`) |
-| `checks` preset | Acted on it? | labels = the urge names | `checks` | `toggle` per label |
-| `ratings` (new) | Feelings 0–5 | title, list of labels (default sad, shame, anger, fear, joy; max 6), steps 6, zero true | `ratings` | one `scale` 0..5 per label (keys `c_<uid>_<slug>`) |
-| `skills07` (new) or `scale` preset with a key | Skills used 0–7 | title "Skills", show-key bool (prints the 8 meanings in 6 pt under the bubbles, or points to back matter) | `skills07` | `scale` 0..7; a future `choice` kind could carry the meaning labels |
-| `words` preset | Skills I tried | words = 8–12 skill names | `words` | not exported (future `choice`/multi-toggle) |
-| `habits` preset | PLEASE | labels: Ate, Slept, Moved, Meds, Clear (no alcohol/drugs) | `habits` | `dots` per label |
-| `lines` preset | What helped | n 1 | `lines` | not exported |
-| `chain` (new, back matter or full-page block) | Chain analysis | n links 3–8 | `chain` | not exported |
+| `urge` (**built**) | Urge + acted | label, user-named urges (up to 3), "Also on X4" | `urge` | a 0..5 `scale` and a `toggle` ("acted") per label, when "Also on X4" is on |
+| `checks` preset | Acted on it? | labels = the urge names | `checks` | `toggle` per label. The `urge` block already includes the "acted" box |
+| `feelings` (**built**) | Feelings 0–5 | label, list of labels (default sad, shame, anger, fear, joy; max 6), "Also on X4" | `feelings` | one `scale` 0..5 per label (keys `c_<uid>_<slug>`) |
+| `skills` (**built**) | Skills used 0–7 | label "Skills", "Print what 0–7 mean" bool, "Also on X4" | `skills` | `scale` 0..7; a future meaning label per number is planned |
+| `words` preset | Skills I tried | words = 8–12 skill names | `words` | `choice` if "Pick one on X4" is on (first 8 words). Preset planned |
+| `habits` preset | PLEASE | labels: Ate, Slept, Moved, Meds, Clear (no alcohol/drugs) | `habits` | `dots` per label. Preset planned |
+| `lines` preset | What helped | n 1 | `lines` | not exported. Planned |
+| `chain` (new, back matter or full-page block) | Chain analysis | n links 3–8 | `chain` | not exported. Planned |
 
-Bridge proposal (for the owner to decide): add an optional `zero` flag on `scale` (and `ratings`) so export writes
-`<key>|<label>|scale|0|<steps-1>|0`. Add a `choice` kind later for skills 0–7 meanings and word lists. Both keep the
-16-item limit in mind: a full DBT set (2 urges + 2 acted + 5 feelings + skills) is 10 items.
+A full DBT set (2 urges + 2 acted + 5 feelings + skills) is 10 X4 items, inside the 16-item limit.
 
 ### d. Proposed method layout: "Diary card"
 
+Planned: not in the editor's "Start from a method" list yet, but the core blocks exist today.
+
 1. Moon/sun/season
 2. Care check-in (meds, meals, mood, anxiety)
-3. Scale (zero-based): Urge A, 0–5
-4. Scale (zero-based): Urge B, 0–5
-5. Checkboxes: Acted on it? (A, B)
-6. Ratings: Feelings 0–5 (sad, shame, anger, fear, joy)
-7. Skills used 0–7
-8. Words to circle: Skills I tried (preset list)
-9. Habit dots: PLEASE
-10. Lined notes: What helped (1 line)
-11. Safety plan pointer (one line)
-12. Writing space (lines), small
+3. Urge + acted (two urges, 0–5)
+4. Feelings 0–5 (sad, shame, anger, fear, joy)
+5. Skills used 0–7
+6. Words to circle: Skills I tried (preset list)
+7. Habit dots: PLEASE
+8. Lined notes: What helped (1 line)
+9. Safety plan pointer (one line)
+10. Writing space (lines), small
 
 On pages printed from this layout, the skills key and chain analysis sheets go in back matter once per month.
 
@@ -765,9 +775,9 @@ On pages printed from this layout, the skills key and chain analysis sheets go i
 - **Alerts, scores, streaks or colours for "good" and "bad" days.** Out of scope and shaming.
 - **Risk ratings or "danger levels".** That's clinical assessment, not a journal's job.
 - **Copying the BRTC card verbatim** as a product page. It's free for clinical use but not commercial; KDP books are
-  commercial. Use Keeping Watch's own layout and wording, and point to UW BRTC for the original.
+  commercial. Use original layout and wording, and point to UW BRTC for the original.
 - **Scan uploads of urge and action data by default.** Route to a private destination only.
-- **Generative AI "coaching" on the X4.** Out of scope.
+- **Generative AI "coaching" on the e-ink companion.** Out of scope.
 - **Detailed behaviour fields** (method, amount of harm). Not needed and not safe to prompt for.
 
 ## 26. Open questions
