@@ -6,6 +6,7 @@
 #include "core/canvas.h"
 #include "core/data.h"
 #include "core/focus.h"
+#include "core/net.h"
 #include "core/settings.h"
 #include "core/update.h"
 #include "hal/hal.h"
@@ -601,7 +602,7 @@ static const MenuEntry MENU[] = {
   {"This month", "totals for your Keeper handoff", IC_CHART, Scr::Month},
   {"Support", "numbers to text or call", IC_HEART, Scr::Support},
   {"My safety plan", "and people to text", IC_PERSON, Scr::Plan},
-  {"Wi-Fi sync", "upload packs, download your log", IC_WIFI, Scr::Sync},
+  {"Wi-Fi", "hotspot, or join your own network", IC_WIFI, Scr::Sync},
   {"Clock", "set the date and time", IC_PRN, Scr::Clock},
   {"Focus", "silent work rounds and breaks", IC_WORK, Scr::Focus},
   {"Settings", "text size, buttons, sleep", IC_GEAR, Scr::Settings},
@@ -951,9 +952,10 @@ static void drawPlan() {
 }
 
 // ---------------------------------------------------------------------------------------------
-// WI-FI SYNC — a hotspot plus a local web page. The QR code joins the network in one scan.
+// WI-FI (Menu, Wi-Fi) — the hotspot, or the user's own Wi-Fi (BUILD-PLAN section 19, slice N1).
+// core/net.cpp owns the modes, the saved networks (/kw/net.txt), the PIN and the one-client rule; these are the screens.
+// The radio and its memory belong to this screen: nothing starts until a mode is picked, and leaving frees it all.
 // ---------------------------------------------------------------------------------------------
-static char SSID[24], PASS[16];
 static void drawQr(const char* text, int x, int y, int size) {
   using qrcodegen::QrCode;
   const QrCode qr = QrCode::encodeText(text, QrCode::Ecc::MEDIUM);
@@ -961,27 +963,221 @@ static void drawQr(const char* text, int x, int y, int size) {
   C->fill(x, y, size, size, false);
   for (int j = 0; j < n; j++) for (int i = 0; i < n; i++) if (qr.getModule(i, j)) C->fill(x + off + i * s, y + off + j * s, s, s);
 }
-static void drawSync(bool up) {
+
+enum class Wv : uint8_t { Home, Saved, Forget, Msg };
+static struct WifiView {
+  Wv v = Wv::Home;
+  int sel = 0;        // Home row, or Saved row
+  int fsel = 0;       // network offered for Forget
+  const char* head = "";
+  const char* msg = "";
+  bool busy = false;  // the radio is starting (a blocking call): draw "Starting…" first
+  int sig = -1;       // what the last draw showed, so the screen redraws only when something changed
+  uint32_t lastPress = 0;
+} WV;
+static const int WIFI_HOME_N = 4;
+static bool wifiRunning() { return NC.phase != NetPhase::Off; }
+static int wifiPages() { return (LG() && (NC.phase == NetPhase::Hotspot || NC.phase == NetPhase::Wifi)) ? 2 : 1; }
+static int wifiSig() { return (int)NC.phase * 100000 + NC.clients() * 1000 + (NC.guard.locked ? 100 : 0) + (int)NC.why * 10 + (NC.apUp ? 1 : 0); }
+
+static void wifiHelp(int y, const char* t) { wrapAll(fS(), M, y, CW, t, LG() ? 29 : 24); }
+
+static void drawWifiHome() {
   C->clear();
-  header("Wi-Fi sync", up ? "hotspot on" : "starting…", IC_WIFI);
-  if (!up) { C->wrap(fBody(), M, 150, CW, "Starting the hotspot…"); hintBar("Stop", "", "", ""); return; }
-  char wifi[96]; snprintf(wifi, sizeof wifi, "WIFI:T:WPA;S:%s;P:%s;;", SSID, PASS);
-  const int qr = LG() ? 260 : 300;  // a QR needs its quiet zone and 6+ px modules: 260 px still scans fine
-  drawQr(wifi, (Canvas::W - qr) / 2, LG() ? 100 : 104, qr);
-  int y = LG() ? 396 : 440;
-  C->textCenter(fS(), Canvas::W / 2, y, "1. SCAN TO JOIN, OR CONNECT TO"); y += LG() ? 32 : 34;
-  C->textCenter(fB(), Canvas::W / 2, y, SSID); y += LG() ? 36 : 30;
-  char pw[40]; snprintf(pw, sizeof pw, "password %s", PASS);
-  C->textCenter(fUI(), Canvas::W / 2, y, pw); y += LG() ? 48 : 50;
-  C->textCenter(fS(), Canvas::W / 2, y, "2. OPEN"); y += 40;
-  C->textCenter(fTitle(), Canvas::W / 2, y, "192.168.4.1"); y += LG() ? 40 : 44;
-  const char* about = "Upload month packs, download your check-in log, edit your safety plan, and set the clock from your phone. Nothing leaves this device.";
-  if (LG()) wrapAll(fS(), M, y, CW, about, 29); else C->wrap(fS(), M, y, CW, about, 4);
-  const std::string built = builtStamp(baseDay().substr(0, 7));
-  if (!built.empty()) C->text(fS(), M, HINT_Y - 10, ("pack " + built).c_str());  // compare with "Built" on the book's title page
-  char cl[32]; snprintf(cl, sizeof cl, "%d connected", hal::wifiClients());
-  C->textRight(fS(), Canvas::W - M, HINT_Y - 10, cl);
-  hintBar("Stop", "", "", "");
+  header("Wi-Fi", "radio off", IC_WIFI);
+  const NetConfig& c = NC.cfg;
+  char sub[3][64];
+  snprintf(sub[0], sizeof sub[0], "%s", c.n == 0 ? "no network saved yet" : c.n == 1 ? c.nets[0].ssid : "");
+  if (c.n > 1) snprintf(sub[0], sizeof sub[0], "%d networks saved", c.n);
+  snprintf(sub[1], sizeof sub[1], "%s", c.n == 0 ? "none yet" : c.n == 1 ? "1 network" : "");
+  if (c.n > 1) snprintf(sub[1], sizeof sub[1], "%d networks", c.n);
+  static const char* LABEL[WIFI_HOME_N] = {"Hotspot", "On my Wi-Fi", "Join a network", "Saved networks"};
+  const char* SUB[WIFI_HOME_N] = {"its own network, no internet", sub[0], "add one, typed on your phone", sub[1]};
+  const int rh = LG() ? 100 : 92;
+  for (int i = 0; i < WIFI_HOME_N; i++) {
+    const int y = 100 + i * rh;
+    C->icon(i == 3 ? IC_CHECK : IC_WIFI, M + 4, y + (rh - 36) / 2, 36);
+    C->text(fB(), M + 60, y + (LG() ? 42 : 38), LABEL[i]);
+    C->text(fS(), M + 60, y + (LG() ? 80 : 66), SUB[i], &fSym());
+    C->hline(M, y + rh - 4, CW);
+    if (i == WV.sel) C->invert(M - 8, y + 2, CW + 16, rh - 8);
+  }
+  static const char* HELP[WIFI_HOME_N] = {
+    "The X4 makes its own network. Your phone joins it. Nothing reaches the internet.",
+    "The X4 joins a network you saved and serves the same page there. Only devices on that network can open it, and changes need the PIN shown here.",
+    "Add a network. The X4 makes a hotspot, you open its page on your phone, pick your network and type its password there.",
+    "Networks kept on the card. Connect to one, or forget it: its password is deleted."};
+  wifiHelp(100 + WIFI_HOME_N * rh + 22, HELP[WV.sel]);
+  hintBar("Back", "Open", "", "");
+}
+
+// Saved networks: as many rows as fit, scrolled so the highlighted one is on screen. A long name wraps, it is never cut.
+static int savedLines(int i, std::vector<std::string>* out = nullptr) {
+  std::vector<std::string> ls; breakLines(fB(), NC.cfg.nets[i].ssid, CW - 24, ls);
+  if (ls.size() > 2) ls.resize(2);
+  if (out) *out = ls;
+  return (int)ls.size();
+}
+static int savedRowH(int i) { return savedLines(i) * (LG() ? 36 : 30) + (LG() ? 58 : 50); }
+static void drawWifiSaved() {
+  C->clear();
+  header("Saved networks", "", IC_WIFI);
+  const int top = 100, room = HINT_Y - 12 - top;
+  int first = 0;
+  for (;;) { int h = 0; for (int i = first; i <= WV.sel; i++) h += savedRowH(i); if (h <= room || first >= WV.sel) break; first++; }
+  int y = top;
+  for (int i = first; i < NC.cfg.n; i++) {
+    const int rh = savedRowH(i);
+    if (y + rh > top + room) break;
+    std::vector<std::string> ls; savedLines(i, &ls);
+    int by = y + (LG() ? 34 : 28);
+    for (auto& l : ls) { C->text(fB(), M + 8, by, l.c_str()); by += LG() ? 36 : 30; }
+    C->text(fS(), M + 8, by + (LG() ? 2 : 0), i == NC.cfg.last ? "used last" : "saved");
+    C->hline(M, y + rh - 4, CW);
+    if (i == WV.sel) C->invert(M - 8, y + 2, CW + 16, rh - 8);
+    y += rh;
+  }
+  hintBar("Back", "Connect", "", "Forget");
+}
+
+static void drawWifiForget() {
+  C->clear();
+  header("Forget?", "", IC_WIFI);
+  int y = wrapAll(fB(), M, 150, CW, NC.cfg.nets[WV.fsel].ssid, LG() ? 40 : 34);
+  wrapAll(fBody(), M, y + 24, CW, "The X4 deletes this network and its password from the card. You can add it again from your phone.", LG() ? 36 : 30);
+  hintBar("Keep", "Forget", "", "");
+}
+
+static void drawWifiMsg() {
+  C->clear();
+  header("Wi-Fi", "", IC_WIFI);
+  int y = 150;
+  if (*WV.head) { y = wrapAll(fTitle(), M, y, CW, WV.head, LG() ? 50 : 42) + 10; }
+  wrapAll(fBody(), M, y, CW, WV.msg, LG() ? 36 : 30);
+  hintBar(WV.busy ? "" : "Back", "", "", "");
+}
+
+// Hotspot: the QR joins the network in one scan; the page is at 192.168.4.1.
+static void drawHotspot(int page, int pages) {
+  C->clear();
+  header("Wi-Fi", NC.joinPage ? "join a network" : "hotspot on", IC_WIFI);
+  if (page == 0) {
+    char wifi[96]; snprintf(wifi, sizeof wifi, "WIFI:T:WPA;S:%s;P:%s;;", NC.apSsid, NC.apPass);
+    const int qr = LG() ? 260 : 300;  // a QR needs its quiet zone and 6+ px modules: 260 px still scans fine
+    drawQr(wifi, (Canvas::W - qr) / 2, LG() ? 100 : 104, qr);
+    int y = LG() ? 396 : 440;
+    C->textCenter(fS(), Canvas::W / 2, y, "1. SCAN TO JOIN, OR CONNECT TO"); y += LG() ? 32 : 34;
+    C->textCenter(fB(), Canvas::W / 2, y, NC.apSsid); y += LG() ? 36 : 30;
+    char pw[40]; snprintf(pw, sizeof pw, "password %s", NC.apPass);
+    C->textCenter(fUI(), Canvas::W / 2, y, pw); y += LG() ? 48 : 50;
+    C->textCenter(fS(), Canvas::W / 2, y, "2. OPEN"); y += 40;
+    C->textCenter(fTitle(), Canvas::W / 2, y, "192.168.4.1"); y += LG() ? 40 : 44;
+    if (!LG()) {
+      const char* about = NC.joinPage ? "Under Wi-Fi on the page, pick your network and type its password. The X4 saves it to the card and joins."
+                                      : "Upload month packs, download your check-in log, edit your safety plan, and set the clock from your phone. Nothing leaves this device.";
+      if (NC.why != NetWhy::None) C->wrap(fB(), M, y, CW, (std::string("Last try: ") + netWhyText(NC.why) + " Nothing was saved.").c_str(), 5);   // the reason takes the place of the paragraph
+      else C->wrap(fS(), M, y, CW, about, 4);
+    } else if (NC.why != NetWhy::None) {
+      C->textCenter(fB(), Canvas::W / 2, y + 12, "The last try failed:");
+      C->textCenter(fS(), Canvas::W / 2, y + 44, "the reason is on the next page");
+    }
+  } else {
+    int y = 150;
+    const char* about = NC.joinPage ? "On the page, open Wi-Fi, pick your network and type its password there. The X4 saves it to the card and joins. The password is never uploaded or logged."
+                                    : "Upload month packs, download your check-in log, edit your safety plan, and set the clock from your phone. Nothing leaves this device.";
+    y = wrapAll(fUI(), M, y, CW, about, 34);
+    if (NC.why != NetWhy::None) wrapAll(fB(), M, y + 16, CW, std::string("Last try: ") + netWhyText(NC.why), 34);
+  }
+  if (page == pages - 1 && NC.why == NetWhy::None) {
+    const std::string built = builtStamp(baseDay().substr(0, 7));
+    if (!built.empty()) C->text(fS(), M, HINT_Y - 10, ("pack " + built).c_str());  // compare with "Built" on the book's title page
+  }
+  if (page == pages - 1) { char cl[32]; snprintf(cl, sizeof cl, "%d connected", NC.clients()); C->textRight(fS(), Canvas::W - M, HINT_Y - 10, cl); }
+  hintBar("Stop", "", page > 0 ? "◀ page" : "", page + 1 < pages ? "page ▶" : "");
+}
+
+static void spacedPin(const char* pin, char* out) { snprintf(out, 12, "%.3s %.3s", pin, pin + 3); }
+
+// On the user's Wi-Fi: the address and the PIN, and a QR that opens the page in one scan.
+static void drawLan(int page, int pages) {
+  C->clear();
+  header("Wi-Fi", "on your Wi-Fi", IC_WIFI);
+  char url[48]; snprintf(url, sizeof url, "http://%s/", NC.ip);
+  char local[48]; snprintf(local, sizeof local, "%s.local", NC.cfg.name);
+  if (page == 0) {
+    const int qr = LG() ? 220 : 260;
+    drawQr(url, (Canvas::W - qr) / 2, 100, qr);
+    int y = 100 + qr + (LG() ? 34 : 32);
+    C->textCenter(fS(), Canvas::W / 2, y, "OPEN, ON THE SAME WI-FI"); y += LG() ? 44 : 44;
+    C->textCenter(fTitle(), Canvas::W / 2, y, NC.ip); y += LG() ? 40 : 34;
+    C->textCenter(fB(), Canvas::W / 2, y, local); y += LG() ? 46 : 44;
+    if (NC.guard.locked) {
+      C->textCenter(fS(), Canvas::W / 2, y, "LOCKED: TOO MANY WRONG PINS"); y += LG() ? 40 : 34;
+      wrapAll(fS(), M, y, CW, "Press Back, then open Wi-Fi again for a new PIN.", LG() ? 29 : 24);
+    } else {
+      C->textCenter(fS(), Canvas::W / 2, y, "PIN, TO MAKE CHANGES"); y += LG() ? 60 : 56;
+      char pin[12]; spacedPin(NC.guard.pin, pin);
+      C->textCenter(fXL(), Canvas::W / 2, y, pin); y += LG() ? 36 : 34;
+      if (NC.why != NetWhy::None) { if (!LG()) C->wrap(fB(), M, y, CW, netWhyText(NC.why), 3); else C->textCenter(fS(), Canvas::W / 2, y + 12, "A NOTE IS ON THE NEXT PAGE"); }
+      else if (!LG()) C->wrap(fS(), M, y, CW, "New for each visit. Looking at the page needs no PIN. Changing anything, or opening your log or plan, does.", 3);
+    }
+  } else {
+    int y = 150;
+    C->text(fS(), M, y, "NETWORK"); y += LG() ? 40 : 34;
+    y = wrapAll(fB(), M, y, CW, NC.ssid, 38) + 14;
+    C->text(fS(), M, y, "THIS X4 IS CALLED"); y += LG() ? 40 : 34;
+    y = wrapAll(fB(), M, y, CW, local, 38) + 14;
+    y = wrapAll(fUI(), M, y, CW, "New PIN each visit. Looking at the page needs no PIN. Changing anything, or opening your log or plan, does. One device at a time.", 34) + 14;
+    if (NC.why != NetWhy::None) wrapAll(fB(), M, y, CW, netWhyText(NC.why), 34);
+  }
+  if (page == pages - 1) {
+    char cl[40]; snprintf(cl, sizeof cl, "%d connected", NC.clients());
+    if (!LG()) C->text(fS(), M, HINT_Y - 10, NC.ssid, &fSym());
+    C->textRight(fS(), Canvas::W - M, HINT_Y - 10, cl);
+  }
+  hintBar("Stop", "", page > 0 ? "◀ page" : "", page + 1 < pages ? "page ▶" : "");
+}
+
+static void drawJoining() {
+  C->clear();
+  header("Wi-Fi", "joining", IC_WIFI);
+  int y = 150;
+  C->text(fS(), M, y, "JOINING"); y += LG() ? 44 : 40;
+  y = wrapAll(fTitle(), M, y, CW, NC.ssid, LG() ? 50 : 42) + 16;
+  y = wrapAll(fBody(), M, y, CW, "This can take up to half a minute. The password is only used for this and is not shown or logged.", LG() ? 36 : 30) + 16;
+  if (NC.target == -1) wrapAll(fBody(), M, y, CW, "Your phone may drop off the hotspot now. That is expected: let it go back to your usual Wi-Fi, then open the address this screen shows next.", LG() ? 36 : 30);
+  hintBar("Cancel", "", "", "");
+}
+
+static void drawFailed() {
+  C->clear();
+  header("Wi-Fi", "not connected", IC_WIFI);
+  int y = 150;
+  y = wrapAll(fTitle(), M, y, CW, NC.target == -2 ? "Couldn't start" : "Couldn't join", LG() ? 50 : 42) + 6;
+  if (NC.ssid[0]) y = wrapAll(fB(), M, y, CW, NC.ssid, LG() ? 40 : 34) + 12;
+  y = wrapAll(fBody(), M, y, CW, netWhyText(NC.why), LG() ? 36 : 30) + 16;
+  wrapAll(fS(), M, y, CW, "Try again, or go back and pick another network. Nothing was saved from this try.", LG() ? 29 : 24);
+  hintBar("Back", "Try again", "", "");
+}
+
+static void drawSync() {
+  if (WV.busy) { WV.head = "Starting…"; WV.msg = "The Wi-Fi radio is starting. This takes a few seconds."; drawWifiMsg(); return; }
+  if (wifiRunning()) {
+    const int pages = wifiPages(), page = S.page < pages ? S.page : pages - 1;
+    switch (NC.phase) {
+      case NetPhase::Hotspot: drawHotspot(page, pages); break;
+      case NetPhase::Joining: drawJoining(); break;
+      case NetPhase::Wifi: drawLan(page, pages); break;
+      default: drawFailed(); break;
+    }
+    return;
+  }
+  switch (WV.v) {
+    case Wv::Home: drawWifiHome(); break;
+    case Wv::Saved: drawWifiSaved(); break;
+    case Wv::Forget: drawWifiForget(); break;
+    case Wv::Msg: drawWifiMsg(); break;
+  }
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -1165,7 +1361,7 @@ static void render(bool sameScreen, bool sleeping = false) {
     case Scr::Month: drawMonth(); break;
     case Scr::Support: drawSupport(); break;
     case Scr::Plan: drawPlan(); break;
-    case Scr::Sync: drawSync(hal::wifiClients() >= 0 && SSID[0]); break;
+    case Scr::Sync: drawSync(); break;
     case Scr::Clock: drawClock(); break;
     case Scr::Focus: drawFocus(sleeping); break;
     case Scr::Settings: drawSettings(); break;
@@ -1181,7 +1377,7 @@ static void render(bool sameScreen, bool sleeping = false) {
 // Sleeping: a Focus run in progress sleeps showing its phase and wakes when the phase ends; otherwise Today until 4:31 a.m.
 // A finished session (Done) stays on screen only when the timer woke us; touched and idle, it clears back to Today.
 [[noreturn]] static void goToSleep(bool redraw = true, bool keepDone = false) {
-  hal::wifiStop();
+  NC.stop();  // the radio and its memory are the Wi-Fi screen's: gone before anything sleeps
   if (FRUN.phase == FPhase::Done && !keepDone) { FRUN = FocusRun(); focusSave(FP, FRUN); }
   if (focusActive(FRUN) || FRUN.phase == FPhase::Done) {
     S.scr = Scr::Focus;
@@ -1202,6 +1398,72 @@ static void openClock() {
   go(Scr::Clock);
 }
 static void go(Scr s) { S.prev = S.scr; S.scr = s; S.sel = 0; S.page = 0; S.scroll = 0; render(false); }
+
+// ---- Wi-Fi screen: what the buttons do ----
+static void wifiOpen() {  // Menu > Wi-Fi: nothing starts yet; the radio is off until a mode is picked
+  NC.stop(); NC.load();
+  WV = WifiView(); WV.lastPress = hal::millis(); S.scr = Scr::Sync; S.page = 0;
+  render(false);
+}
+static void wifiBegin(int what, int idx = 0) {  // 0 hotspot, 1 hotspot to join a network, 2 a saved network
+  WV.busy = true; render(false);
+  if (what == 2) NC.startWifi(idx); else NC.startHotspot(what == 1);
+  WV.busy = false; WV.sig = wifiSig(); S.page = 0;
+  render(false);
+}
+static void wifiMsg(const char* head, const char* msg, Wv next) { WV.v = Wv::Msg; WV.head = head; WV.msg = msg; WV.sel = (int)next; render(false); }
+static void wifiTick() {
+  NC.tick();
+  const int sg = wifiSig();
+  if (sg == WV.sig) return;
+  const bool screenChanged = sg / 100000 != WV.sig / 100000;
+  WV.sig = sg; render(!screenChanged);
+}
+static void wifiKey(Btn b) {
+  if (wifiRunning()) {
+    const int pages = wifiPages();
+    if (b == Btn::Back) { NC.stop(); loadCheckins(); NC.load(); WV.v = Wv::Home; render(false); return; }   // radio off, memory freed; packs or check-ins uploaded meanwhile load now
+    if (NC.phase == NetPhase::Failed && b == Btn::Confirm) { WV.busy = true; render(false); NC.retry(); WV.busy = false; WV.sig = wifiSig(); render(false); return; }
+    if ((b == Btn::Down || b == Btn::Right) && S.page + 1 < pages) { S.page++; render(true); }
+    else if ((b == Btn::Up || b == Btn::Left) && S.page > 0) { S.page--; render(true); }
+    return;
+  }
+  const NetConfig& c = NC.cfg;
+  switch (WV.v) {
+    case Wv::Home:
+      if (b == Btn::Back) { S.scr = Scr::Menu; S.sel = menuIndex(Scr::Sync); render(false); }
+      else if (b == Btn::Up || b == Btn::Left) { WV.sel = (WV.sel + WIFI_HOME_N - 1) % WIFI_HOME_N; render(true); }
+      else if (b == Btn::Down || b == Btn::Right) { WV.sel = (WV.sel + 1) % WIFI_HOME_N; render(true); }
+      else if (b == Btn::Confirm) {
+        if (WV.sel == 0) wifiBegin(0);
+        else if (WV.sel == 2) wifiBegin(1);
+        else if (c.n == 0) wifiMsg("Nothing saved yet", "Choose Join a network first. You type the password on your phone, and the X4 remembers the network on its card.", Wv::Home);
+        else if (WV.sel == 1 && c.n == 1) wifiBegin(2, 0);
+        else { WV.v = Wv::Saved; WV.sel = c.last >= 0 ? c.last : 0; render(false); }
+      }
+      break;
+    case Wv::Saved:
+      if (b == Btn::Back) { WV.v = Wv::Home; WV.sel = 1; render(false); }
+      else if (b == Btn::Up) { WV.sel = (WV.sel + c.n - 1) % c.n; render(true); }
+      else if (b == Btn::Down) { WV.sel = (WV.sel + 1) % c.n; render(true); }
+      else if (b == Btn::Confirm) wifiBegin(2, WV.sel);
+      else if (b == Btn::Right) { WV.fsel = WV.sel; WV.v = Wv::Forget; render(false); }
+      break;
+    case Wv::Forget:
+      if (b == Btn::Back) { WV.v = Wv::Saved; WV.sel = WV.fsel; render(false); }
+      else if (b == Btn::Confirm) {
+        static char gone[SSID_MAX + 40];
+        snprintf(gone, sizeof gone, "%s and its password were deleted from the card.", c.nets[WV.fsel].ssid);
+        netForgetAt(NC.cfg, WV.fsel); netSave(NC.cfg);
+        wifiMsg("Forgotten", gone, NC.cfg.n ? Wv::Saved : Wv::Home);
+      }
+      break;
+    case Wv::Msg: {
+      if (b == Btn::Back || b == Btn::Confirm) { WV.v = (Wv)WV.sel; WV.sel = WV.v == Wv::Saved ? 0 : 1; render(false); }
+      break;
+    }
+  }
+}
 
 void appMain() {
   hal::begin();
@@ -1224,21 +1486,28 @@ void appMain() {
     // Idle sleep never discards work in progress (every check-in press is saved when it happens), and it never
     // cuts short someone reading or setting something slowly: Support, the plan and the Clock wait at least 15 minutes.
     uint32_t idle = settingsIdleMs(ST);
-    if ((S.scr == Scr::Support || S.scr == Scr::Plan || S.scr == Scr::Clock) && idle < 900000u) idle = 900000u;
-    uint32_t wait = S.scr == Scr::Sync ? 250 : idle;
+    if ((S.scr == Scr::Support || S.scr == Scr::Plan || S.scr == Scr::Clock || S.scr == Scr::Sync) && idle < 900000u) idle = 900000u;  // typing a password on the phone is slow too
+    uint32_t wait = (S.scr == Scr::Sync && wifiRunning()) ? 250 : idle;
     if (S.scr == Scr::Focus && focusActive(FRUN)) { const time_t left = FRUN.end - hal::now(); if (left >= 0 && (uint32_t)left * 1000 + 1000 < wait) wait = (uint32_t)left * 1000 + 1000; }
     Btn b = hal::waitButton(wait);
     if (b == Btn::BackHold && ST.hold == 2) b = Btn::Back;  // "no long press": Support is in the Menu
     b = settingsMap(ST, b);                                  // the button remap (Power and the holds are never remapped)
+    if (b != Btn::None) WV.lastPress = hal::millis();
     if (S.scr == Scr::Focus && focusTick()) { render(false); if (b == Btn::None) continue; }
     if (b == Btn::None) {
-      if (S.scr == Scr::Sync) { static uint32_t last = 0; hal::wifiLoop(); if (hal::millis() - last > 20000) { last = hal::millis(); render(true); } continue; }
+      if (S.scr == Scr::Sync && wifiRunning()) {
+        hal::wifiLoop(); wifiTick();
+        // The page being used counts as activity, like a button press; the same sleep-after setting applies (never under 15 minutes here).
+        uint32_t act = WV.lastPress; if ((int32_t)(NC.lastReq - act) > 0) act = NC.lastReq;
+        if ((uint32_t)(hal::millis() - act) >= idle) goToSleep();
+        continue;
+      }
       goToSleep();
     }
     if (b == Btn::Power || b == Btn::PowerHold) goToSleep();
     if (b == Btn::BackHold) {
-      if (S.scr == Scr::Sync) { SSID[0] = 0; loadCheckins(); }
-      if (S.scr != Scr::Support) { hal::wifiStop(); go(Scr::Support); }
+      if (S.scr == Scr::Sync) { NC.stop(); loadCheckins(); }
+      if (S.scr != Scr::Support) go(Scr::Support);
       continue;
     }
 
@@ -1267,15 +1536,7 @@ void appMain() {
           const Scr to = MENU[S.sel].to;
           if (to == Scr::Today) S.dayOffset = 0;
           if (to == Scr::Month) S.monthOffset = atoi(baseDay().c_str() + 8) <= 3 ? -1 : 0;
-          if (to == Scr::Sync) {
-            uint32_t r = (uint32_t)hal::now() * 2654435761u ^ hal::millis();
-            snprintf(SSID, sizeof SSID, "KeepingWatch-%04X", (unsigned)(r & 0xFFFF));
-            snprintf(PASS, sizeof PASS, "%08u", (unsigned)((r >> 3) % 100000000u));
-            S.scr = Scr::Sync; render(false);
-            if (!hal::wifiStart(SSID, PASS)) { SSID[0] = 0; }
-            render(false);
-            break;
-          }
+          if (to == Scr::Sync) { wifiOpen(); break; }
           if (to == Scr::Clock) { openClock(); break; }
           if (to == Scr::Focus && !clockOk()) { openClock(); break; }  // rounds are filed under the day: never guess it
           if (to == Scr::Checkin && !clockOk()) { openClock(); break; }  // never save under a guessed date
@@ -1304,7 +1565,7 @@ void appMain() {
         else if ((b == Btn::Left || b == Btn::Up) && S.page > 0) { S.page--; render(true); }
         break;
       case Scr::Sync:
-        if (b == Btn::Back) { hal::wifiStop(); SSID[0] = 0; loadCheckins(); S.scr = Scr::Menu; S.sel = menuIndex(Scr::Sync); render(false); }
+        wifiKey(b);
         break;
       case Scr::Focus:
         if (FRUN.phase == FPhase::Idle) {
