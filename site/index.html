@@ -221,7 +221,7 @@ KW_PROFILE=content/profile.example.json KW_OUT=out-sample node editor/build.mjs 
       </li>
       <li>
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><path d="M4 4l16 16"/></svg>
-        <span>The e-ink companion sends nothing anywhere except over its own hotspot.</span>
+        <span>The e-ink companion sends nothing anywhere unless you start it. Today it only speaks over its own hotspot; syncing over your own Wi-Fi, when it arrives, will only ever run when you press Sync, and health logs stay off unless you turn them on.</span>
       </li>
     </ul>
   </div>
@@ -229,22 +229,44 @@ KW_PROFILE=content/profile.example.json KW_OUT=out-sample node editor/build.mjs 
 
 <section id="roadmap" class="wrap">
   <h2>Roadmap</h2>
-  <div class="table-wrap" tabindex="0" role="region" aria-label="Roadmap table">
-    <table>
-      <thead><tr><th scope="col">Area</th><th scope="col">What</th><th scope="col">Status</th></tr></thead>
-      <tbody>
-        <tr><th scope="row">Block editor</th><td>Day page blocks, presets and methods</td><td><span class="tag ok">Ready</span></td></tr>
-        <tr><th scope="row">Book canvas</th><td>Spreads, zoom, hidden pages</td><td><span class="tag ok">Ready</span></td></tr>
-        <tr><th scope="row">KDP output</th><td>Interiors, covers, checks</td><td><span class="tag ok">Ready</span></td></tr>
-        <tr><th scope="row">Profiles</th><td>One file for who and where</td><td><span class="tag ok">Ready</span></td></tr>
-        <tr><th scope="row">Content packs</th><td>Regional resource lists as data</td><td><span class="tag soon">Next</span></td></tr>
-        <tr><th scope="row">Book scopes</th><td>Quarter, season, half-year, year, undated; automatic volumes</td><td><span class="tag soon">Coming</span></td></tr>
-        <tr><th scope="row">Accounts</th><td>Optional, for saving versions and sharing. Designing and printing stay free of one</td><td><span class="tag soon">Coming</span></td></tr>
-        <tr><th scope="row">Versioning</th><td>History, branches, forks and releases, shown visually</td><td><span class="tag soon">Coming</span></td></tr>
-        <tr><th scope="row">E-ink</th><td>Hardware bring-up on the Xteink X4</td><td><span class="tag soon">In progress</span></td></tr>
-      </tbody>
-    </table>
-  </div>
+  <p>What is ready, what is being built now, and what is planned. Order can change; nothing here needs an account to use for designing and printing.</p>
+  <h3>Ready</h3>
+  <p class="rintro">Working today.</p>
+  <ul class="road">
+      <li class="rc"><div class="rh"><h4>Block editor</h4><span class="tag ok">Ready</span></div><p>Day-page blocks with options, presets and one-click method layouts: habits, priorities, time blocks, brain dump, energy, feelings and skills, body and sensory tracking, sketch and writing space. Every block can also be sized, and blocks that make sense on the e-ink companion say so.</p></li>
+      <li class="rc"><div class="rh"><h4>Page grid</h4><span class="tag ok">Ready</span></div><p>Switch a page from a flowing stack to a grid of fixed rows and columns. Blocks span several of each, with overlap and minimum-size checks that explain themselves.</p></li>
+      <li class="rc"><div class="rh"><h4>Book canvas</h4><span class="tag ok">Ready</span></div><p>The editor opens on the whole book, then zooms to a spread, then to a single day. Page ids, jump-to-page, hidden pages and a breadcrumb that always works.</p></li>
+      <li class="rc"><div class="rh"><h4>Unique pages and codes</h4><span class="tag ok">Ready</span></div><p>Every page in a book has its own id and its own scan code, and the build checks that none repeat, inside a book or across books.</p></li>
+      <li class="rc"><div class="rh"><h4>Print-ready output</h4><span class="tag ok">Ready</span></div><p>KDP interiors and covers, in 5.5 by 8.5 and 8.5 by 11, with an overflow check on every page, no Type 3 fonts, and rules that survive printing.</p></li>
+      <li class="rc"><div class="rh"><h4>Book scopes and volumes</h4><span class="tag ok">Ready</span></div><p>A book can be a month, a quarter, a season, a half-year, a year, a custom range or undated. Past the paperback page limit it splits itself into balanced volumes, each with its own cover, codes and manifest.</p></li>
+      <li class="rc"><div class="rh"><h4>Profiles</h4><span class="tag ok">Ready</span></div><p>One file says who and where: names, location, day start, trim and which modules are on. A generic profile builds a complete sample book.</p></li>
+      <li class="rc"><div class="rh"><h4>Versioning and accounts</h4><span class="tag ok">Ready</span></div><p>Optional accounts keep projects with full history: commits, branches, drafts, restore and visual comparisons. Guests keep local versions in the browser and never need an account to design or print.</p></li>
+      <li class="rc"><div class="rh"><h4>Accessibility baseline</h4><span class="tag ok">Ready</span></div><p>A full audit against WCAG 2.2, keyboard reordering of blocks, skip links, focus rings, reduced motion and a check in CI that fails on new problems.</p></li>
+      <li class="rc"><div class="rh"><h4>Methods library</h4><span class="tag ok">Ready</span></div><p>Forty-four researched guides to journaling and planning methods, with sources and what each idea could become in a book or on the e-ink companion.</p></li>
+      <li class="rc"><div class="rh"><h4>E-ink companion</h4><span class="tag ok">Ready</span></div><p>Check-ins with zero-based and signed scales and pick-one items, a silent focus timer, the day starting at 4 a.m., a settings page on its own hotspot, and a clear split between what lives on paper and what lives on the device.</p></li>
+  </ul>
+  <h3>In progress</h3>
+  <p class="rintro">Being built now.</p>
+  <ul class="road">
+      <li class="rc"><div class="rh"><h4>Forks, proposals and merges</h4><span class="tag now">Now</span></div><p>Fork a shared project, propose changes back with visual page and block diffs, discuss them, and merge with a resolver that shows both versions when the same item changed on both sides. In review.</p></li>
+      <li class="rc"><div class="rh"><h4>Editing only when editing</h4><span class="tag now">Now</span></div><p>Pages open for viewing, clean and read-only. The palette and options appear when you press Edit and go away when you press Done.</p></li>
+      <li class="rc"><div class="rh"><h4>Library and series</h4><span class="tag now">Now</span></div><p>A title of your own for every book, several books per project, and series that share defaults. Navigation zooms from library to series to book to spread to page.</p></li>
+      <li class="rc"><div class="rh"><h4>E-ink accessibility</h4><span class="tag now">Now</span></div><p>Large text, bolder type, a button remap for one-handed and left-handed use, adjustable refresh and sleep, and a more accessible settings page.</p></li>
+  </ul>
+  <h3>Planned</h3>
+  <p class="rintro">Designed and queued.</p>
+  <ul class="road">
+      <li class="rc"><div class="rh"><h4>Scan options</h4><span class="tag soon">Planned</span></div><p>The send-to strip becomes a block. The scanning border can be switched off per page. The matrix code can move, resize, switch off, change format and show a printed label. Every page still gets a unique code, across all of a person's books.</p></li>
+      <li class="rc"><div class="rh"><h4>Spread days</h4><span class="tag soon">Planned</span></div><p>A day can cover one page or a whole two-page spread, set per day, with per-weekday defaults. Both pages keep their own scan frame, code and header.</p></li>
+      <li class="rc"><div class="rh"><h4>Releases and reusable pages</h4><span class="tag soon">Planned</span></div><p>Freeze a checked version as a numbered print release with the exact PDFs and manifest kept for good. Reusable pages track their versions and where they are used, so you can review an update before adopting it.</p></li>
+      <li class="rc"><div class="rh"><h4>Accessibility options</h4><span class="tag soon">Planned</span></div><p>A settings panel for text size, contrast, reduced motion, dyslexia-friendly type and spacing. In print: large-print layouts, high-contrast ink, text-size scales, a dyslexia-friendly font, and a left-handed layout.</p></li>
+      <li class="rc"><div class="rh"><h4>Languages</h4><span class="tag soon">Planned</span></div><p>Editor and site in more languages, and printed books in them too: message catalogs, fonts per script, right-to-left layouts, calendars, and a review step before a language is marked ready.</p></li>
+      <li class="rc"><div class="rh"><h4>Account profile and locations</h4><span class="tag soon">Planned</span></div><p>Save places once and every new book uses them for sunrise and sunset, moon times, seasons, time zone and holidays. Your location never travels with a shared or forked project.</p></li>
+      <li class="rc"><div class="rh"><h4>Content packs and onboarding</h4><span class="tag soon">Planned</span></div><p>Regional resource lists and transit as data you can swap, a setup command that asks a few questions, and guides for making your own journal and your own pack.</p></li>
+      <li class="rc"><div class="rh"><h4>E-ink editor and sync</h4><span class="tag soon">Planned</span></div><p>The companion can serve the editor on its own hotspot, or on your Wi-Fi, and sync with your account only when you start a sync on the device. Health logs stay off unless you turn them on.</p></li>
+      <li class="rc"><div class="rh"><h4>More blocks and pages</h4><span class="tag soon">Planned</span></div><p>Matrix and next-action blocks, commonplace and collection pages, a habit plan, a future log, a year-in-pixels page, and more one-click layouts drawn from the methods library.</p></li>
+      <li class="rc"><div class="rh"><h4>Product site and docs</h4><span class="tag soon">Planned</span></div><p>The methods library and guides published here in a form that is written for everyone, once the personal notes are separated out.</p></li>
+  </ul>
 </section>
 </main>
 
