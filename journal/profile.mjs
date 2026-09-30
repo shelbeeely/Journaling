@@ -114,7 +114,7 @@ export const PROFILE = Object.freeze({
   ...raw,
   location: { elevation: 0, ...raw.location },
   crisis: { lines: DEFAULT_CRISIS, ...(raw.crisis || {}) },
-  paths: { support: null, trans: null, clinic: null, transit: null, seasons: null, holidays: null, ...(raw.paths || {}) },
+  paths: { ...Object.fromEntries(Object.keys(PROFILE_KEYS).map((k) => [k, null])), ...(raw.paths || {}) }, // one pack per key (packs/kinds.mjs PROFILE_KEYS)
   transit: raw.transit || null,
   // this book within its library: series line, spine title, cover style, and page layouts from the library (null: the content/*.json files)
   library: EXTRA || { book: BOOK_KEY, spineTitle: null, series: null, show: [], cover: { style: 'night' }, layouts: { book: null, day: null } },

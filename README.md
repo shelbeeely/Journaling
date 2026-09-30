@@ -30,7 +30,8 @@ The editor, built from the same sample (open `journal/editor/dist/site/index.htm
 
     KW_PROFILE=content/profile.example.json KW_OUT=out-sample node editor/build.mjs
 
-To make your own, copy `journal/content/profile.example.json` to `journal/content/profile.json` and edit it
+To make your own, run `cd journal && npm run init` (asks a few questions, writes `content/profile.json`, builds a sample book): [journal/GUIDE.md](journal/GUIDE.md).
+By hand: copy `journal/content/profile.example.json` to `journal/content/profile.json` and edit it
 ([journal/README.md](journal/README.md#profile-contentprofilejson) lists every field). The committed `profile.json` is Shelbee's.
 
 ## Map
@@ -53,7 +54,7 @@ To make your own, copy `journal/content/profile.example.json` to `journal/conten
 | **Profile** | `content/profile.json`: name, book title, edition, place, time zone, day start, trim, module switches, and which content packs to use | You make a new book |
 | **Content packs** | Regional support lists, clinic and crisis pages, seasons, optional transit feeds, as data | You move, or a phone number changes |
 
-Crisis and support numbers are never filled in for someone else. The `generic` pack ships with placeholders you check yourself.
+Crisis and support numbers are never filled in for someone else. The `generic` pack ships two verified national lines and a placeholder; a pack of your own needs a dated source for every number ([journal/PACKS.md](journal/PACKS.md)).
 
 ## Docs
 
@@ -77,7 +78,7 @@ Crisis and support numbers are never filled in for someone else. The `generic` p
 | Area | Status |
 | --- | --- |
 | Block editor, book canvas, KDP output, profiles | Ready |
-| Content packs (support, clinic, transit as data with a verification note) | Next |
+| Content packs (support, clinic, transit, holidays, seasons as data with a verification note), `npm run init`, guides | Ready |
 | Onboarding: `npm run init`, guides for your own journal and your own pack | Next |
 | Book scopes (quarter, season, year, undated) and automatic volumes past 110 pages | Coming |
 | Versioning: history, branches, forks, change proposals, releases | Coming |

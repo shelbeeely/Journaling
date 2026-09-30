@@ -63,7 +63,7 @@ A missing or wrong field stops the build with one message listing every problem,
 | `modules.*` | Switches, all required: see below |
 | `crisis.lines` | The lines printed on the safety plan after "my prescriber;" (default: 988 and the 741741 text line) |
 | `transit` | Needed when `modules.bus` is on: `agency`, `site`, `app` (used in the bus page titles and notes), `priority_routes` (routes that get hour grids first), `short_stops` (stop-name abbreviations) |
-| `paths.*` | Content files, relative to `journal/`: `support` (required), `trans`, `clinic`, `transit` (feed folder, default `gtfs`), `seasons` (module exporting the 72 micro-seasons; without one, the English names of the Japanese seasons) |
+| `paths.*` | Content packs, one per key: `support` (required), `trans`, `clinic`, `transit`, `seasons`, `holidays`. Each value is a pack id (`generic`, `spokane-wa`: a folder in `packs/`) or a folder that holds a `pack.json`, or `null`. Each key reads the part of its own kind from that pack. See [PACKS.md](PACKS.md) |
 
 Modules. Switched off, a module's pages are left out of the book when it is laid out (`content/book.json` is untouched; the entries stay
 listed and simply build nothing), and every reference to them goes too (no "Bus times p. ?"). The protected pages (Support,
@@ -78,9 +78,22 @@ My safety plan, Closing the month) can't be switched off. The moon and sun are s
 | `spoons` | Spoons and energy account blocks, the spoon lines on the Key and lineage pages, the Good-spoon box on Closing and in the Keeper. The X4 still has its built-in spoons counter (firmware is unchanged) |
 | `pay_periods` | Pay period and payday marks (`payperiods.mjs` holds one employer's sheet; leave it off for anyone else) |
 
-Content packs (support lists, clinic, trans, transit feeds) are still plain files named by `paths`. The point of the profile is that
-nothing else in the engine mentions them. `node test-profile.mjs` builds the generic profile (Lakemont, MN), checks that none of
-Shelbee's words are in its book, cover, EPUB or X4 pack, that it passes the overflow gate (`[] 0`), and builds each module off.
+Content packs (support lists, clinic, trans, transit feeds, holidays, seasons) are folders with a `pack.json` (id, version, licence, engine range, a
+sha256 for every file, verification records) under `packs/`, named by `paths`. Every reader goes through the pack loader (`packs/pack.mjs`,
+`readContent()` in `profile.mjs`), which checks the manifest and the hashes and applies the verification rule. `packs/generic` ships with the
+engine: two verified national lines and a placeholder that says to add your local numbers. `packs/spokane-wa` is Shelbee's own. How to write
+one, the verification rule and how to add a pack kind: [PACKS.md](PACKS.md). Making your own journal from a clone: [GUIDE.md](GUIDE.md).
+`node test-packs.mjs` (CI) checks the schema, hashes, the rule and that both packs build; `node test-profile.mjs` builds the generic profile
+(Lakemont, MN), checks that none of Shelbee's words are in its book, cover, EPUB or X4 pack, that it passes the overflow gate (`[] 0`), and builds each module off.
+
+### Packs CLI
+    node packs-cli.mjs list | kinds
+    node packs-cli.mjs new <kind> [id] [--dir folder]     start a pack from packs/_template/<kind>/
+    node packs-cli.mjs check <id|folder>                  manifest, licence, file hashes, sizes, privacy class, then the kind's validator
+    node packs-cli.mjs seal <id|folder>                   rewrite the file list and hashes after you edit a file
+
+The book manifest (`out/<book>/manifest.json`) lists every pack and version a book used (`packs`: id, version, kind, hash, licence, credit, privacy class, parts read).
+A Credits page is not built yet; the data is there. `book.for_sale: true` in the profile makes the build refuse a pack whose licence forbids commercial print.
 
 ## Outputs
 `out/m<YYYY-MM>/` (5.5×8.5) and `out/m<YYYY-MM>-letter/` (8.5×11):
@@ -179,18 +192,17 @@ are never touched. Never copy or replace a `kw` folder. **Closing the month:** d
 | File | What |
 | --- | --- |
 | content/profile.json | Who and where (see Profile above) |
-| content/clinic.json | My clinic box (care plan page + Keeper) |
-| content/support.json, content/trans.json | Support and Trans support pages (re-check numbers each edition) |
+| packs/<id>/ | Your content packs: support, trans, clinic, transit, holidays, seasons (see PACKS.md). Re-check numbers each edition |
 | content/year.mjs, year-research.mjs, facts.mjs, pioneers.mjs | Daily facts, weekly pioneers, prompts |
-| spokane.mjs | 72 Spokane micro-seasons (the profile's `paths.seasons`) |
+| packs/spokane-wa/seasons.json | 72 Spokane micro-seasons (the profile's `paths.seasons`) |
 | holidays.mjs, payperiods.mjs | US holidays; Carl's Jr pay periods (2027 projected) |
 | content/profile.json `transit.priority_routes` | Which bus routes get full hour grids |
 
 ## Bus schedules (STA)
 STA's feed ends 2027-01-16. Books print bus pages by the feed's dates: fully covered months as usual, the month it ends in with a "valid through" label, and later months with no bus pages (just a "spokanetransit.com or the STA app" line on the last back page). To print bus times for later books:
 
-    curl -L -o gtfs/sta.zip https://www.spokanetransit.com/gtfs && unzip -o gtfs/sta.zip -d gtfs
-    python3 gtfs/network.py && python3 gtfs/build.py
+    cd packs/spokane-wa/gtfs && curl -L -o sta.zip https://www.spokanetransit.com/gtfs && unzip -o sta.zip
+    python3 network.py && python3 build.py && cd ../../.. && node packs-cli.mjs seal spokane-wa
 
 The raw GTFS .txt files are left out of the project zip (download them with the command above).
 Your calendar files (private/*.ics) are also left out; put them back in private/ to print events.

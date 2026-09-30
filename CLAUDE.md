@@ -16,6 +16,7 @@ the first book made with it. Read README.md, then HANDOFF.md (status + backlog),
   `build-all.sh` runs everything.
 - `journal/content/profile.json` (+ `profile.mjs`): who and where: names, branding, location, timezone, day start, trim, module
   switches, content paths. Nothing personal lives in code; `profile.example.json` is the generic one. `test-profile.mjs` guards it.
+- `journal/packs/`: content packs (`pack.mjs` loader + manifest schema, `kinds.mjs` kind registry, `generic/`, `spokane-wa/` = Shelbee's, `_template/<kind>/`). `profile.paths.*` name packs; all readers go through `readContent()`. Support numbers need a `verified` note or `placeholder` (the build refuses otherwise). `packs-cli.mjs new|check|seal|list`; `init.mjs` (`npm run init`) onboards. See `journal/PACKS.md`, `journal/GUIDE.md`. After editing a pack file: `node packs-cli.mjs seal <id>`. Personal packs (support, trans, clinic, region) never go into a Studio snapshot.
 - `journal/daypage.mjs`: the day page **block library**. One source of truth for print and the editor preview.
   Layout v2 = ordered `{uid, type, on, ...options}`; `TYPES` declares each block's options (num/bool/choice/flags/text/list).
   `content/daypage.json` (from the editor) overrides `DEFAULT_LAYOUT`, which reproduces the original page exactly.
@@ -24,7 +25,7 @@ the first book made with it. Read README.md, then HANDOFF.md (status + backlog),
   `test.mjs` is the smoke test CI runs.
 - `studio/`: Journalwright Studio (Phase G): Node + SQLite + HTTP API for projects, commits, branches, drafts, import/export of
   `content/book.json` and `daypage.json`. `npm start`, `npm test`; the editor's Versions drawer talks to it. Never put private pages,
-  calendars, profile secrets or packs into a snapshot (`studio/src/snapshot.mjs` refuses them). See `studio/README.md`.
+  calendars, profile secrets or personal packs into a snapshot (`studio/src/snapshot.mjs` refuses them). See `studio/README.md`.
 - `site/`: the product website (plain HTML/CSS/JS). `site/build.sh` assembles it: the site at the root, the editor demo under
   `/editor/` (generic profile and `test.ics` only, never saving anywhere), a titles-only docs index under `/docs/`, then runs the privacy gate (no Spokane, Keeping Watch or Shelbee) and `check-links.mjs`.
   The Editor workflow publishes it and puts the working editor under `/app/`. Nothing else deploys to the Pages root.

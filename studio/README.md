@@ -54,7 +54,10 @@ book as `defaultBook`) next to the project's own `book.json` and `daypage.json`;
 `meta.library` as one value (a same-field conflict is reported, never lost); per-book and per-series merging by id is a follow-up.
 
 **Never** in a snapshot: private pages, filled-in personal data, account settings, profile secrets (person, place, coordinates, crisis lines,
-file paths), calendars (.ics, `ICS_URLS`), the support/trans/clinic packs, passwords, tokens, recovery codes. Two layers (`src/snapshot.mjs`):
+file paths), calendars (.ics, `ICS_URLS`), the support/trans/clinic packs and any other personal pack, passwords, tokens, recovery codes.
+Content packs (`journal/packs/`, PACKS.md) travel **by reference only**, and only public ones: `meta.packs` is a list of `{id, kind, version, sha256}`
+(additive, like the library: a snapshot without it hashes as before). A pack's files never appear in a snapshot; a personal pack (its kind's privacy class
+in `journal/packs/kinds.mjs`: support, trans-support, clinic, and region bundles) is refused as a reference too, so forks and proposals never carry one. Two layers (`src/snapshot.mjs`):
 
 1. **Allowlist serializer.** Only the fields above are copied, each validated (the book by `journal/book.mjs`, the day by `daypage.mjs`
    `normalize`, blocks cut down to their declared options). Unknown top-level parts and meta/print fields are refused with a message.

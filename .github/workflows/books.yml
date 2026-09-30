@@ -42,6 +42,10 @@ jobs:
         run: node test-scopes.mjs
       - name: Library check (books and series, custom titles on covers and title pages, series defaults with per-book override, a single-book profile migrates and builds the same book)
         run: node test-library.mjs
+      - name: Pack check (manifest schema, file hashes, the kind registry, the support verification rule, the generic pack builds clean, the personal pack reproduces the committed books)
+        run: node test-packs.mjs
+      - name: Onboarding check (npm run init in a scratch copy: valid profile, never overwrites, sample book passes the overflow gate)
+        run: node test-init.mjs
       - name: Scan options check (Send-to block, border off, code position/size/format/content, no code, unique codes across books)
         run: node test-scan.mjs
       - name: 'Studio tests (versioning - commits, branches, drafts, forbidden content, authorization, import/export round trip, editor to print)'

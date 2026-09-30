@@ -235,9 +235,9 @@ X4 sample card in `x4/host/sample/kw/`.
 Units:
 1. **Profile extraction (done):** move location, names, branding, day start and module switches out of code into `profile.json`; every
    module reads it; Shelbee's profile reproduces today's books byte-identically.
-2. **Content packs:** support, clinic, trans and transit as packs with a manifest (region, who verified it, date verified); a
+2. **Content packs (done, PK0 and PK1 of section 20):** support, clinic, trans and transit as packs with a manifest (region, who verified it, date verified); a
    `generic` pack with placeholders; the build refuses to print a pack with no verification note on crisis pages.
-3. **Onboarding and docs:** `npm run init` (asks a few questions, writes the profile), a generic sample book built in one
+3. **Onboarding and docs (done):** `npm run init` (`journal/init.mjs`), `journal/GUIDE.md` and `journal/PACKS.md`; `npm run init` (asks a few questions, writes the profile), a generic sample book built in one
    command, "Make your own journal" and "Write a content pack" guides, starters from the method layouts.
 
 Rules: crisis and support numbers are never auto-filled for someone else; the firmware stays as is, only its config, sample
@@ -499,8 +499,8 @@ Shelbee's decision: support many pack types for any need, including packs made b
 **For artists:** a pack builder CLI (`packs-cli new <kind>`, `check`, `preview`, `pack`), a template folder per kind, a preview gallery that shows the pack in a sample book and on the X4 where it applies, plain-language documentation, and a licence chooser in the manifest. Payment and a marketplace are **not** planned yet; that is a separate decision (licences and credits are enforced now so paid distribution could be added later).
 
 **Slices**
-- **PK0 core:** the manifest and kind registry, common checks, pinning in the project, credits, privacy classes (extends F2).
-- **PK1 regional content packs (F2)** and the packs CLI.
+- **PK0 core (done):** the manifest and kind registry (`journal/packs/`), common checks, `packs-cli`, privacy classes, packs pinned by id + hash in a snapshot (public only), every pack and version in the book manifest. The Credits page is still to do (the data is in `manifest.json`).
+- **PK1 regional content packs (F2) (done):** kinds `support`, `clinic`, `trans-support`, `transit`, `holidays`, `seasons-history` and the `region` bundle; the verification rule; `generic` and `spokane-wa` packs; `packs-cli`.
 - **PK2 look packs:** themes, fonts, icon sets, graphics packs, with the SVG sanitiser and print-safety checks.
 - **PK3 block packs:** the declarative block format and renderer, validator, X4 export mapping.
 - **PK4 words and method packs:** language, prompt, fact, safety-plan template, method layout, page packs, tracker sets, starter kits.
