@@ -15,6 +15,8 @@ import path from 'path';
 import { execFileSync } from 'child_process';
 import bwipjs from 'bwip-js';
 import { EDITION } from './content/edition.mjs';
+import { LIBRARY, PROFILE_BOOK } from './profile.mjs';
+import { resolveBook } from './library.mjs';
 import { bookDirs } from './bookdirs.mjs';
 import { parseKw3, BOOK_ID_RE } from './plan.mjs';
 
@@ -73,7 +75,9 @@ for (const dir of dirs) {
     else if (!prev) ids.set(L.book_id, { sig, dir });
   }
   if (!['S', 'L', 'H'].includes(L.size) || (letter ? L.size !== 'L' : L.size === 'L')) fail(dir, `size ${L.size} doesn't fit the folder`);
-  if (L.edition !== EDITION) fail(dir, `edition ${L.edition} is not the current ${EDITION}`);
+  // a library book has its own edition (manifest.library_book); every other build is checked against the profile's
+  const ED = M && M.library_book && LIBRARY.books.some((b) => b.id === M.library_book) ? resolveBook(LIBRARY, M.library_book, PROFILE_BOOK).edition : EDITION;
+  if (L.edition !== ED) fail(dir, `edition ${L.edition} is not the current ${ED}`);
   L.pages.forEach((p, i) => {
     const at = `${dir} p.${i + 1}`;
     if (p.page !== i + 1) fail(dir, `page ${i + 1} is numbered ${p.page}`);
@@ -90,7 +94,7 @@ for (const dir of dirs) {
       if (+m[4] !== i + 1) fail(dir, `p.${i + 1}: code ${p.code} names page ${+m[4]}`);
       if (m[2] !== yymm) fail(dir, `p.${i + 1}: code ${p.code} names book ${m[2]}, not ${yymm}`);
       if (m[3] !== L.size) fail(dir, `p.${i + 1}: code ${p.code} names size ${m[3]}, book is ${L.size}`);
-      if (+m[1] !== EDITION) fail(dir, `p.${i + 1}: code ${p.code} names edition ${m[1]}`);
+      if (+m[1] !== ED) fail(dir, `p.${i + 1}: code ${p.code} names edition ${m[1]}`);
     }
     if (M && idOf.get(p.code) !== p.id) fail(dir, `p.${i + 1}: manifest maps ${p.code} to "${idOf.get(p.code)}", layout.json says "${p.id}"`);
     if (seen.has(p.code)) fail(dir, `p.${i + 1}: code ${p.code} repeats inside the book`);

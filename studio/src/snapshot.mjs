@@ -3,6 +3,8 @@
 //
 //   snapshot = { meta, print, book, day, assets, components }
 //     meta        title, subtitle, slug, description                 (the book's public identity)
+//                 library?  books and series (journal/library.mjs): the whole library, see serializeLibrary. Additive (L1a): a snapshot
+//                           without it is a library of one book (libraryOf), so old commits, hashes and exports are unchanged.
 //     print       trim, edition, start, day_start_hour, hardcover, modules   (print settings)
 //     book        content/book.json  (page structure; stable page ids)
 //     day         content/daypage.json (block layout; stable block uids)
@@ -16,7 +18,8 @@
 import { normalize, TYPES, PLACE, newBlock } from '../../journal/daypage.mjs';
 import { validateBook, DEFAULT_BOOK } from '../../journal/book.mjs';
 import { PAGE_TYPES } from '../../journal/pages.mjs';
-import { MODULES } from '../../journal/profile.mjs';
+import { MODULES } from '../../journal/modules.mjs';
+import { validateLibrary, libraryFromProfile, LIBRARY_VERSION, DEFAULT_LAYOUT } from '../../journal/library.mjs';
 import { StudioError } from './db.mjs';
 import { canonical, objectHash } from './canon.mjs';
 
@@ -87,14 +90,54 @@ const text = (o, k, max, where, errs, { req = false } = {}) => {
 
 export function serializeMeta(m, errs) {
   if (!isObj(m)) { errs.push('meta must be an object'); return {}; }
-  only(m, ['title', 'subtitle', 'slug', 'description'], 'meta', errs);
+  only(m, ['title', 'subtitle', 'slug', 'description', 'library'], 'meta', errs);
   const r = {};
   r.title = text(m, 'title', 120, 'meta', errs, { req: true });
   r.subtitle = text(m, 'subtitle', 200, 'meta', errs) ?? '';
   r.slug = text(m, 'slug', 60, 'meta', errs) ?? '';
   if (r.slug && !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(r.slug)) errs.push('meta.slug must be lowercase letters, digits and dashes');
   r.description = text(m, 'description', 1000, 'meta', errs) ?? '';
+  if (m.library !== undefined && m.library !== null) { const l = serializeLibrary(m.library, errs); if (l) r.library = l; }
   return r;
+}
+
+// The library: books and series (journal/library.mjs). Nothing personal: the allowlist below is the whole of it (no person, place,
+// coordinates, calendar, pack, path or account field exists in a library, and the scanner has already refused them by name).
+// Layouts hold a page structure (checked as a book.json) and a day layout (cut down to declared block options), so a project can carry
+// several books with their own pages. Keys are sorted by the canonical form; lists keep their order (series order is the numbering).
+const pick = (o, keys) => Object.fromEntries(keys.filter((k) => o[k] !== undefined).map((k) => [k, structuredClone(o[k])]));
+export function serializeLibrary(l, errs) {
+  const bad = validateLibrary(l);
+  if (bad.length) { errs.push(...bad.map((x) => `library: ${x}`)); return null; }
+  const plan = (p) => { const o = pick(p, ['scope', 'keeper', 'closing', 'edition']); if (p.custom) o.custom = pick(p.custom, ['start', 'end']); if (p.undated) o.undated = pick(p.undated, ['days', 'weeks', 'months', 'extras', 'fillins']); return o; };
+  const out = { version: LIBRARY_VERSION };
+  out.books = l.books.map((b) => {
+    const o = pick(b, ['id', 'title', 'subtitle', 'spineTitle', 'slug', 'edition', 'start', 'bookId', 'seriesId', 'layoutRef', 'dayLayout', 'modules', 'show']);
+    if (b.plan) o.plan = plan(b.plan);
+    if (b.cover) o.cover = pick(b.cover, ['style']);
+    return o;
+  });
+  out.series = (l.series || []).map((s) => {
+    const o = pick(s, ['id', 'title', 'subtitle', 'order', 'show']);
+    if (s.defaults) { o.defaults = pick(s.defaults, ['dayLayout', 'modules']); if (s.defaults.cover) o.defaults.cover = pick(s.defaults.cover, ['style']); if (s.defaults.plan) o.defaults.plan = plan(s.defaults.plan); }
+    return o;
+  });
+  out.layouts = (l.layouts || []).map((x, i) => {
+    const o = { id: x.id, name: x.name };
+    if (x.book !== undefined) o.book = serializeBook(x.book, errs) || undefined;
+    if (x.day !== undefined) o.day = serializeDay(x.day, errs) || undefined;
+    if (o.book === undefined) delete o.book; if (o.day === undefined) delete o.day;
+    return o;
+  });
+  if (l.defaultBook !== undefined) out.defaultBook = l.defaultBook;
+  return out;
+}
+// The library of a snapshot: its stored one, else the project's own single book (title, slug, edition, first month), using the project's
+// own book.json and day layout ("default"). This is the migration of an existing project: nothing is written, nothing changes.
+export function libraryOf(snap) {
+  if (snap.meta && snap.meta.library) return snap.meta.library;
+  const m = snap.meta || {}, p = snap.print || {};
+  return libraryFromProfile({ book: { title: m.title, subtitle: m.subtitle, slug: m.slug || slugify(m.title || 'book'), edition: p.edition, start: p.start } }, { id: m.slug && /^[a-z0-9]+(-[a-z0-9]+)*$/.test(m.slug) ? m.slug : slugify(m.title || 'book') });
 }
 export function serializePrint(p, errs) {
   if (!isObj(p)) { errs.push('print must be an object'); return {}; }
@@ -192,7 +235,8 @@ export function serializeSnapshot(input, base = null) {
   const errs = [];
   only(input, PARTS, 'snapshot', errs);
   const from = base || emptySnapshot('Untitled');
-  const part = (k) => (input[k] !== undefined ? input[k] : from[k]);
+  // a meta sent without a library keeps the stored one (send library: null to drop it), so older clients never erase a library by saving
+  const part = (k) => (k === 'meta' && isObj(input.meta) && input.meta.library === undefined && from.meta && from.meta.library ? { ...input.meta, library: from.meta.library } : input[k] !== undefined ? input[k] : from[k]);
   const snap = {
     meta: serializeMeta(part('meta'), errs), print: serializePrint(part('print'), errs), book: serializeBook(part('book'), errs),
     day: serializeDay(part('day'), errs), assets: serializeAssets(part('assets'), errs), components: serializeComponents(part('components'), errs),

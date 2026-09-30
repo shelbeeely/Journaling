@@ -450,6 +450,29 @@ still a 16x16 Data Matrix. Nothing in it is a date. Monthly books keep `KW2|<edi
 checks uniqueness across every book present in `out/` (or `KW_OUT`, and `KW_REGISTRY` folders), and fails when one book id is on two different plans.
 `node test-scopes.mjs` (CI) builds every scope and checks all of this.
 
+## Library: several books, series, custom titles (`library.mjs`)
+A project can hold many books and series. `content/library.json` is optional; without it the library is the profile's own single book
+(a standalone book), so today's builds are unchanged (`node test-library.mjs` proves the migrated library builds the same pages).
+
+    { "version": 1,
+      "books":   [{ "id": "ocean-notes", "title": "Ocean Notes", "subtitle": "...", "spineTitle": "OCEAN", "slug": "ocean-notes",
+                    "edition": 1, "start": "2026-10", "bookId": "K7M2QX9A", "seriesId": "moods", "layoutRef": "lean",
+                    "plan": { "scope": "month" }, "modules": { "therapy": false }, "cover": { "style": "night" } }],
+      "series":  [{ "id": "moods", "title": "Moods of the Sea", "order": ["ocean-notes"], "show": ["cover", "titlepage"],
+                    "defaults": { "dayLayout": "lean", "cover": {}, "modules": {}, "plan": { "keeper": "none" } } }],
+      "layouts": [{ "id": "lean", "name": "Lean pages", "book": { }, "day": { } }],   // book.json and daypage.json shapes; "default" = content/*.json
+      "defaultBook": "ocean-notes" }
+
+- **Titles.** `title`, `subtitle`, `spineTitle` flow to the cover (front, spine), title page, file names (`slug`, made from the title when
+  absent), `manifest.json` (`title`, `library_book`, `series`), the EPUB and the Keeper. Volumes print "Volume N of M" under the title.
+- **Series.** A book is in at most one series (`seriesId`, and the series `order` lists exactly its books). `show: ["cover", "titlepage"]`
+  prints "Book N of M in <series>". Series `defaults` (day layout, cover style, module switches, plan) apply to every book that does not
+  set its own; one place decides (`resolveBook`, with `from` saying `book`, `series` or `default`).
+- **Build a book:** `KW_BOOK=<id> KW_OUT=out/<id> ./build-all.sh` (`KW_LIBRARY=path` for another file). The library only lays a book's own
+  fields over the profile; person, place and packs never move. `node library-cli.mjs list|check|resolve|migrate|effective`.
+- **Codes.** Every book keeps its own edition and book id (`bookId`, made once at the first build that needs it and written into the library entry);
+  two monthly books over the same months with one edition are refused (their KW2 codes would repeat). `check-codes.mjs` checks each book against its own edition.
+
 ## More docs
 - [KDP.md](KDP.md): uploading to KDP
 - [NEW-EDITION.md](NEW-EDITION.md): setting up the next year

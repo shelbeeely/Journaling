@@ -5,8 +5,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { DEFAULT_BOOK } from '../../journal/book.mjs';
 import { normalize, TYPES, PLACE } from '../../journal/daypage.mjs';
-import { MODULES } from '../../journal/profile.mjs';
-import { serializeSnapshot, emptySnapshot } from './snapshot.mjs';
+import { MODULES } from '../../journal/modules.mjs';
+import { validateLibrary, resolveBook, layoutsFor, bookOf } from '../../journal/library.mjs';
+import { serializeSnapshot, emptySnapshot, libraryOf } from './snapshot.mjs';
 
 const readJson = (f) => (fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : null);
 
@@ -32,7 +33,10 @@ export function readJournal(dir) {
   const book = readJson(path.join(content, 'book.json'));
   const day = readJson(path.join(content, 'daypage.json'));
   const profile = readJson(path.join(content, 'profile.json'));
-  return { book: book && Object.keys(book).length ? book : structuredClone(DEFAULT_BOOK), day: day && Object.keys(day).length ? day : null, ...publishableProfile(profile) };
+  const library = readJson(path.join(content, 'library.json')); // books and series (journal/library.mjs); nothing personal in it
+  const safe = publishableProfile(profile);
+  if (library) safe.meta = { ...(safe.meta || {}), library };
+  return { book: book && Object.keys(book).length ? book : structuredClone(DEFAULT_BOOK), day: day && Object.keys(day).length ? day : null, ...safe };
 }
 
 // A snapshot from a journal folder (or from the same three pieces in memory).
@@ -48,14 +52,30 @@ export function snapshotFromJournal(src, { title } = {}) {
 // daypage.json by two, each ending in a newline.
 // Stored parts are canonical (sorted keys); the files get their readable order back (id, type, on, options; uid, type, on, block options).
 const entryOrder = (e) => ({ id: e.id, type: e.type, on: e.on, options: e.type === 'weeks' ? { month: (e.options.month || []).map(entryOrder), week: (e.options.week || []).map(entryOrder) } : e.options });
-export function journalFiles(snap) {
-  const book = { version: snap.book.version, default: snap.book.default.map(entryOrder), months: Object.fromEntries(Object.entries(snap.book.months).map(([k, v]) => [k, { pages: v.pages.map(entryOrder) }])) };
-  const day = normalize(snap.day);
-  day.blocks = day.blocks.map((b) => Object.fromEntries([['uid', b.uid], ['type', b.type], ['on', b.on], ...TYPES[b.type].opts.map((o) => [o.k, b[o.k]]), ...(b.rows ? [['rows', b.rows]] : []), ...PLACE.map((k) => [k, b[k]])].filter(([, v]) => v !== undefined)));
-  return { 'content/book.json': JSON.stringify(book, null, 1) + '\n', 'content/daypage.json': JSON.stringify(day, null, 2) + '\n' };
+// A project with a library (snap.meta.library) also exports content/library.json: every book and series, the layouts inline, and
+// `defaultBook` = the chosen book (or the library's own default), so `node render.mjs` builds that book, and KW_BOOK=<id> any other.
+// content/book.json and daypage.json stay the project's own layouts (what a book with layoutRef "default" builds from).
+// A project without a library exports the two files exactly as before.
+export function journalFiles(snap, { book } = {}) {
+  const book0 = { version: snap.book.version, default: snap.book.default.map(entryOrder), months: Object.fromEntries(Object.entries(snap.book.months).map(([k, v]) => [k, { pages: v.pages.map(entryOrder) }])) };
+  const dayFile = (d) => {
+    const day = normalize(d);
+    day.blocks = day.blocks.map((b) => Object.fromEntries([['uid', b.uid], ['type', b.type], ['on', b.on], ...TYPES[b.type].opts.map((o) => [o.k, b[o.k]]), ...(b.rows ? [['rows', b.rows]] : []), ...PLACE.map((k) => [k, b[k]])].filter(([, v]) => v !== undefined)));
+    return day;
+  };
+  const files = { 'content/book.json': JSON.stringify(book0, null, 1) + '\n', 'content/daypage.json': JSON.stringify(dayFile(snap.day), null, 2) + '\n' };
+  const lib = snap.meta && snap.meta.library;
+  if (book && !lib) throw new Error(`This project has one book, so there is no book "${book}" to choose. Save a library first (studio library init).`);
+  if (lib) {
+    if (book && !bookOf(lib, book)) throw new Error(`No book "${book}" in this project's library (books: ${lib.books.map((b) => b.id).join(', ')}).`);
+    const out = { ...lib, defaultBook: book || lib.defaultBook || lib.books[0].id };
+    out.layouts = (lib.layouts || []).map((l) => ({ id: l.id, name: l.name, ...(l.book ? { book: { version: l.book.version, default: l.book.default.map(entryOrder), months: Object.fromEntries(Object.entries(l.book.months).map(([k, v]) => [k, { pages: v.pages.map(entryOrder) }])) } } : {}), ...(l.day ? { day: dayFile(l.day) } : {}) }));
+    files['content/library.json'] = JSON.stringify(out, null, 1) + '\n';
+  }
+  return files;
 }
-export function exportJournal(snap, dir) {
-  const files = journalFiles(snap), written = [];
+export function exportJournal(snap, dir, opts = {}) {
+  const files = journalFiles(snap, opts), written = [];
   for (const [rel, text] of Object.entries(files)) {
     const f = path.join(dir, rel);
     fs.mkdirSync(path.dirname(f), { recursive: true });

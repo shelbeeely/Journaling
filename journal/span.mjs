@@ -96,7 +96,7 @@ export async function loadSpan({ ics, quiet = false } = {}) {
       SUPPORT: readContent('support'), TRANS: moduleOn('trans_support') ? readContent('trans') : null, CLINIC: readContent('clinic'),
       keeperPage: undefined, keeperPages: ki && ki.handoff_page ? ki.handoff_page : {}, keeper: plan.keeper, closingPolicy: plan.closing,
       undated, scoped: true, plan,
-      dayLayout: applyModules(normalize(readJson('./content/daypage.json'))),
+      dayLayout: applyModules(normalize(PROFILE.library.layouts.day || readJson('./content/daypage.json'))),
       refs: {},
     };
   }
