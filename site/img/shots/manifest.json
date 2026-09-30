@@ -59,5 +59,65 @@
   "h": 613,
   "kb": 26,
   "alt": "A wrap-around cover for the sample book Northlight, deep blue with a row of moon phases and the title in cream."
+ },
+ "x4-checkin": {
+  "w": 480,
+  "h": 800,
+  "kb": 5
+ },
+ "x4-checkin-large": {
+  "w": 480,
+  "h": 800,
+  "kb": 5
+ },
+ "x4-focus": {
+  "w": 480,
+  "h": 800,
+  "kb": 6
+ },
+ "x4-focus-large": {
+  "w": 480,
+  "h": 800,
+  "kb": 6
+ },
+ "x4-scales": {
+  "w": 480,
+  "h": 800,
+  "kb": 5
+ },
+ "x4-scales-large": {
+  "w": 480,
+  "h": 800,
+  "kb": 5
+ },
+ "x4-settings": {
+  "w": 480,
+  "h": 800,
+  "kb": 4
+ },
+ "x4-settings-large": {
+  "w": 480,
+  "h": 800,
+  "kb": 6
+ },
+ "x4-today": {
+  "w": 480,
+  "h": 800,
+  "kb": 6
+ },
+ "x4-today-large": {
+  "w": 480,
+  "h": 800,
+  "kb": 5
+ },
+ "x4-wifi": {
+  "w": 480,
+  "h": 800,
+  "kb": 6
+ },
+ "x4-wifi-large": {
+  "w": 480,
+  "h": 800,
+  "kb": 6
  }
 }

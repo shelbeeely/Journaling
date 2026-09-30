@@ -126,7 +126,7 @@ if (want('x4')) {
   };
   const LG = 'text=large\ncontrast=bold\nbuttons=standard\n', NR = 'text=normal\ncontrast=normal\nbuttons=standard\n';
   const D = 'down ', scr = {
-    'x4-today': ['back', {}], 'x4-checkin': ['confirm left left left down confirm right down right right down confirm', {}],
+    'x4-checkin': ['confirm left left left down confirm right down right right down confirm', {}],
     'x4-scales': ['confirm ' + D.repeat(16) + 'confirm right right down confirm left left down right right down right right right', {}],
     'x4-settings': ['back ' + D.repeat(8) + 'confirm', {}], 'x4-wifi': ['back ' + D.repeat(5) + 'confirm', { KW_WIFI: 'HomeNet=hunter22:-48;Neighbor=secretpw1:-71' }],
     'x4-focus': ['back ' + D.repeat(7) + 'confirm down down down confirm', {}],
