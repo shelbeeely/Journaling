@@ -1,3 +1,13 @@
+---
+title: "Time logging and lifelogging"
+slug: time-logging-lifelog
+category: productivity
+evidenceLevel: some
+lastReviewed: 2026-09-30
+status: reviewed
+contributors: ['Journalwright Studio contributors']
+---
+
 # Time logging and lifelogging on paper
 
 A time log is a record of what you actually did, hour by hour. A lifelog is the same idea stretched wider: time, sleep, energy, places and small facts, kept every day so a pattern shows up over weeks. This doc covers the paper versions: Laura Vanderkam's 168-hour log, the Day Reconstruction Method, Jibun Techo-style 24-hour columns, hour grids, plan versus actual, shift-work logs, and the Quantified Self movement with its critiques.
@@ -375,7 +385,7 @@ What people actually do (from Vanderkam's challenge comments, planner blogs and 
 **Aesthetic versus minimalist camps**
 - Aesthetic: coloured blocks, stickers, small doodles in each hour. Pretty, slower, easy to fall behind.
 - Minimalist: letter codes and a totals row. Fast; ugly; lasts.
-Keeping Watch sits with the minimalist camp in print and lets the aesthetic happen in the Sketch box or margins.
+Journalwright Studio sits with the minimalist camp in print and lets the aesthetic happen in the Sketch box or margins.
 
 ## 13. Official products and formats
 
@@ -404,7 +414,7 @@ Other planners with vertical 24-hour or time-axis weeklies exist (Hobonichi Week
 
 **E-ink**
 - Printable 24-hour weekly PDFs work on reMarkable, Kindle Scribe and Boox. Hour grids are simple line art, ideal for e-ink.
-- Keeping Watch's X4 is an e-ink reader with buttons, not a writing tablet. It can hold a minimal log: tap to mark sleep start and end, or pick "what now" from a short list at anchors.
+- The X4 companion is an e-ink reader with buttons, not a writing tablet. It can hold a minimal log: tap to mark sleep start and end, or pick "what now" from a short list at anchors.
 
 **Scanning**
 - A shaded ribbon or strip scans well: it's high-contrast and in fixed positions, so a scan can be read by position without handwriting recognition.
@@ -495,7 +505,7 @@ Other planners with vertical 24-hour or time-axis weeklies exist (Hobonichi Week
 - **With [expressive writing](./expressive-writing.md):** use the hardest block as the writing prompt.
 - **With [a dream journal](./dream-journal.md):** the sleep bar tells you which nights to expect recall.
 - **With [art and junk journaling](./art-and-junk-journaling.md):** a ribbon is a tidy base layer; stickers and sketches can sit on top.
-- **With a care check-in** (Keeping Watch): the log adds when, the check-in adds how.
+- **With a care check-in** (Journalwright Studio): the log adds when, the check-in adds how.
 
 ## 22. Ready-to-use bank
 
@@ -591,32 +601,35 @@ They're accurate for screen time and steps, but miss feelings and context. Paper
 **10. How do I total without a calculator?**
 Count shaded cells in half-hours and divide by 2. Check each day adds to 24.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
+
+Journalwright Studio designs printed journals in a block editor, with an optional e-ink companion (the X4 companion). The
+"Built?" columns say what exists today; anything else is planned.
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan notes | Built? |
 |---|---|---|---|---|
-| Hour ribbon (24 cells, shade by code) | Day block | High | Solid/diagonal/dot hatches; fixed cell positions scan well; needs `data-zone` | No (Time blocks exists but is a plan list, 5–24h) |
-| Plan vs actual option on Time blocks | Day block option | High | Two narrow columns; pencil plan | No |
-| Full 0–24 range on Time blocks | Day block option | High | Night workers need 0–24 or a wake-based start | Partly (from 5–14, to 12–24) |
-| Episode list (DRM, yesterday in scenes) | Day block | Med | Numbered rows: start, end, scene, feel | No |
-| Week ribbons (7 stacked hour ribbons) | Week spread | High | One line per day; letter codes in key | No |
-| Month ribbons (one line per day) | Month tracker page | High | Very dense; 4 mm cells at letter, may be tight at 5.5×8.5 | No |
+| Hour ribbon (24 cells, shade by code) | Day block | High | Solid/diagonal/dot hatches; fixed cell positions scan well; needs `data-zone` | Partly (the Time line 24 h block prints 24 boxes, plan row and optional actual row, with night shaded from sunrise and sunset; shading by activity code is planned) |
+| Plan vs actual option on Time blocks | Day block option | High | Two narrow columns; pencil plan | Yes (Time blocks: Actual column; Time line 24 h: actual row) |
+| Full 0–24 range on Time blocks | Day block option | High | Night workers need 0–24 or a wake-based start | Yes (Time blocks: from 0–14, to 1–24; Time line 24 h starts anywhere 0–23) |
+| Episode list (DRM, yesterday in scenes) | Day block | Med | Numbered rows: start, end, scene, feel | Planned |
+| Week ribbons (7 stacked hour ribbons) | Week spread | High | One line per day; letter codes in key | Planned |
+| Month ribbons (one line per day) | Month tracker page | High | Very dense; 4 mm cells at letter, may be tight at 5.5×8.5 | Planned |
 | Sleep bar | Month tracker | High | Already close to Sleep times block and X4 sleep | Partly (Sleep times: bed/up) |
 | Weekly totals + 3 questions | Weekly review | High | Small table + 3 lines | Partly (weekly review exists) |
-| One sample week per season | Back matter | Med | Four one-page 168-hour sheets | No |
-| Shift rotation with anchor sleep | Month page | Med | Shade anchor hours | No |
+| One sample week per season | Back matter | Med | Four one-page 168-hour sheets | Planned |
+| Shift rotation with anchor sleep | Month page | Med | Shade anchor hours | Planned |
 | Time log in the Keeper | Keeper | Low | Keeper stays home; no scan codes; logs are daily, not yearly | Not a fit |
 
-### b. X4
+### b. X4 companion
 
 | Idea | Where | Fit | RAM, scope, calm notes |
 |---|---|---|---|
 | Sleep start/stop by button | Check-in item (existing sleep) | High | Already on device; add wake-based day boundary |
 | "What now?" at anchors | Check-in item kind `count` or new pick-list | Med | 5–7 fixed codes; a small ring buffer of (time, code) pairs, e.g. 96 entries × 3 bytes; no reminders, user-initiated |
 | Energy 1–5 | Check-in `scale` | High | Maps to existing Scale bridge |
-| Today's ribbon on sleep screen | Sleep screen | Med | 24 cells × 7 days at 480 px wide; redraw at 12:31 a.m. already; static bitmap, no animation |
+| Today's ribbon on sleep screen | Sleep screen | Med | 24 cells × 7 days at 480 px wide; redraw once a day already; static bitmap, no animation |
 | Week totals page | A screen | Med | Sum codes; plain numbers, no scores or streaks |
 | Export log as CSV over hotspot | Wi-Fi page | High | Stays on device until you download it |
 | Anchor alarms | none | Low | Out of scope: no notifications |
@@ -625,12 +638,14 @@ Count shaded cells in half-hours and divide by 2. Check each day adds to 24.
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `ribbon` | Hour ribbon | `from` (hour, 0–23, default wake 5), `hours` (12/18/24), `codes` list (max 7, default S W T C R P ?), `energy` bool (adds 1–5 at 3 anchors) | `ribbon` (`ribbon_2`…) | Not exported (drawn log); `energy` could become one `scale` 1..5 |
-| `timeline` (existing) | Time blocks: new `actual` bool | adds an "actual" column beside plan; extend `from` to 0 and `to` to 24 | `timeline` (existing) | Not exported |
-| `episodes` | Yesterday in scenes | `n` rows (4–12), `feel` choice (0–6 / 1–5 / word) | `episodes` | Not exported |
-| `anchors` | Energy at anchors | `labels` list (wake, midday, end of shift, bed) | `anchors` | One `scale` 1..5 per label (needs a small bridge extension, or build it from `scale` blocks) |
+| `ribbon` (planned; Time line 24 h is the nearest built block) | Hour ribbon | `from` (hour, 0–23, default wake 5), `hours` (12/18/24), `codes` list (max 7, default S W T C R P ?), `energy` bool (adds 1–5 at 3 anchors) | `ribbon` (`ribbon_2`…) | Not exported (drawn log); `energy` could become one `scale` 1..5 |
+| `timeline` (built) | Time blocks | Built: an `actual` column beside plan, `from` down to 0 and `to` up to 24 | `timeline` | Not exported |
+| `episodes` (planned) | Yesterday in scenes | `n` rows (4–12), `feel` choice (0–6 / 1–5 / word) | `episodes` | Not exported |
+| `anchors` (planned) | Energy at anchors | `labels` list (wake, midday, end of shift, bed) | `anchors` | One `scale` 1..5 per label (needs a small bridge extension, or build it from `scale` blocks) |
 
 ### d. Proposed method layout: "Time log"
+
+(Planned: the method layouts in the editor today are the original page, Bullet Journal daily, Hobonichi, Five Minute and Theme System day.)
 
 1. `sky` (moon, sun, season)
 2. `events`
@@ -645,7 +660,7 @@ Count shaded cells in half-hours and divide by 2. Check each day adds to 24.
 ### e. Don't adopt
 
 - **Streaks, scores, percentages of "productive" time.** Feed shame; against the calm design.
-- **Reminders every 15 or 30 minutes.** Notifications are out of scope, and they make logging feel like surveillance.
+- **Reminders every 15 or 30 minutes.** Notifications are out of scope for the companion, and they make logging feel like surveillance.
 - **Colour coding.** Print is black and white; use hatches and letters.
 - **Food amounts or calories in the log.** Eating-disorder risk; keep meals as landmarks only.
 - **Location logging on the device.** Privacy; nothing leaves the device except over its own hotspot, and location isn't needed.

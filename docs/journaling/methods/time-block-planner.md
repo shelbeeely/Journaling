@@ -1,3 +1,13 @@
+---
+title: "Time-Block Planner"
+slug: time-block-planner
+category: planner
+evidenceLevel: some
+lastReviewed: 2026-09-30
+status: reviewed
+contributors: ['Journalwright Studio contributors']
+---
+
 # Time blocking and The Time-Block Planner
 
 Cal Newport's method of giving every work minute a job, re-planning when the day breaks, and closing work with a shutdown ritual. It also covers generic time blocking and timeboxing.
@@ -250,7 +260,7 @@ LEFT PAGE: capture                     RIGHT PAGE: blocks
   (2 lines per hour)
 ```
 
-### Half-letter version for Keeping Watch (5.5×8.5)
+### Half-letter version (5.5×8.5)
 
 ```
 +-----------------------------------+
@@ -555,27 +565,30 @@ Sibling docs are written in parallel; if a file name differs when they land, fix
 9. **Is there evidence?** Not for the method directly. Its parts (specific plans, capture, detachment) have research support.
 10. **What if the ritual phrase feels silly?** Use any words, or just tick the box. The point is a clear end.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
+
+Journalwright Studio designs printed journals in a block editor, with an optional e-ink companion (the X4 companion). The
+"Built?" columns say what exists today; anything else is planned.
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Built? |
 |---|---|---|---|---|
-| Time grid with a second "re-plan" column | Day block (Time blocks) | High | Add a narrow second column; thin rules; stays in the block's zone | Partly (Time blocks exists, single column) |
-| Shutdown tick with a short phrase | Day block (Checkboxes: "Work closed") | High | One checkbox; icon of a closed door | Can be done with Checkboxes today |
-| Capture area beside the grid | Day block (Two columns: grid + capture) | Med | Two columns block exists; could host capture | Partly |
-| Weekly plan box: protected blocks, low days | Week spread | High | Short rules with icons; no quote essays | No |
-| Shift day: shift as one fixed block from the ICS | Day block (Work shift + Time blocks) | High | Work shift block exists; draw the shift as a shaded band (pattern, not grey fill) | Partly |
-| Monthly "deep blocks planned vs done" row | Month tracker page | Low | A small row of numbers | No |
-| Shutdown checklist card | Back matter | Med | 5 lines; fits beside Closing the month | No |
-| Season goals (quarter) box | Month page (first month of a season) | Low | Could live in the month theme | No |
+| Time grid with a second "re-plan" column | Day block (Time blocks) | High | Add a narrow second column; thin rules; stays in the block's zone | Yes (Time blocks has an Actual column and 0–2 re-plan columns; three or more switch to one wide list) |
+| Shutdown tick with a short phrase | Day block (Checkboxes: "Work closed") | High | One checkbox; icon of a closed door | Yes ("Shutdown" Checkboxes preset: Lists captured, Tomorrow's first block, Work closed) |
+| Capture area beside the grid | Day block (Two columns: grid + capture) | Med | Two columns block exists; could host capture | Partly (Two columns and Brain dump blocks exist) |
+| Weekly plan box: protected blocks, low days | Week spread | High | Short rules with icons; no quote essays | Partly (Week at a glance block; a protected-blocks box is planned) |
+| Shift day: shift as one fixed block from the ICS | Day block (Work shift + Time blocks) | High | Work shift block exists; draw the shift as a shaded band (pattern, not grey fill) | Partly (Work shift block; the shaded band is planned) |
+| Monthly "deep blocks planned vs done" row | Month tracker page | Low | A small row of numbers | Planned |
+| Shutdown checklist card | Back matter | Med | 5 lines; fits beside Closing the month | Planned |
+| Season goals (quarter) box | Month page (first month of a season) | Low | Could live on the season theme page | Planned |
 
-### b. X4
+### b. X4 companion
 
 | Idea | Where | Fit | RAM, scope and calm notes |
 |---|---|---|---|
-| "Work closed" toggle (shutdown done) | Check-in item (toggle) | High | 1 slot via Checkboxes bridge |
-| "Deep blocks done" count | Check-in item (count, 0..8) | Med | 1 slot via Fill-in blanks |
+| "Work closed" toggle (shutdown done) | Check-in item (toggle) | High | 1 slot via Checkboxes bridge (built: the "Shutdown" preset exports as toggles) |
+| "Deep blocks done" count | Check-in item (count, 0..8) | Med | 1 slot via Fill-in blanks (built: the "Deep blocks" preset) |
 | "Re-blocks today" count | Check-in item (count) | Low | Could feel like judging; optional |
 | Show today's time blocks on the sleep screen | Sleep screen | Low | Needs block text synced; the sleep screen already shows today; keep it calm and off by default |
 | A block timer with alarms | A screen | Don't | Alarms are notifications; out of scope |
@@ -585,18 +598,20 @@ Sibling docs are written in parallel; if a file name differs when they land, fix
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `timeblocks` (existing) + options | Time blocks with re-plan | `start`, `end`, `step` (15/30/60), `replan` (0–2 extra columns), `capture` (bool, narrow capture column), `shiftBand` (bool, draw Work shift from calendar) | `timeblocks` | none |
-| `checks` (existing) preset | Shutdown | labels: "Lists captured", "Tomorrow's first block", "Work closed" | `checks` | `toggle` ×3 |
-| `fields` (existing) preset | Deep blocks | labels: "Deep blocks planned", "Deep blocks done" | `fields` | `count` 0..99 ×2 |
-| `lined` (existing) preset | Capture | `title`: "Capture", `lines`: 6 | `notes` | none |
+| `timeline` (built) + options | Time blocks with re-plan | Built: `from`, `to`, `every` (1 or 2 hours), `actual` (bool), `replan` (0–2 extra columns), row height. Planned: a 15/30-minute step, `capture` (bool, narrow capture column), `shiftBand` (bool, draw Work shift from calendar) | `timeline` | none |
+| `checks` (built) preset | Shutdown | labels: "Lists captured", "Tomorrow's first block", "Work closed" | `checks` | `toggle` ×3 |
+| `fields` (built) preset | Deep blocks | labels: "Deep blocks planned", "Deep blocks done" | `fields` | `count` 0..99 ×2 |
+| `lines` (built) preset | Capture | `title`: "Capture", `n`: 6 | `lines` | none |
 
 ### d. Proposed method layout: "Time blocking"
+
+(Planned: the method layouts in the editor today are the original page, Bullet Journal daily, Hobonichi, Five Minute and Theme System day.)
 
 1. Moon/sun/season (existing; small)
 2. Events (existing, from your day)
 3. Work shift (existing; shows the fixed band)
 4. Top priorities: 3 lines (the deep blocks to place)
-5. Time blocks: step 30, replan 1, capture on
+5. Time blocks: every 1 hour, replan 1 (capture column once it exists)
 6. Checks "Shutdown": Lists captured, Tomorrow's first block, Work closed
 7. Fields "Deep blocks": planned, done
 8. Care check-in (existing, compact)
@@ -607,7 +622,7 @@ Sibling docs are written in parallel; if a file name differs when they land, fix
 - **"Every minute gets a job" as a rule.** It can turn into self-surveillance on low-spoon days. Keep blocks optional and allow open time.
 - **Newport's quotes or "big idea" essays in the book.** Copyrighted, and busy text breaks the calm design.
 - **Productivity claims (2×, 40 = 60).** Unproven; don't print them as promises.
-- **Alarms or block reminders on the X4.** Notifications are out of scope.
+- **Alarms or block reminders on the X4 companion.** Notifications are out of scope.
 - **Re-block counts as a score.** Scores drift toward badges and shame.
 - **Full-page hourly grids on every day.** Wasteful on shift days; the editor should let people turn them off.
 

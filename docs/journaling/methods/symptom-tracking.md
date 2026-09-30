@@ -1,3 +1,13 @@
+---
+title: "Symptom tracking"
+slug: symptom-tracking
+category: mental-health
+evidenceLevel: some
+lastReviewed: 2026-09-30
+status: reviewed
+contributors: ['Journalwright Studio contributors']
+---
+
 # Symptom tracking (symptom, pain, medication, cycle and sleep diaries)
 
 > **Not medical advice.** This is a research summary for designing journal pages. It does not diagnose, treat or replace
@@ -34,8 +44,9 @@ short, dated entries replaces that blur with numbers you can both look at. Stand
 the 0–10 pain scale, the Consensus Sleep Diary, headache diaries used in migraine research, and daily premenstrual
 ratings. Research shows these measures are reliable, that routine symptom reporting can improve care in some settings,
 and that paper diaries are often back-filled from memory, which weakens them. The best personal version is small: a few
-circles a day, a weekly look, and a one-page summary for appointments. For Keeping Watch, most of the pieces already exist
-(Care check-in, Pain and Sleep times blocks, HRT & body care checks, X4 check-ins); the gaps are a body map, a PRN
+circles a day, a weekly look, and a one-page summary for appointments. For Journalwright Studio, several pieces already exist
+(Care check-in, Pain and Sleep times blocks, an "HRT & body care" checks preset, a Cycle & dose preset, an injection site
+rotation block, X4 check-ins); the gaps are a body map, a PRN
 ("as needed") dose log, cycle or injection-day marks, and an appointment summary page.
 
 ## 3. History and origin
@@ -134,7 +145,7 @@ for at least a month.
 The 0–10 numerical rating scale is the most widely used pain intensity measure; Hjermstad et al. (2011) found it had
 better compliance than visual analogue or verbal scales in most studies that compared them. Decide which question you
 answer, and keep it: "pain right now", "average pain today" or "worst pain today". Farrar et al. (2001) found a 2-point
-or 30% drop is what people typically feel as "much improved", which helps judge a new treatment. Keeping Watch's current
+or 30% drop is what people typically feel as "much improved", which helps judge a new treatment. Journalwright Studio's current
 Pain preset uses a 6-step "none … bad" scale; that is fine for personal use but does not map to 0–10.
 
 ### PEG
@@ -157,11 +168,11 @@ useful things a headache diary does. (Which threshold applies to which drug is f
 
 ### Medication log
 Two kinds of dose:
-- **Scheduled** doses: a tick per dose. Keeping Watch's Care check-in already has a meds tick.
+- **Scheduled** doses: a tick per dose. Journalwright Studio's Care check-in already has a meds tick.
 - **PRN (as needed)** doses: time, medicine, dose, why, and whether it helped. These matter for headache counting, for
   pain treatment reviews, and for not doubling a dose by mistake.
-Also keep a **medicine list** (name, strength, how taken, prescriber, start date, why) in a stable place. Keeping Watch's
-Keeper is the natural home. Note side effects with a date and the medicine you suspect.
+Also keep a **medicine list** (name, strength, how taken, prescriber, start date, why) in a stable place. The
+Keeper (a home-only yearly book) is the natural home. Note side effects with a date and the medicine you suspect.
 
 ### Cycle log
 Bleeding days and flow (spotting, light, medium, heavy), cycle day, and chosen symptoms. FIGO's normal adult ranges, as
@@ -188,7 +199,7 @@ and they are the standard tool for insomnia treatment (CBT-I).
 
 ### Triggers and context
 Only track suspected triggers you would act on. Common ones: sleep, stress, missed meals, alcohol, caffeine, weather,
-screen time, cycle day, shift work. Keeping Watch already prints weather, air quality, work shift and sleep.
+screen time, cycle day, shift work. Journalwright Studio already offers weather, air quality, work shift and sleep blocks.
 
 ### Flare or event note
 A short, dated note: what happened, what you tried, what helped, and whether you contacted anyone. These are the lines a
@@ -243,7 +254,7 @@ evening pass. If the day was bad, write only the number and one word. Low effort
 - **Weekly (5–10 min):** count headache days, PRN doses, poor sleep nights; do a PEG; update the body map if pain moved;
   write one "mention at appointment" line.
 - **Monthly (15 min):** totals onto the month page; compare with last month; cycle length; carry medicine changes to the
-  Keeper medicine list. Keeping Watch's "Closing the month" page already totals meds taken and average sleep.
+  Keeper medicine list. Journalwright Studio's "Closing the month" page already totals meds taken and average sleep.
 - **Before an appointment (15 min):** build the one-page summary (section 9). Bring the raw pages too.
 - **Quarterly:** is each item still answering a question? Drop what isn't. Check lab dates for HRT.
 - **Yearly:** archive the summaries in the Keeper. Keep the medicine history (start, stop, why) forever; it saves time
@@ -252,7 +263,7 @@ evening pass. If the day was bad, write only the number and one word. Low effort
 ## 9. Page anatomy
 
 All sketches are for a 5.5×8.5 in page; letter size gets wider columns, not more items. Black and white, bubbles and
-lines only. On Keeping Watch pages, the DATE/TITLE/TAGS header, frame, SEND TO strip and page code stay as they are.
+lines only. On Journalwright Studio pages, the DATE/TITLE/TAGS header, frame, SEND TO strip and page code stay as they are.
 
 **Daily symptom block (fits in a day page, about 1.2 in tall).**
 
@@ -416,9 +427,9 @@ PROMIS short forms have their own licensing terms; check before printing them in
   Flo Health found the app had shared users' health data with marketing and analytics firms including Facebook and
   Google despite privacy promises. Paper at home, or an offline device, avoids this class of risk.
 - **E-ink.** reMarkable, Kindle Scribe and Boox can hold PDF trackers; handwriting stays local unless synced.
-- **Scanning.** Keeping Watch pages scan to the owner's app; health pages should be routed to a private destination.
-- **X4.** The Keeping Watch X4 already logs meds, meals, care, mood, anxiety, spoons and sleep offline, and exports a
-  month log over its own hotspot. That is a strong privacy position: nothing leaves the device.
+- **Scanning.** Journalwright Studio pages scan to the owner's own app; health pages should be routed to a private destination.
+- **X4 companion.** The X4 companion logs spoons, sleep, anxiety and care ticks offline (meds, meals and mood stay on paper), and
+  exports a month log over its own hotspot. That is a strong privacy position: nothing leaves the device.
 - **What's lost or gained.** Paper loses automatic timestamps (so back-filling is easier; Stone et al., 2002, measured
   real paper compliance of 11% against 90% reported) and charts. It gains privacy, zero setup and no battery.
   Mitigation on paper: write the actual time next to entries that matter (PRN, attack start), leave blanks rather than
@@ -478,7 +489,7 @@ PROMIS short forms have their own licensing terms; check before printing them in
 
 - **ADHD:** attach tracking to an existing habit (meds); bubbles not writing; one fixed spot on the page; the X4 button
   check-in suits "no pen nearby" moments.
-- **Autism and sensory needs:** add sensory load to context (Keeping Watch has a Sensory load block); use concrete anchors
+- **Autism and sensory needs:** add sensory load to context (Journalwright Studio has a Sensory load block); use concrete anchors
   rather than vague words; allow "don't know".
 - **Chronic illness and low spoons:** minimum entry = pain number; flare-only logs; weekly PEG instead of daily detail.
 - **Depression and anxiety:** watch for rumination; keep a "what helped" line; if mood items are tracked, pair with the
@@ -603,26 +614,29 @@ says, and mark the shift type.
 
 **Can I change the scale partway?** Only at a clean break (a new month) and note it, or your trend becomes meaningless.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
+
+Journalwright Studio designs printed journals in a block editor, with an optional e-ink companion (the X4 companion). The
+"Built?" columns say what exists today; anything else is planned. The Studio records; it does not interpret.
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Built? |
 |---|---|---|---|---|
-| Pain 0–10 option for the Pain preset | Day block (Scale preset with steps 11, "0 … 10") | High | Scale block already renders bubbles; label 0 and 10 | Partly (Pain preset is 6 steps) |
+| Pain 0–10 option for the Pain preset | Day block (Scale preset with steps 11, "0 … 10") | High | Scale block already renders bubbles; label 0 and 10 | Partly (Scale block allows up to 11 steps; the Pain preset is 6 steps) |
 | Care check-in meds tick | Day block | High | Existing | Yes |
-| PRN dose lines (time, what, why, helped?) | Day block | High | Lines + tiny Y/N bubbles; `data-zone="prn"` | No |
-| Body map | Day block (optional) or week spread | Med | Single-stroke SVG outline, no gendered shapes; `data-zone="bodymap"` | No |
-| Sleep times + quality | Day block | High | Existing; add optional "woke __ times" | Mostly |
-| Consensus Sleep Diary week table | Week spread | Med | 7 rows × 9 columns; fits letter better than 5.5×8.5 | No |
-| Headache/migraine log | Month page or back matter | Med | Table with bubbles; counts feed Closing the month | No |
-| Cycle / HRT day marks on the month tracker | Month tracker page | High | Half/full dots like Habit dots | Partly (HRT tick exists) |
+| PRN dose lines (time, what, why, helped?) | Day block | High | Lines + tiny Y/N bubbles; `data-zone="prn"` | Planned |
+| Body map | Day block (optional) or week spread | Med | Single-stroke SVG outline, no gendered shapes; `data-zone="bodymap"` | Planned |
+| Sleep times + quality | Day block | High | Existing; add optional "woke __ times" | Yes (Sleep times block; quality option) |
+| Consensus Sleep Diary week table | Week spread | Med | 7 rows × 9 columns; fits letter better than 5.5×8.5 | Planned |
+| Headache/migraine log | Month page or back matter | Med | Table with bubbles; counts feed Closing the month | Planned |
+| Cycle / HRT day marks on the month tracker | Month tracker page | High | Half/full dots like Habit dots | Partly ("Cycle & dose" and "HRT & body care" presets exist) |
 | Month totals: headache days, PRN days, avg pain | Closing the month | High | Add to the existing totals grid | Partly (meds, sleep exist) |
-| Appointment summary page | Back matter (1 page) + Keeper copy | High | Cut-out friendly; no scan codes needed in Keeper | No |
-| Medicine list and lab dates | Keeper | High | Keeper has no scan codes: fine for health data | No |
-| Personal pain anchors | Front matter (care plan) | Med | Three short lines | No |
+| Appointment summary page | Back matter (1 page) + Keeper copy | High | Cut-out friendly; no scan codes needed in Keeper | Planned |
+| Medicine list and lab dates | Keeper | High | Keeper has no scan codes: fine for health data | Planned |
+| Personal pain anchors | Front matter (care plan) | Med | Three short lines | Planned |
 
-### b. X4
+### b. X4 companion
 
 | Idea | Where | Fit | RAM, scope and calm notes |
 |---|---|---|---|
@@ -639,13 +653,13 @@ says, and mark the shift type.
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `scale` preset | Pain 0–10 | title "Pain", steps 11, lo "0 none", hi "10 worst" | `scale` (repeats `_2`) | `scale` 1..11 per the bridge spec, so the stored value is pain + 1 **(uncertain: the bridge in `export_pack.py` is still being built; either shift on display or print 1–10 instead)** |
-| `prn` (new) | As-needed doses | `n` lines 1–4, `helped` bool | `prn` | `count` (number of doses) |
-| `bodymap` (new) | Where it hurts | `letters` flags (ache, burn, stab, numb, tight), `size` choice (small, medium) | `bodymap` | not exported |
-| `habits` preset | Cycle & HRT | labels ["Bleeding", "HRT dose"] | `habits` | `dots` per label |
-| `checks` preset | Headache today | labels ["Headache", "Took acute med"] | `checks` | `toggle` per label |
-| `fields` preset | Symptom counts | labels ["Wakings", "PRN doses"] | `fields` | `count` 0..99 |
-| `lines` preset | Ask at my appointment | title, n 1 | `lines` | not exported |
+| `scale` preset | Pain 0–10 | title "Pain", steps 11, lo "0 none", hi "10 worst" | `scale` (repeats `_2`) | `scale` (1..11 if stored as 1..steps, so the stored value is pain + 1 **(uncertain: check how `x4/tools/export_pack.py` currently stores scales; either shift on display or print 1–10 instead)** ) |
+| `prn` (planned) | As-needed doses | `n` lines 1–4, `helped` bool | `prn` | `count` (number of doses) |
+| `bodymap` (planned) | Where it hurts | `letters` flags (ache, burn, stab, numb, tight), `size` choice (small, medium) | `bodymap` | not exported |
+| `habits` preset (planned; a "Cycle & dose" checks preset exists) | Cycle & HRT | labels ["Bleeding", "HRT dose"] | `habits` | `dots` per label |
+| `checks` preset (planned) | Headache today | labels ["Headache", "Took acute med"] | `checks` | `toggle` per label |
+| `fields` preset (planned) | Symptom counts | labels ["Wakings", "PRN doses"] | `fields` | `count` 0..99 |
+| `lines` preset (planned) | Ask at my appointment | title, n 1 | `lines` | not exported |
 
 ### d. Proposed method layout: "Symptom diary"
 
@@ -665,8 +679,8 @@ says, and mark the shift type.
 
 - **Reproducing licensed clinical forms verbatim** (DRSP, PROMIS short forms, BPI) in a sold book without checking terms.
   Use the ideas and plain wording instead.
-- **Dose reminders, alarms or streaks on the X4.** Notifications and badges are out of scope and add pressure.
-- **Scores, diagnoses or "you may have X" logic.** Keeping Watch records; clinicians interpret.
+- **Dose reminders, alarms or streaks on the X4 companion.** Notifications and badges are out of scope and add pressure.
+- **Scores, diagnoses or "you may have X" logic.** Journalwright Studio records; clinicians interpret.
 - **Fertility-awareness contraception charts.** Too high stakes for a general journal.
 - **Scan codes on the Keeper medicine list.** The Keeper stays code-free.
 - **Cloud sync of symptom data.** Keeps the privacy promise intact.
@@ -677,7 +691,7 @@ says, and mark the shift type.
 - Do paper diaries with a written time stamp reduce back-filling enough? No study found.
 - The best way to log sleep for rotating shift workers in the Consensus Sleep Diary format is not standardised.
 - Whether tracking symptoms across an injection interval helps HRT dosing decisions is unclear; it's a conversation aid.
-- The bridge spec exports a `scale` block as 1..steps, so an 11-step 0–10 pain scale would be stored as 1–11. Whether to add a zero-based option or shift on display is open until the bridge lands in `x4/tools/export_pack.py`.
+- How a `scale` block's numbers are stored on the X4 companion (1..steps, or zero-based) decides whether an 11-step 0–10 pain scale is stored as 0–10 or 1–11. Check the current export in `x4/tools/export_pack.py` before relying on it.
 - Licensing of the Consensus Sleep Diary for printing in a sold book was not confirmed.
 
 ## 27. Further reading

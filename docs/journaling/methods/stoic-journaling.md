@@ -1,6 +1,16 @@
+---
+title: "Stoic journaling"
+slug: stoic-journaling
+category: reflective-writing
+evidenceLevel: some
+lastReviewed: 2026-09-30
+status: reviewed
+contributors: ['Journalwright Studio contributors']
+---
+
 # Stoic journaling
 
-A morning plan and an evening review, built on three Roman writers who kept notes to train how they judged the day. This doc covers the ancient sources, the modern forms, the link to CBT, what the research does and doesn't show, and what Keeping Watch can take from it.
+A morning plan and an evening review, built on three Roman writers who kept notes to train how they judged the day. This doc covers the ancient sources, the modern forms, the link to CBT, what the research does and doesn't show, and what Journalwright Studio can take from it.
 
 > Quotes come from public-domain translations: Seneca (Aubrey Stewart 1900; Richard Gummere, Loeb), Marcus Aurelius (Meric Casaubon 1634, as on Project Gutenberg), Epictetus (George Long; Elizabeth Carter). Book and section numbers follow the standard modern numbering unless marked otherwise.
 
@@ -579,7 +589,7 @@ No study has tested Stoic *journaling* alone. The research tests Stoic *courses*
 - **With the [Progoff Intensive Journal](./progoff-intensive-journal.md):** Progoff's Daily Log records without judging; the Stoic review judges. Use Progoff for the long view of your life, Stoic for the day.
 - **With a bullet journal daily log:** bullets for the day's facts; three Stoic lines at the bottom.
 - **With the [dream journal](./dream-journal.md):** Stoic at night, dreams in the morning. They share a bedside notebook well.
-- **With Keeping Watch's existing blocks:** "Went well / Was hard / Tomorrow" is already a Stoic evening review in all but name.
+- **With Journalwright Studio's existing blocks:** "Went well / Was hard / Tomorrow" is already a Stoic evening review in all but name.
 
 (Sibling docs are being written in parallel; links point to their planned paths.)
 
@@ -692,30 +702,33 @@ That's what Seneca wrote it for. *De Ira* is literally "On Anger". Log what set 
 
 ---
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
+
+Journalwright Studio designs printed journals in a block editor, with an optional e-ink companion (the X4 companion). The
+"Already built?" column says what exists today; anything else is planned.
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W / scan-zone notes | Already built? |
 |---|---|---|---|---|
 | Evening review (did well / fell short / tomorrow) | Day block | High | Same as `review` block; icons +, −, → | **Yes**: "Went well · Was hard · Tomorrow" (`review`) |
-| Morning preparation line ("Likely snag → my response") | Day block | High | Two short lines with an arrow icon; needs a `data-zone` | No (can be approximated with `split` or `lines`) |
+| Morning preparation line ("Likely snag → my response") | Day block | High | Two short lines with an arrow icon; needs a `data-zone` | Planned (can be approximated with `split` or `lines`) |
 | Control sort (mine / not mine) | Day block | High | Two columns; circle-in-circle icon on the header | Partly: `split` with Left "Mine", Right "Not mine" |
 | Pardon line ("I let go of ___") | Day block | Med | One line; small open-hand icon | Partly: `lines` with label |
-| Weekly repeats + view from above | Week spread / weekly review | High | A 2-row tally and 3 lines | No; weekly review exists and could take a Stoic variant |
-| Month premeditation table (date / snag / plan) | Month page | Med | Three-column table; ties to calendar events | No |
+| Weekly repeats + view from above | Week spread / weekly review | High | A 2-row tally and 3 lines | Planned; weekly review exists and could take a Stoic variant |
+| Month premeditation table (date / snag / plan) | Month page | Med | Three-column table; ties to calendar events | Planned |
 | Virtue of the month (circle one) | Month page | Low–med | Words to circle; avoid moralising tone | Partly: `words` block style |
-| "Ready at hand" maxims page | Back matter | Med | 10 lines; no scan needed; a Lineage-style page | No |
-| Stoic quote in month theme | Front matter / month theme | Low | Short public-domain lines only; no busts or ornament | Month theme exists |
-| Memento mori page | — | Low | Risky for readers in crisis; see Don't adopt | No |
+| "Ready at hand" maxims page | Back matter | Med | 10 lines; no scan needed; a Lineage-style page | Planned |
+| Stoic quote in month theme | Front matter / month theme | Low | Short public-domain lines only; no busts or ornament | Season theme page exists |
+| Memento mori page | — | Low | Risky for readers in crisis; see Don't adopt | Not planned |
 
-### b. X4
+### b. X4 companion
 
 | Idea | Where | Fit | RAM / scope / calm notes |
 |---|---|---|---|
 | Evening review as three toggles (did well / fell short / tomorrow set) | Check-in items (`toggle`) via `checks` block | Med | 3 of 16 custom slots; no text entry on 7 buttons, so it's a "did I do it" mark only |
 | "Steady today" scale 1–5 | Check-in (`scale`) via `scale` block | High | Pairs with existing mood and anxiety; one slot |
-| Control sort reminder on the sleep screen ("Mine / Not mine") | Sleep screen, static line | Med | Static text, no refresh cost; calm; rotate from a fixed list at the 12:31 a.m. redraw, never "new content" |
+| Control sort reminder on the sleep screen ("Mine / Not mine") | Sleep screen, static line | Med | Static text, no refresh cost; calm; rotate from a fixed list at the daily redraw, never "new content" |
 | Public-domain maxim of the day | Books library (a small EPUB of short Stoic lines) | Med | Fits existing library; no feed, no network; read on request only |
 | Evening review prompt card | A screen reached from the check-in menu | Low | Static text; no timers or nags (no notifications) |
 
@@ -723,13 +736,13 @@ That's what Seneca wrote it for. *De Ira* is literally "On Anger". Log what set 
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `prepare` | Morning prepare | `title` (text, def "Morning"), `n` (num 1–3 snag rows, def 1), `intent` (bool, def true) | `prepare` (repeats `prepare_2`) | none (writing) |
-| `control` | Mine / not mine | `mode` (choice: two columns, three with "partly"), `n` (num 1–5 lines, def 2) | `control` | none (writing) |
-| `pardon` | Let it go | `label` (text, def "I let go of"), `n` (num 1–2) | `pardon` | none |
+| `prepare` (planned) | Morning prepare | `title` (text, def "Morning"), `n` (num 1–3 snag rows, def 1), `intent` (bool, def true) | `prepare` (repeats `prepare_2`) | none (writing) |
+| `control` (planned) | Mine / not mine | `mode` (choice: two columns, three with "partly"), `n` (num 1–5 lines, def 2) | `control` | none (writing) |
+| `pardon` (planned) | Let it go | `label` (text, def "I let go of"), `n` (num 1–2) | `pardon` | none |
 | (reuse) `checks` | Evening review done | labels: Did well, Fell short, Tomorrow set | existing `checks` | `toggle` ×3 |
 | (reuse) `scale` | Steady | label "Steady", lo "shaken", hi "steady", steps 5 | existing `scale` | `scale` 1..5 |
 
-`control` and `prepare` could also be shipped as presets on `split` and `lines` first, to test demand before new block code (iterative, per Shelbee's working style).
+`control` and `prepare` could also be shipped as presets on `split` and `lines` first, to test demand before new block code (ship a working version, then improve).
 
 ### d. Proposed method layout: "Stoic day"
 
@@ -744,10 +757,10 @@ That's what Seneca wrote it for. *De Ira* is literally "On Anger". Log what set 
 
 ### e. Don't adopt
 
-- **Memento mori pages or daily death reminders.** Risky for readers with suicidal thoughts or fresh grief; the Keeping Watch books already carry a safety plan. Offer "What matters this week?" instead.
+- **Memento mori pages or daily death reminders.** Risky for readers with suicidal thoughts or fresh grief; Journalwright Studio books already carry a safety plan page. Offer "What matters this week?" instead.
 - **"Fell short" as a mandatory prompt.** Keep "Was hard" wording from the existing `review` block; it's kinder and avoids self-blame.
 - **Marble busts, Greek columns, Latin mottos.** Busy ornament against the calm design rules.
-- **Streaks or "days in a row".** Badge-like; bad for low-spoon days and against firmware scope.
+- **Streaks or "days in a row".** Badge-like; bad for low-energy days and against the companion's firmware scope.
 - **Pop "stoic" language** (tough it out, don't complain). Linked to worse well-being.
 - **Long daily quotes.** Take space and add reading load. One short line, occasionally, at most.
 

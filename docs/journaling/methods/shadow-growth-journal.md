@@ -1,3 +1,13 @@
+---
+title: "Shadow growth journal"
+slug: shadow-growth-journal
+category: reflective-writing
+evidenceLevel: none
+lastReviewed: 2026-09-30
+status: reviewed
+contributors: ['Journalwright Studio contributors']
+---
+
 # Shadow work and shadow growth journaling
 
 > **Not medical advice.** This is a research summary to help design journal pages. It is not therapy and does not
@@ -363,7 +373,7 @@ Not applicable as a single product line: there is no official shadow journal.
 - **E-ink** (reMarkable, Kindle Scribe, Boox). A good fit: slow, private, no notifications. Use a template with a
   fixed top (feelings scale) and bottom (closer). See [e-ink-templates](e-ink-templates.md).
 - **Scanning.** Do not scan these pages into a cloud service casually. If you scan for your own archive, keep them
-  offline, and in a KDP or Keeping Watch book the pages stay private (see section 25).
+  offline, and in a KDP or Journalwright Studio book the pages stay private (see section 25).
 - **Gained versus lost.** Digital: search, backup, prompt variety, easy privacy locks. Lost: the calming physical
   act, the sealing away of a closed notebook, and the ability to leave the thing in a drawer. Cloud storage adds a
   breach risk that paper does not have.
@@ -678,12 +688,13 @@ Lifeline at (877) 565-8860.
 
 **13. Should I use an AI chatbot for it?** No. Not a clinician, and nothing is private enough.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
-Shadow work is not part of the book today. The proposals below are optional and low-risk, and they pair with the
-**Tier 2 therapy blocks already on main** (Feelings 0-5, Skills 0-7, Urge + acted, Thought record, all printing the
+Journalwright Studio designs printed journals in a block editor, with an optional e-ink companion (the X4 companion).
+Shadow work is not part of the default book today. The proposals below are optional and low-risk, and they pair with the
+**Therapy blocks already in the editor** (Feelings 0-5, Skills 0-7, Urge + acted, Thought record, all printing the
 "Use with a therapist" line with 988 and Trans Lifeline). Any shadow block should reuse that same `THERAPY_NOTE`
-line and keep it in step with the Support page. Ask before building any of it (Scope rule in CLAUDE.md).
+line and keep it in step with the Support page. Nothing here is built unless the table says so.
 
 ### a. Printed book
 
@@ -691,16 +702,16 @@ line and keep it in step with the Support page. Ask before building any of it (S
 |---|---|---|---|---|
 | Trigger page: facts, judgment, small version in me, need, kindness line, feeling before and after | Day block or full back-matter page | Med | Each box its own `data-zone`; uses `feelings` for the 0-5 scale; therapist line on the page | Partly (Feelings 0-5, Thought record, Two columns) |
 | "I can't stand it when ..." two-column pair | Day block (Two columns preset) | Med | Reuses Two columns; no new zone | Partly |
-| Golden shadow (admire / small step) | Day block preset | High | Two fill-in lines; positive-only, low risk | No |
+| Golden shadow (admire / small step) | Day block preset | High | Two fill-in lines; positive-only, low risk | Planned |
 | Rotating prompt with a "pass" box | Day block | Med | Add shadow-lite prompts to the fixed list of 36 (optional gentle set) | Yes (prompt block) |
 | Words to circle: judgment words | Day block (Words to circle preset) | Med | 8–10 words (selfish, lazy, fake, loud); circle one | Block yes; preset no |
 | "Felt: lighter / same / worse" tick | Day block or Low and high | High | One row of three ticks; the stop-rule feeds the therapist page | Partly (Low and high) |
-| Monthly pattern page (words that repeat, three triggers, one gold trait, continue / pause / ask my therapist) | Month page or back matter | Med | Text only; private; no scan path beyond the standard header | No |
-| Stop rule and grounding card | Back matter, next to Safety plan | High | Text only; points to the Safety plan and Support pages | No |
-| "Whose voice?" prompt for shame | Day block or back matter | High for trans readers | One line; framed as a question about origin | No |
-| Private shadow notes | Keeper (yearly, stays home) | Low | Keeper has no scan codes; better than a scanned page | No |
+| Monthly pattern page (words that repeat, three triggers, one gold trait, continue / pause / ask my therapist) | Month page or back matter | Med | Text only; private; no scan path beyond the standard header | Planned |
+| Stop rule and grounding card | Back matter, next to Safety plan | High | Text only; points to the Safety plan and Support pages | Planned |
+| "Whose voice?" prompt for shame | Day block or back matter | High for trans readers | One line; framed as a question about origin | Planned |
+| Private shadow notes | Keeper (yearly, stays home) | Low | Keeper has no scan codes; better than a scanned page | Planned |
 
-### b. X4
+### b. X4 companion
 
 | Idea | Where | Fit | RAM, scope and calm notes |
 |---|---|---|---|
@@ -735,7 +746,7 @@ line and keep it in step with the Support page. Ask before building any of it (S
 
 ### e. Don't adopt
 
-- **Generative AI "shadow coaches" or chat.** Out of scope, and unsafe for this material.
+- **Generative AI "shadow coaches" or chat.** Out of scope for the companion's firmware, and unsafe for this material.
 - **Notifications, reminders, streaks or "shadow score" badges.** Out of scope; they add pressure to a practice that
   should be paused when hard.
 - **Daily shadow prompts on the X4 sleep screen or as a feed.** Heavy material should not arrive unasked.
