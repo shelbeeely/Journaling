@@ -47,7 +47,7 @@ async function open(target, { hash = "", w = 1400, h = 900, scheme = 'light', re
   const errs = []; p.on('pageerror', (e) => errs.push(e.message));
   await p.goto(`${ORIGIN}/${target}/${hash}`, { waitUntil: 'load' });
   if (contrast) await p.emulateMedia({ contrast });
-  if (hash.startsWith("#day")) await p.waitForFunction(() => document.documentElement.dataset.view === "day" && document.querySelectorAll("#list > li").length > 3, null, { timeout: 15000 });
+  if (hash.startsWith("#day")) await p.waitForFunction((ed) => document.documentElement.dataset.view === "day" && (ed ? document.querySelectorAll("#list > li").length > 3 : document.querySelectorAll("#pv [data-b]").length >= 3), hash.endsWith("/edit"), { timeout: 15000 }); // (viewing has no block list)
   await p.waitForTimeout(wait);
   p.errs = errs; p.ctx = ctx;
   return p;
@@ -129,7 +129,7 @@ async function motionCheck(p, label) {
 
 // ---------- token contrast ----------
 const full = (h) => (/^#[0-9a-f]{3}$/i.test(h) ? "#" + [...h.slice(1)].map((x) => x + x).join("") : h);
-const DAY = '#day/2026-10-14';
+const DAY = '#day/2026-10-14/edit'; // the editor UI exists only while editing (E1); the view-mode checks are near the end
 async function go(p, hash) { await p.evaluate((h) => { location.hash = h; }, hash); const v = hash.startsWith("#day") ? "day" : hash.startsWith("#page") ? "page" : "book"; await p.waitForFunction((v) => document.documentElement.dataset.view === v, v, { timeout: 15000 }); await p.waitForTimeout(700); }
 const lum = (h) => { h = full(h); const c = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
 const ratio = (a, c) => { const [x, y] = [lum(a), lum(c)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
@@ -310,6 +310,19 @@ for (const w of [320, 390]) {
   if (st.sw === false) add('forced-colors', 'Day', 'switch on and off look the same in forced-colors mode');
   if (st.seg === false) add('forced-colors', 'Day', 'pressed and unpressed buttons look the same in forced-colors mode');
   await close(f);
+}
+// 6b) view mode (E1): the day for viewing has the same rules; nothing editable is in the page
+for (const [w, scheme] of [[1400, 'light'], [1400, 'dark'], [390, 'light'], [390, 'dark']]) {
+  const p = await open('site', { hash: '#day/2026-10-14', w, h: 900, scheme });
+  await p.waitForFunction(() => document.documentElement.dataset.mode === 'view' && document.querySelectorAll('#pv [data-b]').length >= 3);
+  await axeRun(p, `Day, viewing (${w}px ${scheme})`); await reflow(p, `Day, viewing ${w}px`); await smallTargets(p, `Day, viewing ${w}px`);
+  if (w === 1400 && scheme === 'light') {
+    await focusRing(p, 'Day, viewing', 8);
+    await p.focus('.skip-view'); await p.keyboard.press('Enter');
+    if (!(await p.evaluate(() => document.activeElement && document.activeElement.id === 'paper'))) add('skip-link', 'Day, viewing', 'the skip link does not move focus to the page');
+    if (await p.evaluate(() => document.querySelector('.skip-day').offsetParent !== null || getComputedStyle(document.querySelector('.skip-day')).display !== 'none')) add('skip-link', 'Day, viewing', 'the blocks skip link shows while viewing');
+  }
+  await close(p);
 }
 await tokens();
 // 7) the product site (site/): axe, reflow, targets, focus, reduced motion
