@@ -60,7 +60,7 @@ for (const dir of dirs) {
       const k = `${p.label}|${p.date || ''}`;
       if (labels.has(k)) fail(dir, `${at}: printed label "${p.label}"${p.date ? ` on ${p.date}` : ''} is also p.${labels.get(k)}`); else labels.set(k, i + 1);
       if (!textOf(parts[i]).includes(alnum(p.label))) fail(dir, `${at} (${p.id}): label "${p.label}" isn't printed on the page`);
-    } else if (!p.shared) fail(dir, `${at} (${p.id}): no printed label`);
+    } else if (!p.shared && p.type !== 'blank') fail(dir, `${at} (${p.id}): no printed label`); // (a blank page the book has given blocks to prints no title: its page code tells it apart)
     const h = hash(normalize(parts[i]));
     if (!hashes.has(h)) hashes.set(h, []); hashes.get(h).push(i + 1);
     if (p.shared) {
@@ -74,10 +74,10 @@ for (const dir of dirs) {
   });
   for (const g of hashes.values()) if (g.length > 1) fail(dir, `pages ${g.join(', ')} print identically (${g.map((n) => L.pages[n - 1].id).join(', ')}): give each its own label`);
 }
-// `shared` must be declared in every book that has the id, or in none
+// `shared` must be declared in every book that has the id, or in none (the blank page is shared until a book gives it blocks of its own: C5a)
 for (const [id, s] of sharedIds) {
   const total = dirs.filter((d) => { const b = readBook(d); return b && b.L.pages.some((p) => p.id === id); }).length;
-  if (s.books !== total) errors.push(`shared page "${id}" is marked shared in ${s.books} of ${total} books`);
+  if (s.books !== total && id !== 'blank') errors.push(`shared page "${id}" is marked shared in ${s.books} of ${total} books`);
 }
 
 console.log(`check-pages: ${dirs.length} book(s), ${nPages} pages, every id and printed label unique, no page repeats inside a book`);

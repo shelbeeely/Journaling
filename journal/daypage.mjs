@@ -385,11 +385,11 @@ export function normalize(L, size = 'small', kindIn) {
 // Other page types can add their own entry here later.
 export const GRIDS = {
   day: { cols: 4, rowIn: 0.22, gapPx: 8, rows: { small: 24, letter: 24 } },
-  // Notes and Collection pages have the same DATE/TITLE/TAGS header as a day page, so the same room (24 rows). A blank page has no header:
-  // its grid is the day area plus the header's 65.6 px (61.6 + 4) = 656 px = 6.83 in, and 6.83 / 0.22 = 31.06, so 31 rows.
+  // Notes and Collection pages have the same DATE/TITLE/TAGS header as a day page, so the same room (24 rows). A blank page has no header,
+  // so it has the whole 590.4 px inside the scan frame to itself, measured in Chromium: 590.4 / 21.12 (0.22 in) = 27.95, so 27 rows (28 would be 1 px too tall).
   notes: { cols: 4, rowIn: 0.22, gapPx: 8, rows: { small: 24, letter: 24 } },
   collection: { cols: 4, rowIn: 0.22, gapPx: 8, rows: { small: 24, letter: 24 } },
-  blank: { cols: 4, rowIn: 0.22, gapPx: 8, rows: { small: 31, letter: 31 } },
+  blank: { cols: 4, rowIn: 0.22, gapPx: 8, rows: { small: 27, letter: 27 } },
 };
 export const PLACE = ['col', 'row', 'colSpan', 'rowSpan'];
 export const gridRows = (size, kind = 'day') => GRIDS[pageKind(kind)].rows[size === 'letter' ? 'letter' : 'small'];

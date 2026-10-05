@@ -12,6 +12,7 @@
 import { validateBookWith, BLOCK_PAGES, REPEATS } from './bookrules.mjs';
 import { kindPage, isDefaultLayout } from './daypage.mjs';
 
+export const repeatTypes = REPEATS; // the page types a book can hold more than once (Notes, Collection)
 export const NOTES_MARK = '\u0001TITLE\u0001';
 export const MAX_PAGES = 110;
 export const typeMeta = (types) => Object.fromEntries(Object.entries(types).map(([k, t]) => [k, { name: t.name, scope: t.scope, protected: !!t.protected, align: t.align || null, ref: t.ref || null, when: t.when || null, module: t.module || null, options: t.options || {} }]));
