@@ -618,6 +618,10 @@ Planned: not in the editor's "Start from a method" list yet. Every block except 
 
 Low-spoons variant: swap `sketch` for `pattern` (h 20).
 
+### d2. Drawing practice (planned)
+
+Making drawing skill part of the journal (prompts, structured practice by strand, a practice log, baseline and revisit pages, no streaks) is planned in the build plan, section 22. A separate `drawing-practice` method doc is its first slice. The blocks above (`pattern`, `gluestrip`, Sketch box options) are part of that plan.
+
 ### e. Don't adopt
 
 - **Decorative borders, textures or vintage ornament on printed pages.** Busy, against the calm design, and they fight the scan zones.

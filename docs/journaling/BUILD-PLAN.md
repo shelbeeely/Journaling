@@ -538,3 +538,146 @@ Shelbee asked for crosswords and word searches. They fit the pack system in thre
 - **Packs:** the same review flow applies to packs (section 20).
 
 **Slices:** G1 guide chapters 1 to 4 and the annotated-screenshot pipeline; G2 remaining chapters; D0 (done by four agents) de-personalise the docs; D1 docs site build (index, search, filters, pages) and lint; D2 crowdsourcing files and forms; D3 contributors page and the Studio route.
+
+## 22. Art journaling and drawing practice (2026-10-05, plan only)
+
+Shelbee asked for art journaling, and for ways to **get better at drawing through journaling**. Two ideas that fit together: **art-journal pages** (somewhere to make things) and **practice** (a gentle structure that builds skill). Nothing here is built yet, and no feature code ships with this section. It extends the `sketch` block, section 20 (packs) and `docs/journaling/methods/art-and-junk-journaling.md` (its section 25 already proposes `pattern`, `gluestrip`, a pocket page and an "Art journal day" layout; this plan includes them).
+
+**Principles**
+- **Calm and optional.** No grades, no "bad", no streak loss. A blank day is a normal day.
+- **Dry media on thin paper.** KDP paper takes pencil, fineliner, ballpoint and coloured pencil. Not paint, wet markers or heavy glue.
+- **Print is black and white.** Colour is something you add by hand. Nothing on a page depends on colour to make sense.
+- **No generative AI**, anywhere: prompts, guides and reference art are written or drawn by people.
+- **The default day page must not change.** Every new option defaults to today's output (byte-identical, 24/24).
+
+### 22.1 Page and block types
+
+New blocks use the declarative block format (section 20) and the day grid (4 columns, rows 5.6 mm). Each has its own `data-zone` (repeats `_2`, `_3`), a minimum span, and no X4 export unless stated. Where a block already exists, it grows options instead of getting a twin.
+
+| Block (`type`) | What it is | Main options | Zone | Min span (cols x rows) |
+|---|---|---|---|---|
+| `sketch` (exists) | Frame to draw or tape in | add `guide` (none, thirds, cross, 4 mm grid), `ratio` (free, 1:1, 4:5, 3:2) | `sketch` | 2 x 6 |
+| `thumbs` | Thumbnail strip: 3 to 8 small frames, numbered, for composition tries (pick one, draw it big). Also the "same subject, two dates" pair | `n`, `ratio`, `pick` bool (a "chosen" circle under each) | `thumbs` | 4 x 4 |
+| `swatch` | Colour swatch and palette: 4 to 12 outlined squares to colour in by hand, a name line under each, optional "mix" row (A + B = ?) | `n`, `names`, `mix`, `shape` (square, circle) | `swatch` | 2 x 4 |
+| `refbox` | Reference box: a labelled frame with a source line (where it came from, licence note) and a "what I see" line. For a glued-in photo or a pencilled note, never an image supplied by the studio | `h`, `source`, `note` lines | `refbox` | 2 x 5 |
+| `collage` | Mixed-media / collage frame: tape-corner ticks, an optional "glue only here" inner margin, a pocket fold-line option (dotted, 0.75 pt) | `h`, `corners`, `pocket`, `caption` | `collage` | 2 x 6 |
+| `doodle` | Margin doodle: a narrow column (1 of 4 grid columns) with a dotted edge and a tiny "margin" label. Lives inside the grid, never outside the safe margin or over the 9pt frame | `rows`, `side` (left, right, or follows handedness) | `doodle` | 1 x 6 |
+| `lettering` | Lettering guide lines: baseline, x-height, ascender and descender lines, optional slant guide; one script per guide (Latin first) | `n` rows, `script`, `slant` (0, 10, 15), `pitch` | `lettering` | 3 x 4 |
+| `persp` | Perspective grid: one-, two- or three-point, horizon line and vanishing points printed inside the block | `kind` (1, 2, 3), `h`, `density` | `persp` | 3 x 8 |
+| `figure` | Figure and proportion guides: a heads-tall ladder (7, 7.5 or 8 heads), head construction (oval, cross, thirds), hand map. Plain line guides, no body-type claims | `kind` (ladder, head, hand), `heads`, `h` | `figure` | 1 x 8 |
+| `value` | Shading value scale: 5 or 7 empty boxes to fill from light to dark, ends labelled, optional "squint" row to try the same shapes in 3 values | `steps`, `squint` | `value` | 2 x 3 |
+| `blind` | Observational / blind contour: a clear frame, a "no peeking" note, a minutes line; the page version has a big frame and a "what I noticed" line. No guides | `h`, `timed`, `noticed` | `blind` | 2 x 6 |
+| `pattern` (planned in the method doc) | Pattern to colour (plaid, grid, circles) as SVG line art, the low-energy option | `kind`, `h` | `pattern` | 2 x 4 |
+| `gluestrip` (planned) | Seven small boxes, one per day | `n`, `labels` | `gluestrip` | 4 x 3 |
+| `practicelog` | One row per session: date, strand icon, minutes, subject, one line "I noticed". See 22.2 | `n` rows, `strand` icons | `practicelog` | 4 x 4 |
+
+**Whole pages** (built-in pages and page packs, made from these blocks): warm-up (gesture boxes), observational drawing, blind contour, value study, perspective, colour study, composition thumbnails, lettering, pocket, month title, baseline, revisit, practice log and level check. A page can be one page or a spread; no block crosses the fold in the first version (section 12). Pages added through the organiser (C4) follow the normal rules.
+
+### 22.2 Skill building through journaling
+
+**Strands.** Practice is organised by skill, so people pick what they want to work on:
+1. **Gesture:** fast, loose marks for movement and the big shape (30 seconds to 2 minutes).
+2. **Contour:** slow seeing of the edge; blind and continuous line.
+3. **Value:** light to dark, squinting, simple three-value studies.
+4. **Perspective:** horizon, vanishing points, boxes in space.
+5. **Composition:** thumbnails, focal point, cropping, white space.
+6. **Colour:** mixing, limited palettes, warm versus cool, done by hand with coloured pencil (print stays black and white).
+7. Optional: **Proportion and figure**, **Lettering**, **Observation** (draw the ordinary).
+
+**Daily prompts.** The existing `prompt` block rotates by date (the same on any reprint). Drawing prompts are a prompt pack with tags: `strand`, `level`, `minutes` (2, 5, 10, 20), `media` (pencil, pen, any), `subject` (object, place, hand, sky, memory). A book shows one prompt a day, or one a week with a strand of the week. Each prompt has a 2-minute low-energy version and, where it makes sense, a "no sight needed" version (by touch, from memory, from a sound). Prompts never use colour as the only instruction.
+
+**Structured practice.** A **practice path** is data: an ordered list of sessions (strand, minutes, prompt, which guide page to use, "what to look for" in a sentence or two, never a score). Paths ship as packs. Starter paths, all original:
+- **First 30 days:** 5 to 10 minutes a day, a new strand every few days, one baseline and one revisit.
+- **12-week foundations:** two strands a week, one long session a week, a monthly review.
+- **One strand deep:** 8 weeks on one strand (for example value).
+- **Low-spoons path:** 2-minute sessions only: pattern and contour.
+
+**Levels without gates.** Levels are a ladder, not locks. Each strand has three or four steps written as "I can ..." statements the person ticks themselves (value: "I can make five distinct tones with a pencil", "I can simplify a scene to three values"). The book prints the ladder on a level check page. No exams, badges or points. "Try next" suggestions sit on the weekly review and can be ignored. Levels are named by what you do (Notice, Shape, Form, Space, Story), not by how good you are.
+
+**Practice log.** A `practicelog` block and a log page: date, strand icon, minutes, subject, "I noticed ...". Month-end counts (sessions, minutes, strands touched) come from what the person writes, defined once like the handoff boxes (`handoff.mjs`), and stay blank if nothing was logged.
+
+**Streaks without guilt.** No streak counter that can break. The book shows **totals and gentle rhythms**: sessions this month, weeks with at least one session (one touch counts), total minutes. A missed day, week or month leaves no empty mark: dots fill when you practise and the rest is just space. The wording is "welcome back", never "you missed". The X4 never shows a streak or a badge (22.4). The editor follows the same rule: no red, no loss messaging.
+
+**Before and after.** A **baseline page** near the front: draw six things in a fixed time (a box, your hand, a mug, a simple tree, a face, a value strip), dated, no judgement. A **revisit page** at the back (and optionally the midpoint) repeats the same six in the same layout, with a `{{P_x}}` cross-reference back to the baseline so the two are easy to hold side by side. Page numbers and recto/verso come from the automatic rules. Also a free "same subject, two dates" pair (a `thumbs` strip with two frames). Reflection under both: "What looks different? What do I want to keep?"
+
+**Reflection prompts** (a prompt pack set, original text): "What did I notice that I did not see before?", "Which mark am I proud of?", "What was hard, the seeing or the hand?", "What do I want to try next week?", "What can I leave unfinished?".
+
+**Weekly and monthly review.** Weekly: a small strip (sessions, strand, one favourite, one "try next") using the existing `review` block with drawing wording. Monthly: the log totals, a "favourite page" pointer, an optional baseline comparison, one next step. The protected pages (Safety plan, Support, Closing the month) are unchanged; drawing review is added to them only as blocks the person chooses.
+
+### 22.3 How it fits: blocks, grid, packs, print, scan zones, access, languages
+
+**Blocks and grid.** Everything in 22.1 is a block with options placed by the C4b grid; none is a special case. Method layouts: **Drawing practice day** (sky, `prompt`, `blind` or `sketch`, `practicelog` row, `checks` "Drew today") and **Art journal day** (the method doc's layout, plus the new blocks). Book scopes: a dated year, an **undated drawing practice book** (Phase H: 30 days, 12 weeks or 52 weeks), or a hybrid with drawing pages after each week.
+
+**Packs (section 20).** One entry each in `journal/packs/kinds.mjs`:
+| Kind | Group | Holds | Privacy class |
+|---|---|---|---|
+| `prompts` (extends prompt packs) | Words | Drawing prompts with strand, level, minutes, media, low-energy and no-sight variants, licence per set | public |
+| `practice-paths` (the "drawing-practice pack kind") | Method | Paths, level ladders ("I can" statements), baseline and revisit page specs, review wording | public |
+| `guides` (guide-line packs) | Look | Perspective, figure, lettering (per script), CJK and other grids, value scales, as SVG under the print rules below | public |
+| Block packs | Blocks | Third-party art blocks in the declarative format | public |
+| Starter kit | Method | A "Drawing practice" kit: layout, pages, path, prompts, theme | public |
+
+**Print rules** (enforced by the pack validator and `check.mjs`)
+- **Fonts:** real embedded fonts only; no Type 3 (`pdffonts` gate). Guide labels are embedded-font text or outlined SVG.
+- **Line weights:** every printed stroke (guides, dotted lines, frames) is at least 0.75 pt. No hairlines.
+- **Guide tone:** guide lines are no lighter than 10 percent black (our floor, so they survive KDP's halftone) and at least 0.75 pt; the default is 10 to 20 percent so pencil shows over them. The high-contrast option raises it (about 30 percent and 1 pt). Confirm the floor on a KDP proof.
+- **Paper:** KDP interior paper is thin (check the current KDP spec at build time). A front-matter line says dry media only, using the usage note already proposed in the method doc. Wet media, heavy glue and paint are unsupported; a show-through test page joins the proof checklist.
+- **Bleed:** interiors have no bleed by default and every guide and frame stays inside the safe margin. No full-bleed swatch or colour page is planned. If a book turns bleed on (0.125 in), guides still stay inside the margins and the validator checks it.
+- **Gutter:** nothing crosses the fold (as for spread days).
+- **Black and white:** colour pages are line art to colour by hand; nothing relies on grey tones to be readable on a low-ink copy.
+
+**Scan zones are untouched.** The DATE/TITLE/TAGS header, the 9pt frame, the SEND TO strip and the Data Matrix page code stay fixed and clear. Art blocks sit inside the grid and cannot overlap them; a collage block prints "keep tape and glue inside the frame". The scan test (collage over a frame edge) from the method doc's open list is done before AJ3 ships. Every new block renders at both trims with its zone in `layout.json`. The Keeper never gets art blocks or scan codes.
+
+**Accessibility (section 15 applies).** Large-print and high-contrast variants raise guide weight and tone and enlarge frames; the low-clutter option drops optional guides and icons. Short sessions are the default; every prompt has a 2-minute option and, where possible, a no-sight option; large-grip tool tips go in the docs; timers never punish slowness; no flashing; nothing depends on sound. The editor keeps 44 px targets, labels on controls, light and dark mode, no sideways scroll at 390 px. Wording never says "bad" or "wrong". Art journaling is not art therapy and the book never claims it is.
+
+**Languages (section 18).** Block labels, prompts, level statements and review wording are catalog strings; prompts and paths are per-language packs, not machine-translated. Strand names are icons first. Guides are script-aware: Latin first; later Cyrillic and Greek (same lines), Arabic (own baseline and proportions, RTL mirroring), Devanagari (headline line), and CJK square or cross grids as guide packs. RTL mirrors the margin doodle and thumbnail order. Longer languages run through the overflow gate.
+
+### 22.4 X4 e-ink companion
+
+Within the firmware scope (no generative AI, no notifications, feeds or badges; nothing leaves the device except over its own hotspot or an explicit sync the user starts):
+- **Prompt of the day (small):** one text line on the Today screen, chosen by date from the book's prompt pack and baked into the export pack. No new network use, no feed. Hold a button for the low-energy version.
+- **Sketch timer (small to medium):** reuse the focus timer (`src/core/focus.*`) with presets of 2, 5, 10 and 20 minutes and a "gesture set" (1 minute, then 2) for poses the person chooses on paper. E-ink refresh is slow, so v1 redraws once a minute; 30-second gesture timing waits until refresh is measured on hardware. The end is a screen change, no sound. The user starts and stops it; there is no reminder to draw.
+- **Check-in:** a "Drew today" toggle (`checks`) and an optional minutes number (`fields`) through the existing bridge and paper block. Month stats can show plain counts (sessions, minutes). Never a streak, badge or loss message.
+- **Not supported:** photos or camera, reference images in v1, drawing on the device, AI prompts or art, reminders. A user-loaded reference or sketch on the sleep screen (480x800 1-bit, 48 KB, row by row from SD, loaded over the hotspot) is possible later and optional; it is a question, not a plan.
+- **Sync:** logs ride the existing explicit sync to the user's own Studio account (section 19) with stable keys. Firmware must stay `[SUCCESS]`, with RAM and flash measured before and after (AJ9).
+
+### 22.5 Licensing and originality
+
+- **Prompts, paths, level statements, guides and example pages are original** (written for this project) **or openly licensed** (CC0, CC BY, CC BY-SA, usable in print for sale), with author and licence in the pack manifest. The build refuses a pack with no licence and credits packs on the Credits page (section 20).
+- **No copied course content.** Do not copy the wording, sequences, exercise sets, diagrams or examples of books, paid courses or video series, and do not use their names or trademarks for exercises. General techniques (gesture, blind contour, value scales, perspective, thirds, a heads-tall ladder) are ideas anyone can teach; our text and our ordering are ours. If an idea comes from a named teacher, credit it in the method doc and keep the wording original.
+- **Reference art:** sample content uses generic line art made for the project, or public domain or CC0 images with the source recorded. Users bring their own references on paper; the `refbox` reminds them to check they may copy what they use. Nothing is AI-generated.
+- **Docs and evidence:** the method doc (AJ0) says what research does and does not show about practice and about art-making and wellbeing (see the evidence table in the existing doc), makes no outcome promises ("draw like X in 30 days"), and never calls any of it therapy. Sources are dated like section 21.
+- **Artist packs:** the section 20 rules apply (SVG sanitiser, 0.75 pt minimum, licences, `commercial-print-ok`).
+
+### 22.6 Slices (small first)
+
+| Slice | Output | Size |
+|---|---|---|
+| **AJ0** | Docs only: a `drawing-practice` method doc (28-section template, original wording, sources checked), a prompt and path writing guide, answers to the open questions | S |
+| **AJ1** | `sketch` options (`guide`, `ratio`) and `thumbs`, defaults unchanged; shared SVG guide primitives (0.75 pt and 10 percent floors, tested at both trims); the front-matter dry-media note | S |
+| **AJ2** | `swatch`, `refbox`, `value`, `blind`, `doodle`, with zones, minimum spans and overflow tests | S to M |
+| **AJ3** | `pattern`, `gluestrip`, `collage` (pocket fold lines), `lettering`, `figure`, `persp`; the collage scan test | M |
+| **AJ4** | Drawing prompt packs: `prompts` gets tags and filters, the `prompt` block gets `strand` and `minutes` options, a starter set of about 60 original prompts with low-energy and no-sight variants | M |
+| **AJ5** | `practicelog` block, month totals in the handoff style, gentle-count wording, weekly and monthly review additions | M |
+| **AJ6** | Whole drawing pages in the organiser's "add page" palette | M |
+| **AJ7** | Method layouts (Drawing practice day, Art journal day), baseline and revisit pages with cross-references, an undated 30-day and 12-week starter kit | M |
+| **AJ8** | Pack kinds `practice-paths` and `guides`, validators, credits, pinning; the first guide pack for a second script | M |
+| **AJ9** | X4: prompt of the day, sketch timer presets, "Drew today" and minutes check-ins; RAM and flash measured; host preview screens | M |
+| **AJ10** | Translated prompts and paths, RTL and script guides, accessibility audit of the new blocks, a guide chapter and a site feature block with screenshots | M |
+| **AJ11** | Only if wanted: colour interior option, user-loaded reference image on the X4 sleep screen | decide later |
+
+Every slice: default pages byte-identical (24/24), `check.mjs` "[] 0", `pdffonts` shows no Type 3, new blocks render at both trims, `layout.json` maps every new zone, the privacy gate stays green, and no personal strings enter the site or the methods docs.
+
+### 22.7 Open questions for Shelbee
+1. **Scope:** an art layer in the normal day book, a separate **drawing practice book** (undated, 30 days or 12 weeks), or both? (Suggested: both, practice book first.)
+2. **Colour:** stay black and white (colour by hand with pencils), or plan a colour interior option later? It changes cost and KDP limits.
+3. **Levels:** self-ticked "I can" ladders with no gates (suggested), or only a baseline and revisit?
+4. **Streaks:** confirm no streak at all, only totals and "weeks with a touch", on paper and on the X4.
+5. **Strand order:** suggested: observation and contour, then value, composition, perspective, colour, then figure and lettering.
+6. **Show-through:** should the page behind a dense drawing page stay light by default? Needs a proof to decide.
+7. **Guide tone:** accept 10 percent black and 0.75 pt as the floor, subject to a KDP proof?
+8. **X4 timer:** is a once-a-minute redraw enough for v1, or does 30-second gesture timing matter enough to wait for hardware measurements?
+9. **Reference images:** paper only (suggested), or later a user-loaded reference on the X4 sleep screen?
+10. **Scanned sketches:** keep drawings physical only (suggested), or one day let the Studio hold scanned pages for before and after? That needs its own privacy plan.
+11. **Authors:** will you write the first prompts and paths, or should an agent draft them for your review? (All must be original or openly licensed.)
+12. **Name:** "Drawing practice" for the kit and method doc, or something else?
