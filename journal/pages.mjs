@@ -5,7 +5,8 @@
 // PROFILE is content/profile.json (see profile.mjs): the person, the book's title, the place, the module switches. Nothing personal lives in this file.
 // `refs` maps {{P_x}} names to page numbers; the book assembler fills it before any page is built, and replaces the
 // {{P_x}} markers in the finished HTML. Page numbers are never hand-set.
-import { ic, box, spoon, actionZone, dayBlocks, headerZone, notesPage, kindPage } from './daypage.mjs';
+import { ic, box, spoon, actionZone, dayBlocks, headerZone, notesPage, kindPage, spreadPage } from './daypage.mjs';
+import { dayFormat } from './bookrules.mjs';
 export { headerZone, notesPage }; // (they live with the block library: one source for the page's fixed top)
 import { handoffHtml, GOOD_SPOON_NOTE } from './handoff.mjs';
 
@@ -452,20 +453,22 @@ function pioneerCard(W) {
 // An undated day: the DATE box is left blank to write in (a small "Day 17" says which page it is), the sky becomes a line to fill in,
 // and the blocks that need a date (holidays, events, "on this day", pay marks) have nothing to print. The rotating prompt goes by page
 // number (parts.day.n), "a month ago today" prints only its label, and the week strip is left blank.
-function dayUndated(d, W) {
+function dayUndated(d, W, side) {
   const fill = ctx.plan && ctx.plan.undated && ctx.plan.undated.fillins === false ? false : true;
   const parts = {
     header: `${headerZone('', '')}<div class="dno" data-zone="day_no">Day ${d.no}</div>`,
+    headerR: `${headerZone('', '')}<div class="dno" data-zone="day_no">Day ${d.no} · cont.</div>`, // the right page of a spread day
     sky: fill ? `<div class="sky1" data-zone="sky"><span>moon ${[0, 90, 180, 270].map((x) => moon(x, 13)).join(' ')}</span><span>${G('☀')} rise <span class="blank sm"></span> set <span class="blank sm"></span></span><span class="season">season <span class="blank"></span></span></div>` : '',
     notes: '', events: '',
     fact: fill ? '<div class="fact" data-zone="fact"><b>On this day</b> <span class="blank" style="width:2.6in"></span></div>' : '',
     routines: [],
     day: { date: '', rise: '', set: '', n: d.no, w: W.no, undated: true },
   };
+  if (side) return spreadPage(parts, ctx.spreadLayout, side, { size: ctx.size });
   return dayBlocks(parts, ctx.dayLayout, { size: ctx.size });
 }
-function dayFull(d, W) {
-  if (UND) return dayUndated(d, W);
+function dayFull(d, W, side) { // side: 'L' | 'R' for the two pages of a spread day (S1); none for a one-page day
+  if (UND) return dayUndated(d, W, side);
   const moonTxt = d.moon.ingress.length ? d.moon.ingress.map((i) => `→ ${G(D.glyphs[i.sign])} ${i.time}`).join(' ') : `in ${G(d.moon.glyph)}`;
   const retro = d.retro.length ? ` · ${G('℞')} ${d.retro.map((p) => G(PLANET_GLYPH[p])).join('')}` : '';
   const hol = d.notes.filter((n) => n.kind === 'holiday').map((n) => `<b>${esc(n.text)}</b>`);
@@ -481,6 +484,7 @@ function dayFull(d, W) {
   const extra = [...hol, ...other];
   const parts = {
     header: headerZone(dateText),
+    headerR: headerZone(`${d.weekdayName.slice(0, 3).toUpperCase()} · ${d.date} · cont.`), // the right page of a spread day: the same date, "cont."
     sky: `<div class="sky1" data-zone="sky">${moon(d.moon.phaseDeg, 14)}<span>${d.moon.lit}% · ${moonTxt} · ${G('☀')} ${d.sun.rise}–${d.sun.set}</span>${payday ? `<span class="pay-mk">${ic('coin', 'Payday')}</span>` : ''}<span class="season">${esc(d.jp.ko.en)}</span></div>`,
     notes: extra.length ? `<div class="sky2l" data-zone="notes">${extra.join(' · ')}</div>` : '',
     events: ev,
@@ -488,6 +492,7 @@ function dayFull(d, W) {
     routines,
     day: { date: d.date, rise: d.sun.rise, set: d.sun.set }, // Tier 2 blocks: the 24 h line's night, the look-back date, the rotating prompt
   };
+  if (side) return spreadPage(parts, ctx.spreadLayout, side, { size: ctx.size });
   return dayBlocks(parts, ctx.dayLayout, { size: ctx.size });
 }
 
@@ -543,7 +548,14 @@ export const PAGE_TYPES = {
   month_moon: { name: 'Moon pages', scope: 'month', module: 'sky', build: (ctx, { M }) => one({ type: 'month_moon', id: mid(ctx, M, 'moon'), label: `${M.name} · moon pages`, html: () => pagesFor(ctx).monthMoonPage(M) }) },
   week_left: { name: 'Week plan (left)', scope: 'week', align: 'verso', build: (ctx, { W }) => one({ type: 'week_left', id: `week.${wkId(W)}.left`, label: `${W.label} · ${pagesFor(ctx).wkRange(W)}`, html: () => pagesFor(ctx).weekLeft(W) }) },
   week_right: { name: 'Week plan (right)', scope: 'week', build: (ctx, { W }) => one({ type: 'week_right', id: `week.${wkId(W)}.right`, label: W.label, html: () => pagesFor(ctx).weekRight(W) }) },
-  days: { name: 'Day pages', scope: 'week', build: (ctx, { W }) => W.days.map((d) => (d.undated ? { cls: 'dayp', type: 'dayp', id: `day.${String(d.no).padStart(3, '0')}`, label: `Day ${d.no}`, date: '', shared: false, html: () => pagesFor(ctx).dayFull(d, W) } : { cls: 'dayp', type: 'dayp', id: `day.${d.date}`, label: d.date, date: d.date, shared: false, html: () => pagesFor(ctx).dayFull(d, W) })) },
+  // One page a day, or (entry options, bookrules.mjs dayFormat) a whole spread: two pages that keep their own ids, headers, frames and codes. A spread day
+  // always opens on a left-hand page (each spread's own `align`), so a Notes page is added where the day before ended on the left.
+  days: { name: 'Day pages', scope: 'week', build: (ctx, { W, entry }) => W.days.flatMap((d) => {
+    const spread = dayFormat(entry && entry.options, { date: d.undated ? '' : d.date, weekday: d.weekday }) === 'spread', id = d.undated ? `day.${String(d.no).padStart(3, '0')}` : `day.${d.date}`, label = d.undated ? `Day ${d.no}` : d.date, date = d.undated ? '' : d.date;
+    if (!spread) return [{ cls: 'dayp', type: 'dayp', id, label, date, shared: false, html: () => pagesFor(ctx).dayFull(d, W) }];
+    return [{ cls: 'dayp', type: 'dayp', id, label, date, shared: false, align: 'verso', spread: 'L', html: () => pagesFor(ctx).dayFull(d, W, 'L') },
+      { cls: 'dayp', type: 'dayp', id: `${id}.cont`, label: `${label} cont.`, date, shared: false, spread: 'R', html: () => pagesFor(ctx).dayFull(d, W, 'R') }];
+  }) },
   // The review and the exchange spread go after the week's Sunday. The year's last week (Sep 27–Oct 3 2027, week 53) ends after the final book, so it gets them in this one.
   week_review: { name: 'Week review', scope: 'week', when: 'weekEnd', build: (ctx, { W }) => one({ type: 'week_review', id: `week.${wkId(W)}.review`, label: `${W.label} review`, html: () => pagesFor(ctx).weekReview(W) }) },
   week_exchange: { name: 'Exchange + Reply', scope: 'week', when: 'weekEnd', align: 'verso', // Exchange (verso) and Reply (recto) must face each other

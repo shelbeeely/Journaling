@@ -56,7 +56,8 @@ export function assemble(ctx, entries, opts = {}) {
     if (T.ref && refs[T.ref] === undefined) refs[T.ref] = pages.length + 1;
     if (scoped && T.ref && at.M && refs[`${T.ref}_${at.M.key.replace('-', '')}`] === undefined) refs[`${T.ref}_${at.M.key.replace('-', '')}`] = pages.length + 1; // {{P_TRACKER_202610}}: that month's page
     scanNow = cleanScan(mergeScan(at.gscan, entry.scan));
-    specs.forEach(push);
+    // a page spec can ask for a left-hand page of its own (a spread day, S1): a Notes page is added before it when the page before ended on the left
+    specs.forEach(({ align, ...s }) => { if (align === 'verso') alignToVerso(); push(s); });
     scanNow = undefined;
   };
   const monthStartWeek = (M) => ctx.D.weeks.find((W) => W.days.some((d) => d.m === M.m && d.y === M.y));

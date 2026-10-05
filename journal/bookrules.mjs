@@ -11,6 +11,37 @@ const protectedOf = (types) => Object.entries(types).filter(([, t]) => t.protect
 const nameOf = (types, type) => (type === 'weeks' ? 'Weeks' : types[type] ? types[type].name : type);
 export const isObj = (x) => x && typeof x === 'object' && !Array.isArray(x);
 
+// ---- spread days (S1, BUILD-PLAN section 12) ----
+// The `days` entry (the week's day pages) says how much room each day gets: `format` for every day (default `page`), `weekdays` ({sat: 'spread'}: a
+// weekday's own), `dates` ({"2026-10-14": "spread"}: one day's own). The most specific wins. A month with its own page list (`months`) has its own
+// `days` entry, so a per-month override is just that. An entry with no options is today's book: one page a day. Pure: shared by the print build,
+// the page organiser and the studio.
+export const DAY_FORMATS = ['page', 'spread'];
+export const WEEKDAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']; // Date.getUTCDay() order (the day data's `weekday`)
+export const WEEKDAY_NAMES = { sun: 'Sunday', mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday', fri: 'Friday', sat: 'Saturday' };
+// day: { date: 'YYYY-MM-DD' (none in an undated book), weekday: 0 (Sunday) to 6 }
+export function dayFormat(options, day = {}) {
+  const o = isObj(options) ? options : {};
+  const pick = (v) => (DAY_FORMATS.includes(v) ? v : null);
+  return (day.date && isObj(o.dates) && pick(o.dates[day.date])) || (day.weekday !== undefined && isObj(o.weekdays) && pick(o.weekdays[WEEKDAY_KEYS[day.weekday]])) || pick(o.format) || 'page';
+}
+export function dayOptionProblems(o, at = 'days') {
+  const out = [], bad = (m) => out.push(`${at}: ${m}`);
+  if (o === undefined) return out;
+  if (!isObj(o)) return [`${at}: "options" must be an object`];
+  for (const k of Object.keys(o)) if (!['format', 'weekdays', 'dates'].includes(k)) bad(`unknown option "${k}" (the day pages have format, weekdays and dates)`);
+  if (o.format !== undefined && !DAY_FORMATS.includes(o.format)) bad(`"format" must be one of ${DAY_FORMATS.join(', ')}, got ${JSON.stringify(o.format)}`);
+  if (o.weekdays !== undefined) {
+    if (!isObj(o.weekdays)) bad('"weekdays" must be an object like {"sat": "spread", "sun": "spread"}');
+    else for (const [k, v] of Object.entries(o.weekdays)) { if (!WEEKDAY_KEYS.includes(k)) bad(`weekdays.${k}: weekdays are ${WEEKDAY_KEYS.join(', ')}`); else if (!DAY_FORMATS.includes(v)) bad(`weekdays.${k} must be one of ${DAY_FORMATS.join(', ')}, got ${JSON.stringify(v)}`); }
+  }
+  if (o.dates !== undefined) {
+    if (!isObj(o.dates)) bad('"dates" must be an object like {"2026-10-14": "spread"}');
+    else for (const [k, v] of Object.entries(o.dates)) { if (!/^\d{4}-\d{2}-\d{2}$/.test(k)) bad(`dates.${k}: dates look like 2026-10-14`); else if (!DAY_FORMATS.includes(v)) bad(`dates.${k} must be one of ${DAY_FORMATS.join(', ')}, got ${JSON.stringify(v)}`); }
+  }
+  return out;
+}
+
 // Every problem in one pass, as plain sentences that say where. Returns [] when the book is fine.
 export function validateBookWith(book, PAGE_TYPES) {
   const errs = [];
@@ -73,6 +104,7 @@ function checkList(where, list, errs, PAGE_TYPES) {
       if (T.scope !== scope) bad(label, `${T.name} is a ${T.scope}-level page; it can't go in the ${scope === 'book' ? 'book' : scope} list${T.scope === 'book' ? '' : ` (put it under the weeks group's "${T.scope}" list)`}`);
       if (T.protected && it.on === false) bad(label, `${T.name} can be moved but not hidden`);
       if (!REPEATS.includes(it.type)) { if (types.has(it.type)) bad(label, `${T.name} is listed twice (also ${types.get(it.type)}); only Notes and Collection pages can repeat`); else types.set(it.type, at); }
+      if (it.type === 'days') { errs.push(...dayOptionProblems(it.options, label)); return; } // the day pages' own options (spread days)
       const spec = T.options || {};
       for (const [k, v] of Object.entries(isObj(it.options) ? it.options : {})) {
         if (!spec[k]) bad(label, `unknown option "${k}"${Object.keys(spec).length ? ` (this page has: ${Object.keys(spec).join(', ')})` : ' (this page has no options yet)'}`);
