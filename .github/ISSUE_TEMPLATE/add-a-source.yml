@@ -1,0 +1,44 @@
+name: Add or replace a source
+description: A better, newer or missing source for a claim in a doc.
+title: "Source: "
+labels: ["docs", "source"]
+body:
+  - type: input
+    id: doc
+    attributes: { label: Which doc, description: "The page address or the file name in docs/journaling/methods/." }
+    validations: { required: true }
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What to do
+      options: ["Add a new source", "Replace a source that is broken or moved", "Replace a weaker source with a stronger one"]
+    validations: { required: true }
+  - type: input
+    id: title
+    attributes: { label: Title of the source }
+    validations: { required: true }
+  - type: input
+    id: author
+    attributes: { label: Author or publisher, description: "And the date of publication." }
+    validations: { required: true }
+  - type: input
+    id: url
+    attributes: { label: URL, placeholder: "https://..." }
+    validations: { required: true }
+  - type: input
+    id: checked
+    attributes: { label: Date you opened it, placeholder: "YYYY-MM-DD" }
+    validations: { required: true }
+  - type: textarea
+    id: supports
+    attributes: { label: Which claim it supports, description: "For health claims: peer-reviewed or clinical sources only, and say who the study covered." }
+    validations: { required: true }
+  - type: checkboxes
+    id: ok
+    attributes:
+      label: Checks
+      options:
+        - label: I opened this source myself.
+          required: true
+        - label: This contains no personal information about me or anyone else.
+          required: true

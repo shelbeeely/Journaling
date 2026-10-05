@@ -1,0 +1,28 @@
+name: Correct a fact
+description: Something in a doc is wrong, out of date or unclear.
+title: "Correction: "
+labels: ["docs", "correction"]
+body:
+  - type: input
+    id: doc
+    attributes: { label: Which doc, description: "The page address or the file name in docs/journaling/methods/." }
+    validations: { required: true }
+  - type: textarea
+    id: wrong
+    attributes: { label: What it says now, description: "Quote the sentence or table row." }
+    validations: { required: true }
+  - type: textarea
+    id: right
+    attributes: { label: What it should say }
+    validations: { required: true }
+  - type: textarea
+    id: source
+    attributes: { label: Source for the correction, description: "A link you opened, with the date if the page shows one.", placeholder: "https://..." }
+    validations: { required: true }
+  - type: checkboxes
+    id: ok
+    attributes:
+      label: Checks
+      options:
+        - label: This contains no personal information about me or anyone else.
+          required: true

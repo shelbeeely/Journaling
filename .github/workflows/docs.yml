@@ -1,0 +1,29 @@
+# Doc lint: front matter, required sections, sources, personal words, links between docs (site/tools/lint-docs.mjs).
+# Also builds the docs pages alone. The full site build, privacy gate and link check run in editor.yml. No dependencies: Node only.
+# A weekly run also fetches every web link in the docs, so dead sources show up (it reports; the PR check does not fetch).
+name: Docs
+on:
+  push:
+    branches: [main]
+    paths: ['docs/**', 'site/tools/**', 'site/docs.*', 'CONTRIBUTING.md', '.github/ISSUE_TEMPLATE/**', '.github/pull_request_template.md', '.github/workflows/docs.yml']
+  pull_request:
+    paths: ['docs/**', 'site/tools/**', 'site/docs.*', 'CONTRIBUTING.md', '.github/ISSUE_TEMPLATE/**', '.github/pull_request_template.md', '.github/workflows/docs.yml']
+  schedule: [{ cron: '17 5 * * 1' }]
+  workflow_dispatch:
+permissions: { contents: read }
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Doc lint
+        if: github.event_name != 'schedule'
+        run: node site/tools/lint-docs.mjs
+      - name: Build the docs pages
+        if: github.event_name != 'schedule'
+        run: node site/tools/build-docs.mjs "$RUNNER_TEMP/site"
+      - name: Weekly web link check
+        if: github.event_name == 'schedule'
+        run: node site/tools/lint-docs.mjs --external

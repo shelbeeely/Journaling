@@ -13,6 +13,15 @@ const problems = [], ext = new Set();
 const idsOf = (html) => new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
 for (const file of pages) {
   const html = fs.readFileSync(file, 'utf8'), rel = path.relative(dir, file), ids = idsOf(html);
+  // page hygiene: language, title, unique ids, and on docs pages one h1 and a skip link target
+  if (!/<html[^>]*\slang="/.test(html)) problems.push(`${rel}: <html> has no lang`);
+  if (!/<title>[^<]+<\/title>/.test(html)) problems.push(`${rel}: no <title>`);
+  const allIds = [...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
+  for (const id of rel.startsWith('editor' + path.sep) ? [] : new Set(allIds.filter((x, i) => allIds.indexOf(x) !== i))) problems.push(`${rel}: duplicate id "${id}"`);
+  if (rel.startsWith('docs' + path.sep)) {
+    if ((html.match(/<h1[\s>]/g) || []).length !== 1) problems.push(`${rel}: docs pages need exactly one h1`);
+    if (!ids.has('main')) problems.push(`${rel}: no #main for the skip link`);
+  }
   for (const m of html.matchAll(/<img\b[^>]*>/g)) if (!/\salt="/.test(m[0])) problems.push(`${rel}: image without alt: ${m[0].slice(0, 60)}`);
   for (const m of html.matchAll(/\s(?:href|src)="([^"]*)"/g)) {
     const u = m[1];
@@ -27,6 +36,16 @@ for (const file of pages) {
     if (!fs.existsSync(target)) { problems.push(`${rel}: broken link ${u}`); continue; }
     if (hash && target.endsWith('.html') && !idsOf(fs.readFileSync(target, 'utf8')).has(hash)) problems.push(`${rel}: ${u} has no #${hash} in the target`);
   }
+}
+// docs coverage: every docs page is linked from the docs index, and there is one page per method doc
+const docsDir = path.join(dir, 'docs');
+if (fs.existsSync(docsDir)) {
+  const idx = fs.readFileSync(path.join(docsDir, 'index.html'), 'utf8');
+  const methods = path.resolve(import.meta.dirname, '../docs/journaling/methods');
+  const slugs = fs.existsSync(methods) ? fs.readdirSync(methods).filter((f) => f.endsWith('.md') && !['TEMPLATE.md', 'README.md'].includes(f)).map((f) => f.replace(/\.md$/, '')) : [];
+  for (const s of slugs) { if (!fs.existsSync(path.join(docsDir, s, 'index.html'))) problems.push(`docs/${s}/ was not built`); else if (!idx.includes(`href="${s}/"`)) problems.push(`docs/index.html does not link to ${s}/`); }
+  if (!fs.existsSync(path.join(docsDir, 'contributors', 'index.html'))) problems.push('docs/contributors/ was not built');
+  if (!/id="q"/.test(idx)) problems.push('docs/index.html has no search box');
 }
 if (external) {
   for (const u of ext) {
