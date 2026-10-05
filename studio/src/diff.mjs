@@ -109,7 +109,9 @@ export function diffSnapshots(a, b) {
   if (libCount(lib)) r.library = lib; // only when there is something to say: snapshots without a library diff exactly as before
   // the Grid layout switch is a property of the whole page, not of one block
   r.day.grid = !!a.day.grid !== !!b.day.grid ? { before: !!a.day.grid, after: !!b.day.grid } : null;
-  r.summary = { meta: r.meta.length, print: r.print.length, book: count(r.book), day: count(r.day) + (r.day.grid ? 1 : 0), assets: count(assets), components: count(components), ...(r.packs ? { packs: count(packs) } : {}), ...(r.library ? { library: libCount(lib) } : {}) };
+  // the day's spread layout (S1): its blocks by uid, like the day's; only when either side has one
+  if (a.day.spread || b.day.spread) { const sd = diffDay(a.day.spread || {}, b.day.spread || {}); if (count(sd)) r.spread = sd; }
+  r.summary = { meta: r.meta.length, print: r.print.length, book: count(r.book), day: count(r.day) + (r.day.grid ? 1 : 0), ...(r.spread ? { spread: count(r.spread) } : {}), assets: count(assets), components: count(components), ...(r.packs ? { packs: count(packs) } : {}), ...(r.library ? { library: libCount(lib) } : {}) };
   r.summary.total = Object.values(r.summary).reduce((t, n) => t + n, 0);
   return r;
 }

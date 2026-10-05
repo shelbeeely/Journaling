@@ -218,7 +218,7 @@ for mid in months:
     page_of = {}
     try:
         for pg in json.load(open(f'{OUTDIR}/m{mid}/layout.json'))['pages']:
-            if pg.get('date') and pg.get('type') == 'dayp': page_of[pg['date']] = pg['page']
+            if pg.get('date') and pg.get('type') == 'dayp' and pg.get('spread') != 'R': page_of[pg['date']] = pg['page']  # a spread day's right page ('cont.') has the same date: Today names the first page
     except FileNotFoundError:
         print(f'pack {mid}: no layout.json, so no page numbers on Today')
     stamp = D.get('generated', BUILT)[:10]

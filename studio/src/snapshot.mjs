@@ -18,7 +18,7 @@
 // a public pack's id, version and hash, in meta.packs; a personal pack is refused even as a reference), passwords, tokens, recovery codes.
 // Two layers keep it that way: the serializer only copies allowlisted fields, and the scanner refuses a snapshot (or a raw
 // submission) that carries a forbidden key, path or value anywhere in it, however deeply nested.
-import { normalize, TYPES, PLACE, newBlock } from '../../journal/daypage.mjs';
+import { normalize, TYPES, PLACE, newBlock, spreadProblems } from '../../journal/daypage.mjs';
 import { validateBook, DEFAULT_BOOK } from '../../journal/book.mjs';
 import { PAGE_TYPES } from '../../journal/pages.mjs';
 import { MODULES } from '../../journal/modules.mjs';
@@ -228,21 +228,26 @@ export function serializeBook(b, errs) {
 
 // Block fields: uid, type, on, and the options the block type declares (daypage.mjs TYPES), plus the care rows' own fields.
 const CARE_ROW_KEYS = Object.fromEntries(newBlock('care').rows.map((r) => [r.id, Object.keys(r)]));
+// One block, by the allowlist: its uid, type, on, the options its type declares, the care rows' own fields and its place on the grid.
+const blockOut = (b) => {
+  const keys = ['uid', 'type', 'on', ...TYPES[b.type].opts.map((o) => o.k), ...(b.type === 'care' ? ['rows'] : []), ...PLACE];
+  const o = {};
+  for (const k of keys) if (b[k] !== undefined) o[k] = structuredClone(b[k]);
+  if (o.rows) o.rows = o.rows.map((r) => Object.fromEntries((CARE_ROW_KEYS[r.id] || ['id', 'on']).filter((k) => r[k] !== undefined).map((k) => [k, structuredClone(r[k])])));
+  return o;
+};
 export function serializeDay(d, errs) {
   if (d !== null && d !== undefined && !isObj(d)) { errs.push('day must be an object like {"v":2,"blocks":[...]}'); return null; }
   if (isObj(d) && d.blocks !== undefined && !Array.isArray(d.blocks)) { errs.push('day.blocks must be a list'); return null; }
+  if (isObj(d) && d.spread !== undefined && d.spread !== null) { const bad = spreadProblems(d.spread); if (bad.length) { errs.push(...bad.slice(0, 3).map((m) => `day.spread: ${m}`)); return null; } }
   const L = normalize(d && Object.keys(d).length ? d : null);
   return {
     v: 2,
     ...(L.print ? { print: L.print } : {}), // print accessibility options (journal/a11yprint.mjs: large, contrast), only when one is on
     ...(L.grid ? { grid: true } : {}), // the Grid layout switch: blocks carry their placement (col, row, colSpan, rowSpan)
-    blocks: L.blocks.map((b) => {
-      const keys = ['uid', 'type', 'on', ...TYPES[b.type].opts.map((o) => o.k), ...(b.type === 'care' ? ['rows'] : []), ...PLACE];
-      const o = {};
-      for (const k of keys) if (b[k] !== undefined) o[k] = structuredClone(b[k]);
-      if (o.rows) o.rows = o.rows.map((r) => Object.fromEntries((CARE_ROW_KEYS[r.id] || ['id', 'on']).filter((k) => r[k] !== undefined).map((k) => [k, structuredClone(r[k])])));
-      return o;
-    }),
+    blocks: L.blocks.map(blockOut),
+    // the day's spread layout (S1): the same allowlist, only when it is not the starting spread; blocks carry their place on the 8 x 24 canvas
+    ...(L.spread ? { spread: { v: 2, kind: 'spread', grid: true, blocks: L.spread.blocks.map(blockOut) } } : {}),
   };
 }
 

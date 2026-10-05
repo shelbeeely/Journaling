@@ -82,12 +82,12 @@ function buildBook(scopes) {
 const one = (scope, list, items) => new Map([[scope, new Map([[list, items]])]]);
 export function flatten(s) {
   return {
-    meta: s.meta, print: s.print, grid: !!s.day.grid,
+    meta: s.meta, print: s.print, grid: !!s.day.grid, spread: s.day.spread || null, // (the day's spread layout, S1: merged field by field, a clash keeps ours like the Grid switch)
     coll: { day: one('day', 'blocks', s.day.blocks || []), book: bookScopes(s.book), assets: one('assets', 'assets', s.assets || []), components: one('components', 'components', s.components || []) },
   };
 }
 function assemble(f, rest) {
-  const day = { v: 2, ...(f.grid ? { grid: true } : {}), blocks: (f.coll.day.get('day') || new Map()).get('blocks') || [] };
+  const day = { v: 2, ...(f.grid ? { grid: true } : {}), blocks: (f.coll.day.get('day') || new Map()).get('blocks') || [], ...(f.spread ? { spread: f.spread } : {}) };
   return { meta: f.meta, print: f.print, book: buildBook(f.coll.book), day, assets: ((f.coll.assets.get('assets') || new Map()).get('assets')) || [], components: ((f.coll.components.get('components') || new Map()).get('components')) || [], ...(rest || {}) };
 }
 
@@ -297,8 +297,9 @@ export function mergeSnapshots(base, ours, theirs, resolutions = {}) {
     }
     merged[part] = v;
   }
-  const flat = { meta: merged.meta, print: merged.print, grid: false, coll: {} };
+  const flat = { meta: merged.meta, print: merged.print, grid: false, spread: null, coll: {} };
   flat.grid = (() => { const bad = []; return !!mergeValue(fB.grid, fO.grid, fT.grid, 'ours', 'grid', bad); })();
+  flat.spread = (() => { const bad = []; return clone(mergeValue(fB.spread, fO.spread, fT.spread, 'ours', 'spread', bad)) || null; })();
   for (const part of ['day', 'book', 'assets', 'components']) {
     const scopes = new Map(), keys = [...new Set([...fB.coll[part].keys(), ...fO.coll[part].keys(), ...fT.coll[part].keys()])];
     for (const scope of keys) {
@@ -344,6 +345,7 @@ export function listChanges(base, theirs) {
     const paths = []; leaves(base[part], theirs[part], '', paths);
     for (const p of paths) out.push({ key: `${part}:${p}`, part, kind: 'changed', label: fieldName(part, p), id: p, detail: { before: p.split('.').reduce((x, k) => (x || {})[k], base[part]) ?? null, after: p.split('.').reduce((x, k) => (x || {})[k], theirs[part]) ?? null } });
   }
+  if (!eq(fB.spread, fT.spread)) out.push({ key: 'day:spread', part: 'day', kind: 'changed', label: 'Spread day layout', id: 'spread', detail: { before: fB.spread ? 'changed' : 'the starting spread', after: fT.spread ? 'changed' : 'the starting spread' } });
   if (fB.grid !== fT.grid) out.push({ key: 'day:grid', part: 'day', kind: 'changed', label: 'Grid layout', id: 'grid', detail: { before: fB.grid, after: fT.grid } });
   for (const part of ['day', 'book', 'assets', 'components']) {
     for (const scope of new Set([...fB.coll[part].keys(), ...fT.coll[part].keys()])) {
@@ -379,6 +381,7 @@ export function applyChanges(base, theirs, keys) {
     for (const k of sel) if (k.startsWith(part + ':')) { const p = k.slice(part.length + 1); setPath(b, p, p.split('.').reduce((x, q) => (x || {})[q], theirs[part])); }
   }
   if (sel.has('day:grid')) fb.grid = ft.grid;
+  if (sel.has('day:spread')) fb.spread = ft.spread;
   for (const part of ['day', 'book', 'assets', 'components']) {
     for (const scope of new Set([...fb.coll[part].keys(), ...ft.coll[part].keys()])) {
       const spec = specFor(part, scope);
