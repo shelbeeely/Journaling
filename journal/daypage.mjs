@@ -291,7 +291,8 @@ export const PAGE_KINDS = {
   collection: { name: 'Collection page', body: true, header: 'title' },
   blank: { name: 'Blank page', body: false, header: 'none' },
 };
-const DAY_ONLY = new Set(['sky', 'notes', 'events', 'fact', 'lookback', 'prompt', 'tl24', 'weekstrip']);
+// (sendto too: the SEND TO strip is a day page setting; other pages keep the book's scan settings.)
+const DAY_ONLY = new Set(['sky', 'notes', 'events', 'fact', 'lookback', 'prompt', 'tl24', 'weekstrip', 'sendto']);
 export const pageKind = (k) => (PAGE_KINDS[k] ? k : 'day');
 export const allowedIn = (kind, type) => kind === 'day' || !DAY_ONLY.has(type);
 export const bodyLocked = (kind) => !!PAGE_KINDS[pageKind(kind)].body;
@@ -303,6 +304,40 @@ export function defaultLayout(kind = 'day') {
   const B = (t, o = {}) => newBlock(t, o, t);
   const blocks = kind === 'notes' ? [B('body'), B('actions', { routines: false, count: 4 })] : kind === 'collection' ? [B('body', { style: 'lines' })] : [];
   return { v: 2, kind, blocks };
+}
+
+// The Notes page as it has always printed (a dot grid and four action lines). A Notes page with no layout of its own prints exactly this.
+export const notesPage = (title) => `${headerZone('', esc(title))}<div class="dots fill" data-zone="body"></div>${actionZone(4)}`;
+// One page of a block-page kind, finished: its fixed top, then its blocks. `layout` is what the page's entry in book.json holds (or nothing).
+// A page whose layout says what the kind's starting layout says prints the original markup, so saving an untouched page changes nothing:
+// a Notes page prints notesPage() and a blank page its empty box (byte for byte what the books printed before pages were blocks).
+export function kindPage(kind, title, layout, size = 'small', opt = {}) {
+  kind = pageKind(kind);
+  const dflt = normalize(defaultLayout(kind), size, kind), L = layout ? normalize(layout, size, kind) : dflt;
+  if (JSON.stringify(L) === JSON.stringify(dflt)) {
+    if (kind === 'notes') return notesPage(title);
+    if (kind === 'blank') return '<div class="blankpage"></div>';
+  }
+  return dayBlocks({ header: kindHeader(kind, title), routines: [] }, L, { size, kind, ...opt });
+}
+// True when a layout is the page kind's starting layout (an entry like that carries no `layout` at all: nothing to save).
+export const isDefaultLayout = (layout, kind, size = 'small') => !layout || JSON.stringify(normalize(layout, size, kind)) === JSON.stringify(normalize(defaultLayout(kind), size, kind));
+// Every reason an entry's `layout` cannot be used, in words (book.json validation). [] = fine.
+export function pageLayoutProblems(layout, kind, size = 'small') {
+  const out = [];
+  if (!layout || typeof layout !== 'object' || Array.isArray(layout)) return ['must be an object like {"v":2,"blocks":[...]}'];
+  if (layout.v !== 2) out.push('"v" must be 2');
+  if (layout.kind !== undefined && layout.kind !== kind) out.push(`"kind" is "${layout.kind}", but this is a ${PAGE_KINDS[kind] ? PAGE_KINDS[kind].name.toLowerCase() : kind}`);
+  if (!Array.isArray(layout.blocks)) return [...out, '"blocks" must be a list'];
+  const uids = new Set();
+  layout.blocks.forEach((b, i) => {
+    if (!b || typeof b !== 'object') { out.push(`blocks[${i}] must be an object`); return; }
+    if (!TYPES[b.type]) out.push(`blocks[${i}]: unknown block type "${b.type}"`);
+    else if (!allowedIn(kind, b.type)) out.push(`blocks[${i}]: ${TYPES[b.type].name} belongs on a day page, so it can't go on this page`);
+    if (typeof b.uid === 'string') { if (uids.has(b.uid)) out.push(`blocks[${i}]: uid "${b.uid}" is used twice`); uids.add(b.uid); }
+  });
+  if (!out.length && layout.grid) out.push(...gridProblems(normalize(layout, size, kind), size).map((x) => x.msg));
+  return out;
 }
 
 // The original page, block for block (uids = type names so v1 layouts map straight across).
@@ -490,7 +525,8 @@ export function placeBlock(L, b, size = 'small') {
 export function autoPlace(L, size = 'small') {
   const R = gridRows(size, L.kind), W = GRIDS.day.cols, dropped = [];
   const used = () => L.blocks.filter((b) => b.on && b.type !== 'body').reduce((t, b) => t + minSpan(b, W).rows, 0);
-  while (R - used() < BODY_MIN.rows) {
+  const need = PAGE_KINDS[pageKind(L.kind)].body ? BODY_MIN.rows : 0;
+  while (R - used() < need) {
     const last = [...L.blocks].reverse().find((b) => b.on && b.type !== 'body');
     if (!last) break;
     last.on = false; dropped.push(last.uid);
@@ -753,7 +789,7 @@ function careBox(b, on, sp) {
 const FILLS = new Set(['body', 'lines', 'split', 'sketch', 'dump']);
 function gridBlocks(parts, L, opt) {
   const size = opt.size === 'letter' ? 'letter' : 'small', probs = gridProblems(L, size);
-  if (probs.length && !opt.tag) throw new Error(`The ${PAGE_KINDS[pageKind(L.kind)].name.toLowerCase()} grid layout cannot be printed:\n - ' + probs.map((x) => x.msg).join('\n - '));
+  if (probs.length && !opt.tag) throw new Error(`The ${PAGE_KINDS[pageKind(L.kind)].name.toLowerCase()} grid layout cannot be printed:\n - ` + probs.map((x) => x.msg).join('\n - '));
   const on = L.blocks.filter((b) => b.on), count = {}, seen = {}, out = [];
   for (const b of on) {
     count[b.type] = (count[b.type] || 0) + 1;

@@ -5,7 +5,8 @@
 // PROFILE is content/profile.json (see profile.mjs): the person, the book's title, the place, the module switches. Nothing personal lives in this file.
 // `refs` maps {{P_x}} names to page numbers; the book assembler fills it before any page is built, and replaces the
 // {{P_x}} markers in the finished HTML. Page numbers are never hand-set.
-import { ic, box, spoon, actionZone, dayBlocks } from './daypage.mjs';
+import { ic, box, spoon, actionZone, dayBlocks, headerZone, notesPage, kindPage } from './daypage.mjs';
+export { headerZone, notesPage }; // (they live with the block library: one source for the page's fixed top)
 import { handoffHtml, GOOD_SPOON_NOTE } from './handoff.mjs';
 
 export const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -35,13 +36,6 @@ export const ICON_KEY = [['pill', 'Meds'], ['am', 'Morning dose'], ['pm', 'Eveni
 const bubbles = (labels, lo, hi) => `<span class="end">${lo}</span>` + labels.map(() => `<span class="bub"><i></i></span>`).join('') + `<span class="end">${hi}</span>`;
 const dur = (min) => `${Math.floor(min / 60)}h ${String(min % 60).padStart(2, '0')}m`;
 const ruby = (k, r) => `<ruby>${k}<rt>${r}</rt></ruby>`;
-
-// AI-scan zones: labelled header boxes, faint body grid, checkbox action items.
-export function headerZone(dateText, titleText = '') {
-  return `<div class="hz"><div class="zbox zdate" data-zone="date"><span class="zl">DATE:</span><span class="zv">${dateText}</span></div><div class="zbox ztitle" data-zone="title"><span class="zl">TITLE:</span><span class="zv">${titleText}</span></div><div class="zbox ztags" data-zone="tags"><span class="zl">TAGS:</span></div></div>`;
-}
-
-export const notesPage = (title) => `${headerZone('', esc(title))}<div class="dots fill" data-zone="body"></div>${actionZone(4)}`;
 // ---------- content ----------
 const LINEAGE = [
   ['Fixed date header', 'Diary of Merer, Egypt, c. 2566 BC — dated day-by-day log'],
@@ -534,7 +528,9 @@ const wkId = (W) => String(W.no ?? W.gi + 1).padStart(2, '0');
 const mid = (ctx, M, part) => (ctx.scoped ? `month.${M.key}.${part}` : `month.${part}`); // a book longer than a month has one of each month page per month
 export const PAGE_TYPES = {
   title: { name: 'Title page', scope: 'book', build: (ctx) => one({ cls: 'title', type: 'title', id: 'title', label: ctx.PROFILE.book.title, html: () => pagesFor(ctx).titlePage() }) },
-  blank: { name: 'Blank page', scope: 'book', build: () => one({ type: 'blank', id: 'blank', shared: true, html: () => '<div class="blankpage"></div>' }) },
+  // Blank, Notes and Collection pages are block pages (C5a): an entry's `layout` (the same blocks as the day page, on the page kind's own grid) is what
+  // prints; without one they print as they always have. A blank page with no layout of its own is `shared` (identical in every book).
+  blank: { name: 'Blank page', scope: 'book', build: (ctx, { entry } = {}) => { const L = entry && entry.layout; return one({ type: 'blank', id: 'blank', shared: !L, html: () => kindPage('blank', '', L, ctx.size) }); } },
   anatomy: { name: 'How to use it', scope: 'book', build: (ctx) => one({ type: 'anatomy', id: 'anatomy', label: 'How to use it', html: () => pagesFor(ctx).anatomyPage() }) },
   key: { name: 'Key', scope: 'book', build: (ctx) => one({ type: 'key', id: 'key', label: 'Key', shared: true, html: () => pagesFor(ctx).keyPage() }) },
   key_2: { name: 'Key, continued', scope: 'book', build: (ctx) => one({ type: 'key', id: 'key.2', label: 'Key, continued', shared: true, html: () => { const P = pagesFor(ctx); return `<h2 class="pt">Key, continued</h2><h3>Day page icons</h3><div class="ikey">${ICON_KEY.map(([k, t]) => `<span>${ic(k)} ${t}</span>`).join('')}</div>${P.weekdayTable()}<h3>Send-to symbols</h3><p class="small">Fire (solid triangle), water (open triangle), air (three winds), earth (circled cross), crescent moon, full moon and pentacle. Fill the bubble above one to route a scan; you decide what each means in your app.</p>`; } }) },
@@ -571,7 +567,10 @@ export const PAGE_TYPES = {
   lineage: { name: 'Where each piece comes from', scope: 'book', ref: 'lineage', build: (ctx) => one({ type: 'lineage', id: 'lineage', label: 'Where each piece comes from', html: () => pagesFor(ctx).lineagePage() }) },
   // A page the reader adds: a header + dot grid to write on. Padding pages (numbered by position) are made the same way.
   notes: { name: 'Notes page', scope: 'book', options: { title: { kind: 'text', label: 'Title', max: 40 } },
-    build: (ctx, { entry }) => { const t = (entry && entry.options && entry.options.title) || 'Notes'; return one({ cls: 'notes', type: 'notes', id: entry ? entry.id : 'notes', label: t, html: () => notesPage(t) }); } },
+    build: (ctx, { entry }) => { const t = (entry && entry.options && entry.options.title) || 'Notes'; return one({ cls: 'notes', type: 'notes', id: entry ? entry.id : 'notes', label: t, html: () => kindPage('notes', t, entry && entry.layout, ctx.size) }); } },
+  // A page for a list you keep (books to read, places, ideas): the title in the header, ruled lines to fill. Add as many as you like.
+  collection: { name: 'Collection page', scope: 'book', options: { title: { kind: 'text', label: 'Title', max: 40 } },
+    build: (ctx, { entry }) => { const t = (entry && entry.options && entry.options.title) || 'Collection'; return one({ cls: 'notes', type: 'collection', id: entry ? entry.id : 'collection', label: t, html: () => kindPage('collection', t, entry && entry.layout, ctx.size) }); } },
 };
 
 // Render one page of any type from a context (the editor uses this with sample data): the finished page HTML, with page

@@ -34,7 +34,7 @@ export async function catalog(month, book) {
     return { ...s, html: null, refKeys: keys, variants };
   });
   for (const [key, T] of Object.entries(PAGE_TYPES)) {
-    if (key === 'notes') continue;
+    if (key === 'notes' || key === 'collection') continue; // made from the entry (its title, its layout), not per month or week
     const entry = { id: key, type: key, on: true, options: {} };
     if (T.module && ctx.PROFILE && ctx.PROFILE.modules[T.module] === false) { occ[key] = T.scope === 'book' ? [[]] : T.scope === 'month' ? D.months.map(() => []) : D.weeks.map(() => []); continue; }
     if (T.scope === 'book') occ[key] = [pack(T.build(ctx, { entry }))];

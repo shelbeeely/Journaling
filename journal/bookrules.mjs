@@ -2,6 +2,10 @@
 // book.mjs binds them to pages.mjs' PAGE_TYPES; the editor passes the page-type table that rides in its sample data.
 // Every problem comes back as a plain sentence that says where. (scan.mjs is pure too: the editor inlines it.)
 import { scanProblems } from './scan.mjs';
+import { pageLayoutProblems, PAGE_KINDS } from './daypage.mjs';
+// Pages that are made of blocks (C5a): an entry of one of these types may carry a `layout` (daypage.mjs). Notes and Collection pages can repeat.
+export const BLOCK_PAGES = ['notes', 'collection', 'blank'].filter((k) => PAGE_KINDS[k]);
+export const REPEATS = ['notes', 'collection'];
 export const ID_RE = /^[a-z0-9_]+(\.[a-z0-9_-]+)*$/;
 const protectedOf = (types) => Object.entries(types).filter(([, t]) => t.protected).map(([k]) => k);
 const nameOf = (types, type) => (type === 'weeks' ? 'Weeks' : types[type] ? types[type].name : type);
@@ -46,7 +50,11 @@ function checkList(where, list, errs, PAGE_TYPES) {
       else if (/^notes\.\d+$/.test(it.id)) bad(label, `id "${it.id}" is reserved for automatic padding pages`);
       else if (ids.has(it.id)) bad(label, `id "${it.id}" is used twice (also ${ids.get(it.id)}); every page needs its own id`);
       else ids.set(it.id, at);
-      for (const k of Object.keys(it)) if (!['id', 'type', 'on', 'options', 'scan'].includes(k)) bad(label, `unknown key "${k}" (a page has id, type, on, options, scan)`);
+      for (const k of Object.keys(it)) if (!['id', 'type', 'on', 'options', 'scan', 'layout'].includes(k)) bad(label, `unknown key "${k}" (a page has id, type, on, options, scan, layout)`);
+      if (it.layout !== undefined) {
+        if (!BLOCK_PAGES.includes(it.type)) bad(label, `only ${BLOCK_PAGES.map((t) => nameOf_(t)).join(', ')} pages have a layout of blocks`);
+        else for (const m of pageLayoutProblems(it.layout, it.type)) bad(`${label} layout`, m);
+      }
       errs.push(...scanProblems(it.scan, `${label} scan`));
       if (it.on !== undefined && typeof it.on !== 'boolean') bad(label, '"on" must be true or false');
       if (it.options !== undefined && !isObj(it.options)) bad(label, '"options" must be an object');
@@ -64,7 +72,7 @@ function checkList(where, list, errs, PAGE_TYPES) {
       if (!T) { bad(label, `unknown page type "${it.type}". Known: ${Object.keys(PAGE_TYPES).join(', ')}`); return; }
       if (T.scope !== scope) bad(label, `${T.name} is a ${T.scope}-level page; it can't go in the ${scope === 'book' ? 'book' : scope} list${T.scope === 'book' ? '' : ` (put it under the weeks group's "${T.scope}" list)`}`);
       if (T.protected && it.on === false) bad(label, `${T.name} can be moved but not hidden`);
-      if (it.type !== 'notes') { if (types.has(it.type)) bad(label, `${T.name} is listed twice (also ${types.get(it.type)}); only Notes pages can repeat`); else types.set(it.type, at); }
+      if (!REPEATS.includes(it.type)) { if (types.has(it.type)) bad(label, `${T.name} is listed twice (also ${types.get(it.type)}); only Notes and Collection pages can repeat`); else types.set(it.type, at); }
       const spec = T.options || {};
       for (const [k, v] of Object.entries(isObj(it.options) ? it.options : {})) {
         if (!spec[k]) bad(label, `unknown option "${k}"${Object.keys(spec).length ? ` (this page has: ${Object.keys(spec).join(', ')})` : ' (this page has no options yet)'}`);
