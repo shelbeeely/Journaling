@@ -66,6 +66,10 @@ export const ic = (k, t = '') => `<svg class="ic" width="11" height="11" viewBox
 export const box = (label) => `<span class="ck"><i></i>${label ? `<span>${label}</span>` : ''}</span>`;
 export const spoon = () => `<svg class="spoon" width="7" height="15" viewBox="0 0 7 15"><path d="M3.5 .5C5.4 .5 6.2 2.2 6.2 3.8 6.2 5.4 4.9 6.6 4 7.2L4.5 13.4Q4.5 14.6 3.5 14.6 2.5 14.6 2.5 13.4L3 7.2C2.1 6.6.8 5.4.8 3.8.8 2.2 1.6.5 3.5.5Z" fill="none" stroke="#333" stroke-width="1" stroke-linejoin="round"/></svg>`;
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+// AI-scan zones: labelled header boxes (DATE / TITLE / TAGS). Fixed at the top of a page; never a block. (pages.mjs re-exports it.)
+export function headerZone(dateText, titleText = '') {
+  return `<div class="hz"><div class="zbox zdate" data-zone="date"><span class="zl">DATE:</span><span class="zv">${dateText}</span></div><div class="zbox ztitle" data-zone="title"><span class="zl">TITLE:</span><span class="zv">${titleText}</span></div><div class="zbox ztags" data-zone="tags"><span class="zl">TAGS:</span></div></div>`;
+}
 // 3+ routines collapse into one wrapping row of tick boxes (max 6, then "+N more"), so a busy day keeps its writing space.
 export const ROUTINE_ROWS = 2, ROUTINE_MAX = 6;
 export const ACTION_H = 0.24; // row height in inches: today's
@@ -259,7 +263,7 @@ function fixOpt(o, v) {
   }
   return v;
 }
-function fixOpts(b) {
+function fixOpts(b, kind = 'day') {
   for (const o of TYPES[b.type].opts) b[o.k] = fixOpt(o, b[o.k]);
   if (b.type === 'care') {
     const seen = new Set();
@@ -272,8 +276,33 @@ function fixOpts(b) {
     });
   }
   if (b.type === 'sendto' && !SEND_KEYS.some((k) => b.symbols[k])) b.symbols = Object.fromEntries(SEND_KEYS.map((k) => [k, true])); // at least one symbol
-  if (TYPES[b.type].locked) b.on = true;
+  if (TYPES[b.type].locked && bodyLocked(kind)) b.on = true;
   return b;
+}
+
+// ======================= page kinds (C5a): the same blocks on other pages =======================
+// A day page is one kind of block page. Notes, blank and collection pages are the others: each has its own fixed grid (GRIDS), its own
+// fixed top (the DATE/TITLE/TAGS header on Notes and Collection pages, nothing on a blank page), and the same block library, minus the
+// blocks that read a day (sky, holidays, events, the fact, a month ago today, the rotating prompt, the 24-hour line, the week strip).
+// `body`: the Writing space block is required (and stays on). The scan frame, SEND TO strip and page code belong to the page (scan.mjs).
+export const PAGE_KINDS = {
+  day: { name: 'Day page', body: true, header: 'day' },
+  notes: { name: 'Notes page', body: true, header: 'title' },
+  collection: { name: 'Collection page', body: true, header: 'title' },
+  blank: { name: 'Blank page', body: false, header: 'none' },
+};
+const DAY_ONLY = new Set(['sky', 'notes', 'events', 'fact', 'lookback', 'prompt', 'tl24', 'weekstrip']);
+export const pageKind = (k) => (PAGE_KINDS[k] ? k : 'day');
+export const allowedIn = (kind, type) => kind === 'day' || !DAY_ONLY.has(type);
+export const bodyLocked = (kind) => !!PAGE_KINDS[pageKind(kind)].body;
+export const kindHeader = (kind, title = '') => (PAGE_KINDS[pageKind(kind)].header === 'title' ? headerZone('', esc(title)) : '');
+// The starting layout of each kind. Notes: what the original Notes page has (a dot grid, four action lines). Collection: ruled lines.
+export function defaultLayout(kind = 'day') {
+  kind = pageKind(kind);
+  if (kind === 'day') return DEFAULT_LAYOUT;
+  const B = (t, o = {}) => newBlock(t, o, t);
+  const blocks = kind === 'notes' ? [B('body'), B('actions', { routines: false, count: 4 })] : kind === 'collection' ? [B('body', { style: 'lines' })] : [];
+  return { v: 2, kind, blocks };
 }
 
 // The original page, block for block (uids = type names so v1 layouts map straight across).
@@ -287,23 +316,25 @@ export const DEFAULT_LAYOUT = {
 // Clean up any saved layout: v1 → v2, unknown types dropped, one of each single, the writing space always present.
 // Grid layouts (the "Grid" switch, see "Page grid" below) are v2 with `grid: true` and a placement on every block:
 // { col, row, colSpan, rowSpan }. Flow layouts never carry `grid`; placements left on their blocks are ignored.
-export function normalize(L, size = 'small') {
-  let src = L && Array.isArray(L.blocks) ? L.blocks : DEFAULT_LAYOUT.blocks;
+export function normalize(L, size = 'small', kindIn) {
+  const kind = pageKind(kindIn || (L && L.kind));
+  const dflt = kind === 'day' ? DEFAULT_LAYOUT : defaultLayout(kind);
+  let src = L && Array.isArray(L.blocks) ? L.blocks : dflt.blocks;
   if (!L || L.v !== 2) src = src.map((b) => (b && b.id ? { ...b, uid: b.id, type: b.id === 'gratitude' ? 'good' : b.id } : b));
   const singles = new Set(), uids = new Set(), blocks = [];
   for (const s of src) {
-    if (!s || !TYPES[s.type]) continue;
+    if (!s || !TYPES[s.type] || !allowedIn(kind, s.type)) continue;
     if (TYPES[s.type].single) { if (singles.has(s.type)) continue; singles.add(s.type); }
     let uid = typeof s.uid === 'string' && /^[\w-]{1,40}$/.test(s.uid) ? s.uid : s.type;
     while (uids.has(uid)) uid = s.type + '-' + Math.random().toString(36).slice(2, 7);
     uids.add(uid);
-    blocks.push(fixOpts({ ...structuredClone(s), uid, on: s.on === undefined ? true : !!s.on }));
+    blocks.push(fixOpts({ ...structuredClone(s), uid, on: s.on === undefined ? true : !!s.on }, kind));
   }
-  if (!singles.has('body')) { const i = blocks.findIndex((b) => b.type === 'actions'); blocks.splice(i < 0 ? blocks.length : i, 0, newBlock('body', {}, 'body')); }
-  const scan = cleanScan(L && L.scan), grid = !!(L && L.grid && L.v === 2);
+  if (PAGE_KINDS[kind].body && !singles.has('body')) { const i = blocks.findIndex((b) => b.type === 'actions'); blocks.splice(i < 0 ? blocks.length : i, 0, newBlock('body', {}, 'body')); }
+  const scan = kind === 'day' ? cleanScan(L && L.scan) : undefined, grid = !!(L && L.grid && L.v === 2), head = kind === 'day' ? { v: 2 } : { v: 2, kind };
   for (const b of blocks) for (const k of PLACE) { const v = Math.round(+b[k]); if (Number.isFinite(v) && v >= 1 && b[k] !== null && b[k] !== '') b[k] = v; else delete b[k]; }
-  if (!grid) return { v: 2, ...(scan ? { scan } : {}), blocks };
-  const out = { v: 2, grid: true, ...(scan ? { scan } : {}), blocks };
+  if (!grid) return { ...head, ...(scan ? { scan } : {}), blocks };
+  const out = { ...head, grid: true, ...(scan ? { scan } : {}), blocks };
   if (blocks.some((b) => PLACE.some((k) => b[k] === undefined))) placeMissing(out, size);
   return out;
 }
@@ -319,9 +350,14 @@ export function normalize(L, size = 'small') {
 // Other page types can add their own entry here later.
 export const GRIDS = {
   day: { cols: 4, rowIn: 0.22, gapPx: 8, rows: { small: 24, letter: 24 } },
+  // Notes and Collection pages have the same DATE/TITLE/TAGS header as a day page, so the same room (24 rows). A blank page has no header:
+  // its grid is the day area plus the header's 65.6 px (61.6 + 4) = 656 px = 6.83 in, and 6.83 / 0.22 = 31.06, so 31 rows.
+  notes: { cols: 4, rowIn: 0.22, gapPx: 8, rows: { small: 24, letter: 24 } },
+  collection: { cols: 4, rowIn: 0.22, gapPx: 8, rows: { small: 24, letter: 24 } },
+  blank: { cols: 4, rowIn: 0.22, gapPx: 8, rows: { small: 31, letter: 31 } },
 };
 export const PLACE = ['col', 'row', 'colSpan', 'rowSpan'];
-export const gridRows = (size) => GRIDS.day.rows[size === 'letter' ? 'letter' : 'small'];
+export const gridRows = (size, kind = 'day') => GRIDS[pageKind(kind)].rows[size === 'letter' ? 'letter' : 'small'];
 // Locked: the DATE/TITLE/TAGS header (above the grid), the SEND TO strip, the page code and the 9pt frame (below and around it) are
 // not blocks and never sit on the grid. The Writing space stays and keeps a minimum: 8 rows (1.76 in, over the 40 mm floor) by 2 columns.
 export const BODY_MIN = { rows: 8, cols: 2 };
@@ -409,7 +445,7 @@ const hit = (a, c) => a.c1 <= c.c2 && c.c1 <= a.c2 && a.r1 <= c.r2 && c.r1 <= a.
 const placed = (b) => PLACE.every((k) => Number.isInteger(b[k]) && b[k] >= 1);
 // Every reason a grid layout cannot be printed, in words: [{ uid, code, msg }]. Empty = valid. Blocks that are off take no room.
 export function gridProblems(L, size = 'small') {
-  const G = GRIDS.day, R = gridRows(size), out = [], on = L.blocks.filter((b) => b.on);
+  const G = GRIDS.day, R = gridRows(size, L.kind), out = [], on = L.blocks.filter((b) => b.on);
   const bad = (b, code, msg) => out.push({ uid: b.uid, code, msg });
   for (const b of on) {
     const nm = blockName(b);
@@ -432,7 +468,7 @@ export function gridProblems(L, size = 'small') {
 }
 // The first free rectangle of `cols` × `rows` cells (top to bottom, then left to right), ignoring `except` (a uid), or null.
 export function findFree(L, cols, rows, size = 'small', except = null) {
-  const G = GRIDS.day, R = gridRows(size), taken = L.blocks.filter((b) => b.on && b.uid !== except && placed(b)).map(rectOf);
+  const G = GRIDS.day, R = gridRows(size, L.kind), taken = L.blocks.filter((b) => b.on && b.uid !== except && placed(b)).map(rectOf);
   for (let r = 1; r + rows - 1 <= R; r++) for (let c = 1; c + cols - 1 <= G.cols; c++) {
     const q = { c1: c, c2: c + cols - 1, r1: r, r2: r + rows - 1 };
     if (!taken.some((t) => hit(t, q))) return { col: c, row: r, colSpan: cols, rowSpan: rows };
@@ -452,7 +488,7 @@ export function placeBlock(L, b, size = 'small') {
 // The stack of minimums can be taller than the page (every block gets its worst-case room, including the ones that are usually empty);
 // then blocks are switched off from the end of the list until the Writing space has its minimum. Returns those blocks (uids), in order.
 export function autoPlace(L, size = 'small') {
-  const R = gridRows(size), W = GRIDS.day.cols, dropped = [];
+  const R = gridRows(size, L.kind), W = GRIDS.day.cols, dropped = [];
   const used = () => L.blocks.filter((b) => b.on && b.type !== 'body').reduce((t, b) => t + minSpan(b, W).rows, 0);
   while (R - used() < BODY_MIN.rows) {
     const last = [...L.blocks].reverse().find((b) => b.on && b.type !== 'body');
@@ -683,7 +719,7 @@ function renderBlock(b, parts, zone) {
 // parts: pre-built, data-driven strings from render.mjs: header, sky, notes, events, fact ('' when none), routines [].
 // opt.tag (editor only): mark each block's outer element with data-b="<uid>" so the preview can be dragged.
 export function dayBlocks(parts, layout, opt = {}) {
-  const L = normalize(layout, opt.size);
+  const L = normalize(layout, opt.size, opt.kind);
   if (L.grid) return gridBlocks(parts, L, opt);
   const on = L.blocks.filter((b) => b.on);
   const count = {}, out = [];
@@ -717,7 +753,7 @@ function careBox(b, on, sp) {
 const FILLS = new Set(['body', 'lines', 'split', 'sketch', 'dump']);
 function gridBlocks(parts, L, opt) {
   const size = opt.size === 'letter' ? 'letter' : 'small', probs = gridProblems(L, size);
-  if (probs.length && !opt.tag) throw new Error('The day page grid layout cannot be printed:\n - ' + probs.map((x) => x.msg).join('\n - '));
+  if (probs.length && !opt.tag) throw new Error(`The ${PAGE_KINDS[pageKind(L.kind)].name.toLowerCase()} grid layout cannot be printed:\n - ' + probs.map((x) => x.msg).join('\n - '));
   const on = L.blocks.filter((b) => b.on), count = {}, seen = {}, out = [];
   for (const b of on) {
     count[b.type] = (count[b.type] || 0) + 1;
@@ -730,7 +766,7 @@ function gridBlocks(parts, L, opt) {
     seen[zone] = (seen[zone] || 0) + 1; if (seen[zone] > 1) zone += `_${seen[zone]}`;
     out.push(`<div class="gc${FILLS.has(b.type) ? ' fill' : ''}" data-zone="${zone}"${opt.tag ? ` data-b="${b.uid}"` : ''} style="grid-column:${b.col}/span ${b.colSpan};grid-row:${b.row}/span ${b.rowSpan}">${h}</div>`);
   }
-  return `<div class="day full gm">\n    ${parts.header}\n    <div class="gg" style="--gr:${gridRows(size)}">\n    ${out.join('\n    ')}\n    </div>\n  </div>`;
+  return `<div class="day full gm">\n    ${parts.header}\n    <div class="gg" style="--gr:${gridRows(size, L.kind)}">\n    ${out.join('\n    ')}\n    </div>\n  </div>`;
 }
 
 // Extra CSS the blocks need (appended to the page CSS).
