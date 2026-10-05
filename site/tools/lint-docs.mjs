@@ -13,7 +13,7 @@ const add = (f, msg) => problems.push(`${f}: ${msg}`);
 const docs = loadMethods();
 const slugs = new Set(docs.map((d) => d.file.replace(/\.md$/, '')));
 const anchors = {}, extUrls = new Map();
-const scrub = (t) => t.replace(/github\.com\/shelbeeely\/Journaling/gi, 'REPO');
+const scrub = (t) => t.replace(/github\.com\/shelbeeely\/Journaling/gi, 'REPO').replace(/\s+/g, " ");
 
 const check = (name, src, { template = false } = {}) => {
   const fm = parseFrontMatter(src);

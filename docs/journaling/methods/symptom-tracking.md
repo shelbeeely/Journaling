@@ -502,8 +502,7 @@ PROMIS short forms have their own licensing terms; check before printing them in
 - **Trans and gender-diverse people:** neutral body outline; "bleeding" not "period" in labels; HRT dose and site log;
   cycle tracking for anyone who wants it; no assumptions about which body parts exist. Privacy matters more where laws
   are hostile.
-- **Shift workers:** sleep diary by *sleep period*, not by night ("main sleep" and "nap"); record shift type (Keeping
-  Watch's Work shift block).
+- **Shift workers:** sleep diary by *sleep period*, not by night ("main sleep" and "nap"); record shift type (Journalwright Studio has a Work shift block).
 - **Low income:** free printable forms; paper over subscriptions; bring pages instead of an app.
 
 ## 20. Comparison

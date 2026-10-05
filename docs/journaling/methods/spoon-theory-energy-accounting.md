@@ -652,8 +652,7 @@ Spoon theory has **no official product**. Related:
 
 ## 21. Combining
 
-- **With [mood-tracking-year-in-pixels](mood-tracking-year-in-pixels.md):** mood and spoons together separate sad from spent. Keeping
-  Watch's monthly tracker puts them side by side.
+- **With [mood-tracking-year-in-pixels](mood-tracking-year-in-pixels.md):** mood and spoons together separate sad from spent. Journalwright Studio's monthly tracker puts them side by side.
 - **With [symptom-tracking](symptom-tracking.md):** symptoms next to spoons show what your body charges for a task, including delayed
   effects.
 - **With [habit-tracking](habit-tracking.md):** count rest and deposits as habits; keep habits few on low-spoon weeks.
