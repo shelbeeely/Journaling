@@ -16,6 +16,7 @@ cp journal/editor/dist-demo/demo/* journal/editor/dist-demo/demo/.nojekyll "$OUT
 touch "$OUT/.nojekyll"
 node site/tools/lint-docs.mjs
 node site/tools/build-docs.mjs "$OUT"
+node site/tools/build-guide.mjs "$OUT"
 node site/check-links.mjs "$OUT"
 # Privacy gate: no Spokane, Keeping Watch, Shelbee or owner email anywhere (docs pages included) in the assembled site or the demo (the repo URL itself is allowed)
 if grep -rIh "" "$OUT" | sed 's#github.com/shelbeeely/Journaling#REPO#g' | grep -iE "spokane|keeping watch|shelbee|johnsondelbert"; then echo "::error::personal words found in the assembled site (lines above)"; exit 1; fi

@@ -25,3 +25,4 @@ site/_out/
 site/tools/node_modules/
 journal/out-shots/
 journal/editor/dist-shots/
+journal/editor/dist-guide/
