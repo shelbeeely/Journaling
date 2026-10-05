@@ -27,6 +27,19 @@ export function drawRulings() {
     ['.rule, .three li, .prio li, .xbul .bl span', { edge: 1, w: 4 / 3, c: '#a0a0a0' }],
     ['.genko span', { cross: 1, c: '#ccc' }],
   ];
+  // Print accessibility options (a11yprint.mjs): <html data-a11y="large contrast"> makes every ruling heavier and darker (never lighter, and
+  // never under the 0.75 pt KDP floor). With neither option the table above is used exactly as it stands.
+  const A11Y = (document.documentElement.dataset.a11y || '').split(' '), LG = A11Y.includes('large'), HC = A11Y.includes('contrast');
+  if (LG || HC) {
+    const INK = HC ? { '#808080': '#222', '#a0a0a0': '#000', '#c8c8c8': '#444', '#606060': '#000', '#ccc': '#444' } : { '#808080': '#555', '#a0a0a0': '#666', '#c8c8c8': '#808080', '#606060': '#404040', '#ccc': '#808080' };
+    SPECS.forEach(([sel, s]) => {
+      if (/\.bold/.test(sel)) return; // the bold-line ruling is already 1.5 pt black
+      if (LG && sel === '.ruled.log') s.lines = 0.335 * IN; // large print: the writing space is ruled at 8.5 mm
+      s.c = INK[s.c] || s.c;
+      if (s.w) s.w = Math.max(s.w, HC ? 2.67 : 2); // 2 px = 1.5 pt, 2.67 px = 2 pt
+      if (s.r) s.r *= 1.3;
+    });
+  }
   const f = (v) => +v.toFixed(3);
   const NS = 'http://www.w3.org/2000/svg';
   document.querySelectorAll('svg.vrule').forEach((s) => s.remove());

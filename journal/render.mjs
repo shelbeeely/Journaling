@@ -10,6 +10,8 @@ import { drawRulings } from './rulings.mjs';
 import { EDITION } from './content/edition.mjs';
 import { PROFILE, monthIds, packsUsed } from './profile.mjs';
 import { DAYPAGE_CSS } from './daypage.mjs';
+import { printCss, printAttr, printOn, LARGE_STEPS } from './a11yprint.mjs';
+import { pageProblems } from './pageoverflow.mjs';
 import { loadContext, loadBook } from './context.mjs';
 import { loadSpan, planVolumes, bookEntries as bookEntriesFor } from './span.mjs';
 import { bookPlan, kw3Code, MAX_PAGES } from './plan.mjs';
@@ -44,6 +46,7 @@ const volumeInfo = (V) => ({ scope: V.scope, n: V.n, of: V.of, id: V.id, book_id
 const orderOf = (id) => { const m = /^(day|week|month)\.(\d+)/.exec(id); return m ? { [m[1]]: +m[2] } : {}; };
 async function renderVolume(ctx, OUT, pages) {
 const { D, VOL } = ctx;
+const PRINT = ctx.print || {}; // print accessibility options (a11yprint.mjs): large print, high-contrast ink; both off = the default book, byte for byte
 const D_LAYOUT = ctx.dayLayout;
 const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 // ---------- HTML ----------
@@ -93,7 +96,7 @@ const codes = pages.map((p, i) => {
 const qrSvgs = codes.map((c) => (c ? c.svg : ''));
 for (const [k, n] of notes.bigger) console.log(`scan: ${n} page code(s) need a ${k} Data Matrix (their content is longer than the default 16x16 holds)`);
 for (const [k, n] of notes.raised) console.log(`scan: ${n} page code(s) printed at ${k}: raised so no module is under 0.5 mm`);
-const html = `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/600.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/700.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/400-italic.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/noto-serif-jp/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/noto-serif-jp/600.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/noto-sans-jp/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/dejavu-sans/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/inter/500.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/inter/700.css"><style>
+let html = `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/600.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/700.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/lora/400-italic.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/noto-serif-jp/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/noto-serif-jp/600.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/noto-sans-jp/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/dejavu-sans/400.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/inter/500.css"><link rel="stylesheet" href="file://${process.cwd()}/node_modules/@fontsource/inter/700.css"><style>
 @page { size: ${TRIM_W}in ${TRIM_H}in; margin: 0; }
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
@@ -259,6 +262,12 @@ ${drawRulings.toString()}
 document.fonts.ready.then(drawRulings);
 </script></body></html>`;
 
+// Print accessibility options: an override block after the page CSS, read from that CSS (a11yprint.mjs), and a flag on <html> for the
+// vector rulings. Nothing is added when both are off.
+if (printOn(PRINT)) {
+  const css = html.slice(html.indexOf('<style>') + 7, html.indexOf('</style>'));
+  html = html.replace('<html>', `<html data-a11y="${printAttr(PRINT)}">`).replace('</style></head>', () => `</style><style id="print-a11y">${printCss(css, PRINT)}</style></head>`);
+}
 fs.mkdirSync(OUT, { recursive: true });
 fs.writeFileSync(`${OUT}/journal.html`, html);
 if (!VOL.scoped) fs.writeFileSync(`${OUT}/data.json`, JSON.stringify(D, null, 1)); // read by epub.py (monthly books only)
@@ -266,6 +275,30 @@ const browser = await launch();
 const page = await browser.newPage();
 await page.goto('file://' + process.cwd() + `/${OUT}/journal.html`, { waitUntil: 'networkidle' }); await page.evaluate(() => document.fonts.ready);
 await page.evaluate(() => drawRulings()); // vector rulings on the final layout (the page also does this on load)
+if (PRINT.large) {
+  // Large print: the biggest type each kind of page can hold. Every page starts at the full scale; a page type that overflows (a dense
+  // directory, a bus grid) steps down one notch at a time until all its pages fit (never clipped), and every page of a type gets the same
+  // step so they look alike. Day pages have had their rows cut by rule (largeLayout), so they normally keep the full scale.
+  const kinds = [...new Set(pages.map((p) => p.type))], step = Object.fromEntries(kinds.map((k) => [k, LARGE_STEPS[0]]));
+  const apply = (st) => page.evaluate(async ([types, st]) => { document.querySelectorAll('.page').forEach((pg, i) => { pg.dataset.ls = st[types[i]]; }); await document.fonts.ready;
+    document.querySelectorAll('.lines').forEach((el) => { el.querySelectorAll(':scope > .rule').forEach((r) => r.remove()); const pitch = parseFloat(el.dataset.pitch || '0.26') * 96, n = Math.floor((el.clientHeight - 1) / pitch); for (let i = 0; i < n; i++) { const d = document.createElement('div'); d.className = 'rule'; d.style.height = pitch + 'px'; el.appendChild(d); } }); // the page's own line-drawing script, again at this size
+    drawRulings(); }, [pages.map((p) => p.type), st]);
+  for (let guard = 0; guard < LARGE_STEPS.length * kinds.length + 2; guard++) {
+    await apply(step);
+    const bad = new Set((await page.evaluate(pageProblems)).map((x) => pages[x.n - 1].type));
+    if (!bad.size) break;
+    let moved = false;
+    for (const k of bad) { const i = LARGE_STEPS.indexOf(step[k]); if (i < LARGE_STEPS.length - 1) { step[k] = LARGE_STEPS[i + 1]; moved = true; } }
+    if (!moved) { console.warn(`large print: ${[...bad].join(', ')} still overflow at the smallest step (check.mjs will say where)`); break; }
+  }
+  const down = kinds.filter((k) => step[k] !== LARGE_STEPS[0]);
+  if (down.length) console.log(`large print: ${down.map((k) => `${k} ${step[k]}x`).join(', ')} (the rest at ${LARGE_STEPS[0]}x)`);
+  // Bake the steps into the page file, so check.mjs and the PDF see what was measured.
+  html = html.replace(/<div class="page ([^"]*)" data-page-id="([^"]*)"/g, (all, cls, id) => { const p = pages.find((x) => x.id === id); return p ? `<div class="page ${cls}" data-page-id="${id}" data-ls="${step[p.type]}"` : all; });
+  fs.writeFileSync(`${OUT}/journal.html`, html);
+  await page.goto('file://' + process.cwd() + `/${OUT}/journal.html`, { waitUntil: 'networkidle' }); await page.evaluate(() => document.fonts.ready);
+  await page.evaluate(() => drawRulings());
+}
 // Zone map for the scanning app: every labelled zone in mm, relative to the inner edge of the black frame.
 const layout = await page.evaluate(() => {
   const px2mm = 25.4 / 96;

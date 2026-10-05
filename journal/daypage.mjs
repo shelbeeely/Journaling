@@ -3,6 +3,7 @@
 // The layout lives in content/daypage.json; anything missing falls back to DEFAULT_LAYOUT.
 // Fixed, never in the layout: the DATE/TITLE/TAGS header (top). The scan frame, the page code and the SEND TO strip (bottom) are
 // the page's scan marks (scan.mjs): on by default; the layout's `scan` setting and a `sendto` block change them, opt-in.
+import { cleanPrint } from './a11yprint.mjs';
 import { SEND_KEYS, SEND_LABELS, SEND_SIZES, sendBlockHtml, cleanScan, SCAN_CSS } from './scan.mjs';
 import { PZ_WS_MIN, PZ_WS_MAX } from './puzzles/wordsearch.mjs';
 import { PZ_CW_MIN, PZ_CW_MAX } from './puzzles/crossword.mjs';
@@ -384,9 +385,10 @@ export function normalize(L, size = 'small', kindIn) {
   }
   if (PAGE_KINDS[kind].body && !singles.has('body')) { const i = blocks.findIndex((b) => b.type === 'actions'); blocks.splice(i < 0 ? blocks.length : i, 0, newBlock('body', {}, 'body')); }
   const scan = kind === 'day' ? cleanScan(L && L.scan) : undefined, grid = !!(L && L.grid && L.v === 2), head = kind === 'day' ? { v: 2 } : { v: 2, kind };
+  const prt = kind === 'day' ? cleanPrint(L && L.print) : undefined; // print accessibility options (a11yprint.mjs): only when one is on, so the default layout is unchanged
   for (const b of blocks) for (const k of PLACE) { const v = Math.round(+b[k]); if (Number.isFinite(v) && v >= 1 && b[k] !== null && b[k] !== '') b[k] = v; else delete b[k]; }
-  if (!grid) return { ...head, ...(scan ? { scan } : {}), blocks };
-  const out = { ...head, grid: true, ...(scan ? { scan } : {}), blocks };
+  if (!grid) return { ...head, ...(scan ? { scan } : {}), ...(prt ? { print: prt } : {}), blocks };
+  const out = { ...head, grid: true, ...(scan ? { scan } : {}), ...(prt ? { print: prt } : {}), blocks };
   if (blocks.some((b) => PLACE.some((k) => b[k] === undefined))) placeMissing(out, size);
   return out;
 }

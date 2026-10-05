@@ -14,6 +14,7 @@ import { planProblems, newBookId } from './plan.mjs';
 import { assertLibrary, effectiveProfile, libraryFromProfile } from './library.mjs';
 import { readPart, partPath, usedPacks, assertSellable } from './packs/pack.mjs';
 import { PROFILE_KEYS } from './packs/kinds.mjs';
+import { printProblems } from './a11yprint.mjs';
 
 const HERE = path.dirname(new URL(import.meta.url).pathname);
 export const PROFILE_FILE = process.env.KW_PROFILE ? path.resolve(process.env.KW_PROFILE) : path.join(HERE, 'content/profile.json');
@@ -68,6 +69,7 @@ export function validateProfile(p) {
       else for (const f of ['agency', 'site', 'app']) if (!str(p.transit[f])) bad(`transit.${f}`, 'is required when modules.bus is true (e.g. "STA", "spokanetransit.com", "STA app")');
     }
   }
+  errs.push(...printProblems(p.print)); // optional print accessibility options (a11yprint.mjs)
   if (p.crisis !== undefined && !(isObj(p.crisis) && Array.isArray(p.crisis.lines) && p.crisis.lines.every(str))) bad('crisis.lines', 'optional; must be a list of text, printed on the safety plan after "my prescriber;"');
   if (p.paths !== undefined) {
     if (!isObj(p.paths)) bad('paths', 'must be an object');
@@ -116,6 +118,7 @@ export const PROFILE = Object.freeze({
   crisis: { lines: DEFAULT_CRISIS, ...(raw.crisis || {}) },
   paths: { ...Object.fromEntries(Object.keys(PROFILE_KEYS).map((k) => [k, null])), ...(raw.paths || {}) }, // one pack per key (packs/kinds.mjs PROFILE_KEYS)
   transit: raw.transit || null,
+  print: { large_print: false, high_contrast: false, ...(raw.print || {}) }, // print accessibility options (a11yprint.mjs); both off unless the profile says
   // this book within its library: series line, spine title, cover style, and page layouts from the library (null: the content/*.json files)
   library: EXTRA || { book: BOOK_KEY, spineTitle: null, series: null, show: [], cover: { style: 'night' }, layouts: { book: null, day: null } },
 });
