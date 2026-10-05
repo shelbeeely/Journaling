@@ -363,8 +363,7 @@ No official product for the method. Common products:
 
 ## 15. Digital and hybrid versions
 
-- **Apps:** Day One (prompts built in), Stoic, Reflectly-style apps; many use AI to generate prompts, which Keeping
-  Watch's firmware scope rules out.
+- **Apps:** Day One (prompts built in), Stoic, Reflectly-style apps; many use AI to generate prompts, which the X4 firmware scope rules out.
 - **E-ink:** reMarkable or Boox templates with a prompt header; Kindle Scribe notebooks. A static prompt PDF works
   well; X4 can show a short fixed list.
 - **Scanning:** a prompt page with a printed question and a scan zone maps cleanly; the question text is known from the

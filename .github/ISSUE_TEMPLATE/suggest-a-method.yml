@@ -1,0 +1,41 @@
+name: Suggest a method
+description: A journaling or planning method the docs do not cover yet.
+title: "Method: "
+labels: ["docs", "new-method"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you. Please keep personal information out of this form. A reviewer will check the sources before anything is published.
+  - type: input
+    id: name
+    attributes: { label: Name of the method, description: "Include the creator if there is one." }
+    validations: { required: true }
+  - type: textarea
+    id: what
+    attributes: { label: What it is, description: "A few sentences in your own words." }
+    validations: { required: true }
+  - type: textarea
+    id: sources
+    attributes: { label: Sources you have opened, description: "Links to the creator's own pages, books or studies. At least two if you can.", placeholder: "https://..." }
+    validations: { required: true }
+  - type: dropdown
+    id: evidence
+    attributes:
+      label: Evidence level, your best guess
+      options: ["Not sure", "Strong (several trials or reviews)", "Some (a few studies)", "Anecdotal (practitioner reports)", "None (no research)"]
+    validations: { required: true }
+  - type: textarea
+    id: studio
+    attributes: { label: What could the studio take from it, description: "Page layouts, blocks, prompts. Optional." }
+  - type: checkboxes
+    id: ok
+    attributes:
+      label: Checks
+      options:
+        - label: This contains no personal information about me or anyone else.
+          required: true
+        - label: I would like to be credited as a contributor (say how below). Leave unchecked to stay anonymous.
+  - type: input
+    id: credit
+    attributes: { label: Credit name or handle, description: "Only if you ticked the credit box." }
