@@ -489,6 +489,7 @@ function vpDrawCtx() { // called at the end of stDrawCtx: the tabs, the fork but
   const at = server ? vpAttr(p) : ''; $('#vs-attr').hidden = !at; $('#vs-attr').innerHTML = at;
   const prop = server && VP.tab === 'prop';
   $('#vs-cols').hidden = prop; $('#vp').hidden = !prop; if (prop) $('#vs-save').hidden = true;
+  vlDraw(server && !prop);
   $('#vs-t-hist').setAttribute('aria-pressed', String(!prop)); $('#vs-t-prop').setAttribute('aria-pressed', String(prop));
 }
 function vpTab(t) { VP.tab = t; stDrawCtx(); if (t === 'prop') vpLoad(); }
@@ -824,3 +825,40 @@ $('#vp-detv').addEventListener('submit', async (e) => {
     else { VP.err = e2.code === 'head_moved' ? 'The branch changed while you were choosing. Nothing was merged. Open the proposal again to see the latest.' : stMsg(e2); const el = $('#vp-err'); if (el) el.textContent = VP.err; }
   }
 });
+
+// ---------- releases (Phase G3) ----------
+// A release is a named, immutable copy of a saved version (never your draft). Anyone who can read the project sees the list and can
+// download one; only the project's owner makes a release. The server refuses anything that is not public-safe.
+const VL = { pid: '', list: [], busy: false };
+function vlDraw(show) {
+  $('#vl').hidden = !show;
+  if (!show) { VL.pid = ''; return; }
+  $('#vl-form').hidden = !(ST.user && ST.role === 'owner');
+  if (VL.pid !== ST.pid) { VL.pid = ST.pid; VL.list = []; vlLoad(); }
+}
+async function vlLoad() {
+  const pid = ST.pid;
+  try { const r = await stApi('GET', P('/releases')); if (pid === ST.pid) VL.list = r.releases; } catch { if (pid === ST.pid) VL.list = []; }
+  vlList();
+}
+const IC_DOWN = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3.5v9M6 9l4 4 4-4M4 16.5h12"/></svg>';
+function vlList() {
+  $('#vl-list').innerHTML = VL.list.length ? VL.list.map((r) => `<li><div><b>${escH(r.name)}</b><small>#${r.number} · version ${escH(r.commit.short)} · ${stAgo(r.createdAt)}${r.notes ? ' · ' + escH(r.notes) : ''}</small></div><button class="vs-b" data-rel="${escH(r.name)}" type="button" aria-label="Download release ${escH(r.name)}">${IC_DOWN}</button></li>`).join('') : '<li><div><small>No releases yet.</small></div></li>';
+  $('#vl-list').querySelectorAll('[data-rel]').forEach((b) => { b.onclick = () => vlDownload(b.dataset.rel); });
+}
+async function vlDownload(name) {
+  try {
+    const x = await stApi('GET', P(`/releases/${enc(name)}/export`));
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(x, null, 2)], { type: 'application/json' })); a.download = `release-${name}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    setStatus(`Downloaded release ${name}.`, 'ok');
+  } catch (e) { $('#vl-err').textContent = stMsg(e); }
+}
+$('#vl-form').onsubmit = async (e) => {
+  e.preventDefault(); if (VL.busy) return;
+  const name = $('#vl-name').value.trim(), notes = $('#vl-notes').value.trim(); $('#vl-err').textContent = '';
+  if (!name) { $('#vl-err').textContent = 'Give the release a name, like v1.0.'; $('#vl-name').focus(); return; }
+  VL.busy = true;
+  try { await stApi('POST', P('/releases'), { name, notes, branch: ST.branch }); $('#vl-name').value = ''; $('#vl-notes').value = ''; await vlLoad(); setStatus(`Released ${name}.`, 'ok'); }
+  catch (er) { $('#vl-err').textContent = stMsg(er); }
+  finally { VL.busy = false; }
+};
