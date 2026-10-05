@@ -1393,5 +1393,59 @@ ok(!errs.length, 'no page errors after the Book view ' + errs.join(' | '));
   ok(!verrs.length, 'no page errors in the Versions drawer ' + verrs.join(' | '));
   await vp.close();
 }
+// ---- Block pages (C5a): Notes, blank and collection pages edit with the day page's blocks and grid; the layout is saved in the book ----
+{
+  const { DEFAULT_BOOK } = await import('../book.mjs');
+  const book = JSON.parse(JSON.stringify(DEFAULT_BOOK)), at = book.default.findIndex((e) => e.id === 'theme');
+  book.default.splice(at, 0, { id: 'notes_1', type: 'notes', on: true, options: { title: 'Ideas' } }, { id: 'collection_1', type: 'collection', on: true, options: { title: 'Books to read' } });
+  const perr = [], bp = await b.newPage({ viewport: { width: 1400, height: 950 } });
+  bp.on('pageerror', (e) => perr.push(e.message));
+  await bp.addInitScript((j) => { try { if (!localStorage.getItem('kw-book')) localStorage.setItem('kw-book', j); } catch {} }, JSON.stringify(book));
+  const inPage = (kind) => bp.waitForFunction((k) => document.documentElement.dataset.view === 'day' && !!PGE && EK === k && document.querySelectorAll('#pv [data-b]').length >= 1, kind);
+  const saved = (id) => bp.evaluate((i) => { const x = JSON.parse(localStorage.getItem('kw-book') || 'null'); const e = x && x.default.find((y) => y.id === i); return e ? e.layout || null : undefined; }, id);
+  await bp.goto(URL0 + '#page/blank/edit', { waitUntil: 'networkidle' });
+  await bp.waitForFunction(() => document.documentElement.dataset.view === 'day' && !!PGE);
+  ok(await bp.evaluate(() => EK === 'blank' && layout.kind === 'blank' && layout.blocks.length === 0 && location.hash === '#page/blank/edit' && document.documentElement.dataset.mode === 'edit'), 'a hash route (#page/blank/edit) opens the blank page in edit mode, with its own empty layout');
+  ok(await bp.evaluate(() => !document.querySelector('#pv [data-zone="date"]') && !!document.querySelector('#pv .page') && document.querySelector('#pv .day.full') !== null), 'a blank page has no DATE / TITLE / TAGS header');
+  ok(await bp.evaluate(() => !document.querySelector('#pal [data-add="t:sky"]') && !document.querySelector('#pal [data-add="t:fact"]') && !document.querySelector('#pal [data-add="t:sendto"]') && !!document.querySelector('#pal [data-add="t:checks"]') && !!document.querySelector('#pal [data-add="t:body"]')), 'the palette offers the shared blocks, not the ones that read a day (and the Writing space, which a blank page may add)');
+  ok(await bp.evaluate(() => document.querySelector('#scan').hidden && getComputedStyle(document.querySelector('#m-method')).display === 'none' && getComputedStyle(document.querySelector('#m-dl')).display === 'none'), 'the day page’s own tools (scan settings, methods, daypage.json) are not offered on a block page');
+  await bp.locator('#pal [data-add="t:checks"]').click(); await bp.locator('#pal [data-add="t:lines"]').click();
+  ok(await bp.evaluate(() => layout.blocks.map((x) => x.type).join() === 'checks,lines' && !!document.querySelector('#pv [data-zone="checks"]') && !!document.querySelector('#pv [data-zone="lines"]')), 'blocks added to a blank page show in the preview, each with its data-zone');
+  const l1 = await saved('blank'); ok(!!l1 && l1.kind === 'blank' && l1.blocks.map((x) => x.type).join() === 'checks,lines', 'the layout is saved in the book (the entry has a layout), nothing is saved as the day layout');
+  ok(await bp.evaluate(() => !localStorage.getItem('kw-daypage') && PGE.stash.layout.blocks.map((x) => x.type).join(' ') === 'sky notes events care spoons good body actions review fact' && dayNow() === PGE.stash.layout), 'the day layout waits untouched while a block page is edited');
+  await bp.click('#lay-g'); await bp.waitForSelector('#ov .gb');
+  ok(await bp.evaluate(() => layout.grid && document.querySelectorAll('#ov .gb').length === 2 && /27 rows/.test(document.querySelector('#gnote').textContent) && !document.querySelector('#ov .lk[title^="Date"]') && !!document.querySelector('#ov .lk')), 'the grid on a blank page: 4 columns × 27 rows, a box per block, no locked header');
+  await bp.screenshot({ path: `${OUT}/blockpage-blank-grid.png` });
+  await bp.click('#undo'); ok(await bp.evaluate(() => !layout.grid && layout.blocks.length === 2), 'Undo steps back inside the page');
+  await bp.click('#lay-g');
+  await bp.click('#done'); await bp.waitForFunction(() => document.documentElement.dataset.view === 'page');
+  ok(await bp.evaluate(() => !PGE && EK === 'day' && location.hash === '#page/blank' && !!document.querySelector('#pgv [data-zone="checks"]') && document.querySelector('#edit').offsetParent !== null && /Press Edit/.test(document.querySelector('#pgv-msg').textContent)), 'Done goes back to the page view, which shows the saved blocks and offers Edit (the "read-only for now" message is gone)');
+  await bp.screenshot({ path: `${OUT}/blockpage-blank-view.png` });
+  // a Notes page: its fixed header, its own 24-row grid, saved over a reload
+  await bp.goto(URL0 + '#page/notes_1/edit', { waitUntil: 'networkidle' }); await inPage('notes');
+  ok(await bp.evaluate(() => /Ideas/.test(document.querySelector('#pv [data-zone="title"]').textContent) && !!document.querySelector('#pv [data-zone="date"]') && !!document.querySelector('#pv [data-zone="tags"]') && layout.blocks.map((x) => x.type).join() === 'body,actions' && getComputedStyle(document.querySelector('.fixed')).display !== 'none'), 'a Notes page keeps the fixed DATE / TITLE / TAGS header and starts as the Notes page prints today (dot grid and action lines)');
+  ok(await bp.evaluate(() => document.querySelector('#list [data-uid="body"] .del').hidden && document.querySelector('#list [data-uid="body"] .sw').disabled), 'the Writing space stays on a Notes page');
+  await bp.locator('#pal [data-add="t:good"]').click(); await bp.click('#lay-g'); await bp.waitForSelector('#ov .gb');
+  ok(await bp.evaluate(() => layout.grid && /24 rows/.test(document.querySelector('#gnote').textContent) && !!document.querySelector('#ov .lk') && ![...document.querySelectorAll('#pv .gc')].some((g) => !g.dataset.zone)), 'a Notes page grid: 4 columns × 24 rows, the header locked, a data-zone on every cell');
+  await bp.screenshot({ path: `${OUT}/blockpage-notes-grid.png` });
+  const sv = await saved('notes_1'); ok(!!sv && sv.grid === true && sv.blocks.some((x) => x.type === 'good'), 'the grid layout is in the book');
+  await bp.reload({ waitUntil: 'networkidle' }); await inPage('notes');
+  ok(await bp.evaluate(() => layout.grid && layout.blocks.some((x) => x.type === 'good')), 'reload restores the saved layout');
+  await bp.click('#done'); await bp.waitForFunction(() => document.documentElement.dataset.view === 'page');
+  ok(await bp.evaluate(() => { const p = BK.pages.find((x) => x.id === 'notes_1'); return p.html.includes('class="gg"') && p.html.includes('data-zone="good"') && BKE.checkBook(ORG.book, ORG.cat).length === 0; }), 'the book lays the edited page out again, and still validates');
+  // a Collection page
+  await bp.goto(URL0 + '#page/collection_1/edit', { waitUntil: 'networkidle' }); await inPage('collection');
+  ok(await bp.evaluate(() => /Books to read/.test(document.querySelector('#pv [data-zone="title"]').textContent) && layout.blocks.map((x) => x.type).join() === 'body' && layout.blocks[0].style === 'lines'), 'a Collection page starts as ruled lines under its title');
+  // not editable: the other page types and automatic padding pages
+  await bp.goto(URL0 + '#page/safety/edit', { waitUntil: 'networkidle' }); await bp.waitForFunction(() => document.documentElement.dataset.view === 'page');
+  ok(await bp.evaluate(() => !PGE && document.querySelector('#edit').offsetParent === null && /read-only for now/.test(document.querySelector('#pgv-msg').textContent)), 'other pages stay read-only, and say so');
+  await bp.goto(URL0 + '#page/notes.1/edit', { waitUntil: 'networkidle' }); await bp.waitForFunction(() => document.documentElement.dataset.view === 'page');
+  ok(await bp.evaluate(() => !PGE && document.querySelector('#edit').offsetParent === null), 'an automatic padding Notes page has no blocks to edit');
+  // the day page is still the day page
+  await bp.goto(DAY, { waitUntil: 'networkidle' }); await atDay(bp);
+  ok(await bp.evaluate(() => !PGE && EK === 'day' && layout.blocks.map((x) => x.type).join(' ') === 'sky notes events care spoons good body actions review fact' && !layout.kind), 'the day page is untouched by all of it');
+  ok(!perr.length, 'no page errors on the block pages ' + perr.join(' | '));
+  await bp.close();
+}
 await b.close(); srv.close();
 if (fails.length) { console.log(`\n${fails.length} failed`); process.exit(1); }
