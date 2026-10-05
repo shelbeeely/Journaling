@@ -175,6 +175,38 @@ export const KINDS = {
     },
     consume: (data) => data.seasons,
   },
+  puzzles: {
+    title: 'puzzles', file: 'puzzles.json', privacy: 'public', limits: { maxFileBytes: 200_000, maxTotalBytes: 400_000 },
+    schema: '{ lists: [{ id, title, entries: [{ word: "LETTERS", clue: "an original clue" }] }] } ; words are 3 to 12 letters A-Z, clues up to 40 characters and never contain their answer',
+    consumedBy: 'The word search and crossword blocks (day and Notes pages), when a block\'s "Words from" is "My puzzles pack". The block\'s "List name" picks a list by id. profile paths.puzzles',
+    print: 'Clues must be original or openly licensed (the manifest needs an author and a licence, and the build credits the pack): never copied from a published crossword.',
+    validate(data) {
+      const errors = [], warnings = [];
+      if (!isObj(data) || !Array.isArray(data.lists) || !data.lists.length) return { errors: ['must be {"lists": [{"id", "title", "entries": [{"word", "clue"}]}]} with at least one list'], warnings };
+      const ids = new Set();
+      data.lists.forEach((l, li) => {
+        const at = `lists[${li}]`;
+        if (!isObj(l)) { errors.push(`${at}: must be an object {id, title, entries}`); return; }
+        if (!(str(l.id) && /^[a-z0-9]+(-[a-z0-9]+)*$/.test(l.id))) errors.push(`${at}.id: is required, lowercase with dashes`);
+        else if (ids.has(l.id)) errors.push(`${at}.id: "${l.id}" is used twice`); else ids.add(l.id);
+        if (!str(l.title) || l.title.length > 30) errors.push(`${at}.title: is required, up to 30 characters`);
+        if (!Array.isArray(l.entries) || !l.entries.length) { errors.push(`${at}.entries: is required (a list of {word, clue})`); return; }
+        if (l.entries.length < 12) warnings.push(`${at}: ${l.entries.length} entries; 12 or more gives a crossword and a word search room to choose`);
+        const words = new Set();
+        l.entries.forEach((e, ei) => {
+          const ea = `${at}.entries[${ei}]`;
+          if (!isObj(e)) { errors.push(`${ea}: must be {word, clue}`); return; }
+          if (!(typeof e.word === 'string' && /^[A-Za-z]{3,12}$/.test(e.word))) { errors.push(`${ea}.word: 3 to 12 letters, A to Z only`); return; }
+          const w = e.word.toUpperCase();
+          if (words.has(w)) errors.push(`${ea}.word: "${w}" is in this list twice`); words.add(w);
+          if (!str(e.clue) || e.clue.length > 40) errors.push(`${ea}.clue: is required, up to 40 characters (it prints in a narrow column)`);
+          else if (e.clue.toUpperCase().includes(w)) errors.push(`${ea}.clue: gives away its answer "${w}"`);
+        });
+      });
+      return { errors, warnings };
+    },
+    consume: (data) => ({ lists: Object.fromEntries(data.lists.map((l) => [l.id, { title: l.title, entries: l.entries.map((e) => ({ word: e.word.toUpperCase(), clue: e.clue })) }])) }),
+  },
   // A bundle: one pack that provides several of the kinds above for a region (files by the conventions above). Each part is checked by
   // its own kind, and the pack is personal when any part is. Packs of a single kind work the same way.
   region: {
@@ -194,4 +226,4 @@ export const partKinds = () => KINDS.region.bundle;
 export const privacyOf = (kind) => kindOf(kind).privacy;
 export const partFile = (kind) => kindOf(kind).file;
 // profile.paths keys -> the kind each one reads
-export const PROFILE_KEYS = { support: 'support', trans: 'trans-support', clinic: 'clinic', transit: 'transit', seasons: 'seasons-history', holidays: 'holidays' };
+export const PROFILE_KEYS = { support: 'support', trans: 'trans-support', clinic: 'clinic', transit: 'transit', seasons: 'seasons-history', holidays: 'holidays', puzzles: 'puzzles' };

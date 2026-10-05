@@ -59,6 +59,7 @@ instruction if a file no longer matches its hash, so a reprint always uses exact
 | `transit` | A transit agency's schedules | `gtfs/network.json` | public |
 | `holidays` | Extra holidays and observances | `holidays.json` | public |
 | `seasons-history` | The 72 micro-seasons and the research behind them | `seasons.json` | public |
+| `puzzles` | Word lists with original clues for the word search and crossword blocks | `puzzles.json` | public |
 | `region` | A bundle of any of the above for one place | the files above | personal |
 
 `node packs-cli.mjs kinds` prints each kind's data format, how the build uses it and its print rules. A `region` pack is the usual shape: one folder with

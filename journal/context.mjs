@@ -5,6 +5,7 @@
 import fs from 'node:fs';
 import { build, busCoverage, readFeed } from './data.mjs';
 import { normalize } from './daypage.mjs';
+import { usePuzzlePack } from './puzzles/render.mjs';
 import { PROFILE, moduleOn, bookNo as bookNoOf, readContent, MODULE_BLOCKS } from './profile.mjs';
 
 // A switched-off module leaves its day-page blocks out of the layout (they stay in the file, so switching the module back on restores them).
@@ -38,6 +39,7 @@ export async function loadContext({ month, ics, size = 'small', quiet = false })
   if (!quiet && Object.values(missing).some(Boolean)) console.warn('content gaps:', JSON.stringify(missing));
   const NET = moduleOn('bus') && PROFILE.paths.transit ? readFeed('network.json') : null;
   if (!quiet && NET && BUS_COV === 'partial') console.warn(`! ${PROFILE.transit.agency} schedule ends ${NET.valid_to}; ${VOL.id} is only partly covered (pages say so). Refresh the transit feed before printing.`);
+  usePuzzlePack(readContent('puzzles')); // the profile's puzzles pack (if any) feeds the puzzle blocks' "pack" word list source
   const ki = readJson('./out/keeper/index.json');
   return {
     D, VOL, size, hasIcs: !!ics, BUS_COV, NET,

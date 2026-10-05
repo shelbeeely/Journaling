@@ -530,7 +530,7 @@ export const PAGE_TYPES = {
   title: { name: 'Title page', scope: 'book', build: (ctx) => one({ cls: 'title', type: 'title', id: 'title', label: ctx.PROFILE.book.title, html: () => pagesFor(ctx).titlePage() }) },
   // Blank, Notes and Collection pages are block pages (C5a): an entry's `layout` (the same blocks as the day page, on the page kind's own grid) is what
   // prints; without one they print as they always have. A blank page with no layout of its own is `shared` (identical in every book).
-  blank: { name: 'Blank page', scope: 'book', build: (ctx, { entry } = {}) => { const L = entry && entry.layout; return one({ type: 'blank', id: 'blank', shared: !L, html: () => kindPage('blank', '', L, ctx.size) }); } },
+  blank: { name: 'Blank page', scope: 'book', build: (ctx, { entry } = {}) => { const L = entry && entry.layout; return one({ type: 'blank', id: 'blank', shared: !L, html: () => kindPage('blank', '', L, ctx.size, { pageId: entry ? entry.id : 'blank' }) }); } },
   anatomy: { name: 'How to use it', scope: 'book', build: (ctx) => one({ type: 'anatomy', id: 'anatomy', label: 'How to use it', html: () => pagesFor(ctx).anatomyPage() }) },
   key: { name: 'Key', scope: 'book', build: (ctx) => one({ type: 'key', id: 'key', label: 'Key', shared: true, html: () => pagesFor(ctx).keyPage() }) },
   key_2: { name: 'Key, continued', scope: 'book', build: (ctx) => one({ type: 'key', id: 'key.2', label: 'Key, continued', shared: true, html: () => { const P = pagesFor(ctx); return `<h2 class="pt">Key, continued</h2><h3>Day page icons</h3><div class="ikey">${ICON_KEY.map(([k, t]) => `<span>${ic(k)} ${t}</span>`).join('')}</div>${P.weekdayTable()}<h3>Send-to symbols</h3><p class="small">Fire (solid triangle), water (open triangle), air (three winds), earth (circled cross), crescent moon, full moon and pentacle. Fill the bubble above one to route a scan; you decide what each means in your app.</p>`; } }) },
@@ -567,10 +567,10 @@ export const PAGE_TYPES = {
   lineage: { name: 'Where each piece comes from', scope: 'book', ref: 'lineage', build: (ctx) => one({ type: 'lineage', id: 'lineage', label: 'Where each piece comes from', html: () => pagesFor(ctx).lineagePage() }) },
   // A page the reader adds: a header + dot grid to write on. Padding pages (numbered by position) are made the same way.
   notes: { name: 'Notes page', scope: 'book', options: { title: { kind: 'text', label: 'Title', max: 40 } },
-    build: (ctx, { entry }) => { const t = (entry && entry.options && entry.options.title) || 'Notes'; return one({ cls: 'notes', type: 'notes', id: entry ? entry.id : 'notes', label: t, html: () => kindPage('notes', t, entry && entry.layout, ctx.size) }); } },
+    build: (ctx, { entry }) => { const t = (entry && entry.options && entry.options.title) || 'Notes'; return one({ cls: 'notes', type: 'notes', id: entry ? entry.id : 'notes', label: t, html: () => kindPage('notes', t, entry && entry.layout, ctx.size, { pageId: entry ? entry.id : '' }) }); } },
   // A page for a list you keep (books to read, places, ideas): the title in the header, ruled lines to fill. Add as many as you like.
   collection: { name: 'Collection page', scope: 'book', options: { title: { kind: 'text', label: 'Title', max: 40 } },
-    build: (ctx, { entry }) => { const t = (entry && entry.options && entry.options.title) || 'Collection'; return one({ cls: 'notes', type: 'collection', id: entry ? entry.id : 'collection', label: t, html: () => kindPage('collection', t, entry && entry.layout, ctx.size) }); } },
+    build: (ctx, { entry }) => { const t = (entry && entry.options && entry.options.title) || 'Collection'; return one({ cls: 'notes', type: 'collection', id: entry ? entry.id : 'collection', label: t, html: () => kindPage('collection', t, entry && entry.layout, ctx.size, { pageId: entry ? entry.id : '' }) }); } },
 };
 
 // Render one page of any type from a context (the editor uses this with sample data): the finished page HTML, with page

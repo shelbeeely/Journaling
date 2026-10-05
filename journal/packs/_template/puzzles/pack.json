@@ -1,0 +1,27 @@
+{
+ "schema": 1,
+ "id": "my-puzzles",
+ "title": "Template: puzzle word lists",
+ "version": "0.1.0",
+ "kind": "puzzles",
+ "author": {
+  "name": "Your name"
+ },
+ "license": {
+  "spdx": "CC0-1.0",
+  "attribution": "",
+  "commercialPrintOk": true
+ },
+ "engine": ">=1.0.0 <2.0.0",
+ "region": null,
+ "languages": [
+  "en"
+ ],
+ "verified": [],
+ "files": [
+  {
+   "path": "puzzles.json",
+   "sha256": "d17b0498304693dcf90723988247cb6751351d5b94c9108ee18d56170a28c9c9"
+  }
+ ]
+}

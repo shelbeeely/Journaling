@@ -48,6 +48,8 @@ jobs:
         run: node test-library.mjs
       - name: Pack check (manifest schema, file hashes, the kind registry, the support verification rule, the generic pack builds clean, the personal pack reproduces the committed books)
         run: node test-packs.mjs
+      - name: "Puzzle check (seeded word search and crossword generators: same seed same grid, all words placed, crossword valid; the puzzles pack kind; print-safe SVG with a text alternative; a book with both blocks passes check.mjs, no Type 3 fonts, zones mapped)"
+        run: node test-puzzles.mjs
       - name: "Onboarding check (npm run init in a scratch copy: valid profile, never overwrites, sample book passes the overflow gate)"
         run: node test-init.mjs
       - name: Scan options check (Send-to block, border off, code position/size/format/content, no code, unique codes across books)
