@@ -10,6 +10,7 @@ import { canonical, hashOf, objectHash, sha256, short } from './canon.mjs';
 import { serializeSnapshot, emptySnapshot, toObjects, slugify, scanForbidden, PARTS, ASSET_MIMES } from './snapshot.mjs';
 import { diffSnapshots } from './diff.mjs';
 import { collab } from './collab.mjs';
+import { releases } from './releases.mjs';
 
 const RANK = { viewer: 1, editor: 2, owner: 3 };
 const BRANCH_RE = /^[A-Za-z0-9][A-Za-z0-9._\/-]{0,63}$/;
@@ -396,4 +397,5 @@ export class Studio {
   }
 }
 Object.assign(Studio.prototype, collab); // G2: forks, proposals, merges (collab.mjs)
+Object.assign(Studio.prototype, releases); // G3: releases and reusable pages (releases.mjs)
 export { StudioError };
