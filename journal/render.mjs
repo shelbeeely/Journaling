@@ -253,11 +253,17 @@ ${DAYPAGE_CSS}${VOL.undated ? `
 </style></head><body>
 ${pages.map((p, i) => { const n = i + 1; const side = n % 2 ? 'recto' : 'verso'; const c = codes[i], sc = scans[i], marks = marksHtml({ n, sc, side, sendBlock: sendBlockOn(p), svg: c && c.svg, mm: c && c.mm, quiet: c && c.quiet, label: c && esc(c.label) }); const grow = c && c.mm > DEFAULT_SIZE_MM + 0.05 ? ` style="padding-bottom:${(BOTTOM + FRAME_PAD + c.mm / 25.4 + 0.08).toFixed(3)}in"` : ''; return `<div class="page ${side} ${p.cls} m" data-page-id="${p.id}"${sc.frame === 'off' ? ' data-scan-frame="off"' : ''}${grow}>${p.html}${marks}</div>`; }).join('\n')}
 <script>
-document.querySelectorAll('.lines').forEach((el) => {
-  const pitch = parseFloat(el.dataset.pitch || '0.26') * 96;
-  const n = Math.floor((el.clientHeight - 1) / pitch);
-  for (let i = 0; i < n; i++) { const d = document.createElement('div'); d.className = 'rule'; d.style.height = pitch + 'px'; el.appendChild(d); }
-});
+function drawLines() { // ruled areas: one .rule per line (large print rules them wider: 5.6 mm -> 7.2, 6.6 -> 8.5)
+  const LG = (document.documentElement.dataset.a11y || '').split(' ').includes('large');
+  document.querySelectorAll('.lines').forEach((el) => {
+    el.querySelectorAll(':scope > .rule').forEach((r) => r.remove());
+    const base = parseFloat(el.dataset.pitch || '0.26'), pitch = (LG && base < 0.3 ? base * 1.29 : base) * 96;
+    const n = Math.floor((el.clientHeight - 1) / pitch);
+    for (let i = 0; i < n; i++) { const d = document.createElement('div'); d.className = 'rule'; d.style.height = pitch + 'px'; el.appendChild(d); }
+  });
+}
+drawLines();
+if ((document.documentElement.dataset.a11y || '').includes('large')) document.fonts.ready.then(() => drawLines()); // large print: the line counts follow the final (webfont) heights, as the fit did
 ${drawRulings.toString()}
 document.fonts.ready.then(drawRulings);
 </script></body></html>`;
@@ -281,7 +287,7 @@ if (PRINT.large) {
   // step so they look alike. Day pages have had their rows cut by rule (largeLayout), so they normally keep the full scale.
   const kinds = [...new Set(pages.map((p) => p.type))], step = Object.fromEntries(kinds.map((k) => [k, LARGE_STEPS[0]]));
   const apply = (st) => page.evaluate(async ([types, st]) => { document.querySelectorAll('.page').forEach((pg, i) => { pg.dataset.ls = st[types[i]]; }); await document.fonts.ready;
-    document.querySelectorAll('.lines').forEach((el) => { el.querySelectorAll(':scope > .rule').forEach((r) => r.remove()); const pitch = parseFloat(el.dataset.pitch || '0.26') * 96, n = Math.floor((el.clientHeight - 1) / pitch); for (let i = 0; i < n; i++) { const d = document.createElement('div'); d.className = 'rule'; d.style.height = pitch + 'px'; el.appendChild(d); } }); // the page's own line-drawing script, again at this size
+    drawLines(); // the page's own line-drawing script, again at this size
     drawRulings(); }, [pages.map((p) => p.type), st]);
   for (let guard = 0; guard < LARGE_STEPS.length * kinds.length + 2; guard++) {
     await apply(step);

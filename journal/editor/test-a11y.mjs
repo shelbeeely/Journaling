@@ -416,6 +416,30 @@ for (const w of [320, 390]) {
   const q = await open('site', { hash: DAY });
   await q.click('#menubtn'); await q.click('#m-method'); await q.waitForTimeout(200); await axeRun(q, 'Methods dialog'); await smallTargets(q, 'Methods dialog');
   await close(q);
+  // Settings (print accessibility options): axe, 44 px targets, no sideways scroll, in light and dark, desktop and phone; keyboard and announcements
+  for (const [w, scheme] of [[1400, 'light'], [1400, 'dark'], [390, 'light'], [390, 'dark']]) {
+    const t = await open('site', { hash: DAY, w, scheme });
+    await t.focus('#v-set'); await t.keyboard.press('Enter'); await t.waitForTimeout(250);
+    if (!(await t.evaluate(() => document.querySelector('#settings').open && document.querySelectorAll('#settings [role=switch]').length === 2))) add('settings', `Settings ${w}px ${scheme}`, 'Enter on the Settings button does not open the dialog with two switches');
+    await axeRun(t, `Settings dialog (${w}px ${scheme})`); await smallTargets(t, `Settings dialog ${w}px`); await reflow(t, `Settings dialog ${w}px`);
+    if (w === 1400 && scheme === 'light') {
+      const names = await t.evaluate(() => [...document.querySelectorAll('#settings [role=switch]')].map((x) => (document.getElementById(x.getAttribute('aria-labelledby')) || {}).textContent));
+      if (names.join('|') !== 'Large print|High-contrast ink') add('settings', 'Settings', `the switches are named ${JSON.stringify(names)}`);
+      await focusRing(t, 'Settings dialog', 3);
+      await t.focus('#settings [data-set="large"]'); await t.keyboard.press('Space'); await t.waitForTimeout(300);
+      const st = await t.evaluate(() => ({ on: document.querySelector('#settings [data-set="large"]').getAttribute('aria-checked'), focus: document.activeElement && document.activeElement.dataset.set, say: document.querySelector('#set-status').textContent, saved: !!(layout.print && layout.print.large), pv: getComputedStyle(document.querySelector('#pv .dayp')).fontSize }));
+      if (st.on !== 'true' || st.focus !== 'large' || !st.saved) add('settings', 'Settings', `Space on the Large print switch: ${JSON.stringify(st)}`);
+      if (!/Large print on/.test(st.say)) add('announce', 'Settings', `turning Large print on is not announced in the dialog (${JSON.stringify(st.say)})`);
+      await t.focus('#settings [data-set="contrast"]'); await t.keyboard.press('Space'); await t.waitForTimeout(300);
+      if (!/High-contrast ink on/.test(await t.evaluate(() => document.querySelector('#set-status').textContent))) add('announce', 'Settings', 'turning High-contrast ink on is not announced in the dialog');
+      await axeRun(t, 'Settings dialog (both on)');
+      await t.keyboard.press('Escape'); await t.waitForTimeout(250);
+      if (!(await t.evaluate(() => !document.querySelector('#settings').open && document.activeElement && document.activeElement.id === 'v-set'))) add('settings', 'Settings', 'Escape does not close the dialog and return focus to the Settings button');
+      if (await t.evaluate(() => document.querySelectorAll('#settings .sw').length)) add('settings', 'Settings', 'the switches stay in the page after the dialog closes');
+      await axeRun(t, 'Day with large print and high-contrast ink'); await reflow(t, 'Day with large print on'); await smallTargets(t, 'Day with large print on');
+    }
+    await close(t);
+  }
   const d = await open('demo');
   await axeRun(d, 'Demo'); await smallTargets(d, 'Demo');
   const dl = await d.evaluate(() => document.documentElement.lang); if (!dl) add('landmarks', 'Demo', 'no lang on <html>');

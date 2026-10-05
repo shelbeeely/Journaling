@@ -60,10 +60,25 @@ A missing or wrong field stops the build with one message listing every problem,
 | `location.*` | `place` (title page, sky data), `city` and `region` (eclipse and support notes), `lat`, `lon`, `elevation` (sunrise, sunset, moon, eclipses), `timezone` (all clock times), `timezone_name` (printed) |
 | `day_start_hour` | Hour the paper day starts (Shelbee's 4). Exported into the X4 pack (`checkins.txt`, first line ends `· profile day_start=4 tz=...`). The firmware still compiles in its own `DAY_STARTS_HOUR`; `test-profile.mjs` fails if the two differ |
 | `trim` | Default trim, `small` (5.5x8.5) or `letter` (8.5x11). `SIZE=small|letter` overrides it; build-all.sh always sets `SIZE` |
+| `print.large_print`, `print.high_contrast` | Optional, both default to false. Print accessibility options, see "Print accessibility" below. The editor's Settings panel writes the same two switches into `content/daypage.json` (`print: {large, contrast}`), which win over the profile |
 | `modules.*` | Switches, all required: see below |
 | `crisis.lines` | The lines printed on the safety plan after "my prescriber;" (default: 988 and the 741741 text line) |
 | `transit` | Needed when `modules.bus` is on: `agency`, `site`, `app` (used in the bus page titles and notes), `priority_routes` (routes that get hour grids first), `short_stops` (stop-name abbreviations) |
 | `paths.*` | Content packs, one per key: `support` (required), `trans`, `clinic`, `transit`, `seasons`, `holidays`. Each value is a pack id (`generic`, `spokane-wa`: a folder in `packs/`) or a folder that holds a `pack.json`, or `null`. Each key reads the part of its own kind from that pack. See [PACKS.md](PACKS.md) |
+
+## Print accessibility (A11Y-40, A11Y-41)
+Two options, both off by default. Off, the books are byte-identical to before (`check-identical.mjs` guards it). Set them in `profile.json`
+(`"print": {"large_print": true, "high_contrast": true}`) or from the editor's Settings panel (Printed book). Works on 5.5x8.5 and 8.5x11.
+`a11yprint.mjs` holds the options; `render.mjs` applies them. The page CSS is not edited: an override block after it is generated from it.
+- **Large print.** Small type is 1.4x (nothing under 8.5 pt), headings less, page titles not at all; line height, check boxes, mood marks
+  and rows are bigger; every rule is 1.5 pt and darker; the writing space is ruled at 8.5 mm (not dots) and other ruled areas are wider.
+  To make room the day page keeps two action lines and drops the "On this day" line (flow layouts; a Grid layout stays as you placed it
+  and `check.mjs` names a block that does not fit). The mood scale has 5 steps, water 6 boxes, meals 3.
+  A page type whose content cannot hold 1.4x (the directories, bus grids, month pages) steps down in notches of 0.05 until every page of that
+  type fits (`large print: support 1x, ...` is printed at build time), so nothing is clipped. Page counts do not change.
+- **High-contrast ink.** Light and mid greys (text, rules, dots, grids, borders) become black or near black, rules are 2 pt. Fills stay.
+- **Never changes:** the DATE / TITLE / TAGS header, the 9 pt frame, the SEND TO strip and the page code (scan zones).
+- Checked by `node test-a11y-print.mjs` (CI: Books): off is identical, on passes `check.mjs`, no Type 3 fonts, scan zones identical.
 
 Modules. Switched off, a module's pages are left out of the book when it is laid out (`content/book.json` is untouched; the entries stay
 listed and simply build nothing), and every reference to them goes too (no "Bus times p. ?"). The protected pages (Support,

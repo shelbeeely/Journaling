@@ -234,6 +234,7 @@ export function serializeDay(d, errs) {
   const L = normalize(d && Object.keys(d).length ? d : null);
   return {
     v: 2,
+    ...(L.print ? { print: L.print } : {}), // print accessibility options (journal/a11yprint.mjs: large, contrast), only when one is on
     ...(L.grid ? { grid: true } : {}), // the Grid layout switch: blocks carry their placement (col, row, colSpan, rowSpan)
     blocks: L.blocks.map((b) => {
       const keys = ['uid', 'type', 'on', ...TYPES[b.type].opts.map((o) => o.k), ...(b.type === 'care' ? ['rows'] : []), ...PLACE];

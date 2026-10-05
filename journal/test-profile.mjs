@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { validateProfile, MODULES } from './profile.mjs';
+import { validateProfile, MODULES, PROFILE } from './profile.mjs';
 
 let n = 0;
 const ok = (c, m) => { assert.ok(c, m); n++; };
@@ -126,5 +126,18 @@ const bodyOf = (html) => html.split('<body>')[1] || html; // the printed pages, 
     execFileSync('node', ['check-spreads.mjs', `${OUTROOT}/m2026-11`], { stdio: 'pipe' });
     n++;
   }
+}
+// P7: the print accessibility options (a11yprint.mjs): documented in the example, validated, off by default, and both off changes nothing.
+{
+  ok(EXAMPLE.print && EXAMPLE.print.large_print === false && EXAMPLE.print.high_contrast === false, 'profile.example.json documents print.large_print and print.high_contrast (both false)');
+  const withPrint = (v) => { const p = structuredClone(EXAMPLE); p.print = v; return validateProfile(p); };
+  ok(withPrint({ large_print: true, high_contrast: true }).length === 0 && withPrint({}).length === 0 && withPrint({ large_print: true }).length === 0, 'true, false and a missing option are all valid');
+  const noPrint = structuredClone(EXAMPLE); delete noPrint.print;
+  ok(validateProfile(noPrint).length === 0, 'a profile with no print section is valid (both options off)');
+  ok(withPrint({ large_print: 'yes' }).some((e) => e.startsWith('print.large_print: must be true or false')), 'print.large_print must be true or false');
+  ok(withPrint({ high_contrast: 1 }).some((e) => e.startsWith('print.high_contrast: must be true or false')), 'print.high_contrast must be true or false');
+  ok(withPrint({ big_type: true }).some((e) => e.startsWith('print.big_type: not a print option')), 'an unknown print option is named');
+  ok(withPrint([true]).some((e) => e.startsWith('print: must be an object')), 'print must be an object');
+  ok(PROFILE.print.large_print === false && PROFILE.print.high_contrast === false, 'the committed profile builds with both options off (Shelbee\'s books are the default books)');
 }
 console.log(`profile checks passed (${n})`);

@@ -68,9 +68,9 @@ const sized = (decl) => {
 };
 
 const lum = (hex) => { const h = hex.length === 4 ? [...hex.slice(1)].map((c) => c + c).join('') : hex.slice(1); const [r, g, b] = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)); return r === g && g === b ? r : -1; };
-// Light and mid greys become black ink in high contrast; the faintest hairlines (over 0xdd) become a dark grey, still a line you can see.
+// Light and mid greys become black ink in high contrast; the faintest hairlines (over 0xdd) become a dark grey, still a line you can see; white (white text on black) stays white.
 // Fills (backgrounds) are left alone: they carry no content.
-const hc = (v) => v.replace(/#[0-9a-f]{3}(?![0-9a-f])|#[0-9a-f]{6}(?![0-9a-f])/gi, (h) => { const l = lum(h); return l < 0x22 ? h : l >= 0xdd ? '#595959' : '#000'; });
+const hc = (v) => v.replace(/#[0-9a-f]{3}(?![0-9a-f])|#[0-9a-f]{6}(?![0-9a-f])/gi, (h) => { const l = lum(h); return l < 0x22 || l >= 0xf6 ? h : l >= 0xdd ? '#595959' : '#000'; });
 
 // ---------- large print: the override block ----------
 export function largeCss(css) {
@@ -89,8 +89,10 @@ export function largeCss(css) {
 const lp = (a, b, u) => `calc(${a}${u} + (var(--ls) - 1) * ${+((b - a) / (LARGE_SCALE - 1)).toFixed(4)}${u})`;
 export const LARGE_RULES = `
 :root { --ls: ${LARGE_SCALE}; }
+.hz, .strip, .folio { line-height: normal; } .hz .zl { font-size: 7pt; } /* the scan zones keep today's type */
 .page { --ls: ${LARGE_SCALE}; font-size: calc(8.4pt * var(--ls)); line-height: ${lp(1.28, 1.38, '')}; }
 ${LARGE_STEPS.map((s) => `.page[data-ls="${s}"] { --ls: ${s}; }`).join('\n')}
+.page.title { --ls: 1; font-size: 8.4pt; line-height: normal; } /* the title page is sized by its content, and so is its frame: it keeps today's type */
 .ruled.log { background: repeating-linear-gradient(to bottom, transparent 0 calc(0.335in - 1.5pt), #666 calc(0.335in - 1.5pt) 0.335in); } /* the writing space, ruled at 8.5 mm */
 .rule, .three li, .prio li, .cb span { border-bottom-width: 2px; border-bottom-color: #666; }
 .m .rule { border-bottom-color: #777; }
@@ -131,10 +133,13 @@ export const CONTRAST_RULES = `
 .rule, .three li, .prio li, .cb span, .m .rule { border-bottom-width: 2px; border-bottom-color: #000; }
 `;
 
-// The whole override block for the options in force ('' when none is on, so the default CSS is untouched).
-export function printCss(css, opt) {
+// Puts a prefix in front of every selector of a block of rules (the editor's preview is scoped to #pv; the print build is not scoped).
+export const scopeCss = (css, prefix) => (prefix ? css.replace(/\/\*[\s\S]*?\*\//g, '').replace(FLAT, (all, sel, body) => (sel.trim().startsWith('@') ? all : `${splitSel(sel).map((x) => prefix + x).join(', ')} {${body}}`)) : css);
+// The whole override block for the options in force ('' when none is on, so the default CSS is untouched). `prefix` scopes the hand-written
+// rules the way the base CSS is scoped (the editor passes '#pv ').
+export function printCss(css, opt, prefix = '') {
   if (!printOn(opt)) return '';
-  return `\n/* print accessibility options */\n${opt.large ? largeCss(css) + LARGE_RULES : ''}${opt.contrast ? contrastCss(css) + CONTRAST_RULES : ''}`;
+  return `\n/* print accessibility options */\n${opt.large ? largeCss(css) + scopeCss(LARGE_RULES, prefix) : ''}${opt.contrast ? contrastCss(css) + scopeCss(CONTRAST_RULES, prefix) : ''}`;
 }
 // The ink drawRulings() uses when the options are on: it reads <html data-a11y="large contrast"> (rulings.mjs).
 export const printAttr = (opt) => [opt && opt.large && 'large', opt && opt.contrast && 'contrast'].filter(Boolean).join(' ');

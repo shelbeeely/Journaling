@@ -35,7 +35,7 @@ export function drawRulings() {
     SPECS.forEach(([sel, s]) => {
       if (/\.bold/.test(sel)) return; // the bold-line ruling is already 1.5 pt black
       if (LG && sel === '.ruled.log') s.lines = 0.335 * IN; // large print: the writing space is ruled at 8.5 mm
-      s.c = INK[s.c] || s.c;
+      s.c = INK[s.c.toLowerCase()] || s.c;
       if (s.w) s.w = Math.max(s.w, HC ? 2.67 : 2); // 2 px = 1.5 pt, 2.67 px = 2 pt
       if (s.r) s.r *= 1.3;
     });
