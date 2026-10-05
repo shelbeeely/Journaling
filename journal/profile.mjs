@@ -12,6 +12,8 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { planProblems, newBookId } from './plan.mjs';
 import { assertLibrary, effectiveProfile, libraryFromProfile } from './library.mjs';
+import { readPart, partPath, usedPacks, assertSellable } from './packs/pack.mjs';
+import { PROFILE_KEYS } from './packs/kinds.mjs';
 
 const HERE = path.dirname(new URL(import.meta.url).pathname);
 export const PROFILE_FILE = process.env.KW_PROFILE ? path.resolve(process.env.KW_PROFILE) : path.join(HERE, 'content/profile.json');
@@ -45,6 +47,7 @@ export function validateProfile(p) {
     if (str(b.start) && !/^\d{4}-(0[1-9]|1[0-2])$/.test(b.start)) bad('book.start', `must look like 2026-10, got ${JSON.stringify(b.start)}`);
     if (str(b.slug) && !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(b.slug)) bad('book.slug', 'lowercase letters, digits and dashes only');
     errs.push(...planProblems(b));
+    if (b.for_sale !== undefined && typeof b.for_sale !== 'boolean') bad('book.for_sale', 'optional; true when the book is sold: packs whose licence forbids commercial print are then refused');
     if (b.epoch !== undefined && !(str(b.epoch) && /^\d{4}-\d{2}-\d{2}$/.test(b.epoch) && new Date(b.epoch + 'T00:00:00Z').getUTCDay() === 1)) bad('book.epoch', 'optional; must be a Monday like 2026-09-28 (default: the Monday on or before the 1st of book.start)');
   }
   if (sect('location', [['place', 'text', 'as printed, e.g. "Spokane, WA"'], ['city', 'text', 'short name used in sentences, e.g. "Spokane"'], ['region', 'text', 'e.g. "Washington"'], ['lat', 'num', 'degrees, north positive'], ['lon', 'num', 'degrees, east positive (west is negative)'], ['timezone', 'text', 'IANA name, e.g. "America/Los_Angeles"'], ['timezone_name', 'text', 'as printed, e.g. "Pacific Time"']])) {
@@ -69,11 +72,12 @@ export function validateProfile(p) {
   if (p.paths !== undefined) {
     if (!isObj(p.paths)) bad('paths', 'must be an object');
     else for (const [k, v] of Object.entries(p.paths)) {
-      if (!['support', 'trans', 'clinic', 'transit', 'seasons'].includes(k)) bad(`paths.${k}`, 'unknown path (use support, trans, clinic, transit, seasons)');
-      else if (v !== null && !str(v)) bad(`paths.${k}`, 'must be a file path relative to journal/, or null for none');
+      if (!PROFILE_KEYS[k]) bad(`paths.${k}`, `unknown path (use ${Object.keys(PROFILE_KEYS).join(', ')})`);
+      else if (v !== null && !str(v)) bad(`paths.${k}`, 'must be a content pack (its id, e.g. "generic", or a folder with a pack.json), or null for none');
+      else if (typeof v === 'string' && /\.(json|mjs|js)$/i.test(v)) bad(`paths.${k}`, `"${v}" is a file: content now comes from packs. Name a pack (an id like "generic", or a folder that holds a pack.json); see journal/PACKS.md, "Write a content pack"`);
     }
   }
-  if (!(isObj(p.paths) && str(p.paths.support))) bad('paths.support', 'is required: the Support page list (a JSON file relative to journal/, e.g. "content/support.generic.json")');
+  if (!(isObj(p.paths) && str(p.paths.support))) bad('paths.support', 'is required: the content pack for the Support page (a pack id like "generic", or a folder with a pack.json; see journal/PACKS.md)');
   if (p.modules && p.modules.trans_support === true && !(isObj(p.paths) && str(p.paths.trans))) bad('paths.trans', 'is required when modules.trans_support is true');
   return errs;
 }
@@ -110,7 +114,7 @@ export const PROFILE = Object.freeze({
   ...raw,
   location: { elevation: 0, ...raw.location },
   crisis: { lines: DEFAULT_CRISIS, ...(raw.crisis || {}) },
-  paths: { support: null, trans: null, clinic: null, transit: 'gtfs', seasons: null, ...(raw.paths || {}) },
+  paths: { ...Object.fromEntries(Object.keys(PROFILE_KEYS).map((k) => [k, null])), ...(raw.paths || {}) }, // one pack per key (packs/kinds.mjs PROFILE_KEYS)
   transit: raw.transit || null,
   // this book within its library: series line, spine title, cover style, and page layouts from the library (null: the content/*.json files)
   library: EXTRA || { book: BOOK_KEY, spineTitle: null, series: null, show: [], cover: { style: 'night' }, layouts: { book: null, day: null } },
@@ -158,14 +162,21 @@ export const yearLabel = () => { const a = monthOf(1), b = monthOf(12); return `
 export const firstMonthId = () => monthOf(1);
 export const lastMonthId = () => monthOf(12);
 export const moduleOn = (name) => !!PROFILE.modules[name];
-export const profilePath = (rel) => (rel ? path.join(HERE, rel) : null); // a profile path, absolute
-// JSON at a profile path key: null when the path is null; an error naming the profile key when the file is missing.
+// Content comes from packs (packs/pack.mjs, packs/kinds.mjs): profile paths.<key> names a pack, and each key reads the part of its own kind.
+//   readContent('support')  the Support page list, verified (the build refuses to print items with no verification note)
+//   readContent('seasons')  the 72 micro-seasons table;  readContent('holidays')  extra observances;  readContent('transit')  feed facts
+//   packFile('transit', 'network.json')  absolute path of a file in the pack that provides that key (the transit feed files)
+// Null when the profile has none for that key. Every reader (page builders, Keeper, EPUB, X4 export) goes through these two.
 export const readContent = (key) => {
-  const rel = PROFILE.paths[key];
-  if (!rel) return null;
-  const f = profilePath(rel);
-  if (!fs.existsSync(f)) throw new Error(`profile paths.${key} points to ${rel}, which does not exist`);
-  return JSON.parse(fs.readFileSync(f, 'utf8'));
+  const ref = PROFILE.paths[key];
+  if (!ref) return null;
+  return readPart(ref, PROFILE_KEYS[key]);
 };
+export const packFile = (key, file) => {
+  const ref = PROFILE.paths[key];
+  return ref ? partPath(ref, PROFILE_KEYS[key], file) : null;
+};
+// The packs a build used, for the book manifest; a book marked for sale (book.for_sale) refuses a pack that forbids commercial print.
+export const packsUsed = () => { const u = usedPacks(); if (PROFILE.book.for_sale) assertSellable(u); return u; };
 // "47.66° N, 117.43° W"
 export const coordText = () => { const { lat, lon } = PROFILE.location; return `${Math.abs(lat).toFixed(2)}° ${lat >= 0 ? 'N' : 'S'}, ${Math.abs(lon).toFixed(2)}° ${lon < 0 ? 'W' : 'E'}`; };

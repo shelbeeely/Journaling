@@ -1,5 +1,5 @@
 # Build a compact Route 6 (Cheney) timetable from STA static GTFS -> route6.json
-# Usage: python3 gtfs/build.py   (download first: curl -L -o gtfs/sta.zip https://www.spokanetransit.com/gtfs && unzip -o gtfs/sta.zip -d gtfs)
+# Usage, inside this folder: python3 build.py   (download first: curl -L -o sta.zip https://www.spokanetransit.com/gtfs && unzip -o sta.zip; then python3 network.py; then seal the pack: cd journal && node packs-cli.mjs seal spokane-wa)
 import csv, collections, json, os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 R = csv.DictReader

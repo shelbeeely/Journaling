@@ -8,7 +8,7 @@ import { launch } from './browser.mjs';
 import bwipjs from 'bwip-js';
 import { drawRulings } from './rulings.mjs';
 import { EDITION } from './content/edition.mjs';
-import { PROFILE, monthIds } from './profile.mjs';
+import { PROFILE, monthIds, packsUsed } from './profile.mjs';
 import { DAYPAGE_CSS } from './daypage.mjs';
 import { loadContext, loadBook } from './context.mjs';
 import { loadSpan, planVolumes, bookEntries as bookEntriesFor } from './span.mjs';
@@ -299,7 +299,7 @@ layoutJson.pages_without_frame = noFrame; layoutJson.pages_without_code = noCode
 fs.writeFileSync(`${OUT}/layout.json`, JSON.stringify(layoutJson, null, 1));
 // manifest.json: code -> page id -> section -> zones, plus what identifies this build. Keep it with every proof or print run: a printed
 // page's code decodes through the manifest of the build it came from, even after the layout changes (see README "Page identity").
-const manifest = { book: VOL.id, title: PROFILE.book.title, subtitle: PROFILE.book.subtitle, library_book: PROFILE.library.book, ...(PROFILE.library.series ? { series: { id: PROFILE.library.series.id, title: PROFILE.library.series.title, n: PROFILE.library.series.n, of: PROFILE.library.series.of } } : {}), size: SIZE_CODE, edition: EDITION, hardcover: HARDCOVER, built: D.generated, commit: process.env.GITHUB_SHA || null, page_count: pages.length, code_scheme: layoutJson.code_scheme, pages_without_code: noCode, pages_without_frame: noFrame, ...(VOL.scoped ? { book_id: VOL.bookId, volume: volumeInfo(VOL), plan: planSig(ctx.plan, VOL), ...(VOL.undated ? { undated: true, order: 'pages are identified by their order in the book, never by date' } : {}) } : {}),
+const manifest = { book: VOL.id, title: PROFILE.book.title, subtitle: PROFILE.book.subtitle, library_book: PROFILE.library.book, ...(PROFILE.library.series ? { series: { id: PROFILE.library.series.id, title: PROFILE.library.series.title, n: PROFILE.library.series.n, of: PROFILE.library.series.of } } : {}), size: SIZE_CODE, edition: EDITION, hardcover: HARDCOVER, built: D.generated, packs: packsUsed(), commit: process.env.GITHUB_SHA || null, page_count: pages.length, code_scheme: layoutJson.code_scheme, pages_without_code: noCode, pages_without_frame: noFrame, ...(VOL.scoped ? { book_id: VOL.bookId, volume: volumeInfo(VOL), plan: planSig(ctx.plan, VOL), ...(VOL.undated ? { undated: true, order: 'pages are identified by their order in the book, never by date' } : {}) } : {}),
   pages: layoutJson.pages.map((p) => ({ code: p.code, ...(p.code_format ? { code_format: p.code_format, code_content: p.code_content } : {}), scan: p.scan, page: p.page, id: p.id, label: p.label, section: p.section, type: p.type, date: p.date, ...(p.from ? { from: p.from, to: p.to } : {}), shared: !!p.shared, ...(VOL.undated ? orderOf(p.id) : {}), zones: p.zones })) };
 fs.writeFileSync(`${OUT}/manifest.json`, JSON.stringify(manifest, null, 1));
 await page.pdf({ width: `${TRIM_W}in`, height: `${TRIM_H}in`, path: `${OUT}/${PROFILE.book.slug}-${VOL.id}-interior-${HARDCOVER ? 'hardcover-' : ''}${SIZE_TAG}.pdf`, printBackground: true, preferCSSPageSize: true });

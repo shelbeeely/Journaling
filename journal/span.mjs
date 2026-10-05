@@ -2,7 +2,7 @@
 // loadSpan() builds the whole span once; contextFor(a, b, meta) makes the page-builder context (see context.mjs) for the days
 // [a, b) of it, which is one volume. planVolumes() counts pages with those same contexts and the real page builders, so the split
 // it reports is the split the printed books have. Pure data in, no browser.
-import { build, busCoverage, groupSpan, sliceDays, GLYPH } from './data.mjs';
+import { build, busCoverage, readFeed, groupSpan, sliceDays, GLYPH } from './data.mjs';
 import { bookPlan, rangeLabel, splitVolumes, explainSplit, MAX_VOLUMES, MAX_PAGES } from './plan.mjs';
 import { normalize } from './daypage.mjs';
 import { PROFILE, moduleOn, readContent, ensureBookId } from './profile.mjs';
@@ -51,7 +51,7 @@ export async function loadSpan({ ics, quiet = false } = {}) {
     let i = 0;
     full.weeks.forEach((W, wi) => { if (wi) cuts.push({ i, kind: full.months.some((M) => M.startWeek === wi) ? 'month' : 'week' }); i += W.days.length; });
   } else full.days.forEach((d, i) => { if (i && (d.d === 1 || d.weekday === 1)) cuts.push({ i, kind: d.d === 1 ? 'month' : 'week' }); });
-  const NET = moduleOn('bus') && PROFILE.paths.transit ? readJson(`./${PROFILE.paths.transit}/network.json`) : null;
+  const NET = moduleOn('bus') && PROFILE.paths.transit ? readFeed('network.json') : null;
   const ki = readJson('./out/keeper/index.json');
 
   // meta: { n, of, size, count } (a provisional one is enough for counting pages)

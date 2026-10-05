@@ -49,10 +49,10 @@
   ]
  },
  "paths": {
-  "support": "content/support.json",
-  "trans": "content/trans.json",
-  "clinic": "content/clinic.json",
-  "transit": "gtfs",
-  "seasons": "spokane.mjs"
+  "support": "spokane-wa",
+  "trans": "spokane-wa",
+  "clinic": "spokane-wa",
+  "transit": "spokane-wa",
+  "seasons": "spokane-wa"
  }
 }

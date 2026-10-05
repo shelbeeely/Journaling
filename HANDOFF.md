@@ -34,8 +34,8 @@ The product is **Journalwright Studio**; *Keeping Watch* is Shelbee's own book (
     Safety plan, STA buses (summary + hour grids, 4-page budget), Lineage.
   - Unify Spokane clinic box.
 - **Profile** (`journal/content/profile.json`): names, branding, location, timezone, day start, trim and module switches live in
-  one file; a generic `profile.example.json` builds a clean book (`node test-profile.mjs`, CI). Content packs are still Shelbee's files
-  named by the profile's `paths` (Phase F unit 2). The firmware keeps its own `DAY_STARTS_HOUR`; the pack carries the profile's value.
+  one file; a generic `profile.example.json` builds a clean book (`node test-profile.mjs`, CI). The firmware keeps its own `DAY_STARTS_HOUR`; the pack carries the profile's value.
+- **Content packs and onboarding (Phase F units 2 and 3, PK0 and PK1)**: `journal/packs/` holds the pack core (`pack.mjs`: pack.json schema 1, sha256 per file, engine range, licence; `kinds.mjs`: the kind registry, one entry per kind with its privacy class, validator and how the build uses it) and the packs: `generic` (two verified national lines and a placeholder) and `spokane-wa` (Shelbee's support, trans, clinic, STA feed and seasons, moved out of `content/`, `gtfs/`, `research/` and `spokane.mjs`). Every reader goes through `readContent()` / `packFile()` in `profile.mjs`; `epub.py` and `x4/tools/export_pack.py` ask `packs-cli.mjs resolve`. **The verification rule:** a support, trans or clinic item needs a `verified` note (who, date, source) or is a `placeholder`; `verified:false` + `checkBeforePrinting:true` prints with a warning (Shelbee's 7 unverified items from `docs/review/support-verification.md`); anything else stops the build. After editing a pack file run `node packs-cli.mjs seal <id>` (the STA workflow does). `npm run init` (`journal/init.mjs`) asks a few questions, writes the profile, builds a sample book; guides: `journal/GUIDE.md`, `journal/PACKS.md`. The Studio snapshot lists public packs by id + hash (`meta.packs`) and refuses personal ones. Tests: `test-packs.mjs` (CI), `studio/test/packs.test.mjs`. Not done: Credits page, the editor's Packs manager (PK5), look and block packs (PK2, PK3).
 - **Keeper** (50 pages, no scan codes): accounts (hints only), where recovery codes are kept, contacts, monthly handoff spreads.
 - **Day page editor**, layout v2, with 28 block types + 8 presets, in 5 groups:
   - From your day
@@ -73,7 +73,7 @@ The product is **Journalwright Studio**; *Keeping Watch* is Shelbee's own book (
    - `pio` platform download
    - esptool `merge_bin` paths
    - Pages permissions
-2. **STA feed.** The books use a feed ending 2027-01-16, and spokanetransit.com/gtfs now serves a Sep 2026 upload.
+2. **STA feed** (now `journal/packs/spokane-wa/gtfs/`; the workflow reseals the pack). The books use a feed ending 2027-01-16, and spokanetransit.com/gtfs now serves a Sep 2026 upload.
    Run the STA schedules workflow and see whether its end date is later. Check that `GRID_PRIORITY` routes still exist, then rebuild.
 3. **Editor follow-ups:**
    - a week-spread editor using the same block approach
@@ -88,7 +88,7 @@ The product is **Journalwright Studio**; *Keeping Watch* is Shelbee's own book (
    - web upload speed
    - after that: dual boot with CrossPoint and a Closing-the-month walkthrough
 5. **X4 ↔ editor:** optionally let custom Checkboxes/Scale blocks become X4 check-in items. Ask Shelbee first.
-6. **Each edition:** re-check the phone numbers in `content/support.json`, `trans.json` and `clinic.json`.
+6. **Each edition:** re-check the phone numbers in `journal/packs/spokane-wa/` (`support.json`, `trans.json`, `clinic.json`): the 7 items flagged `checkBeforePrinting` first (call, then give each a `verified` note), then reseal (`node packs-cli.mjs seal spokane-wa`).
    Refresh the 2027 pay periods once they're confirmed. Order one KDP proof per size before buying copies.
 
 ## Decisions (don't undo without asking)

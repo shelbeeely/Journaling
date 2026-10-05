@@ -1,0 +1,17 @@
+{
+ "_how": "Replace each placeholder with a real item: give it \"text\" (what the page says), \"chips\" (TEXT CALL CHAT EMAIL VISIT ONLINE) and a \"verified\" note {\"who\", \"date\": \"YYYY-MM-DD\", \"source\": \"the organisation's own page\"}, and remove \"placeholder\". An item with no note stops the build.",
+ "sections": [
+  {
+   "title": "Peer support",
+   "items": [
+    {
+     "id": "your-first-item",
+     "name": "Your first item",
+     "text": "Add your local numbers here.",
+     "chips": "",
+     "placeholder": true
+    }
+   ]
+  }
+ ]
+}

@@ -32,8 +32,8 @@ Under the new `EPOCH`, index 0's pioneer never prints. That week's Thursday (Sep
 | --- | --- | --- |
 | `content/profile.json` | `book.start` `"2026-10"`, `book.edition` `1`, optional `book.epoch` | `"2027-10"`; `2` (single digit, printed in every page code `KW2\|<edition>\|...`); `"2027-09-27"` if you move week 0 (section 1). One place feeds the book numbers ("Book N of 12", `VOL.n < 12` on Closing), the cover numbers, the Keeper's label and month loop (which builds `out/keeper/index.json`), and `EPOCH`. The old per-file edits are gone |
 | `build-all.sh` | `MONTHS=${MONTHS:-"2026-10 … 2027-09"}` | `"2027-10 2027-11 2027-12 2028-01 … 2028-09"` |
-| `gtfs/network.py` | `months = [(2026, m) for m in (10, 11, 12)] + [(2027, m) for m in range(1, 10)]` | `[(2027, m) …] + [(2028, m) …]` |
-| `gtfs/network.py` | debug line `out['months']['2026-10']` | `'2027-10'`, or the script crashes after writing |
+| `packs/spokane-wa/gtfs/network.py` | `months = [(2026, m) for m in (10, 11, 12)] + [(2027, m) for m in range(1, 10)]` | `[(2027, m) …] + [(2028, m) …]` |
+| `packs/spokane-wa/gtfs/network.py` | debug line `out['months']['2026-10']` | `'2027-10'`, or the script crashes after writing |
 | `payperiods.mjs` | projection loop `while (s < '2027-10-10')` | `'2028-10-10'` (and see section 3) |
 | `.github/workflows/books.yml` | `months` input description `"2026-10 2026-11"` | Example text only. Update it to match |
 
@@ -60,12 +60,12 @@ Possible later improvements (don't change now):
 - [ ] **Japanese seasonal words.** Weeks 0–13 are `japanese.mjs` `WORDS`, weeks 14–52 are `content/year.mjs` `WORDS`.
   Check the dated ones, e.g. setsubun "(Feb 3)". `SEKKI` and `KO` come from the sun's position, so they need nothing.
 - [ ] **Prompts.** `content/year.mjs` `PROMPTS` (53). Change `'What do you want to leave behind in 2026?'` to 2027.
-- [ ] **Spokane micro-seasons.** `spokane.mjs` `SPOKANE` is keyed by the sun's position, not the date, so it carries over. Two lines name 2027 dates:
+- [ ] **Spokane micro-seasons.** `packs/spokane-wa/seasons.json` is keyed by the sun's position, not the date, so it carries over. Two lines name 2027 dates:
   - "The Perseid meteor shower peaks August 12–13, 2027 …"
   - "The Spokane County Interstate Fair runs September 10–19, 2027 …"
 - [ ] **Holidays.** `holidays.mjs` `holidays(y)` computes them by rule, so there's nothing to update. Add any new federal holiday.
 - [ ] **Pay periods.** `payperiods.mjs` `OFFICIAL`: replace the projected rows with the real 2027 and 2028 sheets once they're posted. Fix the header comment ("2027 rows are PROJECTED").
-- [ ] **Support numbers.** Call or check every entry in `content/support.json`, `content/trans.json` and `content/clinic.json`, then update the dates:
+- [ ] **Support numbers.** Call or check every entry in `packs/spokane-wa/support.json`, `trans.json` and `clinic.json`, then update each item's `verified` note (who, date, source) and the dates; `node packs-cli.mjs seal spokane-wa` afterwards:
   - `clinic.json` `"checked": "Sep 2026"`
   - the `trans.json` note "planned to restart Oct 2026"
   - "Checked Sep 2026" in `render.mjs` `supportPage` and `transPage`, plus the comment above them
@@ -73,12 +73,12 @@ Possible later improvements (don't change now):
   - the Support line "Checked Sep 2026" in `keeper.mjs`
   - the `epub.py` Support body
   - `x4/tools/export_pack.py` `'# Support · checked Sep 2026'`
-- [ ] **STA feed.** `gtfs/network.json` covers only the months listed in `network.py`.
+- [ ] **STA feed.** `packs/spokane-wa/gtfs/network.json` covers only the months listed in `packs/spokane-wa/gtfs/network.py` (seal the pack after a refresh).
   - Bus pages follow the feed's dates (`busCoverage()` in `data.mjs`): a month fully inside `valid_from`–`valid_to` prints them; the month the feed ends in prints them with "Schedule valid through … · check spokanetransit.com after" (and a build warning); later months get **no bus pages and no SUN BUS tags**, only "Bus times: spokanetransit.com or the STA app" on the last back page. Refreshing the feed lights up later months by itself.
   - Run the **STA schedules** workflow, or run it by hand (see `journal/README.md`), after updating `months`.
   - Check that the `render.mjs` `GRID_PRIORITY` routes still exist.
-  - `gtfs/build.py` hard-codes service ids `'672.8.1'`, `'672.6.1'` and `'672.0.4'` from the Sep 2026 feed. Re-check them against the new `calendar.txt`.
-- [ ] **Clinic and care plan.** Update `content/clinic.json` if anything changed.
+  - `packs/spokane-wa/gtfs/build.py` hard-codes service ids `'672.8.1'`, `'672.6.1'` and `'672.0.4'` from the Sep 2026 feed. Re-check them against the new `calendar.txt`.
+- [ ] **Clinic and care plan.** Update `packs/spokane-wa/clinic.json` if anything changed.
 
 ## 4. Rebuild and proof checklist
 - [ ] Put fresh calendar exports in `private/` (see `private/README.md`), or update the `ICS_URLS` secret.

@@ -80,7 +80,8 @@ Crisis and support numbers are never filled in for someone else. The `generic` p
 | Versioning and accounts: history, compare, restore, branches; forks, proposals and three-way merge | Ready |
 | Accessibility baseline, the 44 methods library, e-ink companion (check-ins, focus timer, settings, Wi-Fi) | Ready |
 | Page organiser | In review |
-| Content packs and the pack ecosystem (themes, graphics, icon packs, block packs) | In progress |
+| Content packs (support, clinic, transit, holidays, seasons) and `npm run init` onboarding | Ready |
+| Pack ecosystem (themes, graphics, icon packs, block packs) | In progress |
 | Puzzle pages, block-based month/week/notes pages, spread days, releases, accessibility panel, languages, account locations, e-ink editor and sync | Planned |
 
 The website lists what works today with screenshots (`site/`), and keeps only unfinished work on its roadmap.

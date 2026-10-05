@@ -1,0 +1,31 @@
+{
+ "schema": 1,
+ "id": "my-transit",
+ "title": "Template: a transit feed",
+ "version": "0.1.0",
+ "kind": "transit",
+ "author": {
+  "name": "Your name"
+ },
+ "license": {
+  "spdx": "CC0-1.0",
+  "attribution": "",
+  "commercialPrintOk": true
+ },
+ "engine": ">=1.0.0 <2.0.0",
+ "region": "XX-YY",
+ "languages": [
+  "en"
+ ],
+ "verified": [],
+ "files": [
+  {
+   "path": "gtfs/README.md",
+   "sha256": "41eed925eb3dc94fe3104d89b0e74c088afdf4cabbde17bae70ef8c0cc466ecd"
+  },
+  {
+   "path": "gtfs/network.json",
+   "sha256": "90d052454e4b8f3730b2c5e01a86098c78572b43346a8c37dd8355d0ad139f7a"
+  }
+ ]
+}

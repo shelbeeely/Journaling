@@ -1,0 +1,72 @@
+{
+ "schema": 1,
+ "id": "spokane-wa",
+ "title": "Spokane, Washington",
+ "version": "1.0.0",
+ "kind": "region",
+ "author": {
+  "name": "Shelbee"
+ },
+ "license": {
+  "spdx": "LicenseRef-Personal",
+  "attribution": "Shelbee's own pack for her book. Not published.",
+  "commercialPrintOk": true
+ },
+ "engine": ">=1.0.0 <2.0.0",
+ "region": "US-WA",
+ "languages": [
+  "en"
+ ],
+ "verified": [
+  {
+   "kind": "transit",
+   "who": "Claude, for Shelbee",
+   "date": "2026-09-28",
+   "source": "https://www.spokanetransit.com/gtfs (feed_version SEPT 2026v3_20260914, identical to gtfs/network.json)"
+  },
+  {
+   "kind": "seasons-history",
+   "who": "Claude, for Shelbee",
+   "date": "2026-09-01",
+   "source": "research/spokane-seasons-history.json (each season has its own source_url)"
+  }
+ ],
+ "files": [
+  {
+   "path": "clinic.json",
+   "sha256": "121c425f0f01a9dea4b38fd14368cc979f9117986c8e4bd5fe2bb76e54c7a3e4"
+  },
+  {
+   "path": "gtfs/build.py",
+   "sha256": "0f90633b30fe803395e71d66bc8fc407519737ff29259506eb2307dcb559332e"
+  },
+  {
+   "path": "gtfs/network.json",
+   "sha256": "37adf1d8ca4a89cdf6dc6362081d5221af348b9c68f595d224ea9215c55ca856"
+  },
+  {
+   "path": "gtfs/network.py",
+   "sha256": "78652a3a7e77b27d3d85d878536e7a3205d56725e4b7471df3dfa572d2131d01"
+  },
+  {
+   "path": "gtfs/route6.json",
+   "sha256": "202632d1311d2c0e16db1e92c867a0849aaea06bcfa1d4b19c674e271d5ab002"
+  },
+  {
+   "path": "research/spokane-seasons-history.json",
+   "sha256": "6f208c373ec5ebc9d8f38ab85f83446593ebb771ee976ac86ffd6d7a45bd2159"
+  },
+  {
+   "path": "seasons.json",
+   "sha256": "438eefa9c2ec7de3433efbb2d246261b4cb9784b34760fb235d3448d1fcc6e0e"
+  },
+  {
+   "path": "support.json",
+   "sha256": "f14ffaa9d3abc48a434c378656967d8a70c6f5280b7281696922456939d25015"
+  },
+  {
+   "path": "trans.json",
+   "sha256": "db1bfe3ceb18e2a93192f61c457c02ff31eb7d6ef70885b7cdef9fdbb172f86c"
+  }
+ ]
+}
