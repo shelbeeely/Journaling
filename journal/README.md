@@ -233,7 +233,7 @@ continuous semantic zoom through five levels (the top two, Library and Series, a
 | Series | the books of one series, in order | `#series/<id>` |
 | Book | every spread | `#book/<id>` (`#book` is the current book) |
 | Spread | two facing pages, large | `#spread/12` (1-based) |
-| Day | the day page, viewed first (clean, read-only); **Edit** opens the editor (Flow/Grid, palette, options, undo, save, methods). A read-only page view for any other page until block pages arrive (C5) | `#day/2026-10-14` (view), `#day/2026-10-14/edit` (editing), `#page/safety` |
+| Day | the day page, viewed first (clean, read-only); **Edit** opens the editor (Flow/Grid, palette, options, undo, save, methods). A page view for any other page: read-only, except Notes, blank and Collection pages, which **Edit** opens as block pages (C5a) | `#day/2026-10-14` (view), `#day/2026-10-14/edit` (editing), `#page/safety`, `#page/notes_1/edit` |
 
 - **Move between levels:** tap a page (book to spread, spread to day; a quick double tap goes straight to the day), zoom in past
   one whole page (wheel, pinch, `+`), the Library / Series / Book / Spread / Day buttons, the breadcrumb (`Library > Series > Book > Spread 12 > Day Oct 14`), Back.
@@ -254,7 +254,7 @@ continuous semantic zoom through five levels (the top two, Library and Series, a
   Edits autosave as before and stay in the draft, and Undo keeps its steps while you are on the day. `Escape` while viewing goes up a
   level. The hash carries the mode (`#day/2026-10-14/edit`): reload, Back and Forward restore it; Edit pushes one history entry and
   Done steps back over it. On a phone or narrow window the panels are a bottom sheet under the page (Blocks, + Add; the arrow folds it
-  to its tab bar). Other pages stay view-only with their note until C5. `KW.go({ level: 'day', date, edit: true })` opens straight to editing. Guests, the demo and the Artifact behave the same.
+  to its tab bar). Notes, blank and Collection pages edit their blocks (`#page/<id>/edit`, see Block pages); the other pages stay view-only with their note. `KW.go({ level: 'day', date, edit: true })` opens straight to editing. Guests, the demo and the Artifact behave the same.
 - **Jump:** type a page number (`30`, `p30`) or an id (`safety`, `week.03.review`, a date like `2026-10-05`).
 - **Legend (i):** lock = protected page (Closing, Support, Safety plan: can move, never hidden); pages a book hides in
   `content/book.json` sit dimmed in a row under the book; the 5.5x8.5 / 8.5x11 switch reflows the same pages.
@@ -314,6 +314,25 @@ and `test.ics`) with each book's own title, subtitle, plan and, when its series 
   Keeper's handoff page number. Page ids stay `week.03.reply`, `day.2026-10-14` ... whatever the order.
 - `node test-book.mjs` checks the rules and the sequence. A book that differs from the default is skipped by `check-identical.mjs`.
 
+### Block pages (C5a: Notes, blank and Collection pages)
+These three page types are made of the same blocks as the day page, on a fixed grid of their own, and are edited in the editor like a day page.
+- **Kinds (`daypage.mjs` `PAGE_KINDS`, `GRIDS`):** Notes and Collection pages keep the DATE / TITLE / TAGS header at the top and have 4 columns × 24 rows;
+  a blank page has no header, so 4 columns × 27 rows (measured: the 590.4 px inside the scan frame / 0.22 in rows). Both trims have the same rows.
+  Every kind has a Writing space (Notes and Collection must keep one; a blank page may have none). The blocks that read a day (moon and sun, holidays,
+  events, the fact, a month ago today, the rotating prompt, the 24-hour line, the week strip) and the `sendto` block are day-page only.
+  The scan frame, the SEND TO strip and the page code are the page's own (`scan.mjs`) and never move; every block carries its `data-zone`
+  (repeats `_2`, `_3`), so `layout.json` maps it, in the grid to its cell rectangle.
+- **Saved in `book.json`:** the entry gets a `layout` (`{ v: 2, kind, grid?, blocks }`, the day layout's own shape). No `layout`, or a layout equal to the
+  page's starting layout, prints exactly what the books printed before (Notes: dot grid and four action lines; blank: empty; the default book is byte for
+  byte unchanged, `check-identical.mjs`). The starting layout of a Collection page is a title over ruled lines. A blank page given blocks of its own is no longer `shared`.
+  `bookrules.mjs` checks a layout (`pageLayoutProblems`: unknown or day-only blocks, the wrong kind, a grid that breaks a rule), `bookedit.mjs` `setLayout` writes it.
+- **In the editor:** open a page and press Edit (E), or select it in the Book's edit mode and press Edit blocks, or use the hash: `#page/<entry id>/edit`
+  (the same routes as `#day/<date>/edit`). The page opens in the day page editor (palette, options, Flow/Grid, Undo, overflow meter), with the page's own
+  header and grid; the day's scan settings, methods and `daypage.json` tools are not shown. Every change is saved into the book (this browser, the Artifact store,
+  the Studio draft, or the book's GitHub commit), and the canvas lays the page out again. Automatic padding Notes pages have no entry, so nothing to edit.
+- **Not yet:** a `sendto` block on these pages, per-page scan settings, spread days, and month, week, review and back-matter pages as blocks (C5b).
+- **Tests:** `node test-blockpages.mjs` (nothing drifts, the rules, `flowBook` equals `assemble`, an edited book builds and passes `check.mjs`) and the Block pages section of `editor/test.mjs`.
+
 ### Page organiser (Book view, edit mode)
 Edit the book (Edit at the whole-book level) and the canvas becomes an organiser; viewing stays read-only.
 - **Move:** drag a page on the canvas (mouse or pen; on a touch screen use Move to…), select a page and press Alt+Left / Alt+Right, use
@@ -323,7 +342,7 @@ Edit the book (Edit at the whole-book level) and the canvas becomes an organiser
 - **Hide / show:** the eye. Safety plan, Support and Closing the month show a lock and a reason instead; the weeks cannot be hidden.
   Hidden pages dim, sit apart under the book and are not printed. A change that would leave a page pointing at a page the book no longer
   has is warned about first; while one dangles the book cannot be downloaded, copied or committed (the build refuses it).
-- **Add:** Notes pages (any number, at a chosen place, with a title; duplicate, retitle, remove). Every other page type appears once, so it
+- **Add:** Notes and Collection pages (any number, at a chosen place, with a title; duplicate, retitle, remove). Every other page type appears once, so it
   can only be hidden, and only pages you added can be removed. Every page needs its own printed title (`check-pages.mjs`).
 - **Months:** "Changes apply to: All months / Only [month]". "Only" writes `months["YYYY-MM"].pages`; months with their own pages are
   listed with Reset. An override that equals the default is dropped.

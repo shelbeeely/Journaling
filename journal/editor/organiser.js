@@ -195,13 +195,13 @@ function orgSelBar() {
   if (!p && !hid) {
     $('#os-what').innerHTML = '<span>Select a page to move, hide, add to or remove. Tap or click a page; drag it to move it; Alt+Left and Alt+Right move it one place.</span>';
     for (const id of ['#os-earlier', '#os-later', '#os-moveto', '#os-eye']) set(id, true);
-    $('#os-dup').hidden = $('#os-del').hidden = $('#os-title-w').hidden = true; $('#os-why').textContent = ''; $('#os-eye-t').textContent = 'Hide'; $('#os-eye-ic').innerHTML = BK_IC.eyeoff;
+    $('#os-dup').hidden = $('#os-del').hidden = $('#os-title-w').hidden = $('#os-edit').hidden = true; $('#os-why').textContent = ''; $('#os-eye-t').textContent = 'Hide'; $('#os-eye-ic').innerHTML = BK_IC.eyeoff;
     return;
   }
   if (p && p.auto) {
     $('#os-what').innerHTML = `<b>Page ${p.n}</b> <span>${escH(p.label)} · added by itself to keep the spreads facing and the page count even. It moves and goes away on its own, so it has no controls.</span>`;
     for (const id of ['#os-earlier', '#os-later', '#os-moveto', '#os-eye']) set(id, true);
-    $('#os-dup').hidden = $('#os-del').hidden = $('#os-title-w').hidden = true; $('#os-why').textContent = ''; $('#os-eye-t').textContent = 'Hide'; $('#os-eye-ic').innerHTML = BK_IC.eyeoff;
+    $('#os-dup').hidden = $('#os-del').hidden = $('#os-title-w').hidden = $('#os-edit').hidden = true; $('#os-why').textContent = ''; $('#os-eye-t').textContent = 'Hide'; $('#os-eye-ic').innerHTML = BK_IC.eyeoff;
     return;
   }
   const e = at.entry, T = orgMeta(e.type), off = e.on === false, prot = !!T.protected || e.type === 'weeks', built = (ORG.cat.builtIn || []).includes(e.id) || e.type === 'weeks';
@@ -215,15 +215,17 @@ function orgSelBar() {
   $('#os-eye-ic').innerHTML = prot && !off ? BK_IC.lock : off ? OG_IC.eye : BK_IC.eyeoff;
   eye.setAttribute('aria-label', prot && !off ? `${orgName(e)} is protected: it can move but can’t be hidden` : off ? `Show ${orgName(e)} again` : `Hide ${orgName(e)}`);
   $('#os-why').textContent = prot && !off ? BKE.protectWhy(ORG.cat, e) : off ? 'Hidden pages are not printed. Show it to put it back where it was.' : ''; $('#os-why').className = 'os-why';
-  $('#os-dup').hidden = e.type !== 'notes';
+  $('#os-dup').hidden = !BKE.repeatTypes.includes(e.type);
+  $('#os-edit').hidden = !(p && !off && pageEditable(p)); // Notes, blank and collection pages edit their blocks (C5a)
   $('#os-del').hidden = built; $('#os-del span').textContent = 'Remove'; $('#os-del').setAttribute('aria-label', `Remove ${orgName(e)} from the book`);
-  const tw = $('#os-title-w'); tw.hidden = e.type !== 'notes';
-  if (e.type === 'notes' && document.activeElement !== $('#os-title')) $('#os-title').value = (e.options && e.options.title) || '';
+  const tw = $('#os-title-w'); tw.hidden = !BKE.repeatTypes.includes(e.type);
+  if (BKE.repeatTypes.includes(e.type) && document.activeElement !== $('#os-title')) $('#os-title').value = (e.options && e.options.title) || '';
 }
 $('#os-earlier').onclick = () => { if (ORG.sel && orgEntry() && orgEntry().entry.on !== false) orgMove({ step: -1 }); };
 $('#os-later').onclick = () => { if (ORG.sel && orgEntry() && orgEntry().entry.on !== false) orgMove({ step: 1 }); };
 $('#os-eye').onclick = () => orgEye();
 $('#os-dup').onclick = () => orgDup();
+$('#os-edit').onclick = () => { const p = BK.pages[BK.sel - 1]; if (pageEditable(p)) navGo({ level: 'day', n: p.n, edit: true }); };
 $('#os-del').onclick = () => orgRemove();
 $('#os-title').addEventListener('change', () => { if (ORG.sel) orgRename(ORG.sel, $('#os-title').value); });
 $('#os-title').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } e.stopPropagation(); });
@@ -271,14 +273,14 @@ function orgRow(e, scope, list, i) {
   const first = i === 0, last = i === list.length - 1, gcls = scope === 'book' ? 'og-gt' : 'og-gs';
   const eyeLab = isW ? `${name}: the journal itself, can’t be hidden` : prot ? `${name} is protected: it can move but can’t be hidden` : off ? `Show ${name}` : `Hide ${name}`;
   const why = isW ? 'The weeks are the journal itself, so they can’t be hidden.' : prot ? BKE.protectWhy(ORG.cat, e) : '';
-  return `<li class="og-row${off ? ' off' : ''}${ORG.sel === e.id ? ' sel' : ''}${e.type === 'notes' || !built ? ' many' : ''}" data-eid="${escH(e.id)}" data-scope="${scope}">
+  return `<li class="og-row${off ? ' off' : ''}${ORG.sel === e.id ? ' sel' : ''}${BKE.repeatTypes.includes(e.type) || !built ? ' many' : ''}" data-eid="${escH(e.id)}" data-scope="${scope}">
     <span class="og-grip ${gcls}" aria-hidden="true">${GRIP}</span>
     <button class="og-name" type="button" data-act="sel" data-fk="sel:${escH(e.id)}" ${ORG.sel === e.id ? 'aria-current="true"' : ''}><b>${prot ? BK_IC.lock : ''}${off ? BK_IC.eyeoff : ''}<span>${escH(name)}</span></b><small>${escH(orgPagesText(e, scope))}</small></button>
     <span class="og-btns">
       <button class="og-b" type="button" data-act="up" data-fk="up:${escH(e.id)}" aria-label="Move ${escH(name)} earlier" ${first || off ? 'aria-disabled="true"' : ''}>${OG_IC.up}</button>
       <button class="og-b" type="button" data-act="down" data-fk="down:${escH(e.id)}" aria-label="Move ${escH(name)} later" ${last || off ? 'aria-disabled="true"' : ''}>${OG_IC.down}</button>
       ${isW ? '' : `<button class="og-b" type="button" data-act="eye" data-fk="eye:${escH(e.id)}" aria-label="${escH(eyeLab)}" ${prot ? `aria-disabled="true" aria-describedby="ogw-${escH(e.id)}"` : `aria-pressed="${off}"`}>${prot ? BK_IC.lock : off ? OG_IC.eye : BK_IC.eyeoff}</button>`}
-      ${e.type === 'notes' ? `<button class="og-b" type="button" data-act="dup" data-fk="dup:${escH(e.id)}" aria-label="Duplicate ${escH(name)}">${OG_IC.dup}</button>` : ''}
+      ${BKE.repeatTypes.includes(e.type) ? `<button class="og-b" type="button" data-act="dup" data-fk="dup:${escH(e.id)}" aria-label="Duplicate ${escH(name)}">${OG_IC.dup}</button>` : ''}
       ${built ? '' : `<button class="og-b danger" type="button" data-act="del" data-fk="del:${escH(e.id)}" aria-label="Remove ${escH(name)} from the book">${OG_IC.del}</button>`}
     </span>
     ${why ? `<small class="og-why-row" id="ogw-${escH(e.id)}">${escH(why)}</small>` : ''}
@@ -297,7 +299,7 @@ function orgPanel() {
   const openDet = body.querySelector('details.og-auto')?.open, moreOpen = body.querySelector('details.og-more')?.open;
   const pos = body.scrollTop;
   const flat = list.flatMap((x) => (x.type === 'weeks' ? [...((x.options || {}).month || []), ...((x.options || {}).week || [])] : [x]));
-  const typeRows = Object.entries(ORG.cat.meta).filter(([k]) => k !== 'weeks' && k !== 'notes').map(([k, T]) => {
+  const typeRows = Object.entries(ORG.cat.meta).filter(([k]) => k !== 'weeks' && !BKE.repeatTypes.includes(k)).map(([k, T]) => {
     const e = flat.find((x) => x.type === k);
     const state = e ? (e.on === false ? 'Hidden: switch it on with the eye' : `Already in the book (${orgPagesText(e, T.scope)})`) : `${T.scope === 'book' ? 'Front or back page' : T.scope === 'month' ? 'Month page' : 'Week page'}`;
     return `<li><span>${escH(T.name)}<small>${escH(state)}</small></span>${e ? '' : `<button class="og-b" type="button" data-act="add" data-type="${k}" data-fk="add:${k}" aria-label="Add ${escH(T.name)}">${OG_IC.plus}<span>Add</span></button>`}</li>`;
@@ -323,9 +325,10 @@ function orgPanel() {
     <p class="fine" style="margin-top:8px">Drag a row by its handle, or use the arrows. Month pages stay among month pages, week pages among week pages.</p>
     <h3>Add a page</h3>
     <label class="og-where"><span>Where</span><select id="og-where" data-fk="where">${whereOpts()}</select></label>
-    <ul class="og-add"><li><span>Notes page<small>A header and a dot grid to write on. You can add as many as you like.</small></span><button class="og-b primary" type="button" data-act="add" data-type="notes" data-fk="add:notes" aria-label="Add a Notes page">${OG_IC.plus}<span>Add</span></button></li></ul>
+    <ul class="og-add"><li><span>Notes page<small>A header and a dot grid to write on. You can add as many as you like.</small></span><button class="og-b primary" type="button" data-act="add" data-type="notes" data-fk="add:notes" aria-label="Add a Notes page">${OG_IC.plus}<span>Add</span></button></li>
+      <li><span>Collection page<small>A title and ruled lines for a list you keep: books, places, ideas. As many as you like.</small></span><button class="og-b primary" type="button" data-act="add" data-type="collection" data-fk="add:collection" aria-label="Add a Collection page">${OG_IC.plus}<span>Add</span></button></li></ul>
     <details class="og-more"${moreOpen ? ' open' : ''}><summary>Other page types</summary><ul class="og-add">${typeRows}</ul>
-      <p class="fine" style="margin-top:8px">Only Notes pages can repeat. A built-in page can be hidden with the eye, not deleted. Pages you add can be removed.</p></details>
+      <p class="fine" style="margin-top:8px">Only Notes and Collection pages can repeat. A built-in page can be hidden with the eye, not deleted. Pages you add can be removed.</p></details>
     <details class="og-auto"${openDet ? ' open' : ''}><summary>${OG_IC.info} Automatic: made for you, not editable</summary><ul>
       <li>${auto ? `${orgPlural(auto, 'Notes page', 'Notes pages')} ${auto === 1 ? 'is' : 'are'} added by itself (dashed on the canvas) so left and right pages face correctly and the count stays even, at least 24 (76 for a hardcover).` : 'No Notes pages needed: the spreads face correctly and the count is even.'}</li>
       <li>Page numbers, and every “see page N” pointer, follow the pages when they move.</li>
@@ -386,7 +389,7 @@ $('#og-body').addEventListener('click', (e) => {
   if (act === 'eye') { const at = BKE.locate(orgList(), id); if (b.getAttribute('aria-disabled') === 'true') { orgSay(BKE.protectWhy(ORG.cat, at.entry), true); return; } ORG.focusFk = `eye:${id}`; orgEye(id); return; }
   if (act === 'dup') { orgDup(id); return; }
   if (act === 'del') { orgRemove(id); return; }
-  if (act === 'add') { const w = $('#og-where').value; ORG.whereTouched = false; orgAdd(b.dataset.type, w === 'end' || b.dataset.type !== 'notes' ? {} : { before: w.slice(7) }); return; }
+  if (act === 'add') { const w = $('#og-where').value; ORG.whereTouched = false; orgAdd(b.dataset.type, w === 'end' || !BKE.repeatTypes.includes(b.dataset.type) ? {} : { before: w.slice(7) }); return; }
   if (act === 'resetmon') { orgResetMonth(b.dataset.mon); return; }
   if (act === 'hard') { ORG.hard = !ORG.hard; orgRender(); orgSay(ORG.hard ? 'Counting as a hardcover: at least 76 pages.' : 'Counting as a paperback: at least 24 pages.'); return; }
   if (act === 'download') return orgDownload(); if (act === 'copy') return orgCopy(); if (act === 'import') return $('#org-file').click();

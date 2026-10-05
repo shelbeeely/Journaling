@@ -64,9 +64,9 @@ for (const t of ['month_tracker', 'theme', 'bus', 'lineage', 'support_x']) { con
   const m3 = e(moveEntry(DEFAULT_BOOK, cat, null, 'days', { before: 'month_cal' }));
   ok(/week pages.*not before Month calendar.*month pages/.test(m3), 'a week page cannot go among the month pages: ' + m3);
   ok(/already first in the book/.test(e(moveEntry(DEFAULT_BOOK, cat, null, 'title', { step: -1 }))) && /already last of the week pages/.test(e(moveEntry(DEFAULT_BOOK, cat, null, 'week_exchange', { step: 1 }))), 'the ends of a list are explained');
-  ok(/already in this book.*Only Notes pages can be added more than once/.test(e(addEntry(DEFAULT_BOOK, cat, null, 'blank'))), 'a page type that is already there cannot be added twice');
+  ok(/already in this book.*Only Notes and Collection pages can be added more than once/.test(e(addEntry(DEFAULT_BOOK, cat, null, 'blank'))), 'a page type that is already there cannot be added twice');
   ok(/hidden: switch it back on/.test(e(addEntry(must(setOn(DEFAULT_BOOK, cat, null, 'blank', false)), cat, null, 'blank'))), 'a hidden one says to switch it back on');
-  ok(/Only Notes pages can be duplicated/.test(e(duplicateEntry(DEFAULT_BOOK, cat, null, 'key'))), 'only Notes duplicate');
+  ok(/Only Notes and Collection pages can be duplicated/.test(e(duplicateEntry(DEFAULT_BOOK, cat, null, 'key'))), 'only Notes duplicate');
   ok(/can't go/.test(e(addEntry(DEFAULT_BOOK, cat, null, 'notes', { before: 'week_left' }))), 'a Notes page cannot go inside the weeks');
   ok(/40 characters/.test(e(setTitle(must(addEntry(DEFAULT_BOOK, cat, null, 'notes')), cat, null, 'notes_1', 'x'.repeat(41)))), 'a Notes title has a limit');
   { const two = must(duplicateEntry(must(addEntry(DEFAULT_BOOK, cat, null, 'notes')), cat, null, 'notes_1')), t = (id) => two.default.find((x) => x.id === id).options.title;

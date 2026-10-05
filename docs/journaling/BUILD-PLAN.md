@@ -73,7 +73,8 @@ Milestones (each mergeable on its own):
 | C3 | Read-only canvas | Spreads, zoom, jump to page, page ids shown |
 | C4 | Reorder, hide, add (with rules and validation). **Done** (page organiser, Book view edit mode; per-month overrides and `book.json` save included, so C6 and C7 keep only the method layouts and block-based pages) | Rules above enforced with clear messages |
 | C4b | Page grid: predefined rows and columns; blocks span several of each (see 'Page grid' below). Block size options (height in lines or mm) land first in the Tier 2 planning PR | Every block keeps its own `data-zone`; `layout.json` maps it to its cell rectangle; overflow check runs per block |
-| C5 | Block-based pages | Month, week, review, notes, back-matter pages editable as blocks |
+| C5a | Block-based pages, first part. **Done:** Notes, blank and Collection pages are editable as blocks (own fixed grids, `layout` in `book.json`, edit hash routes `#page/<id>/edit`) | Same block library and grid as the day page; scan zones untouched; default books byte-identical |
+| C5b | Block-based pages, the rest | Month, week, review, back-matter pages editable as blocks; `sendto` on block pages |
 | C6 | Per-month overrides + book-level "Start from a method" | Whole-book layouts |
 | C7 | Save/load (commit `book.json` next to `daypage.json`), tests, docs | Editor works end to end |
 

@@ -37,7 +37,7 @@ function locWrite(v) { store.set(LOC_KEY, JSON.stringify({ v: 1, versions: v.sli
 const locSnap = (day, book) => ({ meta: {}, print: {}, book: book || KWBK.base() || { default: [], months: {} }, day: normalize(day), assets: [], components: [] }); // the book (organiser.js) rides in a version when it was changed
 const locId = () => 'l-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
 const locView = (v, i, a) => ({ id: v.id, short: v.id.slice(-6), message: v.message, author: { name: 'You' }, createdAt: v.createdAt, parents: a[i + 1] ? [a[i + 1].id] : [] });
-function locAdd(message) { const vs = locRead(); vs.unshift({ id: locId(), message, createdAt: new Date().toISOString(), day: normalize(layout), ...(KWBK.touched ? { book: KWBK.current() } : {}) }); locWrite(vs); }
+function locAdd(message) { const vs = locRead(); vs.unshift({ id: locId(), message, createdAt: new Date().toISOString(), day: normalize(dayNow()), ...(KWBK.touched ? { book: KWBK.current() } : {}) }); locWrite(vs); }
 function stLocalRefresh() {
   const vs = locRead(); ST.log = vs.map(locView); ST.head = null; ST.headSnap = vs[0] ? locSnap(vs[0].day, vs[0].book) : null;
   stChip(); stDrawLog(); stDrawCtx();
@@ -46,7 +46,7 @@ function stLocalRefresh() {
 const stBaseDay = () => (stServer() ? ST.headSnap.day : ST.headSnap ? ST.headSnap.day : normalize(null));
 const stBaseBook = () => (stServer() ? ST.headSnap.book : ST.headSnap ? ST.headSnap.book : KWBK.base());
 const stBookDirty = () => { const c = KWBK.current(), b = stBaseBook(); return !!c && !!b && STUDIO.canonical(c) !== STUDIO.canonical(b); };
-const stDirty = () => stDay(layout) !== stDay(stBaseDay()) || stBookDirty();
+const stDirty = () => stDay(dayNow()) !== stDay(stBaseDay()) || stBookDirty();
 
 // ----- state line -----
 function stChip() {
@@ -107,7 +107,7 @@ async function stSaveDraft() {
   clearTimeout(ST.timer); ST.saving = true; ST.pending = false; stChip();
   let ok = false;
   try {
-    const r = await stApi('PUT', P(`/drafts/${enc(ST.branch)}`), { base: ST.base || undefined, rev: ST.rev, snapshot: { day: layout, ...KWLIB.part(), ...KWBK.part() } });
+    const r = await stApi('PUT', P(`/drafts/${enc(ST.branch)}`), { base: ST.base || undefined, rev: ST.rev, snapshot: { day: dayNow(), ...KWLIB.part(), ...KWBK.part() } });
     ST.rev = r.rev; ST.base = r.base; ST.draftAt = r.updatedAt; ok = true;
     if (r.head !== ST.head.id) { ST.behind = true; await stMoved(r.head); } else ST.behind = false;
   } catch (e) {
@@ -119,7 +119,8 @@ async function stSaveDraft() {
 
 // ----- putting a version into the editor -----
 function stApply(day, persist = false) {
-  const same = stDay(layout) === stDay(day);
+  if (PGE) { pgeLeave(); navGo({ level: 'book' }, { push: false }); } // a version replaces the day layout (and maybe the book): the page editor closes behind it
+  const same = stDay(dayNow()) === stDay(day);
   if (!same) snapshot();
   ST.loading = true; try { selected = null; layout = normalize(day); drawList(); drawPalette(); drawPreview(); } finally { ST.loading = false; }
   if (persist) queueSave(); // the editor's own save (this browser or the Artifact store)
@@ -195,7 +196,7 @@ async function stKeepMine() { // conflict, keep both: my draft becomes a version
   const name = `${ST.user.username}-${new Date().toISOString().slice(5, 16).replace(/[-:T]/g, '')}`;
   try {
     await stApi('POST', P('/branches'), { name, from: ST.base });
-    await stApi('POST', P('/commits'), { branch: name, expectedHead: ST.base, message: 'My changes (kept beside the newer version)', snapshot: { day: layout, ...KWBK.part() } });
+    await stApi('POST', P('/commits'), { branch: name, expectedHead: ST.base, message: 'My changes (kept beside the newer version)', snapshot: { day: dayNow(), ...KWBK.part() } });
     await stApi('DELETE', P(`/drafts/${enc(ST.branch)}`));
     ST.branch = name; store.set('kw-st-branch', `${ST.pid}|${name}`); await stLoad(); toast(`Your changes are saved on the branch “${name}”.`);
   } catch (e) { toast(stMsg(e)); }
@@ -292,7 +293,7 @@ function stFieldText(type, f) {
 const stCmpClear = () => { $('#vs-cols').dataset.pane = 'log'; ST.repaint = null; $('#vs-cmp').innerHTML = '<p class="vs-empty">Pick a version and tap Compare to see what changed, page by page and block by block.</p>'; };
 async function stSnap(ref) {
   if (ref === 'base') return { commit: { short: 'start', message: 'The original page' }, snapshot: locSnap(null) };
-  if (ref === 'draft') return { commit: { short: 'draft', message: 'Your unsaved changes' }, snapshot: { ...(ST.headSnap || locSnap(null)), day: normalize(layout), ...(KWBK.current() ? { book: KWBK.current() } : {}) } };
+  if (ref === 'draft') return { commit: { short: 'draft', message: 'Your unsaved changes' }, snapshot: { ...(ST.headSnap || locSnap(null)), day: normalize(dayNow()), ...(KWBK.current() ? { book: KWBK.current() } : {}) } };
   if (typeof ref === 'string' && ref.startsWith('l-')) { const v = locRead().find((x) => x.id === ref); if (!v) throw new Error('That version is no longer in this browser.'); return { commit: { short: v.id.slice(-6), message: v.message }, snapshot: locSnap(v.day, v.book) }; }
   if (ST.cache.has(ref)) return ST.cache.get(ref);
   const r = await stApi('GET', P(`/commits/${ref}`)); ST.cache.set(ref, r); return r;
@@ -385,10 +386,10 @@ function stOpenNp(fromBrowser) {
 async function stCreateProject(name, visibility, allowReuse, withHistory) {
   const vs = withHistory ? locRead().slice().reverse() : []; // oldest first
   const first = vs.shift();
-  const r = await stApi('POST', '/api/projects', { name, visibility, allowReuse, message: first ? first.message : 'First version from the editor', snapshot: { day: first ? first.day : layout, ...(first ? (first.book ? { book: first.book } : {}) : KWBK.part()) } });
-  const id = r.project.id; let head = r.project.head, lastDay = first ? first.day : layout;
+  const r = await stApi('POST', '/api/projects', { name, visibility, allowReuse, message: first ? first.message : 'First version from the editor', snapshot: { day: first ? first.day : dayNow(), ...(first ? (first.book ? { book: first.book } : {}) : KWBK.part()) } });
+  const id = r.project.id; let head = r.project.head, lastDay = first ? first.day : dayNow();
   for (const v of vs) { const c = await stApi('POST', `/api/projects/${id}/commits`, { branch: 'main', expectedHead: head, message: v.message, snapshot: { day: v.day, ...(v.book ? { book: v.book } : {}) } }); head = c.commit.id; lastDay = v.day; }
-  if (stDay(layout) !== stDay(lastDay)) { const c = await stApi('POST', `/api/projects/${id}/commits`, { branch: 'main', expectedHead: head, message: 'Latest changes from this browser', snapshot: { day: layout, ...KWBK.part() } }); head = c.commit.id; }
+  if (stDay(dayNow()) !== stDay(lastDay)) { const c = await stApi('POST', `/api/projects/${id}/commits`, { branch: 'main', expectedHead: head, message: 'Latest changes from this browser', snapshot: { day: dayNow(), ...KWBK.part() } }); head = c.commit.id; }
   return id;
 }
 $('#vs-np').addEventListener('close', async () => {

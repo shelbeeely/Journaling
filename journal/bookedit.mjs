@@ -9,8 +9,10 @@
 // A spec is one page: { id, type, cls, label, shared, html } with {{P_x}} markers still in the html. occ[type][k] is what the page type
 // makes for the k-th month (month pages), the k-th week (week pages) or once (the rest); [] where it makes nothing.
 // Never hand-set, only shown: recto/verso alignment, padding to an even count (>= 24, hardcover >= 76), page numbers, {{P_x}} refs.
-import { validateBookWith } from './bookrules.mjs';
+import { validateBookWith, BLOCK_PAGES, REPEATS } from './bookrules.mjs';
+import { kindPage, isDefaultLayout } from './daypage.mjs';
 
+export const repeatTypes = REPEATS; // the page types a book can hold more than once (Notes, Collection)
 export const NOTES_MARK = '\u0001TITLE\u0001';
 export const MAX_PAGES = 110;
 export const typeMeta = (types) => Object.fromEntries(Object.entries(types).map(([k, t]) => [k, { name: t.name, scope: t.scope, protected: !!t.protected, align: t.align || null, ref: t.ref || null, when: t.when || null, module: t.module || null, options: t.options || {} }]));
@@ -30,7 +32,12 @@ export function flowBook(entries, cat, opts = {}) {
   const addNotes = () => { notesN++; const t = `Notes ${notesN}`; push({ cls: 'notes', type: 'notes', id: `notes.${notesN}`, label: t, html: notesHtml(cat, t) }, null, true); };
   const alignToVerso = () => { if ((pages.length + 1) % 2 === 1) addNotes(); }; // the next page must be a left-hand (even) page
   const specsOf = (entry, k) => {
-    if (entry.type === 'notes') { const t = (entry.options && entry.options.title) || 'Notes'; return [{ cls: 'notes', type: 'notes', id: entry.id, label: t, html: notesHtml(cat, t) }]; }
+    if (REPEATS.includes(entry.type)) { // Notes and Collection pages: the layout of blocks the entry carries (none: the starting page)
+      const base = entry.type === 'notes' ? 'Notes' : 'Collection', t = (entry.options && entry.options.title) || base;
+      const html = entry.layout ? kindPage(entry.type, t, entry.layout, opts.size) : entry.type === 'notes' ? notesHtml(cat, t) : kindPage('collection', t, null, opts.size);
+      return [{ cls: 'notes', type: entry.type, id: entry.id, label: t, html }];
+    }
+    if (entry.type === 'blank' && entry.layout) return [{ cls: '', type: 'blank', id: 'blank', label: '', shared: false, html: kindPage('blank', '', entry.layout, opts.size) }];
     return ((cat.occ || {})[entry.type] || [])[k] || [];
   };
   const emit = (entry, k) => {
@@ -94,7 +101,7 @@ export function locate(list, id) {
 }
 const scopeArr = (list, scope) => { if (scope === 'book') return list; const w = list.find((e) => e.type === 'weeks'); if (!w) return null; w.options = w.options || {}; return (w.options[scope] = w.options[scope] || []); };
 export const flatIds = (list) => list.flatMap((e) => (e.type === 'weeks' ? [e.id, ...((e.options && e.options.month) || []).map((x) => x.id), ...((e.options && e.options.week) || []).map((x) => x.id)] : [e.id]));
-const nameOf = (cat, e) => { if (e.type === 'notes') return (e.options && e.options.title) || (/^notes_(\d+)$/.test(e.id) ? `Notes ${e.id.split('_')[1]}` : 'Notes'); return e.type === 'weeks' ? 'The weeks' : (cat.meta[e.type] || {}).name || e.type; };
+const nameOf = (cat, e) => { if (REPEATS.includes(e.type)) { const w = e.type === 'notes' ? 'Notes' : 'Collection'; return (e.options && e.options.title) || (new RegExp(`^${e.type}_(\\d+)$`).test(e.id) ? `${w} ${e.id.split('_')[1]}` : w); } return e.type === 'weeks' ? 'The weeks' : (cat.meta[e.type] || {}).name || e.type; };
 export const entryName = nameOf;
 export const PROTECT_WHY = {
   safety: 'My safety plan can move but never be hidden or removed. It must be in every printed book so it is always within reach.',
@@ -166,19 +173,21 @@ export function setOn(book, cat, mon, id, on) {
 }
 
 const findType = (list, type) => { for (const arr of [list, ...list.filter((e) => e.type === 'weeks').flatMap((e) => [(e.options || {}).month || [], (e.options || {}).week || []])]) { const h = arr.find((e) => e.type === type); if (h) return h; } return null; };
-const notesTitles = (list) => new Set(flatEntries(list).filter((e) => e.type === 'notes').map((e) => (e.options && e.options.title) || 'Notes'));
+const BASE = { notes: 'Notes', collection: 'Collection' };
+const repTitle = (e) => (e.options && e.options.title) || BASE[e.type];
 const flatEntries = (list) => list.flatMap((e) => (e.type === 'weeks' ? [...((e.options || {}).month || []), ...((e.options || {}).week || [])] : [e]));
-const freshTitle = (list, base) => { const used = notesTitles(list); if (!used.has(base) && base !== 'Notes') return base; let i = 2; while (used.has(`${base} ${i}`)) i++; return `${base} ${i}`; };
-const nextNotesId = (list) => { const ids = new Set(flatIds(list)); let i = 1; while (ids.has(`notes_${i}`)) i++; return `notes_${i}`; };
-// Add a page of `type`. where: { before: id } | { after: id } | {} (the end of its list). Only Notes pages can be added more than once.
+const repTitles = (list) => new Set(flatEntries(list).filter((e) => REPEATS.includes(e.type)).map(repTitle));
+const freshTitle = (list, base) => { const used = repTitles(list); if (!used.has(base) && base !== 'Notes' && base !== 'Collection') return base; let i = 2; while (used.has(`${base} ${i}`)) i++; return `${base} ${i}`; };
+const nextRepeatId = (list, type) => { const ids = new Set(flatIds(list)); let i = 1; while (ids.has(`${type}_${i}`)) i++; return `${type}_${i}`; };
+// Add a page of `type`. where: { before: id } | { after: id } | {} (the end of its list). Only Notes and Collection pages can be added more than once.
 export function addEntry(book, cat, mon, type, where = {}, options = {}) {
   const T = cat.meta[type];
   if (!T || type === 'weeks') return { err: 'That is not a page type you can add.' };
   const { b, list } = prep(book, mon), arr = scopeArr(list, T.scope);
   if (!arr) return { err: 'This book has no weeks group to put that page in.' };
-  const have = type !== 'notes' ? findType(list, type) : null;
-  if (have) return { err: `${T.name} is already in this book${have.on === false ? ' (hidden: switch it back on with the eye)' : ''}. Only Notes pages can be added more than once.` };
-  const e = { id: type === 'notes' ? nextNotesId(list) : type, type, on: true, options: type === 'notes' ? { title: String(options.title || freshTitle(list, 'Notes page')).slice(0, 40) } : {} };
+  const have = !REPEATS.includes(type) ? findType(list, type) : null;
+  if (have) return { err: `${T.name} is already in this book${have.on === false ? ' (hidden: switch it back on with the eye)' : ''}. Only Notes and Collection pages can be added more than once.` };
+  const e = { id: REPEATS.includes(type) ? nextRepeatId(list, type) : type, type, on: true, options: REPEATS.includes(type) ? { title: String(options.title || freshTitle(list, type === 'notes' ? 'Notes page' : 'Collection page')).slice(0, 40) } : {} };
   let at = arr.length;
   const tid = where.before || where.after;
   if (tid) {
@@ -205,15 +214,15 @@ export function duplicateEntry(book, cat, mon, id) {
   const { b, list } = prep(book, mon), at = locate(list, id);
   if (!at) return { err: 'That page is not in this book.' };
   const e = at.entry;
-  if (e.type !== 'notes') return { err: `Only Notes pages can be duplicated. ${nameOf(cat, e)} can appear once in a book.` };
-  const base = ((e.options && e.options.title) || 'Notes page').replace(/ \d+$/, ''), c = { ...clone(e), id: nextNotesId(list), options: { ...(e.options || {}), title: freshTitle(list, base) } };
+  if (!REPEATS.includes(e.type)) return { err: `Only Notes and Collection pages can be duplicated. ${nameOf(cat, e)} can appear once in a book.` };
+  const base = ((e.options && e.options.title) || (e.type === 'notes' ? 'Notes page' : 'Collection page')).replace(/ \d+$/, ''), c = { ...clone(e), id: nextRepeatId(list, e.type), options: { ...(e.options || {}), title: freshTitle(list, base) } };
   at.arr.splice(at.i + 1, 0, c);
   return done(b, cat, `Duplicated ${nameOf(cat, e)}`, { id: c.id }, mon);
 }
 
 export function setTitle(book, cat, mon, id, title) {
   const { b, list } = prep(book, mon), at = locate(list, id);
-  if (!at || at.entry.type !== 'notes') return { err: 'Only Notes pages have a title you can change.' };
+  if (!at || !REPEATS.includes(at.entry.type)) return { err: 'Only Notes and Collection pages have a title you can change.' };
   const t = String(title).trim();
   if (t.length > 40) return { err: 'A title can be up to 40 characters.' };
   at.entry.options = t ? { ...(at.entry.options || {}), title: t } : Object.fromEntries(Object.entries(at.entry.options || {}).filter(([k]) => k !== 'title'));
@@ -224,6 +233,16 @@ export function resetMonth(book, cat, mon) {
   if (!book.months || !book.months[mon]) return { err: 'That month already follows the default.' };
   const b = clone(book); delete b.months[mon];
   return done(b, cat, `${mon} follows the default again`, {}, null);
+}
+
+// Set (or clear) the block layout of a Notes, Collection or Blank page (C5a). A layout that says what the page's starting layout says is no layout:
+// the entry goes back to carrying none, so the book.json of an untouched page is the one it was.
+export function setLayout(book, cat, mon, id, layout) {
+  const { b, list } = prep(book, mon), at = locate(list, id);
+  if (!at || !BLOCK_PAGES.includes(at.entry.type)) return { err: 'That page is not one with blocks you can edit.' };
+  const e = at.entry;
+  if (isDefaultLayout(layout, e.type)) delete e.layout; else e.layout = clone(layout);
+  return done(b, cat, 'Changed the page', { id }, mon);
 }
 
 // Where the dangling pointers are new: the pointers a change would leave dangling that were not dangling before.
