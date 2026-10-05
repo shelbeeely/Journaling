@@ -1050,7 +1050,7 @@ ok(!errs.length, 'no page errors after the Book view ' + errs.join(' | '));
   await lp.click('#sh-undo');
   // move on the shelf
   await open(lp, '#library/edit');
-  await lp.click('#sh-list .sh-item:nth-child(1) [data-act="later"]'); await lp.waitForTimeout(120); ok(await lp.evaluate(() => [...document.querySelectorAll('#sh-list .sh-item')].map((x) => x.dataset.key).join() === 'series:seasons,book:northlight,series:practice' && /position 2/.test(document.querySelector('#live').textContent)), 'move later on the shelf reorders the library and announces it');
+  await lp.click('#sh-list .sh-item:nth-child(1) [data-act="later"]'); await lp.waitForFunction(() => /position 2/.test(document.querySelector('#live').textContent), null, { timeout: 4000 }).catch(() => {}); ok(await lp.evaluate(() => [...document.querySelectorAll('#sh-list .sh-item')].map((x) => x.dataset.key).join() === 'series:seasons,book:northlight,series:practice' && /position 2/.test(document.querySelector('#live').textContent)), 'move later on the shelf reorders the library and announces it');
   await lp.click('#sh-undo');
   // delete with a question, cancel, confirm, undo; a series keeps its books
   await lp.click('#sh-list [data-id="northlight"] [data-act="settings"]'); await lp.click('#bs-del');
@@ -1196,15 +1196,15 @@ ok(!errs.length, 'no page errors after the Book view ' + errs.join(' | '));
   // a drag that the rules refuse: a book page cannot go among the weeks
   { const a = await box('bus.net.1'), t = await box('week.02.right'); const was = await op.evaluate(() => BK.pages.map((p) => p.id).join());
     await op.mouse.move(a.x + a.w / 2, a.y + a.h / 2); await op.mouse.down(); await op.mouse.move(t.x + t.w * 0.3, t.y + t.h / 2, { steps: 12 });
-    ok(await op.evaluate(() => document.querySelector('#org-drop')?.classList.contains('bad')) && /inside the weeks/.test(await op.textContent('#org-live')), 'organiser: hovering an impossible place shows a red mark and says why: ' + await op.textContent('#org-live'));
+    ok(await op.evaluate(() => document.querySelector('#org-drop')?.classList.contains('bad')) && await said(op, /inside the weeks/), 'organiser: hovering an impossible place shows a red mark and says why: ' + await op.textContent('#org-live'));
     await op.mouse.up(); await op.waitForTimeout(200);
     ok((await op.evaluate(() => BK.pages.map((p) => p.id).join())) === was && await op.evaluate(() => !document.querySelector('#org-drop') && !document.querySelector('.og-ghost-fly')), 'organiser: dropping there changes nothing and clears the marks'); }
   { const a = await box('month.moon'), t = await box('bus.net.1'); const was = await op.evaluate(() => BK.pages.map((p) => p.id).join());
     await op.mouse.move(a.x + a.w / 2, a.y + a.h / 2); await op.mouse.down(); await op.mouse.move(t.x + t.w * 0.3, t.y + t.h / 2, { steps: 12 }); await op.mouse.up(); await op.waitForTimeout(200);
-    ok((await op.evaluate(() => BK.pages.map((p) => p.id).join())) === was && /month pages/.test(await op.textContent('#org-live')), 'organiser: a month page dropped among the back pages is refused, in plain words: ' + await op.textContent('#org-live')); }
+    ok((await op.evaluate(() => BK.pages.map((p) => p.id).join())) === was && await said(op, /month pages/), 'organiser: a month page dropped among the back pages is refused, in plain words: ' + await op.textContent('#org-live')); }
   { const a = await box('notes.1'), was = await op.evaluate(() => BK.pages.map((p) => p.id).join());
     await op.mouse.move(a.x + a.w / 2, a.y + a.h / 2); await op.mouse.down(); await op.mouse.move(a.x + a.w / 2 + 40, a.y + a.h / 2 + 30, { steps: 5 }); await op.mouse.up(); await op.waitForTimeout(150);
-    ok(/added by itself/.test(await op.textContent('#org-live')) && (await op.evaluate(() => BK.pages.map((p) => p.id).join())) === was, 'organiser: an automatic Notes page cannot be dragged, and says why'); }
+    ok(await said(op, /added by itself/) && (await op.evaluate(() => BK.pages.map((p) => p.id).join())) === was, 'organiser: an automatic Notes page cannot be dragged, and says why'); }
   // a plain click after all that still selects (the drag code does not eat taps)
   { const r = await box('key'); await op.mouse.click(r.x + r.w / 2, r.y + r.h / 2); ok(await op.evaluate(() => BK.pages[BK.sel - 1]?.id === 'key'), 'organiser: a tap after dragging still selects a page'); }
   // hide and show with the eye; hidden pages dim and sit apart
@@ -1232,7 +1232,7 @@ ok(!errs.length, 'no page errors after the Book view ' + errs.join(' | '));
   await op.fill('#os-title', 'Ideas'); await op.press('#os-title', 'Enter'); await op.waitForTimeout(150);
   ok(await op.evaluate(() => BK.pages.find((p) => p.id === 'notes_2').label === 'Ideas' && BK.pages.find((p) => p.id === 'notes_2').html.includes('>Ideas<')), 'organiser: retitling changes the printed title (Ideas)');
   await op.fill('#os-title', 'Notes page'); await op.press('#os-title', 'Enter'); await op.waitForTimeout(150);
-  ok(/two pages titled/.test(await op.textContent('#org-live')), 'organiser: a title another page already prints is refused: ' + await op.textContent('#org-live'));
+  ok(await said(op, /two pages titled/), 'organiser: a title another page already prints is refused: ' + await op.textContent('#org-live'));
   await op.evaluate(() => { document.querySelector('#os-title').blur(); });
   await pick(op, 'bus.net.1'); ok(await op.evaluate(() => document.querySelector('#os-del').hidden && document.querySelector('#os-dup').hidden), 'organiser: a built-in page has no Remove and no Duplicate');
   await op.click('#og-body [data-act="add"][data-type="notes"]'); await op.evaluate(() => { const l = document.querySelector('#og-list [data-act="del"][data-fk="del:notes_3"]'); window.__hasDel = !!l; });
@@ -1240,7 +1240,7 @@ ok(!errs.length, 'no page errors after the Book view ' + errs.join(' | '));
   ok(await op.evaluate(() => window.__hasDel && !BK.pages.some((p) => p.id === 'notes_3')), 'organiser: Remove takes an added page out');
   ok(await op.evaluate(() => !document.querySelector('#og-list [data-fk="del:bus"]') && !document.querySelector('#og-list [data-fk="del:safety"]')), 'organiser: no built-in row has a Remove button');
   await pick(op, 'key'); await op.focus('#bk-view'); await op.keyboard.press('Delete'); await said(op, /hidden but not deleted/);
-  ok(/hidden but not deleted/.test(await op.textContent('#org-live')) && await op.evaluate(() => BK.pages.some((p) => p.id === 'key')), 'organiser: Delete on a built-in page explains and keeps it');
+  ok(await said(op, /hidden but not deleted/) && await op.evaluate(() => BK.pages.some((p) => p.id === 'key')), 'organiser: Delete on a built-in page explains and keeps it');
   ok(await op.evaluate(() => { const o = [...document.querySelectorAll('#org details.og-more li')].map((l) => l.textContent); return o.some((t) => /Blank page.*Already in the book/.test(t)) && !document.querySelector('#org details.og-more [data-act="add"]'); }), 'organiser: the other page types are listed with why they cannot be added again (only Notes repeat)');
   // the count follows: and the KDP limits warn
   const n0 = await op.evaluate(() => BK.pages.length);
@@ -1276,7 +1276,7 @@ ok(!errs.length, 'no page errors after the Book view ' + errs.join(' | '));
   await op.click('#ow-cancel'); ok(await op.evaluate(() => BK.pages.some((p) => p.id === 'bus.net.1') && BKE.sameBook(ORG.book, ORG.base)), 'organiser: Cancel leaves the book alone');
   await op.click('#os-eye'); await op.waitForSelector('#org-warn[open]'); await op.click('#ow-go'); await op.waitForFunction(() => !document.querySelector('#org-warn').open);
   ok(await op.evaluate(() => ORG.flow.missing.length === 1 && !!document.querySelector('#og-missing') && document.querySelector('#og-missing').getAttribute('role') === 'alert'), 'organiser: Apply anyway hides it and the panel lists what is left pointing nowhere');
-  await op.click('#og-body [data-act="copy"]'); ok(/Not saved/.test(await op.textContent('#org-live')), 'organiser: copy and download refuse while a pointer dangles: ' + await op.textContent('#org-live'));
+  await op.click('#og-body [data-act="copy"]'); ok(await said(op, /Not saved/), 'organiser: copy and download refuse while a pointer dangles: ' + await op.textContent('#org-live'));
   ok(await op.evaluate(() => Object.keys(KWBK.part()).length === 0), 'organiser: the Studio draft does not carry a book that cannot be built');
   await op.click('#og-undo'); ok(await op.evaluate(() => ORG.flow.missing.length === 0 && !document.querySelector('#og-missing')), 'organiser: undo clears the warning');
   await op.evaluate(() => { ORG.undo = []; ORG.redo = []; ORG.book = orgClone(ORG.base); orgRender(null); store.set('kw-book', null); });
@@ -1343,7 +1343,7 @@ ok(!errs.length, 'no page errors after the Book view ' + errs.join(' | '));
   await ph.tap('#os-moveto'); await ph.waitForSelector('#org-move[open]'); await ph.screenshot({ path: `${OUT}/org-phone-move.png` });
   ok(await ph.evaluate(() => { const d = document.querySelector('#org-move').getBoundingClientRect(); return d.left >= 0 && d.right <= innerWidth && d.height <= innerHeight; }) && (await tiny('#org-move button, #org-move select')).length === 0, 'phone: the Move to… menu fits the screen and has 44px targets');
   await ph.selectOption('#om-sel', { index: 0 }); await ph.tap('#om-go'); await said(ph, /Moved STA at a glance/);
-  ok(await ph.evaluate(() => BK.pages.findIndex((p) => p.id === 'bus.net.1') < BK.pages.findIndex((p) => p.id === 'safety')) && /Moved STA at a glance/.test(await ph.textContent('#org-live')), 'phone: Move to… moves the page');
+  ok(await ph.evaluate(() => BK.pages.findIndex((p) => p.id === 'bus.net.1') < BK.pages.findIndex((p) => p.id === 'safety')) && await said(ph, /Moved STA at a glance/), 'phone: Move to… moves the page');
   ok(!(await ph.evaluate(() => !!document.querySelector('.og-ghost-fly'))), 'phone: touch pans the canvas; no drag ghost appears');
   await ph.tap('#og-toggle'); await ph.waitForTimeout(300);
   ok(await ph.evaluate(() => { const o = document.querySelector('#org'), r = o.getBoundingClientRect(); return !o.hidden && r.bottom <= innerHeight + 1 && r.left >= 0 && r.right <= innerWidth + 1 && r.height < innerHeight * 0.6 && getComputedStyle(o).position === 'fixed' && document.querySelector('#og-toggle').getAttribute('aria-expanded') === 'true'; }), 'phone: Pages opens the list as a bottom sheet');

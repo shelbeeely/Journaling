@@ -133,6 +133,10 @@ async function motionCheck(p, label) {
 // ---------- token contrast ----------
 const full = (h) => (/^#[0-9a-f]{3}$/i.test(h) ? "#" + [...h.slice(1)].map((x) => x + x).join("") : h);
 const DAY = '#day/2026-10-14/edit'; // the editor UI exists only while editing (E1); the view-mode checks are near the end
+// wait for the organiser live region (orgSay sets it inside requestAnimationFrame) instead of a fixed pause
+const saidIn = (p, sel, re) => p.waitForFunction(([s, r]) => new RegExp(r).test((document.querySelector(s) || {}).textContent || ''), [sel, re.source], { timeout: 4000 }).then(() => true, () => false);
+const orgSaid = (p, re) => saidIn(p, '#org-live', re); // announce() and live() in the editor set #live after a short timeout, so wait for it too
+const liveSaid = (p, re) => saidIn(p, '#live', re);
 async function go(p, hash) { await p.evaluate((h) => { location.hash = h; }, hash); const v = hash.startsWith("#day") ? "day" : hash.startsWith("#page") ? "page" : /^#(library|series)/.test(hash) ? "shelf" : "book"; await p.waitForFunction((v) => document.documentElement.dataset.view === v, v, { timeout: 15000 }); await p.waitForTimeout(700); }
 const lum = (h) => { h = full(h); const c = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
 const ratio = (a, c) => { const [x, y] = [lum(a), lum(c)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
@@ -197,7 +201,7 @@ const openAllOptions = (p) => p.evaluate(() => { openIds = new Set(layout.blocks
   if (after[1] !== before[0] || after[0] !== before[1]) add('keyboard', 'Reorder', 'ArrowDown on a block handle does not move the block down one place');
   if (!(await p.evaluate(() => document.activeElement.classList.contains('grip')))) add('keyboard', 'Reorder', 'focus is lost from the handle after a move');
   await p.waitForTimeout(150);
-  if (!/moved to position 2 of/.test(await p.evaluate(() => (document.querySelector('#live') || {}).textContent || ''))) add('announce', 'Reorder', 'a keyboard move is not announced in the live region');
+  if (!(await liveSaid(p, /moved to position 2 of/))) add('announce', 'Reorder', 'a keyboard move is not announced in the live region');
   // change an option: open a block's options, Space on a switch and Enter on a chip
   await p.focus('#list > li[data-uid="care"] .sw'); await p.keyboard.press('Space');
   if ((await p.getAttribute('#list > li[data-uid="care"] .sw', 'aria-checked')) !== 'false') add('keyboard', 'Option', 'Space on the show/hide switch does not toggle it');
@@ -237,7 +241,7 @@ const openAllOptions = (p) => p.evaluate(() => { openIds = new Set(layout.blocks
   let moved = false;
   for (const k of ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp']) { // find an arrow that really moves the block, then see whether anything says so
     const l0 = await lab(), s0 = await say(); await p.keyboard.press(k); await p.waitForTimeout(150);
-    if ((await lab()) !== l0) { moved = true; if ((await say()) === s0) add('announce', 'Grid', `grid move is not announced (${l0.slice(0, 30)}…)`); break; }
+    if ((await lab()) !== l0) { moved = true; await p.waitForFunction((s) => ((document.querySelector('#live') || {}).textContent || '') + '|' + document.querySelector('#toast').textContent !== s, s0, { timeout: 2000 }).catch(() => {}); if ((await say()) === s0) add('announce', 'Grid', `grid move is not announced (${l0.slice(0, 30)}…)`); break; }
   }
   if (!moved) add('keyboard', 'Grid', 'no arrow key moved the focused block');
   await close(p);
@@ -313,7 +317,7 @@ for (const [w, scheme] of [[1400, 'light'], [1400, 'dark'], [390, 'light'], [390
   if (!(await p.evaluate(() => document.querySelector('#lib-sheet').open && !!document.activeElement.closest('#lib-sheet')))) add('keyboard', 'Series settings sheet', 'opening it does not move focus inside');
   await axeRun(p, 'Series settings sheet'); await smallTargets(p, 'Series settings sheet');
   await p.focus('#ss-order li:first-child [data-mv="1"]'); await p.keyboard.press('Enter'); await p.waitForTimeout(150);
-  if (!/Autumn is now book 2 of 3/.test(await p.evaluate(() => document.querySelector('#live').textContent))) add('announce', 'Series order', 'moving a book with the arrow buttons is not announced');
+  if (!(await liveSaid(p, /Autumn is now book 2 of 3/))) add('announce', 'Series order', 'moving a book with the arrow buttons is not announced');
   if (!(await p.evaluate(() => !!document.activeElement.closest('#ss-order')))) add('keyboard', 'Series order', 'focus is lost after moving a book');
   await p.keyboard.press('Escape'); await p.waitForTimeout(250);
   if (!(await p.evaluate(() => !document.querySelector('#lib-sheet').open && !!document.activeElement.closest('#sh-list')))) add('keyboard', 'Series settings sheet', 'Escape does not close the sheet and return focus to the shelf');
@@ -349,7 +353,7 @@ for (const [w, scheme, h] of [[1400, 'light', 900], [1400, 'dark', 900], [390, '
   if (w === 1400 && scheme === 'light') {
     await focusRing(p, L, 12);
     // a move by keyboard is announced, and focus stays where the person is
-    await p.focus('#bk-view'); const before = await p.textContent('#org-live'); await p.keyboard.press('Alt+ArrowLeft'); await p.waitForTimeout(250);
+    await p.focus('#bk-view'); const before = await p.textContent('#org-live'); await p.keyboard.press('Alt+ArrowLeft'); await orgSaid(p, /Moved .* to page \d+/);
     const after = await p.textContent('#org-live');
     if (before === after || !/Moved .* to page \d+/.test(after)) add('announce', L, 'moving a page with Alt+Left is not announced ("Moved … to page N")');
     if (!(await p.evaluate(() => document.activeElement.id === 'bk-view'))) add('keyboard', L, 'focus is lost from the canvas after a keyboard move');
@@ -359,7 +363,7 @@ for (const [w, scheme, h] of [[1400, 'light', 900], [1400, 'dark', 900], [390, '
     // a locked page explains itself to a screen reader (aria-describedby) and a refused action is announced
     await p.focus('#og-list [data-fk="eye:safety"]');
     if (!(await p.evaluate(() => { const b = document.activeElement, d = document.getElementById(b.getAttribute('aria-describedby') || '-'); return b.getAttribute('aria-disabled') === 'true' && !!d && /never be hidden/.test(d.textContent); }))) add('names', L, 'the lock on a protected page has no reason for a screen reader');
-    await p.keyboard.press('Enter'); await p.waitForTimeout(250);
+    await p.keyboard.press('Enter'); await orgSaid(p, /never be hidden/);
     if (!/never be hidden/.test(await p.textContent('#org-live'))) add('announce', L, 'pressing the lock does not announce why the page cannot be hidden');
     // the Move to… dialog
     await p.evaluate(() => bkSelect(BK.pages.findIndex((x) => x.id === 'bus.net.1') + 1)); await p.click('#os-moveto'); await p.waitForTimeout(250);
