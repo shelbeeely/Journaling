@@ -1,3 +1,13 @@
+---
+title: "Mood tracking and Year in Pixels"
+slug: mood-tracking-year-in-pixels
+category: mental-health
+evidenceLevel: some
+lastReviewed: 2026-09-30
+status: reviewed
+contributors: ['Journalwright Studio contributors']
+---
+
 # Mood tracking and Year in Pixels
 
 > **Not medical advice.** This is a research summary for a journaling system. Mood charts can support care, but they don't
@@ -146,7 +156,7 @@ Three common designs:
 | Scale | Pros | Cons | Good anchors |
 |---|---|---|---|
 | **1–5** (Daylio: awful, bad, meh, good, rad) | Fast, easy, fits 5 patterns | No true "neutral" if you don't treat 3 as one; can't show elevation separately from "good" | 1 awful · 2 bad · 3 okay · 4 good · 5 great |
-| **−3..+3** (Keeping Watch, bipolar charts) | 0 = steady; the sign carries direction; +3 can mean "wired", not "great" | Negative numbers can feel harsh; 7 levels are hard to draw in B&W | −3 can't function · −2 hard to do basics · −1 low but managing · 0 steady · +1 bright · +2 revved · +3 wired, not sleeping |
+| **−3..+3** (Journalwright Studio default, bipolar charts) | 0 = steady; the sign carries direction; +3 can mean "wired", not "great" | Negative numbers can feel harsh; 7 levels are hard to draw in B&W | −3 can't function · −2 hard to do basics · −1 low but managing · 0 steady · +1 bright · +2 revved · +3 wired, not sleeping |
 | **0–10** | Fine-grained, familiar from pain scales | People use 5–8 only; hard to draw | Pin 0, 5, 10 with words |
 | **NIMH-LCM** (−4..+4 by impairment: mild, moderate-low, moderate-high, severe) | Validated; anchored on function | Clinical, needs training; built for bipolar | "Mild: some effort, no loss of function" … "Severe: unable to function" (paraphrase) |
 
@@ -155,15 +165,15 @@ Design rules that the research and practice agree on:
 - **Anchor the ends and the middle with words**, not just faces. Faces are culture- and alexithymia-dependent.
 - **Keep the scale fixed for the whole year.** Changing it in June breaks every comparison.
 - **Say what "high" means.** In a bipolar scale, +3 is a warning (little sleep, racing), not a great day. In a wellbeing scale, 5 is
-  a great day. Keeping Watch's key says "+3 very high/wired", which is the bipolar meaning; if you want "great day", use a
+  a great day. The Studio's default key says "+3 very high/wired", which is the bipolar meaning; if you want "great day", use a
   separate "good things" line, not +3.
 - **Separate dimensions when they diverge.** Mood, anxiety and irritability move separately. eMoods rates depressed, elevated,
-  irritable and anxious on their own rows. Keeping Watch already separates mood and anxiety.
+  irritable and anxious on their own rows. The Studio already separates mood (on paper) from anxiety (on the X4 companion, or a Scale block on paper).
 - **Allow a range.** On mixed or up-and-down days, mark the low and the high (split cell, or two dots joined by a line).
 
 ### Pattern and colour key
 
-Colour is the classic Year in Pixels look, but Keeping Watch prints black-and-white, and about 1 in 12 men (fewer women) have
+Colour is the classic Year in Pixels look, but Journalwright Studio books print black-and-white, and about 1 in 12 men (fewer women) have
 colour-vision deficiency, mostly red-green (National Eye Institute). Three B&W encodings that work:
 
 1. **Fill density** (best for 5 levels): empty □ · one dot ⊡ · one diagonal ▨ · cross-hatch ▩ · solid ■.
@@ -186,7 +196,7 @@ if you menstruate; **HRT dose day** if you inject; **work shift** if you work ni
 
 ### Anxiety and irritability rows
 
-A single mood line hides a lot. Anxiety 0–3 (Keeping Watch), irritability 0–3 (eMoods-style) are cheap to add.
+A single mood line hides a lot. Anxiety 0–3 (the X4 companion's check-in), irritability 0–3 (eMoods-style) are cheap to add.
 
 ### Notes
 
@@ -209,7 +219,7 @@ Apr 31).
 
 ### Weekly line
 
-Seven dots joined by a line on a −3..+3 grid. Keeping Watch's week spread already prints this "Mood line".
+Seven dots joined by a line on a −3..+3 grid. The week spread already prints this "Mood line".
 
 ### Review ritual
 
@@ -274,7 +284,7 @@ See section 8. The chart only helps if you look at it on purpose, briefly, with 
 
 **Monthly (10–15 minutes, Closing the month)**
 
-- Count days at each level, or average the numbers (Keeping Watch's monthly stats and X4 compute an average mood).
+- Count days at each level, or average the numbers (the Closing the month page has an "Avg mood" box filled in from the paper tracker).
 - Scan for shapes (see "How to read patterns" below).
 - Copy the month average to the Keeper's Year at a glance.
 - Write one sentence: "This month the chart showed ___."
@@ -302,7 +312,7 @@ See section 8. The chart only helps if you look at it on purpose, briefly, with 
 | **Event-led** | Isolated dark pixels | Notes column | One-offs aren't patterns; don't over-read |
 | **Slow drift** | Monthly averages sliding | Med changes, burnout, grief | Averages hide variance; look at spread too |
 | **Rapid swings** | Alternating light and dark within days | Mixed states, ultradian cycling, sleep chaos | Bring to a clinician |
-| **Moon phase** | Suspected link to full moon | Keeping Watch prints the moon on the tracker | Research evidence for lunar effects on mood is weak and inconsistent **(uncertain; not reviewed here)**; treat any link as personal and provisional |
+| **Moon phase** | Suspected link to full moon | The Studio's sky and moon pages print the moon | Research evidence for lunar effects on mood is weak and inconsistent **(uncertain; not reviewed here)**; treat any link as personal and provisional |
 
 **Menstrual cycle and HRT.** For people who menstruate, the DRSP (Daily Record of Severity of Problems) and C-PASS rely on
 prospective daily ratings across at least two cycles, comparing the week before bleeding with the week after. Track "cycle day"
@@ -482,7 +492,7 @@ Next year: add cycle-day column; start light box Oct 15.
 **Aesthetic versus minimalist camps**
 
 - *Aesthetic:* colour, themed keys, decorative grids; enjoyment keeps them going; risk is setup fatigue.
-- *Minimalist:* pencil numbers in a plain 31-row column; fast and durable; risk is boredom. Keeping Watch sits firmly here: black
+- *Minimalist:* pencil numbers in a plain 31-row column; fast and durable; risk is boredom. Journalwright Studio books sit firmly here: black
   and white, numbers or hatching, no ornament.
 
 ## 13. Official products and formats
@@ -523,11 +533,11 @@ Release cycle: printables and planners follow the calendar year; apps update con
 **E-ink**
 
 - reMarkable, Kindle Scribe, Boox: import a PDF grid and fill with the pen; no colour on most, so use hatch or numbers.
-- **The X4 (Keeping Watch firmware):** already logs mood −3..+3 and anxiety 0–3 as button check-ins and averages mood for the month.
+- **The X4 companion (Journalwright Studio firmware):** logs anxiety 0–3 as a built-in button check-in (mood is kept on paper; older X4 logs that hold mood still read). A Scale block set to Signed (−3…+3) exports to it as a custom check-in.
 
 **Scanning**
 
-- Keeping Watch's scan zones let a scanning app read filled bubbles. Circles and numbers are more reliable to machine-read than
+- The Studio's scan zones let a scanning app read filled bubbles. Circles and numbers are more reliable to machine-read than
   hatch patterns. A pixel grid is easy for a human to read in a photo, harder for a bubble reader.
 
 **What's lost or gained**
@@ -594,13 +604,13 @@ Release cycle: printables and planners follow the calendar year; apps update con
 | Over-reading coincidences | One full moon, one bad day | Need 2–3 repeats before calling it a pattern |
 | Colour doesn't print | B&W book | Hatch patterns or numbers |
 | "Good" and "elevated" mixed up | 1–5 wellbeing scale used for bipolar | Signed scale where + = revved; track good things separately |
-| Scale mismatch across tools | Paper 5 steps, device −3..+3 | Pick 7 steps on paper to match the X4 |
+| Scale mismatch across tools | Paper 5 steps, device −3..+3 | Pick 7 steps on paper (signed −3…+3) to match a signed X4 Scale |
 | Mixed days flattened | One mark per day | Split cell or low/high dots |
 | Shift-work days don't fit midnight | Days cross midnight | Rate at the end of your waking day; write the date the day started |
 
 ## 19. Accessibility and adaptations
 
-- **ADHD:** Put the rating where you already look (day page top, X4 sleep screen). Use a physical anchor habit (teeth). Accept
+- **ADHD:** Put the rating where you already look (day page top, or an X4 check-in). Use a physical anchor habit (teeth). Accept
   gaps. Numbers are faster than colouring. See [adhd-journaling](adhd-journaling.md).
 - **Autism and sensory needs:** Alexithymia makes "how do you feel?" hard. Rate observable things instead: energy, sensory load,
   sleep, how much you could do. Use word lists (Words to circle). Keep the grid visually quiet. See
@@ -615,8 +625,8 @@ Release cycle: printables and planners follow the calendar year; apps update con
 - **Dyslexia and dysgraphia:** Circles and patterns, no writing required. Large cells.
 - **Low vision:** 8.5×11 trim, large cells, numbers instead of fine hatching, high contrast; the X4 font can be large.
 - **Motor or hand pain:** One tick or dot, not colouring a whole cell; pixel stamps; the X4's buttons.
-- **Trans and gender-diverse people:** Add a "dose day" tick for HRT and a separate dysphoria scale (Keeping Watch has a Dysphoria
-  preset) so gender stress doesn't vanish inside a general mood number. Cycle tracking for people who menstruate, without
+- **Trans and gender-diverse people:** Add a "dose day" tick for HRT and a separate dysphoria scale (the editor has a Dysphoria
+  scale preset and a "Cycle & dose" checkbox preset) so gender stress doesn't vanish inside a general mood number. Cycle tracking for people who menstruate, without
   gendered labels.
 - **Shift workers:** Rate at the end of your waking day; add a shift column; expect weekday patterns to follow the rota, not the
   calendar.
@@ -642,7 +652,7 @@ Release cycle: printables and planners follow the calendar year; apps update con
 - **With [dbt-diary-card](dbt-diary-card.md):** The diary card already rates emotions daily; a Year in Pixels can summarise its
   "overall" rating over the year.
 - **With [spoon-theory-energy-accounting](spoon-theory-energy-accounting.md):** Mood and spoons together answer "am I sad or just
-  spent?" Keeping Watch's tracker already pairs them.
+  spent?" The Studio keeps mood on paper and spoons left on the X4 companion, so the two are logged side by side.
 - **With [adhd-journaling](adhd-journaling.md) and [autistic-sensory-journaling](autistic-sensory-journaling.md):** use observable
   anchors and word lists; see section 19.
 - **With gratitude or "small good things":** balances a score with one concrete positive; lowers rumination risk (reasonable, not
@@ -717,7 +727,7 @@ Release cycle: printables and planners follow the calendar year; apps update con
 ## 24. FAQ
 
 1. **Is 1–5 or −3..+3 better?** For general wellbeing, 1–5 is fine. If elevated mood is a risk for you (bipolar, some meds), use a
-   signed scale where + means revved, not great. Keeping Watch uses −3..+3.
+   signed scale where + means revved, not great. The Studio's default mood scale is −3..+3.
 2. **Morning or evening?** Evening, for "the day as a whole." Morning ratings mostly capture sleep.
 3. **I missed three days. Should I fill them in?** No. Leave them blank. Blanks keep the rest honest.
 4. **Can I do Year in Pixels without colour?** Yes: hatch patterns for 5 levels, numbers for 7. It's easier to read and scan.
@@ -728,62 +738,64 @@ Release cycle: printables and planners follow the calendar year; apps update con
 7. **How long before I can trust a pattern?** Weekly: 3–4 weeks. Cycle: 2–3 cycles. Seasonal: 2 years.
 8. **Should my doctor see it?** If you have a mood condition, a monthly summary is often welcome. Bring the month page and one sentence.
 9. **What about mixed days?** Split the cell, or mark both low and high.
-10. **Does the moon matter?** Evidence is weak. Keeping Watch prints the moon for interest; treat any link as a personal hunch.
-11. **Can I track mood on the X4 and on paper?** Yes. Use 7 steps on paper so both are −3..+3.
+10. **Does the moon matter?** Evidence is weak. The Studio prints the moon for interest; treat any link as a personal hunch.
+11. **Can I track mood on the X4 companion and on paper?** The built-in X4 check-ins keep mood on paper, but a Scale block set to Signed (−3…+3) also exports to the X4 as a custom check-in. Use 7 steps on paper so both are −3..+3.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
+
+Journalwright Studio makes printed journals and planners designed in a block editor, with an optional e-ink companion (the X4 companion). This section turns the research above into day page blocks, X4 items and a method layout.
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Already built? |
 |---|---|---|---|---|
-| Daily mood (−3..+3) and anxiety (0–3) circles | Day block (Care check-in) | High | Circles scan well; zones `checkin`, `anxiety` | **Yes** |
-| Mood key with anchors per point | Front matter key page | High | Replace "−3 very low · 0 steady · +3 very high/wired" with all 7 anchors (bank item 1) | Partly (3 anchors) |
+| Daily mood (−3..+3) and anxiety (0–3) circles | Day page block (Care check-in) | High | Circles scan well; zones `checkin`, `anxiety` | **Yes** for mood (Care check-in). Anxiety is an X4 check-in by default and can be printed with a Scale block |
+| Mood key with anchors per point | Front matter key page | High | Replace "−3 very low · 0 steady · +3 very high/wired" with all 7 anchors (bank item 1) | **Partly** (3 anchors) |
 | Weekly Mood line | Week spread | High | Already printed; zero row heavier | **Yes** |
-| Month tracker with mood dots + sleep/meds/spoons | Month page | High | Already printed | **Yes** |
-| Add a "cycle / dose day" column to the tracker | Month page | Med | One narrow column; optional via build flag | No |
-| **Year in Pixels page** | Keeper (yearly, stays home) | High | 12 × 31 grid, pattern key (5) or numbers (7); Keeper has no scan codes, so no zone needed; copy from monthly trackers during handoff | No |
-| Month "pixel strip" (31 cells in one row) | Closing the month page | Med | Summary before copying to the Keeper; needs a `data-zone` | No |
-| Day pixel block (one square + key) | Day block | Low–Med | Duplicates the mood circles; only for people who prefer it; `data-zone="pixel"` | No |
-| Mood low/high range (split day) | Day block option on the mood row | Med | Two circle rows or "low / high" letter on the circles; zones `checkin_lo`, `checkin_hi` | No |
-| "Early warning signs from my charts" list | Safety plan back matter | High | Plain lines; fits next to "Signs a hard time is starting" | Partly (safety plan has signs) |
-| How-to-read-patterns guide (section 8 table, short) | Back matter or Looking back | Med | Text only | No |
-| Mood × spoons scatter | Closing the month | Low | Fun but fiddly by hand | No |
+| Month tracker with mood dots + meds/meals/work | Month page | High | Already printed | **Partly**: the tracker holds mood dots, a meds tick, meals 0–3 and work hours; spoons, sleep and anxiety are on the X4 companion |
+| Add a "cycle / dose day" column to the tracker | Month page | Med | One narrow column; optional via build flag | Planned (a "Cycle & dose" checkbox preset exists for the day page) |
+| **Year in Pixels page** | Keeper (yearly, the home-kept companion book) | High | 12 × 31 grid, pattern key (5) or numbers (7); the Keeper has no scan codes, so no zone needed; copy from monthly trackers during handoff | Planned |
+| Month "pixel strip" (31 cells in one row) | Closing the month page | Med | Summary before copying to the Keeper; needs a `data-zone` | Planned |
+| Day pixel block (one square + key) | Day page block | Low–Med | Duplicates the mood circles; only for people who prefer it | **Yes**: the Day pixel block (`pixel`): an empty square to fill plus 5 or 7 level swatches to circle, with optional low and high words |
+| Mood low/high range (split day) | Day page block | Med | Two rows of dots for the lowest and highest point of the day | **Yes**: the Low and high block (`range`): steps 3–7, your own left and right words. A split-cell variant of the Day pixel (`split`) is planned |
+| "Early warning signs from my charts" list | Safety plan back matter | High | Plain lines; fits next to "Signs a hard time is starting" | **Partly** (the safety plan has signs) |
+| How-to-read-patterns guide (section 8 table, short) | Back matter or Looking back | Med | Text only | Planned |
+| Mood × spoons scatter | Closing the month | Low | Fun but fiddly by hand | Planned |
 
-### b. X4
+### b. X4 companion
 
-| Idea | Where | Fit | RAM, scope and calm notes |
-|---|---|---|---|
-| Mood −3..+3 and anxiety 0–3 check-ins | Check-in items | High | **Already built** (`mood`, `anxiety`) |
-| Year in Pixels screen | A screen (from Month stats) | High | 12 × 31 cells from stored daily logs; draw row by row from the log file, no big buffer (a 372-byte static array of mood values is enough); 5 fill patterns in 1-bit; ~36 × 22 px cells fit 480 × 800 portrait. Pull-only, no streaks |
-| Month pixel strip | Month stats screen | High | One row of 31 cells above the averages; tiny |
-| Low/high range for mixed days | Check-in item (second scale) | Med | Needs a signed or zero-based scale export (known gap: bridge scales are 1..steps) |
-| "Cycle day" / "dose day" | Check-in item kind `toggle` or `count` | Med | Custom item via the bridge; fits in the 16 custom slots |
-| Mood on the sleep screen | Sleep screen | Low | Showing yesterday's mood at 12:31 a.m. risks rumination; keep the sleep screen to "today" facts only |
-| Export mood CSV | Wi-Fi page | Med | Already downloads logs; add a column header note for the scale |
-| Reminders to rate | — | **Out of scope** | No notifications |
-| Correlations ("you're sadder on Mondays") | — | **Out of scope** | Leans towards feeds/AI and judgement; leave pattern reading to the person |
-
-### c. Proposed editor blocks
-
-| Type | Name | Options | `data-zone` | X4 export kind |
+| Idea | Where | Fit | RAM, scope and calm notes | Already built? |
 |---|---|---|---|---|
-| `scale` preset | Mood (signed) | title "Mood", steps 7, lo "low", hi "wired" | `scale` (repeats `_2`…) | `scale` 1..7 today; needs a **zero-based/signed** option to map to −3..+3 (known gap) |
-| `pixel` (new) | Day pixel | `levels` choice 5/7; `key` bool; `split` bool (low/high triangles) | `pixel` | `scale` (same gap) |
-| `range` (new) | Low and high | title; steps 3–7; lo/hi words | `range_lo`, `range_hi` | two `scale` items, keys `c_<uid>_low`, `c_<uid>_high` |
-| `checks` preset | Cycle & dose | labels ["Period", "Dose day"] | `checks` | `toggle` × 2 (works now) |
-| `fields` preset | Cycle day | labels ["Cycle day"] | `fields` | `count` 0..99 (works now) |
-| `words` preset | Feelings wheel lite | words by quadrant: calm, content, tired, flat / excited, wired, anxious, irritable | `words` | not exported (words) |
+| Mood −3..+3 and anxiety 0–3 check-ins | Check-in items | High | Anxiety 0–3 is a built-in X4 check-in. Mood is on paper; a Scale block set to Signed exports a −3..+3 item to the X4 | **Yes** (anxiety built in; signed scale as a custom item) |
+| Year in Pixels screen | A screen (from Month stats) | High | 12 × 31 cells from stored daily logs; draw row by row from the log file, no big buffer (a 372-byte static array of mood values is enough); 5 fill patterns in 1-bit; ~36 × 22 px cells fit 480 × 800 portrait. Pull-only, no streaks | Planned |
+| Month pixel strip | Month stats screen | High | One row of 31 cells above the averages; tiny | Planned |
+| Low/high range for mixed days | Check-in item (second scale) | Med | Scales can now be zero-based or signed (the export mirrors what is printed); the Low and high block itself is paper only | **Partly**: two signed Scale blocks work; the Low and high block has no X4 export yet |
+| "Cycle day" / "dose day" | Check-in item kind `toggle` or `count` | Med | Custom item via the pack export; fits in the 16 custom slots | **Yes** (the "Cycle & dose" checkbox preset; a Fill-in blanks "Cycle day") |
+| Mood on the sleep screen | Sleep screen | Low | Showing yesterday's mood at 4:31 a.m. (the day roll-over) risks rumination; keep the sleep screen to "today" facts only | Not adopted |
+| Export mood CSV | Wi-Fi page | Med | The Wi-Fi page already downloads check-in logs; add a column header note for the scale | **Partly** (logs download; the header note is planned) |
+| Reminders to rate | — | **Out of scope** | No notifications | — |
+| Correlations ("you're sadder on Mondays") | — | **Out of scope** | Leans towards feeds/AI and judgement; leave pattern reading to the person | — |
+
+### c. Editor blocks
+
+| Type | Name | Options | `data-zone` | X4 export kind | Built? |
+|---|---|---|---|---|---|
+| `scale` | Mood (signed) | title "Mood", steps 7, `signed` on, lo "low", hi "wired" | `scale` (repeats `_2`…) | `scale` −3..+3 (a signed scale exports the printed numbers) | **Yes** as a Scale block with Signed on; no named preset |
+| `pixel` | Day pixel | `levels` choice 5/7; `key` bool (low and high words). Proposed: `split` bool (low/high triangles) | `pixel` | None | **Yes** (`split` planned) |
+| `range` | Low and high | label; steps 3–7; lo/hi words (defaults "flat" and "bright") | `range` | None (paper only) | **Yes**. An X4 export as two scale items is planned |
+| `checks` preset | Cycle & dose | labels ["Period", "Dose day"] | `checks` | `toggle` × 2 | **Yes** |
+| `fields` | Cycle day | labels ["Cycle day"] | `fields` | `count` 0..99 | Set up by hand; no preset |
+| `words` | Feelings wheel lite | words by quadrant: calm, content, tired, flat / excited, wired, anxious, irritable | `words` | not exported (words), except the optional "Pick one on X4" | Set up by hand from Words to circle; no preset |
 
 ### d. Proposed method layout: "Mood chart"
 
-One-click layout, keeps the default's header, frame and writing space:
+This layout is not among the built-in method layouts yet (today: original, Bullet Journal daily, Hobonichi, Five Minute, Theme System). One-click layout, keeps the default's header, frame and writing space:
 
 1. `sky` (Moon, sun & season), for the seasonal and moon columns people want to compare.
 2. `care` with rows: meds, meals, sleep & work, **checkin (7 steps)**, anxiety.
 3. `spoons` (shares the care box).
 4. `sleeptimes` (quality on).
-5. `range` Low and high (new; off by default, on for bipolar users).
+5. `range` Low and high (off by default, on for bipolar users).
 6. `checks` Cycle & dose (off by default).
 7. `words` Feeling (the default word list).
 8. `good` Small good things, 2 lines, to balance the score.

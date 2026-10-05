@@ -1,8 +1,19 @@
+---
+title: E-ink journaling and templates
+slug: e-ink-templates
+category: paper-and-hybrid
+evidenceLevel: some
+lastReviewed: 2026-09-30
+status: reviewed
+contributors:
+  - Journalwright Studio contributors
+---
+
 # E-ink journaling and templates
 
 Journaling on e-paper: writing tablets (reMarkable, Kindle Scribe, Boox, Supernote, Kobo Elipsa), the
 hyperlinked PDF planner market that grew around them, the design limits of e-ink screens, calm technology,
-and what all of it means for the Keeping Watch X4 companion.
+and what all of it means for the X4 e-ink companion to Journalwright Studio's printed books.
 
 Checked: 2026-09-28. Points marked **(uncertain)** could not be confirmed from a primary source.
 
@@ -35,7 +46,7 @@ a year view to a month to a day. The screens are slow, greyscale or muted colour
 good e-ink design works with those limits by moving as little as possible, using outlines rather than big
 black fills, and keeping navigation shallow. Calm technology (Weiser and Brown, 1995; Amber Case's eight
 principles) gives the design language: stay in the periphery, ask for the least attention, work even when
-it fails. For Keeping Watch the lesson is that paper stays the record and the X4 stays a quiet glance and a
+it fails. For Journalwright Studio the lesson is that paper stays the record and the X4 stays a quiet glance and a
 button check-in, never a second journal that competes for attention.
 
 ## 3. History and origin
@@ -50,7 +61,7 @@ button check-in, never a second journal that competes for attention.
   (Scientific American, September 1991), arguing computers should fade into the background. With John
   Seely Brown he wrote "Designing Calm Technology" (21 December 1995), the founding text for calm design.
 - **Amber Case** turned calm technology into eight practical principles and the O'Reilly book *Calm
-  Technology: Principles and Patterns for Non-Intrusive Design* (2015). She later set up the Calm Tech
+  Technology: Principles and Patterns for Non-Intrusive Design* (2015). Case later set up the Calm Tech
   Institute, which certifies products; the institute lists the reMarkable Paper Pro among certified
   products.
 
@@ -71,7 +82,7 @@ button check-in, never a second journal that competes for attention.
 | 2023 | Kobo Elipsa 2E; Kobo adds templates such as Plan (Monthly), Columns, Storyboard. |
 | 2024 | Kindle Scribe refresh adds generative-AI summaries and "refine" handwriting. reMarkable Paper Pro (11.8", colour). Calm Tech Institute launched (May 2024). |
 | 2025 | Boox firmware 4.0 (21 January): file-based notes, PNG templates, clickable PDF hyperlinks. reMarkable Paper Pro Move (7.3"). |
-| 2026 | Xteink X4 (4.3", buttons only, ESP32) reviewed; open CrossPoint firmware; Keeping Watch X4 companion written for it. |
+| 2026 | Xteink X4 (4.3", buttons only, ESP32) reviewed; open CrossPoint firmware; an X4 companion firmware for Journalwright Studio written for it. |
 
 ### Cultural context
 
@@ -208,7 +219,7 @@ their own clouds plus local transfer. The X4 companion stays local: files go out
   pages" option).
 - Day 7: export the week as PDF. Look at it on a computer. Decide whether this is better than paper for you.
 
-### First setup (Keeping Watch X4, no pen)
+### First setup (X4 companion, no pen)
 
 1. Build the month packs and copy `/kw/` to the SD card (`tools/export_pack.py`).
 2. Set the clock from the Wi-Fi page.
@@ -238,7 +249,7 @@ during the day, close. Reorganising is a weekly job.
 - **Weekly (10 min):** export or back up; duplicate next week's pages if your template needs it; clear
   the inbox notebook; do a full refresh or two if the screen looks muddy.
 - **Monthly (20 min):** archive last month's notebook (rename `2026-10 Daily`); export PDF; review
-  tallies; for Keeping Watch, open X4 "This month" and copy the numbers into the Keeper's Closing page.
+  tallies; for Journalwright Studio, open X4 "This month" and copy the numbers into the Keeper's Closing page.
 - **Quarterly:** check storage space, nib wear, battery health; update firmware only if something is
   broken (updates change layouts and break templates, e.g. Boox 4.0 changed how templates apply).
 - **Yearly:** buy or generate next year's planner; export the whole year to PDF and store it in two places;
@@ -297,10 +308,10 @@ targets for a pen, larger for fingers.
 |------------------------------|
 | (moon) Waxing gibbous        |  monoline icons, no fills
 | sunrise 6:52  sunset 6:31    |
-| Spokane: first frost watch   |  season line, italic
+| Your town: first frost watch |  season line, italic
 |------------------------------|
 | EVENTS                       |
-|  10:00  Clinic               |
+|  10:00  Appointment          |
 |  14:00  Shift                |
 |------------------------------|
 | ROUTINES                     |
@@ -335,11 +346,11 @@ black areas (they ghost and look heavy).
 
 ## 10. Worked examples
 
-### 10.1 A day on a reMarkable-style tablet (plain dots, Keeping Watch style)
+### 10.1 A day on a reMarkable-style tablet (plain dots, Journalwright Studio style)
 
 ```
 THU 1 OCT 2026                          day 1 of the Oct book
-• clinic 10:00  (bus 33, leave 9:20)
+• appointment 10:00  (bus, leave 9:20)
 • shift 14:00–22:00
 x meds am      – meds pm
 o dentist call → migrated to Fri
@@ -355,8 +366,8 @@ Tomorrow's first step: call dentist 9:05.
 WEEK 40  28 SEP – 4 OCT
 MON  rest day. laundry x. walk 20 min.          mood 3
 TUE  shift. rain. bus late.                      mood 2
-WED  shift. HRT refill picked up x               mood 3
-THU  clinic, shift. first frost watch.           mood 3
+WED  shift. prescription picked up x            mood 3
+THU  appointment, shift. first frost watch.  mood 3
 FRI  dentist call x. texted J.                   mood 4
 SAT  shift. smoke from the west? no, clear.      mood 3
 SUN  review + export. backup to laptop x         mood 4
@@ -387,9 +398,9 @@ Paper remains the story; the X4 gives the tallies that paper is bad at adding up
 | **reMarkable Methods workbooks** | reMarkable plus partners (Nir Eyal, Tiimo, MorningCoach, others) | Guided multi-page PDFs; some free, full library with Connect. |
 | **Custom PNG templates** | Users; Supernote and Boox support | One background per page; no links. |
 | **Text-converting journals** | Kobo Advanced notebooks, Scribe, Boox | Write between lines to get searchable text. |
-| **AI-summarised notebooks** | Kindle Scribe (2024) | Summaries and "refined" handwriting. Out of scope for Keeping Watch. |
+| **AI-summarised notebooks** | Kindle Scribe (2024) | Summaries and "refined" handwriting. Out of scope for Journalwright Studio. |
 | **Glance devices / e-paper calendars** | e.g. Invisible Display (Calm Tech certified), hobby dashboards | No writing; the device shows today at a glance. |
-| **Companion reader (X4 + paper)** | Keeping Watch | Paper holds the writing; the e-ink device holds the glance and button tallies. |
+| **Companion reader (X4 + paper)** | Journalwright Studio | Paper holds the writing; the e-ink device holds the glance and button tallies. |
 | **Custom firmware readers** | CrossPoint (open source, MIT) on X3/X4/X4 Pro | Better typography, Wi-Fi transfer, adjustable refresh cadence, sleep screen modes. |
 
 ## 12. Community practice
@@ -456,7 +467,7 @@ This whole doc is the digital version. Key points:
 
 ### Scanning
 
-The reverse path matters for Keeping Watch: paper pages are scanned with the Data Matrix page code and
+The reverse path matters for Journalwright Studio: paper pages are scanned with the Data Matrix page code and
 data-zones. E-ink tablets skip scanning but lock handwriting inside their own format; export to PDF for a
 durable copy.
 
@@ -545,7 +556,7 @@ durable copy.
 
 ## 20. Comparison
 
-| | E-ink tablet | Paper Bullet Journal | Digital daily notes (Obsidian/Day One) | iPad planner (GoodNotes) | Keeping Watch (paper + X4) |
+| | E-ink tablet | Paper Bullet Journal | Digital daily notes (Obsidian/Day One) | iPad planner (GoodNotes) | Journalwright Studio (paper + X4) |
 |---|---|---|---|---|---|
 | Handwriting | yes | yes | no (typing) | yes | yes (paper) |
 | Glare/notifications | none/low | none | high (phone) | high | none |
@@ -561,10 +572,10 @@ durable copy.
 - **Bullet Journal on e-ink:** see the Bullet Journal doc in this folder once it lands. Rapid logging works well
   with a pen on e-ink; migration is easier with copy/paste lasso.
 - **Digital daily notes:** see [`digital-daily-notes.md`](digital-daily-notes.md). Text-converted e-ink
-  notes can feed an Obsidian vault; Keeping Watch's X4 logs (CSV) can be imported into daily notes.
+  notes can feed an Obsidian vault; the X4 companion's logs (CSV) can be imported into daily notes.
 - **Habit and mood tracking:** tallies suit buttons better than handwriting; the X4 is a tally device.
 - **Morning pages / long-form writing:** better on paper or a large tablet; not on a 4.3" reader.
-- **Keeping Watch pattern:** write on paper, glance and tally on e-ink, hand off monthly to the Keeper.
+- **Journalwright Studio pattern:** write on paper, glance and tally on e-ink, hand off monthly to the Keeper.
 
 ## 22. Ready-to-use bank
 
@@ -621,7 +632,7 @@ durable copy.
 | Bistable | Holds an image with no power. |
 | Full refresh | Flashing update that resets all pixels; clears ghosting. |
 | Partial / fast refresh | Update of changed pixels only, no flash; builds ghosting. |
-| Half refresh | Keeping Watch X4 term: a screen-change update between fast and full. |
+| Half refresh | X4 companion term: a screen-change update between fast and full. |
 | Ghosting | Faint leftover image from earlier screens. |
 | A2 mode | A fast 1-bit waveform used for scrolling/pen input on many devices. |
 | Waveform | The voltage sequence the controller uses to move particles. |
@@ -640,7 +651,7 @@ durable copy.
 | Periphery | What you notice without focusing on it. |
 | Locatedness | Weiser and Brown: feeling connected to the world around you through the periphery. |
 | CrossPoint | Open-source firmware for Xteink readers. |
-| Bridge | Keeping Watch file (`/kw/checkins.txt`) that sends day-page blocks to the X4 as check-ins. |
+| Bridge | Journalwright Studio file (`/kw/checkins.txt`) that sends day-page blocks to the X4 as check-ins. |
 
 ## 24. FAQ
 
@@ -670,24 +681,24 @@ system it adds little.
 **9. What happens to my notes if the company goes away?** Export PDFs regularly. The X4 stores plain text and
 CSV on its SD card, so nothing depends on a company.
 
-**10. Should I use AI summaries on my journal?** Keeping Watch does not; journals are private and the
+**10. Should I use AI summaries on my journal?** Journalwright Studio does not; journals are private and the
 firmware has no generative AI by rule.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
 ### 25a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Built? |
 |---|---|---|---|---|
-| Plain page style that scans like an e-ink template (dots, lines, blank) | Day block (Writing space) | high | already dots/lines/blank; 4 mm grid being added | yes / being added |
-| Tally grid for button trackers so paper and X4 agree | Month page | med | outlined boxes, no fills; zone `tally_grid` | no |
-| "Copy from the X4" box on Closing page | Keeper / back matter | high | plain labelled blanks matching X4 "This month" order | partly (Keeper handoff) |
-| Tab-rail thinking: month thumb index printed on page edges | Month page / edges | low | bleed needed; KDP bleed changes trim rules; skip for now | no |
-| Undated extra pages | Back matter | med | removes empty-day guilt; header still has DATE field | partly (exchange pages) |
+| Plain page style that scans like an e-ink template (dots, lines, blank) | Day block (Writing space) | high | the Writing space block offers dots, lines, bold lines, 4 mm grid, 3.7 mm grid and blank | **built** (dots, lines, bold lines, 4 mm and 3.7 mm grids, blank) |
+| Tally grid for button trackers so paper and X4 agree | Month page | med | outlined boxes, no fills; zone `tally_grid` | planned |
+| "Copy from the X4" box on Closing page | Keeper / back matter | high | plain labelled blanks matching X4 "This month" order | **built** (the Closing page and the Keeper handoff list which boxes come from the X4) |
+| Tab-rail thinking: month thumb index printed on page edges | Month page / edges | low | bleed needed; KDP bleed changes trim rules; skip for now | planned |
+| Undated extra pages | Back matter | med | removes empty-day guilt; header still has DATE field | partly (undated books with extra pages are a book plan option; exchange pages exist) |
 | Darker grey for dots (e-ink lesson: light greys vanish) | Render CSS | low | print handles light grey fine; only matters for scans | n/a |
 | One-line prompts from section 22 in Fill-in blanks presets | Day block | med | text only | partly |
-| "Device-free hour" checkbox | Day block (Checkboxes) | med | exports as toggle | no (preset) |
-| Printed X4 button card | Front matter | med | icon table, B&W | no |
+| "Device-free hour" checkbox | Day block (Checkboxes) | med | exports as toggle | **built** ("Device-free hour" preset) |
+| Printed X4 button card | Front matter | med | icon table, B&W | planned |
 
 ### 25b. X4
 
@@ -699,21 +710,21 @@ what the research recommends. This table lists what fits and what to watch.
 |---|---|---|---|
 | **Refresh policy: fast for moves, half for screen changes, full on sleep, half every 8th fast** | Refresh (all screens) | high, **built** | Matches Waveshare's "full every 5–10 partials." Keep it. Don't expose it as a setting unless ghosting shows up in the hardware pass. |
 | **Sleep screen = today** | Sleep screen | high, **built** | Calm tech principle 3 (periphery) and 6 (works when it fails: the image persists when the battery dies). |
-| Stale-day marker when the clock is unknown or the redraw was missed | Sleep screen | high | Today shows "Clock not set" already; add a small "as of Thu 1" line if the date is more than one day old so an old page never passes as today. Tiny RAM. |
+| Stale-day marker when the clock is unknown or the redraw was missed | Sleep screen | high, planned | Today shows "Clock not set" already; add a small "as of Thu 1" line if the date is more than one day old so an old page never passes as today. Tiny RAM. |
 | **Avoid large black fills and inverted bars** | All screens | high, **mostly built** | Big blacks ghost and feel loud. Selection as a thin outline, not an inverted row. Audit Support and Menu for any inverse blocks. |
-| **Custom check-ins from the day page (bridge)** | Check-in item kinds | high, **being added** | toggle/scale/count/dots; 16 custom slots; static arrays; no new screens. |
-| Group headers from `@group` lines | Check-in screen | high | Plain small caps rule, same as paper block titles; keeps long lists scannable. |
-| Page the check-in list instead of scrolling | Check-in screen | high | Scrolling on e-ink = many partial refreshes. Show one page of items (about 8), Left/Right on a header row turns pages. |
-| "Quiet" sleep screen option: date, moon, one line only | Sleep screen, Wi-Fi page setting | med | For high-sensory days. One flag in `me.txt` or a settings file; no new RAM. Must not hide Support. |
-| Personal "On this day" from own logs (e.g. "A month ago: mood 4, outside") | Today screen footer (not sleep) | med | Reads last month's CSV line for the same date; ≤1 KB. Calm only if neutral and optional; never compare or score. Needs Shelbee's yes. |
-| One printed prompt per day on the sleep screen | Sleep screen | med | Prompt text comes from the pack (made by the journal build), rotating; no AI, no network. Low RAM. |
-| Week view in "This month" (seven rows of done counts) | This month screen | med | Uses existing `doneByDay[]`; dots not bars (less black). |
-| Battery low: a calm "charge me" page, drawn once | Sleep screen | high | Draw with full refresh while there is still power, so a flat battery leaves a clear message instead of a stale day. Not a notification: nothing blinks or repeats. |
-| Clear to white before long storage | Menu → "Put away" | low | Waveshare advises storing panels on white to avoid burn-in ghosts. Rare use; one menu line. |
-| Cold-weather note | README / Support | low | Particles slow near 0°C (Spokane winters, outdoor shifts). Document "keep it inside a pocket," no code. |
-| Day start hour for shift workers (redraw at e.g. 4:31 a.m.) | Wi-Fi page setting | med | Replaces fixed 12:31 a.m.; affects `nextLocalMidnight`. Check-ins after midnight would still belong to "yesterday." Needs Shelbee's yes. |
-| Large-text mode | All screens | med | Bitmap fonts are generated; a second size set costs flash, not RAM. Helps low vision and no-front-light use. |
-| Button map card on the Wi-Fi page and in print | Wi-Fi page | high | Same icons as paper; no hidden gestures besides hold-Back-for-Support. |
+| **Custom check-ins from the day page (the bridge)** | Check-in item kinds | high, **built** | toggle/scale/choice/count/dots; 16 custom slots; static arrays; no new screens. |
+| Group headers from `@group` lines | Check-in screen | high, **built** | Plain small caps rule, same as paper block titles; keeps long lists scannable. |
+| Page the check-in list instead of scrolling | Check-in screen | high, planned | Scrolling on e-ink = many partial refreshes. Show one page of items (about 8), Left/Right on a header row turns pages. |
+| "Quiet" sleep screen option: date, moon, one line only | Sleep screen, Wi-Fi page setting | med, planned | For high-sensory days. One flag in `me.txt` or a settings file; no new RAM. Must not hide Support. |
+| "On this day" from your own logs (e.g. "A month ago: mood 4, outside") | Today screen footer (not sleep) | med, planned | Reads last month's CSV line for the same date; ≤1 KB. Calm only if neutral and optional; never compare or score. Needs an explicit decision before it is added. |
+| One printed prompt per day on the sleep screen | Sleep screen | med, planned | Prompt text comes from the pack (made by the journal build), rotating; no AI, no network. Low RAM. |
+| Week view in "This month" (seven rows of done counts) | This month screen | med, planned | Uses existing `doneByDay[]`; dots not bars (less black). |
+| Battery low: a calm "charge me" page, drawn once | Sleep screen | high, planned | Draw with full refresh while there is still power, so a flat battery leaves a clear message instead of a stale day. Not a notification: nothing blinks or repeats. |
+| Clear to white before long storage | Menu → "Put away" | low, planned | Waveshare advises storing panels on white to avoid burn-in ghosts. Rare use; one menu line. |
+| Cold-weather note | README / Support | low, planned | Particles slow near 0°C (cold winters, outdoor shifts). Document "keep it inside a pocket," no code. |
+| Day start hour for shift workers (redraw at e.g. 4:31 a.m.) | Wi-Fi page setting | med | **Partly built:** the X4 already rolls the day over at 4 a.m. and redraws at 4:31 a.m., and check-ins after midnight belong to "yesterday"; a user-adjustable hour on the Wi-Fi page is planned. |
+| Large-text mode | All screens | med, **built** (Settings, Text size: Large) | Bitmap fonts are generated; a second size set costs flash, not RAM. Helps low vision and no-front-light use. |
+| Button map card on the Wi-Fi page and in print | Wi-Fi page | high, planned | Same icons as paper; no hidden gestures besides hold-Back-for-Support. |
 | Keep navigation two levels deep | Menu | high, **built** | Hyperlinked-planner lesson: depth costs taps and refreshes. |
 | Show "logged" state on Today (e.g. `CARE [x][x][ ]`) | Today screen | high, **built** | Periphery, not a badge: no counts in circles, no red. |
 | Upload a template/background image | Wi-Fi page | low | Not useful: X4 can't write. Skip. |
@@ -733,16 +744,16 @@ what the research recommends. This table lists what fits and what to watch.
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `tally` | Tally marks | `title`, `labels[]` (≤4), `max` (5–20) | `tally` (repeats `tally_2`) | `count` 0..max per label |
-| `devicefree` (preset of `checks`) | Device-free hour | `title`, `labels` (e.g. "Phone away 1 h") | `checks` | `toggle` |
-| `energy` (preset of `scale`) | Energy | steps 5, lo "empty", hi "full" | `scale` | `scale` 1..5 |
-| `outside` (preset of `habits`) | Outside & light | labels: Outside, Daylight on face, Moved | `habits` | `dots` |
-| `oneword` | One word for today | `title`, box width | `oneword` | not exported (text) |
+| `tally` (planned) | Tally marks | `title`, `labels[]` (≤4), `max` (5–20) | `tally` (repeats `tally_2`) | `count` 0..max per label |
+| `devicefree` (preset of `checks`, **built**) | Device-free hour | `title`, `labels` (e.g. "Phone away 1 h") | `checks` | `toggle` |
+| `energy` (preset of `scale`; planned, though an "Energy types" block exists) | Energy | steps 5, lo "empty", hi "full" | `scale` | `scale` 1..5 |
+| `outside` (preset of `habits`, **built** as "Outside & light") | Outside & light | labels: Outside, Daylight on face, Moved | `habits` | `dots` |
+| `oneword` (planned) | One word for today | `title`, box width | `oneword` | not exported (text) |
 
 Notes: presets reuse existing types so the bridge needs no change. `tally` is the only new type; it maps
 cleanly to `count`, and on paper prints `|||| ||` space plus a small box for the total.
 
-### 25d. Proposed method layout: "Paper + X4 companion"
+### 25d. Proposed method layout: "Paper + X4 companion" (planned)
 
 A day page designed so the X4 and the paper page agree:
 
@@ -764,7 +775,7 @@ Total custom exports: 3 + 1 + 1 = 5 of 16 slots.
 
 - **Handwriting or touch on the X4:** no digitiser; paper is the writing surface.
 - **AI summaries or "refine handwriting"** (Kindle Scribe style): firmware rule, and journals are private.
-- **Cloud sync of check-ins:** nothing leaves the device except over its own hotspot.
+- **Background or cloud sync of check-ins:** nothing leaves the device except over its own hotspot, or an explicit sync the user starts over Wi-Fi they configured.
 - **Streaks, badges, progress rings:** they turn care into performance.
 - **Colour or greyscale photos on the sleep screen:** 1-bit dithered photos look noisy and ghost.
 - **Hyperlinked mega-PDFs in the X4 library:** a 4.3" screen can't show letter-size pages usefully; EPUB is
@@ -780,7 +791,7 @@ Total custom exports: 3 + 1 + 1 = 5 of 16 slots.
 - Whether a 1-bit panel can do a reliable 4-grey mode on the X4 controller (CrossPoint may know).
 - reMarkable's built-in template count and custom-template rules: the official support page did not render
   for our fetch tool.
-- Whether shift-aware day start (e.g. 4:31 a.m.) is better than midnight for Shelbee's check-ins.
+- Whether shift-aware day start (e.g. 4:31 a.m.) is better than midnight for check-ins.
 - No study tests journaling outcomes (wellbeing, consistency) on e-ink vs paper.
 
 ## 27. Further reading
@@ -835,4 +846,4 @@ All opened on 2026-09-28.
     https://www.learningscientists.org/blog/2019/2/21-1
 20. Templatables, "Ultimate 2026 Daily Planner for Kindle Scribe" (example of the hyperlinked planner market).
     https://www.templatables.com/en-us/products/2026-kindle-scribe-daily-planner
-21. Keeping Watch repo: `x4/README.md`, `x4/CLAUDE.md`, `x4/src/app.cpp` (refresh policy), `journal/daypage.mjs`.
+21. Journalwright Studio repo: `x4/README.md`, `x4/src/app.cpp` (refresh policy), `journal/daypage.mjs`.

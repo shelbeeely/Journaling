@@ -1,3 +1,14 @@
+---
+title: "The Alastair Method"
+slug: alastair-method
+category: bujo-family
+evidenceLevel: none
+lastReviewed: 2026-09-30
+status: reviewed
+contributors:
+  - Journalwright Studio contributors
+---
+
 # The Alastair Method (Alastair Johnston)
 
 A column-and-dot technique for planning inside a Bullet Journal. It began as a fix for future planning and grew into a context to-do list and a paper Kanban board. This doc also covers the add-ons it's usually compared with: the Calendex, the six-box Future Log, the hybrid log and the sticky-note method.
@@ -261,7 +272,7 @@ Bus pass                        X
 Return library book             •
 Sort winter clothes                 •
 ```
-- **Morning.** Low energy and only 20 minutes before a shift, so she works the **Ph** column on the bus: the heater call goes to voicemail, so it's crossed and re-dotted under Wait.
+- **Morning.** Low energy and only 20 minutes before a shift, so you work the **Ph** column on the bus: the heater call goes to voicemail, so it's crossed and re-dotted under Wait.
 - **After the shift,** the **Err** column on the way home: the bus pass is done and the library book is left.
 - **Evening.** Library book and winter clothes stay open. The heater stays in Wait.
 
@@ -345,7 +356,7 @@ Not applicable. There are no Alastair Method products. It's a free technique des
 - **Spreadsheets.** A spreadsheet is essentially an Alastair page: rows are items, columns are months or contexts, and cells are dots. Sorting and filters replace scanning.
 - **Kanban apps** (Trello and similar) are the digital twin of the Projects version.
 - **E-ink** (reMarkable, Scribe, Boox): easy with a dot-grid template, or a pre-drawn column template PDF.
-- **Scanning.** The column dots are easy for a machine to read if the columns sit in fixed positions. That's a potential fit for Keeping Watch's scan zones: each column cell becomes a checkbox.
+- **Scanning.** The column dots are easy for a machine to read if the columns sit in fixed positions. That's a potential fit for the Studio's scan zones: each column cell becomes a checkbox.
 - **Lost in digital:** seeing the whole plan on one page, and the calm of paper.
 - **Gained:** sorting, dates and automatic carry-over.
 
@@ -439,7 +450,7 @@ Not applicable. There are no Alastair Method products. It's a free technique des
 - **With Kanban or Personal Kanban.** The Projects version is paper Kanban.
 - **With habit trackers.** Weekly columns are a habit grid.
 - **With the Calendex.** Some people use Alastair columns for undated items and a Calendex for dated ones.
-- **With Keeping Watch printed pages.** A pre-printed column strip on the week spread or month page.
+- **With Journalwright Studio printed pages.** A pre-printed column strip on the week spread or month page.
 
 ---
 
@@ -517,7 +528,7 @@ Not applicable. There are no Alastair Method products. It's a free technique des
 
 ---
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
 Columns of dots are **very** compatible with printed, scannable pages. Each column × row cell is a fixed-position mark, exactly what scan zones and Data Matrix page codes can read.
 
@@ -525,32 +536,33 @@ Columns of dots are **very** compatible with printed, scannable pages. Each colu
 
 | Idea | Where | Fit | B&W and scan-zone notes | Already built? |
 |---|---|---|---|---|
-| Six-month Alastair future page (month initials pre-printed for the book's month + 5) | Month page (back of the calendar) or back matter | High | Six narrow columns of printed empty circles and a line per item. `data-zone="future_cols"`. Dots are shapes, not colour | No |
-| Weekly day-column list (M–S dots per task) | Week spread | High | Seven circle columns, 8–10 rows. `data-zone="week_cols"`. Keep the SEND TO strip clear | No (Habit dots is similar: **being added**) |
-| Context to-do (Phone / Email / Errands / Home / Wait) | Day block or week spread | Medium | Column labels as icons (phone, envelope, bag, house, hourglass) drawn as SVG | No |
-| Project board (5 statuses) | Exchange pages or back matter | Medium | Two-page spread; "success" and "target date" fields at top. `data-zone="project"` | No |
-| Energy columns (low / med / high) | Day block | Medium | Ties to spoons. Three circles per row | No |
-| Keeper: six-month look-ahead in the monthly handoff | Keeper | Medium | No scan codes needed; plain columns | No |
+| Six-month Alastair future page (month initials pre-printed for the book's month + 5) | Month page (back of the calendar) or back matter | High | Six narrow columns of printed empty circles and a line per item. `data-zone="future_cols"`. Dots are shapes, not colour | Planned |
+| Weekly day-column list (M–S dots per task) | Week spread | High | Seven circle columns, 8–10 rows. `data-zone="week_cols"`. Keep the SEND TO strip clear | Planned (the Habit dots block is similar and **built**; the Week at a glance block shows the week as a strip) |
+| Context to-do (Phone / Email / Errands / Home / Wait) | Day block or week spread | Medium | Column labels as icons (phone, envelope, bag, house, hourglass) drawn as SVG | Planned |
+| Project board (5 statuses) | Exchange pages or back matter | Medium | Two-page spread; "success" and "target date" fields at top. `data-zone="project"` | Planned |
+| Energy columns (low / med / high) | Day block | Medium | Ties to spoons. Three circles per row | Planned (the Energy types and Spoons blocks are related and **built**) |
+| Keeper: six-month look-ahead in the monthly handoff | Keeper | Medium | No scan codes needed; plain columns | Planned |
 
-### b. X4
+### b. E-ink companion (X4)
 
 | Idea | Where | Fit | RAM, scope and calm notes |
 |---|---|---|---|
-| Weekly day-column habits (one `dots` item per label) | Check-in item kind `dots` | High | Already in the bridge (`habits` → `dots`). One byte per item per day |
+| Weekly day-column habits (one `dots` item per label) | Check-in item kind `dots` | High | **Built**: the bridge exports a Habit dots block as `dots`. One byte per item per day |
 | "Waiting on" count | A screen | Low | Needs typed entry; the X4 has 7 buttons. Skip |
-| Six-month look-ahead (read-only text from the pack) | A screen, or the Wi-Fi page upload | Low–Med | A static file of about 1 KB. No reminders or alerts |
-| Context list for today (toggle per task) | Check-in `toggle` | Medium | Up to 16 custom slots in total, so keep it to 3–4 |
+| Six-month look-ahead (read-only text from the pack) | A screen, or the Wi-Fi page upload | Low–Med | A static file of about 1 KB. No reminders or alerts. Planned |
+| Context list for today (toggle per task) | Check-in `toggle` | Medium | Up to 16 custom slots in total, so keep it to 3–4. A `checks` block already exports as `toggle` items |
 
 ### c. Proposed editor blocks
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
 | `columns` | Dot columns | title (text), columns (list, max 7, e.g. M…S or contexts), rows (num 3–12), header icons (bool) | `columns` (repeats `columns_2`…) | Not exported by default. A future `dots` per row label is possible, but rows are blank handwritten lines, so no |
-| `habits` (being built) | Habit dots | title, labels[] | `habits` | `dots` per label |
+| `habits` (**built**) | Habit dots | title, labels[] | `habits` | `dots` per label |
 | `project` | Project board | statuses (flags: backlog, committed, doing, waiting, done), rows (num 4–14), success line (bool) | `project` | Not exported |
-| `energy` | Energy columns | rows (num 3–8) | `energy_cols` | Not exported |
+| `energy_columns` | Energy columns | rows (num 3–8) | `energy_cols` | Not exported (the existing `energy` block is "Energy types", a different block) |
 
 ### d. Proposed method layout: "Alastair columns" day
+Planned: it is not in the editor's "Start from a method" list yet, and it needs the proposed `columns` block.
 1. `sky`
 2. `events`
 3. `columns`: title "Today by context", columns [Phone, Email, Errands, Home, Wait], rows 6, header icons on
@@ -563,8 +575,8 @@ The week-spread version is a `columns` block with M–S, which suits the printed
 ### e. Don't adopt
 
 - **Freehand-ruled column layouts** that vary each week. They break fixed scan-zone mapping; print them.
-- **Colour-coded columns.** The book is black-and-white; use icons and shapes.
-- **An X4 "overdue" or "waiting" alert.** No notifications.
+- **Colour-coded columns.** The printed book is black-and-white; use icons and shapes.
+- **An e-ink companion "overdue" or "waiting" alert.** No notifications.
 - **More than 7 columns on a 5.5 × 8.5 page.** Targets get too small to mark, and too small to scan.
 - **Project boards on day pages.** Too heavy, and they belong in back matter.
 

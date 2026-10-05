@@ -1,8 +1,18 @@
+---
+title: "Pomodoro log (the Pomodoro Technique on paper)"
+slug: pomodoro-log
+category: productivity
+evidenceLevel: some
+lastReviewed: 2026-09-30
+status: reviewed
+contributors: ['Journalwright Studio contributors']
+---
+
 # Pomodoro log (the Pomodoro Technique on paper)
 
 Work in short, protected rounds, mark each one on paper, note what tried to interrupt you, and learn how long things really take.
 
-> Research checked 2026-09-28. The main primary source is Francesco Cirillo's own paper, *The Pomodoro Technique* (v1.0 19 Oct 2006, v1.3 15 June 2007), read in full. The 2018 book was not read in full; points that come only from secondary descriptions of the book are marked **(unverified)**. "Pomodoro®" is a registered trademark of Francesco Cirillo; this doc uses the word to describe his method. For Keeping Watch blocks, section 25 uses neutral names ("focus rounds").
+> Research checked 2026-09-28. The main primary source is Francesco Cirillo's own paper, *The Pomodoro Technique* (v1.0 19 Oct 2006, v1.3 15 June 2007), read in full. The 2018 book was not read in full; points that come only from secondary descriptions of the book are marked **(unverified)**. "Pomodoro®" is a registered trademark of Francesco Cirillo; this doc uses the word to describe his method. For Journalwright Studio blocks, section 25 uses neutral names ("focus rounds").
 
 ---
 
@@ -359,7 +369,7 @@ Task                               ' -    rounds
 3 Tidy the budget sheet            '      [X][ ]  -> back to Inventory
 
 UNPLANNED & URGENT
-[16:00] Call back Jo (she came by at 10:20)        [X]
+[16:00] Call back Jo (came by at 10:20)           [X]
 Refill water bottle  (did it at the long break)
 Look up bus detour  (moved to Inventory, U [Thu])
 
@@ -475,7 +485,7 @@ Release cycle: none. The method hasn't changed much since 2006; the book adds ma
 **E-ink**
 
 - reMarkable, Kindle Scribe, Boox: handwritten To Do Today templates with box columns; use a separate timer.
-- An e-ink device can show a countdown only if it refreshes; frequent refresh on e-ink is slow and can flash. A once-a-minute partial refresh is the usual compromise. The X4 redraws rarely by design, so it suits *recording* rounds better than timing them (section 25b).
+- An e-ink device can show a countdown only if it refreshes; frequent refresh on e-ink is slow and can flash. A once-a-minute partial refresh is the usual compromise. The X4 companion redraws rarely by design, so its Focus timer draws once per phase (no countdown) and is best at *recording* rounds (section 25b).
 
 **Scanning**
 
@@ -560,7 +570,7 @@ There's no trial of Cirillo's full system (sheets, marks, estimation). The resea
 - **Trauma:** Sudden alarms can startle. Use a soft chime or vibration. Keep interruption tallies private and non-judgmental.
 - **Dyslexia and dysgraphia:** Boxes and ticks instead of words. Short task names or icons. Records sheet optional; a dot per round on a month page is enough.
 - **Low vision:** Large-format visual timer; bold boxes; tactile timers (wind-up dials can be felt); a talking timer.
-- **Motor or hand pain:** Stamps or pre-printed boxes; one tap to mark; skip the Records sheet; a physical button device to count rounds (see X4).
+- **Motor or hand pain:** Stamps or pre-printed boxes; one tap to mark; skip the Records sheet; a physical button device to count rounds (see the X4 companion, section 25b).
 - **Trans and gender-diverse people:** Useful for admin that's emotionally heavy (name-change forms, insurance appeals, HRT paperwork): one round at a time, with a comforting break planned. Keep sensitive task names vague on scanned pages.
 - **Shift workers:** Use rounds for off-shift admin and study only. Build the timetable around the shift, not a 9-to-5. After a night shift, shorter sets.
 - **Low income:** Free: any clock and scrap paper. The official eSheets and timers are free; no app needed.
@@ -697,51 +707,53 @@ Cirillo says explicit gestures (winding, marking, crossing out) matter and paper
 **10. What does "add it up" mean?**
 Tasks under one round (quick emails, calls) get grouped until they fill one round.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
-Naming: "Pomodoro®" is a registered trademark. Keeping Watch should use neutral names in the book and editor ("Focus rounds", "Came up") and credit Cirillo's technique in back matter or docs only.
+Journalwright Studio makes printed journals and planners designed in a block editor, with an optional e-ink companion (the X4 companion). This section turns the research above into day page blocks, X4 items and a method layout.
+
+Naming: "Pomodoro®" is a registered trademark. The Studio uses neutral names in the book and editor ("Focus rounds", "Came up") and credits Cirillo's technique in back matter or docs only.
 
 ### a. Printed book
 
 | Idea | Where it goes | Fit | B&W and scan-zone notes | Already built? |
 |---|---|---|---|---|
-| **Focus rounds**: 1–5 task lines, each with a row of empty boxes (estimate) and optional `'` / `-` tally spots | Day block | High | Square boxes read clearly in B&W and scan well (filled vs empty). Own `data-zone` (`rounds`). Boxes 4–5 mm | **Partly**: Top priorities has time circles (each = 15 min), so 2 circles ≈ one round. No interruption spots |
-| "Came up" lines (Unplanned & Urgent) | Day block | High | A Lined notes block labelled "Came up", 2 lines | **Yes** via Lined notes (label option) |
-| Rounds-per-day row on the monthly tracker | Month page | Med | Empty/half/full circle (none / 1–3 / 4+), same style as Habit dots | **Partly** (month tracker and dot style exist) |
-| Weekly focus review: rounds per day, `'` and `-` counts, best set, one change | Week spread (weekly review) | Med | Seven small number cells + three lines | No |
-| Activity Inventory page: task, est, `U`, deadline, done | Month page (one per month, after the calendar) | Low–med | Plain ruled table; `data-zone` needed. Probably overlaps with Action items and exchange pages | No |
-| Records sheet (date / task / est / real / diff / `'` / `-`) | Back matter (one or two pages) | Low | Dense table; busy for a calm book. Offer only as an optional extra | No |
-| Break menu card (water, stretch, outside, lie down, breathe) with icons | Front matter (next to the care plan) | Med | Icons only, no ornament | No |
-| Focus rounds summary for the monthly handoff | Keeper | Low | Keeper has no scan codes; a single "average rounds on work days" line | No |
+| **Focus rounds**: 1–5 task lines, each with a row of empty boxes (estimate) and optional `'` / `-` tally spots | Day page block | High | Square boxes read clearly in B&W and scan well (filled vs empty). Own `data-zone` (`rounds`) | **Yes**: the Focus rounds block (`rounds`): tasks 1–5, rounds per task 1–7 (default 4), interruption marks (me / others), a length hint ("25 min"), row height |
+| "Came up" lines (Unplanned & Urgent) | Day page block | High | A Lined notes block labelled "Came up", 2 lines | **Yes** via Lined notes (label option); not a ready-made preset |
+| Rounds-per-day row on the monthly tracker | Month page | Med | Empty/half/full circle (none / 1–3 / 4+), same style as Habit dots | Planned (the Habit dots style exists; the month tracker has no rounds row) |
+| Weekly focus review: rounds per day, `'` and `-` counts, best set, one change | Week spread (weekly review) | Med | Seven small number cells + three lines | Planned |
+| Activity Inventory page: task, est, `U`, deadline, done | Month page (one per month, after the calendar) | Low–med | Plain ruled table; `data-zone` needed. Probably overlaps with Action items and exchange pages | Planned |
+| Records sheet (date / task / est / real / diff / `'` / `-`) | Back matter (one or two pages) | Low | Dense table; busy for a calm book. Offer only as an optional extra | Planned |
+| Break menu card (water, stretch, outside, lie down, breathe) with icons | Front matter | Med | Icons only, no ornament | Planned |
+| Focus rounds summary for the monthly handoff | Keeper (the home-kept companion book) | Low | The Keeper has no scan codes; a single "average rounds on work days" line | Planned |
 
-### b. X4
+### b. X4 companion
 
-| Idea | Where it goes | Fit | RAM, scope and calm notes |
-|---|---|---|---|
-| **"Focus rounds" count check-in** (0–16 per day) | Check-in item kind `count` | High | Works today through the bridge: a Fill-in blanks block labelled "Focus rounds" exports `count` 0..99. No new firmware. Could be made a built-in later if Shelbee uses it |
-| **"Interrupted by me / by others"** counts | Check-in item kind `count` (two items) | Med | Same bridge route (two labels in one Fill-in blanks block). Uses 2 of the 16 custom slots |
-| Rounds as Habit dots (empty / half / full = 0 / some / planned amount) | Check-in item kind `dots` | Med | Habits block → `dots`. Calmer than a number |
-| **Silent round timer screen**: start with a button, shows remaining minutes as a shrinking bar redrawn once a minute, no sound, ends by showing "Break" | A screen | Low–med | Needs a partial refresh every minute while open, which costs battery and conflicts with the device's rare-redraw design. No buzzer or alert, so it's not a notification; the user opens and watches it. Static state only (start time, length: 8 bytes). Consider only if Shelbee asks |
-| Rounds per day in month stats for the Keeper handoff | A screen (month stats) | Med | Sum of the `count` item over the month; already how check-in stats work |
-| Break menu shown after a round ends | A screen | Low | Only if the timer screen exists. Static list; no prompts pushed |
-| Alarms or reminders to start a round | — | **Out of scope** | Notifications aren't allowed |
-| Streaks, trophies, tomato growth animations | — | **Out of scope** | Badges and gamification aren't allowed |
-
-### c. Proposed editor blocks
-
-| Type | Name | Options | `data-zone` | X4 export kind |
+| Idea | Where it goes | Fit | RAM, scope and calm notes | Already built? |
 |---|---|---|---|---|
-| `rounds` | **Focus rounds** (group: Planning, icon: `clock`) | `label` text (def "Focus rounds", max 24); `n` task lines (1–5, def 3); `boxes` per line (1–7, def 4; the 5–7 cap mirrors "break it down"); `marks` bool (print `'` and `-` tally spots, def off); `len` text (length hint shown small after the label, def "25 min", max 8) | `rounds` (repeats `rounds_2`, …) | None directly (the boxes are paper-only). Pair with a `fields` "Focus rounds" item for the device |
-| `lines` (existing) | **Came up** preset | `label` "Came up", `n` 2 | `lines` | None |
-| `fields` (existing) | **Focus rounds** count preset | `labels` ["Focus rounds"] or ["Focus rounds", "Interrupted: me", "Interrupted: others"] | `fields` | `count` 0..99 each (`c_<uid>_focus_rounds`, `c_<uid>_interrupted_me`, `c_<uid>_interrupted_others`) |
-| `top` (existing) | **Top priorities** with time circles | `bubbles` 2–8 (each circle = 15 min, so 2 = one round) | `top` | None |
-| `habits` (existing) | **Rounds dots** preset | `labels` ["Focus"] | `habits` | `dots` (0 none, 1 some, 2 full plan) |
+| **"Focus rounds" count check-in** (0–16 per day) | Check-in item kind `count` | High | A Focus rounds block, or a Fill-in blanks block labelled "Focus rounds", exports a `count` to the check-in screen through the pack export (`focus_rounds`) | **Yes** (Focus rounds block; "Focus rounds count" blank preset) |
+| **"Interrupted by me / by others"** counts | Check-in item kind `count` (two items) | Med | Two labels in one Fill-in blanks block; uses 2 of the 16 custom slots | **Yes** as a manual Fill-in blanks setup. The Focus timer also logs `focus_interruptions` as one total |
+| Rounds as Habit dots (empty / half / full = 0 / some / planned amount) | Check-in item kind `dots` | Med | Habits block → `dots`. Calmer than a number | **Yes** as a Habit dots block labelled "Focus" |
+| **Silent round timer screen** | A screen (Menu, Focus) | Low–med | Built to fit the device's rare-redraw design: no sound, no alarm, no per-minute refresh. Start draws "Focus until 2:35p · round 2 of 4" once, then the X4 deep-sleeps with a timer wake and redraws at the next phase. Defaults 25 min work / 5 min break, 4 rounds, 15 min long break; presets 25/5, 15/5 and 45/10; work 5–90 min and break 1–30 min are adjustable. **Interrupted** marks an interruption without touching the timer; **End** stops the session | **Yes**: the X4 Focus timer. It logs `focus_rounds` and `focus_interruptions`, and This month shows one quiet line ("Focus 10 · 3 interrupted"): a count, no streaks, goals or badges |
+| Rounds per day in month stats | A screen (month stats) | Med | Sum of the `focus_rounds` log key over the month | **Yes**: the quiet "Focus N · M interrupted" line on This month. No Keeper box yet (planned) |
+| Break menu shown after a round ends | A screen | Low | Static list; no prompts pushed | Planned; the timer currently shows "Break until ..." only |
+| Alarms or reminders to start a round | — | **Out of scope** | Notifications aren't allowed | — |
+| Streaks, trophies, tomato growth animations | — | **Out of scope** | Badges and gamification aren't allowed | — |
 
-Design notes for `rounds`: boxes are squares (not tomatoes, not circles, to stay distinct from Top priorities' circles and Habit dots). Tally spots are two small labelled areas at the row end, each with the glyph drawn as SVG (not a font glyph) to avoid Type 3 fonts. No colour, no fills.
+### c. Editor blocks
+
+| Type | Name | Options | `data-zone` | X4 export kind | Built? |
+|---|---|---|---|---|---|
+| `rounds` | **Focus rounds** (group: Planning) | `label` text (default "Focus rounds", max 24); `n` task lines (1–5, default 1); `boxes` per line (1–7, default 4; the cap mirrors "break it down"); `marks` bool (print `'` and `-` tally spots for interruptions, default on); `len` text (length hint shown small after the label, default "25 min", max 8); row height | `rounds` (repeats `rounds_2`, …) | `count` `focus_rounds`, 0..16 (a second Focus rounds block stays paper only) | **Yes** |
+| `lines` (existing) | **Came up** | `label` "Came up", `n` 2 | `lines` | None | Set up by hand from Lined notes; no preset |
+| `fields` (existing) | **Focus rounds count** preset | `labels` ["Focus rounds"] or ["Focus rounds", "Interrupted: me", "Interrupted: others"] | `fields` | `count` 0..99 each | **Yes** (the first variant is the preset) |
+| `top` (existing) | **Top priorities** with time circles | `bubbles` 0–8 (each circle = 15 min, so 2 = one round) | `top` | None | **Yes** |
+| `habits` (existing) | **Rounds dots** | `labels` ["Focus"] | `habits` | `dots` (0 none, 1 some, 2 full plan) | **Yes** as a manual setup; no preset |
+
+Design notes for `rounds`: boxes are squares (not tomatoes, not circles, to stay distinct from Top priorities' circles and Habit dots). Tally spots are small labelled areas at the row end, with the glyph drawn as SVG (not a font glyph) to avoid Type 3 fonts. No colour, no fills.
 
 ### d. Proposed method layout: "Focus rounds"
 
-Ordered block list for a one-click layout:
+This layout is not among the built-in method layouts yet (today: original, Bullet Journal daily, Hobonichi, Five Minute, Theme System). Ordered block list for a one-click layout:
 
 1. `sky` (Moon, sun & season)
 2. `events` (Events)
@@ -753,13 +765,11 @@ Ordered block list for a one-click layout:
 8. `body` (Writing space: dots)
 9. `review` (Went well · Was hard · Tomorrow)
 
-Until `rounds` exists: use `top` (label "Focus rounds", n 3, bubbles 4 at 15 min each = two rounds per task) in step 5.
-
-A combined "Rounds + notes" layout could swap step 8 for the interstitial `stamps` block (see [interstitial-journaling.md](interstitial-journaling.md) §25c), so each break gets a timestamped line.
+A combined "Rounds + notes" layout could swap step 8 for the interstitial `stamps` block (Time stamps; see [interstitial-journaling.md](interstitial-journaling.md) §25c), so each break gets a timestamped line.
 
 ### e. Don't adopt
 
-- **Ticking or ringing** on the X4 or in any Keeping Watch tool: sound is a notification in practice and hard on sensory needs.
+- **Ticking or ringing** on the X4 or in any Journalwright Studio tool: sound is a notification in practice and hard on sensory needs.
 - **Tomato imagery**: decorative, adds ornament, and leans on the trademark.
 - **The word "Pomodoro" as a block name**: registered trademark; use "Focus rounds".
 - **The "void round" rule as printed instruction**: it can turn one interruption into shame. The book should say any round counts.
@@ -775,7 +785,7 @@ A combined "Rounds + notes" layout could swap step 8 for the interstitial `stamp
 - Why did Biwer (2023) find mood benefits for systematic breaks but Smits (2025) didn't? Different lengths (24/6 vs 25/5), different samples, one session each.
 - Does Cirillo's 2018 book change any rules or symbols from the 2007 paper (for example the second and third estimate shapes)? Not checked in the full book.
 - Full text of the Smart-Pomodoro ADHD study (2025) couldn't be opened.
-- Could a silent round timer work on the X4 without breaking its battery life and calm redraw rhythm? Needs a hardware test.
+- The X4 Focus timer draws once per phase with no countdown, so it makes no sound and has no countdown. Does that suit people who want to see time passing, or do they need a countdown? No trial or user study; feedback from people who use it would help.
 - Where the "52/17" rule came from and whether its data holds up.
 
 ## 27. Further reading

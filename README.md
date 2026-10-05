@@ -30,8 +30,7 @@ The editor, built from the same sample (open `journal/editor/dist/site/index.htm
 
     KW_PROFILE=content/profile.example.json KW_OUT=out-sample node editor/build.mjs
 
-To make your own, run `cd journal && npm run init` (asks a few questions, writes `content/profile.json`, builds a sample book): [journal/GUIDE.md](journal/GUIDE.md).
-By hand: copy `journal/content/profile.example.json` to `journal/content/profile.json` and edit it
+To make your own, copy `journal/content/profile.example.json` to `journal/content/profile.json` and edit it
 ([journal/README.md](journal/README.md#profile-contentprofilejson) lists every field). The committed `profile.json` is Shelbee's.
 
 ## Map
@@ -54,7 +53,7 @@ By hand: copy `journal/content/profile.example.json` to `journal/content/profile
 | **Profile** | `content/profile.json`: name, book title, edition, place, time zone, day start, trim, module switches, and which content packs to use | You make a new book |
 | **Content packs** | Regional support lists, clinic and crisis pages, seasons, optional transit feeds, as data | You move, or a phone number changes |
 
-Crisis and support numbers are never filled in for someone else. The `generic` pack ships two verified national lines and a placeholder; a pack of your own needs a dated source for every number ([journal/PACKS.md](journal/PACKS.md)).
+Crisis and support numbers are never filled in for someone else. The `generic` pack ships with placeholders you check yourself.
 
 ## Docs
 
@@ -77,13 +76,15 @@ Crisis and support numbers are never filled in for someone else. The `generic` p
 
 | Area | Status |
 | --- | --- |
-| Block editor, book canvas, KDP output, profiles | Ready |
-| Content packs (support, clinic, transit, holidays, seasons as data with a verification note), `npm run init`, guides | Ready |
-| Onboarding: `npm run init`, guides for your own journal and your own pack | Next |
-| Book scopes (quarter, season, year, undated) and automatic volumes past 110 pages | Coming |
-| Versioning: history, branches, forks, change proposals, releases | Coming |
-| Accounts, only for saving versions and sharing (designing and printing stay free of one) | Coming |
-| X4 hardware bring-up | In progress |
+| Block editor, page grid, book canvas, library and series, scan options, KDP output, book scopes and volumes, profiles | Ready |
+| Versioning and accounts: history, compare, restore, branches; forks, proposals and three-way merge | Ready |
+| Accessibility baseline, the 44 methods library, e-ink companion (check-ins, focus timer, settings, Wi-Fi) | Ready |
+| Page organiser | In review |
+| Content packs (support, clinic, transit, holidays, seasons) and `npm run init` onboarding | Ready |
+| Pack ecosystem (themes, graphics, icon packs, block packs) | In progress |
+| Puzzle pages, block-based month/week/notes pages, spread days, releases, accessibility panel, languages, account locations, e-ink editor and sync | Planned |
+
+The website lists what works today with screenshots (`site/`), and keeps only unfinished work on its roadmap.
 
 Details and order: [BUILD-PLAN.md](docs/journaling/BUILD-PLAN.md).
 

@@ -1,3 +1,13 @@
+---
+title: "Jibun Techo (KOKUYO)"
+slug: jibun-techo
+category: japanese
+evidenceLevel: anecdotal
+lastReviewed: 2026-09-30
+status: reviewed
+contributors: ['Journalwright Studio contributors']
+---
+
 # Jibun Techo (KOKUYO)
 
 A Japanese planner built as three booklets that work as one: **LIFE** (things you keep for life), **DIARY** (this
@@ -37,7 +47,7 @@ year and centres on a **weekly vertical spread with a 24-hour timeline**, used b
 happened (a "lifelog"); **LIFE** holds things that last across years (life dreams, family tree, anniversaries, a
 personal timeline to age 99, contacts, medical and asset notes) and moves into each new cover; **IDEA** is a grid
 notebook for everything else. The lineup has grown to Biz (muted, business look, MIO paper), Lite (thin, simple) and
-DAYs (one page per day with a central timeline). For Keeping Watch the most useful ideas are the full-day timeline
+DAYs (one page per day with a central timeline). For Journalwright Studio the most useful ideas are the full-day timeline
 with plan and actual side by side, the split between "this year" and "for life", season-shaded night hours, and a
 monthly project (Gantt) page.
 
@@ -173,7 +183,7 @@ than a disposable annual one. Sections vary by edition; the 2013 edition listed 
 more maps and "The Years" pages running from birth to age 99 split into personal, family and world columns.
 
 **Privacy note.** LIFE includes a password list. Anyone who adopts this idea should store hints only, never full
-passwords, and never carry it daily. Keeping Watch already does this in the Keeper.
+passwords, and never carry it daily. Journalwright Studio's Keeper (a home-kept companion book) already does this.
 
 ### 5.8 IDEA booklet
 A grid notebook, sold separately in packs, for anything: meeting notes, brainstorms, recipes, sketches, journaling.
@@ -311,7 +321,7 @@ Where things sit: time axis far left; day columns equal width; notes band at foo
 | YR  | AGE  | ME                   | FAMILY               | WORLD              |
 +-----+------+----------------------+----------------------+--------------------+
 | ... | ...  |                      |                      |                    |
-| 2026| 34   | moved to Spokane     | sister's baby born   | ...                |
+| 2026| 34   | moved to a new city   | sister's baby born   | ...                |
 +-----+------+----------------------+----------------------+--------------------+
 ```
 
@@ -568,7 +578,7 @@ No studies test Jibun Techo itself. Two strong adjacent findings:
 16. Meds taken
 17. Water
 18. Walk or outside time
-19. HRT dose (dated)
+19. Dated dose (for example an injection or patch)
 20. Bedtime before midnight
 21. Pain level (0–3 as dots)
 
@@ -579,7 +589,7 @@ No studies test Jibun Techo itself. Two strong adjacent findings:
 25. Gifts given and received
 26. Places I went
 
-**LIFE pages for Keeping Watch's Keeper:**
+**LIFE pages for the Keeper (the home-kept companion book):**
 27. Anniversaries by date
 28. The Years: me, people, world
 29. Places map (colour in)
@@ -631,60 +641,64 @@ No studies test Jibun Techo itself. Two strong adjacent findings:
 9. **Is it good for shift workers?** Yes. It is one of the few planners with the full 24 hours printed.
 10. **Is it safe to keep passwords in LIFE?** Don't. Keep hints only, at home.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
+
+Journalwright Studio makes printed journals and planners designed in a block editor, with an optional e-ink companion (the X4 companion). This section turns the research above into day page blocks, X4 items and a method layout.
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Already built? |
 |---|---|---|---|---|
-| 24-hour timeline with plan/actual columns | Day block | High | Replace colour with fills: solid, hatch, dots, outline. Needs `data-zone`. Shade 0–6 with light dots, not grey fill, for low ink | Partly: Time blocks (not 24h plan/actual) |
-| Season-shaded night hours | Day block option | Med | Compute sunrise/sunset for Spokane from the existing sky data; dot pattern | No (sky data exists) |
-| 24-hour weekly vertical | Week spread | High | Seven narrow columns fit 8.5 × 11; tight on 5.5 × 8.5 (consider 2-hour labels, half-hour ticks) | No (week spreads exist, not 24h) |
-| Monthly project / Gantt | Month page | High | Rows × 31 days; overlaps tracker page; could be a tracker variant | Partly: tracker page |
-| Pattern key (colour code in B&W) | Front matter | High | Add to the icon key page | No |
-| "100 small things this year" | Keeper | Med | Keeper stays home; no scan codes | No |
-| The Years (life timeline) | Keeper | Med | Private, stays home | No |
-| Anniversaries by date | Keeper | High | Private | Partly: contacts |
-| Promise list | Month page or back matter | Med | Scan-friendly list | No |
-| Year review (went well / what happened / didn't) | Back matter (December) | Med | Similar to Looking back | Partly: Looking back |
-| Password list | — | None | See Don't adopt | Keeper has hints only |
+| 24-hour timeline with plan/actual columns | Day page block | High | Replace colour with fills: solid, hatch, dots, outline. Needs `data-zone`. Shade 0–6 with light dots, not grey fill, for low ink | **Yes**: the Time line 24 h block (`tl24`): a 24-hour strip with a plan row and an optional actual row, start hour 0–23, labels every 2, 3, 4 or 6 hours, row height. Pattern fills (hatch, outline) are planned |
+| Season-shaded night hours | Day page block option | Med | Sunrise and sunset come from the existing sky data; light grey shading (15 %) | **Yes**: Time line 24 h "Shade night (sunrise–sunset)" option, computed from the day's calculated sun times |
+| 24-hour weekly vertical | Week spread | High | Seven narrow columns fit 8.5 × 11; tight on 5.5 × 8.5 (consider 2-hour labels, half-hour ticks) | Planned (week spreads exist, not 24h) |
+| Monthly project / Gantt | Month page | High | Rows × 31 days; overlaps tracker page; could be a tracker variant | **Partly**: the month tracker page exists; a Gantt variant is planned |
+| Pattern key (colour code in B&W) | Front matter | High | Add to the icon key page | Planned |
+| "100 small things this year" | Keeper (the home-kept companion book) | Med | The Keeper stays home; no scan codes | Planned |
+| The Years (life timeline) | Keeper | Med | Private, stays home | Planned |
+| Anniversaries by date | Keeper | High | Private | **Partly**: the Keeper has contacts; dated anniversaries are planned |
+| Promise list | Month page or back matter | Med | Scan-friendly list | Planned |
+| Year review (went well / what happened / didn't) | Back matter (December) | Med | Similar to Looking back | **Partly**: Looking back exists |
+| Password list | — | None | See Don't adopt | Not adopted: the Keeper holds hints only |
 
-### b. X4
+### b. X4 companion
 
-| Idea | Where | Fit | RAM, scope and calm notes |
-|---|---|---|---|
-| Sleep bar on today's sleep screen (last night's sleep as a 24h strip) | Sleep screen | Med | 480 px strip, 48 half-hour cells; data already from sleep check-in; static draw, no animation |
-| Week-at-a-glance 24h strip for 7 days | A screen | Med | 7 × 48 bits = 42 bytes; 1-bit dithers for categories; no scores or streaks |
-| Log a category change with one button ("now: work / rest / out") | Check-in item | Low | Timestamped events need a small ring buffer (e.g. 64 × 4 bytes); many button presses a day may stop being calm |
-| Month stats: hours slept per week | Month stats | Med | Already has sleep; just aggregate |
-| Anniversaries from the Keeper shown on the day | Sleep screen | Low | Privacy: the Keeper stays home; only if typed on the Wi-Fi page and stored on-device |
-
-### c. Proposed editor blocks
-
-| Type | Name | Options | `data-zone` | X4 export kind |
+| Idea | Where | Fit | RAM, scope and calm notes | Already built? |
 |---|---|---|---|---|
-| `timeline24` | 24-hour timeline | `start` (num, 0–23, default 0), `end` (num, 1–24, default 24), `step` (choice: 30/60 min), `columns` (choice: single / plan+actual), `shadeNight` (choice: none / fixed 0–6 / sunrise–sunset), `labels` (choice: every hour / every 2 h) | `timeline24` | Not exported (writing block) |
-| `patternkey` | Pattern key | `items` (list of `{pattern, label}`, patterns: solid / hatch / dots / outline / cross), `title` (text) | `patternkey` | Not exported |
-| `habits` (existing) with Jibun preset | Monthly-project row set | `title`, `labels[]` | `habits` | `dots` per label |
-| `fields` (existing) preset "Hours today" | Hours by category | labels Sleep / Work / Rest / Out | `fields` | `count` 0..99 per label (use 0..24) |
-| `checks` (existing) preset "Promises" | Promise checkboxes | `labels[]` | `checks` | `toggle` per label |
+| Sleep bar on today's sleep screen (last night's sleep as a 24h strip) | Sleep screen | Med | 480 px strip, 48 half-hour cells; data already from sleep check-in; static draw, no animation | Planned |
+| Week-at-a-glance 24h strip for 7 days | A screen | Med | 7 × 48 bits = 42 bytes; 1-bit dithers for categories; no scores or streaks | Planned |
+| Log a category change with one button ("now: work / rest / out") | Check-in item | Low | Timestamped events need a small ring buffer (e.g. 64 × 4 bytes); many button presses a day may stop being calm | Planned |
+| Month stats: hours slept per week | Month stats | Med | Already has sleep; just aggregate | **Partly**: This month shows average sleep; a per-week breakdown is planned |
+| Anniversaries from the Keeper shown on the day | Sleep screen | Low | Privacy: the Keeper stays home; only if typed on the Wi-Fi page and stored on-device | Planned |
+
+### c. Editor blocks
+
+| Type | Name | Options | `data-zone` | X4 export kind | Built? |
+|---|---|---|---|---|---|
+| `tl24` | Time line 24 h (proposed name: 24-hour timeline) | Built: `start` (0–23, default 0), `every` (labels every 2 / 3 / 4 / 6 h), `actual` (plan over actual), `shade` (night from sunrise and sunset), `h` (row height). Proposed additions: `end`, a 30 / 60 min `step`, and a fixed 0–6 shading choice | `tl24` | Not exported (writing block) | **Yes** (additions planned) |
+| `patternkey` | Pattern key | `items` (list of `{pattern, label}`, patterns: solid / hatch / dots / outline / cross), `title` (text) | `patternkey` | Not exported | Planned |
+| `habits` (existing) with Jibun preset | Monthly-project row set | `title`, `labels[]` | `habits` | `dots` per label | Set up by hand; no preset |
+| `fields` (existing) preset "Hours today" | Hours by category | labels Sleep / Work / Rest / Out | `fields` | `count` 0..99 per label (use 0..24) | Set up by hand; no preset |
+| `checks` (existing) preset "Promises" | Promise checkboxes | `labels[]` | `checks` | `toggle` per label | Set up by hand; no preset |
 
 ### d. Proposed method layout ("Jibun day")
 
+This layout is not among the built-in method layouts yet (today: original, Bullet Journal daily, Hobonichi, Five Minute, Theme System).
+
 1. Moon/sun/season (for sunrise and sunset)
 2. Events
-3. `timeline24` (plan + actual, 0–24, 30 min, shade sunrise–sunset)
+3. Time line 24 h (`tl24`: plan + actual, start 0, shade night on)
 4. Top priorities (3)
 5. `fields` "Hours today": Sleep, Work, Rest, Out
 6. Care check-in
 7. Lined notes (3 lines: "note / mood / weather")
-8. Tomorrow's first step
+8. Tomorrow's first step (Lined notes preset)
 
 ### e. Don't adopt
 
 - **Password list.** Never in a carried or scanned book. The Keeper keeps hints only.
 - **Colour as the only signal.** The books are black and white; use patterns and icons.
-- **Half-hour logging as a daily expectation.** Too much for low-spoon days; make actual logging optional.
+- **Half-hour logging as a daily expectation.** Too much for low-energy days; make actual logging optional.
 - **Rail maps, 40-year family plan, asset pages.** Not relevant or too heavy for a calm book.
 - **Scores or totals that feel like grades** on the X4 (hours "productive" etc.). Stay descriptive.
 

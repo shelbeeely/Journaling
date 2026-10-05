@@ -1,9 +1,20 @@
+---
+title: Five-Year Diary
+slug: five-year-diary
+category: reflective-writing
+evidenceLevel: some
+lastReviewed: 2026-09-30
+status: reviewed
+contributors:
+  - Journalwright Studio contributors
+---
+
 # Five-Year Diary (One Line a Day, Q&A a Day, Hobonichi 5-Year Techo)
 
 A diary where each page is one calendar date, split into five slots, one per year. You write a few lines today
 under this year; next year you write under the next slot and see what you wrote a year ago. After five years each
 page holds five of the same day. This doc covers the format's history, the main products, the page anatomy, the
-research on why looking back works, and what Keeping Watch can borrow.
+research on why looking back works, and what a printed journal can borrow.
 
 > Facts checked on 2026-09-28. "Uncertain" marks anything sources disagree on or I couldn't confirm.
 
@@ -36,7 +47,7 @@ was around, how you felt. American stationers sold "Line-A-Day" five-year diarie
 Chronicle Books revived the idea in 2009 with *One Line a Day*, which with its spin-offs has sold over three
 million copies. Potter's *Q&A a Day* adds one question per date, and Hobonichi's *5-Year Techo* adds a full grid
 page per date for notes. Research on "rediscovery" suggests people enjoy rereading ordinary records far more than
-they predict, which is the whole engine of the format. For Keeping Watch, the key idea is "On this day" across
+they predict, which is the whole engine of the format. For Journalwright Studio, the key idea is "On this day" across
 years: a small, calm block that shows past entries for the same date.
 
 ## 3. History and origin
@@ -385,7 +396,7 @@ What are you looking forward to?
   more realistic.
 - **Lost vs paper:** the side-by-side view of five years on one page (apps usually show one past entry at a time);
   handwriting changes over years; the object.
-- **Gained:** reminders (not wanted in Keeping Watch), search, photos, backups, no running out of space.
+- **Gained:** reminders (not wanted in the printed book or the e-ink companion), search, photos, backups, no running out of space.
 
 ## 16. Evidence and research
 
@@ -445,7 +456,7 @@ No trial has tested five-year diaries. Related research:
 - **Low vision:** A5 (Hobonichi Large) or a DIY book with big slots; bold pen; high-contrast lines. Trade books have
   small type and faint lines.
 - **Motor or hand pain:** one line suits; thick-grip pen; a book that lies flat (Hobonichi does).
-- **Trans and gender-diverse people:** a quiet year-over-year view of transition (voice, name use, HRT anniversaries,
+- **Trans and gender-diverse people:** a quiet year-over-year view of transition (voice, name use, hormone-therapy anniversaries,
   euphoria moments). Keep it private at home. Use initials if needed.
 - **Shift workers:** write at the end of the shift; for overnight shifts pick one rule (the date you started) and stick to it.
 - **Low income:** DIY in any notebook: 366 pages, five boxes each. Or a single sheet per month with dates down and years across.
@@ -468,7 +479,7 @@ No trial has tested five-year diaries. Related research:
 - **With trackers:** add a 1–5 number (mood, pain, spoons) to each line; the same date across years becomes a tiny chart.
 - **With gratitude:** make the line "one good thing".
 - **With a yearly review:** read the five-year book's month pages before writing a year-end review.
-- **With Keeping Watch:** the monthly books already have an "On this day" block; a five-year view extends it across years.
+- **With Journalwright Studio:** the monthly books already have an "On this day" block; a five-year view extends it across years.
 
 ## 22. Ready-to-use bank
 
@@ -498,7 +509,7 @@ Questions (one per date, Q&A-style):
 
 Collections and trackers:
 21. Seasonal firsts (first snow, first lilac, first hot day).
-22. Anniversaries (name, HRT, moves, jobs).
+22. Anniversaries (name, transition milestones, moves, jobs).
 23. Spoons per day as a number.
 24. Books finished.
 25. People list: who shows up across years.
@@ -531,30 +542,30 @@ Collections and trackers:
 9. **Can two people share one?** Yes. Alternate lines or use different pens.
 10. **What do I do when it's full?** Read it all once, mark favourite lines, shelve it, start another.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Built? |
 |---|---|---|---|---|
-| "On this day" across years: show last year's line for this date | Day block (On this day) | high | Needs prior entries as data; print as small grey text inside its `data-zone` | Partly ("On this day" exists; uses calendar data, not past entries) |
-| Five-slot "one line" block for the same date in future books | Day block | med | Only makes sense if the book is reused across years; monthly books aren't. Better as Keeper feature | No |
-| Five-year "month at a glance": dates down, years across | Keeper back matter | high | Keeper stays home and has no scan codes; perfect fit | No |
-| "Remember this" page (things worth knowing every year) | Keeper or month back matter | high | Plain list | No |
-| One-line rule reminder in front matter | Front matter (key) | med | Text only | No |
-| Seasonal firsts list | Month page | med | Small table | No |
-| Anniversary line (HRT, name, moves) | Month page or Keeper | high | Private; Keeper is safer | Partly (HRT & body care preset exists) |
-| Fact + feeling line | Day block (Fill-in blanks preset) | high | Two short lines | Partly (Fill-in blanks exists) |
+| "On this day" across years: show last year's line for this date | Day block (On this day) | high | Needs prior entries as data; print as small grey text inside its `data-zone` | Partly ("On this day" exists as the `fact` block; it uses calendar data, not past entries) |
+| Five-slot "one line" block for the same date in future books | Day block | med | Only makes sense if the book is reused across years; monthly books aren't. Better as a Keeper feature | Planned |
+| Five-year "month at a glance": dates down, years across | Keeper back matter | high | The Keeper stays home and has no scan codes; a good fit | Planned |
+| "Remember this" page (things worth knowing every year) | Keeper or month back matter | high | Plain list | Planned |
+| One-line rule reminder in front matter | Front matter (key) | med | Text only | Planned |
+| Seasonal firsts list | Month page | med | Small table | Planned |
+| Anniversary line (a start date, a name, a move) | Month page or Keeper | high | Private; the Keeper is safer | Planned (a Checkboxes or Lined notes block can hold one by hand) |
+| Fact + feeling line | Day block (Fill-in blanks preset) | high | Two short lines | Partly (Fill-in blanks exists; no preset for this yet) |
 
-### b. X4
+### b. E-ink companion (X4)
 
 | Idea | Where | Fit | RAM, scope and calm notes |
 |---|---|---|---|
-| "This date last year" on the sleep screen: past check-in numbers (mood, spoons) for today's date | Sleep screen | high | Read one line from the stored logs; small static buffer; no text generation; no alert |
-| Five-year view of one check-in for today's date | A screen | med | 5 values; tiny; show only years that exist |
-| Year-over-year month stats in the Keeper handoff | Month stats | med | Already computing month stats; add last year's column |
-| "Note one line" toggle | Check-in item (toggle) | med | 1 slot |
-| Download a printable five-year Keeper page | Wi-Fi page | med | File only |
+| "This date last year" on the sleep screen: past check-in numbers (mood, spoons) for today's date | Sleep screen | high | Planned. Read one line from the stored logs; small static buffer; no text generation; no alert |
+| Five-year view of one check-in for today's date | A screen | med | Planned. 5 values; tiny; show only years that exist |
+| Year-over-year month stats in the Keeper handoff | Month stats | med | Planned. The X4 already computes month stats (This month); add last year's column |
+| "Note one line" toggle | Check-in item (toggle) | med | 1 slot. A Checkboxes block exports as toggles today |
+| Download a printable five-year Keeper page | Wi-Fi page | med | Planned. File only |
 
 Scope: never push "on this day" as a notification. Only show it when the person looks.
 
@@ -562,13 +573,13 @@ Scope: never push "on this day" as a notification. Only show it when the person 
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `oneline` (new) | One line | `label: text` ("Today in one line"), `lines: num (1–3)`, `rule: choice(fact_feeling \| good_thing \| free)` | `oneline` | none |
-| `lastyear` (new, or an option on On this day) | Last year today | `source: choice(entries \| checkins)`, `years: num (1–4)` | `lastyear` | none |
-| `question` (new, or Fill-in blanks preset) | Question of the day | `text: text`, `lines: num` | `question` | none |
+| `oneline` (new, planned) | One line | `label: text` ("Today in one line"), `lines: num (1–3)`, `rule: choice(fact_feeling \| good_thing \| free)` | `oneline` | none |
+| `lastyear` (new, planned; or an option on On this day) | Last year today | `source: choice(entries \| checkins)`, `years: num (1–4)` | `lastyear` | none |
+| `question` (new, planned; or Fill-in blanks preset) | Question of the day | `text: text`, `lines: num` | `question` | none |
 | `scale` (existing) | Mood 1–5 | `steps: 5` | `scale` | `scale` 1..5 |
 | `checks` (existing) | Noted one line | `labels: ["One line"]` | `checks` | `toggle` |
 
-### d. Proposed method layout: "Five-year line"
+### d. Proposed method layout: "Five-year line" (planned)
 
 1. Moon/sun/season
 2. On this day (with last year's line when available)
@@ -580,7 +591,7 @@ Scope: never push "on this day" as a notification. Only show it when the person 
 
 - **Pre-printed five-year slots in monthly books:** each monthly book is used once, so the slots would stay empty.
   Put the five-year view in the Keeper instead.
-- **Automatic "memories" alerts on the X4:** that's a notification; out of scope.
+- **Automatic "memories" alerts on the e-ink companion:** that's a notification; out of scope.
 - **Daily questions that probe trauma or body image:** risky for some users and against the calm design.
 - **Colour-per-year coding:** the books are black and white; use symbols.
 - **Hobonichi's quotes or layout art:** copyrighted.

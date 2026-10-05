@@ -15,15 +15,14 @@ The product is **Journalwright Studio**; *Keeping Watch* is Shelbee's own book (
 - CI: Books, Firmware, Editor (tests + the site on Pages) and STA schedules (monthly PR).
 
 ## Site and Pages (added with the README and website unit)
-- `site/` is the product website (plain HTML/CSS/JS). `site/build.sh` assembles it and runs `site/check-links.mjs`; sample page images come from
-  `site/make-samples.py` (generic profile + `test.ics`); `site/tools/build-docs.mjs` writes a titles-only `/docs/` index (BUILD-PLAN, docs/review and the method texts hold personal decisions and are never published; `site/build.sh` fails if Spokane, Keeping Watch or Shelbee appear in the site).
+- `site/` is the product website (plain HTML/CSS/JS). `site/build.sh` assembles it and runs `site/check-links.mjs`; every picture comes from
+  `site/tools/make-screens.mjs` (generic profile + `test.ics`: sample pages via pdftoppm, editor screenshots via Playwright, X4 screens from `x4/host`; writes `site/img/shots/*.webp` + `manifest.json`; `--only=pages,x4,editor,versions`; rerun it when the editor UI changes, the images are committed); `site/tools/build-docs.mjs` writes a titles-only `/docs/` index (BUILD-PLAN, docs/review and the method texts hold personal decisions and are never published; `site/build.sh` fails if Spokane, Keeping Watch or Shelbee appear in the site).
 - The Editor workflow publishes one Pages site (per BUILD-PLAN section 12, nothing else deploys to the root): `/` the website, `/editor/` a demo of
   the editor (generic profile, sample data, never saves anywhere, banner says so; `MODE 'demo'` in `journal/editor/template.html`), `/docs/`,
   and `/app/` the working editor that saves in the browser and commits with a token.
   **The working editor moved from the site root to `/app/`.** Update any bookmark. If `EDITOR_PAGES_REPO` is set, the whole site goes to that repo.
 - The demo is built by `KW_PROFILE=content/profile.example.json KW_OUT=out-demo EDITOR_DIST=editor/dist-demo/ node editor/build.mjs`.
-- The site's editor section describes the book-first zoom (book, spread, day) and has no editor screenshots, so it will not go stale.
-- Roadmap rows for book scopes, versioning and accounts say "Coming" on the site and in the README; change them when those land on main.
+- The site has "What you can do today" (shipped features with screenshots and inline SVG diagrams), "See it in action" (4 worked examples with demo links such as `editor/#day/2026-10-14/edit`) and a Roadmap of unfinished items only. When a roadmap item ships: move it up into a feature block, add a screenshot to `make-screens.mjs`, and drop it from the roadmap and the README table. The X4 home screen is never shown (its title is in firmware, not generic). The Versions drawer is hidden in the demo, so it is shot from the working build in guest mode.
 - Before a public launch: pick the license, check trademark and domain for the name, fill in credits.
 
 ## Done
@@ -59,6 +58,7 @@ The product is **Journalwright Studio**; *Keeping Watch* is Shelbee's own book (
   STA schedules (monthly PR).
 
 - **Library and Series in the editor (L1b, `journal/editor/library-ui.*`)**: two levels above the Book (Library shelves, Series), hash routes, breadcrumb, settings sheets, undo, guest storage (localStorage), Studio `meta.library` through the draft. Covers are the real title page. Details: `journal/README.md`, "Library and Series navigation". An exported `library.json` is the file `content/library.json` and `KW_LIBRARY` read.
+- **Page organiser (C4, `journal/editor/organiser.*`, `journal/bookedit.mjs`, `journal/bookrules.mjs`)**: in the Book view's edit mode: reorder pages (drag, Alt+Left/Right, Move to…, the list), hide/show with the eye (Safety plan, Support and Closing the month are locked, with the reason), add/duplicate/retitle/remove Notes pages (built-in pages can only be hidden), give one month its own pages (`months` overrides, with Reset), see the page count and the KDP limits, and see what is automatic (alignment Notes, padding, numbers, pointers, codes). The canvas is laid out again live by `flowBook()` (proven equal to `assemble()` by `node test-organiser.mjs`); a change that would leave a `{{P_x}}` pointing at a missing page is warned about first and the book cannot be saved until fixed. Undo/redo, autosave (browser, Artifact store, Studio draft `book` part), `book.json` download, GitHub commit. Rules live in `bookrules.mjs` (shared with `validateBook`). Two pages may not print the same title (check-pages), so added Notes pages get their own. Details: `journal/README.md`, "Page organiser". Not yet: block-based editing of a page's content (C5), spread days, real per-month week structure in the sample (the sample is one month).
 - **Studio (Phase G1, `studio/`)**: Node + built-in SQLite + a small HTTP API. Local accounts, projects (private/public, `allowReuse`), roles,
   immutable content-hashed commits, snapshots as content-addressed objects, branches, per-user autosaved drafts, restore-as-new-commit,
   structured diff by page id and block uid, import from / export to `content/book.json` + `daypage.json` (byte-identical books), a scanner

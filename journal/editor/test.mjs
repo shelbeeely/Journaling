@@ -1129,6 +1129,244 @@ ok(!errs.length, 'no page errors after the Book view ' + errs.join(' | '));
   ok(await rmp.evaluate(() => getComputedStyle(document.querySelector('#shelf')).animationName === 'none'), 'reduced motion: the shelves open without a fade'); await rmp.close();
   ok(!perrs.length, 'no page errors in the Library and Series checks ' + perrs.join(' | '));
 }
+// ---------- Page organiser (C4): the Book view in edit mode reorders, hides, adds and overrides pages by the rules of book.mjs ----------
+{
+  const { validateBook } = await import('../book.mjs');
+  const S = JSON.parse(fs.readFileSync(new URL('./dist/site/pages-sample.json', import.meta.url)));
+  const oerrs = [], vis = (pg, sel) => pg.evaluate((q) => [...document.querySelectorAll(q)].some((el) => el.offsetParent !== null || getComputedStyle(el).position === 'fixed'), sel);
+  const mkPage = async (o) => { const pg = await b.newPage(o); pg.on('pageerror', (e) => oerrs.push(e.message)); return pg; };
+  const ready = async (pg, hash = '#book/edit') => { await pg.goto(URL0 + hash, { waitUntil: 'networkidle' }); await pg.waitForFunction(() => typeof BK !== 'undefined' && BK.ready && (location.hash.endsWith('/edit') ? ORG.on : true)); await pg.waitForTimeout(500); };
+  const said = (pg, re) => pg.waitForFunction((r) => new RegExp(r).test(document.querySelector('#org-live').textContent), re.source, { timeout: 4000 }).then(() => true, () => false);
+  const idx = (pg, id) => pg.evaluate((i) => BK.pages.findIndex((p) => p.id === i) + 1, id);
+  const pick = async (pg, id) => { await pg.evaluate((i) => { const n = BK.pages.findIndex((p) => p.id === i) + 1; bkSelect(n); }, id); await pg.waitForTimeout(80); };
+  const op = await mkPage({ viewport: { width: 1400, height: 900 } });
+  await op.addInitScript(() => { try { if (!sessionStorage.getItem('kw-t')) { sessionStorage.setItem('kw-t', '1'); localStorage.removeItem('kw-book'); } } catch {} });
+  // view mode stays read-only: no organiser UI, no shortcuts
+  await ready(op, '#book');
+  ok(!(await vis(op, '#org, #org-sel, #og-undo, #og-redo, #og-toggle, #og-body *')), 'organiser: while viewing there is no panel, page toolbar, undo or redo');
+  ok(/80 pages/.test(await op.textContent('#bk-info')), 'organiser: the sample book still shows 80 pages while viewing');
+  const before = await op.evaluate(() => BK.pages.map((p) => p.id).join());
+  await pick(op, 'bus.net.1'); await op.focus('#bk-view'); await op.keyboard.press('Alt+ArrowLeft'); await op.keyboard.press('h'); await op.keyboard.press('Delete');
+  ok((await op.evaluate(() => BK.pages.map((p) => p.id).join())) === before && await op.evaluate(() => !ORG.touched), 'organiser: Alt+Arrow, H and Delete do nothing while viewing');
+  ok(!/Earlier|Move to|Hide|Duplicate/.test(await op.locator('body').ariaSnapshot()), 'organiser: the accessibility tree has no editing controls while viewing');
+  await op.screenshot({ path: `${OUT}/org-view-desktop.png` });
+  // edit mode
+  await op.click('#edit'); await op.waitForFunction(() => ORG.on); await op.waitForTimeout(300);
+  ok((await vis(op, '#org, #org-sel, #og-undo, #og-redo, #og-toggle')) && /80 pages/.test(await op.textContent('#og-sum')) && /inside the KDP range \(24 to 110, paperback\)/.test(await op.textContent('#og-sum')), 'organiser: editing shows the panel with the page count and the KDP range');
+  ok(await op.evaluate(() => (location.hash === '#book/edit' || location.hash.startsWith('#book/')) && location.hash.endsWith('/edit')), 'organiser: the hash route says #book/…/edit');
+  ok(await op.evaluate(() => document.querySelectorAll('#og-list > li.og-row').length === 16 && !!document.querySelector('#og-list [data-list="week"]') && !!document.querySelector('#org details.og-auto')), 'organiser: the list has the 16 entries of the book, its week and month lists, and the automatic box');
+  ok(await op.evaluate(() => [...document.querySelectorAll('.bpg[data-n]')].filter((e) => e.classList.contains('auto') || e.querySelector('.cap .auto')).length >= 0) && (await op.evaluate(() => BK.pages.filter((p) => p.auto).length)) === 3, 'organiser: the three automatic Notes pages are marked (not movable)');
+  await op.screenshot({ path: `${OUT}/org-edit-desktop.png` });
+  // pick a page with the mouse; the toolbar says what it is
+  const box = async (id) => op.evaluate((i) => { const r = document.querySelector(`.bpg[data-id="${i}"]`).getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; }, id);
+  { const r = await box('bus.net.1'); await op.mouse.click(r.x + r.w / 2, r.y + r.h / 2); await op.waitForTimeout(150); }
+  ok(await op.evaluate(() => BK.pages[BK.sel - 1].id === 'bus.net.1') && /Page 74/.test(await op.textContent('#os-what')) && /Bus times/.test(await op.textContent('#os-what')), 'organiser: clicking a page selects it and the toolbar names it (page 74, Bus times)');
+  ok(await op.evaluate(() => document.querySelector('#og-list > li.og-row.sel')?.dataset.eid === 'bus'), 'organiser: its row in the list is marked');
+  // keyboard: Alt+Left / Alt+Right, announced, focus stays on the canvas
+  await op.focus('#bk-view');
+  const b74 = await idx(op, 'safety'); await op.keyboard.press('Alt+ArrowLeft');
+  ok(await said(op, /Moved STA at a glance to page \d+/), 'organiser: Alt+Left moves the page and announces "Moved STA at a glance to page N" (the page’s own label): ' + await op.textContent('#org-live'));
+  ok((await idx(op, 'bus.net.1')) < (await idx(op, 'safety')) && (await idx(op, 'bus.net.1')) < b74 + 1, 'organiser: Bus times now sits before My safety plan');
+  ok(await op.evaluate(() => document.activeElement.id === 'bk-view' && BK.pages[BK.sel - 1].id === 'bus.net.1'), 'organiser: focus stays on the canvas and the moved page stays selected');
+  await op.keyboard.press('Alt+ArrowRight'); ok((await idx(op, 'bus.net.1')) > (await idx(op, 'safety')), 'organiser: Alt+Right moves it back');
+  // a week page moves in every week; the announcement names the page you had selected
+  await pick(op, 'week.03.review'); await op.focus('#bk-view'); await op.keyboard.press('Alt+ArrowLeft');
+  ok(await said(op, /Moved Week 3 review to page \d+, and every week follows/), 'organiser: moving a week page announces its own page and that every week follows: ' + await op.textContent('#org-live'));
+  ok((await idx(op, 'week.03.review')) < (await idx(op, 'day.2026-10-12')) && (await idx(op, 'week.01.review')) < (await idx(op, 'day.2026-10-01')), 'organiser: the review now comes before the day pages in every week');
+  ok(await op.evaluate(() => document.getElementById('og-list').querySelector('[data-list="week"]').children[2].dataset.eid === 'week_review'), 'organiser: the week list shows the new order');
+  // Move to… (the phone way), then undo and redo
+  await pick(op, 'lineage'); await op.click('#os-moveto'); await op.waitForSelector('#org-move[open]');
+  ok(/Move Where each piece comes from/.test(await op.textContent('#om-h')) && (await op.locator('#om-sel option').count()) >= 10, 'organiser: Move to… lists where the page can go');
+  await op.selectOption('#om-sel', { label: 'Before Bus times (page ' + (await op.evaluate(() => BK.pages.findIndex((p) => p.id === 'bus.net.1') + 1)) + ')' }); await op.click('#om-go'); await op.waitForFunction(() => !document.querySelector('#org-move').open);
+  ok((await idx(op, 'lineage')) < (await idx(op, 'bus.net.1')) && await op.evaluate(() => document.activeElement.id === 'os-moveto'), 'organiser: Move to… moves it and returns focus to the button');
+  await op.keyboard.press('Control+z'); ok((await idx(op, 'lineage')) > (await idx(op, 'bus.net.1')), 'organiser: Ctrl+Z undoes it');
+  await op.keyboard.press('Control+Shift+z'); ok((await idx(op, 'lineage')) < (await idx(op, 'bus.net.1')), 'organiser: Ctrl+Shift+Z redoes it');
+  for (let i = 0; i < 4; i++) await op.click('#og-undo');
+  ok(await op.evaluate(() => BK.pages.map((p) => p.id).join()) === before && await op.evaluate(() => document.getElementById('og-undo').disabled && !document.getElementById('og-redo').disabled), 'organiser: undo four times is back to the original order; redo is ready');
+  await op.evaluate(() => { ORG.undo = []; ORG.redo = []; ORG.touched = false; store.set('kw-book', null); });
+  // moves by mouse: drag one page onto another (before / after by the side of the page)
+  { const a = await box('bus.net.1'), t = await box('support');
+    await op.mouse.move(a.x + a.w / 2, a.y + a.h / 2); await op.mouse.down(); await op.mouse.move(a.x + a.w / 2 + 12, a.y + a.h / 2 + 8, { steps: 3 });
+    await op.mouse.move(t.x + t.w * 0.2, t.y + t.h / 2, { steps: 8 });
+    ok(await op.evaluate(() => !!document.querySelector('#org-drop') && !document.querySelector('#org-drop').classList.contains('bad') && !!document.querySelector('.og-ghost-fly')), 'organiser: dragging shows a drop mark and a label following the pointer');
+    await op.screenshot({ path: `${OUT}/org-dragging.png` });
+    await op.mouse.up(); await op.waitForTimeout(200); }
+  ok((await idx(op, 'bus.net.1')) < (await idx(op, 'support')) && await said(op, /Moved STA at a glance to page \d+/), 'organiser: dropping on the left half of Support puts Bus times before it, and says so');
+  await op.click('#og-undo');
+  // a drag that the rules refuse: a book page cannot go among the weeks
+  { const a = await box('bus.net.1'), t = await box('week.02.right'); const was = await op.evaluate(() => BK.pages.map((p) => p.id).join());
+    await op.mouse.move(a.x + a.w / 2, a.y + a.h / 2); await op.mouse.down(); await op.mouse.move(t.x + t.w * 0.3, t.y + t.h / 2, { steps: 12 });
+    ok(await op.evaluate(() => document.querySelector('#org-drop')?.classList.contains('bad')) && /inside the weeks/.test(await op.textContent('#org-live')), 'organiser: hovering an impossible place shows a red mark and says why: ' + await op.textContent('#org-live'));
+    await op.mouse.up(); await op.waitForTimeout(200);
+    ok((await op.evaluate(() => BK.pages.map((p) => p.id).join())) === was && await op.evaluate(() => !document.querySelector('#org-drop') && !document.querySelector('.og-ghost-fly')), 'organiser: dropping there changes nothing and clears the marks'); }
+  { const a = await box('month.moon'), t = await box('bus.net.1'); const was = await op.evaluate(() => BK.pages.map((p) => p.id).join());
+    await op.mouse.move(a.x + a.w / 2, a.y + a.h / 2); await op.mouse.down(); await op.mouse.move(t.x + t.w * 0.3, t.y + t.h / 2, { steps: 12 }); await op.mouse.up(); await op.waitForTimeout(200);
+    ok((await op.evaluate(() => BK.pages.map((p) => p.id).join())) === was && /month pages/.test(await op.textContent('#org-live')), 'organiser: a month page dropped among the back pages is refused, in plain words: ' + await op.textContent('#org-live')); }
+  { const a = await box('notes.1'), was = await op.evaluate(() => BK.pages.map((p) => p.id).join());
+    await op.mouse.move(a.x + a.w / 2, a.y + a.h / 2); await op.mouse.down(); await op.mouse.move(a.x + a.w / 2 + 40, a.y + a.h / 2 + 30, { steps: 5 }); await op.mouse.up(); await op.waitForTimeout(150);
+    ok(/added by itself/.test(await op.textContent('#org-live')) && (await op.evaluate(() => BK.pages.map((p) => p.id).join())) === was, 'organiser: an automatic Notes page cannot be dragged, and says why'); }
+  // a plain click after all that still selects (the drag code does not eat taps)
+  { const r = await box('key'); await op.mouse.click(r.x + r.w / 2, r.y + r.h / 2); ok(await op.evaluate(() => BK.pages[BK.sel - 1]?.id === 'key'), 'organiser: a tap after dragging still selects a page'); }
+  // hide and show with the eye; hidden pages dim and sit apart
+  await pick(op, 'lineage'); await op.click('#os-eye');
+  ok(await said(op, /Where each piece comes from is hidden/) && await op.evaluate(() => BK.hidden.some((p) => p.id === 'lineage') && !BK.pages.some((p) => p.id === 'lineage') && document.querySelectorAll('.bpg.hid').length === 1 && BK.pages.length % 2 === 0), 'organiser: the eye hides a page: it dims apart, the count stays even');
+  ok(await op.evaluate(() => document.querySelector('#og-list > li[data-eid="lineage"]').classList.contains('off') && document.querySelector('#os-eye-t').textContent === 'Show' ), 'organiser: its row and the toolbar say hidden, and offer Show');
+  await op.screenshot({ path: `${OUT}/org-hidden.png` });
+  await op.click('#os-eye'); ok(await op.evaluate(() => BK.pages.some((p) => p.id === 'lineage') && BK.hidden.length === 0) && await said(op, /back in the book/), 'organiser: Show puts it back');
+  await op.evaluate(() => { ORG.undo = []; ORG.redo = []; });
+  // protected pages: a lock, a reason on focus and on tap, never hidden
+  await pick(op, 'safety');
+  ok(await op.evaluate(() => document.querySelector('#os-eye').getAttribute('aria-disabled') === 'true' && /can’t hide/i.test(document.querySelector('#os-eye-t').textContent) && /can move but never be hidden/.test(document.querySelector('#os-why').textContent)), 'organiser: a protected page shows a lock and the reason under the toolbar');
+  await op.click('#os-eye', { force: true }); ok(await said(op, /My safety plan can move but never be hidden/) && await op.evaluate(() => BK.pages.some((p) => p.id === 'safety')), 'organiser: tapping the lock says why and hides nothing');
+  await op.focus('#og-list [data-fk="eye:safety"]');
+  ok(await op.evaluate(() => { const r = document.getElementById('ogw-safety'); return r && getComputedStyle(r).display !== 'none' && /never be hidden/.test(r.textContent) && document.activeElement.getAttribute('aria-describedby') === 'ogw-safety'; }), 'organiser: on focus, the list row shows the reason and the button is described by it');
+  ok(await op.evaluate(() => ['support', 'closing', 'safety'].every((id) => document.querySelector(`#og-list li[data-eid="${id}"] [data-act="eye"]`).getAttribute('aria-disabled') === 'true')), 'organiser: Support, Closing the month and My safety plan are all locked');
+  await op.evaluate(() => { const r = BKE.setOn(ORG.book, ORG.cat, null, 'weeks', false); window.__w = r.err; });
+  ok(/journal itself/.test(await op.evaluate(() => window.__w)), 'organiser: the weeks cannot be hidden');
+  // add, duplicate, retitle, remove
+  await pick(op, 'theme'); await op.click('#og-body [data-act="add"][data-type="notes"]');
+  ok(await said(op, /Added Notes page as page \d+/) && await op.evaluate(() => BK.pages.some((p) => p.id === 'notes_1' && p.label === 'Notes page') && ORG.book.default.some((e) => e.id === 'notes_1')), 'organiser: Add puts a Notes page in the book (after the selected page, here at the Season theme): ' + await op.textContent('#org-live'));
+  ok(await op.evaluate(() => { const l = BK.pages.map((p) => p.id); return l.indexOf('notes_1') > l.indexOf('theme') && BK.pages.length % 2 === 0 && document.activeElement.dataset.fk === 'sel:notes_1'; }), 'organiser: it lands after the Season theme, the count stays even, and focus goes to its row');
+  ok(await op.evaluate(() => !document.querySelector('#os-del').hidden && !document.querySelector('#os-dup').hidden && !document.querySelector('#os-title-w').hidden), 'organiser: a page you added can be duplicated, retitled and removed');
+  await op.click('#os-dup'); ok(await op.evaluate(() => BK.pages.some((p) => p.id === 'notes_2' && p.label === 'Notes page 2')), 'organiser: Duplicate makes a second Notes page with its own title');
+  await op.fill('#os-title', 'Ideas'); await op.press('#os-title', 'Enter'); await op.waitForTimeout(150);
+  ok(await op.evaluate(() => BK.pages.find((p) => p.id === 'notes_2').label === 'Ideas' && BK.pages.find((p) => p.id === 'notes_2').html.includes('>Ideas<')), 'organiser: retitling changes the printed title (Ideas)');
+  await op.fill('#os-title', 'Notes page'); await op.press('#os-title', 'Enter'); await op.waitForTimeout(150);
+  ok(/two pages titled/.test(await op.textContent('#org-live')), 'organiser: a title another page already prints is refused: ' + await op.textContent('#org-live'));
+  await op.evaluate(() => { document.querySelector('#os-title').blur(); });
+  await pick(op, 'bus.net.1'); ok(await op.evaluate(() => document.querySelector('#os-del').hidden && document.querySelector('#os-dup').hidden), 'organiser: a built-in page has no Remove and no Duplicate');
+  await op.click('#og-body [data-act="add"][data-type="notes"]'); await op.evaluate(() => { const l = document.querySelector('#og-list [data-act="del"][data-fk="del:notes_3"]'); window.__hasDel = !!l; });
+  await op.click('#og-list [data-fk="del:notes_3"]'); await said(op, /Removed Notes page/);
+  ok(await op.evaluate(() => window.__hasDel && !BK.pages.some((p) => p.id === 'notes_3')), 'organiser: Remove takes an added page out');
+  ok(await op.evaluate(() => !document.querySelector('#og-list [data-fk="del:bus"]') && !document.querySelector('#og-list [data-fk="del:safety"]')), 'organiser: no built-in row has a Remove button');
+  await pick(op, 'key'); await op.focus('#bk-view'); await op.keyboard.press('Delete'); await said(op, /hidden but not deleted/);
+  ok(/hidden but not deleted/.test(await op.textContent('#org-live')) && await op.evaluate(() => BK.pages.some((p) => p.id === 'key')), 'organiser: Delete on a built-in page explains and keeps it');
+  ok(await op.evaluate(() => { const o = [...document.querySelectorAll('#org details.og-more li')].map((l) => l.textContent); return o.some((t) => /Blank page.*Already in the book/.test(t)) && !document.querySelector('#org details.og-more [data-act="add"]'); }), 'organiser: the other page types are listed with why they cannot be added again (only Notes repeat)');
+  // the count follows: and the KDP limits warn
+  const n0 = await op.evaluate(() => BK.pages.length);
+  for (let i = 0; i < 31; i++) await op.click('#og-body [data-act="add"][data-type="notes"]');
+  ok(await op.evaluate(() => BK.pages.length >= 112 && /over the 110-page limit/.test(document.querySelector('#og-sum').textContent) && document.querySelector('#og-sum .kdp').classList.contains('bad')), 'organiser: past 110 pages the panel warns, names volumes, and marks it (' + (await op.evaluate(() => BK.pages.length)) + ' pages, from ' + n0 + ')');
+  await op.screenshot({ path: `${OUT}/org-over-limit.png` });
+  await op.evaluate(() => { for (let i = 0; i < 31; i++) ORG.undo.pop(); ORG.redo = []; ORG.book = orgClone(ORG.undo.length ? ORG.undo[ORG.undo.length - 1].book : ORG.base); orgRender(null); });
+  // hardcover padding is shown, not editable
+  await op.evaluate(() => { ORG.book = orgClone(ORG.base); ORG.undo = []; ORG.redo = []; orgRender(null); });
+  await op.click('#og-body [data-act="hard"]'); ok(await op.evaluate(() => BK.pages.length === 80 && ORG.hard) && /hardcover/.test(await op.textContent('#og-sum')), 'organiser: counting as a hardcover keeps 80 pages (80 is over 76)');
+  await op.click('#og-body [data-act="hard"]');
+  // automatic things are shown, not editable
+  await op.click('#org details.og-auto summary');
+  ok(/3 Notes pages are added by itself/.test(await op.textContent('#org details.og-auto')) && /Scan codes/.test(await op.textContent('#org details.og-auto')) && await op.evaluate(() => !document.querySelector('#org details.og-auto input, #org details.og-auto button')), 'organiser: the automatic box explains the padding, numbers, pointers and codes, with nothing to edit');
+  { const k = await idx(op, 'notes.1'); await pick(op, 'notes.1'); ok(/added by itself/.test(await op.textContent('#os-what')) && await op.evaluate(() => ['#os-earlier', '#os-later', '#os-moveto', '#os-eye'].every((s) => document.querySelector(s).getAttribute('aria-disabled') === 'true')) && k > 0, 'organiser: selecting an automatic page says it is automatic and offers nothing to change'); }
+  // per-month overrides
+  await op.evaluate(() => { ORG.book = orgClone(ORG.base); ORG.undo = []; ORG.redo = []; orgRender(null); });
+  ok(/Every month shares one page list/.test(await op.textContent('#org')), 'organiser: at first every month shares one list');
+  await op.locator('#org input[name="og-scope"][value="one"]').check({ position: { x: 6, y: 6 } }); await op.selectOption('#og-mon', '2026-11');
+  await pick(op, 'bus.net.1'); await op.focus('#bk-view'); await op.keyboard.press('Alt+ArrowLeft'); await said(op, /Moved/);
+  ok(await op.evaluate(() => Object.keys(ORG.book.months || {}).join() === '2026-11' && JSON.stringify(ORG.book.default) === JSON.stringify(ORG.base.default) && BKE.checkBook(ORG.book, ORG.cat).length === 0), 'organiser: "Only" writes months["2026-11"] and leaves the default alone (and it validates)');
+  ok(/November 2026/.test(await op.textContent('#og-body .og-months')) && /Reset/.test(await op.textContent('#og-body .og-months')) && /own pages/.test(await op.textContent('#og-mon')), 'organiser: the months with their own pages are listed with a Reset');
+  await op.screenshot({ path: `${OUT}/org-month.png` });
+  await op.locator('#org input[name="og-scope"][value="all"]').check({ position: { x: 6, y: 6 } });
+  ok(await op.evaluate(() => BK.pages.map((p) => p.id).join()) === before && /doesn’t reach|don’t reach/.test(await op.textContent('#org')), 'organiser: "All months" shows the default again and says the own-pages month is not reached');
+  await op.click('#og-body [data-act="resetmon"]'); ok(await said(op, /November 2026 follows the default/) && await op.evaluate(() => !ORG.book.months || !Object.keys(ORG.book.months).length), 'organiser: Reset puts the month back on the default');
+  await op.evaluate(() => { ORG.undo = []; ORG.redo = []; });
+  // a pointer that would dangle: warned before it is applied, and the book cannot be saved until it is fixed
+  await op.evaluate(() => { ORG.cat.occ.week_left.forEach((o) => o.forEach((s) => { if (s.html) s.html += '<i class="t-ptr">{{P_BUS}}</i>'; else s.variants = s.variants.map((h) => h + '<i class="t-ptr">{{P_BUS}}</i>'); })); orgRender(null); });
+  await pick(op, 'bus.net.1'); await op.click('#os-eye'); await op.waitForSelector('#org-warn[open]');
+  ok(/points to/.test(await op.textContent('#ow-list')) && /Bus times/.test(await op.textContent('#ow-list')) && await op.evaluate(() => BK.pages.some((p) => p.id === 'bus.net.1')), 'organiser: hiding a page other pages point to warns first, and nothing has changed yet: ' + (await op.textContent('#ow-list')).slice(0, 90));
+  await op.screenshot({ path: `${OUT}/org-warn.png` });
+  await op.click('#ow-cancel'); ok(await op.evaluate(() => BK.pages.some((p) => p.id === 'bus.net.1') && BKE.sameBook(ORG.book, ORG.base)), 'organiser: Cancel leaves the book alone');
+  await op.click('#os-eye'); await op.waitForSelector('#org-warn[open]'); await op.click('#ow-go'); await op.waitForFunction(() => !document.querySelector('#org-warn').open);
+  ok(await op.evaluate(() => ORG.flow.missing.length === 1 && !!document.querySelector('#og-missing') && document.querySelector('#og-missing').getAttribute('role') === 'alert'), 'organiser: Apply anyway hides it and the panel lists what is left pointing nowhere');
+  await op.click('#og-body [data-act="copy"]'); ok(/Not saved/.test(await op.textContent('#org-live')), 'organiser: copy and download refuse while a pointer dangles: ' + await op.textContent('#org-live'));
+  ok(await op.evaluate(() => Object.keys(KWBK.part()).length === 0), 'organiser: the Studio draft does not carry a book that cannot be built');
+  await op.click('#og-undo'); ok(await op.evaluate(() => ORG.flow.missing.length === 0 && !document.querySelector('#og-missing')), 'organiser: undo clears the warning');
+  await op.evaluate(() => { ORG.undo = []; ORG.redo = []; ORG.book = orgClone(ORG.base); orgRender(null); store.set('kw-book', null); });
+  // saving: the browser, a download, GitHub; all validate; a reload keeps the pages
+  await pick(op, 'lineage'); await op.click('#os-eye'); await op.waitForTimeout(200);
+  const kept = await op.evaluate(() => JSON.parse(localStorage.getItem('kw-book')));
+  ok(validateBook(kept).length === 0 && kept.default.find((e) => e.id === 'lineage').on === false, 'organiser: the browser keeps the book (validates with book.mjs: lineage hidden)');
+  ok(/Saved in this browser · not on GitHub yet/.test(await op.textContent('#og-state')), 'organiser: the panel says where it is saved');
+  { const dl = op.waitForEvent('download'); await op.click('#og-body [data-act="download"]'); const d = await dl, txt = fs.readFileSync(await d.path(), 'utf8');
+    ok(d.suggestedFilename() === 'book.json' && validateBook(JSON.parse(txt)).length === 0 && JSON.stringify(JSON.parse(txt)) === JSON.stringify(kept) && txt.endsWith('\n'), 'organiser: Download book.json gives a file validateBook accepts, the same book the browser keeps'); }
+  const puts = []; await op.route('https://api.github.com/**', async (r) => { const q = r.request(); if (q.method() === 'GET') return r.fulfill({ status: 404, body: '{}' }); puts.push({ url: q.url(), body: JSON.parse(q.postData()) }); r.fulfill({ status: 200, contentType: 'application/json', body: '{}' }); });
+  await op.click('#og-body [data-act="gh"]'); await op.waitForSelector('#gh[open]');
+  ok(/Save the book to GitHub/.test(await op.textContent('#gh-h')) && /book\.json/.test(await op.textContent('#gh-what')) && await op.locator('#gh-x4').isHidden(), 'organiser: the GitHub dialog says it commits book.json');
+  await op.fill('#gh-repo', 'someone/journal'); await op.fill('#gh-token', 'x'); await op.click('#gh-go'); await op.waitForFunction(() => /Saved to GitHub/.test(document.querySelector('#status').textContent), null, { timeout: 4000 }).catch(() => {});
+  ok(puts.length === 1 && /journal\/content\/book\.json/.test(puts[0].url) && validateBook(JSON.parse(Buffer.from(puts[0].body.content, 'base64').toString())).length === 0, 'organiser: GitHub gets journal/content/book.json, a valid book');
+  ok(await op.evaluate(() => /Saved in this browser and on GitHub/.test(document.querySelector('#og-state').textContent)), 'organiser: after the commit the panel says it is on GitHub');
+  await op.unroute('https://api.github.com/**');
+  await op.evaluate(() => { document.querySelector('#m-gh').click(); document.querySelector('#gh').close(); });
+  ok(await op.evaluate(() => /Save to GitHub/.test(document.querySelector('#gh-h').textContent) && /daypage\.json/.test(document.querySelector('#gh-what').textContent)), 'organiser: the day layout GitHub dialog is unchanged (daypage.json)');
+  await op.reload({ waitUntil: 'networkidle' }); await op.waitForFunction(() => BK.ready && ORG.on); await op.waitForTimeout(400);
+  ok(await op.evaluate(() => BK.hidden.some((p) => p.id === 'lineage') && !BK.pages.some((p) => p.id === 'lineage')), 'organiser: after a reload the hidden page is still hidden');
+  // hash routes are unaffected, and the organiser's work stays in the book at every level
+  await op.evaluate(() => KW.go({ level: 'spread', s: 5 })); await op.waitForFunction(() => NAV.level === 'spread'); await op.waitForTimeout(300);
+  ok(await op.evaluate(() => location.hash === '#spread/6' && !ORG.on && !document.querySelector('#org-sel:not([hidden])') ), 'organiser: #spread/6 still routes, and the editing UI is gone at the spread level');
+  await op.evaluate(() => KW.go({ level: 'day', date: '2026-10-14' })); await op.waitForFunction(() => document.documentElement.dataset.view === 'day');
+  ok(await op.evaluate(() => location.hash === '#day/2026-10-14'), 'organiser: #day/2026-10-14 still routes');
+  await op.evaluate(() => KW.go({ level: 'book' })); await op.waitForFunction(() => NAV.level === 'book' && BK.ready); await op.waitForTimeout(300);
+  ok(await op.evaluate(() => BK.hidden.some((p) => p.id === 'lineage') && document.querySelectorAll('.bpg.hid').length === 1), 'organiser: back at the book, the organised pages are shown (viewing)');
+  await op.screenshot({ path: `${OUT}/org-view-after.png` });
+  // Done leaves edit mode: the UI goes, the work stays
+  await op.click('#edit'); await op.waitForFunction(() => ORG.on); await op.click('#done'); await op.waitForFunction(() => !ORG.on);
+  ok(!(await vis(op, '#org, #org-sel, #og-undo')) && await op.evaluate(() => BK.hidden.length === 1), 'organiser: Done takes the panel away and keeps the changes');
+  ok(!oerrs.length, 'organiser: no page errors ' + oerrs.join(' | '));
+  await op.close();
+  // keyboard only: every action has a keyboard path (Tab to it, Space or Enter)
+  const kp = await mkPage({ viewport: { width: 1400, height: 900 } });
+  await ready(kp);
+  await kp.focus('#og-list [data-fk="sel:bus"]'); await kp.keyboard.press('Enter');
+  ok(await kp.evaluate(() => BK.pages[BK.sel - 1].eid === 'bus'), 'keyboard: Enter on a list row selects the page');
+  await kp.focus('#og-list [data-fk="up:bus"]'); await kp.keyboard.press('Enter'); await said(kp, /Moved/);
+  ok(await kp.evaluate(() => document.activeElement.dataset.fk === 'up:bus') && (await idx(kp, 'bus.net.1')) < (await idx(kp, 'safety')), 'keyboard: the row’s Earlier button moves the page and keeps focus on the same button');
+  await kp.keyboard.press('Space'); await said(kp, /Moved/);
+  ok(await kp.evaluate(() => document.activeElement.dataset.fk === 'up:bus'), 'keyboard: Space works the same, focus stays put');
+  await kp.focus('#og-list [data-fk="eye:lineage"]'); await kp.keyboard.press('Enter');
+  ok(await kp.evaluate(() => BK.hidden.some((p) => p.id === 'lineage') && document.activeElement.dataset.fk === 'eye:lineage'), 'keyboard: the row’s eye hides a page and keeps focus on it');
+  await kp.keyboard.press('Enter'); ok(await kp.evaluate(() => BK.pages.some((p) => p.id === 'lineage')), 'keyboard: and shows it again');
+  await kp.evaluate(() => bkSelect(BK.pages.findIndex((p) => p.id === 'lineage') + 1)); await kp.focus('#bk-view'); await kp.keyboard.press('h');
+  ok(await kp.evaluate(() => BK.hidden.some((p) => p.id === 'lineage')), 'keyboard: H on the canvas hides the selected page'); await kp.keyboard.press('h'); ok(await kp.evaluate(() => !BK.hidden.length), 'keyboard: and H again shows it');
+  await kp.evaluate(() => bkSelect(BK.pages.findIndex((p) => p.id === 'bus.net.1') + 1));
+  await kp.focus('#bk-view'); await kp.keyboard.press('m'); await kp.waitForSelector('#org-move[open]'); await kp.keyboard.press('Escape'); await kp.waitForFunction(() => !document.querySelector('#org-move').open);
+  ok(await kp.evaluate(() => document.activeElement.id === 'bk-view'), 'keyboard: M opens Move to…, Escape closes it and focus returns to the canvas');
+  ok(!oerrs.length, 'organiser: no page errors in the keyboard checks ' + oerrs.join(' | '));
+  await kp.close();
+  // phone: no drag, a move menu instead; nothing overflows; targets are 44px
+  const ph = await mkPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+  await ready(ph);
+  const noScrollX = () => ph.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1 && document.body.scrollWidth <= innerWidth + 1);
+  const tiny = (sel) => ph.evaluate((q) => [...document.querySelectorAll(q)].filter((el) => el.offsetParent && !el.closest('[hidden]') && (el.getBoundingClientRect().height < 43.5 || el.getBoundingClientRect().width < 43.5)).map((el) => (el.id || el.dataset.fk || el.className) + ' ' + Math.round(el.getBoundingClientRect().width) + 'x' + Math.round(el.getBoundingClientRect().height)), sel);
+  ok(await noScrollX(), 'phone: no sideways scroll in edit mode');
+  ok(await ph.evaluate(() => document.querySelector('#org').hidden && document.querySelector('#og-toggle').getAttribute('aria-expanded') === 'false' && document.querySelector('#bk-view').getBoundingClientRect().height > 250), 'phone: the canvas has room and the pages list starts folded (Pages opens it)');
+  await ph.evaluate(() => bkSelect(BK.pages.findIndex((p) => p.id === 'bus.net.1') + 1)); await ph.waitForTimeout(150);
+  await ph.screenshot({ path: `${OUT}/org-phone-edit.png` });
+  ok((await tiny('.bk-bar button, #bk-go, #org-sel button, #org-sel input')).length === 0, 'phone: the bar and the selected-page toolbar have 44px targets ' + (await tiny('.bk-bar button, #bk-go, #org-sel button, #org-sel input')).join(','));
+  await ph.tap('#os-moveto'); await ph.waitForSelector('#org-move[open]'); await ph.screenshot({ path: `${OUT}/org-phone-move.png` });
+  ok(await ph.evaluate(() => { const d = document.querySelector('#org-move').getBoundingClientRect(); return d.left >= 0 && d.right <= innerWidth && d.height <= innerHeight; }) && (await tiny('#org-move button, #org-move select')).length === 0, 'phone: the Move to… menu fits the screen and has 44px targets');
+  await ph.selectOption('#om-sel', { index: 0 }); await ph.tap('#om-go'); await said(ph, /Moved STA at a glance/);
+  ok(await ph.evaluate(() => BK.pages.findIndex((p) => p.id === 'bus.net.1') < BK.pages.findIndex((p) => p.id === 'safety')) && /Moved STA at a glance/.test(await ph.textContent('#org-live')), 'phone: Move to… moves the page');
+  ok(!(await ph.evaluate(() => !!document.querySelector('.og-ghost-fly'))), 'phone: touch pans the canvas; no drag ghost appears');
+  await ph.tap('#og-toggle'); await ph.waitForTimeout(300);
+  ok(await ph.evaluate(() => { const o = document.querySelector('#org'), r = o.getBoundingClientRect(); return !o.hidden && r.bottom <= innerHeight + 1 && r.left >= 0 && r.right <= innerWidth + 1 && r.height < innerHeight * 0.6 && getComputedStyle(o).position === 'fixed' && document.querySelector('#og-toggle').getAttribute('aria-expanded') === 'true'; }), 'phone: Pages opens the list as a bottom sheet');
+  await ph.screenshot({ path: `${OUT}/org-phone-list.png` });
+  ok((await tiny('#org button, #org select, #org input, #org summary')).length === 0, 'phone: every control in the list is 44px or more ' + (await tiny('#org button, #org select, #org input, #org summary')).join(','));
+  await ph.evaluate(() => { document.querySelector('#org').scrollTop = 700; }); await ph.screenshot({ path: `${OUT}/org-phone-list2.png` });
+  ok(await noScrollX(), 'phone: still no sideways scroll with the sheet open');
+  await ph.evaluate(() => { document.querySelector('#org').scrollTop = 0; });
+  await ph.tap('#og-list [data-fk="eye:lineage"]'); await ph.waitForTimeout(200);
+  ok(await ph.evaluate(() => BK.hidden.some((p) => p.id === 'lineage')), 'phone: the eye in the list hides a page by tap');
+  await ph.tap('#og-toggle'); await ph.waitForTimeout(200);
+  ok(await ph.evaluate(() => document.querySelector('#org').hidden && document.querySelector('#og-toggle').getAttribute('aria-expanded') === 'false'), 'phone: Pages folds the sheet away again');
+  ok(!oerrs.length, 'organiser: no page errors on the phone ' + oerrs.join(' | '));
+  await ph.close();
+  // dark mode and reduced motion
+  const dk = await mkPage({ viewport: { width: 1200, height: 800 }, colorScheme: 'dark', reducedMotion: 'reduce' });
+  await ready(dk); await dk.evaluate(() => bkSelect(BK.pages.findIndex((p) => p.id === 'bus.net.1') + 1)); await dk.waitForTimeout(200);
+  await dk.screenshot({ path: `${OUT}/org-dark-edit.png` });
+  ok(await dk.evaluate(() => getComputedStyle(document.querySelector('#org')).backgroundColor !== 'rgb(251, 250, 246)' && [...document.querySelectorAll('#org *, #org-sel *')].every((e) => !(parseFloat(getComputedStyle(e).transitionDuration) > 0) && getComputedStyle(e).animationName === 'none')), 'dark and reduced motion: the panel follows the theme and has no transitions or animations');
+  await dk.close();
+  const dp = await mkPage({ viewport: { width: 390, height: 844 }, colorScheme: 'dark', hasTouch: true, isMobile: true });
+  await ready(dp); await dp.screenshot({ path: `${OUT}/org-phone-dark.png` }); await dp.close();
+}
 // Versions drawer (Journalwright Studio) with no server configured: versions are kept in this browser, and the editor is untouched
 {
   const vp = await b.newPage({ viewport: { width: 390, height: 844 } }), api = [], verrs = [];

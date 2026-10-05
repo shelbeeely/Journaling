@@ -1,3 +1,14 @@
+---
+title: Gratitude journaling
+slug: gratitude-journaling
+category: reflective-writing
+evidenceLevel: some
+lastReviewed: 2026-09-30
+status: reviewed
+contributors:
+  - Journalwright Studio contributors
+---
+
 # Gratitude journaling
 
 Writing down, on a schedule, things you are glad about and where they came from. This doc covers the research practice
@@ -28,7 +39,7 @@ almost any other self-help exercise: across 145 papers and about 25,000 people i
 small amount (Hedges' g about 0.19; Choi et al. 2025). It works best when entries are specific, varied, about people, and
 not so frequent that they turn into a chore; one study found once a week beat three times a week. Against a fair
 comparison task, like writing about your day, the advantage shrinks to almost nothing for anxiety and depression (Davis
-et al. 2016; Cregg & Cheavens 2021). So it is a pleasant, cheap, low-risk habit, not a treatment. For Keeping Watch this
+et al. 2016; Cregg & Cheavens 2021). So it is a pleasant, cheap, low-risk habit, not a treatment. For Journalwright Studio this
 means a small, optional "Small good things" block (already built), a weekly rather than daily default, and wording that
 never tells a person how to feel.
 
@@ -143,7 +154,7 @@ happier").
 
 ## 6. Setting it up
 
-1. **Pick the slot.** One line on the day page, or a weekly box on the week spread. Keeping Watch's `good` block
+1. **Pick the slot.** One line on the day page, or a weekly box on the week spread. The `good` block
    works as-is.
 2. **Pick the count.** Start at 1 line. Research does not show that five beats one.
 3. **Pick the rhythm.** Default to weekly (Sunday or the weekly review). Go daily only if it stays fresh.
@@ -182,7 +193,7 @@ Evening, 2–5 minutes, after the care check-in:
 
 ## 9. Page anatomy
 
-### A. Daily line block (Keeping Watch "Small good things", 3 lines)
+### A. Daily line block (Journalwright Studio "Small good things", 3 lines)
 
 ```
 +--------------------------------------------------+
@@ -248,7 +259,7 @@ Evening, 2–5 minutes, after the care check-in:
 ```
 Small good things
 1 the 33 came on time        because I checked the plan
-2 Mika sent a cat picture    because she thinks of me
+2 Mika sent a cat picture    because they think of me
 3 found my good gloves       because I put them by the door
 ```
 
@@ -276,7 +287,7 @@ This week, good
 Week 1 kept: first frost on the roofs, quiet walk
 Week 2 kept: Jo laughing
 Week 3 kept: new boots don't hurt
-Week 4 kept: told Dr. R what I needed and she listened
+Week 4 kept: told Dr. R what I needed and they listened
 Best of the month: being heard at the appointment
 ```
 
@@ -326,7 +337,7 @@ itself; the research used plain forms.
 - **Apps:** Presently, Gratitude (Happyfeed and others), Day One templates. Many push daily reminders and streaks, which
   the research on boredom suggests can backfire.
 - **E-ink:** reMarkable and Boox templates of 3 lines; Kindle Scribe notebooks. Fine for handwriting; review is harder.
-- **Scanning:** a short line block scans and OCRs well; Keeping Watch's `good` zone would map to a text field.
+- **Scanning:** a short line block scans and OCRs well; the `good` zone would map to a text field.
 - **Lost vs paper:** apps make review and search easy but add pings, streaks and ads. Paper keeps it quiet and private.
   There is no strong evidence for either format; the GGSC page stresses writing over just thinking.
 
@@ -420,7 +431,7 @@ itself; the research used plain forms.
 - **Dyslexia and dysgraphia:** single words, icons, a sketch, or a voice note are fine.
 - **Low vision:** larger line spacing; 8.5×11 trim; high contrast.
 - **Motor or hand pain:** one word or a tick next to a pre-printed list (warmth, food, rest, people, outside).
-- **Trans and gender-diverse people:** "a moment I felt like me" (a Keeping Watch preset) is gratitude aimed at
+- **Trans and gender-diverse people:** "a moment I felt like me" (a Journalwright Studio preset) is gratitude aimed at
   euphoria rather than at circumstances. Never frame as "be grateful for what you have" about medical access.
 - **Shift workers:** "today" is a shift, not a date. Write after the shift, not at bedtime.
 - **Low income:** free by nature. Watch wording that equates good things with purchases.
@@ -529,50 +540,47 @@ it is better than nothing.
 **Does it work in every culture?** Effects vary between countries (Choi et al. 2025). Where gratitude carries debt or
 obligation, "good things" wording may fit better.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
-Keeping Watch already has the core: **Small good things** (`good`, 1–5 lines), **Went well / Was hard / Tomorrow**
-(`review`), the **A moment I felt like me** preset, the **Looking back** back matter, and weekly exchange prompts that
-include "What are you grateful for right now?" and "Who is someone you are thankful for, and why?". What's missing:
-a "because" option, a weekly (not daily) gratitude box, and a letter page.
+Journalwright Studio already has the core: **Small good things** (`good`, 1–8 lines, with an optional "because" half on each line and an editable label), **Went well / Was hard / Tomorrow** (`review`), a **Good today** preset (a tick list), the **Looking back** page and block, and weekly exchange pages whose prompts include "Who is someone you are thankful for, and why?". What's missing: a weekly (not daily) gratitude box, a letter page and a month "kept from each week" box.
 
 ### a. Printed book
 
 | Idea | Where it goes | Fit | B&W and scan-zone notes | Already built? |
 |---|---|---|---|---|
-| Small good things, 1–3 lines | Day block | High | `good` zone; heart icon | Yes |
-| "because" column on each line | Day block (option on `good`) | High | Light rule at 65% width; same `good` zone | No |
-| Weekly "This week, good" box, circle one | Week spread or weekly review | High | Dots + a circle bubble; new zone `wgood` on the week page | No |
-| Month "kept from each week" | Month page or Looking back | Med | 4–5 ruled lines | Partly (Looking back) |
-| Gratitude letter page (To / what for / sent or kept) | Exchange spread or back matter | Med | Could be one exchange prompt, not a new page type | Partly (exchange pages) |
-| Angle of the month (people, places, body…) | Month theme page | Med | One printed word; icon | No |
-| Balanced pair: good + hard | Day block | High | `review` already does it | Yes |
-| Glimmers or "One okay thing" wording | Label option on `good` | Med | Label only; same zone | No (the title is fixed today; see c) |
-| Pre-printed list to tick (warmth, food, rest, people, outside) | Day block | Med | `checks` with those labels; low-spoons friendly | Yes (Checkboxes) |
+| Small good things, 1–3 lines | Day block | High | `good` zone; heart icon | **Built** |
+| "because" column on each line | Day block (option on `good`) | High | Light rule at 65% width; same `good` zone | **Built** (`because` option) |
+| Weekly "This week, good" box, circle one | Week spread or weekly review | High | Dots + a circle bubble; new zone `wgood` on the week page | Planned |
+| Month "kept from each week" | Month page or Looking back | Med | 4–5 ruled lines | Planned (Looking back exists) |
+| Gratitude letter page (To / what for / sent or kept) | Exchange spread or back matter | Med | Could be one exchange prompt, not a new page type | Partly (exchange pages exist; no letter layout) |
+| Angle of the month (people, places, body…) | Month theme page | Med | One printed word; icon | Planned |
+| Balanced pair: good + hard | Day block | High | `review` already does it | **Built** |
+| Glimmers or "One okay thing" wording | Label option on `good` | Med | Label only; same zone | **Built** (`label` option; set it to the wording you like) |
+| Pre-printed list to tick (warmth, food, rest, people, outside) | Day block | Med | `checks` with those labels; low-energy friendly | **Built** (Checkboxes, "Good today" preset) |
 
-### b. X4
+### b. E-ink companion (X4)
 
 | Idea | Where it goes | Fit | RAM, scope and calm notes |
 |---|---|---|---|
-| "Noticed a good thing" | Check-in item, `toggle` | Med | One slot; no text entry needed |
-| Good things count 0–3 | Check-in item, `count` (hi 3) | Med | One slot; don't show streaks |
+| "Noticed a good thing" | Check-in item, `toggle` | Med | One slot; no text entry needed. Checkboxes already export as check-ins |
+| Good things count 0–3 | Check-in item, `count` (hi 3) | Med | One slot; don't show streaks. Fill-in blanks export as counts |
 | Weekly "good week?" | Check-in item, `scale` 1..3 | Low | Weekly items aren't a device concept yet |
-| A fixed, calm prompt on the sleep screen ("one okay thing today?") | Sleep screen | Low | Static local text, not rotating content; adds words to a calm screen |
-| Month stats: days with a good thing | Month stats / Keeper handoff | Med | Derived from the toggle; show as a count, not a score |
+| A fixed, calm prompt on the sleep screen ("one okay thing today?") | Sleep screen | Low | Planned at most. Static local text, not rotating content; adds words to a calm screen |
+| Month stats: days with a good thing | Month stats | Med | Planned. Derived from the toggle; show as a count, not a score |
 | Reminders to be grateful | — | None | Notifications are out of scope |
 
 ### c. Proposed editor blocks
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `good` (existing) | Small good things | n 1–5; **new** `because` bool; **new** `label` text (default "Small good things") | `good` | Not exported |
-| `checks` (existing) | Good today | labels ["Warmth", "Food", "Rest", "People", "Outside"] | `checks` | 5 × `toggle` |
-| `fields` (existing) | Good things | labels ["How many"] | `fields` | `count` 0..99 |
-| `lines` (existing) | One good thing, slowly | label, n 4 | `lines` | Not exported |
+| `good` (existing) | Small good things | n 1–8; `because` bool (built); `label` text, default "Small good things" (built) | `good` | Not exported |
+| `checks` (existing) | Good today | labels ["Warmth", "Food", "Rest", "People", "Outside"] (built as a preset) | `checks` | 5 × `toggle` |
+| `fields` (existing) | Good things | labels ["How many"]; the "One small good thing" preset is a similar blank | `fields` | `count` 0..99 |
+| `lines` (existing) | One good thing, slowly | label, n 4 (planned as a preset) | `lines` | Not exported |
 
-New options only; no new block type is needed.
+No new block type is needed; the options above already exist or are presets on existing blocks.
 
-### d. Proposed method layout: "Gratitude (weekly-friendly)"
+### d. Proposed method layout: "Gratitude (weekly-friendly)" (planned)
 
 1. `sky` (Moon, sun & season)
 2. `care` (Care check-in)
@@ -589,8 +597,7 @@ Weekly gratitude lives on the weekly review, not the day page (a week-spread cha
 - **"I am grateful for" as the fixed label.** Tells the person how to feel; use neutral wording.
 - **Daily five-line lists as the default.** Evidence doesn't support more lines; it costs page space.
 - **Quote-of-the-day gratitude affirmations.** Busy, and feed-like.
-- **Claims that gratitude treats depression or anxiety.** The meta-analyses don't support it; keep Support and the
-  care plan central.
+- **Claims that gratitude treats depression or anxiety.** The meta-analyses don't support it; keep support pages and any care plan central.
 - **Social sharing of entries.** Privacy rules and performance pressure.
 
 ## 26. Open questions

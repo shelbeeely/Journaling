@@ -1,6 +1,17 @@
+---
+title: Habit Tracking
+slug: habit-tracking
+category: productivity
+evidenceLevel: strong
+lastReviewed: 2026-09-30
+status: reviewed
+contributors:
+  - Journalwright Studio contributors
+---
+
 # Habit Tracking
 
-A reference for habit tracking in journals: what habit research actually says (Lally's 66 days, Wood and Neal on context, Gollwitzer's if-then plans), the popular systems (James Clear's *Atomic Habits*, B.J. Fogg's *Tiny Habits*, "don't break the chain"), every common tracker design, the harm broken streaks can do, and how Keeping Watch can measure without shame.
+A reference for habit tracking in journals: what habit research actually says (Lally's 66 days, Wood and Neal on context, Gollwitzer's if-then plans), the popular systems (James Clear's *Atomic Habits*, B.J. Fogg's *Tiny Habits*, "don't break the chain"), every common tracker design, the harm broken streaks can do, and how a printed journal can measure without shame.
 
 Checked against sources on 2026-09-28. Where a detail couldn't be confirmed from a primary source, it's marked **(unconfirmed)**. Where a claim is popular but not tested, it's marked **(claimed)**.
 
@@ -129,7 +140,7 @@ Fogg's rule: make the behaviour so small it's easy on a bad day (one push-up, fl
 ### Marks
 - **Tick or X:** binary.
 - **Dot:** fill a circle.
-- **Half-fill:** partial credit, e.g. the tiny version, or "did some". Keeping Watch's Habit dots use empty / half / full.
+- **Half-fill:** partial credit, e.g. the tiny version, or "did some". Journalwright Studio's Habit dots use empty / half / full.
 - **Slash then X:** slash = planned, X = done **(community convention)**.
 - **Number:** minutes, glasses, pages.
 
@@ -313,7 +324,7 @@ Days since start: Water 45. Research median is about 66, so still early.
 | Mini habits | Stephen Guise (2013) **(unconfirmed details)** | "Stupid small" daily minimum, bonus reps optional |
 | Elastic habits | Stephen Guise **(unconfirmed)** | Three levels: mini / plus / elite |
 | Year in pixels | Community (Passion Carried, 2016, **origin unconfirmed**) | One square per day for a year, often mood |
-| Half-fill / partial credit | Community; Keeping Watch Habit dots | Empty, half, full |
+| Half-fill / partial credit | Community; Journalwright Studio Habit dots | Empty, half, full |
 | Streak freeze | Apps (e.g. Duolingo) | A pre-earned "skip" that keeps the streak |
 | WOOP / MCII | Gabriele Oettingen with Gollwitzer | Wish, Outcome, Obstacle, Plan: mental contrasting plus if-then; meta-analysis g = 0.34 |
 | Habit contracts | Clinical and coaching | Signed commitment with a partner |
@@ -365,7 +376,7 @@ Not applicable as a single method. Examples on the market (prices change often):
 
 - **Apps:** Streaks (iOS), Loop Habit Tracker (Android, open source), Habitica (gamified), Apple Health / Google Fit (auto). Most rely on reminders and streak counters.
 - **E-ink:** PDF grids on reMarkable, Kindle Scribe, Boox; tap-to-fill templates exist.
-- **Scanning:** Keeping Watch's scan system could read filled circles from grid pages in a future pipeline **(not built)**.
+- **Scanning:** Journalwright Studio's scan pipeline could read filled circles from habit grid pages; the scan-ready option on Checkboxes and Scale blocks is aimed at optical mark reading, but reading a full habit grid is **(not built)**.
 - **Gained digitally:** automatic totals, charts, auto-tracking (steps, sleep), reminders.
 - **Lost digitally:** apps lean on reminders, which Stawarz et al. found support repetition but can hinder habit development; streak counters and badges add pressure; phones distract. Positive reinforcement features didn't help in their 4-week study.
 - **Hybrid:** paper grid for chosen habits; a wearable or device for passive data (steps, sleep), without streaks.
@@ -559,50 +570,52 @@ Not applicable as a single method. Examples on the market (prices change often):
 
 ---
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
-Keeping Watch already has **Habit dots** (empty / half / full) as a day block, **Checkboxes**, a fixed-column **monthly tracker** page (mood, sleep, meds, meals, shower, work, spoons) and "What the trackers showed me" in *Looking back*. The bridge sends Habit dots to the X4 as `dots`. The gaps are **custom habit columns on the month tracker**, the **cue/tiny plan**, **totals instead of streaks** and an **automaticity check**.
+Journalwright Studio already has **Habit dots** (empty / half / full) as a day page block, with an optional legend that reads half = tiny; **Checkboxes**; **Fill-in blanks**; and a fixed-column **monthly tracker** page (mood, meds, meals and work hours today). The habit dots, checkboxes, fill-in blanks and scales can also be sent to the e-ink companion (the X4 companion) as check-ins. The gaps are **custom habit columns on the monthly tracker**, the **cue/tiny plan**, **totals instead of streaks** and an **automaticity check**.
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Already built? |
 |---|---|---|---|---|
 | Habit dots (empty / half / full) | Day block | High | SVG circles; `data-zone="habits"` | **Built** |
-| Custom habit columns on the month tracker (2–4, labels from the layout) | Month tracker page | High | Same row grid; add thin week lines; `data-zone="trk_habits"` | No (fixed columns only) |
-| Totals column ("__/31") | Month tracker page | High | Blank box per column; no streak count | No |
-| Habit plan card (After I ___, I will ___; tiny version) | Month page or front matter per month | High | Two lines per habit; `data-zone="habit_plan"` | No |
-| Automaticity check 1–5 | Closing the month (back matter) | Med | Circle a number per habit | No |
-| Graduated habits list | Keeper (yearly) | Med | Plain list; Keeper has no scan codes | No |
-| Legend: empty = not today, half = tiny, full = done | Front matter key / icon key | High | Icons only | Partly (being added with Habit dots) |
-| Planned rest mark (a dash) | Key + Habit dots | Med | A dash through the circle | No |
-| Year in pixels (one habit) | Keeper or back matter | Low | 12 × 31 grid, 3 mm circles | No |
-| WOOP card | Month page (new moon page pairs well) | Low | Four short lines | No |
+| Custom habit columns on the monthly tracker (2–4, labels from the layout) | Monthly tracker page | High | Same row grid; add thin week lines; `data-zone="trk_habits"` | Planned (the tracker has fixed columns today) |
+| Totals column ("__/31") | Monthly tracker page | High | Blank box per column; no streak count | Planned |
+| Habit plan card (After I ___, I will ___; tiny version) | Month page or front matter per month | High | Two lines per habit; `data-zone="habit_plan"` | Planned |
+| Automaticity check 1–5 | Closing the month (back matter) | Med | Circle a number per habit | Planned (a Scale block can do it by hand today) |
+| Graduated habits list | Yearly Keeper book | Med | Plain list; the Keeper has no scan codes | Planned |
+| Legend: empty = not today, half = tiny, full = done | Front matter key / icon key | High | Icons only | **Built** as the Habit dots `tiny` legend option; the front matter key is planned |
+| Planned rest mark (a dash) | Key + Habit dots | Med | A dash through the circle | Planned |
+| Year in pixels (one habit) | Keeper or back matter | Low | 12 × 31 grid, 3 mm circles | Planned (the Day pixel block covers one day only) |
+| WOOP card | Month page (a new moon page pairs well) | Low | Four short lines | Planned |
 
-### b. X4
+### b. E-ink companion (X4)
 
 | Idea | Where | Fit | RAM, scope and calm notes |
 |---|---|---|---|
-| Habit dots check-in | Check-in item kind `dots` | High | **Built via the bridge.** 0/1/2 per item |
-| Month totals ("Water 18/30") | Month stats screen | High | Count from the log; a few bytes per habit. No streak, no badge |
-| Weekly target (e.g. 3 of 7) | Check-in item `count` | Med | From `fields`; show "2 of 3 this week" as plain text only |
-| Planned rest | `dots` value? | Low | Would need a 4th state; the bridge fixes dots at 0–2. Skip or use a separate `toggle` "Rest day" |
-| Automaticity 1–5 once a month | Check-in item `scale` | Low | Only if shown at month end; must stay passive, no prompt popping up |
-| Habit plan card | Books library | Med | One-page EPUB of the user's cue lines, exported at the Wi-Fi page |
+| Habit dots check-in | Check-in item kind `dots` | High | **Built.** 0/1/2 per item |
+| Month totals ("Water 18/30") | Month stats screen | High | Planned. Count from the log; a few bytes per habit. No streak, no badge |
+| Weekly target (e.g. 3 of 7) | Check-in item `count` | Med | Planned. From `fields`; show "2 of 3 this week" as plain text only |
+| Planned rest | `dots` value? | Low | Would need a 4th state; dots are fixed at 0–2. Skip or use a separate `toggle` "Rest day" |
+| Automaticity 1–5 once a month | Check-in item `scale` | Low | Planned. Only if shown at month end; must stay passive, no prompt popping up |
+| Habit plan card | Books library | Med | Planned. One-page EPUB of the user's cue lines, exported at the Wi-Fi page |
 | Streak display | — | **Don't** | Out of scope (badges and pressure) |
 
 ### c. Proposed editor blocks
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `habits` (extend) | Habit dots | add `tiny` (bool) "Show half = tiny in legend", `rest` (bool) "Allow rest dash" | `habits` | `dots` per label (0 empty, 1 half, 2 full) |
+| `habits` (extend) | Habit dots | `tiny` (bool) "Show half = tiny in legend" is **built**; `rest` (bool) "Allow rest dash" is planned | `habits` | `dots` per label (0 empty, 1 half, 2 full) |
 | `habitplan` | Habit plan | labels (list, max 4), lines "After I / I will / tiny" (flags) | `habit_plan` | Not exported |
 | `checks` preset | Weekly habits | labels ["Move 3×", "Call family"] | `checks` | `toggle` per label |
 | `fields` preset | Habit amounts | labels ["Glasses water", "Minutes outside"] | `fields` | `count` 0..99 per label |
 | `scale` preset | Automatic yet? | Label "Automatic", steps 5, lo "effort", hi "autopilot" | `scale` | `scale` 1..5 |
 
-Month-tracker columns aren't a day block, so they'd be a book option: `trackerHabits: [labels]`, reusing the Habit dots labels by default.
+Status: only the `habits` block with its `tiny` option exists today. The Habit plan block and the three presets are planned. The `checks`, `fields` and `scale` blocks themselves are built, so you can set these up by hand.
 
-### d. Proposed method layout: "Habit focus"
+Monthly-tracker columns aren't a day block, so they'd be a book option: `trackerHabits: [labels]`, reusing the Habit dots labels by default (planned).
+
+### d. Proposed method layout: "Habit focus" (planned)
 1. `sky` (Moon, sun and season)
 2. `events` (Events)
 3. `care` (Care check-in)
@@ -615,9 +628,9 @@ Month-tracker columns aren't a day block, so they'd be a book option: `trackerHa
 
 ### e. Don't adopt
 
-- **Streak counters and "don't break the chain" calendars.** A broken, highlighted streak lowers engagement, and self-blame makes it worse. It's also badge-like pressure the firmware rules out.
+- **Streak counters and "don't break the chain" calendars.** A broken, highlighted streak lowers engagement, and self-blame makes it worse. It's also badge-like pressure the e-ink companion's scope rules out.
 - **Red X or failure marks for misses.** Empty is enough.
-- **Reminders and nudges on the X4.** Out of scope, and research suggests event cues form habits better than reminders.
+- **Reminders and nudges on the X4 companion.** Out of scope, and research suggests event cues form habits better than reminders.
 - **Points, levels, gamification (Habitica-style).** Busy, pressuring and off-brand for calm design.
 - **Body-number trackers (weight, calories) by default.** Can harm; keep them opt-in via Fill-in blanks.
 - **"21 days" or "66 days" promises printed on the page.** The range is huge; a number invites a sense of failure.

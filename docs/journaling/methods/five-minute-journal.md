@@ -1,3 +1,14 @@
+---
+title: The Five Minute Journal
+slug: five-minute-journal
+category: reflective-writing
+evidenceLevel: some
+lastReviewed: 2026-09-30
+status: reviewed
+contributors:
+  - Journalwright Studio contributors
+---
+
 # The Five Minute Journal
 
 Intelligent Change's guided gratitude journal (2013), created by Alex Ikonn and UJ Ramdas: five short prompts, three in the morning and two at night, plus a daily quote and weekly challenges. Also covers the app and the research on gratitude interventions, with honest effect sizes.
@@ -449,7 +460,7 @@ Many gratitude studies use students, short follow-ups and self-report. Effects l
 - **Dyslexia and dysgraphia:** Very little writing; one-word answers work; the app offers voice notes.
 - **Low vision:** Large-print DIY page with thick lines; app with system text size; voice notes.
 - **Motor or hand pain:** About 12 short lines a day; lower counts; use the app or voice.
-- **Trans and gender-diverse people:** "I am…" affirmations can be powerful when they're about identity you're living ("I am a woman who…") and painful when they feel out of reach. Keep them believable, or use a gender-euphoria log ("a moment I felt like me") instead, which Keeping Watch already has as a preset.
+- **Trans and gender-diverse people:** "I am…" affirmations can be powerful when they're about identity you're living ("I am a woman who…") and painful when they feel out of reach. Keep them believable, or use a gender-euphoria log ("a moment I felt like me") instead, which Journalwright Studio already has as a preset.
 - **Shift workers:** "Morning" and "evening" mean start and end of *your* day. On night shifts, do the morning half before work.
 - **Low income:** Free with any notebook; the official book is $32 per 6 months. The app's free tier covers the prompts.
 
@@ -472,7 +483,7 @@ Many gratitude studies use students, short follow-ups and self-report. Effects l
 - **With time blocking ([time-block-planner.md](time-block-planner.md)):** the three "great" items become the first blocks of the day.
 - **With a [five-year diary](five-year-diary.md):** use the best "amazing thing" as the one line in the five-year book.
 - **With the [Hobonichi Techo](hobonichi-techo.md) or [Jibun Techo](jibun-techo.md):** the five prompts fit in the daily page's top half.
-- **With Keeping Watch day pages:** most of the 5MJ already exists as blocks (Small good things, Top priorities, Lined notes, Went well). See section 25.
+- **With Journalwright Studio day pages:** most of the 5MJ already exists as blocks (Small good things, Top priorities, Lined notes, Went well). See section 25.
 
 ## 22. Ready-to-use bank
 
@@ -574,34 +585,34 @@ Yes. Some research suggests less frequent gratitude lists can work as well or be
 **11. Is the app private?**
 The App Store privacy label says it collects identifiers for tracking and links contact info and user content to you. Paper is private by default.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
-Keeping Watch already covers most of the 5MJ with existing blocks: Small good things (gratitude or amazing things), Top priorities (what would make today great), Lined notes (affirmation, even better) and Went well / Was hard / Tomorrow. What's missing is the **morning/evening split** on one page and a one-click layout.
+Journalwright Studio already covers most of the 5MJ with existing blocks: Small good things (gratitude or amazing things), Top priorities (what would make today great), Lined notes (affirmation, even better) and Went well / Was hard / Tomorrow. The **morning/evening split** on one page and a one-click layout now exist too: the editor's "Five Minute (AM/PM)" starting layout (More, Start from a method), and a Divider block with an optional sun or moon icon. What's still missing is the weekly challenge, the tick for which "great" items happened and the safer-affirmation help list.
 
 ### a. Printed book
 
 | Idea | Where it goes | Fit | B&W and scan-zone notes | Already built? |
 |---|---|---|---|---|
-| Three gratitudes (numbered lines) | Day block | High | `good` block with 3 lines | Yes (Small good things) |
-| Three "great today" items | Day block | High | `top` block labelled "Would make today good" | Yes (Top priorities) |
-| Values line instead of "I am" affirmation | Day block | High | `lines` with 1 line, label "Today I care about" | Yes (Lined notes) |
-| Three amazing things (evening) | Day block | High | Second `good` block → `good_2` zone | Yes |
-| "Even better" line (evening) | Day block | High | `review` Tomorrow column or `lines` | Yes |
-| Sun / moon icons to split morning and evening | Day block (divider variant) | Med | Icons over words; SVG icons exist (`pm`); needs a divider with an icon option | No |
-| Tick which "great" items happened | Day block | Med | Top priorities with a tick box per line | Partly (time bubbles being added; not a done box) |
+| Three gratitudes (numbered lines) | Day block | High | `good` block with 3 lines | **Built** (Small good things) |
+| Three "great today" items | Day block | High | `top` block labelled "Would make today good" (the starting layout uses a Lined notes block) | **Built** (Top priorities) |
+| Values line instead of "I am" affirmation | Day block | High | `lines` with 1 line, label "Something I care about today" | **Built** (Lined notes) |
+| Three amazing things (evening) | Day block | High | Second `good` block → `good_2` zone | **Built** |
+| "Even better" line (evening) | Day block | High | `review` Tomorrow column or `lines` | **Built** |
+| Sun / moon icons to split morning and evening | Day block (divider variant) | Med | Icons over words; SVG icons exist (`pm`) | **Built** (Divider block, `icon`: none / sun / moon) |
+| Tick which "great" items happened | Day block | Med | Top priorities with a tick box per line | Partly (time circles and a "carried" tick exist; no done box; the Done list block has tick boxes) |
 | Daily quote | Day block | Low | Adds words to a calm page; On this day already fills this role | Partly (On this day) |
-| Weekly challenge | Week spread | Med | One line of printed text plus a box; content must be generic and calm | No |
-| Month "best good things" collection | Month page / Looking back | High | Ruled list | Partly (Looking back) |
-| "Safer affirmation" help list | Back matter | Med | Plain list | No |
+| Weekly challenge | Week spread | Med | One line of printed text plus a box; content must be generic and calm | Planned |
+| Month "best good things" collection | Month page / Looking back | High | Ruled list | Partly (Looking back exists) |
+| "Safer affirmation" help list | Back matter | Med | Plain list | Planned |
 
-### b. X4
+### b. E-ink companion (X4)
 
 | Idea | Where it goes | Fit | RAM, scope and calm notes |
 |---|---|---|---|
-| Gratitude done (morning) | Check-in item, `toggle` | Med | One slot; no text entry on 7 buttons |
+| Gratitude done (morning) | Check-in item, `toggle` | Med | One slot; no text entry on 7 buttons. A Checkboxes block exports as toggles today |
 | Evening review done | Check-in item, `toggle` | Med | One slot |
-| "Great items done" 0–3 | Check-in item, `count` (hi 3) | High | One slot; mirrors the paper tick |
-| Month stats: "mornings 26/31, evenings 22/31" | Month stats / Keeper handoff | High | Derived from the toggles |
+| "Great items done" 0–3 | Check-in item, `count` (hi 3) | High | One slot; mirrors the paper tick. A Fill-in blanks block exports counts today |
+| Month stats: "mornings 26/31, evenings 22/31" | Month stats | High | Planned. Derived from the toggles |
 | A gratitude prompt line on the sleep screen | Sleep screen | Low | Must be a fixed, local list with no rotation pressure; risks clutter on a calm screen |
 | Quote of the day | Sleep screen | Low | A feed-like pattern; skip |
 | Reminders | — | None | Notifications are out of scope |
@@ -617,21 +628,23 @@ Keeping Watch already covers most of the 5MJ with existing blocks: Small good th
 | `lines` (existing, second) | Tomorrow, one thing different | label, n 1 | `lines_2` | Not exported |
 | `checks` (existing) | Did it | labels ["Morning", "Evening"] | `checks` | 2 × `toggle` |
 | `fields` (existing) | Good items done | labels ["Done of 3"] | `fields` | `count` 0..99 |
-| New option on `divider` | Divider with icon | `icon`: none / sun / moon | `divider` | Not exported |
+| `divider` option | Divider with icon | `icon`: none / sun / moon (built) | `divider` | Not exported |
 
-Only the divider icon is new. Everything else is a label change on an existing block.
+Nothing new is needed: the divider icon option now exists, and everything else is a label change on an existing block.
 
-### d. Proposed method layout: "Five Minute Journal"
+### d. Method layout: "Five Minute Journal" (built as "Five Minute (AM/PM)")
 
 1. `sky` (Moon, sun & season)
 2. `good`: n 3 (Grateful for)
 3. `top`: label "Would make today good", n 3
 4. `lines`: label "Today I care about", n 1
 5. `care` (Care check-in)
-6. `divider` (moon icon if built)
+6. `divider` (moon icon)
 7. `good`: n 3 (Good things today) → zone `good_2`
 8. `lines`: label "Tomorrow, one thing different", n 1 → zone `lines_2`
 9. `body`: style dots (whatever room is left)
+
+This is the target shape. The layout that ships in the editor today is close to it: three gratitude lines, "What would make today good", a values line ("Something I care about today"), the Writing space, "Three good things today" and "What could have gone better". It has no Care check-in or divider.
 
 ### e. Don't adopt
 
@@ -640,10 +653,10 @@ Only the divider icon is new. Everything else is a label change on an existing b
 | Printed "I am…" affirmation lines | Can backfire for low self-esteem (Wood et al. 2009); use a values line instead |
 | "Amazing" as a label | Too strong for hard days; "good things" is calmer and more honest |
 | A different quote every day | Visual noise; feed-like; On this day already exists |
-| Streaks, badges or reminders on the X4 | Out of scope; guilt on missed days |
+| Streaks, badges or reminders on the e-ink companion | Out of scope; guilt on missed days |
 | "Science-backed" claims in the book | Effects are small; say nothing rather than overclaim |
 | "How could today have been better?" as the only evening question | Can tip into self-blame; pair it with Went well / Was hard |
-| Photos, cloud sync, subscriptions | Privacy rules; nothing leaves the device except over its own hotspot |
+| Photos, cloud sync, subscriptions | Privacy rules; nothing leaves the device except over its own hotspot or an explicit sync the user starts |
 
 ## 26. Open questions
 

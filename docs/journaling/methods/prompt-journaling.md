@@ -1,7 +1,17 @@
+---
+title: "Prompt journaling"
+slug: prompt-journaling
+category: reflective-writing
+evidenceLevel: some
+lastReviewed: 2026-09-30
+status: reviewed
+contributors: ['Journalwright Studio contributors']
+---
+
 # Prompt journaling
 
 Journaling that starts from a question someone else wrote: a prompt book, a card deck, a question-a-day diary, a
-therapist's worksheet, or the weekly exchange prompt in a Keeping Watch book. This doc covers where prompts come from,
+therapist's worksheet, or the weekly exchange prompt in a printed journal. This doc covers where prompts come from,
 what the research says about wording, and how to rotate them so they stay fresh.
 
 ## 1. At a glance
@@ -31,9 +41,8 @@ prompts that mix feelings with making sense ("what did you learn?") helped more 
 Lutgendorf 2002); concrete "how" questions are less likely to feed rumination than abstract "why" questions (Watkins
 2008); and a little distance ("you", or your own name) helps people handle hard feelings (Kross et al. 2014). Good
 prompts are open, specific, short, optional and safe to skip. Rotation keeps them fresh: fixed by date, by theme day,
-by deck, or by bringing old questions back on a schedule. For Keeping Watch, the 52 weekly exchange prompts and the
-daily "On this day" line are already prompt systems; they can grow into a themed rotation with a "pass" option and
-a printable deck.
+by deck, or by bringing old questions back on a schedule. For Journalwright Studio, the weekly exchange prompts in a book, the daily "On this day" line and the day page's Rotating
+prompt block are prompt systems; they can grow into a themed rotation and a printable deck.
 
 ## 3. History and origin
 
@@ -214,7 +223,7 @@ too much. See the expressive writing doc when it lands; the GGSC practice page s
 +--------------------------------------------------+
 ```
 
-### C. Keeping Watch exchange spread (as built)
+### C. Exchange spread (weekly prompt and reply page)
 
 ```
 +------------------------+  +------------------------+
@@ -287,7 +296,7 @@ Sun  review   What drained, what refilled?        shifts / Sunday quiet.
 Week 40 exchange: "Recommend me something."        answered by J, 1 page
 Week 41 exchange: "What sound calms you down?"     answered by me
 Week 42 exchange: "Draw your week as weather."     drawing, no words
-Week 43 exchange: "Ask me one question."           J asked about HRT; answered
+Week 43 exchange: "Ask me one question."           J asked about work; answered
 Mirror (quarterly): Proud of: new job routine. Drop: late-night scrolling.
 ```
 
@@ -314,12 +323,12 @@ Mirror (quarterly): Proud of: new job routine. Drop: late-night scrolling.
 | System | How | Good | Bad |
 |---|---|---|---|
 | Fixed by date | One prompt per date (Q&A a Day) | No decisions; yearly mirror | Wrong prompt on a bad day |
-| Fixed by week | One prompt per week (Keeping Watch exchange) | Calm pace; no repeats | Same issue |
+| Fixed by week | One prompt per week (an exchange spread) | Calm pace; no repeats | Same issue |
 | Weekday themes | Mon body, Tue outside… | Predictable; habit-friendly | Can feel rigid |
 | Shuffle deck | Draw at random | Novelty | Heavy card on a low day |
 | Weighted deck | Separate light and deep piles | Choose by capacity | Needs sorting |
 | Spaced return | Answered prompts return after 1 month, 3 months, 1 year (like Leitner flashcard boxes) | Mirror effect; fewer prompts needed | Needs a log |
-| Seasonal | Prompts tied to season or moon | Fits Keeping Watch's sky pages | Some find it forced |
+| Seasonal | Prompts tied to season or moon | Fits books with moon and season pages | Some find it forced |
 | Choose-from-3 | Three offered, pick one | Choice (trauma-informed) | Takes space |
 
 ## 12. Community practice
@@ -538,13 +547,15 @@ tend to help problem-solving (Watkins 2008).
 **Do prompt books work?** They aren't studied as products. The prompts inside can use the same principles as studied
 ones.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
-Keeping Watch already has: **52 weekly exchange prompts** (`content/year.mjs`, one per week, no repeats, printed on
-the exchange spread with a Reply page), the **weekly review** (fixed reflective prompts), **On this day** (one line of
-history per day, a light prompt by another name), **month moon prompts** (astrology as a reflection prompt), **Fill-in
-blanks**, **Words to circle**, and presets that are prompts ("A moment I felt like me", "Tomorrow's first step").
-What's missing is theme and weight labels, a pass option, a way to return prompts, and user-editable prompt text.
+Journalwright Studio designs printed journals in a block editor (with an optional e-ink companion, the X4 companion,
+and the Studio for versions and drafts). Prompts already appear in several places: the **weekly exchange spread** (a
+weekly prompt with a Reply page), the **weekly review** (fixed reflective prompts), **On this day** (one line of history
+per day, a light prompt by another name), **month moon prompts** (astrology as a reflection prompt), **Fill-in blanks**,
+**Words to circle**, presets that are prompts ("A moment I felt like me", "Tomorrow's first step"), and the **Rotating
+prompt** day-page block (one prompt from a fixed list of 36, picked by date so a reprint gives the same one, with a "pass"
+box). What is still planned: theme and weight labels, returning prompts, and user-editable prompt text.
 
 ### How the weekly exchange prompts could evolve
 
@@ -553,7 +564,7 @@ What's missing is theme and weight labels, a pass option, a way to return prompt
 - **Alternate weights**: never two reflective prompts in a row; heavy prompts avoid known hard weeks (holidays).
 - **Add a pass line** under the prompt: "or: ask me something else".
 - **Return prompts**: a few prompts come back a year later marked with a small return icon, for a mirror effect.
-- **Let Shelbee edit the list** in the editor (a text list option), keeping the default list.
+- **Let the author edit the list** in the editor (a text list option), keeping the default list.
 
 ### How On this day could evolve
 
@@ -566,17 +577,17 @@ What's missing is theme and weight labels, a pass option, a way to return prompt
 | Idea | Where it goes | Fit | B&W and scan-zone notes | Already built? |
 |---|---|---|---|---|
 | Weekly exchange prompt | Exchange spread | High | Existing | Yes |
-| Theme icon + weight on exchange prompt | Exchange spread | High | Icon from the existing set; tiny text | No |
-| "or: ask me something else" pass line | Exchange spread | High | One dim line | No |
-| Daily prompt block (1 prompt, 2–3 lines, pass bubble) | Day block | Med | New `prompt` block, zone `prompt` | No |
-| Prompt deck (cut-out cards) | Back matter | Med | 8 cards per 8.5×11 page; B&W icons; no scan codes needed on cards | No |
-| Quarterly mirror questions | Closing the month (every 3rd) or week spread | Med | Fixed 3 prompts, 2 lines each | No |
-| Yearly ten questions | Keeper or last book of the year | Med | Keeper is home-only; fine | No |
-| Prompt log (what was used) | Back matter | Low | A numbered list to tick | No |
+| Theme icon + weight on exchange prompt | Exchange spread | High | Icon from the existing set; tiny text | Planned |
+| "or: ask me something else" pass line | Exchange spread | High | One dim line | Planned |
+| Daily prompt block (1 prompt, 2–3 lines, pass box) | Day block | Med | `prompt` block, zone `prompt` | Yes (Rotating prompt; fixed list, daily or weekly) |
+| Prompt deck (cut-out cards) | Back matter | Med | 8 cards per 8.5×11 page; B&W icons; no scan codes needed on cards | Planned |
+| Quarterly mirror questions | Closing the month (every 3rd) or week spread | Med | Fixed 3 prompts, 2 lines each | Planned |
+| Yearly ten questions | A yearly keepsake book or the last book of the year | Med | Home-only; fine | Planned |
+| Prompt log (what was used) | Back matter | Low | A numbered list to tick | Planned |
 | Fill-in stems ("Today I noticed…") | Day block | High | `fields` or `lines` label | Yes (label) |
 | Month moon prompts | Moon page | High | Existing | Yes |
 
-### b. X4
+### b. X4 companion
 
 | Idea | Where it goes | Fit | RAM, scope and calm notes |
 |---|---|---|---|
@@ -586,30 +597,30 @@ What's missing is theme and weight labels, a pass option, a way to return prompt
 | Random prompt on button press | A screen | Low | Needs a seed; not a feed but edges toward "content"; keep local and fixed |
 | AI-generated prompts | — | None | Out of scope |
 
-### c. Proposed editor blocks
+### c. Editor blocks
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `prompt` (new) | Prompt | `source` choice: weekly / fixed / list; `text` (for fixed); `list` (for rotation, max 31); `n` lines 1–5; `pass` bool | `prompt` | Not exported (text) |
+| `prompt` (built) | Rotating prompt | `every` choice: day / week; `n` lines 1–8; `pass` bool; fixed list of 36. Planned: `source` choice (weekly / fixed / list) and a user-editable `list` | `prompt` | Not exported (text) |
 | `checks` (existing) | Prompt done | labels ["Answered"] | `checks` | `toggle` |
 | `fields` (existing) | Stems | labels ["Today I noticed", "I'm carrying"] | `fields` | `count` (not useful; better as text; keep off the device) |
 | `words` (existing) | Feeling | words list | `words` | Not exported |
 
-A `list` source rotates by day of year, so each day gets `list[doy % list.length]`: deterministic, no randomness, same
-on reprint.
+The built Rotating prompt picks from its list by date, so each day gets a deterministic prompt with no randomness, the
+same on reprint. A user-editable list would follow the same rule (`list[doy % list.length]`).
 
 ### d. Proposed method layout: "Prompt journal"
 
 1. `sky`
 2. `care`
-3. `prompt`: source list, n 3, pass on
+3. `prompt`: n 3, pass on
 4. `words`: Feeling
 5. `review`: went well, was hard
 6. `body`: lines
 
 ### e. Don't adopt
 
-- **AI-generated or "personalised" prompts.** Firmware scope forbids AI; printed books don't need it.
+- **AI-generated or "personalised" prompts.** The companion's scope forbids AI; printed books don't need it.
 - **Heavy trauma prompts in the default list.** Keep those for therapy.
 - **365-day "must answer" books.** Guilt when skipped.
 - **Prompt streaks or "prompts answered" badges.** Out of scope and pressuring.

@@ -1,3 +1,13 @@
+---
+title: "Interstitial journaling"
+slug: interstitial-journaling
+category: productivity
+evidenceLevel: some
+lastReviewed: 2026-09-30
+status: reviewed
+contributors: ['Journalwright Studio contributors']
+---
+
 # Interstitial journaling
 
 A few timestamped lines written in the gaps between tasks: what just happened, how it felt, what's next.
@@ -131,7 +141,7 @@ Scan the day's entries at the end of the day or the week. Look for long gaps, re
 
 ### Symbols (optional)
 
-Ryder Carroll's version (2023) logs under each timestamp with BuJo signifiers: `•` action, `-` note, `=` mood, `o` event. Keeping Watch's Quick bullets block already has a BuJo key, so this variant fits the existing books (see [bullet-journal.md](bullet-journal.md)).
+Ryder Carroll's version (2023) logs under each timestamp with BuJo signifiers: `•` action, `-` note, `=` mood, `o` event. The Quick bullets block already has a BuJo key option, so this variant fits the existing books (see [bullet-journal.md](bullet-journal.md)).
 
 ## 6. Setting it up
 
@@ -232,7 +242,7 @@ Ryder Carroll's version (2023) logs under each timestamp with BuJo signifiers: `
 
 - Time column: about 12 mm wide (0.5 in), roughly 1/8 of a 5.5 in page width.
 - Row pitch: 6–7 mm lines. Two lines per entry is typical.
-- Proportions: the log fills whatever space is left, like Keeping Watch's Writing space.
+- Proportions: the log fills whatever space is left, like the Writing space block.
 
 ### B. Three-part entry (Stubblebine / NBC shape)
 
@@ -372,7 +382,7 @@ Not applicable. There is no official notebook, app, company or trademark. Third-
 ## 14. Tools and supplies
 
 - **Pen:** anything that writes on the first try. A clicky gel or ballpoint beats a capped pen for fast entries.
-- **Paper:** 70–90 gsm is plenty; nothing bleeds with ballpoint. Lined or dotted helps keep rows straight. Keeping Watch's day pages already work.
+- **Paper:** 70–90 gsm is plenty; nothing bleeds with ballpoint. Lined or dotted helps keep rows straight. The Studio's day pages already work.
 - **Clock:** a watch or a clock in eyeline. Checking the phone for the time is a trap (it pulls you in).
 - **Ruler:** only for the time column, once.
 - **Stamps:** a small date or clock-face stamp is a nice extra; not needed.
@@ -392,7 +402,7 @@ Not applicable. There is no official notebook, app, company or trademark. Third-
 **E-ink**
 
 - reMarkable, Kindle Scribe, Boox: handwrite on a template with a time column. The page can't stamp the time for you; you still read a clock.
-- An e-ink reader without a pen (like the X4) can't take free text easily, but it can record *that* a transition happened and when (see section 25b).
+- An e-ink reader without a pen (like the X4 companion) can't take free text easily, but it could record *that* a transition happened and when (see section 25b).
 
 **Scanning**
 
@@ -470,16 +480,16 @@ No study has tested interstitial journaling as a package. The research below sup
 
 ## 19. Accessibility and adaptations
 
-- **ADHD:** It externalises time and working memory at the point of performance (Barkley). Make the cue unmissable: a notebook open on the keyboard, a sticky arrow on the phone case. Use a feelings word bank to avoid blank-page freeze. Allow "RESUME:" notes as the only required entry. Don't count streaks. An X4 button press can stand in for a written entry on bad days.
-- **Autism and sensory needs:** Predictable format helps: same three fields every time. Add a sensory load number (0–3) to entries; it pairs with Keeping Watch's Sensory load block. Transitions are often the hard part, so the entry becomes a small, reliable transition ritual.
+- **ADHD:** It externalises time and working memory at the point of performance (Barkley). Make the cue unmissable: a notebook open on the keyboard, a sticky arrow on the phone case. Use a feelings word bank to avoid blank-page freeze. Allow "RESUME:" notes as the only required entry. Don't count streaks. A button press on the X4 companion could stand in for a written entry on bad days (a planned idea, section 25b).
+- **Autism and sensory needs:** Predictable format helps: same three fields every time. Add a sensory load number (0–3) to entries; it pairs with the Sensory load block. Transitions are often the hard part, so the entry becomes a small, reliable transition ritual.
 - **Chronic illness and low spoons:** Log fewer, bigger transitions (morning, midday, evening). Record spoons spent as a number. Entries become useful symptom context for appointments.
 - **Depression:** Keep it tiny: "time + one thing I did". The done list effect matters here: proof that the day wasn't nothing. Don't read back on a bad day.
 - **Anxiety:** Write the worry as "parked" with a time to deal with it. Watch for the log turning into reassurance-seeking or checking; if it does, reduce to next steps only.
 - **Trauma:** Keep feelings optional. Allow neutral words ("ok", "numb"). Nobody needs to explain a gap. Keep the notebook private.
 - **Dyslexia and dysgraphia:** Use symbols and ticks instead of words (`✓` done, `→` next, `~` stuck). Voice notes with a timestamp work. Wide rows.
 - **Low vision:** Large-print time column; thick pen; high-contrast ruling; or a screen reader in a text file with auto-timestamps.
-- **Motor or hand pain:** Symbols only; a stamp for times; voice entry; fewer triggers. On the X4, a single button can log the time.
-- **Trans and gender-diverse people:** A private place to note dysphoria or euphoria moments in the flow of the day, alongside HRT timing. Keeping Watch's "A moment I felt like me" and "Dysphoria" presets pair naturally. Keep entries off shared devices.
+- **Motor or hand pain:** Symbols only; a stamp for times; voice entry; fewer triggers. On the X4 companion, a single button press to log the time is a planned idea (section 25b).
+- **Trans and gender-diverse people:** A private place to note dysphoria or euphoria moments in the flow of the day, alongside hormone dose timing. The "A moment I felt like me" and "Dysphoria" presets pair naturally. Keep entries off shared devices.
 - **Shift workers:** Log by shift event, not by clock hour (in, break, lunch, out). A strip at the foot of the day page or a pocket card survives outdoor work better than a notebook.
 - **Low income:** Free. Any scrap paper, any pen. No app needed.
 
@@ -601,63 +611,63 @@ It's recommended. A feeling word often explains why a stretch went well or badly
 **10. Is there an official notebook or course?**
 No official notebook. There's a Knowable course listed by the University of Miami's Toppel Career Center, based on Stubblebine's approach.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
+
+Journalwright Studio makes printed journals and planners designed in a block editor, with an optional e-ink companion (the X4 companion). This section turns the research above into day page blocks, X4 items and a method layout.
 
 ### a. Printed book
 
 | Idea | Where it goes | Fit | B&W and scan-zone notes | Already built? |
 |---|---|---|---|---|
-| **Time-stamp log**: ruled rows with a narrow left time column (`__:__`) and a small symbol spot | Day block | High | Pure line art. Needs its own `data-zone` (`stamps`). Time column ~12 mm on 5.5×8.5 | **No** (new block, see 25c). Quick bullets is close but has no time column |
-| Use Quick bullets with the BuJo key as Carroll's version (timestamp written as a heading) | Day block | High | Already scan-mapped | **Yes** (Quick bullets, being added) |
-| "Resume with:" line under Action items | Day block | Med | One labelled rule. Could be a Lined notes block labelled "Resume with" | **Yes** via Lined notes (label option) |
-| Shift strip: in / break / lunch / out, each with a feel + next cell | Day block | Med | Extends Work shift; could be a 4-cell row | **Partly** (Work shift has in/out/break + note lines) |
-| "Entries today" dot row on the monthly tracker page | Month page | Med | Uses existing habit-dot style (empty/half/full = none/1–4/5+) | **Partly** (Habit dots exist on day pages; month tracker exists) |
-| Weekly read-back box: drains / works / one change | Week spread | High | Three short labelled lines; fits the weekly review page | **Partly** (weekly review exists; add these three prompts) |
-| One-page "How to write between tasks" card with the three questions and symbol key | Front matter (next to the icon key) | Med | Text + icons only | No |
-| Feelings word bank for entries | Day block | High | "Words to circle" block already does this | **Yes** (Words to circle) |
-| Interstitial entries in the Keeper | Keeper | Low | Keeper stays home and has no scan codes; transitions happen at work. Monthly handoff can note "best time of day" | No, and not needed |
+| **Time-stamp log**: ruled rows with a narrow left time column (`__:__`) and a small symbol spot | Day page block | High | Pure line art. Own `data-zone` (`stamps`). Time column ~12 mm on 5.5×8.5 | **Yes**: the Time stamps block (`stamps`): `__:__` and a line per switch, optional "resume with" row, 1–12 rows, row height. There is no separate feel column yet (planned) |
+| Use Quick bullets with the BuJo key as Carroll's version (timestamp written as a heading) | Day page block | High | Already scan-mapped | **Yes** (Quick bullets: label, rows, key strip, row height) |
+| "Resume with:" line under Action items | Day page block | Med | One labelled rule. A Lined notes block labelled "Resume with", or the Time stamps "Resume with" option | **Yes** |
+| Shift strip: in / break / lunch / out, each with a feel + next cell | Day page block | Med | Extends Work shift; could be a 4-cell row | **Partly** (Work shift has in/out/break + note lines) |
+| "Entries today" dot row on the monthly tracker page | Month page | Med | Uses existing habit-dot style (empty/half/full = none/1–4/5+) | Planned (Habit dots exist on day pages; the month tracker has no such row) |
+| Weekly read-back box: drains / works / one change | Week spread | High | Three short labelled lines; fits the weekly review page | Planned (the weekly review exists; these three prompts are not on it yet) |
+| One-page "How to write between tasks" card with the three questions and symbol key | Front matter (next to the icon key) | Med | Text + icons only | Planned |
+| Feelings word bank for entries | Day page block | High | "Words to circle" block already does this | **Yes** (Words to circle: your own label and word list) |
+| Interstitial entries in the Keeper | Keeper (the home-kept companion book) | Low | The Keeper stays home and has no scan codes; transitions happen at work. Monthly handoff can note "best time of day" | Planned, and not needed |
 
-### b. X4
+### b. X4 companion
 
-| Idea | Where it goes | Fit | RAM, scope and calm notes |
-|---|---|---|---|
-| **Pause stamp**: one button press on a "Between" screen records the current time and one of three icons (done ✓, next →, stuck ~). No text | A screen | Med | 32 entries × 4 bytes (minute-of-day + icon) = 128 B static buffer per day. No prompts, no nudges; the user starts it. Needs the clock set via the Wi-Fi page |
-| Show today's stamps as a small tick timeline on the sleep screen | The sleep screen | Low | Redraw only at 12:31 a.m. (existing rule), so it would show *yesterday's* pattern. Risk of feeling watched; keep off by default |
-| "Transitions logged" as a daily `count` check-in (0–30) | Check-in item kind (`count`) | Med | Through the bridge: a Fill-in blanks block labelled "Pauses logged" exports as `count` 0..99. No new firmware |
-| Export the day's stamps as a text file in the logs download | The Wi-Fi page | Med | Same 128 B/day; written to the SD card nightly. Stays on-device until downloaded over the hotspot |
-| Month stats for the Keeper handoff: median entries per day, most common "stuck" time band | A screen (month stats) | Low | Computed from the stamp file; no AI, plain counts |
-| Reminders to journal between tasks | — | **Out of scope** | Would be a notification. Not allowed |
-
-### c. Proposed editor blocks
-
-| Type | Name | Options | `data-zone` | X4 export kind |
+| Idea | Where it goes | Fit | RAM, scope and calm notes | Already built? |
 |---|---|---|---|---|
-| `stamps` | **Time stamps** (group: Writing, icon: `clock`) | `label` text (def "Between tasks", max 24); `n` rows (4–14, def 8); `feel` bool (narrow feel column, def on); `next` bool (print a small → at the start of the second line of each row, def off); `paper` choice (lines / dots, reusing PAPER) | `stamps` (repeats `stamps_2`, …) | None. Free text doesn't map to a check-in kind. Built-ins unaffected |
-| `lines` (existing) | **Resume with** preset | `label` "Resume with", `n` 1 | `lines` | None |
-| `fields` (existing) | **Pauses logged** preset | `labels` ["Pauses logged"] | `fields` | `count` 0..99 (`c_<uid>_pauses_logged`) |
-| `words` (existing) | **Feel words** preset | words: calm, foggy, wired, flat, anxious, ok, proud, sore | `words` | None (words aren't exported) |
+| **Pause stamp**: one button press on a "Between" screen records the current time and one of three icons (done ✓, next →, stuck ~). No text | A screen | Med | 32 entries × 4 bytes (minute-of-day + icon) = 128 B static buffer per day. No prompts, no nudges; the user starts it. Needs the clock set via the Wi-Fi page | Planned |
+| Show today's stamps as a small tick timeline on the sleep screen | The sleep screen | Low | The sleep screen redraws at 4:31 a.m. (the existing rule), so it would show *yesterday's* pattern. Risk of feeling watched; keep off by default | Planned |
+| "Transitions logged" as a daily `count` check-in (0–30) | Check-in item kind (`count`) | Med | A Fill-in blanks block labelled "Pauses logged" exports as `count` 0..99 through the pack export. No new firmware | **Yes** as a manual Fill-in blanks setup; no preset |
+| Export the day's stamps as a text file in the logs download | The Wi-Fi page | Med | Same 128 B/day; written to the SD card nightly. Stays on-device until downloaded over the device's own hotspot (or your own Wi-Fi, when you start it) | Planned |
+| Month stats: median entries per day, most common "stuck" time band | A screen (month stats) | Low | Computed from the stamp file; no AI, plain counts | Planned |
+| Reminders to journal between tasks | — | **Out of scope** | Would be a notification. Not allowed | — |
 
-Design note for `stamps`: time column printed as `__:__` in 7pt grey so it reads as a blank, not a label. No clock icons per row (too busy). One `clock` icon in the block label.
+### c. Editor blocks
+
+| Type | Name | Options | `data-zone` | X4 export kind | Built? |
+|---|---|---|---|---|---|
+| `stamps` | **Time stamps** (group: Planning, icon: `clock`) | `label` text (default "Between tasks", max 24); `n` rows (1–12, default 1); `resume` bool (a "resume with" row with an arrow, default off); row height. Proposed additions: a narrow feel column (`feel`) and a choice of paper (lines / dots) | `stamps` (repeats `stamps_2`, …) | None. Free text doesn't map to a check-in kind | **Yes** (proposed additions planned) |
+| `lines` (existing) | **Resume with** | `label` "Resume with", `n` 1 | `lines` | None | Set up by hand; no preset |
+| `fields` (existing) | **Pauses logged** | `labels` ["Pauses logged"] | `fields` | `count` 0..99 (`c_<uid>_pauses_logged`) | Set up by hand; no preset |
+| `words` (existing) | **Feel words** | words: calm, foggy, wired, flat, anxious, ok, proud, sore | `words` | None (words aren't exported, except the optional "Pick one on X4" for the first 8) | Set up by hand; no preset |
+
+Design note for `stamps`: the time column is printed as `__:__` in small grey so it reads as a blank, not a label. No clock icons per row (too busy). One `clock` icon in the block label.
 
 ### d. Proposed method layout: "Between tasks"
 
-Ordered block list for a one-click layout:
+This layout is not among the built-in method layouts yet (today: original, Bullet Journal daily, Hobonichi, Five Minute, Theme System). Ordered block list for a one-click layout:
 
 1. `sky` (Moon, sun & season)
 2. `events` (Events)
 3. `care` (Care check-in)
 4. `spoons` (Spoons)
 5. `top` (Top priorities: label "First things", n 3, bubbles 0)
-6. `stamps` (Time stamps: n 10, feel on)
-7. `lines` (Resume with: n 1)
+6. `stamps` (Time stamps: n 10, resume on)
+7. `lines` (Resume with: n 1; redundant if the stamps "resume" row is on)
 8. `body` (Writing space: lines) — takes what's left, for longer notes
 9. `review` (Went well · Was hard · Tomorrow)
 
-Until `stamps` exists, substitute `bullets` (Quick bullets, label "Between tasks", n 10, key on) and write the time at the start of each row.
-
 ### e. Don't adopt
 
-- **Hourly or per-transition reminders** on the X4: they're notifications and against firmware scope. The cue must come from Shelbee's own routine.
+- **Hourly or per-transition reminders** on the X4: they're notifications and against firmware scope. The cue must come from the person's own routine.
 - **Streaks or "entries today" badges**: turns a calm practice into a score. The month dot row stays neutral (no totals, no colour).
 - **Exact-minute grids** (a pre-printed 5-minute timeline): busy, stimulating, and it makes gaps look like failures. Keep the time column blank.
 - **AI summaries of entries**: out of scope, and the entries are private.
@@ -672,7 +682,7 @@ Until `stamps` exists, substitute `bullets` (Quick bullets, label "Between tasks
 - For ADHD specifically, does the habit stick, or does the "remember to write" step fail for the same reason other habits do? No data.
 - How much do feelings notes add over task notes alone? Untested.
 - Where exactly the "23 minutes to refocus" figure comes from, and whether it's still accurate.
-- Could the X4 "pause stamp" replace written entries on low-spoon days without losing the benefit? A small self-experiment would answer it for Shelbee.
+- Could an X4 "pause stamp" replace written entries on low-energy days without losing the benefit? A small self-experiment or community report would help answer it.
 
 ## 27. Further reading
 

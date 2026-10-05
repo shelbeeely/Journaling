@@ -1,8 +1,18 @@
+---
+title: "Planner, sticker and deco culture"
+slug: planner-sticker-and-deco-culture
+category: planner
+evidenceLevel: anecdotal
+lastReviewed: 2026-09-30
+status: reviewed
+contributors: ['Journalwright Studio contributors']
+---
+
 # Planner, sticker and deco culture
 
 The hobby world around decorated paper planners: Erin Condren, Happy Planner, Kikki.K, Plum Paper and hundreds of small
 sticker shops; washi tape, stamps and "plan with me" videos. This doc describes the culture honestly, including its
-costs and sensory load, and pulls out what a calm, black-and-white system like Keeping Watch can borrow: functional
+costs and sensory load, and pulls out what a calm, black-and-white system like Journalwright Studio can borrow: functional
 icons, sticker-sized spaces and printable sheets.
 
 ## 1. At a glance
@@ -31,7 +41,7 @@ carry information) and **decorative** (themed art, "kits" that dress a whole wee
 shops, subscription boxes and brand launches feeds it. People say decorating calms them, makes planning something to
 look forward to and gives them a creative outlet; qualitative studies of bullet journalers back the craft-and-reflection
 part (Tholander & Normark 2020; Ayobi et al. 2018). The critiques are cost, consumerism, perfectionism, decorating as
-procrastination, and visual overload for sensory-sensitive people. Keeping Watch can take the functional core without
+procrastination, and visual overload for sensory-sensitive people. Journalwright Studio can take the functional core without
 the colour and clutter: a consistent black-and-white icon set, empty sticker-sized spaces, and an optional printable
 icon sheet, all kept away from the scan zones.
 
@@ -134,7 +144,7 @@ calming to watch for some; for others they drive spending.
 
 A calm, functional-first setup:
 
-1. **Pick a planner you already have** (or a Keeping Watch book). Don't buy a new one to start.
+1. **Pick a planner you already have** (or a Journalwright Studio book). Don't buy a new one to start.
 2. **List your recurring things** (shift, meds refill, payday, bus pass, trash day, laundry, appointment).
 3. **Pick one icon per thing.** Keep to 8–12. Same icon every time.
 4. **Choose a medium:** pencil-drawn icons, one black stamp set, or one sheet of printed icon stickers.
@@ -181,7 +191,7 @@ Weekly session (the "plan with me" moment, 10–30 min): calendar first, icons s
   columns 1.5" wide; everything sized to stickers
 ```
 
-### B. Keeping Watch day page with functional icons (proposed)
+### B. Journalwright Studio day page with functional icons (proposed)
 
 ```
 +--------------------------------------------------+
@@ -291,7 +301,7 @@ weekly kits and seasonal collections.
 ## 14. Tools and supplies
 
 - **Pens:** gel and fine liners; heavy markers bleed through thin paper.
-- **Paper:** EC uses 80 lb; Keeping Watch prints on KDP paper, so test markers on the last page.
+- **Paper:** EC uses 80 lb; Journalwright Studio books print on KDP paper, so test markers on the last page.
 - **Stickers:** matte removable paper accepts pen; glossy doesn't. Vinyl is durable but thick.
 - **Washi:** 15 mm most common; can be removed from most papers.
 - **Stamps:** clear acrylic block plus pigment ink; small black icon stamps suit B&W.
@@ -306,7 +316,7 @@ weekly kits and seasonal collections.
   and no ongoing cost per use, but screen time and a different kind of hoarding.
 - **E-ink:** reMarkable, Boox, Kindle Scribe can't show colour stickers; functional icons in greyscale work. The X4 is
   1-bit, so icons need to be crisp black and white.
-- **Scanning:** stickers and washi can cover text and confuse OCR; glossy stickers glare. Keeping Watch pages must keep
+- **Scanning:** stickers and washi can cover text and confuse OCR; glossy stickers glare. Journalwright Studio pages must keep
   the header, frame, SEND TO strip and Data Matrix clear.
 - **Lost vs paper:** the tactile ritual. **Gained:** undo, no cost per sticker, no stash.
 
@@ -381,9 +391,9 @@ No trials study decorated planners. What exists:
 
 ## 20. Comparison
 
-| | Planner/deco culture | [Bullet Journal](bullet-journal.md) | [Hobonichi](hobonichi-techo.md) | [Travelers notebook](travelers-notebook.md) | Keeping Watch |
+| | Planner/deco culture | [Bullet Journal](bullet-journal.md) | [Hobonichi](hobonichi-techo.md) | [Travelers notebook](travelers-notebook.md) | Journalwright Studio |
 |---|---|---|---|---|---|
-| Structure | Printed planner | Blank, self-drawn | Printed day pages | Inserts | Printed, custom per month |
+| Structure | Printed planner | Blank, self-drawn | Printed day pages | Inserts | Printed, custom layout |
 | Deco | Central | Optional (split camps) | Common (stamps, washi) | Ephemera | Minimal by design |
 | Cost | Medium to high | Low | Medium | Medium | Print cost |
 | Colour | High | Varies | Varies | Varies | Black and white |
@@ -465,7 +475,7 @@ Headers and collections:
 
 **Functional or decorative?** Functional if you want speed; one decorative element if it helps you open the planner.
 
-**Will stickers stick to Keeping Watch pages?** Yes on KDP paper; matte stickers accept pen. Keep them off the header,
+**Will stickers stick to Journalwright Studio pages?** Yes on KDP paper; matte stickers accept pen. Keep them off the header,
 frame, SEND TO strip and Data Matrix.
 
 **How much should I spend?** Set a cap. A functional setup can be one printed sheet a month.
@@ -482,9 +492,11 @@ hold important notes.
 
 **Can I use stickers on the X4?** No, it's a screen; icons there are drawn by the firmware.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
-Keeping Watch already has: a **day page icon key** in the front matter (icons over words), the **Sketch box** block
+Journalwright Studio makes printed journals and planners designed in a block editor, with an optional e-ink companion (the X4 companion). This section turns the research above into day page blocks, X4 items and a method layout.
+
+Journalwright Studio already has: a **day page icon key** in the front matter (icons over words), the **Sketch box** block
 ("an empty frame to draw or stick things in"), **Divider** (a thin line, like a washi strip), **Words to circle**
 (circle, don't write), and fixed scan zones. What's missing: a row of functional icons to circle, sticker-sized empty
 spots, a printable icon sheet, and a "keep clear" rule for stickers on the anatomy page.
@@ -493,39 +505,41 @@ spots, a printable icon sheet, and a "keep clear" rule for stickers on the anato
 
 | Idea | Where it goes | Fit | B&W and scan-zone notes | Already built? |
 |---|---|---|---|---|
-| Icons to circle (shift, bus, meds, pay…) | Day block | High | Reuse existing SVG icons (`work`, `bus`, `pill`, `coin`, `text`); circles only; own zone | No |
-| Sticker spots (0.5 in circles or half-box rectangles) | Day block | Med | Dotted outlines; own zone so stickers never touch scan parts | No |
-| Sketch box for stickers | Day block | High | Existing | Yes |
-| Divider as "washi strip" | Day block | High | Existing thin line | Yes |
-| "Keep clear" note on anatomy page (header, frame, SEND TO, Data Matrix) | Front matter | High | One line and an outline sketch | No |
-| Icon key extended with functional icons | Front matter | High | Same icon set as the circle row | Partly (icon key exists) |
-| Week spread icon column per day | Week spread | Med | One small icon row per day | No |
-| Printable icon sticker sheet (separate PDF, letter, B&W) | Outside the book (download) | Med | Not in KDP books: cutting pages out of a bound book is bad; print on label stock | No |
-| Cut-out icon page | Back matter | Low | Wastes a page; scans would break if moved | No |
+| Icons to circle (shift, bus, meds, pay…) | Day page block | High | Reuse existing SVG icons (`work`, `bus`, `pill`, `coin`, `text`); circles only; own zone | Planned |
+| Sticker spots (0.5 in circles or half-box rectangles) | Day page block | Med | Dotted outlines; own zone so stickers never touch scan parts | Planned |
+| Sketch box for stickers | Day page block | High | Existing | **Yes** (Sketch box, with optional tape marks) |
+| Divider as "washi strip" | Day page block | High | Existing thin line | **Yes** (Divider) |
+| "Keep clear" note on anatomy page (header, frame, SEND TO, Data Matrix) | Front matter | High | One line and an outline sketch | Planned |
+| Icon key extended with functional icons | Front matter | High | Same icon set as the circle row | **Partly** (the icon key exists) |
+| Week spread icon column per day | Week spread | Med | One small icon row per day | Planned |
+| Printable icon sticker sheet (separate PDF, letter, B&W) | Outside the book (download) | Med | Not in KDP books: cutting pages out of a bound book is bad; print on label stock | Planned |
+| Cut-out icon page | Back matter | Low | Wastes a page; scans would break if moved | Planned (not recommended) |
 | Colour kits, foils, themed art | — | None | Against calm B&W design | — |
 
-### b. X4
+### b. X4 companion
 
-| Idea | Where it goes | Fit | RAM, scope and calm notes |
-|---|---|---|---|
-| Today's icons on the sleep screen (shift, bus, meds) | Sleep screen | Med | Icons from calendar data already there; 1-bit bitmaps are small; must not clutter |
-| Icon check-ins (e.g., "picked up refill") | Check-in item, `toggle` | Med | One slot each; watch the 16-item limit |
-| Icon set shared with print | Firmware assets | High | One icon language across paper and device; static bitmaps in flash |
-| Digital "stickers" for fun | — | None | Badge-like; out of scope |
-| Streak or reward stickers | — | None | Badges are out of scope |
-
-### c. Proposed editor blocks
-
-| Type | Name | Options | `data-zone` | X4 export kind |
+| Idea | Where it goes | Fit | RAM, scope and calm notes | Already built? |
 |---|---|---|---|---|
-| `icons` (new) | Icons to circle | `title` text; `items` flags from the icon set, max 10. Existing SVG icons: `work`, `bus`, `pill`, `coin`, `people`, `text`, `meal`, `sleep`, `cloud`, `heart`. New icons needed: night shift, day off, HRT, clinic, bill, laundry, trash, walk, rest, smoke, star | `icons` | Proposed: one `toggle` per icon. Needs a bridge row (`icons` → toggle per item); not in the current bridge. |
-| `stickers` (new) | Sticker spots | `shape` choice: circle 0.5 in / half box 1.5×0.95 in; `n` 1–6 | `stickers` | Not exported |
-| `sketch` (existing) | Stick something here | label, h | `sketch` | Not exported |
-| `divider` (existing) | Strip | — | `divider` | Not exported |
+| Today's icons on the sleep screen (shift, bus, meds) | Sleep screen | Med | Icons from calendar data already there; 1-bit bitmaps are small; must not clutter | Planned |
+| Icon check-ins (e.g., "picked up refill") | Check-in item, `toggle` | Med | One slot each; watch the 16-item limit | **Yes** as a Checkboxes block with short labels |
+| Icon set shared with print | Firmware assets | High | One icon language across paper and device; static bitmaps in flash | Planned |
+| Digital "stickers" for fun | — | None | Badge-like; out of scope | — |
+| Streak or reward stickers | — | None | Badges are out of scope | — |
+
+### c. Editor blocks
+
+| Type | Name | Options | `data-zone` | X4 export kind | Built? |
+|---|---|---|---|---|---|
+| `icons` (new) | Icons to circle | `title` text; `items` flags from the icon set, max 10. Existing SVG icons: `work`, `bus`, `pill`, `coin`, `people`, `text`, `meal`, `sleep`, `cloud`, `heart`. New icons needed: night shift, day off, HRT, clinic, bill, laundry, trash, walk, rest, smoke, star | `icons` | Proposed: one `toggle` per icon. Needs an export row (`icons` → toggle per item); not in the current pack export. | Planned |
+| `stickers` (new) | Sticker spots | `shape` choice: circle 0.5 in / half box 1.5×0.95 in; `n` 1–6 | `stickers` | Not exported | Planned |
+| `sketch` (existing) | Stick something here | label, h | `sketch` | Not exported | **Yes** |
+| `divider` (existing) | Strip | icon (none, sun, moon) | `divider` | Not exported | **Yes** |
 
 Until `icons` exists, `checks` with short labels ("Shift", "Bus", "Refill") gives the same X4 toggles today.
 
 ### d. Proposed method layout: "Functional planner"
+
+This layout is not among the built-in method layouts yet (today: original, Bullet Journal daily, Hobonichi, Five Minute, Theme System).
 
 1. `sky`
 2. `events`
@@ -541,7 +555,7 @@ Until `icons` exists, `checks` with short labels ("Shift", "Bus", "Refill") give
 
 - **Colour-coding.** The books are B&W; colour-only meaning also fails colour-blind users.
 - **Decorative kits, seasonal themes, character art.** Busy, costly, against the calm design.
-- **Hauls, subscriptions, "new drop" cadence.** Consumerism; Keeping Watch is one book a month on purpose.
+- **Hauls, subscriptions, "new drop" cadence.** Consumerism; a calm book doesn't need a monthly drop of new accessories.
 - **Rewards, streak stickers, badges** (on paper or device). Out of scope and pressuring.
 - **Box sizes tied to one brand's columns.** Size for icons and circles, not EC boxes.
 - **Stickers or washi in the scan zones.** They break the scan system.
@@ -553,7 +567,7 @@ Until `icons` exists, `checks` with short labels ("Shift", "Bus", "Refill") give
   reliable figure.
 - Exact LifePlanner launch year: EC pages give the company's 2005 start but not a clear first-LifePlanner year.
 - The year of the first Kamoi factory visit (2006 or 2007) differs between accounts.
-- Whether printed icon rows actually get circled on paper, or ignored, is testable in Shelbee's own scans.
+- Whether printed icon rows actually get circled on paper, or ignored, is testable with your own scans.
 - Adhesive ageing on KDP paper over a year: untested.
 
 ## 27. Further reading

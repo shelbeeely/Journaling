@@ -1,3 +1,14 @@
+---
+title: "CBT thought record"
+slug: cbt-thought-record
+category: mental-health
+evidenceLevel: strong
+lastReviewed: 2026-09-30
+status: reviewed
+contributors:
+  - Journalwright Studio contributors
+---
+
 # CBT thought record (and behavioural activation logs)
 
 > **Not medical advice.** This is a research summary to help design journal pages. It is not therapy and does not
@@ -6,7 +17,7 @@
 >
 > **If you are in crisis right now:** in the US, call or text **988** (24/7), or call **911** if you are in immediate
 > danger. **Trans Lifeline** (peer support from trans people) is **(877) 565-8860** in the US and **(877) 330-6366** in
-> Canada, weekdays 10 am–6 pm Pacific. A thought record is not the right tool for a crisis; a safety plan is (see
+> Canada, weekdays 10 am–6 pm Pacific. Outside the US and Canada, check your local services. A thought record is not the right tool for a crisis; a safety plan is (see
 > [safety-planning](safety-planning.md)).
 
 Checked 2026-09-28. Where a point is uncertain it is marked **(uncertain)**.
@@ -723,57 +734,56 @@ Somewhere private. The page can use initials or code words for people.
 Yes, CBT has strong evidence for anxiety disorders; anxiety often uses behavioural experiments and exposure more than
 thought records.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Built? |
 |---|---|---|---|---|
-| 7-column thought record, stacked portrait | Full day-page layout or a back-matter page (2–4 per month) | High | Each box its own `data-zone`; 0–100 bubbles in tens; private routing | No |
-| Quick 3-column record | Day block | High | Two Columns block + a Distortions word list covers most of it | Partly (Two columns; Words to circle) |
-| Distortions circle list | Day block (Words to circle preset) | High | 10 short names; fits two lines at 5.5 in | Block yes; preset no |
-| Mood before/after 0–100 | Day block | High | 11 bubbles (0,10,…,100): needs zero-based scale | No |
-| "Today I'll try" (mastery, pleasure, values) with did-it tick and M/P | Day block | High | Tick + two small blanks per row | No |
-| Activity log by hour with M/P | Day block (Time blocks with two small columns) | Med | Extend Time blocks with an M/P option | Partly (Time blocks) |
+| 7-column thought record, stacked portrait | Full day-page layout or a back-matter page (2–4 per month) | High | Each box its own `data-zone`; 0–100 bubbles in tens; private routing | Partly (the `thought` block prints 3, 5 or 7 boxes; a full-page layout is planned) |
+| Quick 3-column record | Day block | High | Two Columns block + a Distortions word list covers most of it | **Built** (`thought` block with 3 boxes; Two columns and Words to circle also work) |
+| Distortions circle list | Day block (Words to circle preset) | High | 10 short names; fits two lines at 5.5 in | Block yes; preset planned |
+| Mood before/after 0–100 | Day block | High | 11 bubbles (0,10,…,100) | Partly (a Scale block with 11 steps and "Number from 0" prints 0–10; label the ends 0 and 100 to read it as tens) |
+| "Today I'll try" (mastery, pleasure, values) with did-it tick and M/P | Day block | High | Tick + two small blanks per row | Planned |
+| Activity log by hour with M/P | Day block (Time blocks with two small columns) | Med | Extend Time blocks with an M/P option | Partly (Time blocks exist, with optional Actual and Re-plan columns; an M/P option is planned) |
 | Weekly activity schedule | Week spread | Med | A 7 x 8 grid (2-hour rows) is already close to the week spread | Partly |
-| Evidence questions and distortion key | Back matter (one page) | High | Text only | No |
-| Weekly review: common hot thought, best activity | Weekly review page | Med | Two lines | No |
-| Behavioural experiment page | Back matter (1 per month) | Low | Four boxes | No |
-| Relapse-prevention "what works" page | Keeper (yearly) | Low | Keeper has no scan codes; good for a private summary | No |
+| Evidence questions and distortion key | Back matter (one page) | High | Text only | Planned |
+| Weekly review: common hot thought, best activity | Weekly review page | Med | Two lines | Planned |
+| Behavioural experiment page | Back matter (1 per month) | Low | Four boxes | Planned |
+| Relapse-prevention "what works" page | Keeper (yearly) | Low | Keeper has no scan codes; good for a private summary | Planned |
 
-### b. X4
+### b. E-ink companion (X4)
 
 | Idea | Where | Fit | RAM, scope and calm notes |
 |---|---|---|---|
-| Mood before/after | Check-in `scale` 0..10 (tens), needs zero-based scale | Med | Two small items; no charts pushed at the user |
-| Planned activity done? | Check-in `toggle` per label (from a Checkboxes block) | High | Already supported by the bridge |
+| Mood before/after | Check-in `scale` 0..10 (tens), using the zero-based scale option | Med | Two small items; no charts pushed at the user. **Built** for a `scale` block with "Number from 0" |
+| Planned activity done? | Check-in `toggle` per label (from a Checkboxes block) | High | **Built**: already supported by the bridge |
 | Mastery and pleasure | Check-in `scale` 0..10 | Med | Two items per activity quickly hits the 16-item cap; use one M/P pair for "today overall" |
-| Distortion of the day | Future `choice` kind | Low | Nice for patterns, but the bridge has no `choice` yet; a 10-way picker is fiddly with 7 buttons |
-| Evidence questions | Support screen or a books-library text page | Med | Static text; no AI prompts |
-| Weekly "done" count | Month stats for the Keeper handoff | Med | Already exports month stats; add count of activities done |
+| Distortion of the day | Check-in `choice` kind (a Words to circle block with "Pick one on X4") | Low | Nice for patterns, but a 10-way picker is fiddly with 7 buttons, and the X4 keeps only the first 8 words |
+| Evidence questions | Support screen or a books-library text page | Med | Static text; no AI prompts. Planned |
+| Weekly "done" count | Month stats for the Keeper handoff | Med | Already exports month stats; add count of activities done. Planned |
 | AI thought challenger | — | Not allowed | No generative AI |
 | Reminders to do a record | — | Not allowed | No notifications; the sleep screen can show today's planned activity instead |
 
-### c. Proposed editor blocks
+### c. Editor blocks (built and proposed)
 
-**Known X4 gap:** `scale` exports 1..steps with no zero-based option and there's no `choice` kind; proposals note what
-they need.
+**Bridge note:** the `scale` block has a "Number from 0" option, exported to the X4 as `0..steps-1`, and Words to circle can export as a `choice` item (2 to 8 words). Earlier drafts of this table listed both as gaps; they are now built.
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `thought` (new) | Thought record | columns choice: 3 / 5 / 7; lines per box 1–3; distortions bool; mood rows 1–3 | `thought` (boxes as `thought_sit`, `thought_mood`, … or one zone per block **(to decide)**) | not exported (writing) |
-| `words` preset | Thinking traps | words = the 10 short distortion names | `words` | not exported (future `choice`) |
-| `scale` preset (needs `zero`) | Mood before / after | title, steps 11, lo "0", hi "100", zero true | `scale`, `scale_2` | `scale` 0..10 (**needs** zero-based export) |
-| `tryblock` (new) | Today I'll try | rows 1–3 with labels (mastery, pleasure, values); M/P blanks bool | `tryblock` | `toggle` per row ("did it") |
-| `timeline` option | Time blocks + M/P | new bool `mp` adds two narrow columns | `timeline` | not exported |
-| `lines` preset | Next step | n 1 | `lines` | not exported |
-| `fields` preset | Mastery / Pleasure today | labels M, P | `fields` | `count` 0..99 each (works today; 0..10 would be nicer) |
+| `thought` (**built**) | Thought record | columns choice: 3 / 5 / 7; lines per box 1–3. Proposed extras: distortions bool; mood rows 1–3 | `thought` (boxes as `thought_sit`, `thought_mood`, … or one zone per block **(to decide)**) | not exported (writing) |
+| `words` preset | Thinking traps | words = the 10 short distortion names | `words` | `choice` if "Pick one on X4" is on (first 8 words). Preset planned |
+| `scale` preset | Mood before / after | title, steps 11, lo "0", hi "100", zero true | `scale`, `scale_2` | `scale` 0..10. Block and options **built**; named preset planned |
+| `tryblock` | Today I'll try | rows 1–3 with labels (mastery, pleasure, values); M/P blanks bool | `tryblock` | `toggle` per row ("did it"). Planned |
+| `timeline` option | Time blocks + M/P | new bool `mp` adds two narrow columns | `timeline` | not exported. Planned |
+| `lines` preset | Next step | n 1 | `lines` | not exported. Planned (a "Tomorrow's first step" preset exists) |
+| `fields` preset | Mastery / Pleasure today | labels M, P | `fields` | `count` 0..99 each (the block's "Highest count on X4" can be set to 5 or 10). Block **built**; named preset planned |
 
-Bridge proposal (for the owner to decide): the same optional `zero` flag on `scale` proposed in
-[dbt-diary-card](dbt-diary-card.md), so a 0–100% mood in tens exports as `scale|0|10`. A `fields` block already
-exports `count`, which can hold 0–10 today.
+The same zero-based `scale` option is used in [dbt-diary-card](dbt-diary-card.md), so a 0–100% mood in tens exports as `scale|0|10`. A `fields` block also exports `count`, which can hold 0–10.
 
 ### d. Proposed method layouts
+
+Neither layout is in the editor's "Start from a method" list yet (planned).
 
 **"Thought record" (a day page for working through one moment)**
 
@@ -799,8 +809,8 @@ exports `count`, which can hold 0–10 today.
 - **Scoring, streaks or "cognitive fitness" badges.** Pressure and shame; out of scope.
 - **Labelling every negative thought a distortion.** Some are accurate (minority stress, real risk). Keep "true,
   and…" language and a next-step line.
-- **Copying *Mind Over Mood* or CCI forms verbatim** into commercial KDP books; they're copyrighted. Use Keeping Watch's
-  own wording and cite them in back matter as further reading.
+- **Copying *Mind Over Mood* or CCI forms verbatim** into commercial KDP books; they're copyrighted. Use original
+  wording and cite them in back matter as further reading.
 - **Thought records on the X4 screen.** Writing belongs on paper; the X4 should hold only quick numbers and ticks.
 - **Hourly prompts to log activity.** No notifications; the paper grid and the sleep screen are enough.
 - **Using a thought record in a crisis.** Point to the safety plan instead.

@@ -1,3 +1,14 @@
+---
+title: "Autistic sensory journaling"
+slug: autistic-sensory-journaling
+category: neurodivergent-and-creative
+evidenceLevel: some
+lastReviewed: 2026-09-30
+status: reviewed
+contributors:
+  - Journalwright Studio contributors
+---
+
 # Autistic sensory journaling
 
 > **Not medical advice.** This doc is about journaling and self-knowledge. It isn't a diagnostic tool and doesn't replace an occupational therapist, doctor or therapist. The questionnaires named here are clinical or research tools; a journal borrows their ideas, not their scores.
@@ -106,7 +117,7 @@ Autistic sensory journaling is a quick, low-text log of how loud the world was, 
 
 ### Sensory load
 
-- Keeping Watch already prints this: **Sensory load**, 0–3 per sense, with Sound, Light, Crowds, Touch on by default and Smell and Social as options.
+- Journalwright Studio already has this as a day page block: **Sensory load**, 0–3 per sense, with Sound, Light, Crowds and Touch on by default and Smell, Social, Temperature and Movement as options.
 - 0 = fine, 1 = noticed, 2 = hard, 3 = too much.
 - Add, if you want: **temperature**, **movement/vestibular**, **taste**, **internal (pain, hunger)**. The AASP's six categories are a good checklist.
 
@@ -136,7 +147,7 @@ Autistic sensory journaling is a quick, low-text log of how loud the world was, 
 - Toudal's method: list things that **withdraw** energy and things that **deposit** it, give each a number, keep a daily balance.
 - Keep your own price list on a back page. Example: bus with crowd −3, work shift −5, phone call −4, special interest hour +3, weighted blanket +2, quiet walk +2.
 - The balance isn't a moral score. It's a forecast: a run of negative days predicts trouble.
-- Related: Keeping Watch's **Spoons** block. Spoons count what you have; energy accounting prices what things cost. Use one daily, not both, unless you like both.
+- Related: the Studio's **Spoons** block. Spoons count what you have; energy accounting prices what things cost. Use one daily, not both, unless you like both.
 
 ### Masking meter
 
@@ -246,11 +257,11 @@ Autistic sensory journaling is a quick, low-text log of how loud the world was, 
 - Count meltdowns, shutdowns, near-misses. Look at the "before" columns for repeats.
 - Update the price list (things change cost over time).
 - Update the recovery plan.
-- Keeping Watch: carry key numbers to the monthly Keeper handoff (counts only).
+- Journalwright Studio: carry key numbers to the monthly Keeper handoff (counts only).
 
 ### Quarterly
 
-- Revisit the profile map. Seasons change light, heat and crowds (Spokane summer smoke, winter dark).
+- Revisit the profile map. Seasons change light, heat and crowds (wildfire smoke in summer, dark afternoons in winter, depending where you live).
 - Compare burnout watch ticks across three months.
 
 ### Yearly
@@ -419,7 +430,7 @@ Not applicable for the method. Related paid tools:
 - **Energy Accounting** book (Jessica Kingsley Publishers, Dec 2024, $32.95).
 - **The Interoception Curriculum** (Kelly Mahler; sold on her site).
 
-Keeping Watch already prints Sensory load, Spoons, Scale, Words to circle and Care check-in.
+Journalwright Studio already has day page blocks for Sensory load, Spoons, Scale, Words to circle and Care check-in.
 
 ## 14. Tools and supplies
 
@@ -436,7 +447,7 @@ Keeping Watch already prints Sensory load, Spoons, Scale, Words to circle and Ca
 - **Apps:** mood/sensory trackers, spreadsheets, notes. Pros: reminders, charts. Cons: notifications, screen glare, subscriptions, data sharing.
 - **E-ink (reMarkable, Kindle Scribe, Boox):** low glare, quiet; good for autistic users who find screens harsh.
 - **X4:** e-ink, buttons, no notifications. Well suited to circle-a-number logging with no light or sound.
-- **Scanning:** Keeping Watch pages scan through their SEND TO strip; sensory data isn't very sensitive but overload logs might be. Route privately.
+- **Scanning:** Journalwright Studio pages scan through their SEND TO strip; sensory data isn't very sensitive but overload logs might be. Route privately.
 - **Lost vs gained:** paper is predictable and tactile; digital charts show patterns faster. Hybrid: log on paper or X4, read monthly totals on the Keeper handoff.
 
 ## 16. Evidence and research
@@ -503,7 +514,7 @@ Keeping Watch already prints Sensory load, Spoons, Scale, Words to circle and Ca
 - **Low vision:** 8.5×11, 7 mm circles, thick outlines; X4 large type.
 - **Motor or hand pain:** tick boxes, stamps, X4 buttons.
 - **Trans and gender-diverse people:** autistic people are more likely to be trans or gender-diverse **(well documented; not re-checked here)**. Clothes, binders, makeup and voice work have sensory costs and rewards. See the sibling doc [gender-euphoria-and-hrt-log.md](gender-euphoria-and-hrt-log.md). Masking gender and masking autism can stack.
-- **Shift workers:** log by shift, not by clock day; outdoor weather and air are sensory load (Keeping Watch has Weather & air).
+- **Shift workers:** log by shift, not by clock day; outdoor weather and air are sensory load (the Studio has a Weather & air block).
 - **Low income:** free: any notebook, printable pages. Public libraries are low-cost quiet spaces worth listing as deposits.
 
 ## 20. Comparison
@@ -523,7 +534,7 @@ Keeping Watch already prints Sensory load, Spoons, Scale, Words to circle and Ca
 - **With spoons:** use Spoons for "how much I have", Sensory load for "why it went".
 - **With a mood tracker:** mood + burnout watch helps separate depression from burnout.
 - **With a Bullet Journal:** a sensory signifier (ear icon) next to events that were loud.
-- **With routines/habit tracking:** Keeping Watch's Checkboxes and Habit dots can track supports (headphones, walk, alone time).
+- **With routines/habit tracking:** the Studio's Checkboxes and Habit dots blocks can track supports (headphones, walk, alone time).
 - Other sibling method docs (spoon theory, mood tracking, bullet journal, habit tracking) live in this folder; see the methods index.
 
 ## 22. Ready-to-use bank
@@ -604,62 +615,64 @@ Keeping Watch already prints Sensory load, Spoons, Scale, Words to circle and Ca
 10. **What if I don't feel body signals?** Common. Use timed check-ins (am/mid/pm) and look for pairs over time.
 11. **Is this proven?** The concepts are well studied; the journal itself isn't.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Built? |
 |---|---|---|---|---|
-| Sensory load 0–3 per sense | Day block | High | Existing; add Temperature and Movement as flags | **Yes** (Sensory load) |
-| Masking 0–3 + where | Day block | High | Scale + small tick row; own `data-zone` | No (Scale works as a stopgap) |
-| Energy deposits/withdrawals | Day block | High | Two ruled lines + two blanks + balance | No (Two columns is close) |
-| Body signals strip | Day block | Med | 7 icons × 3 rows of circles; icons as SVG | No |
+| Sensory load 0–3 per sense | Day block | High | Temperature and Movement are available as flags | **Yes** (`sensory` block) |
+| Masking 0–3 + where | Day block | High | Scale + small tick row; own `data-zone` | Partly (a "Masking" Scale preset exists; the "where" tick row is planned) |
+| Energy deposits/withdrawals | Day block | High | Two ruled lines + two blanks + balance | **Yes** (`accounts` block, "Energy account"; see also Energy types and Spoons) |
+| Body signals strip | Day block | Med | 7 icons × 3 rows of circles; icons as SVG | **Yes** (`bodysig` block, 1–3 times a day) |
 | Communication card | Day block | Med | 4 circled words | Partly (Words to circle) |
-| Supports used | Day block | High | Icon tick row | Partly (Checkboxes) |
-| Special interest | Day block | Med | Lined notes + minutes blank | Partly (Lined notes, Fill-in blanks) |
-| Burnout watch | Week spread | High | 6 rows × 1 box; or month page 6×5 | No |
-| Overload log | Back matter (several) | High | Half-page form; icons | No |
-| Sensory profile map | Front matter / Keeper | High | 6×4 grid; once a year | No |
-| Energy price list | Front matter | High | Two columns | No |
-| Recovery plan | Back matter, next to Safety plan | High | Short form | Partly (Care plan, Safety plan exist) |
-| Monthly overload counts | Month page | Med | Three counts | No |
+| Supports used | Day block | High | Icon tick row | **Yes** (a "Supports" Checkboxes preset) |
+| Special interest | Day block | Med | Lined notes + minutes blank | **Yes** (a "Special interest" Lined notes preset; Fill-in blanks for minutes) |
+| Burnout watch | Week spread | High | 6 rows × 1 box; or month page 6×5 | Planned |
+| Overload log | Back matter (several) | High | Half-page form; icons | Planned (an "Overload" Habit dots preset covers the daily mark) |
+| Sensory profile map | Front matter / Keeper | High | 6×4 grid; once a year | Planned |
+| Energy price list | Front matter | High | Two columns | Planned |
+| Recovery plan | Back matter, next to Safety plan | High | Short form | Partly (a safety plan page exists; a recovery plan page is planned) |
+| Monthly overload counts | Month page | Med | Three counts | Planned |
 
-### b. X4
+### b. E-ink companion (X4)
 
 | Idea | Where | Fit | RAM, scope, calm notes |
 |---|---|---|---|
-| Sensory load (4 senses) | Check-in items, `scale` per sense. The bridge exports `scale` as 1..steps, so paper 0–3 becomes 1–4 on the device (1 = fine) | High | 4 bytes/day. Button presses, no light or sound: ideal. |
-| Masking 0–3 | Check-in item, `scale` 1..4 (same offset as above) | High | 1 byte/day. |
-| Energy balance | Check-in item, `count` 0..99 **(can't go negative; log deposits and withdrawals as two counts)** | Med | 2 bytes/day. |
-| Supports used | Check-in items, `toggle` | Med | Bits. Keep to ≤ 4 to respect the 16-slot limit. |
-| Overload today | Check-in item, `dots` (0 none, 1 near-miss, 2 meltdown/shutdown) | High | 2 bits/day; no detail on device. |
-| Burnout watch | A weekly screen with 6 toggles | Med | Needs a weekly item type; out of current bridge. |
-| Quiet screen | A screen: black-on-white "not now" card to show someone | Med | Static bitmap; no notification; press Back to leave. |
-| Month stats | Keeper handoff | High | Sums per sense; overload counts. |
+| Sensory load (4 senses) | Check-in items, `scale` per sense. The bridge exports `scale` as 1..steps, so paper 0–3 becomes 1–4 on the device (1 = fine) | High | 4 bytes/day. Button presses, no light or sound: ideal. Planned (the `sensory` block is paper only today; a `scale` block per sense works now) |
+| Masking 0–3 | Check-in item, `scale` 1..4 (same offset as above) | High | 1 byte/day. **Built** for a `scale` block marked for the X4 |
+| Energy balance | Check-in item, `count` 0..99 **(can't go negative; log deposits and withdrawals as two counts)** | Med | 2 bytes/day. Possible with two `fields` blocks |
+| Supports used | Check-in items, `toggle` | Med | Bits. Keep to ≤ 4 to respect the 16-slot limit. **Built** for `checks` blocks |
+| Overload today | Check-in item, `dots` (0 none, 1 near-miss, 2 meltdown/shutdown) | High | 2 bits/day; no detail on device. **Built** for Habit dots blocks |
+| Burnout watch | A weekly screen with 6 toggles | Med | Needs a weekly item type; out of current bridge. Planned |
+| Quiet screen | A screen: black-on-white "not now" card to show someone | Med | Static bitmap; no notification; press Back to leave. Planned |
+| Month stats | Keeper handoff | High | Sums per sense; overload counts. Planned |
 
 All calm: no reminders, no streaks, no charts that nag.
 
-### c. Proposed editor blocks
+### c. Editor blocks (built and proposed)
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `sensory` (existing) | Sensory load | senses flags (+ **temp**, **move** new) | `sensory` | not exported today (not in the bridge's block list); proposal: one `scale` 1..4 per sense |
-| `scale` preset (new) | Masking | steps 4, lo "none", hi "all day" | `scale` | `scale` |
-| `energy` (new) | Energy account | lines 1–3 each side, balance blank (bool) | `energy` | `count` ×2 (deposits, withdrawals) |
-| `bodysig` (new) | Body signals | signals flags (stomach, water, toilet, temp, tense, heart, tired), rows 1–3 | `bodysig` | none (too many items) |
-| `checks` preset (new) | Supports | labels: Headphones, Hood, Dark room, Alone time | `checks` | `toggle` per label |
-| `habits` preset (new) | Overload | labels: ["Overload"] (empty none / half near-miss / full meltdown-shutdown) | `habits` | `dots` |
-| `words` preset (new) | Talk today | words: speaking ok, fewer words, text only, not now | `words` | none |
-| `lines` preset (new) | Special interest | title "Into today", n 1 | `lines` | none |
+| `sensory` (**built**) | Sensory load | senses flags (sound, light, crowds, touch, smell, social, temperature, movement) | `sensory` | not exported today (not in the bridge's block list); proposal: one `scale` 1..4 per sense |
+| `scale` preset (**built**) | Masking | steps 4, lo "none", hi "all day" | `scale` | `scale` |
+| `accounts` (**built**) | Energy account | items 2–6, optional "Left" count on the X4 | `accounts` | the optional X4 item is a count |
+| `bodysig` (**built**) | Body signals | signals flags (stomach, water, toilet, temp, tense, heart, tired), times a day 1–3 | `bodysig` | none (too many items) |
+| `checks` preset (**built**) | Supports | labels: Headphones, Hood, Dark room, Alone time | `checks` | `toggle` per label |
+| `habits` preset (**built**) | Overload | labels: ["Overload"] (empty none / half near-miss / full meltdown-shutdown) | `habits` | `dots` |
+| `words` preset (planned) | Talk today | words: speaking ok, fewer words, text only, not now | `words` | none |
+| `lines` preset (**built**) | Special interest | title "Into today", n 2 | `lines` | none |
 
 ### d. Proposed method layout: "Sensory & energy"
+
+Planned: not in the editor's "Start from a method" list yet, but every block it needs exists today.
 
 1. `sky`
 2. `events`
 3. `care` (Care check-in)
 4. `sensory` — Sensory load (sound, light, crowds, touch)
 5. `scale` — Masking 0–3
-6. `energy` — Energy account
+6. `accounts` — Energy account
 7. `checks` — Supports
 8. `habits` — Overload
 9. `words` — Talk today
@@ -671,8 +684,8 @@ All calm: no reminders, no streaks, no charts that nag.
 - **ABC / behaviour charts.** Deficit-framed and designed for others to watch you.
 - **CAT-Q or AASP items printed verbatim.** Licensed or validated research tools; not daily logs.
 - **"Tolerance training" goals** (e.g., "increase time in loud places"). The method changes the environment, not the person.
-- **Red/green traffic-light colouring.** Books are black-and-white; also moralises. Use numbers and icons.
-- **Streaks, badges or reminders on the X4.** Out of scope and a stressor.
+- **Red/green traffic-light colouring.** Printed books are black-and-white; also moralises. Use numbers and icons.
+- **Streaks, badges or reminders on the e-ink companion.** Out of scope and a stressor.
 - **Dense pages or decorative borders.** Overstimulating.
 - **Sharing raw overload logs automatically** via scans or exports. Summaries only, by choice.
 

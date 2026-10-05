@@ -1,6 +1,17 @@
+---
+title: Getting Things Done on paper (David Allen)
+slug: getting-things-done-paper
+category: productivity
+evidenceLevel: some
+lastReviewed: 2026-09-30
+status: reviewed
+contributors:
+  - Journalwright Studio contributors
+---
+
 # Getting Things Done on paper (David Allen)
 
-A reference for David Allen's Getting Things Done (GTD): where it came from, the five steps, every list, the weekly review, the tickler file, the horizons of focus, how people run it on paper, what the research supports, and what Keeping Watch should take from it.
+A reference for David Allen's Getting Things Done (GTD): where it came from, the five steps, every list, the weekly review, the tickler file, the horizons of focus, how people run it on paper, what the research supports, and what Journalwright Studio should take from it.
 
 Checked against sources on 2026-09-28. Where a detail couldn't be confirmed from a primary source, it's marked **(unconfirmed)**.
 
@@ -28,7 +39,7 @@ Checked against sources on 2026-09-28. Where a detail couldn't be confirmed from
 
 ## 2. Summary
 
-Getting Things Done is a system for getting every commitment out of your head and into a trusted set of lists, then deciding what to do next based on where you are, how much time and energy you have, and what matters. It has five steps: capture what has your attention, clarify what each thing means and what the next physical action is, organise the reminders into the right lists, reflect by reviewing weekly, and engage by choosing what to do with confidence. The lists are an inbox, next actions sorted by context (calls, errands, computer, home), projects (anything needing more than one step), waiting for, someday/maybe, a calendar for things that must happen on a day, reference, and a tickler file of 43 folders that "mails" things back to you on a date. Above daily actions sit "horizons of focus": projects, areas of responsibility, goals, vision and purpose. David Allen published it in 2001 and rewrote it in 2015. It took off with software and "life hacker" communities, and a strong paper culture grew around it, including Merlin Mann's Hipster PDA (index cards and a binder clip, 2004). The science is indirect but decent: unfinished goals nag at the mind, and writing a specific plan quiets them. The weak spot is the weekly review, which most people skip. For Keeping Watch it fits as a capture box, a short next-actions block by context, a waiting-for strip, and a weekly review checklist, with a lighter version for low-spoon weeks.
+Getting Things Done is a system for getting every commitment out of your head and into a trusted set of lists, then deciding what to do next based on where you are, how much time and energy you have, and what matters. It has five steps: capture what has your attention, clarify what each thing means and what the next physical action is, organise the reminders into the right lists, reflect by reviewing weekly, and engage by choosing what to do with confidence. The lists are an inbox, next actions sorted by context (calls, errands, computer, home), projects (anything needing more than one step), waiting for, someday/maybe, a calendar for things that must happen on a day, reference, and a tickler file of 43 folders that "mails" things back to you on a date. Above daily actions sit "horizons of focus": projects, areas of responsibility, goals, vision and purpose. David Allen published it in 2001 and rewrote it in 2015. It took off with software and "life hacker" communities, and a strong paper culture grew around it, including Merlin Mann's Hipster PDA (index cards and a binder clip, 2004). The science is indirect but decent: unfinished goals nag at the mind, and writing a specific plan quiets them. The weak spot is the weekly review, which most people skip. For Journalwright Studio it fits as a capture box, a short next-actions block by context, a waiting-for strip, and a weekly review checklist, with a lighter version for low-spoon weeks.
 
 ---
 
@@ -559,9 +570,9 @@ What people actually do (GTD forums at forum.gettingthingsdone.com, Reddit r/gtd
 **E-ink**
 
 - reMarkable, Kindle Scribe, Boox: a PDF binder with tabs (hyperlinked sections) works well for lists; handwriting capture is fast. Many sell GTD PDF planners.
-- Keeping Watch X4: no handwriting. It can't hold lists you write. It *can* hold simple check-ins (e.g., "Inbox cleared", "Weekly review done") and could show a read-only page. See 25b.
+- The X4 e-ink companion: no handwriting. It can't hold lists you write. It *can* hold simple check-ins (e.g., "Inbox cleared", "Weekly review done") and could show a read-only page. See 25b.
 
-**Scanning**: paper capture scans into a digital inbox. Keeping Watch pages already have a SEND TO strip and page code, which could stand for "send to inbox/project".
+**Scanning**: paper capture scans into a digital inbox. Journalwright Studio pages already have a SEND TO strip and page code, which could stand for "send to inbox/project".
 
 **Lost versus gained**
 
@@ -694,7 +705,7 @@ What people actually do (GTD forums at forum.gettingthingsdone.com, Reddit r/gtd
 - **With a Traveler's Notebook** ([travelers-notebook.md](travelers-notebook.md)): one insert per list (In, Next actions, Projects, Someday), swapped as they fill.
 - **With a five-year diary** ([five-year-diary.md](five-year-diary.md)): the diary holds reflection; GTD holds commitments. One line a day on what got done.
 - **With the Alastair Method** ([alastair-method.md](alastair-method.md)): its column-per-day list can serve as a next-actions list with a light schedule.
-- **With Keeping Watch check-ins**: pick actions from the @low list on low-spoon days.
+- **With check-ins and spoons**: pick actions from the @low list on low-spoon days.
 
 ---
 
@@ -817,49 +828,49 @@ It was rewritten throughout, with fewer tool references and a looser view of con
 
 ---
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Built? |
 |---|---|---|---|---|
-| "In" capture lines | Day block | High | Reuse `lines` with label "In"; bullets optional (Quick bullets block being added) | Mostly (Lined notes / Quick bullets) |
-| Next actions by context | Day block | High | New block: small labelled rows with @ icons (out, home, call, low). One `data-zone` | No |
-| Waiting for strip | Day block or week spread | High | Who / what / date columns; zone `waiting` | No (Two columns can approximate) |
-| Hard landscape (calendar first) | Day block | High | Already done by Events + Time blocks + Work shift | Yes |
-| Two-minute wins | Day block | Low | Adds noise; skip | No |
-| Weekly Review checklist | Weekly review page | High | Three groups: Get Clear / Current / Creative; short and full versions; checkboxes | No (weekly review exists, not this checklist) |
-| Projects list (outcome + NA tick) | Week spread or month page | Med | One page per month; lines with a "has next action" box | No |
-| Someday/maybe | Back matter | Med | Plain lined page with icon | No |
-| Tickler 1–31 | Month page | Med | 31 short lines, pointers only ("see p. 42") | No |
-| Horizons page (areas, goals, vision, purpose) | Keeper (yearly) or month front matter | Med | Once a year in the Keeper; areas list per month | No |
-| Mind-sweep trigger list | Back matter | High | One page of triggers from section 22 | No |
-| SEND TO strip as "send to project/inbox" | Scan system | Med | Existing symbols could map to In / Project / Waiting | Partly (strip exists) |
+| "In" capture lines | Day block | High | Reuse `lines` with label "In"; bullets optional (Quick bullets block) | **Built** as Lined notes and Quick bullets; an "In" preset is planned |
+| Next actions by context | Day block | High | New block: small labelled rows with @ icons (out, home, call, low). One `data-zone` | Planned |
+| Waiting for strip | Day block or week spread | High | Who / what / date columns; zone `waiting` | Planned (Two columns can approximate) |
+| Hard landscape (calendar first) | Day block | High | Already done by Events + Time blocks + Work shift | **Built** |
+| Two-minute wins | Day block | Low | Adds noise; skip | Skip |
+| Weekly Review checklist | Weekly review page | High | Three groups: Get Clear / Current / Creative; short and full versions; checkboxes | Planned (a weekly review page exists, not this checklist) |
+| Projects list (outcome + NA tick) | Week spread or month page | Med | One page per month; lines with a "has next action" box | Planned |
+| Someday/maybe | Back matter | Med | Plain lined page with icon | Planned |
+| Tickler 1–31 | Month page | Med | 31 short lines, pointers only ("see p. 42") | Planned |
+| Horizons page (areas, goals, vision, purpose) | Keeper (yearly) or month front matter | Med | Once a year in the Keeper; areas list per month | Planned |
+| Mind-sweep trigger list | Back matter | High | One page of triggers from section 22 | Planned |
+| SEND TO strip as "send to project/inbox" | Scan system | Med | Existing symbols could map to In / Project / Waiting | Partly (the strip exists as the Send to block) |
 
-### b. X4
+### b. E-ink companion (X4)
 
 | Idea | Where | Fit | RAM, scope and calm notes |
 |---|---|---|---|
-| "Inbox cleared" | Check-in item (`toggle`) via Checkboxes | High | One slot; no reminder |
-| "Weekly review" empty / half / full | Check-in item (`dots`) via Habit dots | High | One slot; half = mini review |
+| "Inbox cleared" | Check-in item (`toggle`) via Checkboxes | High | One slot; no reminder. **Built** (the "Inbox cleared" preset is a Checkboxes block) |
+| "Weekly review" empty / half / full | Check-in item (`dots`) via Habit dots | High | One slot; half = mini review. **Built** (the "Weekly review" preset is a Habit dots block) |
 | "Captured today" | Check-in item (`count`) via Fill-in blanks | Low | Counting captures is fiddly; skip unless asked |
-| Weekly review checklist | A screen | Med | Static text list with button ticks; small static buffer (11 lines); no timers |
+| Weekly review checklist | A screen | Med | Planned. Static text list with button ticks; small static buffer (11 lines); no timers |
 | Next actions list uploaded over the hotspot | A screen (read-only) | Low | Needs a text format and editing on the phone; scope creep; revisit later |
-| Month stat: weekly reviews done | Month stats for the Keeper | Med | Derived from the dots item |
+| Month stat: weekly reviews done | Month stats | Med | Planned. Derived from the dots item |
 | Tickler alarms | — | None | Notifications are out of scope |
 
 ### c. Proposed editor blocks
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `contexts` (new) | Next, by where I am | `title` (text, default "Next"), `items` (flags: out, home, call, online, work, low; default out/home/call/low), `n` (num 1–3 lines each, default 1), `layout` (choice: grid 2×2 / stacked) | `contexts` (repeats `contexts_2`) | None (writing block) |
-| `waiting` (new) | Waiting for | `n` (num 1–4 rows, default 2), `date` (bool, adds "asked" column) | `waiting` | None |
-| `lines` preset | In | `{title: 'In', n: 3}` | `lines` | None |
-| `checks` preset | Inbox cleared | `{title: 'GTD', labels: ['Inbox cleared']}` | `checks` | `toggle` |
-| `habits` preset | Weekly review | `{title: 'Review', labels: ['Weekly review']}` | `habits` | `dots` |
-| `checks` preset (weekly page) | Weekly review (short) | `{title: 'Weekly review', labels: ['In to zero', 'Waiting for', 'Projects', 'Calendar']}` | `checks` | `toggle` ×4 |
+| `contexts` (new, planned) | Next, by where I am | `title` (text, default "Next"), `items` (flags: out, home, call, online, work, low; default out/home/call/low), `n` (num 1–3 lines each, default 1), `layout` (choice: grid 2×2 / stacked) | `contexts` (repeats `contexts_2`) | None (writing block) |
+| `waiting` (new, planned) | Waiting for | `n` (num 1–4 rows, default 2), `date` (bool, adds "asked" column) | `waiting` | None |
+| `lines` preset (planned) | In | `{title: 'In', n: 3}` | `lines` | None |
+| `checks` preset (**built**) | Inbox cleared | `{title: 'GTD', labels: ['Inbox cleared']}` | `checks` | `toggle` |
+| `habits` preset (**built**) | Weekly review | `{title: 'Review', labels: ['Weekly review']}` | `habits` | `dots` |
+| `checks` preset (weekly page; planned) | Weekly review (short) | `{title: 'Weekly review', labels: ['In to zero', 'Waiting for', 'Projects', 'Calendar']}` | `checks` | `toggle` ×4 |
 
-### d. Proposed method layout: "GTD"
+### d. Proposed method layout: "GTD" (planned)
 
 1. `sky` (Moon, sun & season)
 2. `events` (Events: the hard landscape)
@@ -873,11 +884,11 @@ It was rewritten throughout, with fewer tool references and a looser view of con
 
 ### e. Don't adopt
 
-- **The full ten-section organizer in the monthly book**: too heavy; Keeping Watch is a journal. Offer the pieces as blocks and back pages.
+- **The full ten-section organizer in the monthly book**: too heavy; Journalwright Studio books are journals. Offer the pieces as blocks and back pages.
 - **Physical 43-folder tickler**: a bound book can't hold papers. Use a 1–31 pointer list.
 - **Long project lists on day pages**: they repeat daily and crowd the page; keep projects on a month page.
-- **The full 11-step weekly review as the only option**: too heavy for low-spoon weeks. Always print a short version beside it.
-- **Due dates and reminders on the X4**: notifications are out of scope.
+- **The full 11-step weekly review as the only option**: too heavy for low-energy weeks. Always print a short version beside it.
+- **Due dates and reminders on the e-ink companion**: notifications are out of scope.
 - **Account details or legal document numbers on scanned pages**: they belong in the Keeper, which has no scan codes.
 - **"Productivity" framing as the goal**: keep the calm purpose: a quieter head, fewer dropped balls.
 

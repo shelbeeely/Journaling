@@ -1,6 +1,17 @@
+---
+title: The Eisenhower Matrix
+slug: eisenhower-matrix
+category: productivity
+evidenceLevel: some
+lastReviewed: 2026-09-30
+status: reviewed
+contributors:
+  - Journalwright Studio contributors
+---
+
 # The Eisenhower Matrix (urgent / important)
 
-A reference for the urgent/important matrix: where the idea came from, how the four boxes work on paper, what the research says about urgency, where the method breaks, and what Keeping Watch should take from it.
+A reference for the urgent/important matrix: where the idea came from, how the four boxes work on paper, what the research says about urgency, where the method breaks, and what Journalwright Studio should take from it.
 
 Checked against sources on 2026-09-28. Where a detail couldn't be confirmed from a primary source, it's marked **(unconfirmed)**.
 
@@ -28,7 +39,7 @@ Checked against sources on 2026-09-28. Where a detail couldn't be confirmed from
 
 ## 2. Summary
 
-The Eisenhower Matrix sorts tasks on two questions: is it urgent (does it need doing soon), and is it important (does it matter to your goals and values)? That gives four boxes: do it now (urgent and important), schedule it (important, not urgent), hand it off or batch it (urgent, not important), and drop it (neither). The idea traces to a line Eisenhower quoted in 1954, and Stephen Covey made it famous in 1989 as the heart of his Habit 3, "Put first things first". Covey's key claim is that the important-but-not-urgent box (Quadrant II: health, relationships, planning, prevention) is where lives improve, and that it gets crowded out by urgent things. Lab research backs the worry: in five experiments, Zhu, Yang and Hsee (2018) found people pick a task with a fake deadline over a task that pays more, and that reminding people of the payoff cuts the effect. The matrix itself has never been tested head to head. Its weak spots are real: "important" is subjective, "delegate" assumes you have someone, and the boxes ignore energy. For Keeping Watch it works best as one small four-box block, with kinder labels, and one daily "Quadrant II" line.
+The Eisenhower Matrix sorts tasks on two questions: is it urgent (does it need doing soon), and is it important (does it matter to your goals and values)? That gives four boxes: do it now (urgent and important), schedule it (important, not urgent), hand it off or batch it (urgent, not important), and drop it (neither). The idea traces to a line Eisenhower quoted in 1954, and Stephen Covey made it famous in 1989 as the heart of his Habit 3, "Put first things first". Covey's key claim is that the important-but-not-urgent box (Quadrant II: health, relationships, planning, prevention) is where lives improve, and that it gets crowded out by urgent things. Lab research backs the worry: in five experiments, Zhu, Yang and Hsee (2018) found people pick a task with a fake deadline over a task that pays more, and that reminding people of the payoff cuts the effect. The matrix itself has never been tested head to head. Its weak spots are real: "important" is subjective, "delegate" assumes you have someone, and the boxes ignore energy. For Journalwright Studio it works best as one small four-box block, with kinder labels, and one daily "Quadrant II" line.
 
 ---
 
@@ -301,7 +312,7 @@ TIME     | WHAT              | I | II | III | IV |
 
 ### Scan-zone note
 
-In Keeping Watch every block needs a `data-zone`. The grid prints inside the 9pt frame, below the DATE/TITLE/TAGS header and above the SEND TO strip. Quadrant lines are thin (0.5pt) black; no shading so pages stay calm and scan cleanly.
+In Journalwright Studio every day page block needs a `data-zone`. The grid prints inside the 9pt frame, below the DATE/TITLE/TAGS header and above the SEND TO strip. Quadrant lines are thin (0.5pt) black; no shading so pages stay calm and scan cleanly.
 
 ---
 
@@ -422,7 +433,7 @@ Not applicable in the strict sense: no one owns the Eisenhower Matrix. Related p
 **E-ink**
 
 - reMarkable, Kindle Scribe and Boox: a 2×2 PDF template works well; handwriting fits the boxes.
-- Keeping Watch X4 (480×800, buttons only): no handwriting, so a full matrix doesn't fit. A single "did one Q2 thing" toggle does (section 25b).
+- The X4 e-ink companion (480×800, buttons only): no handwriting, so a full matrix doesn't fit. A single "did one Q2 thing" toggle does (section 25b).
 
 **Scanning**: a paper grid scans fine. Keep boxes square and labels outside the writing area.
 
@@ -544,7 +555,7 @@ Not applicable in the strict sense: no one owns the Eisenhower Matrix. Related p
 - **With Bullet Journal** ([bullet-journal.md](bullet-journal.md)): sort the daily log's open tasks into the grid during migration. Or mark tasks with a small Q-number instead of drawing a grid.
 - **With Hobonichi or a day-per-page planner** ([hobonichi-techo.md](hobonichi-techo.md)): a tiny 2×2 at the top of the page.
 - **With a five-year diary** ([five-year-diary.md](five-year-diary.md)): at month end, write one line: "This month's Q2 win".
-- **With Keeping Watch spoons and care check-ins**: pick the Q2 item that fits today's spoons.
+- **With spoons and care check-ins**: pick the Q2 item that fits today's spoons.
 
 ---
 
@@ -656,31 +667,31 @@ No. Use position and icons. It prints better and is calmer.
 
 ---
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
 ### a. Printed book
 
 | Idea | Where | Fit | B&W and scan-zone notes | Built? |
 |---|---|---|---|---|
-| Four-box "Now / Plan / Hand off / Let go" block | Day block | High | Thin 0.5pt cross, icons ! o > ~ in corners, no shading. One `data-zone` for the block | No (new type) |
-| One "Q2 today" line with a "when" blank | Day block | High | Reuse `top` (Label "Matters, not urgent", n=1) with 15-min bubbles | Mostly (Top priorities + time bubbles being added) |
-| "Why it matters" micro-line next to the Q2 item | Day block | Med | Tiny rule after the item; small type 7pt | No |
-| Big rocks by role | Week spread | High | Table: role / big rock / when; 4–5 rows; zone `bigrocks` | No |
-| Sharpen the saw (body/mind/heart/spirit) | Week spread | Med | Four checkboxes with icons | Partly (Checkboxes block) |
-| "What became urgent that could have been planned?" | Weekly review | High | One lined prompt | No (prompt text) |
-| Prevention list (refills, docs, tires, bills) | Month page or back matter | High | Checklist with month columns; fits trans care (HRT refill) | No |
-| Repeat crises log | Closing the month | Med | 3 lines | No |
-| Full-page matrix | Back matter (one or two spare pages) | Low | For big brain dumps; scan zones as usual | No |
-| Time log by quadrant | — | Low | Heavy; skip | No |
+| Four-box "Now / Plan / Hand off / Let go" block | Day block | High | Thin 0.5pt cross, icons ! o > ~ in corners, no shading. One `data-zone` for the block | Planned (new type) |
+| One "Q2 today" line with a "when" blank | Day block | High | Reuse `top` (Label "Matters, not urgent", n=1) with 15-min bubbles | **Built** as Top priorities with time circles (each = 15 min); the "Matters, not urgent" preset is planned |
+| "Why it matters" micro-line next to the Q2 item | Day block | Med | Tiny rule after the item; small type 7pt | Planned |
+| Big rocks by role | Week spread | High | Table: role / big rock / when; 4–5 rows; zone `bigrocks` | Planned |
+| Sharpen the saw (body/mind/heart/spirit) | Week spread | Med | Four checkboxes with icons | **Built** as a day block preset ("Sharpen the saw", on the Checkboxes block); a week-spread version is planned |
+| "What became urgent that could have been planned?" | Weekly review | High | One lined prompt | Planned (prompt text) |
+| Prevention list (refills, documents, tires, bills) | Month page or back matter | High | Checklist with month columns; fits health-care admin such as prescription refills | Planned |
+| Repeat crises log | Closing the month | Med | 3 lines | Planned |
+| Full-page matrix | Back matter (one or two spare pages) | Low | For big brain dumps; scan zones as usual | Planned |
+| Time log by quadrant | — | Low | Heavy; skip | Planned |
 
-### b. X4
+### b. E-ink companion (X4)
 
 | Idea | Where | Fit | RAM, scope and calm notes |
 |---|---|---|---|
-| "Did one Q2 thing" | Check-in item (`toggle`) via Checkboxes block label | High | Uses the bridge as-is; one slot; no reminder |
-| "Pulled by urgency" 1–5 | Check-in item (`scale`) via Scale block | Med | One slot; tracks the bias over a month |
+| "Did one Q2 thing" | Check-in item (`toggle`) via Checkboxes block label | High | **Built**: the "One Q2 thing" preset is a Checkboxes block, which exports as a check-in as-is; one slot; no reminder |
+| "Pulled by urgency" 1–5 | Check-in item (`scale`) via Scale block | Med | One slot; tracks the bias over a month. A Scale block can be set up by hand; no preset yet |
 | "Minutes on Q2" | Check-in item (`count`) via Fill-in blanks | Low | Counting minutes is fiddly with buttons |
-| Month stat: Q2 days | Month stats for the Keeper handoff | Med | Derived from the toggle; no new storage |
+| Month stat: Q2 days | Month stats | Med | Planned. Derived from the toggle; no new storage |
 | Full matrix screen | A screen | Low | Needs text entry; the X4 has buttons only. Don't build |
 | Deadline alerts | — | None | Notifications are out of scope. Never |
 
@@ -688,14 +699,14 @@ No. Use position and icons. It prints better and is calmer.
 
 | Type | Name | Options | `data-zone` | X4 export kind |
 |---|---|---|---|---|
-| `matrix` (new) | Four boxes | `title` (text, default ""), `labels` (list of 4, default Now / Plan / Hand off / Let go), `n` (num 1–4 lines per box, default 2), `when` (bool, adds "when:" blank in box II), `icons` (bool, default on) | `matrix` (repeats `matrix_2`) | None (writing block) |
-| `top` preset | Matters, not urgent | `{title: 'Matters, not urgent', n: 1}` | `top` | None |
-| `checks` preset | Sharpen the saw | `{title: 'Renew', labels: ['Body','Mind','Heart','Spirit']}` | `checks` | `toggle` ×4 |
-| `checks` preset | One Q2 thing | `{title: 'Q2', labels: ['Did one Q2 thing']}` | `checks` | `toggle` |
-| `scale` preset | Pulled by urgency | `{title: 'Urgency pull', steps: 5, lo: 'calm', hi: 'pulled'}` | `scale` | `scale` 1..5 |
-| `split` preset | Now / Can wait | `{left: 'Now', right: 'Can wait', n: 3}` | `split` | None |
+| `matrix` (new, planned) | Four boxes | `title` (text, default ""), `labels` (list of 4, default Now / Plan / Hand off / Let go), `n` (num 1–4 lines per box, default 2), `when` (bool, adds "when:" blank in box II), `icons` (bool, default on) | `matrix` (repeats `matrix_2`) | None (writing block) |
+| `top` preset (planned) | Matters, not urgent | `{title: 'Matters, not urgent', n: 1}` | `top` | None |
+| `checks` preset (**built**) | Sharpen the saw | `{title: 'Renew', labels: ['Body','Mind','Heart','Spirit']}` | `checks` | `toggle` ×4 |
+| `checks` preset (**built**) | One Q2 thing | `{title: 'Q2', labels: ['Did one Q2 thing']}` | `checks` | `toggle` |
+| `scale` preset (planned) | Pulled by urgency | `{title: 'Urgency pull', steps: 5, lo: 'calm', hi: 'pulled'}` | `scale` | `scale` 1..5 |
+| `split` preset (planned) | Now / Can wait | `{left: 'Now', right: 'Can wait', n: 3}` | `split` | None |
 
-### d. Proposed method layout: "Eisenhower"
+### d. Proposed method layout: "Eisenhower" (planned)
 
 1. `sky` (Moon, sun & season)
 2. `events` (Events)
@@ -712,7 +723,7 @@ No. Use position and icons. It prints better and is calmer.
 - **"Delegate" as the default**: most users can't. Use "Hand off or batch".
 - **Colour-coded quadrants**: the books are black and white; colour also adds stimulation.
 - **Daily time logs**: heavy, and they turn journaling into auditing.
-- **Due-date reminders on the X4**: that's notifications and manufactured urgency, the thing the method warns against.
+- **Due-date reminders on the e-ink companion**: that's notifications and manufactured urgency, the thing the method warns against.
 - **Mission-statement pages every month**: too much; once a year in the Keeper at most.
 
 ---

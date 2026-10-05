@@ -1,3 +1,13 @@
+---
+title: "Morning Pages"
+slug: morning-pages
+category: reflective-writing
+evidenceLevel: anecdotal
+lastReviewed: 2026-09-30
+status: reviewed
+contributors: ['Journalwright Studio contributors']
+---
+
 # Morning Pages
 
 Julia Cameron's daily practice from *The Artist's Way* (1992): three pages of longhand, stream-of-consciousness writing, done first thing in the morning, about anything. Also covers the rest of the Artist's Way toolkit (Artist Dates, walks, the 12-week course) and adaptations for people who can't write three pages.
@@ -275,7 +285,7 @@ Morning Pages have no layout. The page is ruled paper with a date. The sketches 
 
 > Tue 14 Oct. Awake at 5:40 again before the alarm and my hip hurts from the ladder yesterday. Coffee's going. I don't want to do these. I don't want to do these. OK. The shift is 7 to 3:30, cold, supposed to rain around noon so I need the good jacket and it's still in the car. Did I text Mara back? No. I keep not texting Mara back because I don't know what to say about the thing with her brother and every day it gets bigger. That's the actual thing, isn't it. Not the jacket. I'm scared she's mad. She's probably not mad. I could just say "I'm sorry I went quiet, I didn't know what to say." That's true. ...
 
-> (page 3, last lines) ... so the idea about the zine keeps coming back, the one with the bus stop drawings. I have forty of them in the sketchbook. Maybe that's the Artist Date Saturday, the print shop on Monroe, just to look at paper. * Text Mara on lunch.
+> (page 3, last lines) ... so the idea about the zine keeps coming back, the one with the bus stop drawings. I have forty of them in the sketchbook. Maybe that's the Artist Date Saturday, the print shop downtown, just to look at paper. * Text Mara on lunch.
 
 ### Sample week
 
@@ -452,7 +462,7 @@ Expressive writing studies usually use a set topic (a stressful event), 15–20 
 - **ADHD:** The open page can be a relief (no structure to maintain) or a trap (drifting, time blindness). Use a timer as well as the page count; a visible page tick (1/2/3); keep the notebook where the first coffee is; allow evening pages. Short, daily, anywhere beats long and perfect.
 - **Autism and sensory needs:** Pick paper and pen by feel (smooth, quiet, no scratchy pencil); a same-place, same-time routine helps. If free writing is uncomfortable, a single starting sentence ("Right now…") gives an entry point.
 - **Chronic illness and low spoons:** Make the unit smaller: one page, five minutes, three lines. Voice pages in bed. Track days done with a dot, not pages. Skip without guilt on flare days.
-- **Depression and anxiety:** Pages can help name feelings, but free writing can also feed rumination. End on something concrete (one action, one thing you can see). Morning Pages aren't treatment; if pages keep circling hopelessness or self-harm thoughts, that's a sign to reach out (in Keeping Watch, the Support and Safety plan pages).
+- **Depression and anxiety:** Pages can help name feelings, but free writing can also feed rumination. End on something concrete (one action, one thing you can see). Morning Pages aren't treatment; if pages keep circling hopelessness or self-harm thoughts, that's a sign to reach out (to someone you trust, or to a crisis line; check your local services. In Journalwright Studio books, the Support and Safety plan pages hold these).
 - **Trauma:** Cameron's pages aren't trauma-processing, and writing about trauma without support can raise distress. Set a boundary ("today I won't write about X"), use grounding at the end, and keep trauma writing for work with a therapist (for example, structured Written Exposure Therapy).
 - **Dyslexia and dysgraphia:** Spelling and grammar don't matter at all, which suits this method. If handwriting itself is the barrier, use speech-to-text or typing; the value is the flow, not the pen. Wide ruling or blank paper helps.
 - **Low vision:** Bold-line paper, a thick black felt pen, large ruling, or typed pages with a large font. Voice pages work well.
@@ -479,7 +489,7 @@ Expressive writing studies usually use a set topic (a stressful event), 15–20 
 - **With time blocking ([time-block-planner.md](time-block-planner.md)):** pages before planning; the planning session gets a clearer head.
 - **With a [five-year diary](five-year-diary.md):** after pages, write one line in the five-year book; the pages stay private and unread, the one line is for rereading.
 - **With the [Hobonichi Techo](hobonichi-techo.md) or [Traveler's Notebook](travelers-notebook.md):** keep pages in a separate insert or notebook; they're too long for a day page.
-- **With Keeping Watch day pages:** pages in any notebook; the day page gets a "pages done" mark and a one-line takeaway (see section 25).
+- **With Journalwright Studio day pages:** pages in any notebook; the day page gets a "pages done" mark and a one-line takeaway (see section 25).
 
 ## 22. Ready-to-use bank
 
@@ -582,52 +592,54 @@ Try ending each session with something concrete (one action, one thing you see) 
 **11. Is it religious?**
 The book uses spiritual language ("God," "Great Creator"). Cameron says it can be read loosely. The pages themselves have no religious content.
 
-## 25. For Keeping Watch
+## 25. For Journalwright Studio
 
-Keeping Watch's day page is one page, and Morning Pages are three letter-size pages. They don't belong on the day page itself. What fits is a small **record** of the practice (done, how much, one takeaway) and a place to write when the pages are short.
+Journalwright Studio makes printed journals and planners designed in a block editor, with an optional e-ink companion (the X4 companion). This section turns the research above into day page blocks, X4 items and a method layout.
+
+A Journalwright Studio day page is one page, and Morning Pages are three letter-size pages. They don't belong on the day page itself. What fits is a small **record** of the practice (done, how much, one takeaway) and a place to write when the pages are short.
 
 ### a. Printed book
 
 | Idea | Where it goes | Fit | B&W and scan-zone notes | Already built? |
 |---|---|---|---|---|
-| "Pages" mark: 3 small boxes to tick as each page is done | Day block | High | Three outline boxes; new block needs its own `data-zone` | No (Checkboxes can fake it with labels 1/2/3) |
-| One-line takeaway from the pages ("from the pages:") | Day block | High | A single ruled line | Yes, via Lined notes (label + 1 line) |
-| Full-page free writing on short days | Day block | Med | Writing space with lines or blank already exists; one day page ≈ one Morning Page | Yes (Writing space) |
-| Pages tally for the month (31 dots, empty/half/full) | Month page / tracker page | High | Dots print fine in B&W; matches Habit dots | Partly (Habit dots being added; not on the month tracker yet) |
-| Weekly check-in: pages count, Artist Date, walks, one line | Week spread or weekly review | High | Circles for M–S, two boxes for walks, two lines | No |
-| Artist Date log | Back matter or month page | Med | A small table: date, place, one word | No |
-| Loose "pages" inserts: 3-page ruled sheets | Back matter | Low | Would push page count; better as a separate notebook | No |
-| "Starters for stuck mornings" list | Front matter or back matter | Med | Plain text list | No |
-| Actions-from-the-pages collection | Month page | Med | Ruled list | No |
+| "Pages" mark: 3 small boxes to tick as each page is done | Day page block | High | Three outline boxes; a new block would need its own `data-zone` | **Partly** (a Checkboxes block can do it with labels 1/2/3; a dedicated block is planned) |
+| One-line takeaway from the pages ("from the pages:") | Day page block | High | A single ruled line | **Yes**, via Lined notes (label + 1 line) |
+| Full-page free writing on short days | Day page block | Med | Writing space with lines or blank already exists; one day page ≈ one Morning Page | **Yes** (Writing space) |
+| Pages tally for the month (31 dots, empty/half/full) | Month page / tracker page | High | Dots print fine in B&W; matches Habit dots | **Partly** (Habit dots exist on the day page; not on the month tracker) |
+| Weekly check-in: pages count, Artist Date, walks, one line | Week spread or weekly review | High | Circles for M–S, two boxes for walks, two lines | Planned |
+| Artist Date log | Back matter or month page | Med | A small table: date, place, one word | Planned |
+| Loose "pages" inserts: 3-page ruled sheets | Back matter | Low | Would push page count; better as a separate notebook | Planned (not recommended) |
+| "Starters for stuck mornings" list | Front matter or back matter | Med | Plain text list | Planned (the Rotating prompt block prints a prompt from a fixed list, but prompts defeat this method; see "Don't adopt") |
+| Actions-from-the-pages collection | Month page | Med | Ruled list | Planned |
 
-### b. X4
+### b. X4 companion
 
-| Idea | Where it goes | Fit | RAM, scope and calm notes |
-|---|---|---|---|
-| "Pages" check-in: 0–3 | Check-in item, kind `count` (hi 3) | High | One slot; no text entry needed |
-| Pages as habit dots (empty/half/full) | Check-in item, kind `dots` | High | One slot; half = short pages |
-| Artist Date this week | Check-in item, kind `toggle` | Med | One slot; weekly meaning on a daily screen is a bit odd |
-| Month stats line: "pages 24/31" | Month stats screen / Keeper handoff | High | Derived from the count; no new storage beyond the item |
-| Starter line on the sleep screen ("Right now I feel…") | Sleep screen | Low | Static text rotation from a fixed list; must not become a feed. Adds clutter to a calm screen |
-| Timer for 10-minute pages | A screen | Low | A countdown is fine technically but beeping would be a notification; silent only |
-| Writing pages on the device | — | None | No keyboard; 7 buttons. Out of scope |
-
-### c. Proposed editor blocks
-
-| Type | Name | Options | `data-zone` | X4 export kind |
+| Idea | Where it goes | Fit | RAM, scope and calm notes | Already built? |
 |---|---|---|---|---|
-| `checks` (existing) with labels `1`, `2`, `3` | Pages done | Label "Pages", labels ["1","2","3"] | `checks` (or `checks_2`) | 3 × `toggle` (works but wastes 3 slots) |
-| `fields` (existing) | Pages count | Label "Pages", labels ["Pages (0–3)"] | `fields` | `count` 0..99 |
-| `habits` (existing) | Pages dot | Label "Practice", labels ["Pages"] | `habits` | `dots` |
-| `lines` (existing) | From the pages | Label "From the pages", n 1–2, paper lines | `lines` | Not exported |
-| New `pages` | Morning Pages mark | `count` (1–3 boxes, default 3), `note` (bool: one takeaway line), `label` | `pages` | `count` 0..count (needs one bridge rule: `pages` → one `count`) |
-| New `weekcheck` (week spread, not day page) | Weekly check-in | days row, Artist Date box, walks (0–2), lines 1–3 | `weekcheck` | Not exported (weekly) |
+| "Pages" check-in: 0–3 | Check-in item, kind `count` (hi 3) | High | One slot; no text entry needed | **Yes** as a Fill-in blanks block (the count runs 0..99; the highest count on the X4 is a block option) |
+| Pages as habit dots (empty/half/full) | Check-in item, kind `dots` | High | One slot; half = short pages | **Yes** (Habit dots block) |
+| Artist Date this week | Check-in item, kind `toggle` | Med | One slot; weekly meaning on a daily screen is a bit odd | **Yes** as a Checkboxes block |
+| Month stats line: "pages 24/31" | Month stats screen / Keeper handoff | High | Derived from the count; no new storage beyond the item | Planned |
+| Starter line on the sleep screen ("Right now I feel…") | Sleep screen | Low | Static text rotation from a fixed list; must not become a feed. Adds clutter to a calm screen | Not planned |
+| Timer for 10-minute pages | A screen | Low | The X4 Focus timer (Menu, Focus) already draws once per phase with no sound and no countdown; its presets are 25/5, 15/5 and 45/10 and work is adjustable in steps of 5 from 5 to 90 minutes, so a 10-minute round is possible. Silent only | **Partly** (Focus timer exists; no Morning Pages preset) |
+| Writing pages on the device | — | None | No keyboard; 7 buttons. Out of scope | — |
+
+### c. Editor blocks
+
+| Type | Name | Options | `data-zone` | X4 export kind | Built? |
+|---|---|---|---|---|---|
+| `checks` (existing) with labels `1`, `2`, `3` | Pages done | Label "Pages", labels ["1","2","3"] | `checks` (or `checks_2`) | 3 × `toggle` (works but wastes 3 slots) | **Yes**, set up by hand |
+| `fields` (existing) | Pages count | Label "Pages", labels ["Pages (0–3)"] | `fields` | `count` 0..99 | **Yes**, set up by hand |
+| `habits` (existing) | Pages dot | Label "Practice", labels ["Pages"] | `habits` | `dots` | **Yes**, set up by hand |
+| `lines` (existing) | From the pages | Label "From the pages", n 1–2, paper lines | `lines` | Not exported | **Yes**, set up by hand |
+| New `pages` | Morning Pages mark | `count` (1–3 boxes, default 3), `note` (bool: one takeaway line), `label` | `pages` | `count` 0..count (needs one export rule: `pages` → one `count`) | Planned |
+| New `weekcheck` (week spread, not day page) | Weekly check-in | days row, Artist Date box, walks (0–2), lines 1–3 | `weekcheck` | Not exported (weekly) | Planned |
 
 Recommendation: use the existing `habits` block first (one `dots` slot; half = short pages). Add a `pages` type only if people ask for the three ticks.
 
 ### d. Proposed method layout: "Morning Pages"
 
-A calm day page for someone who does pages in a separate notebook:
+This layout is not among the built-in method layouts yet (today: original, Bullet Journal daily, Hobonichi, Five Minute, Theme System). A calm day page for someone who does pages in a separate notebook:
 
 1. `sky` (Moon, sun & season)
 2. `events`
@@ -646,7 +658,7 @@ A calm day page for someone who does pages in a separate notebook:
 | Streak counters or "don't break the chain" on the X4 | Badges and streak pressure are out of scope and punish bad days |
 | "No rereading" rules printed on pages | Prescriptive; the book should stay neutral |
 | Spiritual language (God, Great Creator, synchronicity) as page labels | Not everyone shares it; calm neutral words instead |
-| Scan codes on private pages | If people do use Keeping Watch pages for Morning Pages, those pages could hold things they'd never want sent anywhere. The SEND TO strip and page code are fixed on day pages, so recommend a separate plain notebook for pages |
+| Scan codes on private pages | If people do use Journalwright Studio pages for Morning Pages, those pages could hold things they'd never want sent anywhere. The SEND TO strip and page code are fixed on day pages, so recommend a separate plain notebook for pages |
 | Prompted Morning Pages | Prompts defeat the method; keep starters as a back-of-book help list only |
 
 ## 26. Open questions

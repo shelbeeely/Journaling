@@ -9,9 +9,9 @@ name: Editor
 on:
   push:
     branches: [main]
-    paths: ['journal/daypage.mjs', 'journal/scan.mjs', 'journal/pages.mjs', 'journal/book.mjs', 'journal/context.mjs', 'journal/editor/**', 'journal/content/layouts.mjs', 'journal/render.mjs', 'journal/content/daypage.json', 'journal/profile.mjs', 'journal/content/profile.example.json', 'site/**', 'studio/src/diff.mjs', 'studio/src/canonical.mjs', '.github/workflows/editor.yml']
+    paths: ['journal/daypage.mjs', 'journal/scan.mjs', 'journal/pages.mjs', 'journal/book.mjs', 'journal/bookrules.mjs', 'journal/bookedit.mjs', 'journal/context.mjs', 'journal/editor/**', 'journal/content/layouts.mjs', 'journal/render.mjs', 'journal/content/daypage.json', 'journal/profile.mjs', 'journal/content/profile.example.json', 'site/**', 'studio/src/diff.mjs', 'studio/src/canonical.mjs', '.github/workflows/editor.yml']
   pull_request:
-    paths: ['site/**', 'journal/profile.mjs', 'journal/content/profile.example.json', 'journal/daypage.mjs', 'journal/scan.mjs', 'journal/pages.mjs', 'journal/book.mjs', 'journal/context.mjs', 'journal/editor/**', 'journal/content/layouts.mjs', 'studio/src/diff.mjs', 'studio/src/canonical.mjs']
+    paths: ['site/**', 'journal/profile.mjs', 'journal/content/profile.example.json', 'journal/daypage.mjs', 'journal/scan.mjs', 'journal/pages.mjs', 'journal/book.mjs', 'journal/bookrules.mjs', 'journal/bookedit.mjs', 'journal/context.mjs', 'journal/editor/**', 'journal/content/layouts.mjs', 'studio/src/diff.mjs', 'studio/src/canonical.mjs']
   workflow_dispatch:
 permissions: { contents: read, pages: write, id-token: write }
 concurrency: { group: "${{ github.event_name == 'pull_request' && format('editor-{0}', github.ref) || 'pages' }}", cancel-in-progress: true }  # PR runs only cancel their own PR; main pushes share the Pages group
