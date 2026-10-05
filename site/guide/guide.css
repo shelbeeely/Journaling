@@ -77,3 +77,4 @@ ol.g-do { counter-reset: s; list-style: none; padding-left: 0 !important; displa
 .g-refrow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 24px 0; }
 .g-refrow .g-ref { margin: 0; max-width: none; }
 @media (min-width: 720px) { .g-refrow { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.g-code pre code { background: none; padding: 0; white-space: pre; overflow-wrap: normal; }

@@ -60,7 +60,7 @@ const toc = CHAPTERS.map((c, i) => `          <li><a href="#${c.id}">${esc(c.tit
 const chapters = CHAPTERS.map((c, i) => `      <section class="g-ch" id="${c.id}" aria-labelledby="${c.id}-h">
         <h2 id="${c.id}-h"><span class="g-n" aria-hidden="true">${i + 1}</span><span>${esc(c.title)}</span>${c.time ? `<span class="g-time">${esc(c.time)}</span>` : ''}</h2>
         <p class="lead">${c.lead}</p>
-${c.parts.map(part).filter(Boolean).join('\n').replace(/^/gm, '        ')}
+${c.parts.map(part).filter(Boolean).join('\n')}
       </section>`).join('\n');
 
 for (const id of Object.keys(SHOTS)) if (!used.has(id)) problems.push(`shot "${id}" is defined but no chapter uses it`);

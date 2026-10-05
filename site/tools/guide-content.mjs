@@ -61,7 +61,7 @@ export const SHOTS = {
       { sel: '#done', name: 'Done', does: 'Leaves edit mode. Escape does the same.' }] },
   'add-block': { build: 'demo', vp: [1600, 1000], hash: DAYEDIT, scale: 2, crop: { pad: 18, sels: ['#pal li[data-key="t:checks"]'] }, alt: 'One tile of the palette, Checkboxes, with its plus button.',
     callouts: [
-      { sel: '#pal li[data-key="t:checks"] .n', name: 'The block', does: 'Drag the tile onto the list or straight onto the page to place it where you drop it.' },
+      { sel: '#pal li[data-key="t:checks"] .n', at: 'l', name: 'The block', does: 'Drag the tile onto the list or straight onto the page to place it where you drop it.' },
       { sel: '#pal [data-add="t:checks"]', name: '+ button', does: 'Adds the block at the end of the list. This is the way to do it from a keyboard or a phone.' }] },
   'block-row': { build: 'demo', vp: [1600, 1000], hash: DAYEDIT, scale: 2, setup: [['wait', 200]], crop: { pad: 20, sels: ['#list > li[data-uid="notes"]'] }, alt: 'One block in the list, Holidays and notes, with its grip, remove button and on/off switch.',
     callouts: [

@@ -31,6 +31,8 @@ jobs:
         run: node editor/test.mjs
       - name: Accessibility checks (axe, names, contrast tokens, 44 px targets, reflow at 320/390, focus, reduced motion, keyboard tasks); fails on anything not in the documented allowlist
         run: node editor/test-a11y.mjs --report
+      - name: Guide screenshots (drives the editor demo, finds every control the guide points at; fails if a selector is gone or an image is missing)
+        run: node ../site/tools/make-guide-shots.mjs --check
       - name: Assemble the site (root), the editor demo (/editor/) and the working editor (/app/); check links
         run: |
           "$GITHUB_WORKSPACE/site/build.sh" "$GITHUB_WORKSPACE/_site"
