@@ -18,8 +18,18 @@ if os.environ.get('KW_BOOK') or os.environ.get('KW_LIBRARY') or (not os.environ.
     PROFILE = json.loads(subprocess.run(['node', 'library-cli.mjs', 'effective'], check=True, capture_output=True, text=True).stdout)
 BOOK, LOC, MODS, PATHS, TRANSIT = PROFILE['book'], PROFILE['location'], PROFILE['modules'], PROFILE.get('paths', {}), PROFILE.get('transit') or {}
 TITLE, SLUG = BOOK['title'], BOOK['slug']
-def content(key):  # a profile content path, parsed; None when the profile has none or the file is absent
-    p = PATHS.get(key)
+def node_pack(*args):  # the pack loader (packs-cli.mjs): content comes from packs, checked and verified there; its stdout
+    import subprocess
+    r = subprocess.run(['node', 'packs-cli.mjs', *args], capture_output=True, text=True, env={**os.environ, 'KW_PACK_QUIET': '1'})
+    if r.returncode: sys.exit(f"epub.py: content pack for paths.{args[1]} did not load:\n{r.stderr.strip()}")
+    return r.stdout.strip()
+def content(key):  # the pack content a profile paths key names (support, trans, clinic), parsed; None when the profile has none
+    if not PATHS.get(key): return None
+    out = node_pack('resolve', key)
+    return json.loads(out) if out and out != 'null' else None
+def feed(name):  # a transit feed file from the pack named by paths.transit; None when absent
+    if not PATHS.get('transit'): return None
+    p = node_pack('path', 'transit', name)
     return json.load(open(p)) if p and os.path.exists(p) else None
 D = json.load(open(f'{OUT}/data.json'))
 VOL = D['volume']
@@ -117,8 +127,8 @@ files['intro.xhtml'] = (intro, 'application/xhtml+xml'); spine.append('intro.xht
 
 # STA bus coverage of this month from the feed's dates (same rule as data.mjs busCoverage): full / partial / none
 def bus_coverage():
-    if not MODS['bus'] or not PATHS.get('transit') or not os.path.exists(f"{PATHS['transit']}/network.json"): return 'none'
-    N = json.load(open(f"{PATHS['transit']}/network.json"))
+    N = feed('network.json') if MODS['bus'] else None
+    if not N: return 'none'
     mid = f"{VOL['year']}-{VOL['month']:02d}"
     if mid not in N.get('months', {}): return 'none'
     iso = lambda x: f"{x[:4]}-{x[4:6]}-{x[6:]}"
@@ -148,7 +158,7 @@ if content('support') is not None:
 
 # STA schedules (gtfs/network.json): network summary + hour grids
 if BUS_COV != 'none':
-    N = json.load(open(f"{PATHS['transit']}/network.json"))
+    N = feed('network.json')
     E = N['months'].get(f"{VOL['year']}-{VOL['month']:02d}")
     if E:
         DAYS = [('weekday', 'Wkdy'), ('saturday', 'Sat'), ('sunday', 'Sun')]

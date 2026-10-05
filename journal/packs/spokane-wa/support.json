@@ -1,0 +1,148 @@
+{
+ "sections": [
+  {
+   "title": "Right now, any hour",
+   "items": [
+    {
+     "id": "988-suicide-and-crisis-lifeline",
+     "name": "988 Suicide &amp; Crisis Lifeline",
+     "text": "Call or text <b>988</b>, or chat at 988lifeline.org. 24/7, free.",
+     "chips": "TEXT CALL CHAT",
+     "verified": {
+      "who": "Claude, reviewing for Shelbee (docs/review/support-verification.md)",
+      "date": "2026-09-28",
+      "source": "https://988lifeline.org/"
+     }
+    },
+    {
+     "id": "crisis-text-line",
+     "name": "Crisis Text Line",
+     "text": "Text <b>HOME</b> to <b>741741</b>. Also web chat and WhatsApp. 24/7.",
+     "chips": "TEXT CHAT",
+     "verified": {
+      "who": "Claude, reviewing for Shelbee (docs/review/support-verification.md)",
+      "date": "2026-09-28",
+      "source": "https://www.crisistextline.org/"
+     }
+    },
+    {
+     "id": "frontier-behavioral-health-crisis-line",
+     "name": "Frontier Behavioral Health crisis line",
+     "text": "<b>1-877-266-1818</b>, 24/7. Spokane and 5 nearby counties; can send a mobile crisis team.",
+     "chips": "CALL",
+     "verified": {
+      "who": "Claude, reviewing for Shelbee (docs/review/support-verification.md)",
+      "date": "2026-09-28",
+      "source": "https://fbhwa.org/ (search of fbhwa.org; page captcha-blocked)",
+      "note": "partly: number and counties match; \"can send a mobile crisis team\" not seen"
+     }
+    },
+    {
+     "id": "walk-in",
+     "name": "Walk in",
+     "text": "Frontier Behavioral Health, 107 S Division St, Spokane. Mon–Fri 7:30 am–4:30 pm; at other times call the crisis line above.",
+     "chips": "VISIT",
+     "verified": false,
+     "checkBeforePrinting": true,
+     "check": "hours Mon-Fri 7:30 am-4:30 pm: call 1-877-266-1818 or check fbhwa.org"
+    }
+   ]
+  },
+  {
+   "title": "Talk to a peer (not a crisis line)",
+   "items": [
+    {
+     "id": "trans-lifeline",
+     "name": "Trans Lifeline",
+     "text": "<b>(877) 565-8860</b>, Mon–Fri 10 am–6 pm Pacific. Trans peers; no police or emergency calls without your consent.",
+     "chips": "CALL",
+     "verified": {
+      "who": "Claude, reviewing for Shelbee (docs/review/support-verification.md)",
+      "date": "2026-09-28",
+      "source": "https://translifeline.org/hotline/"
+     }
+    },
+    {
+     "id": "wa-warm-line",
+     "name": "WA Warm Line",
+     "text": "<b>877-500-9276</b>, daily 2–9 pm. Peers with lived experience; up to 20 minutes, once a day.",
+     "chips": "CALL",
+     "verified": {
+      "who": "Claude, reviewing for Shelbee (docs/review/support-verification.md)",
+      "date": "2026-09-28",
+      "source": "https://www.crisisconnections.org/wa-warm-line/"
+     }
+    },
+    {
+     "id": "the-trevor-project",
+     "name": "The Trevor Project",
+     "text": "Text <b>START</b> to <b>678-678</b>, call 1-866-488-7386, or chat. 24/7, for LGBTQ+ young people.",
+     "chips": "TEXT CALL CHAT",
+     "verified": {
+      "who": "Claude, reviewing for Shelbee (docs/review/support-verification.md)",
+      "date": "2026-09-28",
+      "source": "https://www.thetrevorproject.org/get-help/"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Eating disorders",
+   "items": [
+    {
+     "id": "national-alliance-for-eating-disorders",
+     "name": "National Alliance for Eating Disorders",
+     "text": "<b>(866) 662-1235</b>, Mon–Fri 6 am–4 pm Pacific. Answered by eating-disorder therapists. Email info@allianceforeatingdisorders.com.",
+     "chips": "CALL EMAIL",
+     "verified": {
+      "who": "Claude, reviewing for Shelbee (docs/review/support-verification.md)",
+      "date": "2026-09-28",
+      "source": "https://www.allianceforeatingdisorders.com/contact/",
+      "note": "email corrected to info@ in the review"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Groups (free)",
+   "items": [
+    {
+     "id": "nami-spokane",
+     "name": "NAMI Spokane",
+     "text": "Connection group 6:30–8 pm: 2nd Tue in person, 4th Tue online. Ages 18–35: 1st Tue 5:30–7 pm. Text <b>(509) 209-3905</b>, call (509) 838-5515, help@namispokane.org.",
+     "chips": "TEXT CALL EMAIL",
+     "verified": {
+      "who": "Claude, reviewing for Shelbee (docs/review/support-verification.md)",
+      "date": "2026-09-28",
+      "source": "https://namispokane.org/get-involved/event-calendar/",
+      "note": "partly: group times from the calendar; contact numbers from a search of namispokane.org (page captcha-blocked)"
+     }
+    },
+    {
+     "id": "dbsa",
+     "name": "DBSA",
+     "text": "Free online peer groups for depression and bipolar disorder, incl. LGBTQ+, on ShareWell. dbsalliance.org → online support groups.",
+     "chips": "ONLINE",
+     "verified": {
+      "who": "Claude, reviewing for Shelbee (docs/review/support-verification.md)",
+      "date": "2026-09-28",
+      "source": "https://www.dbsalliance.org/support/chapters-and-support-groups/online-support-groups/",
+      "note": "groups are moving to ShareWell"
+     }
+    },
+    {
+     "id": "spectrum-center-spokane",
+     "name": "Spectrum Center Spokane",
+     "text": "LGBTQ+ center, 1514 N Monroe St. Free groups for trans youth 13–17 and parents/caregivers; the adult group ended Dec 2025. spectrumcenterspokane.org.",
+     "chips": "VISIT",
+     "verified": {
+      "who": "Claude, reviewing for Shelbee (docs/review/support-verification.md)",
+      "date": "2026-09-28",
+      "source": "https://spectrumcenterspokane.org/support-groups",
+      "note": "the page shows example dates from 2025; recheck"
+     }
+    }
+   ]
+  }
+ ]
+}

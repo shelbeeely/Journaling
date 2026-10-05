@@ -10,8 +10,8 @@ journal/editor/dist-demo/
 journal/out-demo/
 journal/out-sample/
 journal/node_modules
-journal/gtfs/*.txt
-journal/gtfs/sta.zip
+journal/packs/*/gtfs/*.txt
+journal/packs/*/gtfs/sta.zip
 x4/.pio/
 x4/host/out/
 x4/host/kw_host

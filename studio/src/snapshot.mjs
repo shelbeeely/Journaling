@@ -3,6 +3,8 @@
 //
 //   snapshot = { meta, print, book, day, assets, components }
 //     meta        title, subtitle, slug, description                 (the book's public identity)
+//                 packs?    the public content packs the book uses, by reference only: [{id, kind, version, sha256}] (see serializePackRefs).
+//                           Additive like library: a snapshot without it is unchanged. Personal packs (support, trans, clinic, region) never appear.
 //                 library?  books and series (journal/library.mjs): the whole library, see serializeLibrary. Additive (L1a): a snapshot
 //                           without it is a library of one book (libraryOf), so old commits, hashes and exports are unchanged.
 //     print       trim, edition, start, day_start_hour, hardcover, modules   (print settings)
@@ -12,13 +14,16 @@
 //     components  [{id, name, version, page}] (reusable pages; reserved for G3, empty in G1)
 //
 // NEVER in a snapshot: private pages, filled-in personal data (day entries, answers, mood logs), account settings, profile secrets
-// (person, location, crisis lines, paths), calendars (.ics, ICS_URLS), support/trans/clinic packs, passwords, tokens, recovery codes.
+// (person, location, crisis lines, paths), calendars (.ics, ICS_URLS), support/trans/clinic packs (a pack is never in a snapshot: only
+// a public pack's id, version and hash, in meta.packs; a personal pack is refused even as a reference), passwords, tokens, recovery codes.
 // Two layers keep it that way: the serializer only copies allowlisted fields, and the scanner refuses a snapshot (or a raw
 // submission) that carries a forbidden key, path or value anywhere in it, however deeply nested.
 import { normalize, TYPES, PLACE, newBlock } from '../../journal/daypage.mjs';
 import { validateBook, DEFAULT_BOOK } from '../../journal/book.mjs';
 import { PAGE_TYPES } from '../../journal/pages.mjs';
 import { MODULES } from '../../journal/modules.mjs';
+import { kindNames, KINDS } from '../../journal/packs/kinds.mjs';
+import { ID_RE, isSemver } from '../../journal/packs/pack.mjs';
 import { validateLibrary, libraryFromProfile, LIBRARY_VERSION, DEFAULT_LAYOUT } from '../../journal/library.mjs';
 import { StudioError } from './db.mjs';
 import { canonical, objectHash } from './canon.mjs';
@@ -43,6 +48,8 @@ const FORBIDDEN_PATH = [
   [/(^|[\\/])\.env(\.|$)/i, 'an .env file'],
   [/(^|[\\/])profile(\.example)?\.json\b/i, 'the profile file'],
   [/(^|[\\/])(support|support\.generic|trans|clinic)\.json\b/i, 'a support, trans or clinic pack'],
+  [/(^|[\\/])packs[\\/]/i, 'a pack folder (packs travel as id and hash only)'],
+  [/(^|[\\/])pack\.json\b/i, 'a pack manifest (packs travel as id and hash only)'],
   [/\.(pem|p12|pfx|7z)$/i, 'a key or encrypted archive'],
 ];
 const FORBIDDEN_VALUE = [
@@ -52,6 +59,22 @@ const FORBIDDEN_VALUE = [
   [/github_pat_[A-Za-z0-9_]{20,}/, 'a GitHub token'],
   [/[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+\.[A-Za-z0-9.-]+/, 'an email address'],
 ];
+
+// A pack reference is {id, kind, version, sha256} and nothing else: a pack's files never travel. A personal pack (support numbers,
+// personal contacts: the kind's privacy class in journal/packs/kinds.mjs) is refused even as a reference, since its name alone says where someone lives.
+const PACK_REF_KEYS = ['id', 'kind', 'version', 'sha256'];
+function packRefProblems(list, at) {
+  if (list === null) return []; // packs: null drops the references
+  if (!Array.isArray(list)) return [{ path: at, rule: 'must be a list of pack references {id, kind, version, sha256}' }];
+  const out = [];
+  list.forEach((r, i) => {
+    const p = `${at}[${i}]`;
+    if (!r || typeof r !== 'object' || Array.isArray(r)) { out.push({ path: p, rule: 'must be a pack reference {id, kind, version, sha256}' }); return; }
+    for (const k of Object.keys(r)) if (!PACK_REF_KEYS.includes(k)) out.push({ path: `${p}.${k}`, rule: `"${k}" is not part of a pack reference (packs travel as id, kind, version and hash only, never their contents)` });
+    if (typeof r.kind === 'string' && Object.prototype.hasOwnProperty.call(KINDS, r.kind) && KINDS[r.kind].privacy !== 'public') out.push({ path: p, rule: `"${r.id}" is a personal ${r.kind} pack: personal packs never travel in a snapshot or a fork` });
+  });
+  return out;
+}
 
 // Returns [{path, rule}] for everything forbidden in a value (empty = clean). `path` is dotted/indexed, e.g. day.blocks[3].labels[0].
 export function scanForbidden(value, base = '') {
@@ -64,7 +87,8 @@ export function scanForbidden(value, base = '') {
     else if (v && typeof v === 'object') {
       for (const [k, x] of Object.entries(v)) {
         const p = at ? `${at}.${k}` : k;
-        if (FORBIDDEN_KEYS.has(keyId(k))) out.push({ path: p, rule: `"${k}" is never part of a publication source` });
+        if (k === 'packs' && at === 'meta') out.push(...packRefProblems(x, p)); // the one place a pack may appear: a reference to a public pack
+        else if (FORBIDDEN_KEYS.has(keyId(k))) out.push({ path: p, rule: `"${k}" is never part of a publication source` });
         walk(x, p);
       }
     }
@@ -90,7 +114,7 @@ const text = (o, k, max, where, errs, { req = false } = {}) => {
 
 export function serializeMeta(m, errs) {
   if (!isObj(m)) { errs.push('meta must be an object'); return {}; }
-  only(m, ['title', 'subtitle', 'slug', 'description', 'library'], 'meta', errs);
+  only(m, ['title', 'subtitle', 'slug', 'description', 'library', 'packs'], 'meta', errs);
   const r = {};
   r.title = text(m, 'title', 120, 'meta', errs, { req: true });
   r.subtitle = text(m, 'subtitle', 200, 'meta', errs) ?? '';
@@ -98,7 +122,30 @@ export function serializeMeta(m, errs) {
   if (r.slug && !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(r.slug)) errs.push('meta.slug must be lowercase letters, digits and dashes');
   r.description = text(m, 'description', 1000, 'meta', errs) ?? '';
   if (m.library !== undefined && m.library !== null) { const l = serializeLibrary(m.library, errs); if (l) r.library = l; }
+  if (m.packs !== undefined && m.packs !== null) { const k = serializePackRefs(m.packs, errs); if (k.length) r.packs = k; }
   return r;
+}
+
+// The content packs a book uses, by reference: id, kind, version and the pack's hash (journal/packs/pack.mjs packHash), so a fork or a
+// reprint finds the same pack. Only public kinds; a personal pack is refused (the scanner does too, by name).
+export function serializePackRefs(list, errs) {
+  if (!Array.isArray(list)) { errs.push('meta.packs must be a list of pack references'); return []; }
+  if (list.length > 100) errs.push('meta.packs: at most 100 packs');
+  const seen = new Set(), out = [];
+  list.forEach((x, i) => {
+    const at = `meta.packs[${i}]`;
+    if (!isObj(x)) { errs.push(`${at} must be {id, kind, version, sha256}`); return; }
+    only(x, PACK_REF_KEYS, at, errs);
+    if (typeof x.id !== 'string' || !ID_RE.test(x.id) || x.id.length > 60) errs.push(`${at}.id must be a pack id (lowercase letters, digits and dashes)`);
+    if (typeof x.kind !== 'string' || !KINDS[x.kind]) errs.push(`${at}.kind must be one of ${kindNames().join(', ')}`);
+    else if (KINDS[x.kind].privacy !== 'public') errs.push(`${at}: "${x.id}" is a personal ${x.kind} pack and never travels in a snapshot`);
+    if (!isSemver(x.version)) errs.push(`${at}.version must be a semantic version like 1.0.0`);
+    if (typeof x.sha256 !== 'string' || !/^[0-9a-f]{64}$/.test(x.sha256)) errs.push(`${at}.sha256 must be a sha256 hex`);
+    if (seen.has(x.id)) errs.push(`${at}.id "${x.id}" is used twice`);
+    seen.add(x.id);
+    out.push({ id: x.id, kind: x.kind, version: x.version, sha256: x.sha256 });
+  });
+  return out.sort((p, q) => (p.id < q.id ? -1 : 1));
 }
 
 // The library: books and series (journal/library.mjs). Nothing personal: the allowlist below is the whole of it (no person, place,
@@ -236,7 +283,13 @@ export function serializeSnapshot(input, base = null) {
   only(input, PARTS, 'snapshot', errs);
   const from = base || emptySnapshot('Untitled');
   // a meta sent without a library keeps the stored one (send library: null to drop it), so older clients never erase a library by saving
-  const part = (k) => (k === 'meta' && isObj(input.meta) && input.meta.library === undefined && from.meta && from.meta.library ? { ...input.meta, library: from.meta.library } : input[k] !== undefined ? input[k] : from[k]);
+  const part = (k) => {
+    if (k === 'meta' && isObj(input.meta) && from.meta) { // same for the pack references (send packs: null to drop them)
+      const keep = {}; for (const f of ['library', 'packs']) if (input.meta[f] === undefined && from.meta[f]) keep[f] = from.meta[f];
+      if (Object.keys(keep).length) return { ...input.meta, ...keep };
+    }
+    return input[k] !== undefined ? input[k] : from[k];
+  };
   const snap = {
     meta: serializeMeta(part('meta'), errs), print: serializePrint(part('print'), errs), book: serializeBook(part('book'), errs),
     day: serializeDay(part('day'), errs), assets: serializeAssets(part('assets'), errs), components: serializeComponents(part('components'), errs),

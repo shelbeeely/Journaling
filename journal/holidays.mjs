@@ -42,3 +42,16 @@ export function holidays(y) {
   put(12, 31, 'New Year’s Eve');
   return H;
 }
+
+// Extra observances from a holidays pack (packs/kinds.mjs): fixed dates { month, day, name, federal? } or the nth weekday of a month
+// { month, nth: {weekday 0-6 (Sunday 0), n 1-5 or -1 for the last}, name }. Added to the built-in list; null leaves it unchanged.
+export function withObservances(H, y, list) {
+  if (!list || !list.length) return H;
+  for (const o of list) {
+    const d = o.nth ? (o.nth.n === -1 ? last(y, o.month, o.nth.weekday) : nth(y, o.month, o.nth.weekday, o.nth.n)) : o.day;
+    const dim = new Date(Date.UTC(y, o.month, 0)).getUTCDate();
+    if (d < 1 || d > dim) continue; // e.g. a 5th Monday that month does not have
+    (H[key(o.month, d)] ||= []).push({ name: o.name, federal: !!o.federal });
+  }
+  return H;
+}

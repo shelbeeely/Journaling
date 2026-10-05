@@ -1,0 +1,27 @@
+{
+ "schema": 1,
+ "id": "my-seasons-history",
+ "title": "Template: seasons and local history",
+ "version": "0.1.0",
+ "kind": "seasons-history",
+ "author": {
+  "name": "Your name"
+ },
+ "license": {
+  "spdx": "CC0-1.0",
+  "attribution": "",
+  "commercialPrintOk": true
+ },
+ "engine": ">=1.0.0 <2.0.0",
+ "region": null,
+ "languages": [
+  "en"
+ ],
+ "verified": [],
+ "files": [
+  {
+   "path": "seasons.json",
+   "sha256": "0fbaf71dd1249bc2d602ed6fc86921d17ce26ff633d81480ee6273e16b3b8903"
+  }
+ ]
+}

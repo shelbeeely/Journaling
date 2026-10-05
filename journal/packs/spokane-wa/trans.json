@@ -1,0 +1,140 @@
+{
+ "sections": [
+  {
+   "title": "Peer support",
+   "items": [
+    {
+     "id": "trans-lifeline",
+     "name": "Trans Lifeline",
+     "text": "<b>(877) 565-8860</b>, Mon–Fri 10 am–6 pm Pacific. Trans and nonbinary peers; you don’t have to be in crisis or sure you’re trans.",
+     "chips": "CALL",
+     "verified": {
+      "who": "Claude, reviewing for Shelbee (docs/review/support-verification.md)",
+      "date": "2026-09-28",
+      "source": "https://translifeline.org/hotline/"
+     }
+    },
+    {
+     "id": "spectrum-center-spokane",
+     "name": "Spectrum Center Spokane",
+     "text": "LGBTQ+ center, 1514 N Monroe St. Free one-on-one gender doula (sign up; may be a waitlist). Groups are for youth and caregivers.",
+     "chips": "VISIT ONLINE",
+     "verified": {
+      "who": "Claude, reviewing for Shelbee (docs/review/support-verification.md)",
+      "date": "2026-09-28",
+      "source": "https://spectrumcenterspokane.org/support-groups",
+      "note": "the page shows example dates from 2025; recheck"
+     }
+    },
+    {
+     "id": "ingersoll-gender-center",
+     "name": "Ingersoll Gender Center",
+     "text": "Seattle trans peer groups and a provider database. info@ingersollgendercenter.org.",
+     "chips": "EMAIL ONLINE",
+     "verified": {
+      "who": "Claude, reviewing for Shelbee (docs/review/support-verification.md)",
+      "date": "2026-09-28",
+      "source": "https://ingersollgendercenter.org/"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Health care",
+   "items": [
+    {
+     "id": "planned-parenthood-spokane",
+     "name": "Planned Parenthood, Spokane",
+     "text": "Hormones by informed consent (18+), no therapist letter. 123 E Indiana Ave, Bldg A, Mon–Fri 8–6. Telehealth by video, phone or <b>messaging</b>. (866) 904-7721.",
+     "chips": "TEXT CALL VISIT",
+     "verified": false,
+     "checkBeforePrinting": true,
+     "check": "hours Mon-Fri 8-6, age 18+, telehealth modes: call (866) 904-7721 first"
+    }
+   ]
+  },
+  {
+   "title": "Name and ID (Washington)",
+   "items": [
+    {
+     "id": "driver-s-license",
+     "name": "Driver’s license",
+     "text": "Change the marker to M, F or X in person or by mail; no doctor’s note. New card is free if only the marker changes.",
+     "chips": "ONLINE",
+     "verified": {
+      "who": "Claude, reviewing for Shelbee (docs/review/support-verification.md)",
+      "date": "2026-09-28",
+      "source": "https://dol.wa.gov/driver-licenses-and-permits/update-driver-license-information/change-your-gender-designation"
+     }
+    },
+    {
+     "id": "birth-certificate",
+     "name": "Birth certificate",
+     "text": "Adults: M, F or X with a notarized form. Free to amend; certified copies $25.",
+     "chips": "ONLINE",
+     "verified": {
+      "who": "Claude, reviewing for Shelbee (docs/review/support-verification.md)",
+      "date": "2026-09-28",
+      "source": "https://doh.wa.gov/licenses-permits-and-certificates/vital-records/sex-designation-change-birth-certificate"
+     }
+    },
+    {
+     "id": "court-name-change",
+     "name": "Court name change",
+     "text": "Can cost over $300; ask for a fee waiver. Gender-related changes can be sealed.",
+     "chips": "VISIT",
+     "verified": false,
+     "checkBeforePrinting": true,
+     "check": "\"over $300\" and sealing are not on an official page (fee waiver rule GR 34 is)"
+    },
+    {
+     "id": "gonzaga-law-id-clinic",
+     "name": "Gonzaga Law ID clinic",
+     "text": "Free monthly help with name and gender marker changes, notary included. Dates on Instagram <b>@zaglawcivilrights</b>.",
+     "chips": "VISIT",
+     "verified": false,
+     "checkBeforePrinting": true,
+     "check": "the @zaglawcivilrights Instagram handle"
+    },
+    {
+     "id": "trans-wa",
+     "name": "Trans-Wa",
+     "text": "Name/ID clinics were paused in spring 2026 and are planned to restart Oct 2026; email first. services@transwa.org.",
+     "chips": "EMAIL",
+     "verified": {
+      "who": "Claude, reviewing for Shelbee (docs/review/support-verification.md)",
+      "date": "2026-09-28",
+      "source": "https://www.transwa.org/ (search of transwa.org, May 2026; page captcha-blocked)",
+      "note": "partly: recheck in October 2026 that clinics restarted"
+     }
+    },
+    {
+     "id": "federal-ids",
+     "name": "Federal IDs",
+     "text": "Passport and Social Security rules changed in 2025; ask a clinic first.",
+     "verified": {
+      "who": "Claude, reviewing for Shelbee (docs/review/support-verification.md)",
+      "date": "2026-09-28",
+      "source": "https://lgbtq.wa.gov/changing-your-identification-documents"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Money for gender-affirming needs",
+   "items": [
+    {
+     "id": "point-of-pride",
+     "name": "Point of Pride",
+     "text": "Free femme shapewear; funds for HRT, hair removal, and a Thrive Fund (wigs, voice training, more). pointofpride.org.",
+     "chips": "ONLINE",
+     "verified": {
+      "who": "Claude, reviewing for Shelbee (docs/review/support-verification.md)",
+      "date": "2026-09-28",
+      "source": "https://pointofpride.org/"
+     }
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,43 @@
+{
+ "sections": [
+  {
+   "title": "Right now, any hour",
+   "items": [
+    {
+     "id": "988",
+     "name": "988 Suicide &amp; Crisis Lifeline",
+     "text": "Call or text <b>988</b>, or chat at 988lifeline.org. 24/7, free.",
+     "chips": "TEXT CALL CHAT",
+     "verified": {
+      "who": "Journalwright review (official page read)",
+      "date": "2026-09-28",
+      "source": "https://988lifeline.org/"
+     }
+    },
+    {
+     "id": "crisis-text-line",
+     "name": "Crisis Text Line",
+     "text": "Text <b>HOME</b> to <b>741741</b>. 24/7.",
+     "chips": "TEXT",
+     "verified": {
+      "who": "Journalwright review (official page read)",
+      "date": "2026-09-28",
+      "source": "https://www.crisistextline.org/"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Add your own",
+   "items": [
+    {
+     "id": "local-crisis-line",
+     "name": "Your local crisis line",
+     "text": "Add your local numbers here: the number and what it is for. Replace this list with people and services near you by making a content pack (journal/PACKS.md).",
+     "chips": "",
+     "placeholder": true
+    }
+   ]
+  }
+ ]
+}

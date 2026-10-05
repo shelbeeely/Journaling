@@ -3,7 +3,7 @@
 //   const ctx = await loadContext({ month: '2026-10', ics: 'test.ics', size: 'small' });
 // The editor builds sample pages with the same call on the generic sample calendar (test.ics), never a private one.
 import fs from 'node:fs';
-import { build, busCoverage } from './data.mjs';
+import { build, busCoverage, readFeed } from './data.mjs';
 import { normalize } from './daypage.mjs';
 import { PROFILE, moduleOn, bookNo as bookNoOf, readContent, MODULE_BLOCKS } from './profile.mjs';
 
@@ -36,7 +36,7 @@ export async function loadContext({ month, ics, size = 'small', quiet = false })
   }
   const missing = { facts: D.days.filter((d) => !d.fact).length, pioneers: D.weeks.filter((w) => w.owns && !w.pioneer).length, words: D.weeks.filter((w) => !w.word).length, prompts: D.weeks.filter((w) => !w.prompt).length };
   if (!quiet && Object.values(missing).some(Boolean)) console.warn('content gaps:', JSON.stringify(missing));
-  const NET = moduleOn('bus') && PROFILE.paths.transit ? readJson(`./${PROFILE.paths.transit}/network.json`) : null;
+  const NET = moduleOn('bus') && PROFILE.paths.transit ? readFeed('network.json') : null;
   if (!quiet && NET && BUS_COV === 'partial') console.warn(`! ${PROFILE.transit.agency} schedule ends ${NET.valid_to}; ${VOL.id} is only partly covered (pages say so). Refresh the transit feed before printing.`);
   const ki = readJson('./out/keeper/index.json');
   return {

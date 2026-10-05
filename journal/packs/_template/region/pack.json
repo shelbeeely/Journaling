@@ -1,0 +1,31 @@
+{
+ "schema": 1,
+ "id": "my-region",
+ "title": "Template: a region (support, clinic, trans support, transit, holidays, seasons)",
+ "version": "0.1.0",
+ "kind": "region",
+ "author": {
+  "name": "Your name"
+ },
+ "license": {
+  "spdx": "CC0-1.0",
+  "attribution": "",
+  "commercialPrintOk": true
+ },
+ "engine": ">=1.0.0 <2.0.0",
+ "region": "XX-YY",
+ "languages": [
+  "en"
+ ],
+ "verified": [],
+ "files": [
+  {
+   "path": "holidays.json",
+   "sha256": "c9902786d9c0887869c09b15f7b886c7712a07424afe85954046a9b5c4133b67"
+  },
+  {
+   "path": "support.json",
+   "sha256": "ea6295a926ead1dc476104859196742c00bd538ca4818c9c9a7a2a2a35011fbf"
+  }
+ ]
+}

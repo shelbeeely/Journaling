@@ -100,13 +100,16 @@ const libCount = (d) => count(d.books) + count(d.series) + count(d.layouts) + (d
 export function diffSnapshots(a, b) {
   const assets = diffKeyed(a.assets.map((x) => ({ ...x, id: x.name })), b.assets.map((x) => ({ ...x, id: x.name })), (x, y) => fieldDiff({ hash: x.hash, mime: x.mime, size: x.size }, { hash: y.hash, mime: y.mime, size: y.size }), (x) => ({ id: x.name, type: x.mime }));
   const components = diffKeyed(a.components, b.components, (x, y) => fieldDiff({ name: x.name, version: x.version, page: x.page }, { name: y.name, version: y.version, page: y.page }), (x) => ({ id: x.id, type: x.page && x.page.type }));
-  const noLib = (m) => Object.fromEntries(Object.entries(m || {}).filter(([k]) => k !== 'library'));
+  const noLib = (m) => Object.fromEntries(Object.entries(m || {}).filter(([k]) => k !== 'library' && k !== 'packs'));
   const r = { meta: fieldDiff(noLib(a.meta), noLib(b.meta)), print: fieldDiff(a.print, b.print), book: diffBook(a.book, b.book), day: diffDay(a.day, b.day), assets, components };
   const lib = diffLibrary(a.meta && a.meta.library, b.meta && b.meta.library);
+  // content packs are listed by id (meta.packs: references only): added, removed, or a new version / hash
+  const packs = diffKeyed(((a.meta && a.meta.packs) || []).map((x) => ({ ...x })), ((b.meta && b.meta.packs) || []).map((x) => ({ ...x })), (x, y) => fieldDiff({ version: x.version, sha256: x.sha256 }, { version: y.version, sha256: y.sha256 }), (x) => ({ id: x.id, type: x.kind }));
+  if (count(packs)) r.packs = packs;
   if (libCount(lib)) r.library = lib; // only when there is something to say: snapshots without a library diff exactly as before
   // the Grid layout switch is a property of the whole page, not of one block
   r.day.grid = !!a.day.grid !== !!b.day.grid ? { before: !!a.day.grid, after: !!b.day.grid } : null;
-  r.summary = { meta: r.meta.length, print: r.print.length, book: count(r.book), day: count(r.day) + (r.day.grid ? 1 : 0), assets: count(assets), components: count(components), ...(r.library ? { library: libCount(lib) } : {}) };
+  r.summary = { meta: r.meta.length, print: r.print.length, book: count(r.book), day: count(r.day) + (r.day.grid ? 1 : 0), assets: count(assets), components: count(components), ...(r.packs ? { packs: count(packs) } : {}), ...(r.library ? { library: libCount(lib) } : {}) };
   r.summary.total = Object.values(r.summary).reduce((t, n) => t + n, 0);
   return r;
 }

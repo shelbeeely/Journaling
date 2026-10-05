@@ -1,0 +1,28 @@
+{
+ "schema": 1,
+ "id": "generic",
+ "title": "Generic (no region)",
+ "version": "1.0.0",
+ "kind": "region",
+ "author": {
+  "name": "Journalwright Studio",
+  "url": "https://github.com/shelbeeely/Journaling"
+ },
+ "license": {
+  "spdx": "CC0-1.0",
+  "attribution": "",
+  "commercialPrintOk": true
+ },
+ "engine": ">=1.0.0 <2.0.0",
+ "region": null,
+ "languages": [
+  "en"
+ ],
+ "verified": [],
+ "files": [
+  {
+   "path": "support.json",
+   "sha256": "f49d88223fc2104a6c2c6d08625d914143df923c7dc0644ac96b7340a17ca9d8"
+  }
+ ]
+}

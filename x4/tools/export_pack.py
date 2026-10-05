@@ -26,11 +26,15 @@ PROFILE_FILE = os.environ.get('KW_PROFILE') or f'{J}/content/profile.json'
 try: PROFILE = json.load(open(PROFILE_FILE, encoding='utf-8'))
 except (FileNotFoundError, ValueError) as ex: sys.exit(f'export_pack: cannot read the profile {PROFILE_FILE} ({ex}). See journal/README.md, "Profile".')
 TITLE, SLUG, MODS, PATHS = PROFILE['book']['title'], PROFILE['book']['slug'], PROFILE['modules'], PROFILE.get('paths', {})
-def content(key):  # a content list named by the profile (paths are relative to the journal dir); None when the profile has none
-    p = PATHS.get(key)
-    if not p: return None
-    if not os.path.exists(f'{J}/{p}'): sys.exit(f'export_pack: profile paths.{key} points to {p}, which does not exist')
-    return json.load(open(f'{J}/{p}', encoding='utf-8'))
+# Content comes from packs: ask the journal's pack loader (packs-cli.mjs resolve <key>), which checks the pack and enforces the
+# verification rule, so the X4 support list says exactly what the paper book says. Returns None when the profile has none.
+import subprocess
+JOURNAL = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'journal')
+def content(key):
+    if not PATHS.get(key): return None
+    r = subprocess.run(['node', 'packs-cli.mjs', 'resolve', key], cwd=JOURNAL, capture_output=True, text=True, env={**os.environ, 'KW_PROFILE': os.path.abspath(PROFILE_FILE), 'KW_PACK_QUIET': '1'})
+    if r.returncode: sys.exit(f'export_pack: content pack for paths.{key} ({PATHS[key]}) did not load:\n{r.stderr.strip()}')
+    return json.loads(r.stdout)
 
 os.makedirs(OUT, exist_ok=True)
 strip = lambda s: re.sub(r'<[^>]+>', '', s).replace('&amp;', '&').replace('\n', ' ').strip()
