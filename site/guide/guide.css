@@ -1,0 +1,79 @@
+/* The guide: builds on ../style.css (tokens, nav, buttons, footer). Phone first; no sideways scroll at 390 px. */
+:root { --mark: #b83c08; --mark-ink: #ffffff; }
+.g-head { padding-top: 40px; padding-bottom: 8px; }
+.g-head h1 { max-width: 16em; }
+.g-layout { display: block; padding-bottom: 40px; }
+.g-body { min-width: 0; max-width: 760px; }
+
+/* contents */
+.g-toc { margin: 16px 0 8px; }
+.g-toc details { border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+.g-toc summary { min-height: 48px; display: flex; align-items: center; padding: 0 16px; font-weight: 600; cursor: pointer; }
+.g-toc ol { margin: 0; padding: 0 12px 12px 36px; display: grid; gap: 2px; }
+.g-toc li { padding-left: 4px; }
+.g-toc li a { display: flex; align-items: center; min-height: 44px; text-decoration: none; color: var(--ink); gap: 8px; flex-wrap: wrap; }
+.g-toc li a:hover { color: var(--accent); text-decoration: underline; }
+.g-toc small { color: var(--muted); }
+@media (min-width: 960px) {
+  .g-layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 48px; align-items: start; }
+  .g-toc { position: sticky; top: 72px; margin-top: 24px; }
+  .g-toc summary { pointer-events: none; list-style: none; }
+  .g-toc summary::-webkit-details-marker { display: none; }
+}
+
+/* chapters */
+.g-ch { padding: 40px 0 8px; border-top: 1px solid var(--line); margin-top: 32px; scroll-margin-top: 72px; }
+.g-ch:first-of-type { border-top: 0; margin-top: 8px; }
+.g-ch > h2 { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.g-n { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); font: 600 1.15rem var(--serif); }
+.g-time { font: 600 .8rem var(--sans); color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; background: var(--panel); }
+.g-ch .lead { margin-bottom: 20px; }
+.g-ch h3 { margin-top: 28px; }
+.g-ch ul { padding-left: 1.3em; display: grid; gap: 8px; margin: 0 0 16px; }
+.g-note { border-left: 4px solid var(--accent); background: var(--panel); border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 16px 0; color: var(--muted); }
+.g-note p { margin: 0; }
+kbd { font: .85em ui-monospace, SFMono-Regular, Menlo, monospace; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 6px; padding: 0 6px; background: var(--panel); white-space: nowrap; }
+
+/* code */
+.g-code { margin: 16px 0; }
+.g-code .g-cl { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: .85rem; color: var(--muted); min-height: 44px; }
+.g-code pre { margin: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; overflow-x: auto; font: .85rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; max-width: 100%; }
+.g-copy { min-height: 44px; min-width: 44px; padding: 0 12px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 10px; font: 600 .85rem var(--sans); cursor: pointer; }
+.g-copy:hover { border-color: var(--accent); }
+
+/* the pictures */
+.g-shot, .g-ref { margin: 24px 0; }
+.g-shot img, .g-ref img { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; background: #fff; box-shadow: var(--shadow); }
+.g-ref { max-width: 320px; }
+.g-shot .dk { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .g-shot.has-dark .lt { display: none; }
+  :root:not([data-theme="light"]) .g-shot.has-dark .dk { display: block; }
+}
+:root[data-theme="dark"] .g-shot.has-dark .lt { display: none; }
+:root[data-theme="dark"] .g-shot.has-dark .dk { display: block; }
+.g-shot.narrow { max-width: 340px; }
+.g-shot figcaption, .g-ref figcaption { margin-top: 12px; font-size: 1rem; color: var(--ink); }
+.g-ref figcaption { font-size: .85rem; color: var(--muted); }
+/* the numbered list under a picture: the numbers are the rings on the picture */
+.g-marks { list-style: none; counter-reset: m; padding: 0 !important; margin: 0; display: grid; gap: 10px; }
+.g-marks li { counter-increment: m; display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 10px; align-items: start; }
+.g-marks li::before { content: counter(m); width: 28px; height: 28px; border-radius: 50%; background: var(--mark); color: var(--mark-ink); font: 700 .9rem/28px var(--sans); text-align: center; margin-top: 1px; }
+.g-marks b { font-weight: 700; }
+ol.g-do { counter-reset: s; list-style: none; padding-left: 0 !important; display: grid; gap: 10px; margin: 0 0 16px; }
+.g-do li { counter-increment: s; display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 10px; }
+.g-do li::before { content: counter(s); width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font: 700 .9rem/28px var(--sans); text-align: center; }
+.g-end { padding: 40px 0 8px; border-top: 1px solid var(--line); margin-top: 40px; }
+.g-end ul { padding-left: 1.3em; display: grid; gap: 8px; }
+.nav nav a[aria-current="page"] { color: var(--ink); background: var(--band); }
+@media print {
+  .nav, .g-toc, .theme, .g-copy, .cta, .skip { display: none !important; }
+  .g-layout { display: block; }
+  .g-shot .dk { display: none !important; }
+  .g-shot .lt { display: block !important; }
+  .g-shot, .g-ref, .g-code { break-inside: avoid; }
+  body { background: #fff; color: #000; }
+}
+.g-refrow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 24px 0; }
+.g-refrow .g-ref { margin: 0; max-width: none; }
+@media (min-width: 720px) { .g-refrow { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
