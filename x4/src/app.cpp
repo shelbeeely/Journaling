@@ -7,6 +7,7 @@
 #include "core/data.h"
 #include "core/focus.h"
 #include "core/net.h"
+#include "core/sync.h"
 #include "core/settings.h"
 #include "core/update.h"
 #include "hal/hal.h"
@@ -602,7 +603,7 @@ static const MenuEntry MENU[] = {
   {"This month", "totals for your Keeper handoff", IC_CHART, Scr::Month},
   {"Support", "numbers to text or call", IC_HEART, Scr::Support},
   {"My safety plan", "and people to text", IC_PERSON, Scr::Plan},
-  {"Wi-Fi", "hotspot, or join your own network", IC_WIFI, Scr::Sync},
+  {"Wi-Fi", "hotspot, your Wi-Fi, sync", IC_WIFI, Scr::Sync},
   {"Clock", "set the date and time", IC_PRN, Scr::Clock},
   {"Focus", "silent work rounds and breaks", IC_WORK, Scr::Focus},
   {"Settings", "text size, buttons, sleep", IC_GEAR, Scr::Settings},
@@ -964,7 +965,7 @@ static void drawQr(const char* text, int x, int y, int size) {
   for (int j = 0; j < n; j++) for (int i = 0; i < n; i++) if (qr.getModule(i, j)) C->fill(x + off + i * s, y + off + j * s, s, s);
 }
 
-enum class Wv : uint8_t { Home, Saved, Forget, Msg };
+enum class Wv : uint8_t { Home, Saved, Forget, Msg, SyncPre };
 static struct WifiView {
   Wv v = Wv::Home;
   int sel = 0;        // Home row, or Saved row
@@ -974,8 +975,12 @@ static struct WifiView {
   bool busy = false;  // the radio is starting (a blocking call): draw "Starting…" first
   int sig = -1;       // what the last draw showed, so the screen redraws only when something changed
   uint32_t lastPress = 0;
+  int net = 0;        // saved network the sync would use
+  bool fromSync = false;   // the message on screen is a sync result: Back returns to the Sync row
 } WV;
-static const int WIFI_HOME_N = 4;
+static const int WIFI_HOME_N = 5;
+static SyncCfg SC;      // /kw/sync.txt as loaded for the preview (the token never leaves this struct and is never drawn)
+static SyncPlan SP;     // what is waiting to be sent, from the card alone
 static bool wifiRunning() { return NC.phase != NetPhase::Off; }
 static int wifiPages() { return (LG() && (NC.phase == NetPhase::Hotspot || NC.phase == NetPhase::Wifi)) ? 2 : 1; }
 static int wifiSig() { return (int)NC.phase * 100000 + NC.clients() * 1000 + (NC.guard.locked ? 100 : 0) + (int)NC.why * 10 + (NC.apUp ? 1 : 0); }
@@ -991,22 +996,23 @@ static void drawWifiHome() {
   if (c.n > 1) snprintf(sub[0], sizeof sub[0], "%d networks saved", c.n);
   snprintf(sub[1], sizeof sub[1], "%s", c.n == 0 ? "none yet" : c.n == 1 ? "1 network" : "");
   if (c.n > 1) snprintf(sub[1], sizeof sub[1], "%d networks", c.n);
-  static const char* LABEL[WIFI_HOME_N] = {"Hotspot", "On my Wi-Fi", "Join a network", "Saved networks"};
-  const char* SUB[WIFI_HOME_N] = {"its own network, no internet", sub[0], "add one, typed on your phone", sub[1]};
-  const int rh = LG() ? 100 : 92;
+  static const char* LABEL[WIFI_HOME_N] = {"Hotspot", "On my Wi-Fi", "Join a network", "Saved networks", "Sync with Studio"};
+  const char* SUB[WIFI_HOME_N] = {"its own network, no internet", sub[0], "add one, typed on your phone", sub[1], "send check-ins, on demand"};
+  const int rh = LG() ? 94 : 84;
   for (int i = 0; i < WIFI_HOME_N; i++) {
     const int y = 100 + i * rh;
     C->icon(i == 3 ? IC_CHECK : IC_WIFI, M + 4, y + (rh - 36) / 2, 36);
-    C->text(fB(), M + 60, y + (LG() ? 42 : 38), LABEL[i]);
-    C->text(fS(), M + 60, y + (LG() ? 80 : 66), SUB[i], &fSym());
+    C->text(fB(), M + 60, y + (LG() ? 40 : 34), LABEL[i]);
+    C->text(fS(), M + 60, y + (LG() ? 76 : 60), SUB[i], &fSym());
     C->hline(M, y + rh - 4, CW);
     if (i == WV.sel) C->invert(M - 8, y + 2, CW + 16, rh - 8);
   }
   static const char* HELP[WIFI_HOME_N] = {
-    "The X4 makes its own network. Your phone joins it. Nothing reaches the internet.",
-    "The X4 joins a network you saved and serves the same page there. Only devices on that network can open it, and changes need the PIN shown here.",
-    "Add a network. The X4 makes a hotspot, you open its page on your phone, pick your network and type its password there.",
-    "Networks kept on the card. Connect to one, or forget it: its password is deleted."};
+    "Its own network: your phone joins it. No internet, and nothing is sent anywhere.",
+    "Joins a saved network and serves the page there. Changes need the PIN. Nothing is sent to the internet.",
+    "Add a network. Open the hotspot page on your phone and type the password there.",
+    "Networks kept on the card. Connect to one, or forget it and its password.",
+    "Sends your check-in log to your own Studio, only when you press Send. Off until you switch it on."};
   wifiHelp(100 + WIFI_HOME_N * rh + 22, HELP[WV.sel]);
   hintBar("Back", "Open", "", "");
 }
@@ -1048,6 +1054,26 @@ static void drawWifiForget() {
   hintBar("Keep", "Forget", "", "");
 }
 
+
+// ---- Sync with Studio (BUILD-PLAN N2): a preview of what would be sent, then Send. Nothing is sent until Send is pressed. ----
+static std::string kbText(long b) { char t[24]; if (b < 1024) snprintf(t, sizeof t, "%ld bytes", b); else snprintf(t, sizeof t, "%.1f KB", b / 1024.0); return t; }
+static void drawSyncPre() {
+  C->clear();
+  header("Sync with Studio", "", IC_WIFI);
+  const int lh = LG() ? 36 : 30;
+  int y = 140;
+  y = wrapAll(fS(), M, y, CW, std::string("TO  ") + SC.host, lh - 4) + 6;
+  y = wrapAll(fS(), M, y, CW, std::string("OVER  ") + (NC.cfg.n ? NC.cfg.nets[WV.net].ssid : "no network"), lh - 4, &fSym()) + 14;
+  y = wrapAll(fB(), M, y, CW, SC.log ? "Check-in log: ON" : "Check-in log: OFF", lh + 4) + 10;
+  std::string will;
+  if (!SC.log) will = "Nothing will be sent. The log holds health check-ins, so it stays off until you switch it on (Right).";
+  else if (SP.pending == 0) will = "Nothing new: the Studio already has everything from the last sync.";
+  else will = "Will send " + kbText(SP.pending) + " from " + std::to_string(SP.files) + (SP.files == 1 ? " month" : " months") + " of check-ins and Focus counts.";
+  y = wrapAll(fBody(), M, y, CW, will, lh) + 10;
+  if (SP.last) y = wrapAll(fS(), M, y, CW, "Last sent " + dateStr(SP.last) + " " + clockStr(SP.last), lh - 4) + 6;
+  wrapAll(fS(), M, y, CW, "Only the log is sent: never the safety plan, Wi-Fi passwords, books or this token.", LG() ? 29 : 24);
+  hintBar("Back", "Send", NC.cfg.n > 1 ? "Network" : "", SC.log ? "Log off" : "Log on");
+}
 static void drawWifiMsg() {
   C->clear();
   header("Wi-Fi", "", IC_WIFI);
@@ -1177,6 +1203,7 @@ static void drawSync() {
     case Wv::Saved: drawWifiSaved(); break;
     case Wv::Forget: drawWifiForget(); break;
     case Wv::Msg: drawWifiMsg(); break;
+    case Wv::SyncPre: drawSyncPre(); break;
   }
 }
 
@@ -1412,6 +1439,26 @@ static void wifiBegin(int what, int idx = 0) {  // 0 hotspot, 1 hotspot to join 
   render(false);
 }
 static void wifiMsg(const char* head, const char* msg, Wv next) { WV.v = Wv::Msg; WV.head = head; WV.msg = msg; WV.sel = (int)next; render(false); }
+static void syncPre() {
+  NC.load(); syncLoad(SC); syncPlan(SP);
+  WV.fromSync = true;
+  if (NC.cfg.n == 0) { wifiMsg("No network saved", syncResText(SyncRes::NoNetwork), Wv::Home); return; }
+  if (!SC.ok()) { wifiMsg("Not set up", syncResText(SyncRes::NotSetUp), Wv::Home); return; }
+  WV.net = NC.cfg.last >= 0 ? NC.cfg.last : 0;
+  WV.v = Wv::SyncPre; render(false);
+}
+static void syncGo() {   // the ONE call to syncRun: Send on the preview screen
+  WV.v = Wv::Msg; WV.head = "Sending…"; WV.msg = "Joining your Wi-Fi and sending your check-ins. Press Back to stop."; WV.busy = true; WV.sel = (int)Wv::Home; render(false);
+  const SyncOut o = syncRun(NC.cfg, WV.net);
+  WV.busy = false;
+  static char m[420];
+  if (o.res == SyncRes::Ok) snprintf(m, sizeof m, "%d %s, %s, went to %s.%s", o.files, o.files == 1 ? "month" : "months", kbText(o.bytes).c_str(), SC.host, o.skipped ? " The Studio already holds more of some months; those were left alone." : "");
+  else snprintf(m, sizeof m, "%s", syncResText(o.res));
+  if (o.res == SyncRes::Cancelled && o.bytes) snprintf(m, sizeof m, "Stopped after %s. What was sent is kept; the rest goes next time.", kbText(o.bytes).c_str());
+  WV.fromSync = true;
+  wifiMsg(o.res == SyncRes::Ok ? "Sent" : o.res == SyncRes::NothingNew ? "Up to date" : o.res == SyncRes::Cancelled ? "Stopped" : "Not sent", m, Wv::Home);
+}
+
 static void wifiTick() {
   NC.tick();
   const int sg = wifiSig();
@@ -1437,6 +1484,7 @@ static void wifiKey(Btn b) {
       else if (b == Btn::Confirm) {
         if (WV.sel == 0) wifiBegin(0);
         else if (WV.sel == 2) wifiBegin(1);
+        else if (WV.sel == 4) syncPre();
         else if (c.n == 0) wifiMsg("Nothing saved yet", "Choose Join a network first. You type the password on your phone, and the X4 remembers the network on its card.", Wv::Home);
         else if (WV.sel == 1 && c.n == 1) wifiBegin(2, 0);
         else { WV.v = Wv::Saved; WV.sel = c.last >= 0 ? c.last : 0; render(false); }
@@ -1459,9 +1507,15 @@ static void wifiKey(Btn b) {
       }
       break;
     case Wv::Msg: {
-      if (b == Btn::Back || b == Btn::Confirm) { WV.v = (Wv)WV.sel; WV.sel = WV.v == Wv::Saved ? 0 : 1; render(false); }
+      if (b == Btn::Back || b == Btn::Confirm) { WV.v = (Wv)WV.sel; WV.sel = WV.v == Wv::Saved ? 0 : WV.fromSync ? 4 : 1; WV.fromSync = false; render(false); }
       break;
     }
+    case Wv::SyncPre:
+      if (b == Btn::Back) { WV.v = Wv::Home; WV.sel = 4; WV.fromSync = false; render(false); }
+      else if (b == Btn::Confirm) syncGo();
+      else if (b == Btn::Left && c.n > 1) { WV.net = (WV.net + 1) % c.n; render(true); }
+      else if (b == Btn::Right) { if (!syncSaveLog(SC, !SC.log)) wifiMsg("Not saved", "The card wouldn't save that setting.", Wv::SyncPre); else render(true); }
+      break;
   }
 }
 

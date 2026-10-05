@@ -11,6 +11,7 @@ import { serializeSnapshot, emptySnapshot, toObjects, slugify, scanForbidden, PA
 import { diffSnapshots } from './diff.mjs';
 import { collab } from './collab.mjs';
 import { releases } from './releases.mjs';
+import { devices } from './devices.mjs';
 
 const RANK = { viewer: 1, editor: 2, owner: 3 };
 const BRANCH_RE = /^[A-Za-z0-9][A-Za-z0-9._\/-]{0,63}$/;
@@ -18,7 +19,7 @@ const MAX_ASSET = 5 * 1024 * 1024;
 const isBranchName = (n) => typeof n === 'string' && BRANCH_RE.test(n) && !n.includes('..') && !n.endsWith('/') && !n.endsWith('.lock') && !/[/.]$/.test(n);
 
 export class Studio {
-  constructor(db, { now = () => new Date().toISOString() } = {}) { this.db = db; this.now = now; this.auth = new Auth(db, now); }
+  constructor(db, { now = () => new Date().toISOString(), nowMs = () => Date.now() } = {}) { this.db = db; this.now = now; this.nowMs = nowMs; this.auth = new Auth(db, now); }
 
   // ---------- access ----------
   _role(projectId, user) {
@@ -398,4 +399,5 @@ export class Studio {
 }
 Object.assign(Studio.prototype, collab); // G2: forks, proposals, merges (collab.mjs)
 Object.assign(Studio.prototype, releases); // G3: releases and reusable pages (releases.mjs)
+Object.assign(Studio.prototype, devices); // N2: X4 device tokens and the private check-in log (devices.mjs)
 export { StudioError };

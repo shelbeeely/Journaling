@@ -18,7 +18,7 @@ the three things paper can't:
 
 Plus a **Wi-Fi page** (Menu → Wi-Fi, see "Wi-Fi" below): the X4 makes its own hotspot (or joins your own Wi-Fi), shows a QR code to join, and
 serves a page at 192.168.4.1 (labelled fields, 44 px buttons, spoken result messages, no external files) to set the clock from your phone, download your books (PDF/EPUB) and
-check-in logs (download this month's when you close it), edit your safety plan, and upload new month packs. Nothing goes to the internet.
+check-in logs (download this month's when you close it), edit your safety plan, and upload new month packs. The hotspot and the page never touch the internet. The only thing that ever leaves the X4 is a **sync you start** (Wi-Fi, Sync with Studio, below), and only on the sync build.
 
 ## The day starts when you wake
 
@@ -69,13 +69,14 @@ see where you are: **Interrupted** (Confirm, during work) marks an interruption 
 
 ## Wi-Fi (Menu, Wi-Fi)
 
-The Wi-Fi screen has two modes, and the radio is **off until you pick one** (it says "radio off" at the top). Leaving the screen, pressing Power or waiting until it sleeps turns the radio and the web server off and frees their memory. Nothing runs in the background, and nothing is sent to the internet in this version (sync with a Studio account is a later, separate step that you start yourself).
+The Wi-Fi screen has two modes, and the radio is **off until you pick one** (it says "radio off" at the top). Leaving the screen, pressing Power or waiting until it sleeps turns the radio and the web server off and frees their memory. Nothing runs in the background. Hotspot, On my Wi-Fi and Join send nothing to the internet. The one thing that can is **Sync with Studio** (its own section below): it runs only when you press Send, and only on the sync build.
 
 | Row | What it does |
 | --- | --- |
 | **Hotspot** | Today's way: the X4 makes its own network (a new name and password each time, shown with a QR code). The page is at `192.168.4.1`. No internet needed. |
 | **On my Wi-Fi** | The X4 joins a network you saved and serves the same page there. With one saved network it joins at once; with several it opens the list. |
 | **Join a network** | Adds a network. The X4 makes its hotspot, you open the page on your phone, pick your network under **Wi-Fi** and type its password **on the phone** (typing on the X4's buttons is painful). The X4 tries it: if it works the network is saved and the X4 moves onto it, if not the reason is shown on both screens and **nothing is saved**. |
+| **Sync with Studio** | Sends your check-in log to your own Studio account, only when you press Send. See "Sync with your Studio" below. |
 | **Saved networks** | Up to 8. Confirm connects, Forget (Right) asks first and then deletes the network and its password from the card. |
 
 **On your Wi-Fi the screen shows** the address (for example `192.168.1.42`), the name (`keeping-watch.local`, which you choose on the page: letters, digits and hyphens, up to 24; some Android phones do not resolve `.local`, so the address is always shown too), a QR code that opens the page in one scan, and a **PIN**.
@@ -92,10 +93,43 @@ The Wi-Fi screen has two modes, and the radio is **off until you pick one** (it 
 - Wi-Fi passwords live in **`/kw/net.txt` on the SD card, in plain text**, and the file's first lines say so. **This file contains passwords: do not share the card or the file.** It is never uploaded, never logged (no screen, serial line or answer ever carries one), never sent anywhere, and the page cannot download or replace it. Delete the file, or Forget a network on the screen, to remove them. It also holds the name you chose (`name=`). Format: `name=<name>`, `last=<n>`, and one `net=<ssid><TAB><password>` line per network.
 - The radio driver is told not to keep anything of its own (`WiFi.persistent(false)`), so the card file is the only copy.
 - The PIN is never in an answer and never written anywhere; the page keeps its access in a cookie that only that device sends (SameSite=Strict, HttpOnly) and that dies when you leave the screen.
-- Only the joined network's own access point is contacted (its address, gateway and name service): the firmware has **no call that connects to any other host**, no time-from-internet, no timers and no wake source but the 4:31 a.m. and Focus clock. `host/test_off.sh` proves it: it audits the source, runs every way out of every mode on a simulated network and checks the radio is off, and checks the radio log holds only the allowed calls.
+- Only the joined network's own access point is contacted (its address, gateway and name service): the Wi-Fi modes have **no call that connects to any other host** (the one exception is Sync with Studio, below), no time-from-internet, no timers and no wake source but the 4:31 a.m. and Focus clock. `host/test_off.sh` proves it: it audits the source, runs every way out of every mode on a simulated network and checks the radio is off, and checks the radio log holds only the allowed calls.
 - On your Wi-Fi the page is plain `http` on your own network. Anyone else on that network can see the traffic and the PIN as you type it, and could try the PIN (five tries, then locked). Use it on a network you trust, and prefer the hotspot when you are away from home.
 
 **Memory.** The screen owns the radio and its RAM while it runs. Everything big is static (the answer buffer is one 3 KB array), nothing large is on the 16 KB loop stack, and the web server is created when a mode starts and deleted when it stops. `pio run -e x4-tls` links the SDK's SecureNet (wolfSSL TLS 1.3) so CI can size it for sync; CI prints RAM, flash and the wolfSSL heap peak from a real handshake run on a PC, and fails if less than 32 KB would be left with a TLS session open (`tls/budget.py`). At N1: static RAM +7 KB, flash +69 KB for everything in this section; with TLS linked, another +0.7 KB RAM and +165 KB flash; wolfSSL's own heap peak is 19 to 28 KB. The device prints `[mem]` lines on its USB serial at each stage and `GET /api/info` carries the same three numbers, so the real figure can be read on hardware.
+
+## Sync with your Studio (Wi-Fi, Sync with Studio; BUILD-PLAN section 19, slice N2)
+
+Sends your **check-in log** (`/kw/log/YYYY-MM.csv`, which also holds the Focus counts) to **your own** Journalwright Studio account, so there is a private backup and
+the Keeper numbers can be read elsewhere. It is **only** that: never the safety plan, the Wi-Fi file, the packs, the books or the token. Down-sync, the on-device
+editor and pairing by short code are later slices (N3); this one is upload only.
+
+**It needs the sync build.** The default image (`pio run -e x4`) has no TLS: the row is there, says so, and sends nothing. `pio run -e x4-tls` is the same firmware
+with the SDK's TLS client (wolfSSL, TLS 1.3 with a 1.2 fallback) linked in; that is the image to flash for sync (about +180 KB flash and +1 KB static RAM over the default; the
+session's wolfSSL heap peak is 19 to 28 KB; CI keeps at least 32 KB spare).
+
+**Setup, once.**
+1. In the Studio (signed in), add a device: `POST /api/devices {name, server}` (see studio/README.md). The answer carries the token **once**, and the text of `sync.txt`.
+2. Put `sync.txt` and `studio-ca.pem` (the root certificate of the Studio's server: for a Let's Encrypt site that is ISRG Root X1; for your own CA, that CA) in the card's `kw-update` folder.
+   On the next boot the X4 moves them to `/kw`. Use a **DNS name** for the server (`studio.example.com` or `studio.example.com:8443`), not an address: the name is checked.
+3. Set the clock (Menu, Clock): the certificate has dates. Join your Wi-Fi once (Wi-Fi, Join a network).
+
+**Using it.** Wi-Fi, Sync with Studio opens a **preview** and sends nothing: the server, the network it would use (Left changes it when you saved several), whether the check-in
+log is **ON or OFF** (Right switches it; **off until you switch it on**, because it is health data), and how much is waiting (only bytes added since the last sync). **Send** joins
+that network, talks to the Studio, uploads, and leaves the radio off. Back stops it (what already went is kept). It never runs by itself, never on a timer, and never wakes the radio on its own.
+
+**Safety.** Trust is the one certificate you put on the card (nothing is ever sent with verification off). The SDK's own TLS client checks the certificate chain but not the host name,
+so `net/hostcheck.cpp` adds it: the `x4-tls` build links with `--wrap=wolfSSL_UseSNI` and every session arms `wolfSSL_check_domain_name` for the host in `sync.txt`. A session where that
+cannot be armed is made to fail, and before the token is sent the X4 first asks the Studio's public `/api/health` and refuses unless the check was in force. The token is sent only
+to the Studio's `/api/device/*` routes and can be revoked in the Studio at any moment; a lost card means revoke. Uploads go in 3 KB pieces at an exact byte offset, so a dropped connection
+or a repeated piece cannot duplicate or reorder lines, and the next sync carries on where the Studio says it is.
+
+**When it fails the screen says why and that nothing was sent:** no `sync.txt` or certificate, clock not set, log switched off, no saved network, the network refused or out of range,
+the Studio unreachable, certificate refused (not signed by your `studio-ca.pem`, wrong host name, or expired), not a Studio, token revoked or wrong, asked to slow down, Studio error or full.
+
+Tests: `host/test_sync.sh` (the device's sync code on a simulated Studio with the server's offset rules: chunks, resume, stop, every failure and message, the log-only rule),
+`host/test_off.sh` (the only way to reach a host is the marked block in `hal_x4.cpp`, reached only from Send), `tls/hostcheck_test.sh` (real handshakes on a PC: right name passes, other name fails).
+**Not tested** without hardware and a live Studio: a real TLS session on the chip, heap and time during a real sync, the real Wi-Fi join, Back during a real transfer.
 
 ## Which build am I on?
 
@@ -155,6 +189,9 @@ With **large text** on, Up/Down page through Today and This month (Left/Right st
 /kw/clock.txt                   last known time (used after the battery runs flat)
 /kw/net.txt                     saved Wi-Fi networks. CONTAINS WI-FI PASSWORDS IN PLAIN TEXT: never uploaded or logged; do not share the card
 /kw/net.tmp                     only exists for an instant while net.txt is saved (safe to delete)
+/kw/sync.txt                    Studio sync: server, device TOKEN (a secret, plain text, never uploaded, shown or served), and log=0|1. Do not share the card
+/kw/studio-ca.pem               the root certificate of your Studio server: the only certificate the X4 will trust for sync
+/kw/sync-state.txt              what the last sync sent, per month (safe to delete: the Studio's own size decides what is resent)
 /kw-update/                     the update inbox (below); empty and deleted after each boot
 ```
 

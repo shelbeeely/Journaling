@@ -90,6 +90,7 @@ The product is **Journalwright Studio**; *Keeping Watch* is Shelbee's own book (
    - timer-wake drift over a few nights
    - web upload speed
    - after that: dual boot with CrossPoint and a Closing-the-month walkthrough
+4b. **N2 sync (built, unverified on hardware):** `x4-tls` image, Wi-Fi > Sync with Studio, `studio/` device tokens. Needs a first real run: flash `x4-tls`, add a device, copy `sync.txt` and `studio-ca.pem`, Send; read the serial `[mem]` lines. Left: short-code pairing, a Studio devices screen, down-sync (N3).
 5. **X4 ↔ editor:** optionally let custom Checkboxes/Scale blocks become X4 check-in items. Ask Shelbee first.
 6. **Each edition:** re-check the phone numbers in `journal/packs/spokane-wa/` (`support.json`, `trans.json`, `clinic.json`): the 7 items flagged `checkBeforePrinting` first (call, then give each a `verified` note), then reseal (`node packs-cli.mjs seal spokane-wa`).
    Refresh the 2027 pay periods once they're confirmed. Order one KDP proof per size before buying copies.

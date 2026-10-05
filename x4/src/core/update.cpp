@@ -3,7 +3,7 @@
 // the folder, or a partial copy can never delete or overwrite what only the X4 holds:
 //   /kw/log/   her check-ins       (never listed, never touched)
 //   /kw/me.txt her safety plan     (replaced by nothing; a me.txt in the update is used only if there is none yet)
-// Only these names are taken: YYYY-MM.txt, support.txt, checkins.txt, and library/*.pdf|*.epub. Anything else
+// Only these names are taken: YYYY-MM.txt, support.txt, checkins.txt, sync.txt + studio-ca.pem (the Studio device file and its certificate, N2), and library/*.pdf|*.epub. Anything else
 // in /kw-update (me.example.txt, .DS_Store, stray files) is deleted with the folder. A file that fails to move
 // stays put, so the next boot tries again.
 #include "update.h"
@@ -34,7 +34,7 @@ static int moveAll(const char* from, const char* to, bool library) {
       snprintf(dst, sizeof dst, "%s/%s", to, names[i]);
       const char* nm = names[i];
       bool take = library ? (endsWith(nm, ".pdf") || endsWith(nm, ".epub")) && nm[0] != '.'
-                          : packName(nm) || !strcmp(nm, "support.txt") || !strcmp(nm, "checkins.txt") || (!strcmp(nm, "me.txt") && !hal::exists("/kw/me.txt"));
+                          : packName(nm) || !strcmp(nm, "support.txt") || !strcmp(nm, "checkins.txt") || !strcmp(nm, "sync.txt") || !strcmp(nm, "studio-ca.pem") || (!strcmp(nm, "me.txt") && !hal::exists("/kw/me.txt"));
       if (!take) { if (hal::removeFile(src)) handled++; continue; }  // never adopted: me.txt over an existing plan, junk
       hal::removeFile(dst);  // the new pack replaces the old one (dst is never me.txt over an existing plan, see above)
       if (hal::renameFile(src, dst)) { moved++; handled++; }

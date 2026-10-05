@@ -28,8 +28,8 @@ jobs:
       - name: Build
         shell: bash
         run: pio run -d x4 -e x4 2>&1 | tee x4-build.log
-      # Memory: the same firmware with the SDK's SecureNet (wolfSSL TLS 1.3) linked in, to size it. N1 makes no TLS call; sync (N2) will.
-      - name: Build with TLS linked (size only)
+      # The sync build: the same firmware with the SDK's SecureNet (wolfSSL TLS 1.3) linked in and the sync client (N2). The default x4 image has no TLS.
+      - name: Build the sync image (x4-tls)
         shell: bash
         run: pio run -d x4 -e x4-tls 2>&1 | tee x4-tls-build.log
       - name: TLS heap probe and memory budget (fails if under 32 KB is left with a TLS session open)
@@ -37,6 +37,16 @@ jobs:
         run: |
           x4/tls/heap_probe.sh | tee heap-probe.txt
           python3 x4/tls/budget.py x4-build.log x4-tls-build.log heap-probe.txt 66668 1556787   # last two: static RAM and flash of main before N1
+      # N2: the SDK's SecureClient does not check the server's host name; net/hostcheck.cpp adds it (linked with --wrap in x4-tls). Real handshakes on a PC.
+      - name: Host name check test (right name passes, other name and unarmed check fail)
+        shell: bash
+        run: x4/tls/hostcheck_test.sh
+      - name: The host name check is really wired into the x4-tls image
+        shell: bash
+        run: |
+          T=$(ls -d ~/.platformio/packages/toolchain-riscv32-esp/bin)
+          $T/riscv32-esp-elf-objdump -d --no-show-raw-insn x4/.pio/build/x4-tls/firmware.elf | grep -E 'jal.*<__wrap_wolfSSL_UseSNI>' | grep -q . || { echo "SecureClient does not call the wrapper"; exit 1; }
+          echo "SecureClient calls __wrap_wolfSSL_UseSNI"
       - name: Merge a single flashable image (offset 0x0)
         run: |
           B=x4/.pio/build/x4

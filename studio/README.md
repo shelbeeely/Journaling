@@ -137,9 +137,29 @@ Migrations live in `migrations/NNN_name.sql`, applied in order and recorded in `
         POST .../proposals/:n/merge  {expectedHeads, resolutions?, message?}  a merge commit, two parents
         POST /api/projects/:id/merge/preview {into?, from: {project?, ref}}   POST /api/projects/:id/merge {into?, from, expectedHeads, resolutions?}
 
+    N2  GET|POST /api/devices                             POST {name, server?} -> 201 {device, token, syncTxt}: the token is in this answer ONLY
+        POST /api/devices/:id/revoke                      GET .../:id/audit   GET .../:id/logs (months, sizes)   GET .../:id/logs/:YYYY-MM (the CSV, owner only)
+        DELETE /api/devices/:id/logs[?month=YYYY-MM]      delete what a device sent
+        GET  /api/device/info                             device token: its name and the month logs it has sent {month, size}
+        POST /api/device/log/:YYYY-MM                     device token, header X-Offset: bytes, body: text (at most 16 KB): appends at EXACTLY the stored size, else 409 {details.size}
+
 The diff (`src/diff.mjs`, also inlined into the editor) reports `added`, `removed`, `moved`, `changed[{key,before,after}]` for **book pages by
 page id** (including the month/week lists and per-month overrides) and **day blocks by uid** (care rows by row id), plus meta, print, assets
 and components. Moves are minimal (only the items that changed order).
+
+## X4 device sync (N2): device tokens and the private check-in log
+
+A signed-in user adds a device (their X4). The token (`kwd_<id>_<43 random chars>`) is shown **once**; only its sha256 is stored. It is a different credential from a sign-in: it is
+accepted on `/api/device/*` only (a device token reads nothing else, and a session token does not work there), it belongs to one account (another account's device does not exist for you: 404),
+it can be revoked at once (a revoked, wrong, malformed or unknown token all get the same `401 device_token`), and it has one scope, `log:write`.
+Limits (`src/devices.mjs` LIMITS): 120 requests per 10 minutes per token, 20 wrong tokens per 10 minutes per address (then 429 with `Retry-After`, even for a good token from that address; behind a reverse proxy
+every client shares the proxy's address, so that limit is shared), 16 KB per request, 2 MB per month, 16 MB and 36 months per device, 10 active devices per account. The audit trail (`created`, `upload month +bytes`,
+`rejected`, `revoked`, `logs_deleted`) holds no log content, token or address.
+
+**The log is private.** Uploads land in `device_logs` (migration 004), apart from `objects` (the snapshot store): never in a project, commit, snapshot, fork, proposal or export, and readable only by the owner, as an
+attachment with `Cache-Control: no-store`. `snapshot.mjs` refuses it anyway if anyone tries to put it there: the keys `log`, `logs`, `checkins`, `device(s)`, `deviceLog`, paths such as `kw/log`, `kw/sync`, `sync.txt` and `YYYY-MM.csv`,
+a `kwd_` token, and check-in log lines are all forbidden content. The device's side of the protocol and its X4 setup are in `x4/README.md`, "Sync with your Studio". Tests: `test/devices.test.mjs`.
+Not built yet: a Studio screen for devices (the API is complete), pairing by a short code shown on the X4, and the X4 reading anything back (down-sync is N3).
 
 ## The editor's Versions drawer (guests and accounts)
 

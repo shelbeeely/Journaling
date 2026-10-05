@@ -19,9 +19,15 @@
 #include <XteinkDetect.h>
 #include "../net/webpage.h"
 #include "../core/net.h"
+#include "../core/sync.h"
 
 #ifdef FREEINK_NET_WOLFSSL
 bool kwTlsProbe();  // net/tlsprobe.cpp
+// KW-SYNC-BEGIN: the only place the firmware names the SDK's TLS client (host/test_off.sh audits this).
+#include <SecureHttpClient.h>
+extern "C" unsigned kwHostChecks();      // net/hostcheck.cpp: how many TLS sessions had a host name check armed
+extern "C" unsigned kwHostCheckFails();  // ... and how many could not be armed (those handshakes are made to fail)
+// KW-SYNC-END
 #endif
 static EInkDisplay display(BoardConfig::ACTIVE.display.sclk, BoardConfig::ACTIVE.display.mosi, BoardConfig::ACTIVE.display.cs,
                            BoardConfig::ACTIVE.display.dc, BoardConfig::ACTIVE.display.rst, BoardConfig::ACTIVE.display.busy);
@@ -29,6 +35,7 @@ static InputManager input;
 static SDCardManager sdcard;
 static WebServer* server = nullptr;
 static bool sdOk = false;
+static constexpr size_t SYNC_BASE_MAX = 120;
 
 // Survives deep sleep (not a battery power-off): whether the clock was set by a person since power-up.
 RTC_DATA_ATTR static bool clockTrusted = false;
@@ -242,7 +249,7 @@ static bool serverStart() {
     String j = "{\"now\":" + String((long long)time(nullptr)) + ",\"trusted\":" + (clockTrusted ? "true" : "false") +
                ",\"battery\":" + String(batteryPercent()) + ",\"files\":[";
     bool first = true;
-    for (auto& n : sdcard.listFiles("/kw", 100)) { if (n == "net.txt" || n == "net.tmp") continue; j += (first ? "\"" : ",\"") + n + "\""; first = false; }
+    for (auto& n : sdcard.listFiles("/kw", 100)) { if (n == "net.txt" || n == "net.tmp" || n == "sync.txt" || n == "sync.tmp") continue; j += (first ? "\"" : ",\"") + n + "\""; first = false; }
     j += "],\"logs\":[";
     first = true;
     for (auto& n : sdcard.listFiles("/kw/log", 100)) { j += (first ? "\"" : ",\"") + n + "\""; first = false; }
@@ -388,6 +395,69 @@ bool wifiMdns(const char* name) {
 }
 uint32_t random32() { return esp_random(); }
 void memInfo(uint32_t* f, uint32_t* lo, uint32_t* blk) { *f = ESP.getFreeHeap(); *lo = ESP.getMinFreeHeap(); *blk = ESP.getMaxAllocHeap(); }
+
+// ---------- Sync with the user's Studio (BUILD-PLAN N2): the only code that talks to a host that is not the joined network's own router ----------
+bool wifiStartSync() { WiFi.persistent(false); WiFi.mode(WIFI_STA); WiFi.setAutoReconnect(false); return true; }   // no web server, no mDNS, no hotspot
+void pauseMs(uint32_t ms) { delay(ms); }
+bool syncAbort() { input.update(); return input.wasPressed(InputManager::BTN_BACK); }
+long fileSize(const char* path) { if (!sdOk) return -1; FsFile f = sdcard.open(path, O_RDONLY); return f ? (long)f.size() : -1; }
+int readAt(const char* path, uint32_t offset, uint8_t* buf, int cap) {
+  if (!sdOk) return -1;
+  FsFile f = sdcard.open(path, O_RDONLY);
+  if (!f || !f.seekSet(offset)) return -1;
+  return f.read(buf, cap);
+}
+// KW-SYNC-BEGIN
+#ifdef FREEINK_NET_WOLFSSL
+static freeink::SecureHttpClient* sh = nullptr;
+static char shBase[SYNC_BASE_MAX];
+bool syncBuilt() { return true; }
+void syncClose() { if (sh) { sh->end(); delete sh; sh = nullptr; } }
+static SyncNet shGet(const char* path, int* code, char* reply, size_t cap) {
+  size_t n = 0; if (cap) reply[0] = 0;
+  sh->begin(std::string(shBase) + path);
+  sh->addHeader("Accept", "application/json");
+  *code = sh->sendRequest("GET", nullptr, 0, [&](const uint8_t* d, size_t l) { for (size_t i = 0; i < l && n + 1 < cap; i++) reply[n++] = (char)d[i]; if (cap) reply[n] = 0; return true; }, [] { return syncAbort(); });
+  return *code < 0 ? (sh->aborted() ? SyncNet::Aborted : SyncNet::Tls) : SyncNet::Ok;
+}
+SyncNet syncOpen(const char* host, uint16_t port, const char* caPem) {
+  syncClose();
+  { WiFiClient probe; probe.setConnectionTimeout(8000); if (!probe.connect(host, port)) return SyncNet::Unreachable; probe.stop(); }   // name resolves and the port answers
+  sh = new (std::nothrow) freeink::SecureHttpClient();
+  if (!sh) return SyncNet::Failed;
+  sh->setCACert(caPem);               // the pinned CA is the only trust anchor; verification is never switched off
+  sh->setTimeout(15000); sh->setReuse(true); sh->setUserAgent("KeepingWatch-X4");
+  snprintf(shBase, sizeof shBase, "https://%s:%u", host, (unsigned)port);
+  const unsigned before = kwHostChecks();
+  static char hello[200]; int code = 0;
+  const SyncNet r = shGet("/api/health", &code, hello, sizeof hello);   // no token yet: a wrong server learns nothing
+  logMem("tls session");
+  if (r != SyncNet::Ok) { syncClose(); return r; }
+  if (kwHostChecks() == before || kwHostCheckFails()) { syncClose(); return SyncNet::NoHostCheck; }   // the host name check was not in force: refuse
+  if (code != 200 || !strstr(hello, "journalwright-studio")) { syncClose(); return SyncNet::WrongServer; }
+  return SyncNet::Ok;
+}
+SyncNet syncRequest(const char* method, const char* path, const char* token, long offset, const uint8_t* body, size_t len, int* code, char* reply, size_t cap, int* retryAfter) {
+  if (!sh) return SyncNet::Failed;
+  if (kwHostCheckFails()) return SyncNet::NoHostCheck;   // never send the token on a session whose host name check could not be armed
+  size_t n = 0; if (cap) reply[0] = 0;
+  sh->begin(std::string(shBase) + path);
+  sh->addHeader("Accept", "application/json");
+  if (token) sh->addHeader("Authorization", std::string("Bearer ") + token);
+  if (offset >= 0) sh->addHeader("X-Offset", std::to_string(offset));
+  if (body) sh->addHeader("Content-Type", "text/csv");
+  *code = sh->sendRequest(method, body, len, [&](const uint8_t* d, size_t l) { for (size_t i = 0; i < l && n + 1 < cap; i++) reply[n++] = (char)d[i]; if (cap) reply[n] = 0; return true; }, [] { return syncAbort(); });
+  if (*code < 0) return sh->aborted() ? SyncNet::Aborted : SyncNet::Tls;
+  if (retryAfter) *retryAfter = atoi(sh->getHeader("retry-after").c_str());
+  return SyncNet::Ok;
+}
+#else
+bool syncBuilt() { return false; }
+void syncClose() {}
+SyncNet syncOpen(const char*, uint16_t, const char*) { return SyncNet::NotBuilt; }
+SyncNet syncRequest(const char*, const char*, const char*, long, const uint8_t*, size_t, int*, char*, size_t, int*) { return SyncNet::NotBuilt; }
+#endif
+// KW-SYNC-END
 
 // ---------- sleep ----------
 // Unlike CrossPoint's "off" (which drops GPIO13 and cuts the battery), this keeps the battery latch
