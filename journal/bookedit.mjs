@@ -34,10 +34,10 @@ export function flowBook(entries, cat, opts = {}) {
   const specsOf = (entry, k) => {
     if (REPEATS.includes(entry.type)) { // Notes and Collection pages: the layout of blocks the entry carries (none: the starting page)
       const base = entry.type === 'notes' ? 'Notes' : 'Collection', t = (entry.options && entry.options.title) || base;
-      const html = entry.layout ? kindPage(entry.type, t, entry.layout, opts.size) : entry.type === 'notes' ? notesHtml(cat, t) : kindPage('collection', t, null, opts.size);
+      const html = entry.layout ? kindPage(entry.type, t, entry.layout, opts.size, { pageId: entry.id }) : entry.type === 'notes' ? notesHtml(cat, t) : kindPage('collection', t, null, opts.size);
       return [{ cls: 'notes', type: entry.type, id: entry.id, label: t, html }];
     }
-    if (entry.type === 'blank' && entry.layout) return [{ cls: '', type: 'blank', id: 'blank', label: '', shared: false, html: kindPage('blank', '', entry.layout, opts.size) }];
+    if (entry.type === 'blank' && entry.layout) return [{ cls: '', type: 'blank', id: 'blank', label: '', shared: false, html: kindPage('blank', '', entry.layout, opts.size, { pageId: entry.id }) }];
     return ((cat.occ || {})[entry.type] || [])[k] || [];
   };
   const emit = (entry, k) => {

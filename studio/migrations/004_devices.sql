@@ -1,4 +1,4 @@
--- Journalwright Studio schema, migration 003 (N2: X4 device sync).
+-- Journalwright Studio schema, migration 004 (N2: X4 device sync).
 -- A device is the user's own X4, paired with ONE account. Its token is a separate credential from a sign-in session: it is stored only
 -- as a sha256, it can be revoked at any time, and the server accepts it only on /api/device/*. The check-in log a device uploads lives in
 -- its own tables, apart from `objects` (the snapshot store): a log is health data, never part of a project, a snapshot, a fork or an export.

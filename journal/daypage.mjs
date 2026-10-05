@@ -4,6 +4,9 @@
 // Fixed, never in the layout: the DATE/TITLE/TAGS header (top). The scan frame, the page code and the SEND TO strip (bottom) are
 // the page's scan marks (scan.mjs): on by default; the layout's `scan` setting and a `sendto` block change them, opt-in.
 import { SEND_KEYS, SEND_LABELS, SEND_SIZES, sendBlockHtml, cleanScan, SCAN_CSS } from './scan.mjs';
+import { PZ_WS_MIN, PZ_WS_MAX } from './puzzles/wordsearch.mjs';
+import { PZ_CW_MIN, PZ_CW_MAX } from './puzzles/crossword.mjs';
+import { pzBlock, pzHeight, PZ_CSS } from './puzzles/render.mjs';
 
 export const IC = {
   pill: '<rect x="1.3" y="4" width="9.4" height="4" rx="2" transform="rotate(-35 6 6)"/><path d="M6 3.1 L6 8.9" transform="rotate(-35 6 6)"/>',
@@ -61,6 +64,8 @@ export const IC = {
   week: '<rect x="1" y="3" width="10" height="6" rx="1"/><path d="M3.5 3v6M6 3v6M8.5 3v6"/>',
   send: '<path d="M1.6 9.8h2.6M5 9.8h2.6M8.4 9.8h2"/><circle cx="2.9" cy="6.6" r="1.3" stroke-dasharray="1.4 1"/><path d="M6 6.6 8.2 2.4 10.4 6.6Z" fill="currentColor"/>',
   pixel: '<rect x="1.6" y="1.6" width="8.8" height="8.8" rx="1"/><path d="M1.6 6h8.8v4.4H1.6Z" fill="currentColor"/>',
+  wordsearch: '<rect x="1.4" y="1.4" width="9.2" height="9.2" rx="1"/><path d="M3.4 8.6 8.6 3.4"/>',
+  crossword: '<rect x="1.4" y="1.4" width="9.2" height="9.2" rx="1"/><path d="M1.4 4.5h9.2M1.4 7.5h9.2M4.5 1.4v9.2M7.5 1.4v9.2"/>',
 };
 export const ic = (k, t = '') => `<svg class="ic" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="${t || k}">${IC[k]}</svg>`;
 export const box = (label) => `<span class="ck"><i></i>${label ? `<span>${label}</span>` : ''}</span>`;
@@ -131,6 +136,15 @@ export const X4_MAXES = [5, 10, 20, 50, 99, 200, 999]; // "fields": the most the
 const BODYSIG = { stomach: 'Hungry', water: 'Thirsty', toilet: 'Toilet', temp: 'Hot/cold', tense: 'Tense', heart: 'Heart', tired: 'Tired' };
 const PAPER = { k: 'paper', kind: 'choice', label: 'Paper', choices: [['lines', 'Lines'], ['dots', 'Dot grid'], ['grid', '4 mm grid']], def: 'lines' };
 
+// Puzzle blocks (wordsearch, crossword): difficulty, where the words come from, and the seed (change it for a different puzzle).
+const PZ_LEVEL = (e, m, h, def = 'easy') => ({ k: 'difficulty', kind: 'choice', label: 'Difficulty', choices: [['easy', e], ['medium', m], ['hard', h]], def });
+const PZ_SOURCE = [
+  { k: 'source', kind: 'choice', label: 'Words from', choices: [['sample', 'Built-in lists'], ['pack', 'My puzzles pack'], ['custom', 'My own words']], def: 'sample' },
+  { k: 'theme', kind: 'text', label: 'List name (garden, kitchen, sky, calm, or your pack\'s)', def: 'garden', max: 24 },
+  { k: 'words', kind: 'list', label: 'My own words (crossword: word=clue, no commas)', def: [], max: 14, len: 52 },
+  { k: 'seed', kind: 'text', label: 'Seed (change it for a new puzzle)', def: '', max: 24 },
+];
+
 // group: where the block sits in the "Add blocks" palette.
 export const TYPES = {
   // ---- from your day (single) ----
@@ -189,6 +203,9 @@ export const TYPES = {
   prompt: { name: 'Rotating prompt', group: 'Writing', icon: 'text', hint: 'A prompt that changes by date: the same on any reprint', opts: [{ k: 'every', kind: 'choice', label: 'Changes', choices: [['day', 'Every day'], ['week', 'Every week']], def: 'day' }, N('n', 'Lines', 1, 8, 1), B('pass', 'Pass box', true), { ...PITCH, label: 'Row height' }] },
   pixel: { name: 'Day pixel', group: 'Check-ins', icon: 'pixel', hint: 'One square for the whole day: fill it to match the level you circle', opts: [{ k: 'levels', kind: 'choice', label: 'Levels', choices: [[5, '5'], [7, '7']], def: 5 }, B('key', 'Low and high words', true)] },
   range: { name: 'Low and high', group: 'Check-ins', icon: 'low', hint: 'The lowest and highest point of the day', opts: [T('Label', 'Low and high', 18), N('steps', 'Steps', 3, 7, 5), { k: 'lo', kind: 'text', label: 'Left word', def: 'flat', max: 10 }, { k: 'hi', kind: 'text', label: 'Right word', def: 'bright', max: 10 }] },
+  // ---- puzzles (puzzles/): seeded, the same puzzle on any reprint; paper only ----
+  wordsearch: { name: 'Word search', group: 'Puzzles', icon: 'wordsearch', hint: 'A letter grid with hidden words. Same page, same puzzle on every reprint. Paper only', opts: [T('Title', 'Word search', 24), N('size', 'Grid size', PZ_WS_MIN, PZ_WS_MAX, 10), PZ_LEVEL('Across and down', 'And diagonals', 'And backwards'), ...PZ_SOURCE, B('answers', 'Show answers', false), B('big', 'Large print', false)] },
+  crossword: { name: 'Crossword', group: 'Puzzles', icon: 'crossword', hint: 'A small crossword with its clues. Same page, same puzzle on every reprint. Paper only', opts: [T('Title', 'Crossword', 24), N('size', 'Largest grid', PZ_CW_MIN, PZ_CW_MAX, 9), PZ_LEVEL('Fewer, short words', 'More words', 'Most, longer words', 'medium'), ...PZ_SOURCE, B('answers', 'Show answers', false), B('big', 'Large print', false)] },
   // ---- layout ----
   divider: { name: 'Divider', group: 'Layout', icon: 'calm', hint: 'A thin line', opts: [{ k: 'icon', kind: 'choice', label: 'Icon', choices: [['none', 'None'], ['sun', 'Sun'], ['moon', 'Moon']], def: 'none' }] },
   sendto: { name: 'Send to', group: 'Layout', icon: 'send', hint: 'The symbol strip the scanner reads, anywhere on the page. Needs the scanning border on', opts: [
@@ -259,7 +276,7 @@ function fixOpt(o, v) {
     case 'choice': return o.choices.some(([c]) => c == v) ? o.choices.find(([c]) => c == v)[0] : d;
     case 'flags': return Object.fromEntries(Object.keys(o.items).map((k) => [k, v && v[k] !== undefined ? !!v[k] : d[k]]));
     case 'text': return v === undefined || v === null ? d : String(v).slice(0, o.max || 40);
-    case 'list': return (Array.isArray(v) ? v : typeof v === 'string' ? v.split(',') : d).map((x) => String(x).trim().slice(0, 24)).filter(Boolean).slice(0, o.max || 10);
+    case 'list': return (Array.isArray(v) ? v : typeof v === 'string' ? v.split(',') : d).map((x) => String(x).trim().slice(0, o.len || 24)).filter(Boolean).slice(0, o.max || 10);
   }
   return v;
 }
@@ -318,7 +335,7 @@ export function kindPage(kind, title, layout, size = 'small', opt = {}) {
     if (kind === 'notes') return notesPage(title);
     if (kind === 'blank') return '<div class="blankpage"></div>';
   }
-  return dayBlocks({ header: kindHeader(kind, title), routines: [] }, L, { size, kind, ...opt });
+  return dayBlocks({ header: kindHeader(kind, title), routines: [], seed: opt.pageId || title }, L, { size, kind, ...opt });
 }
 // True when a layout is the page kind's starting layout (an entry like that carries no `layout` at all: nothing to save).
 export const isDefaultLayout = (layout, kind, size = 'small') => !layout || JSON.stringify(normalize(layout, size, kind)) === JSON.stringify(normalize(defaultLayout(kind), size, kind));
@@ -463,6 +480,7 @@ const MINSPAN = {
   pixel: (b) => [b.levels > 5 ? 4 : 3, 0.342],
   range: (b, w) => [2, at([0.45, 0.45, 0.31, 0.2], w) * more(b.steps, 5)],
   sendto: (b) => { const z = SEND_SIZES[b.size] || SEND_SIZES.m, n = SEND_KEYS.filter((k) => b.symbols[k]).length; return [fitCols((b.label ? 55 : 0) + n * z.px + (n - 1) * 9.6 + (b.style === 'box' ? 14 : 0)), (z.bubble + z.px + 8) / 96 + (b.style === 'box' ? 0.06 : 0)]; },
+  wordsearch: (b) => [4, pzHeight(b)], crossword: (b) => [4, pzHeight(b)], // the grid and its text sit side by side across the whole page width
   divider: () => [1, 0.02],
   spacer: (b) => [1, b.h / 10 + 0.01],
   body: () => [BODY_MIN.cols, BODY_MIN.rows * ROW_IN - 0.05],
@@ -666,9 +684,13 @@ export const THERAPY_NOTE = '<div class="tn">Use with a therapist. Crisis: call 
 const SKILLS_KEY = '0 none · 1–2 thought of · 3–5 tried · 6–7 came on their own · 5 and 7 helped';
 // Thought record boxes (CBT): 3 = quick record, 5 = Beck style, 7 = Mind Over Mood style. Feelings/moods are rated 0-100 by hand.
 const THOUGHT_BOXES = { 3: ['Thought', 'Trap', 'Balanced'], 5: ['Situation', 'Feeling %', 'Thought', 'Balanced', 'Outcome'], 7: ['Situation', 'Mood %', 'Thought', 'For', 'Against', 'Balanced', 'Mood now'] };
+// The seed text of a puzzle block: the page it is on (the day's date, or the page's id), the block's uid and the block's own seed, so a
+// reprint gives the same puzzle and every page gets its own.
+const pzSeed = (b, parts) => `${parts.day ? parts.day.date || 'n' + parts.day.n : parts.seed || ''}|${b.uid}|${b.seed}`;
 function renderBlock(b, parts, zone) {
   const Z = `data-zone="${zone}"`;
   switch (b.type) {
+    case 'wordsearch': case 'crossword': { const p = pzBlock(b, pzSeed(b, parts)); return `<div class="xb pz${b.big ? ' big' : ''}" ${Z}>${lbl(b.type, p.label)}<div class="pzr">${p.body}</div></div>`; }
     case 'sky': case 'notes': case 'events': case 'fact': return parts[b.type] || '';
     case 'spoons': return `<div class="care solo">${spoonRow(b)}</div>`;
     case 'good': return `<div class="grat" ${Z}><b class="zl">${ic('heart', esc(b.label || 'Small good things'))}</b>${b.because ? `<div class="gbs">${Array(b.n).fill(`<div class="gb"><span class="lines" data-pitch="${b.pitch}" style="height:${(b.pitch + 0.02).toFixed(2)}in"></span><i>because</i><span class="lines" data-pitch="${b.pitch}" style="height:${(b.pitch + 0.02).toFixed(2)}in"></span></div>`).join('')}</div>` : `<span class="lines" data-pitch="${b.pitch}" style="height:${(b.n * b.pitch + 0.02).toFixed(2)}in"></span>`}</div>`;
@@ -806,7 +828,7 @@ function gridBlocks(parts, L, opt) {
 }
 
 // Extra CSS the blocks need (appended to the page CSS).
-export const DAYPAGE_CSS = `
+export const DAYPAGE_CSS = PZ_CSS + `
 .rev .zl { display: flex; align-items: center; gap: 3px; } .rev .zl i { font-style: normal; font-size: 6.5pt; letter-spacing: 0.4px; white-space: nowrap; }
 .cbi { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; padding: 3px 0 4px; font-size: 7.5pt; line-height: 1.2; border-bottom: 1px solid #DCDCDC; }
 .ci { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; } .ci i { width: 10px; height: 10px; border: 1.2px solid #000; flex: none; } .ci span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .cbi .more { font-style: italic; color: #444; }

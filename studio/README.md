@@ -6,7 +6,7 @@ current print pipeline.
 
 G1 is the core: accounts, permissions, immutable history, restore, import/export, the API and the editor's Versions drawer.
 **G2 (this document, from "Forks, proposals and merges") adds forks, change proposals, three-way merges and the conflict resolver.**
-Releases and reusable-page adoption are G3 (the schema already has room for them, see the end).
+**G3 adds releases and reusable pages** (section "Releases and reusable pages (G3)" below).
 
 ## Run it locally (one command)
 
@@ -156,7 +156,7 @@ Limits (`src/devices.mjs` LIMITS): 120 requests per 10 minutes per token, 20 wro
 every client shares the proxy's address, so that limit is shared), 16 KB per request, 2 MB per month, 16 MB and 36 months per device, 10 active devices per account. The audit trail (`created`, `upload month +bytes`,
 `rejected`, `revoked`, `logs_deleted`) holds no log content, token or address.
 
-**The log is private.** Uploads land in `device_logs` (migration 003), apart from `objects` (the snapshot store): never in a project, commit, snapshot, fork, proposal or export, and readable only by the owner, as an
+**The log is private.** Uploads land in `device_logs` (migration 004), apart from `objects` (the snapshot store): never in a project, commit, snapshot, fork, proposal or export, and readable only by the owner, as an
 attachment with `Cache-Control: no-store`. `snapshot.mjs` refuses it anyway if anyone tries to put it there: the keys `log`, `logs`, `checkins`, `device(s)`, `deviceLog`, paths such as `kw/log`, `kw/sync`, `sync.txt` and `YYYY-MM.csv`,
 a `kwd_` token, and check-in log lines are all forbidden content. The device's side of the protocol and its X4 setup are in `x4/README.md`, "Sync with your Studio". Tests: `test/devices.test.mjs`.
 Not built yet: a Studio screen for devices (the API is complete), pairing by a short code shown on the X4, and the X4 reading anything back (down-sync is N3).
@@ -322,6 +322,8 @@ Approval is not required to merge; a `changes_requested` review blocks it.
 | `guest.test.mjs` | no account: every read of a public project works, every write is 401, a private project is 404 |
 | `print.test.mjs` | import/export, byte-identical books and `check-identical.mjs`, edit in editor state, commit, export, render, `check.mjs` "[] 0" |
 | `merge.test.mjs` | the commit graph (merge base on branchy, criss-cross and long histories), ~25 independent-merge cases, every conflict kind with its base/ours/theirs and each resolution, selected-change lists and acceptance |
+| `releases.test.mjs` | release create/list/get/export, immutability (SQL and no route), forbidden content refused (planted in stored commits), tamper detection, auth (guest, stranger, editor, owner, private 404), library save/version/insert, attribution and update links, forbidden content never reusable, consent for copying out of projects, concurrency |
+| `releases-ui.test.mjs` | releases in the Versions drawer: owner releases and downloads, guest sees the list only, 44px targets, names, no sideways scroll at 390px, dark |
 | `collab.test.mjs` | fork consent and permissions, attribution, independent history, forbidden content never forked (planted in a private branch, in the published line, and as an unknown field), proposals (who may propose, comment, review, close; guests read only; private hides), review status and stale approvals, merge commits with two parents, all-or-nothing resolution, expected-head concurrency, accepting selected changes, direct merges, a full HTTP run |
 | `collab-ui.test.mjs` | fork, propose, review, accept some, resolve conflicts and merge in a browser: guests read only, keyboard use, focus kept while controls redraw, 44px targets and accessible names, no sideways scroll at 390px, light and dark; screens in `journal/editor/dist/test/collab-*.png` |
 | `print.test.mjs` | (adds) fork, edit both sides, resolve a conflict, merge, export the merge commit, render both trims, `check.mjs` "[] 0" |
@@ -352,7 +354,49 @@ CI runs everything in the Books workflow (before the Build step).
   rearranging pages in the Book view. A guest's "fork" of a public project is not built (guests read); forking needs an account.
 - Manual resolutions of a grid conflict are limited to choosing a side's whole layout; adjust it in the editor afterwards.
 
-## Designed for G3 (not built)
+## Releases and reusable pages (G3)
 
-`components` + `component_versions` hold reusable pages with numbered versions (G2's merge already treats snapshot components as atomic and
-bumps their version on a resolved conflict); `objects` can hold release manifests. Nothing reads the component tables yet.
+Migration `003_releases.sql`; code in `src/releases.mjs`; tests in `test/releases.test.mjs` and `test/releases-ui.test.mjs`.
+
+**Releases.** A release is a named, numbered, immutable tag on one commit of a project, with notes and a manifest. Creating one re-checks the
+commit with the same publishability test forks use (`assertPublishable`: forbidden keys, paths and values at any depth, unknown fields,
+personal pack references) and scans the name, notes and commit message; if anything private is found nothing is written (422).
+The manifest holds the commit, tree and snapshot hashes, print settings, public pack references, assets by hash and the sha256 of the two
+files the renderer reads (`content/book.json`, `daypage.json`), so a later build can be proven to come from exactly this release.
+Immutability: database triggers refuse UPDATE and DELETE (only deleting the whole project cascades them), and the API has no edit or delete route.
+Read and export re-verify the manifest hash, the commit id and the snapshot hash and scan again; export refuses a release that fails (500 `release_corrupt`).
+Not stored: PDFs. The Books workflow builds those from the exported files; the manifest is what ties a PDF to the release.
+
+| Endpoint | Who |
+|---|---|
+| `POST /api/projects/:id/releases` `{name, notes, commit?, branch?}` | project owner (editor 403, guest 401) |
+| `GET /api/projects/:id/releases`, `/releases/:name-or-number`, `/releases/:name/export` | anyone who can read the project (public: guests; private: 404) |
+
+**Reusable pages (a user's library).** An item is a `page` (`{type, options}`: a book-level, unprotected, module-free page type) or a set of
+`blocks` (flow layout, no grid placement, no locked Writing space), with numbered immutable versions (triggers again). Content is checked by
+the scanner and the type tables; forbidden content, protected pages (Safety plan, Support, Closing), module pages and unknown fields are refused.
+Content can also be copied out of a project (`from: {project, ref, page | blocks}`), which needs that project's `allowReuse` unless you are a member.
+Items are private or public; a private item is 404 to everyone else; guests read public items and never write.
+**Insert** copies one version into a book as a new commit (editor role, `expectedHead` concurrency like commits): a page gets a fresh id, blocks
+get fresh uids. The copy is plain book content; the link (`reuse_links`: item, version, content hash, credit, license, who and when) is kept
+apart, so snapshots, hashes and the allowlist are unchanged. `GET /reuse` returns the attribution of a book and whether a newer version exists
+(never revealing a private item). Deleting the item leaves the copies and the credit.
+
+| Endpoint | Who |
+|---|---|
+| `GET /api/library[?public=1]`, `POST /api/library` | list: yours (or public for guests / `public=1`); create: signed in |
+| `GET /api/library/:id`, `/versions/:n` | owner, or anyone if public |
+| `PATCH`, `DELETE /api/library/:id`, `POST /api/library/:id/versions` | owner only |
+| `POST /api/projects/:id/insert` `{item, version?, expectedHead, branch?, scope?, after?, message?}` | editor or owner of the project |
+| `GET /api/projects/:id/reuse` | anyone who can read the project |
+
+Editor: the Versions drawer (History tab, server projects) shows a Releases list with a download button each; the owner also gets a name,
+notes and "Release the latest saved version" form. A library picker is not built (API only).
+
+## G3 limitations
+
+- Release PDFs are not stored; adopting an upstream component update is only reported (`updateAvailable`), the owner inserts the new version by hand.
+- A library page is `{type, options}`: block-page `layout` is not in a snapshot yet (the allowlist serializer drops it), so it is not reusable either.
+- Inserting a block layout into a Grid day layout is refused; a single-instance block already on the page is refused.
+- No library UI in the editor beyond releases; no CLI commands for releases.
+- Release export lists assets by hash; bytes come from the project's asset routes.

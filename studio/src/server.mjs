@@ -75,6 +75,22 @@ export function createApp(studio, { staticDir = null, corsOrigins = [], openRegi
   route('POST', `${P}/merge/preview`, async (c) => S.mergePreview(c.user, c.m[1], await c.body()));
   route('POST', `${P}/merge`, async (c) => [201, S.merge(c.user, c.m[1], await c.body())]);
 
+  // G3: releases (immutable: there is no PATCH, PUT or DELETE) and reusable pages
+  route('GET', `${P}/releases`, (c) => ({ releases: S.listReleases(c.user, c.m[1]) }));
+  route('POST', `${P}/releases`, async (c) => [201, { release: S.createRelease(c.user, c.m[1], await c.body()) }]);
+  route('GET', `${P}/releases/([^/]+)/export`, (c) => S.exportRelease(c.user, c.m[1], dec(c.m[2])));
+  route('GET', `${P}/releases/([^/]+)`, (c) => ({ release: S.getRelease(c.user, c.m[1], dec(c.m[2])) }));
+  route('GET', '/api/library', (c) => ({ items: S.listLibrary(c.user, { publicOnly: c.query.get('public') === '1' }) }));
+  route('POST', '/api/library', async (c) => [201, { item: S.createLibraryItem(c.user, await c.body()) }]);
+  const I = '/api/library/([0-9a-f-]{36})';
+  route('GET', I, (c) => ({ item: S.getLibraryItem(c.user, c.m[1]) }));
+  route('PATCH', I, async (c) => ({ item: S.updateLibraryItem(c.user, c.m[1], await c.body()) }));
+  route('DELETE', I, (c) => S.deleteLibraryItem(c.user, c.m[1]));
+  route('POST', `${I}/versions`, async (c) => [201, { item: S.addLibraryVersion(c.user, c.m[1], await c.body()) }]);
+  route('GET', `${I}/versions/(\\d+)`, (c) => S.getLibraryVersion(c.user, c.m[1], c.m[2]));
+  route('POST', `${P}/insert`, async (c) => { const r = S.insertFromLibrary(c.user, c.m[1], await c.body()); return [r.unchanged ? 200 : 201, r]; });
+  route('GET', `${P}/reuse`, (c) => ({ reuse: S.listReuse(c.user, c.m[1]) }));
+
   route('GET', `${P}/assets`, (c) => ({ assets: S.listAssets(c.user, c.m[1]) }));
   route('POST', `${P}/assets`, async (c) => [201, { asset: S.putAsset(c.user, c.m[1], { name: c.req.headers['x-asset-name'], mime: String(c.req.headers['content-type'] || '').split(';')[0].trim(), bytes: await c.bytes() }) }]);
   route('GET', `${P}/assets/([0-9a-f]{64})`, (c) => { const a = S.getAsset(c.user, c.m[1], c.m[2]); return { raw: a }; });

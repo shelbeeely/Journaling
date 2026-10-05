@@ -1,0 +1,28 @@
+{
+ "schema": 1,
+ "id": "puzzles-sample",
+ "title": "Sample puzzle word lists",
+ "version": "1.0.0",
+ "kind": "puzzles",
+ "author": {
+  "name": "Journalwright Studio",
+  "url": "https://github.com/shelbeeely/Journaling"
+ },
+ "license": {
+  "spdx": "CC0-1.0",
+  "attribution": "",
+  "commercialPrintOk": true
+ },
+ "engine": ">=1.0.0 <2.0.0",
+ "region": null,
+ "languages": [
+  "en"
+ ],
+ "verified": [],
+ "files": [
+  {
+   "path": "puzzles.json",
+   "sha256": "ddacddc61c039fd2d7cbf4bc923f98a3e1243322d15c1816a1dd192b707eb2a5"
+  }
+ ]
+}

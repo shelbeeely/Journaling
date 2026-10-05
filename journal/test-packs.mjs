@@ -65,7 +65,7 @@ const V = { who: 'Sam', date: '2026-09-28', source: 'https://example.org/' };
 
 // K3: the kind registry. Unknown kinds fail clearly; every kind is complete and has a template that passes its own check.
 {
-  throwsWith(() => kindOf('glitter'), /Unknown pack kind "glitter"\. Installed kinds: support, trans-support, clinic, transit, holidays, seasons-history, region\./, 'an unknown kind lists the installed ones');
+  throwsWith(() => kindOf('glitter'), /Unknown pack kind "glitter"\. Installed kinds: support, trans-support, clinic, transit, holidays, seasons-history, puzzles, region\./, 'an unknown kind lists the installed ones');
   mkPack('weird', 'glitter', {});
   throwsWith(() => loadPack('weird'), /Unknown pack kind "glitter"\. Installed kinds:/, 'a pack of an unknown kind is refused with the list');
   ok(checkPack('weird').errors.some((e) => /Unknown pack kind/.test(e)), 'check reports an unknown kind');

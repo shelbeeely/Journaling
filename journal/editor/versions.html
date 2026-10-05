@@ -42,6 +42,17 @@
       <div class="vs-logwrap"><h3 class="sec">History</h3><ol id="vs-log" class="vs-log"></ol></div>
       <div id="vs-cmp" class="vs-cmp" aria-live="polite"></div>
     </div>
+    <section id="vl" class="vl" aria-labelledby="vl-h" hidden>
+      <h3 class="sec" id="vl-h">Releases</h3>
+      <p class="note" id="vl-hint">A release is a named, frozen copy of a saved version. It never changes, so a printed book can always be traced back to it.</p>
+      <ul id="vl-list" class="vl-list"></ul>
+      <form id="vl-form" class="vl-form" hidden>
+        <label for="vl-name">Release name <input id="vl-name" maxlength="40" placeholder="v1.0" autocomplete="off" autocapitalize="none" spellcheck="false"></label>
+        <label for="vl-notes">Notes <textarea id="vl-notes" rows="2" maxlength="2000" placeholder="What is in this release"></textarea></label>
+        <button class="btn primary" type="submit">Release the latest saved version</button>
+        <p id="vl-err" class="vs-err" role="alert"></p>
+      </form>
+    </section>
     <section id="vp" class="vp" aria-label="Change proposals" hidden>
       <div id="vp-listv">
         <div class="vp-head"><h3 class="sec" id="vp-h">Change proposals</h3><button class="btn primary" id="vp-new" type="button" hidden aria-haspopup="dialog">New proposal</button></div>
