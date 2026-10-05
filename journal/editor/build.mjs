@@ -37,7 +37,9 @@ const kit = {
   strip: seg.slice(seg.indexOf('<div class="frame">'), seg.trimEnd().lastIndexOf('</div>')),
 };
 // scan.mjs comes first (the block library uses it), then the block library, then the method layouts (their import of daypage.mjs is already in scope).
-const lib = read('scan.mjs').replace(/^export /gm, '') + '\n' + read('daypage.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '') + '\n' + read('content/layouts.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '');
+// The puzzle generators (puzzles/*.mjs, names start with pz) come before the block library, which draws the puzzle blocks with them.
+const puzzleCode = ['rng', 'wordsearch', 'crossword', 'samples', 'render'].map((f) => read(`puzzles/${f}.mjs`).replace(/^import .*$/gm, '').replace(/^export /gm, '')).join('\n') + '\n';
+const lib = read('scan.mjs').replace(/^export /gm, '') + '\n' + puzzleCode + read('daypage.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '') + '\n' + read('content/layouts.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '');
 // The Versions view (Journalwright Studio) computes its compare view in the browser with the same diff code the Studio server uses (studio/src/diff.mjs).
 const studioCode = ['../studio/src/canonical.mjs', '../studio/src/diff.mjs'].map((f) => read(f).replace(/^import .*$/gm, '').replace(/^export /gm, '')).join('\n');
 const studio = `(() => {\n${studioCode}\nreturn { canonical, diffSnapshots };\n})()`;

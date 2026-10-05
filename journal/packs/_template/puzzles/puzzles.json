@@ -1,0 +1,22 @@
+{
+  "lists": [
+    {
+      "id": "my-list",
+      "title": "My list",
+      "entries": [
+        { "word": "DUCK", "clue": "Paddles on the pond" },
+        { "word": "REED", "clue": "A tall stem at the water's edge" },
+        { "word": "FROG", "clue": "Green jumper with a loud evening song" },
+        { "word": "LILY", "clue": "A flower that floats on a flat green pad" },
+        { "word": "RIPPLE", "clue": "A ring spreading from a dropped pebble" },
+        { "word": "HERON", "clue": "A tall grey bird standing very still" },
+        { "word": "NEWT", "clue": "A small amphibian with a tail" },
+        { "word": "CATTAIL", "clue": "A brown fuzzy spike on a marsh stalk" },
+        { "word": "SWAN", "clue": "A long-necked white glider" },
+        { "word": "MINNOW", "clue": "A tiny fish in a school" },
+        { "word": "MUD", "clue": "Wet earth that sticks to boots" },
+        { "word": "DRAGONFLY", "clue": "A glittering hoverer over the shallows" }
+      ]
+    }
+  ]
+}

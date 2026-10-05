@@ -593,7 +593,7 @@ const find = (uid) => layout.blocks.find((b) => b.uid === uid);
 const icon = (k, cls = '') => `<svg class="${cls}" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k] || IC.box}</svg>`;
 
 // ---------- palette ----------
-const PAL_GROUPS = ['From your day', 'Check-ins', 'Writing', 'Planning', 'Therapy', 'Body', 'Layout'];
+const PAL_GROUPS = ['From your day', 'Check-ins', 'Writing', 'Planning', 'Puzzles', 'Therapy', 'Body', 'Layout'];
 const PAL_NOTES = { Therapy: 'Use with a therapist. These are not advice. Every block prints 988 and the Trans Lifeline number.', Body: 'Body and hormone notes stay on paper unless marked also on X4.' };
 function paletteItems() {
   const items = Object.entries(TYPES).filter(([t]) => (t !== 'body' || !bodyLocked(EK)) && allowedIn(EK, t)).map(([t, d]) => ({ key: 't:' + t, type: t, name: d.name, group: d.group, icon: d.icon }));

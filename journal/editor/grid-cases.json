@@ -64,5 +64,11 @@
 {"name":"review 1item","type":"review","opts":{"items":{"well":true,"hard":false,"next":false}}},
 {"name":"review 2items","type":"review","opts":{"items":{"well":true,"hard":true,"next":false}}},
 {"name":"spacer 10","type":"spacer","opts":{"h":10}},
-{"name":"habits tiny","type":"habits","opts":{"tiny":true}}
+{"name":"habits tiny","type":"habits","opts":{"tiny":true}},
+{"name":"wordsearch 8 hard","type":"wordsearch","opts":{"size":8,"difficulty":"hard"}},
+{"name":"wordsearch 15 big","type":"wordsearch","opts":{"size":15,"big":true,"difficulty":"hard"}},
+{"name":"wordsearch 12 answers","type":"wordsearch","opts":{"size":12,"answers":true,"theme":"sky"}},
+{"name":"crossword 7 easy","type":"crossword","opts":{"size":7,"difficulty":"easy"}},
+{"name":"crossword 11 hard","type":"crossword","opts":{"size":11,"difficulty":"hard","theme":"calm"}},
+{"name":"crossword 11 big","type":"crossword","opts":{"size":11,"big":true,"difficulty":"hard","theme":"kitchen","answers":true}}
 ]

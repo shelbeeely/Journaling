@@ -1,0 +1,52 @@
+{
+  "lists": [
+    {
+      "id": "seasons",
+      "title": "Seasons",
+      "entries": [
+        { "word": "AUTUMN", "clue": "When the leaves turn and fall" },
+        { "word": "WINTER", "clue": "The coldest season, short on daylight" },
+        { "word": "SPRING", "clue": "Season of thaw and first buds" },
+        { "word": "SUMMER", "clue": "Long days, short nights, open windows" },
+        { "word": "HARVEST", "clue": "Gathering what the garden grew" },
+        { "word": "FROST", "clue": "A white crust on the grass at dawn" },
+        { "word": "BLOSSOM", "clue": "Pink or white on an April branch" },
+        { "word": "SOLSTICE", "clue": "The longest or shortest day of the year" },
+        { "word": "EMBER", "clue": "A glowing coal that outlasts the flame" },
+        { "word": "BREEZE", "clue": "A light moving of the air" },
+        { "word": "PUDDLE", "clue": "Rain left behind in a dip in the road" },
+        { "word": "SUNSET", "clue": "The day's slow goodbye in orange" },
+        { "word": "CHILL", "clue": "A cold edge in the air" },
+        { "word": "THAW", "clue": "When ice gives way to water" },
+        { "word": "MEADOW", "clue": "Open grass full of wildflowers" },
+        { "word": "ACORN", "clue": "An oak tree's seed, in a little cap" },
+        { "word": "MITTENS", "clue": "Hand warmers with a thumb and no fingers" },
+        { "word": "CIDER", "clue": "Pressed apples, warmed with spice" }
+      ]
+    },
+    {
+      "id": "library",
+      "title": "Library",
+      "entries": [
+        { "word": "BOOK", "clue": "Pages bound between two covers" },
+        { "word": "SHELF", "clue": "A plank that holds a row of spines" },
+        { "word": "CHAPTER", "clue": "A numbered stretch of a longer story" },
+        { "word": "NOVEL", "clue": "A long made-up story" },
+        { "word": "POEM", "clue": "Words arranged in lines, often rhymed" },
+        { "word": "INDEX", "clue": "The alphabetical list at the back" },
+        { "word": "SPINE", "clue": "What shows when it stands on a shelf" },
+        { "word": "PAGE", "clue": "One leaf, printed on both sides" },
+        { "word": "STORY", "clue": "A tale with a beginning, middle and end" },
+        { "word": "AUTHOR", "clue": "The person whose name is on the cover" },
+        { "word": "MARGIN", "clue": "The white edge where notes get written" },
+        { "word": "BOOKMARK", "clue": "Holds your place until you return" },
+        { "word": "COVER", "clue": "What you are told not to judge by" },
+        { "word": "ESSAY", "clue": "A short piece arguing one idea" },
+        { "word": "VERSE", "clue": "A stanza of a song or poem" },
+        { "word": "PLOT", "clue": "What happens, and in what order" },
+        { "word": "TITLE", "clue": "The name printed across the front" },
+        { "word": "QUIET", "clue": "The house rule in a reading room" }
+      ]
+    }
+  ]
+}
