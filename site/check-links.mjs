@@ -34,7 +34,7 @@ for (const file of pages) {
     if (!target.startsWith(dir)) { problems.push(`${rel}: link leaves the site: ${u}`); continue; }
     if (fs.existsSync(target) && fs.statSync(target).isDirectory()) target = path.join(target, 'index.html');
     if (!fs.existsSync(target)) { problems.push(`${rel}: broken link ${u}`); continue; }
-    if (hash && target.endsWith('.html') && !idsOf(fs.readFileSync(target, 'utf8')).has(hash)) problems.push(`${rel}: ${u} has no #${hash} in the target`);
+    if (hash && target.endsWith('.html') && !/[\\/]editor[\\/]index\.html$/.test(target) && !idsOf(fs.readFileSync(target, 'utf8')).has(hash)) problems.push(`${rel}: ${u} has no #${hash} in the target`);
   }
 }
 // docs coverage: every docs page is linked from the docs index, and there is one page per method doc

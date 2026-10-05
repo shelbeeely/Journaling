@@ -1,0 +1,207 @@
+{
+ "page-month": {
+  "w": 605,
+  "h": 935,
+  "kb": 16,
+  "alt": "A monthly calendar page: a seven-column grid for October with moon phases and a few events."
+ },
+ "page-week": {
+  "w": 605,
+  "h": 935,
+  "kb": 21,
+  "alt": "A weekly page: Monday to Sunday in rows, each with the moon, sunrise and sunset, and ruled space."
+ },
+ "page-day": {
+  "w": 605,
+  "h": 935,
+  "kb": 27,
+  "alt": "A day page built from blocks: date, title and tags, care check-ins, a dotted writing area, action items and the scan strip."
+ },
+ "page-tracker": {
+  "w": 605,
+  "h": 935,
+  "kb": 35,
+  "alt": "A monthly tracker: a grid of daily boxes for habits."
+ },
+ "page-notes": {
+  "w": 605,
+  "h": 935,
+  "kb": 16,
+  "alt": "A notes page with a title box and a dotted grid for free writing."
+ },
+ "page-title": {
+  "w": 605,
+  "h": 935,
+  "kb": 18,
+  "alt": "The title page of the sample book Northlight."
+ },
+ "page-undated": {
+  "w": 605,
+  "h": 935,
+  "kb": 22,
+  "alt": "An undated day page: the date box is blank and the page says Day 3, so the book can start on any day."
+ },
+ "_volumes": 2,
+ "volume-1-cover": {
+  "w": 805,
+  "h": 613,
+  "kb": 27,
+  "alt": "The wrap-around cover of volume 1 of 2 of a quarter book, with its own title block and date range."
+ },
+ "volume-2-cover": {
+  "w": 805,
+  "h": 613,
+  "kb": 27,
+  "alt": "The wrap-around cover of volume 2 of 2 of a quarter book, with its own title block and date range."
+ },
+ "cover-month": {
+  "w": 800,
+  "h": 613,
+  "kb": 26,
+  "alt": "A wrap-around cover for the sample book Northlight, deep blue with a row of moon phases and the title in cream."
+ },
+ "x4-checkin": {
+  "w": 480,
+  "h": 800,
+  "kb": 5
+ },
+ "x4-checkin-large": {
+  "w": 480,
+  "h": 800,
+  "kb": 5
+ },
+ "x4-focus": {
+  "w": 480,
+  "h": 800,
+  "kb": 6
+ },
+ "x4-focus-large": {
+  "w": 480,
+  "h": 800,
+  "kb": 6
+ },
+ "x4-scales": {
+  "w": 480,
+  "h": 800,
+  "kb": 5
+ },
+ "x4-scales-large": {
+  "w": 480,
+  "h": 800,
+  "kb": 5
+ },
+ "x4-settings": {
+  "w": 480,
+  "h": 800,
+  "kb": 4
+ },
+ "x4-settings-large": {
+  "w": 480,
+  "h": 800,
+  "kb": 6
+ },
+ "x4-today": {
+  "w": 480,
+  "h": 800,
+  "kb": 6
+ },
+ "x4-today-large": {
+  "w": 480,
+  "h": 800,
+  "kb": 5
+ },
+ "x4-wifi": {
+  "w": 480,
+  "h": 800,
+  "kb": 6
+ },
+ "x4-wifi-large": {
+  "w": 480,
+  "h": 800,
+  "kb": 6
+ },
+ "ed-book": {
+  "w": 1200,
+  "h": 750,
+  "kb": 49,
+  "alt": "The Book view: all 72 pages of the sample book laid out in facing spreads, with a page-number box, a zoom control and a legend button."
+ },
+ "ed-spread": {
+  "w": 1200,
+  "h": 750,
+  "kb": 27,
+  "alt": "The Spread view: two facing pages, an Exchange page and a Reply page, at reading size."
+ },
+ "ed-day-view": {
+  "w": 1200,
+  "h": 938,
+  "kb": 28,
+  "alt": "A day page in view mode: only the page, clean and read-only, with an Edit button at the top right."
+ },
+ "ed-day-edit": {
+  "w": 1200,
+  "h": 750,
+  "kb": 52,
+  "alt": "The day page in edit mode: the palette of blocks on the left, the list of blocks on the page in the middle, and the live page preview on the right."
+ },
+ "ed-grid": {
+  "w": 491,
+  "h": 757,
+  "kb": 21,
+  "alt": "The page grid: the preview with its rows and columns drawn over it. Blocks such as the moon and sky line span four columns and two rows."
+ },
+ "ed-scan": {
+  "w": 688,
+  "h": 495,
+  "kb": 21,
+  "alt": "The Scan settings sheet: switches for the send-to strip and the scanning border, and choices for the matrix code position, size and format."
+ },
+ "ed-library": {
+  "w": 1200,
+  "h": 750,
+  "kb": 19,
+  "alt": "The Library: a shelf with the book Northlight, a series of season journals and a series of undated practice books, each with its own title."
+ },
+ "ed-series": {
+  "w": 1200,
+  "h": 750,
+  "kb": 20,
+  "alt": "A series shelf: three season journals that share defaults, shown as covers in order."
+ },
+ "ed-library-edit": {
+  "w": 1200,
+  "h": 750,
+  "kb": 24,
+  "alt": "The Library in edit mode, with controls for titles, series and the books on the shelf."
+ },
+ "ed-phone": {
+  "w": 390,
+  "h": 844,
+  "kb": 28,
+  "alt": "The editor on a 390 pixel wide phone: the page preview with the block palette in a sheet at the bottom."
+ },
+ "ed-phone-book": {
+  "w": 390,
+  "h": 844,
+  "kb": 27,
+  "alt": "The Book view on a phone, with the page grid fitted to the width."
+ },
+ "ed-versions": {
+  "w": 1040,
+  "h": 900,
+  "kb": 47,
+  "alt": "The Versions drawer: a history of saved versions on one side, and a comparison on the other that lists what changed and marks the changed blocks on the page."
+ },
+ "ex-shift": {
+  "w": 430,
+  "h": 665,
+  "kb": 13,
+  "alt": "A day page arranged for a night-shift worker: the work shift, a 24-hour time line with plan over actual and the night shaded from the day's sunrise and sunset, a care check-in and a writing space."
+ },
+ "ex-roomy": {
+  "w": 430,
+  "h": 665,
+  "kb": 8,
+  "alt": "A day page with roomy rows: four wide action lines, three widely spaced lines for small good things, and a large writing space."
+ }
+}
