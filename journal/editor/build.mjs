@@ -32,6 +32,7 @@ const kit = {
   events: '<div class="dev" data-zone="events">○ 10:00a Clinic appointment · ○ 2:00p Pick up prescription · ○ 6:30p Dinner with a friend downtown</div>',
   fact: pick(/<div class="fact".*?<\/div>/s),
   day: sampleDay,
+  print: { large_print: PROFILE.print.large_print, high_contrast: PROFILE.print.high_contrast }, // what profile.json already switches on (the Settings panel adds to it)
   routines: ['7:30a Morning routine', '8:00p Evening routine'], // a busy day, so the meter errs on the safe side
   code: (seg.match(/<span class="qr"[^>]*>(<svg.*?<\/svg>)\s*<\/span>/s) || [, ''])[1], // a real page's code, drawn as the sample in the preview
   strip: seg.slice(seg.indexOf('<div class="frame">'), seg.trimEnd().lastIndexOf('</div>')),
@@ -39,7 +40,9 @@ const kit = {
 // scan.mjs comes first (the block library uses it), then the block library, then the method layouts (their import of daypage.mjs is already in scope).
 // The puzzle generators (puzzles/*.mjs, names start with pz) come before the block library, which draws the puzzle blocks with them.
 const puzzleCode = ['rng', 'wordsearch', 'crossword', 'samples', 'render'].map((f) => read(`puzzles/${f}.mjs`).replace(/^import .*$/gm, '').replace(/^export /gm, '')).join('\n') + '\n';
-const lib = read('scan.mjs').replace(/^export /gm, '') + '\n' + puzzleCode + read('daypage.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '') + '\n' + read('content/layouts.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '');
+// The print accessibility options (a11yprint.mjs) get their own scope: its helper names stay out of the block library's.
+const a11y = `const { cleanPrint, printOptions, printOn, printCss, largeLayout } = (() => {\n${read('a11yprint.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '')}\nreturn { cleanPrint, printOptions, printOn, printCss, largeLayout };\n})();\n`;
+const lib = a11y + read('scan.mjs').replace(/^export /gm, '') + '\n' + puzzleCode + read('daypage.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '') + '\n' + read('content/layouts.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '');
 // The Versions view (Journalwright Studio) computes its compare view in the browser with the same diff code the Studio server uses (studio/src/diff.mjs).
 const studioCode = ['../studio/src/canonical.mjs', '../studio/src/diff.mjs'].map((f) => read(f).replace(/^import .*$/gm, '').replace(/^export /gm, '')).join('\n');
 const studio = `(() => {\n${studioCode}\nreturn { canonical, diffSnapshots };\n})()`;

@@ -4,9 +4,8 @@
 // it reports is the split the printed books have. Pure data in, no browser.
 import { build, busCoverage, readFeed, groupSpan, sliceDays, GLYPH } from './data.mjs';
 import { bookPlan, rangeLabel, splitVolumes, explainSplit, MAX_VOLUMES, MAX_PAGES } from './plan.mjs';
-import { normalize } from './daypage.mjs';
 import { PROFILE, moduleOn, readContent, ensureBookId } from './profile.mjs';
-import { applyModules, readJson } from './context.mjs';
+import { dayContext, readJson } from './context.mjs';
 import { assemble, assertBook, entriesFor, normalizeBook } from './book.mjs';
 import { loadBook } from './context.mjs';
 
@@ -96,7 +95,7 @@ export async function loadSpan({ ics, quiet = false } = {}) {
       SUPPORT: readContent('support'), TRANS: moduleOn('trans_support') ? readContent('trans') : null, CLINIC: readContent('clinic'),
       keeperPage: undefined, keeperPages: ki && ki.handoff_page ? ki.handoff_page : {}, keeper: plan.keeper, closingPolicy: plan.closing,
       undated, scoped: true, plan,
-      dayLayout: applyModules(normalize(PROFILE.library.layouts.day || readJson('./content/daypage.json'))),
+      ...dayContext(PROFILE.library.layouts.day || readJson('./content/daypage.json')),
       refs: {},
     };
   }

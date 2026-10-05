@@ -20,6 +20,7 @@
  },
  "day_start_hour": 5,
  "trim": "small",
+ "print": { "large_print": false, "high_contrast": false },
  "modules": {
   "bus": false,
   "sky": true,

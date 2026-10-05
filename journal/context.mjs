@@ -6,12 +6,19 @@ import fs from 'node:fs';
 import { build, busCoverage, readFeed } from './data.mjs';
 import { normalize } from './daypage.mjs';
 import { usePuzzlePack } from './puzzles/render.mjs';
+import { printOptions, largeLayout } from './a11yprint.mjs';
 import { PROFILE, moduleOn, bookNo as bookNoOf, readContent, MODULE_BLOCKS } from './profile.mjs';
 
 // A switched-off module leaves its day-page blocks out of the layout (they stay in the file, so switching the module back on restores them).
 export function applyModules(layout) {
   const off = Object.entries(MODULE_BLOCKS).filter(([m]) => !moduleOn(m)).flatMap(([, types]) => types);
   return off.length ? { ...layout, blocks: layout.blocks.map((b) => (off.includes(b.type) ? { ...b, on: false } : b)) } : layout;
+}
+// The day layout a book prints, and the print accessibility options in force (a11yprint.mjs: the profile's, overridden by the layout's own).
+// With large print on, the layout gets its wider writing lines and fewer rows; with both off it is exactly the layout in the file.
+export function dayContext(raw) {
+  const L = applyModules(normalize(raw)), print = printOptions(PROFILE.print, L.print);
+  return { dayLayout: print.large ? largeLayout(L) : L, print };
 }
 const here = (p) => new URL(p, import.meta.url);
 export const readJson = (p) => (fs.existsSync(here(p)) ? JSON.parse(fs.readFileSync(here(p), 'utf8')) : null);
@@ -46,7 +53,7 @@ export async function loadContext({ month, ics, size = 'small', quiet = false })
     PROFILE,
     SUPPORT: readContent('support'), TRANS: moduleOn('trans_support') ? readContent('trans') : null, CLINIC: readContent('clinic'),
     keeperPage: ki && ki.handoff_page ? ki.handoff_page[VOL.id] : undefined,
-    dayLayout: applyModules(normalize(PROFILE.library.layouts.day || readEnv('KW_DAYFILE', './content/daypage.json'))),
+    ...dayContext(PROFILE.library.layouts.day || readEnv('KW_DAYFILE', './content/daypage.json')),
     refs: {},
   };
 }

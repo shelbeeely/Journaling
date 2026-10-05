@@ -1447,5 +1447,33 @@ ok(!errs.length, 'no page errors after the Book view ' + errs.join(' | '));
   ok(!perr.length, 'no page errors on the block pages ' + perr.join(' | '));
   await bp.close();
 }
+// ---------- Settings: print accessibility options (a11yprint.mjs) ----------
+{
+  const sp = await b.newPage({ viewport: { width: 1400, height: 950 } }), perr = [];
+  sp.on('pageerror', (e) => perr.push(e.message));
+  await sp.goto(DAY, { waitUntil: 'networkidle' }); await atDay(sp);
+  const fs0 = await sp.evaluate(() => ({ size: getComputedStyle(document.querySelector('#pv .dayp')).fontSize, lh: document.querySelector('#pv [data-zone="care"]').getBoundingClientRect().height, fact: !!document.querySelector('#pv [data-zone="fact"]'), pitch: !!document.querySelector('#pv .p33'), cssA: document.querySelector('#pv style').textContent.includes('print accessibility options'), print: layout.print || null, hz: getComputedStyle(document.querySelector('#pv .hz .zl')).fontSize + '|' + document.querySelector('#pv .hz').getBoundingClientRect().height }));
+  ok(!fs0.cssA && !fs0.print && fs0.fact, 'Settings: with both options off the preview is the default page (no override CSS, no print setting, "On this day" present)');
+  await sp.click('#v-set'); await sp.waitForFunction(() => document.querySelector('#settings').open);
+  ok(await sp.evaluate(() => [...document.querySelectorAll('#settings [role=switch]')].every((x) => x.getAttribute('aria-checked') === 'false' && !x.disabled)), 'Settings: Large print and High-contrast ink start off');
+  await sp.click('#settings [data-set="large"]');
+  await sp.waitForTimeout(250);
+  ok(await sp.evaluate(() => JSON.stringify(layout.print) === '{"large":true}' && /Large print on/.test(document.querySelector('#set-status').textContent)), 'Settings: Large print on is stored in the layout (print.large) and said in the dialog');
+  const big = await sp.evaluate(() => ({ size: getComputedStyle(document.querySelector('#pv .dayp')).fontSize, fact: !!document.querySelector('#pv [data-zone="fact"]'), cssA: document.querySelector('#pv style').textContent.includes('print accessibility options'), actions: document.querySelectorAll('#pv [data-zone="action_items"] .cb').length, body: document.querySelector('#pv [data-zone="body"]').className }));
+  ok(big.cssA && parseFloat(big.size) > parseFloat(fs0.size) * 1.3 && !big.fact && /ruled/.test(big.body), `Settings: the preview shows large print (type ${fs0.size} to ${big.size}, no "On this day", ruled writing space)`);
+  await sp.click('#settings [data-set="contrast"]');
+  ok(await sp.evaluate(() => JSON.stringify(layout.print) === '{"large":true,"contrast":true}'), 'Settings: High-contrast ink is stored beside it');
+  ok(await sp.evaluate(() => { const e = document.querySelector('#pv .small, #pv .dim, #pv .end'); return !e || getComputedStyle(e).color === 'rgb(0, 0, 0)'; }), 'Settings: high-contrast ink makes grey text black in the preview');
+  ok(await sp.evaluate(() => getComputedStyle(document.querySelector('#pv .hz .zl')).fontSize + '|' + document.querySelector('#pv .hz').getBoundingClientRect().height) === fs0.hz, 'Settings: the DATE / TITLE / TAGS header keeps its type size and height with both options on');
+  await sp.keyboard.press('Escape');
+  await sp.waitForTimeout(700);
+  await sp.reload({ waitUntil: 'networkidle' }); await atDay(sp);
+  ok(await sp.evaluate(() => JSON.stringify(layout.print) === '{"large":true,"contrast":true}' && !!document.querySelector('#pv style') && document.querySelector('#pv style').textContent.includes('print accessibility options')), 'Settings: reload restores both options');
+  ok(await sp.evaluate(() => JSON.stringify(JSON.parse(json()).print) === '{"large":true,"contrast":true}'), 'Settings: the layout JSON (daypage.json) carries print: {large, contrast}');
+  await sp.click('#v-set'); await sp.click('#settings [data-set="large"]'); await sp.click('#settings [data-set="contrast"]'); await sp.keyboard.press('Escape');
+  ok(await sp.evaluate(() => layout.print === undefined && !('print' in JSON.parse(json())) && document.querySelectorAll('#pv [data-zone="fact"]').length === 1), 'Settings: both off again leaves no print setting in the layout, and the page is the default');
+  await sp.close();
+  ok(!perr.length, 'no page errors in Settings ' + perr.join(' | '));
+}
 await b.close(); srv.close();
 if (fails.length) { console.log(`\n${fails.length} failed`); process.exit(1); }
