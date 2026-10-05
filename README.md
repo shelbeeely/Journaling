@@ -76,13 +76,14 @@ Crisis and support numbers are never filled in for someone else. The `generic` p
 
 | Area | Status |
 | --- | --- |
-| Block editor, book canvas, KDP output, profiles | Ready |
-| Content packs (support, clinic, transit as data with a verification note) | Next |
-| Onboarding: `npm run init`, guides for your own journal and your own pack | Next |
-| Book scopes (quarter, season, year, undated) and automatic volumes past 110 pages | Coming |
-| Versioning: history, branches, forks, change proposals, releases | Coming |
-| Accounts, only for saving versions and sharing (designing and printing stay free of one) | Coming |
-| X4 hardware bring-up | In progress |
+| Block editor, page grid, book canvas, library and series, scan options, KDP output, book scopes and volumes, profiles | Ready |
+| Versioning and accounts: history, compare, restore, branches; forks, proposals and three-way merge | Ready |
+| Accessibility baseline, the 44 methods library, e-ink companion (check-ins, focus timer, settings, Wi-Fi) | Ready |
+| Page organiser | In review |
+| Content packs and the pack ecosystem (themes, graphics, icon packs, block packs) | In progress |
+| Puzzle pages, block-based month/week/notes pages, spread days, releases, accessibility panel, languages, account locations, e-ink editor and sync | Planned |
+
+The website lists what works today with screenshots (`site/`), and keeps only unfinished work on its roadmap.
 
 Details and order: [BUILD-PLAN.md](docs/journaling/BUILD-PLAN.md).
 
