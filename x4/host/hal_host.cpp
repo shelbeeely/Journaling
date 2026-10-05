@@ -157,6 +157,54 @@ bool wifiAddress(char* out, int cap) { if (simLink != Link::Up) return false; sn
 bool wifiMdns(const char* name) { mdnsName = name; printf("net: mdns %s.local\n", name); return true; }
 uint32_t random32() { if (!rngState) rngState = (uint32_t)atol(env("KW_SEED", "20261014").c_str()) | 1; rngState ^= rngState << 13; rngState ^= rngState >> 17; rngState ^= rngState << 5; return rngState; }
 void memInfo(uint32_t* f, uint32_t* lo, uint32_t* blk) { *f = *lo = *blk = 0; }
+
+// ---- simulated Studio (BUILD-PLAN N2). KW_SYNC=ok|down|cert|nohost|wrong|401|429|500|reject|drop, KW_SYNC_BUILT=0 (the default firmware: no TLS),
+// KW_SYNC_STORE (where the "server" keeps what it received), KW_SYNC_ABORT_AFTER=<n requests> (Back pressed). Every call prints one "sync: ..." line
+// (never the token). The server side follows studio/src/devices.mjs: a POST must be at exactly the size the server holds, else 409 with that size.
+static int syncReqs = 0; static bool syncOpened = false;
+static std::string storeDir() { std::string d = env("KW_SYNC_STORE", "/tmp/kw-sync-store"); mkdir(d.c_str(), 0755); return d; }
+static long storeSize(const std::string& ym) { struct stat st; return stat((storeDir() + "/" + ym + ".csv").c_str(), &st) == 0 ? (long)st.st_size : 0; }
+bool syncBuilt() { return env("KW_SYNC_BUILT", "1") != "0"; }
+bool wifiStartSync() { if (hostRadioOn()) return false; simParse(); staOn = true; printf("net: start-sta-sync\n"); return true; }
+void pauseMs(uint32_t ms) { skewMs += ms; }
+bool syncAbort() { const int n = atoi(env("KW_SYNC_ABORT_AFTER", "-1").c_str()); return n >= 0 && syncReqs >= n; }
+long fileSize(const char* path) { struct stat st; return stat(full(path).c_str(), &st) == 0 ? (long)st.st_size : -1; }
+int readAt(const char* path, uint32_t off, uint8_t* buf, int cap) { std::ifstream f(full(path), std::ios::binary); if (!f) return -1; f.seekg(off); f.read((char*)buf, cap); return (int)f.gcount(); }
+void syncClose() { if (syncOpened) printf("sync: close\n"); syncOpened = false; }
+SyncNet syncOpen(const char* host, uint16_t port, const char* ca) {
+  syncReqs = 0; const std::string m = env("KW_SYNC", "ok");
+  printf("sync: open %s:%u ca=%s\n", host, (unsigned)port, ca && strstr(ca, "BEGIN CERTIFICATE") ? "pinned" : "none");
+  if (m == "down") return SyncNet::Unreachable;
+  if (m == "cert") return SyncNet::Tls;
+  if (m == "nohost") return SyncNet::NoHostCheck;
+  if (m == "wrong") return SyncNet::WrongServer;
+  syncOpened = true; return SyncNet::Ok;
+}
+SyncNet syncRequest(const char* method, const char* path, const char* token, long offset, const uint8_t* body, size_t len, int* code, char* reply, size_t cap, int* retryAfter) {
+  const std::string m = env("KW_SYNC", "ok"); syncReqs++;
+  printf("sync: %s %s offset=%ld len=%zu auth=%s\n", method, path, offset, len, token && *token ? "bearer" : "none");
+  std::string out; *code = 200; if (retryAfter) *retryAfter = 0;
+  if (m == "drop" && syncReqs >= 3) return SyncNet::Tls;
+  if (m == "401") { *code = 401; out = "{\"error\":{\"code\":\"device_token\"}}"; }
+  else if (m == "429") { *code = 429; if (retryAfter) *retryAfter = 120; out = "{\"error\":{\"code\":\"rate_limited\"}}"; }
+  else if (m == "500") { *code = 500; out = "{}"; }
+  else if (!strcmp(method, "GET")) {
+    out = "{\"device\":{},\"logs\":[";
+    DIR* d = opendir(storeDir().c_str()); bool first = true; std::vector<std::string> names;
+    while (d) { dirent* e = readdir(d); if (!e) break; std::string n = e->d_name; if (n.size() == 11 && n.substr(7) == ".csv") names.push_back(n.substr(0, 7)); }
+    if (d) closedir(d);
+    for (auto& n : names) { out += std::string(first ? "" : ",") + "{\"month\":\"" + n + "\",\"size\":" + std::to_string(storeSize(n)) + "}"; first = false; }
+    out += "]}";
+  } else if (m == "reject") { *code = 413; out = "{\"error\":{\"code\":\"device_full\"}}"; }
+  else {
+    const std::string ym = std::string(path).substr(strlen("/api/device/log/"));
+    const long have = storeSize(ym);
+    if (offset != have) { *code = 409; out = "{\"error\":{\"code\":\"offset_mismatch\",\"details\":{\"size\":" + std::to_string(have) + "}}}"; }
+    else { std::ofstream f(storeDir() + "/" + ym + ".csv", std::ios::binary | std::ios::app); f.write((const char*)body, len); out = "{\"month\":\"" + ym + "\",\"size\":" + std::to_string(have + (long)len) + "}"; }
+  }
+  snprintf(reply, cap, "%s", out.c_str());
+  return SyncNet::Ok;
+}
 void sleepUntil(time_t wakeAt) {
   char b[64]; struct tm tm; localtime_r(&wakeAt, &tm); strftime(b, sizeof b, "%Y-%m-%d %H:%M", &tm);
   printf("radio at sleep: %s\n", hostRadioOn() ? "ON" : "off");

@@ -146,10 +146,32 @@ runnet b_wifi_joined "" "$BD" KW_KEYS="$GO down down confirm phone-join idle idl
 runnet bl_wifi_joined "" "text=large\ncontrast=bold\n" KW_KEYS="$GO down down confirm phone-join idle idle idle"
 runnet r_left_wifi_saved "$SEED3" "buttons=left\n" KW_KEYS="back up up up up up confirm up confirm"
 runnet r_swap_wifi_joined "" "buttons=swap\n" KW_KEYS="confirm down down down down down back down down back phone-join idle idle idle"
+# Sync with Studio (Wi-Fi, the fifth row): the preview (log off, log on, two networks), a sent result, a refused certificate. sync.txt holds a made-up token.
+runsync() { name=$1; log=$2; set=$3; shift; shift; shift; mkdir -p out/$name; rm -rf /tmp/kwsd /tmp/kw-prev-store; cp -r sample /tmp/kwsd
+  printf 'name=keeping-watch\nlast=0\nnet=HomeNet\thunter22\n' > /tmp/kwsd/kw/net.txt; [ -n "$NET2" ] && printf 'net=Neighbor\tsecretpw1\n' >> /tmp/kwsd/kw/net.txt
+  printf "server=studio.example.com\ntoken=kwd_0123456789ab_AbCdEfGhIjKlMnOpQrStUvWxYz0123456789-_AbCd\nlog=$log\n" > /tmp/kwsd/kw/sync.txt
+  printf -- '-----BEGIN CERTIFICATE-----\nMIIB\n-----END CERTIFICATE-----\n' > /tmp/kwsd/kw/studio-ca.pem; printf "$set" > /tmp/kwsd/kw/settings.txt
+  env KW_SD=/tmp/kwsd KW_OUT=out/$name KW_SYNC_STORE=/tmp/kw-prev-store KW_NOW="2026-10-14 13:10" KW_WIFI="$NETS" "$@" ./kw_host >/dev/null; }
+SY="$GO down down down down confirm"
+runsync sync_off 0 "" KW_KEYS="$SY"
+runsync sync_on 1 "" KW_KEYS="$SY"
+NET2=1 runsync sync_nets 1 "" KW_KEYS="$SY left"
+runsync sync_sent 1 "" KW_KEYS="$SY confirm"
+runsync sync_cert 1 "" KW_SYNC=cert KW_KEYS="$SY confirm"
+runsync sync_unauth 1 "" KW_SYNC=401 KW_KEYS="$SY confirm"
+runsync sync_nobuild 1 "" KW_SYNC_BUILT=0 KW_KEYS="$SY confirm"
+runsync l_sync_on 1 "$LG" KW_KEYS="$SY"
+runsync l_sync_off 0 "$LG" KW_KEYS="$SY"
+runsync l_sync_cert 1 "$LG" KW_SYNC=cert KW_KEYS="$SY confirm"
+runsync l_sync_sent 1 "$LG" KW_KEYS="$SY confirm"
+runsync b_sync_on 1 "$BD" KW_KEYS="$SY"
+runsync bl_sync_unauth 1 "text=large\ncontrast=bold\n" KW_SYNC=401 KW_KEYS="$SY confirm"
+mkdir -p out/sync_none; rm -rf /tmp/kwsd; cp -r sample /tmp/kwsd; printf 'net=HomeNet\thunter22\n' > /tmp/kwsd/kw/net.txt; env KW_SD=/tmp/kwsd KW_OUT=out/sync_none KW_NOW="2026-10-14 13:10" KW_WIFI="$NETS" KW_KEYS="$SY" ./kw_host >/dev/null
 python3 topng.py out
 ./test_settings.sh   # settings file round trip, bad values, button remap tables
 ./test_update.sh
 ./test_net.sh      # saved networks, PIN, one client, joining on a simulated network
+./test_sync.sh     # the sync client against a simulated Studio, and the screens end to end
 ./test_off.sh      # nothing is sent anywhere, nothing wakes the radio: the code, the app, and the radio log
 ./test_focus.sh    # round/break schedule, late wakes (also past the 4 a.m. roll), stale runs, month counts
 ./test_legacy.sh   # logs written before the care split (old keys for meds, meals, mood) still read and count

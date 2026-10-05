@@ -59,6 +59,22 @@ bool wifiMdns(const char* name);                             // announce <name>.
 uint32_t random32();                                         // hardware random (esp_random) / the host's seeded source
 void memInfo(uint32_t* freeBytes, uint32_t* lowWater, uint32_t* largestBlock);  // heap numbers for the on-device probe (0s on the host)
 
+// ---- Sync with the user's Studio (BUILD-PLAN N2). The ONLY calls that reach a host other than the joined network's own access point.
+// Called only from core/sync.cpp (syncRun), which the app calls only when the user presses Send on the sync preview screen. The default
+// firmware build has no TLS: syncBuilt() is false and every other call here does nothing. The x4-tls build pins the CA the caller gives
+// and checks the host name against it (net/hostcheck.cpp); a build that cannot check the host name refuses to send (SyncNet::NoHostCheck).
+enum class SyncNet : uint8_t { Ok, NotBuilt, Unreachable, Tls, NoHostCheck, WrongServer, Aborted, Failed };
+bool syncBuilt();
+bool wifiStartSync();                                        // radio in station mode ONLY: no web page, no hotspot, no name announcement
+SyncNet syncOpen(const char* host, uint16_t port, const char* caPem);   // TCP probe, TLS with the pinned CA + host name check, GET /api/health
+// One request on the open session. offset >= 0 sends X-Offset. body may be null. The answer's body goes in reply (NUL-terminated, cut at cap).
+SyncNet syncRequest(const char* method, const char* path, const char* token, long offset, const uint8_t* body, size_t len, int* code, char* reply, size_t cap, int* retryAfter);
+void syncClose();
+bool syncAbort();                                            // true once Back was pressed since the last call
+void pauseMs(uint32_t ms);
+long fileSize(const char* path);                             // -1 if missing
+int readAt(const char* path, uint32_t offset, uint8_t* buf, int cap);   // bytes read, 0 at the end, -1 on error
+
 // Power: show whatever is in the framebuffer and deep-sleep until `wakeAt` (UTC) or the power button.
 [[noreturn]] void sleepUntil(time_t wakeAt);
 }  // namespace hal
