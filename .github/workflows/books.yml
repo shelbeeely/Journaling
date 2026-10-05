@@ -54,6 +54,8 @@ jobs:
         run: node test-init.mjs
       - name: Scan options check (Send-to block, border off, code position/size/format/content, no code, unique codes across books)
         run: node test-scan.mjs
+      - name: "Print accessibility check (large print and high-contrast ink: off is byte-identical, on passes check.mjs in both trims and hardcover, no Type 3 fonts, scan zones where they were, bigger type and darker rules, a quarter book keeps its volumes within 24 to 110 pages)"
+        run: node test-a11y-print.mjs
       - name: 'Studio tests (versioning - commits, branches, drafts, forbidden content, authorization, import/export round trip, editor to print)'
         # Sample data only (test.ics). The Keeper, the sample month and the editor are built here just for these tests; the Build step below
         # overwrites all of them, so nothing from this step is packaged. Needs Node 22.13+ (built-in SQLite).
