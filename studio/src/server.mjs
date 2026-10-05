@@ -4,6 +4,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { StudioError } from './db.mjs';
+import { LIMITS } from './devices.mjs';
 
 const MAX_JSON = 2 * 1024 * 1024, MAX_ASSET = 5 * 1024 * 1024 + 1024;
 const TYPES = { '.html': 'text/html; charset=utf-8', '.json': 'application/json', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.txt': 'text/plain; charset=utf-8' };
@@ -78,6 +79,25 @@ export function createApp(studio, { staticDir = null, corsOrigins = [], openRegi
   route('POST', `${P}/assets`, async (c) => [201, { asset: S.putAsset(c.user, c.m[1], { name: c.req.headers['x-asset-name'], mime: String(c.req.headers['content-type'] || '').split(';')[0].trim(), bytes: await c.bytes() }) }]);
   route('GET', `${P}/assets/([0-9a-f]{64})`, (c) => { const a = S.getAsset(c.user, c.m[1], c.m[2]); return { raw: a }; });
 
+  // N2: the X4's own routes. A device token is not a session: it works here and nowhere else, and a user's session does not work here.
+  // Wrong, revoked and unknown tokens all answer 401 device_token; too many tries answer 429 with Retry-After.
+  const dev = (c) => S.deviceAuth(c.token, c.req.socket.remoteAddress || '');
+  route('GET', '/api/device/info', (c) => S.deviceInfo(dev(c)));
+  route('POST', '/api/device/log/(\\d{4}-\\d{2})', async (c) => {
+    const d = dev(c);
+    const raw = c.req.headers['x-offset'];
+    const offset = typeof raw === 'string' && /^\d{1,10}$/.test(raw) ? +raw : NaN;
+    return [200, S.appendDeviceLog(d, c.m[1], offset, await c.bytes(LIMITS.chunk))];
+  });
+  // The signed-in user's side: add a device (the token is in that one answer), list, revoke, read or delete what it sent.
+  route('POST', '/api/devices', async (c) => [201, S.addDevice(c.user, await c.body())]);
+  route('GET', '/api/devices', (c) => ({ devices: S.listDevices(c.user) }));
+  route('POST', '/api/devices/([0-9a-f]{12})/revoke', (c) => S.revokeDevice(c.user, c.m[1]));
+  route('GET', '/api/devices/([0-9a-f]{12})/audit', (c) => S.deviceAudit(c.user, c.m[1], c.query.get('limit')));
+  route('GET', '/api/devices/([0-9a-f]{12})/logs', (c) => S.deviceLogMonths(c.user, c.m[1]));
+  route('GET', '/api/devices/([0-9a-f]{12})/logs/(\\d{4}-\\d{2})', (c) => ({ raw: S.readDeviceLog(c.user, c.m[1], c.m[2]), kind: 'log' }));
+  route('DELETE', '/api/devices/([0-9a-f]{12})/logs', (c) => S.deleteDeviceLogs(c.user, c.m[1], c.query.get('month') || undefined));
+
   const cors = (req, res) => {
     const o = req.headers.origin;
     if (o && corsOrigins.includes(o)) {
@@ -117,9 +137,13 @@ export function createApp(studio, { staticDir = null, corsOrigins = [], openRegi
         const ctx = {
           user, token, m, query: url.searchParams, req,
           body: async () => { const b = await readBody(req, MAX_JSON); if (!b.length) return {}; try { const v = JSON.parse(b.toString('utf8')); if (!v || typeof v !== 'object' || Array.isArray(v)) throw 0; return v; } catch { throw new StudioError(400, 'bad_json', 'The request body must be a JSON object.'); } },
-          bytes: () => readBody(req, MAX_ASSET),
+          bytes: (limit = MAX_ASSET) => readBody(req, limit),
         };
         const out = await fn(ctx);
+        if (out && out.kind === 'log') { // a device's month log, for the account that owns it: text, never cached, never shown inline
+          res.writeHead(200, { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Length': out.raw.body.length, 'X-Content-Type-Options': 'nosniff', 'Cache-Control': 'no-store', 'Content-Disposition': `attachment; filename="${out.raw.month}.csv"` });
+          res.end(out.raw.body); return;
+        }
         if (out && out.raw) { // an asset: bytes, served so a browser can never run it
           res.writeHead(200, { 'Content-Type': out.raw.mime, 'Content-Length': out.raw.bytes.length, 'X-Content-Type-Options': 'nosniff', 'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; sandbox", 'Cache-Control': 'private, max-age=0, must-revalidate', 'Content-Disposition': `inline; filename="${out.raw.name.replace(/"/g, '')}"` });
           res.end(out.raw.bytes); return;
@@ -129,6 +153,7 @@ export function createApp(studio, { staticDir = null, corsOrigins = [], openRegi
       }
       throw new StudioError(404, 'not_found', 'Not found.');
     } catch (e) {
+      if (e instanceof StudioError && e.status === 429 && e.details && e.details.retryAfter) res.setHeader('Retry-After', String(e.details.retryAfter));
       if (e instanceof StudioError) return send(res, e.status, { error: { code: e.code, message: e.message, ...(e.details !== undefined ? { details: e.details } : {}) } });
       console.error(e);
       send(res, 500, { error: { code: 'server_error', message: 'Something went wrong on the server.' } });

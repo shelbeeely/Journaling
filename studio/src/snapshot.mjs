@@ -39,7 +39,8 @@ const FORBIDDEN_KEYS = new Set(`password passwd passphrase pwd token accesstoken
   person location lat lon lng latitude longitude email phone address home
   crisis paths transit profile account accounts settings accountsettings usersettings session sessions
   private privatepages privatenotes support trans clinic packs pack supportpack clinicpack
-  entries journalentries filled filledin answers responses moodlog`.split(/\s+/).filter(Boolean));
+  entries journalentries filled filledin answers responses moodlog
+  log logs checkin checkins devicelog devicelogs device devices devicetoken devicetokens kwlog`.split(/\s+/).filter(Boolean));
 const keyId = (k) => String(k).toLowerCase().replace(/[^a-z0-9]/g, '');
 const FORBIDDEN_PATH = [
   [/(^|[\\/])private([\\/]|$)/i, 'a private/ path'],
@@ -51,9 +52,13 @@ const FORBIDDEN_PATH = [
   [/(^|[\\/])packs[\\/]/i, 'a pack folder (packs travel as id and hash only)'],
   [/(^|[\\/])pack\.json\b/i, 'a pack manifest (packs travel as id and hash only)'],
   [/\.(pem|p12|pfx|7z)$/i, 'a key or encrypted archive'],
+  [/(^|[\\/])kw[\\/](log|sync|net)\b|(^|[\\/])sync\.txt$/i, "the X4's check-in log or its sync and Wi-Fi files"],
+  [/(^|[\\/])\d{4}-\d{2}\.csv$/i, 'a check-in log file'],
 ];
 const FORBIDDEN_VALUE = [
   [/BEGIN:V(CALENDAR|EVENT)/, 'calendar data'],
+  [/\bkwd_[0-9a-f]{12}_[A-Za-z0-9_-]{20,}/, 'a device token'],
+  [/(^|\n)\d{4}-\d{2}-\d{2}T?\d{2}:\d{2},[a-z][a-z0-9_]*,[^\n]*(\n|$)/, 'check-in log lines'],
   [/-----BEGIN [A-Z ]*PRIVATE KEY-----/, 'a private key'],
   [/\b(ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}/, 'a GitHub token'],
   [/github_pat_[A-Za-z0-9_]{20,}/, 'a GitHub token'],

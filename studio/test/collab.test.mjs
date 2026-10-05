@@ -502,7 +502,7 @@ test('HTTP: fork, propose, review, merge and the guest/permission matrix through
 test('migration 002 applies on top of a G1 database and is recorded', () => {
   const { db } = fresh();
   const names = db.prepare('SELECT name FROM schema_migrations ORDER BY name').all().map((r) => r.name);
-  assert.deepEqual(names, ['001_init.sql', '002_collab.sql']);
+  assert.deepEqual(names.slice(0, 2), ['001_init.sql', '002_collab.sql']); // later migrations (N2 devices) sit on top
   for (const tbl of ['proposals', 'proposal_events', 'proposal_accepts']) assert.ok(db.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?").get(tbl));
   assert.ok(emptySnapshot && PASSWORD);
 });
