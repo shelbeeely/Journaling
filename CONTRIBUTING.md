@@ -4,7 +4,7 @@ Journalwright Studio is a system for designing and publishing physical journals 
 
 ## Licence
 
-Docs and guide content (`docs/`, including the methods library, the `/docs/` and `/guide/` site pages, and these docs rules) are **CC0 1.0**, a public domain dedication. By contributing text to the docs you offer it under CC0 1.0, so do not copy in anything that does not allow that. Code you contribute is offered under **MIT**. Packs keep the licence their `pack.json` declares. A built `x4-tls` firmware image is GPL-2.0 as a whole because it links wolfSSL; see [`LICENSING.md`](LICENSING.md).
+The methods docs (`docs/journaling/methods/`), the `/docs/` and `/guide/` site pages and their source, and these docs rules are **CC0 1.0**, a public domain dedication. Other planning and review notes under `docs/` are not covered (all rights reserved unless a file states otherwise). By contributing text to the docs you offer it under CC0 1.0, so do not copy in anything that does not allow that. Code you contribute is offered under **MIT**. Packs keep the licence their `pack.json` declares. A built `x4-tls` firmware image is GPL-2.0 as a whole because it links wolfSSL; see [`LICENSING.md`](LICENSING.md).
 
 ## Ways to help
 

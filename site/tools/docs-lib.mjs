@@ -27,7 +27,7 @@ export const STATUSES = ['draft', 'reviewed', 'needs-update'];
 export const REQUIRED_SECTIONS = ['At a glance', 'Summary', 'History and origin', 'Philosophy and principles', 'Core components', 'Setting it up', 'Daily practice', 'Rhythms', 'Page anatomy', 'Worked examples', 'Variations and offshoots', 'Community practice', 'Official products and formats', 'Tools and supplies', 'Digital and hybrid versions', 'Evidence and research', 'Benefits', 'Pitfalls', 'Accessibility and adaptations', 'Comparison', 'Combining', 'Ready-to-use bank', 'Glossary', 'FAQ', 'For Journalwright Studio', 'Open questions', 'Further reading', 'Sources'];
 // Words that must never appear in public docs or the public site (the repo URL is the one allowed exception).
 export const PERSONAL = /spokane|keeping watch|shelbee|johnsondelbert/i;
-export const LICENCE_NOTE = 'Docs and guide text are CC0 1.0, a public domain dedication. Code is MIT.';
+export const LICENCE_NOTE = 'These docs and the guide are CC0 1.0, a public domain dedication. Code is MIT.';
 
 export const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 

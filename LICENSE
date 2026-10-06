@@ -22,5 +22,5 @@ SOFTWARE.
 
 This licence covers the code and everything else in this repository except
 the docs and guide content, which are CC0 1.0 (see LICENSING.md and
-docs/LICENSE-docs), and content packs, which each declare their own licence in
+docs/journaling/methods/LICENSE), and content packs, which each declare their own licence in
 pack.json. A built x4-tls firmware image is GPL-2.0 as a whole (see LICENSING.md).
