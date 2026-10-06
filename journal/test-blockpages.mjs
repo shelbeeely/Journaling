@@ -30,9 +30,9 @@ ok(kindPage('blank', '', null) === '<div class="blankpage"></div>' && kindPage('
 ok(isDefaultLayout(defaultLayout('notes'), 'notes') && isDefaultLayout(null, 'collection') && !isDefaultLayout({ v: 2, blocks: [B('body'), B('lines')] }, 'notes'), 'the starting layout is told from an edited one');
 
 // ---- 2. the kinds ----
-ok(Object.keys(PAGE_KINDS).join() === 'day,notes,collection,blank', 'four page kinds: day, notes, collection, blank');
+ok(Object.keys(PAGE_KINDS).join() === 'day,notes,collection,blank,spread,half', 'page kinds: day, notes, collection, blank, and the two of a spread day (S1)');
 ok(gridRows('small', 'blank') === 27 && gridRows('letter', 'blank') === 27 && gridRows('small', 'notes') === 24 && gridRows('small', 'collection') === 24 && gridRows('small') === 24, 'each kind has its own fixed number of rows (blank has no header, so three more)');
-ok(Object.values(GRIDS).every((g) => g.cols === 4), 'every kind has four columns, so a layout carries across kinds and sizes');
+ok(Object.entries(GRIDS).every(([k, g]) => g.cols === (k === 'spread' ? 8 : 4)), 'every page has four columns (a spread is two pages of them), so a layout carries across kinds and sizes');
 ok(!allowedIn('notes', 'sky') && !allowedIn('blank', 'events') && !allowedIn('collection', 'sendto') && allowedIn('notes', 'checks') && allowedIn('blank', 'sketch'), 'blocks that read a day (or the scan strip) stay on the day page');
 {
   const L = normalize({ v: 2, blocks: [B('sky'), B('checks'), B('sendto')] }, 'small', 'notes');
