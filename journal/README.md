@@ -345,8 +345,18 @@ These three page types are made of the same blocks as the day page, on a fixed g
   (the same routes as `#day/<date>/edit`). The page opens in the day page editor (palette, options, Flow/Grid, Undo, overflow meter), with the page's own
   header and grid; the day's scan settings, methods and `daypage.json` tools are not shown. Every change is saved into the book (this browser, the Artifact store,
   the Studio draft, or the book's GitHub commit), and the canvas lays the page out again. Automatic padding Notes pages have no entry, so nothing to edit.
-- **Not yet:** a `sendto` block on these pages, per-page scan settings, spread days, and month, week, review and back-matter pages as blocks (C5b).
+- **Not yet:** a `sendto` block on these pages, per-page scan settings, and month, week, review and back-matter pages as blocks (C5b).
 - **Tests:** `node test-blockpages.mjs` (nothing drifts, the rules, `flowBook` equals `assemble`, an edited book builds and passes `check.mjs`) and the Block pages section of `editor/test.mjs`.
+
+### Spread days (S1)
+A day can cover one page (the default) or a whole two-page spread: a left page and a right page treated as one canvas of 8 columns x 24 rows, with the fold between column 4 and 5.
+- **In `book.json`:** the `days` entry (in the weeks group's `week` list) takes options: `format` (`page` | `spread`, every day), `weekdays` (`{"sat": "spread", "sun": "spread"}`) and `dates` (`{"2026-10-14": "spread"}`). Most specific wins. A month's own page list (`months`) has its own `days` entry, which is the per-month override. No options = one page a day, exactly as before. `bookrules.mjs` `dayFormat()` and `dayOptionProblems()`; an undated book honours `format` only.
+- **In `daypage.json`:** `spread` is the spread's layout (`{ v: 2, kind: "spread", grid: true, blocks: [...] }`, blocks placed with `col` 1 to 8). It is stored only when it differs from the starting spread (the day on the left, a ruled page on the right). The Writing space block is required once; the Send-to block is not offered (each page keeps its own SEND TO strip).
+- **Nothing crosses the fold.** A block lies wholly on the left page (columns 1 to 4) or the right page (5 to 8); `gridProblems()` refuses one that does not ("crosses the fold"). At print each page is an ordinary day-page grid (4 x 24), so rows, minimum spans and the per-cell overflow check are the day page's.
+- **Scan zones per page.** Every page keeps its own DATE / TITLE / TAGS header (the right page's DATE says "cont."), the 9 pt frame, the SEND TO strip and its own Data Matrix page code. Page ids `day.2026-10-17` and `day.2026-10-17.cont`; `layout.json` and the manifest carry `spread: "L"` or `"R"`.
+- **Pages.** A spread day always opens on a left-hand page, so a Notes padding page is added when the page before ended on the left; page counts, hardcover padding, volumes and the 110-page limit follow. `check-spreads.mjs` checks that the two pages face each other and keep their zones and codes.
+- **In the editor:** a day's edit mode has a "This day covers" box (One page / A spread; every weekday; every day) with the page count and the KDP note; the spread opens on a two-page canvas (one page at a time, with a switch, on a phone). The Book view's page organiser says which days are spreads on the Day pages row.
+- **Tests:** `node test-spreaddays.mjs` (Books CI), the Spread days sections of `editor/test.mjs` and `editor/test-a11y.mjs`, `studio/test/spread.test.mjs`. Decisions and what is not done: `docs/journaling/BUILD-PLAN.md` section 12, "S1 as built".
 
 ### Page organiser (Book view, edit mode)
 Edit the book (Edit at the whole-book level) and the canvas becomes an organiser; viewing stays read-only.
