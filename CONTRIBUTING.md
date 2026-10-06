@@ -2,9 +2,9 @@
 
 Journalwright Studio is a system for designing and publishing physical journals and planners. The public research docs (the methods library, published at `/docs/` on the site) are written so that anyone can correct, extend and add to them. You do not need to write code, and you can start from a browser.
 
-## Licence (placeholder, not yet decided)
+## Licence
 
-> **Licence to be confirmed.** The docs have no licence chosen yet. **CC BY-SA 4.0 is proposed** (credit the authors, share changes under the same licence), **pending the owner's confirmation**. Until that is confirmed, treat contributions as offered for inclusion under the licence the owner picks, and do not copy text in from anywhere that does not allow it. This section will be replaced when the decision is made. Code and other files in the repository are not covered by this note.
+Docs and guide content (`docs/`, including the methods library, the `/docs/` and `/guide/` site pages, and these docs rules) are **CC0 1.0**, a public domain dedication. By contributing text to the docs you offer it under CC0 1.0, so do not copy in anything that does not allow that. Code you contribute is offered under **MIT**. Packs keep the licence their `pack.json` declares. A built `x4-tls` firmware image is GPL-2.0 as a whole because it links wolfSSL; see [`LICENSING.md`](LICENSING.md).
 
 ## Ways to help
 
@@ -21,7 +21,7 @@ No GitHub account? Tell us through whoever shared the site with you; a form for 
 ## Writing a doc
 
 1. Copy `docs/journaling/methods/TEMPLATE.md` to `docs/journaling/methods/<slug>.md`. The slug is lowercase words joined by hyphens and must match the file name.
-2. Fill in the front matter: `title`, `slug`, `category`, `evidenceLevel`, `lastReviewed`, `status` and `contributors`. The allowed values are listed in the template. Use `status: draft` for a new doc; a reviewer sets `reviewed`.
+2. Fill in the front matter: `title`, `slug`, `category`, `evidenceLevel`, `lastReviewed`, `status` `contributors` and `licence` (always `CC0-1.0`). The allowed values are listed in the template. Use `status: draft` for a new doc; a reviewer sets `reviewed`.
 3. Keep all 28 numbered sections, in order. If one truly has nothing, say "Not applicable" and why.
 4. Run the lint: `node site/tools/lint-docs.mjs`. To see the site: `site/build.sh` (needs the editor setup in `SETUP.md`), or just `node site/tools/build-docs.mjs site/_out` to build the docs alone.
 

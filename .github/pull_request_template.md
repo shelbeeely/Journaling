@@ -10,7 +10,7 @@
 - [ ] There is an accessibility section with concrete adaptations
 - [ ] No personal data: no real names of private people, personal health details, home locations or calendars
 - [ ] The text is my own words (short, cited quotes only)
-- [ ] I agree my contribution can be offered under the docs licence once the owner confirms it (CC BY-SA 4.0 is proposed)
+- [ ] I agree my docs text is offered under CC0 1.0 (docs and guide) and my code under MIT (see `LICENSING.md`)
 
 ## Code checklist (delete if not needed)
 - [ ] The checks in `CLAUDE.md` pass (books, editor tests, `site/build.sh`)

@@ -24,7 +24,7 @@ The product is **Journalwright Studio**; *Keeping Watch* is Shelbee's own book (
   **The working editor moved from the site root to `/app/`.** Update any bookmark. If `EDITOR_PAGES_REPO` is set, the whole site goes to that repo.
 - The demo is built by `KW_PROFILE=content/profile.example.json KW_OUT=out-demo EDITOR_DIST=editor/dist-demo/ node editor/build.mjs`.
 - The site has "What you can do today" (shipped features with screenshots and inline SVG diagrams), "See it in action" (4 worked examples with demo links such as `editor/#day/2026-10-14/edit`) and a Roadmap of unfinished items only. When a roadmap item ships: move it up into a feature block, add a screenshot to `make-screens.mjs`, and drop it from the roadmap and the README table. The X4 home screen is never shown (its title is in firmware, not generic). The Versions drawer is hidden in the demo, so it is shot from the working build in guest mode.
-- Before a public launch: pick the license, check trademark and domain for the name, fill in credits.
+- Before a public launch: fill in credits. Licences are chosen (2026-10-06): code MIT, docs and guide CC0 1.0, x4-tls image GPL-2.0 via wolfSSL (see `LICENSING.md`). The owner kept the name "Journalwright Studio" and skipped a name check: add nothing about trademarks.
 
 ## Done
 - **Monthly books** for Oct 2026 – Sep 2027, in 5.5×8.5 and 8.5×11 (74–86 pages each), with 0 overflow and no Type 3 fonts.
@@ -100,6 +100,8 @@ The product is **Journalwright Studio**; *Keeping Watch* is Shelbee's own book (
    Refresh the 2027 pay periods once they're confirmed. Order one KDP proof per size before buying copies.
 
 ## Decisions (don't undo without asking)
+- **Licences (2026-10-06):** code MIT (`LICENSE`, holder "Shelbee and Journalwright Studio contributors"); docs and guide content CC0 1.0 (`docs/LICENSE-docs`); the x4-tls build is GPL-2.0 as a whole (wolfSSL), glue source stays MIT; each pack.json declares its own licence; docs front matter carries `licence: CC0-1.0` and the doc lint requires it. Site text says "Journalwright Studio contributors", never the owner's name (the privacy gate would fail). `LICENSE` is at the repo root and is not published to the site.
+- **Art journal (BUILD-PLAN 22.7, answered 2026-10-06):** both a day-book layer and a practice book, practice book first; black and white; self-ticked "I can" ladders, no gates; no streaks (totals and weeks with a touch); strands: contour, value, composition, perspective, colour, figure, lettering; page behind a dense drawing page stays light (confirm on the proof); guide floor 10 percent black and 0.75 pt (subject to the KDP proof); X4 timer redraws once a minute in v1; reference images paper only (user-loaded X4 reference is LATER and needs a firmware-scope review); scanned sketches physical only (Studio-held scans are LATER and need a privacy plan first); an agent drafts prompts and paths, the owner reviews before merge, all original or openly licensed; name "Drawing practice".
 - **Paperback first**, hardcover later (`HARDCOVER=1` pads to 76+). No tear-out pages: KDP can't perforate.
 - **Two books:** the monthly book goes out with her, and the Keeper stays home (monthly handoff = the dual system).
 - **Day page care row:** "Did something I enjoy" replaced "Went outside", because she's outside daily for work.

@@ -21,7 +21,7 @@ const shell = ({ title, description, body, up, depth }) => `<!doctype html>
 <header class="nav"><div class="wrap nav-in"><a class="brand" href="${up}"><span>Journalwright <b>Studio</b></span></a><nav aria-label="Sections"><a href="${depth}" aria-current="${depth === './' ? 'page' : 'false'}">Docs</a><a href="${depth}contributors/">Contributors</a><a href="${up}editor/">Editor demo</a></nav>
 <button class="theme" id="theme" type="button" aria-label="Switch between light and dark" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button></div></header>
 <main id="main" class="wrap doc">${body}</main>
-<footer class="foot"><div class="wrap foot-in"><p><b>Docs licence (placeholder).</b> ${esc(LICENCE_NOTE)}</p>
+<footer class="foot"><div class="wrap foot-in"><p><b>Licence.</b> ${esc(LICENCE_NOTE)}</p>
 <ul class="links"><li><a href="${REPO_URL}/blob/main/CONTRIBUTING.md">How to contribute</a></li><li><a href="${REPO_URL}/issues/new/choose">Suggest, correct or add a source</a></li><li><a href="${depth}contributors/">Contributors</a></li></ul></div></footer>
 <script src="${up}app.js"></script>${depth === './' ? `<script src="${depth}docs.js"></script>` : ''}</body></html>
 `;

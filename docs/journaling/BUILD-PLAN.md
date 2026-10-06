@@ -550,7 +550,7 @@ Shelbee asked for crosswords and word searches. They fit the pack system in thre
 **Public research docs (site `/docs/`).** The 44 method docs are rewritten to be non-personal (no author, location, personal health or local services) and published in full:
 - **Front matter** on every doc: title, slug, category, evidence level, last reviewed date, status, contributors, licence. The site builds an index with search, filters (category, evidence level, what it is good for, time per day), a comparison table, per-doc table of contents, "what you can build from this" links into the guide and the block library, and an "Improve this page" link.
 - **Standards:** claims tied to sources, health claims from peer-reviewed or clinical sources, evidence levels stated plainly, accessibility sections, no medical advice. A doc lint runs in CI: required sections present, every source has a title, URL and date checked, front matter valid, no personal words, no broken links.
-- **Licence:** the docs need a licence before others contribute. Proposed: CC BY-SA 4.0 for the docs (credit, share alike); to be confirmed by Shelbee before the site states it. Until then the site says "licence to be confirmed".
+- **Licence (decided 2026-10-06):** docs and guide content are CC0 1.0 (public domain dedication); code is MIT; a built x4-tls image is GPL-2.0 (wolfSSL). See `LICENSING.md`. Every doc carries `licence: CC0-1.0` in its front matter and the doc lint requires it; the site footers state it.
 
 **Crowdsourcing.**
 - **Contribution paths:** a `CONTRIBUTING.md` and a code of conduct; GitHub issue forms for *suggest a method*, *correct a fact*, *add or replace a source*, *suggest a translation*, *submit a pack*, *report a problem in the guide*; a pull request template with the checklist; `docs/journaling/TEMPLATE.md` (the 28-section method template) and a one-page writer's guide.
@@ -675,31 +675,43 @@ Within the firmware scope (no generative AI, no notifications, feeds or badges; 
 
 | Slice | Output | Size |
 |---|---|---|
-| **AJ0** | Docs only: a `drawing-practice` method doc (28-section template, original wording, sources checked), a prompt and path writing guide, answers to the open questions | S |
+| **AJ0** | Docs only: a `drawing-practice` method doc (28-section template, original wording, sources checked), a prompt and path writing guide. The open questions are answered (22.7); an agent drafts, the owner reviews before merge | S |
 | **AJ1** | `sketch` options (`guide`, `ratio`) and `thumbs`, defaults unchanged; shared SVG guide primitives (0.75 pt and 10 percent floors, tested at both trims); the front-matter dry-media note | S |
 | **AJ2** | `swatch`, `refbox`, `value`, `blind`, `doodle`, with zones, minimum spans and overflow tests | S to M |
 | **AJ3** | `pattern`, `gluestrip`, `collage` (pocket fold lines), `lettering`, `figure`, `persp`; the collage scan test | M |
 | **AJ4** | Drawing prompt packs: `prompts` gets tags and filters, the `prompt` block gets `strand` and `minutes` options, a starter set of about 60 original prompts with low-energy and no-sight variants | M |
-| **AJ5** | `practicelog` block, month totals in the handoff style, gentle-count wording, weekly and monthly review additions | M |
+| **AJ5** | `practicelog` block (totals and "weeks with a touch" only, no streaks), month totals in the handoff style, gentle-count wording, weekly and monthly review additions | M |
 | **AJ6** | Whole drawing pages in the organiser's "add page" palette | M |
-| **AJ7** | Method layouts (Drawing practice day, Art journal day), baseline and revisit pages with cross-references, an undated 30-day and 12-week starter kit | M |
+| **AJ7** | Method layouts (Drawing practice day, Art journal day), baseline and revisit pages with cross-references, an undated 30-day and 12-week starter kit. The practice book comes first, then the day-book art layer (answer 1); levels are self-ticked "I can" ladders with no gates (answer 3) | M |
 | **AJ8** | Pack kinds `practice-paths` and `guides`, validators, credits, pinning; the first guide pack for a second script | M |
 | **AJ9** | X4: prompt of the day, sketch timer presets, "Drew today" and minutes check-ins; RAM and flash measured; host preview screens | M |
 | **AJ10** | Translated prompts and paths, RTL and script guides, accessibility audit of the new blocks, a guide chapter and a site feature block with screenshots | M |
-| **AJ11** | Only if wanted: colour interior option, user-loaded reference image on the X4 sleep screen | decide later |
+| **AJ11** | LATER, each needs its own plan before any build: user-loaded reference image on the X4 sleep screen (firmware-scope review, section 19), Studio-held scanned sketches (privacy plan). A colour interior is not planned (22.7 answer 2) | decide later |
 
 Every slice: default pages byte-identical (24/24), `check.mjs` "[] 0", `pdffonts` shows no Type 3, new blocks render at both trims, `layout.json` maps every new zone, the privacy gate stays green, and no personal strings enter the site or the methods docs.
 
-### 22.7 Open questions for Shelbee
+### 22.7 Questions for Shelbee (all answered 2026-10-06)
 1. **Scope:** an art layer in the normal day book, a separate **drawing practice book** (undated, 30 days or 12 weeks), or both? (Suggested: both, practice book first.)
+   **Answered 2026-10-06:** both, practice book first.
 2. **Colour:** stay black and white (colour by hand with pencils), or plan a colour interior option later? It changes cost and KDP limits.
+   **Answered 2026-10-06:** black and white (colour by hand with pencils); no colour interior planned.
 3. **Levels:** self-ticked "I can" ladders with no gates (suggested), or only a baseline and revisit?
+   **Answered 2026-10-06:** self-ticked "I can" ladders, no gates.
 4. **Streaks:** confirm no streak at all, only totals and "weeks with a touch", on paper and on the X4.
+   **Answered 2026-10-06:** no streaks; totals and "weeks with a touch" only, on paper and on the X4.
 5. **Strand order:** suggested: observation and contour, then value, composition, perspective, colour, then figure and lettering.
+   **Answered 2026-10-06:** contour, value, composition, perspective, colour, figure, lettering.
 6. **Show-through:** should the page behind a dense drawing page stay light by default? Needs a proof to decide.
+   **Answered 2026-10-06:** the page behind a dense drawing page stays light by default; confirm on the proof.
 7. **Guide tone:** accept 10 percent black and 0.75 pt as the floor, subject to a KDP proof?
+   **Answered 2026-10-06:** accepted: 10 percent black and 0.75 pt floor, subject to the KDP proof.
 8. **X4 timer:** is a once-a-minute redraw enough for v1, or does 30-second gesture timing matter enough to wait for hardware measurements?
+   **Answered 2026-10-06:** a once-a-minute redraw is enough for v1.
 9. **Reference images:** paper only (suggested), or later a user-loaded reference on the X4 sleep screen?
+   **Answered 2026-10-06:** paper only for now. A user-loaded X4 reference is a LATER feature and needs its own firmware-scope review (section 19, `x4/CLAUDE.md` rules) before any build.
 10. **Scanned sketches:** keep drawings physical only (suggested), or one day let the Studio hold scanned pages for before and after? That needs its own privacy plan.
+   **Answered 2026-10-06:** physical only for now. Studio-held scans are a LATER feature and need their own privacy plan before any build.
 11. **Authors:** will you write the first prompts and paths, or should an agent draft them for your review? (All must be original or openly licensed.)
+   **Answered 2026-10-06:** an agent drafts prompts and paths and the owner reviews before merge; all original or openly licensed.
 12. **Name:** "Drawing practice" for the kit and method doc, or something else?
+   **Answered 2026-10-06:** "Drawing practice".

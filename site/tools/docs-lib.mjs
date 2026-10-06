@@ -27,7 +27,7 @@ export const STATUSES = ['draft', 'reviewed', 'needs-update'];
 export const REQUIRED_SECTIONS = ['At a glance', 'Summary', 'History and origin', 'Philosophy and principles', 'Core components', 'Setting it up', 'Daily practice', 'Rhythms', 'Page anatomy', 'Worked examples', 'Variations and offshoots', 'Community practice', 'Official products and formats', 'Tools and supplies', 'Digital and hybrid versions', 'Evidence and research', 'Benefits', 'Pitfalls', 'Accessibility and adaptations', 'Comparison', 'Combining', 'Ready-to-use bank', 'Glossary', 'FAQ', 'For Journalwright Studio', 'Open questions', 'Further reading', 'Sources'];
 // Words that must never appear in public docs or the public site (the repo URL is the one allowed exception).
 export const PERSONAL = /spokane|keeping watch|shelbee|johnsondelbert/i;
-export const LICENCE_NOTE = 'Licence to be confirmed. CC BY-SA 4.0 is proposed, pending the owner\'s confirmation.';
+export const LICENCE_NOTE = 'Docs and guide text are CC0 1.0, a public domain dedication. Code is MIT.';
 
 export const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -75,7 +75,7 @@ export function validateFrontMatter(doc) {
     else if (t > Date.now() + 864e5) p.push('front matter: lastReviewed is in the future');
   }
   if (d.contributors && !Array.isArray(d.contributors)) p.push('front matter: contributors must be a list');
-  if (d.licence !== undefined && typeof d.licence !== 'string') p.push('front matter: licence must be text');
+  if (d.licence !== 'CC0-1.0') p.push('front matter: licence must be CC0-1.0');
   return p;
 }
 
