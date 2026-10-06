@@ -5,6 +5,7 @@ category: productivity
 evidenceLevel: anecdotal
 lastReviewed: 2026-01-01
 status: draft
+licence: CC0-1.0
 contributors:
   - Your name or handle
 ---
@@ -17,7 +18,7 @@ evidenceLevel: strong (several trials or systematic reviews) | some (a few studi
 status:        draft | reviewed | needs-update        (reviewers set "reviewed")
 lastReviewed:  the date a person last checked the sources, YYYY-MM-DD
 contributors:  how you want to be credited, with your consent. Leave it as a handle if you like.
-licence:       leave out. The docs licence is still to be confirmed (CC BY-SA 4.0 is proposed), so nothing is stated per doc yet.
+licence:       CC0-1.0 (required; all docs are a public domain dedication, see LICENSE in this folder)
 Keep all 28 sections below, numbered, in this order. Write "Not applicable" and one line of why if a section truly has nothing.
 Check with: node site/tools/lint-docs.mjs
 -->

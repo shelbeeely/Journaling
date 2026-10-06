@@ -5,6 +5,7 @@ category: planner
 evidenceLevel: anecdotal
 lastReviewed: 2026-09-30
 status: reviewed
+licence: CC0-1.0
 contributors:
   - Journalwright Studio contributors
 ---

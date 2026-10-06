@@ -91,5 +91,5 @@ Details and order: [BUILD-PLAN.md](docs/journaling/BUILD-PLAN.md).
 
 ## License and credits
 
-License: to be chosen before the first public release. Credits: to be added (research sources are listed in the methods docs;
+Licences: code is MIT ([LICENSE](LICENSE)); the methods docs and guide content are CC0 1.0 ([docs/journaling/methods/LICENSE](docs/journaling/methods/LICENSE); planning and review notes are not); a built `x4-tls` firmware image is GPL-2.0 because it links wolfSSL; each content pack declares its own. See [LICENSING.md](LICENSING.md). Credits: to be added (research sources are listed in the methods docs;
 X4 firmware builds on the FreeInk SDK).
