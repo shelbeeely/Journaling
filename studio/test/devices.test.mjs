@@ -28,9 +28,9 @@ test('adding a device: the token is shown once, only its sha256 is stored, and s
     const row = t.db.prepare('SELECT token_hash FROM devices WHERE id = ?').get(device.id);
     assert.equal(row.token_hash, sha256(token));
     // the token is nowhere in the database in the clear, and nothing the API lists can show it again
-    for (const tbl of ['devices', 'device_logs', 'device_audit', 'sessions', 'users']) assert.ok(!JSON.stringify(t.db.prepare(`SELECT * FROM ${tbl}`).all()).includes(token.split('_')[2]), tbl);
+    for (const tbl of ['devices', 'device_logs', 'device_audit', 'sessions', 'users']) assert.ok(!JSON.stringify(t.db.prepare(`SELECT * FROM ${tbl}`).all()).includes(token.slice(token.indexOf('_', 4) + 1)), tbl);
     const list = await t.call('GET', '/api/devices', { token: (await t.call('POST', '/api/auth/login', { body: { username: 'sam', password: PASSWORD } })).body.token });
-    assert.ok(!JSON.stringify(list.body).includes(token.split('_')[2]));
+    assert.ok(!JSON.stringify(list.body).includes(token.slice(token.indexOf('_', 4) + 1)));
     assert.match(syncTxt, /^# KEEPING WATCH STUDIO SYNC\. THIS FILE HOLDS A SECRET TOKEN/);
     assert.ok(syncTxt.includes(`\nserver=studio.example.com\ntoken=${token}\nlog=0\n`));
     assert.equal(syncFile(undefined, token).includes('server=studio.example.com'), true);
@@ -162,7 +162,7 @@ test('the owner can list, read and delete what a device sent, and see an audit t
     assert.equal((await t.call('GET', '/api/devices', { token: user })).body.devices[0].logs.months, 2);
     const audit = (await t.call('GET', `/api/devices/${device.id}/audit`, { token: user })).body.audit;
     assert.deepEqual(audit.map((x) => x.action).sort(), ['created', 'upload', 'upload']);
-    assert.ok(!JSON.stringify(audit).includes('spoons') && !JSON.stringify(audit).includes(token.split('_')[2]));
+    assert.ok(!JSON.stringify(audit).includes('spoons') && !JSON.stringify(audit).includes(token.slice(token.indexOf('_', 4) + 1)));
     assert.equal((await t.call('DELETE', `/api/devices/${device.id}/logs?month=2026-09`, { token: user })).body.deleted, 1);
     assert.equal((await t.call('GET', `/api/devices/${device.id}/logs/2026-09`, { token: user })).status, 404);
     assert.equal((await t.call('DELETE', `/api/devices/${device.id}/logs`, { token: user })).body.deleted, 1);
