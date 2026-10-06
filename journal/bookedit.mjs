@@ -261,6 +261,16 @@ export function dayFormatOf(book, mon, date) {
   const src = o.dates && o.dates[date] ? 'date' : o.weekdays && o.weekdays[key] ? 'weekday' : o.format ? 'all' : 'default';
   return { format: fmt, source: src, weekday: key, weekdayName: WEEKDAY_NAMES[key], entry: !!at };
 }
+// One line for the organiser's row of the day pages: which days are spreads ("Sat, Sun spreads · 1 spread day"), '' when none.
+export function daySummary(options) {
+  const o = options || {}, parts = [];
+  if (o.format === 'spread') parts.push('every day a spread');
+  const w = WEEKDAY_KEYS.filter((k) => (o.weekdays || {})[k] === 'spread').map((k) => WEEKDAY_NAMES[k].slice(0, 3));
+  if (w.length) parts.push(`${w.join(', ')} ${w.length > 1 ? 'are spreads' : 'is a spread'}`);
+  const d = Object.values(o.dates || {}).filter((v) => v === 'spread').length;
+  if (d) parts.push(`${d} spread ${d > 1 ? 'days' : 'day'} by date`);
+  return parts.join(' · ');
+}
 // Set (or clear, fmt = null) how much room days get. scope: { date } one day, { weekday: 'sat' } every Saturday, { all: true } every day.
 // A setting that says what the less specific one already says is dropped, so an untouched book's book.json stays the one it was.
 export function setDayFormat(book, cat, mon, scope, fmt) {

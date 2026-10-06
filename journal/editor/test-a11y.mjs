@@ -409,6 +409,20 @@ for (const w of [320, 390]) {
   if (w === 390) await smallTargets(p, 'Versions drawer 390px');
   await close(p);
 }
+// 4b) Spread days (S1): the span box and the two-page canvas, desktop and phone, light and dark; labelled radios, 44 px, keyboard, announcements
+for (const [w, scheme] of [[1400, 'light'], [1400, 'dark'], [390, 'light'], [390, 'dark']]) {
+  const tag = `Spread day (${w}px ${scheme})`, p = await open('site', { hash: '#day/2026-10-17/edit', w, h: w > 500 ? 900 : 844, scheme });
+  await p.focus('#spanbox input[value="spread"]'); await p.keyboard.press('Space'); await p.waitForTimeout(500);
+  if (!(await p.evaluate(() => !!SPD && document.querySelectorAll('#pv .page').length === 2))) add('keyboard', tag, 'Space on the "A spread" choice does not make the day a spread');
+  if (!(await p.evaluate(() => document.activeElement && document.activeElement.name === 'span'))) add('keyboard', tag, 'focus is lost from the choice after it changes the page');
+  if (!(await liveSaid(p, /now a spread|is a spread/))) add('announce', tag, 'making a day a spread is not announced');
+  const names = await p.evaluate(() => [...document.querySelectorAll('#spanbox input')].filter((x) => !(x.closest('label') && x.closest('label').textContent.trim())).length);
+  if (names) add('names', tag, `${names} control(s) in the span box have no label`);
+  await axeRun(p, tag); await smallTargets(p, tag); await reflow(p, tag);
+  if (w < 500) { await p.evaluate(() => tab('preview')); await p.waitForTimeout(150); await smallTargets(p, `${tag} preview`); await p.click('#side-r'); await p.waitForTimeout(200); await reflow(p, `${tag} right page`); if (!(await liveSaid(p, /right page/))) add('announce', tag, 'the Left page / Right page switch is not announced'); }
+  if (w === 1400 && scheme === 'light') { await focusRing(p, tag, 14); await openAllOptions(p); await smallTargets(p, `${tag}, every option open`); }
+  await close(p);
+}
 { // dialogs, the demo and the Artifact build
   const p = await open('site', { hash: DAY });
   await p.evaluate(() => document.querySelector('#gh').showModal()); await axeRun(p, 'Save to GitHub dialog'); await smallTargets(p, 'Save to GitHub dialog', {});
