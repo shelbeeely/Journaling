@@ -79,10 +79,11 @@ Crisis and support numbers are never filled in for someone else. The `generic` p
 | Block editor, page grid, book canvas, library and series, scan options, KDP output, book scopes and volumes, profiles | Ready |
 | Versioning and accounts: history, compare, restore, branches; forks, proposals and three-way merge | Ready |
 | Accessibility baseline, the 44 methods library, e-ink companion (check-ins, focus timer, settings, Wi-Fi) | Ready |
-| Page organiser, spread days | In review |
+| Page organiser, spread days, notes/blank/collection pages as blocks, word-search and crossword blocks, releases and reusable pages (Studio API), print accessibility options (large print, high contrast) with a Settings panel, X4 sync client (needs the `x4-tls` build; not tested on hardware) | Ready |
 | Content packs (support, clinic, transit, holidays, seasons) and `npm run init` onboarding | Ready |
 | Pack ecosystem (themes, graphics, icon packs, block packs) | In progress |
-| Puzzle pages, block-based month/week/notes pages, releases, accessibility panel, languages, account locations, e-ink editor and sync | Planned |
+| Languages (editor strings are extracted into a catalog with test languages; no switcher or real translation yet) | In progress |
+| Block-based month and week pages, account locations, the e-ink editor, a reusable-pages picker in the editor | Planned |
 
 The website lists what works today with screenshots (`site/`), and keeps only unfinished work on its roadmap.
 
