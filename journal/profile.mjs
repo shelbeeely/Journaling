@@ -1,6 +1,6 @@
 // The profile: everything about WHO the journal is for and WHERE, in one file (content/profile.json), so the engine holds nothing
 // personal. Synchronous (fs only to read the file), so any module can `import { PROFILE }` at load time.
-//   content/profile.json          the committed profile (Shelbee's; today's books are built from it, byte for byte)
+//   content/profile.json          the committed profile (the owner's; today's books are built from it, byte for byte)
 //   content/profile.example.json  a generic person in a made-up city: copy it to start your own
 //   KW_PROFILE=path node render.mjs ...   build with another profile (test-profile.mjs does; nothing else needs it)
 //   content/library.json          optional: several books and series (library.mjs). KW_BOOK=<id> builds one of them; KW_LIBRARY=path
@@ -42,7 +42,7 @@ export function validateProfile(p) {
     return true;
   };
   sect('person', [['name', 'text', 'your first name, e.g. "Sam"']]);
-  if (sect('book', [['title', 'text', 'printed on the cover and title page, e.g. "Keeping Watch"'], ['subtitle', 'text', 'e.g. "A sky, season & self journal"'], ['slug', 'text', 'lowercase file-name stem, e.g. "keeping-watch"'], ['edition', 'num', 'a single digit 1-9'], ['start', 'text', 'first month of the 12-month year, e.g. "2026-10"']])) {
+  if (sect('book', [['title', 'text', 'printed on the cover and title page, e.g. "My Year"'], ['subtitle', 'text', 'e.g. "A sky, season & self journal"'], ['slug', 'text', 'lowercase file-name stem, e.g. "my-year"'], ['edition', 'num', 'a single digit 1-9'], ['start', 'text', 'first month of the 12-month year, e.g. "2026-10"']])) {
     const b = p.book;
     if (typeof b.edition === 'number' && !(Number.isInteger(b.edition) && b.edition >= 1 && b.edition <= 9)) bad('book.edition', 'must be a whole number 1 to 9 (a longer number pushes the page code past 16x16 modules)');
     if (str(b.start) && !/^\d{4}-(0[1-9]|1[0-2])$/.test(b.start)) bad('book.start', `must look like 2026-10, got ${JSON.stringify(b.start)}`);
@@ -51,14 +51,14 @@ export function validateProfile(p) {
     if (b.for_sale !== undefined && typeof b.for_sale !== 'boolean') bad('book.for_sale', 'optional; true when the book is sold: packs whose licence forbids commercial print are then refused');
     if (b.epoch !== undefined && !(str(b.epoch) && /^\d{4}-\d{2}-\d{2}$/.test(b.epoch) && new Date(b.epoch + 'T00:00:00Z').getUTCDay() === 1)) bad('book.epoch', 'optional; must be a Monday like 2026-09-28 (default: the Monday on or before the 1st of book.start)');
   }
-  if (sect('location', [['place', 'text', 'as printed, e.g. "Spokane, WA"'], ['city', 'text', 'short name used in sentences, e.g. "Spokane"'], ['region', 'text', 'e.g. "Washington"'], ['lat', 'num', 'degrees, north positive'], ['lon', 'num', 'degrees, east positive (west is negative)'], ['timezone', 'text', 'IANA name, e.g. "America/Los_Angeles"'], ['timezone_name', 'text', 'as printed, e.g. "Pacific Time"']])) {
+  if (sect('location', [['place', 'text', 'as printed, e.g. "Lakeside, MN"'], ['city', 'text', 'short name used in sentences, e.g. "Lakeside"'], ['region', 'text', 'e.g. "Minnesota"'], ['lat', 'num', 'degrees, north positive'], ['lon', 'num', 'degrees, east positive (west is negative)'], ['timezone', 'text', 'IANA name, e.g. "America/Chicago"'], ['timezone_name', 'text', 'as printed, e.g. "Central Time"']])) {
     const l = p.location;
     if (typeof l.lat === 'number' && Math.abs(l.lat) > 90) bad('location.lat', 'must be between -90 and 90');
     if (typeof l.lon === 'number' && Math.abs(l.lon) > 180) bad('location.lon', 'must be between -180 and 180');
     if (l.elevation !== undefined && typeof l.elevation !== 'number') bad('location.elevation', 'optional; metres above sea level, a number');
     if (str(l.timezone)) { try { new Intl.DateTimeFormat('en-US', { timeZone: l.timezone }); } catch { bad('location.timezone', `${JSON.stringify(l.timezone)} is not a time zone name`); } }
   }
-  if (!(Number.isInteger(p.day_start_hour) && p.day_start_hour >= 0 && p.day_start_hour <= 8)) bad('day_start_hour', `is required: the hour the paper day starts, a whole number 0 to 8 (Shelbee's is 4); got ${JSON.stringify(p.day_start_hour)}`);
+  if (!(Number.isInteger(p.day_start_hour) && p.day_start_hour >= 0 && p.day_start_hour <= 8)) bad('day_start_hour', `is required: the hour the paper day starts, a whole number 0 to 8 (for example 4); got ${JSON.stringify(p.day_start_hour)}`);
   if (!['small', 'letter'].includes(p.trim)) bad('trim', `is required: "small" (5.5x8.5) or "letter" (8.5x11), got ${JSON.stringify(p.trim)}`);
   if (!isObj(p.modules)) bad('modules', `is required: switch each of ${Object.keys(MODULES).join(', ')} on or off`);
   else {
@@ -66,7 +66,7 @@ export function validateProfile(p) {
     for (const k of Object.keys(p.modules)) if (!MODULES[k]) bad(`modules.${k}`, `not a module (use ${Object.keys(MODULES).join(', ')})`);
     if (p.modules.bus === true) {
       if (!isObj(p.transit)) bad('transit', 'is required when modules.bus is true: {agency, site, app}');
-      else for (const f of ['agency', 'site', 'app']) if (!str(p.transit[f])) bad(`transit.${f}`, 'is required when modules.bus is true (e.g. "STA", "spokanetransit.com", "STA app")');
+      else for (const f of ['agency', 'site', 'app']) if (!str(p.transit[f])) bad(`transit.${f}`, 'is required when modules.bus is true (e.g. "Metro", "metro.example.org", "Metro app")');
     }
   }
   errs.push(...printProblems(p.print)); // optional print accessibility options (a11yprint.mjs)
