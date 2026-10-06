@@ -60,7 +60,9 @@ export function journalFiles(snap, { book } = {}) {
   const book0 = { version: snap.book.version, default: snap.book.default.map(entryOrder), months: Object.fromEntries(Object.entries(snap.book.months).map(([k, v]) => [k, { pages: v.pages.map(entryOrder) }])) };
   const dayFile = (d) => {
     const day = normalize(d);
-    day.blocks = day.blocks.map((b) => Object.fromEntries([['uid', b.uid], ['type', b.type], ['on', b.on], ...TYPES[b.type].opts.map((o) => [o.k, b[o.k]]), ...(b.rows ? [['rows', b.rows]] : []), ...PLACE.map((k) => [k, b[k]])].filter(([, v]) => v !== undefined)));
+    const blockFile = (b) => Object.fromEntries([['uid', b.uid], ['type', b.type], ['on', b.on], ...TYPES[b.type].opts.map((o) => [o.k, b[o.k]]), ...(b.rows ? [['rows', b.rows]] : []), ...PLACE.map((k) => [k, b[k]])].filter(([, v]) => v !== undefined));
+    day.blocks = day.blocks.map(blockFile);
+    if (day.spread) day.spread = { ...day.spread, blocks: day.spread.blocks.map(blockFile) }; // (S1: the day's spread layout, same readable order)
     return day;
   };
   const files = { 'content/book.json': JSON.stringify(book0, null, 1) + '\n', 'content/daypage.json': JSON.stringify(dayFile(snap.day), null, 2) + '\n' };

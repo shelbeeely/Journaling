@@ -9,7 +9,7 @@
 // A spec is one page: { id, type, cls, label, shared, html } with {{P_x}} markers still in the html. occ[type][k] is what the page type
 // makes for the k-th month (month pages), the k-th week (week pages) or once (the rest); [] where it makes nothing.
 // Never hand-set, only shown: recto/verso alignment, padding to an even count (>= 24, hardcover >= 76), page numbers, {{P_x}} refs.
-import { validateBookWith, BLOCK_PAGES, REPEATS } from './bookrules.mjs';
+import { validateBookWith, BLOCK_PAGES, REPEATS, dayFormat, WEEKDAY_KEYS, WEEKDAY_NAMES } from './bookrules.mjs';
 import { kindPage, isDefaultLayout } from './daypage.mjs';
 
 export const repeatTypes = REPEATS; // the page types a book can hold more than once (Notes, Collection)
@@ -38,7 +38,14 @@ export function flowBook(entries, cat, opts = {}) {
       return [{ cls: 'notes', type: entry.type, id: entry.id, label: t, html }];
     }
     if (entry.type === 'blank' && entry.layout) return [{ cls: '', type: 'blank', id: 'blank', label: '', shared: false, html: kindPage('blank', '', entry.layout, opts.size, { pageId: entry.id }) }];
+    if (entry.type === 'days') return daySpecs(entry, k);
     return ((cat.occ || {})[entry.type] || [])[k] || [];
+  };
+  // The week's day pages: one page a day, or a spread (two pages) for the days the entry's options say (bookrules.mjs dayFormat). The catalog has both.
+  const daySpecs = (entry, k) => {
+    const singles = ((cat.occ || {}).days || [])[k] || [], pairs = (cat.spreadDays || [])[k], wd = ((cat.weeks || [])[k] || {}).days;
+    if (!singles.length || !pairs || !wd || !Object.keys(entry.options || {}).length) return singles;
+    return wd.flatMap((d, i) => (dayFormat(entry.options, d) === 'spread' ? pairs[i] : [singles[i]]));
   };
   const emit = (entry, k) => {
     if (entry.on === false) return;
@@ -47,7 +54,7 @@ export function flowBook(entries, cat, opts = {}) {
     const T = meta[entry.type];
     if (T.align === 'verso') alignToVerso();
     if (T.ref && refs[T.ref] === undefined) refs[T.ref] = pages.length + 1;
-    specs.forEach((s) => push(s, entry));
+    specs.forEach(({ align, ...s }) => { if (align === 'verso') alignToVerso(); push(s, entry); }); // (a spread day asks for a left-hand page of its own)
   };
   for (const entry of entries) {
     if (entry.type !== 'weeks') { emit(entry, 0); continue; }
@@ -243,6 +250,46 @@ export function setLayout(book, cat, mon, id, layout) {
   const e = at.entry;
   if (isDefaultLayout(layout, e.type)) delete e.layout; else e.layout = clone(layout);
   return done(b, cat, 'Changed the page', { id }, mon);
+}
+
+// ---------- spread days (S1) ----------
+// What a day gets: 'page' or 'spread', and where that comes from ('date', 'weekday', 'all' or 'default'). The weekday of a date is its UTC weekday.
+const weekdayOf = (date) => new Date(`${date}T12:00:00Z`).getUTCDay();
+export function dayFormatOf(book, mon, date) {
+  const at = locate(listFor(book, mon), 'days'), o = (at && at.entry.options) || {}, wd = weekdayOf(date), key = WEEKDAY_KEYS[wd];
+  const fmt = dayFormat(o, { date, weekday: wd });
+  const src = o.dates && o.dates[date] ? 'date' : o.weekdays && o.weekdays[key] ? 'weekday' : o.format ? 'all' : 'default';
+  return { format: fmt, source: src, weekday: key, weekdayName: WEEKDAY_NAMES[key], entry: !!at };
+}
+// One line for the organiser's row of the day pages: which days are spreads ("Sat, Sun spreads · 1 spread day"), '' when none.
+export function daySummary(options) {
+  const o = options || {}, parts = [];
+  if (o.format === 'spread') parts.push('every day a spread');
+  const w = WEEKDAY_KEYS.filter((k) => (o.weekdays || {})[k] === 'spread').map((k) => WEEKDAY_NAMES[k].slice(0, 3));
+  if (w.length) parts.push(`${w.join(', ')} ${w.length > 1 ? 'are spreads' : 'is a spread'}`);
+  const d = Object.values(o.dates || {}).filter((v) => v === 'spread').length;
+  if (d) parts.push(`${d} spread ${d > 1 ? 'days' : 'day'} by date`);
+  return parts.join(' · ');
+}
+// Set (or clear, fmt = null) how much room days get. scope: { date } one day, { weekday: 'sat' } every Saturday, { all: true } every day.
+// A setting that says what the less specific one already says is dropped, so an untouched book's book.json stays the one it was.
+export function setDayFormat(book, cat, mon, scope, fmt) {
+  const { b, list } = prep(book, mon), at = locate(list, 'days');
+  if (!at) return { err: 'This book has no day pages to change.' };
+  const e = at.entry, o = { ...clone(e.options || {}) };
+  if (fmt !== null && fmt !== 'page' && fmt !== 'spread') return { err: 'A day is one page or a spread.' };
+  const who = scope.date ? 'that day' : scope.weekday ? `every ${WEEKDAY_NAMES[scope.weekday]}` : 'every day';
+  if (scope.date) { o.dates = { ...(o.dates || {}) }; if (fmt === null) delete o.dates[scope.date]; else o.dates[scope.date] = fmt; }
+  else if (scope.weekday) { if (!WEEKDAY_KEYS.includes(scope.weekday)) return { err: 'That is not a weekday.' }; o.weekdays = { ...(o.weekdays || {}) }; if (fmt === null) delete o.weekdays[scope.weekday]; else o.weekdays[scope.weekday] = fmt; }
+  else if (scope.all) { if (fmt === null) delete o.format; else o.format = fmt; }
+  else return { err: 'Say which days: one date, a weekday, or all.' };
+  // tidy: no setting that repeats the one below it
+  if (o.format === 'page') delete o.format;
+  for (const k of Object.keys(o.weekdays || {})) if (o.weekdays[k] === (o.format || 'page')) delete o.weekdays[k];
+  for (const k of Object.keys(o.dates || {})) if (o.dates[k] === dayFormat({ format: o.format, weekdays: o.weekdays }, { weekday: weekdayOf(k) })) delete o.dates[k];
+  for (const k of ['weekdays', 'dates']) if (o[k] && !Object.keys(o[k]).length) delete o[k];
+  e.options = o;
+  return done(b, cat, `${fmt === 'spread' ? 'Spread' : 'One page'}: ${who}`, {}, mon);
 }
 
 // Where the dangling pointers are new: the pointers a change would leave dangling that were not dangling before.

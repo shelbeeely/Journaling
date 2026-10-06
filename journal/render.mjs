@@ -76,7 +76,7 @@ const pageCode = (i) => (VOL.scoped ? kw3Code(VOL.bookId, VOL.n, SIZE_CODE, i + 
 // Per page scan settings: the book's default (content/book.json `scan`), the day page layout's (day pages), then the page's own entry.
 const bookKey = VOL.scoped ? VOL.bookId + VOL.n.toString(36).toUpperCase() : VOL.id.slice(2).replace('-', ''); // what makes this book's codes its own
 const scans = pages.map((p) => resolveScan(book.scan, p.type === 'dayp' ? D_LAYOUT.scan : undefined, p.scan));
-const sendBlockOn = (p) => p.type === 'dayp' && D_LAYOUT.blocks.some((b) => b.type === 'sendto' && b.on);
+const sendBlockOn = (p) => p.type === 'dayp' && !p.spread && D_LAYOUT.blocks.some((b) => b.type === 'sendto' && b.on); // (a spread day's pages keep the strip's own SEND TO)
 // The code of each page: its text (null when the page has none), symbol, module count and printed size. A longer text moves to the next
 // symbol size, and a chosen size too small for its symbol is raised: both are said once, below.
 const notes = { bigger: new Map(), raised: new Map() };
@@ -328,7 +328,7 @@ const layout = await page.evaluate(() => {
     return { page: i + 1, frame_inner_mm: { w: +(fw * px2mm).toFixed(1), h: +(fh * px2mm).toFixed(1) }, ...(q ? { code_at_mm: { x: +((q.left - pr.left) * px2mm).toFixed(1), y: +((q.top - pr.top) * px2mm).toFixed(1), w: +(q.width * px2mm).toFixed(1), h: +(q.height * px2mm).toFixed(1) } } : {}), zones };
   });
 });
-const meta = pages.map((p, i) => ({ id: p.id, label: p.label, ...(p.shared ? { shared: true } : {}), type: p.type, date: p.date || null, ...(p.from && !p.date ? { from: p.from, to: p.to } : {}), section: p.section, code: codes[i] ? codes[i].text : null, code_format: codes[i] ? codes[i].format : null,
+const meta = pages.map((p, i) => ({ id: p.id, label: p.label, ...(p.shared ? { shared: true } : {}), type: p.type, ...(p.spread ? { spread: p.spread } : {}), date: p.date || null, ...(p.from && !p.date ? { from: p.from, to: p.to } : {}), section: p.section, code: codes[i] ? codes[i].text : null, code_format: codes[i] ? codes[i].format : null,
   ...(codes[i] ? { code_content: codes[i].content, code_modules: codes[i].modules, code_size_mm: +codes[i].mm.toFixed(1), code_position: codeOnLeft(scans[i].code.position, i % 2 ? 'verso' : 'recto') ? 'left' : 'right' } : {}),
   // What the scanner can do with this page: with the border off it cannot straighten or crop the page, so no Send-to and no writing-area crops; a page with no code is not identified by scanning
   scan: { frame: scans[i].frame === 'on', crop: scans[i].frame === 'on', send_to: scans[i].frame === 'on', code: !!codes[i] } }));
@@ -339,7 +339,7 @@ fs.writeFileSync(`${OUT}/layout.json`, JSON.stringify(layoutJson, null, 1));
 // manifest.json: code -> page id -> section -> zones, plus what identifies this build. Keep it with every proof or print run: a printed
 // page's code decodes through the manifest of the build it came from, even after the layout changes (see README "Page identity").
 const manifest = { book: VOL.id, title: PROFILE.book.title, subtitle: PROFILE.book.subtitle, library_book: PROFILE.library.book, ...(PROFILE.library.series ? { series: { id: PROFILE.library.series.id, title: PROFILE.library.series.title, n: PROFILE.library.series.n, of: PROFILE.library.series.of } } : {}), size: SIZE_CODE, edition: EDITION, hardcover: HARDCOVER, built: D.generated, packs: packsUsed(), commit: process.env.GITHUB_SHA || null, page_count: pages.length, code_scheme: layoutJson.code_scheme, pages_without_code: noCode, pages_without_frame: noFrame, ...(VOL.scoped ? { book_id: VOL.bookId, volume: volumeInfo(VOL), plan: planSig(ctx.plan, VOL), ...(VOL.undated ? { undated: true, order: 'pages are identified by their order in the book, never by date' } : {}) } : {}),
-  pages: layoutJson.pages.map((p) => ({ code: p.code, ...(p.code_format ? { code_format: p.code_format, code_content: p.code_content } : {}), scan: p.scan, page: p.page, id: p.id, label: p.label, section: p.section, type: p.type, date: p.date, ...(p.from ? { from: p.from, to: p.to } : {}), shared: !!p.shared, ...(VOL.undated ? orderOf(p.id) : {}), zones: p.zones })) };
+  pages: layoutJson.pages.map((p) => ({ code: p.code, ...(p.code_format ? { code_format: p.code_format, code_content: p.code_content } : {}), scan: p.scan, page: p.page, id: p.id, label: p.label, section: p.section, type: p.type, ...(p.spread ? { spread: p.spread } : {}), date: p.date, ...(p.from ? { from: p.from, to: p.to } : {}), shared: !!p.shared, ...(VOL.undated ? orderOf(p.id) : {}), zones: p.zones })) };
 fs.writeFileSync(`${OUT}/manifest.json`, JSON.stringify(manifest, null, 1));
 await page.pdf({ width: `${TRIM_W}in`, height: `${TRIM_H}in`, path: `${OUT}/${PROFILE.book.slug}-${VOL.id}-interior-${HARDCOVER ? 'hardcover-' : ''}${SIZE_TAG}.pdf`, printBackground: true, preferCSSPageSize: true });
 await browser.close();

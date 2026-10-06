@@ -263,7 +263,7 @@ function orgFocusBack(fk = ORG.focusFk) {
 }
 function orgPagesText(e, scope) {
   if (e.on === false) return 'hidden';
-  if (scope === 'week') return 'every week'; if (scope === 'month') return 'each month';
+  if (scope === 'week') { const sp = e.type === 'days' ? BKE.daySummary(e.options) : ''; return `every week${sp ? ' · ' + sp : ''}`; } if (scope === 'month') return 'each month';
   const ns = ORG.flow.pages.filter((p) => p.eid === e.id).map((p) => p.n); if (!ns.length) return e.type === 'weeks' ? '' : 'not in this book';
   if (e.type === 'weeks') return `pages ${ns[0]} to ${ns[ns.length - 1]}`;
   return ns.length === 1 ? `page ${ns[0]}` : ns.every((x, i) => i === 0 || x === ns[i - 1] + 1) ? `pages ${ns[0]} to ${ns[ns.length - 1]}` : `pages ${ns.join(', ')}`;

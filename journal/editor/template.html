@@ -306,7 +306,8 @@ html[data-view="day"] main, html[data-view="page"] #pageview { animation: kw-in 
 .panels { display: contents; }
 html:not([data-mode="edit"]) .editonly { display: none !important; }
 /* a block page (C5a) saves into the book: what is the day page's alone (methods, daypage.json, its own GitHub path) is not offered */
-html[data-pk] #m-method, html[data-pk] #m-gh, html[data-pk] #m-ghload, html[data-pk] #m-dl, html[data-pk] #m-copy, html[data-pk] #m-import, html[data-pk="blank"] .fixed { display: none !important; }
+html[data-pk] #m-method, html[data-pk] #m-ghload, html[data-pk] #m-import, html[data-pk="blank"] .fixed { display: none !important; }
+html[data-pk]:not([data-pk="spread"]) #m-gh, html[data-pk]:not([data-pk="spread"]) #m-dl, html[data-pk]:not([data-pk="spread"]) #m-copy { display: none !important; } /* a spread is saved in daypage.json with the day layout, so those stay */
 html:not([data-mode="edit"]) .skip-day, html:not([data-view="day"]) .skip-view, html[data-mode="edit"] .skip-view { display: none; } /* the blocks list exists only while editing; while viewing the skip link goes to the page */
 #paper:focus { outline: none; }
 .editing { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; border-radius: 999px; border: 1.5px solid var(--accent); color: var(--accent); font-size: 13px; font-weight: 600; }
@@ -340,6 +341,30 @@ html[data-mode="view"] #pv [data-b]:hover { outline: none; }
   html[data-mode="edit"] .toast { bottom: calc(var(--sh) + 14px); }
   .btn.keep .lab { display: inline; }
   #edit, #done, #edit-pill { order: 2; }
+}
+
+/* ---------- spread days (S1): the day as two pages side by side ---------- */
+#pv .spreadpv { display: flex; align-items: flex-start; }
+#pv .spreadpv .page.verso { border-right: 1px solid rgba(0, 0, 0, .16); } #pv .spreadpv .page.recto { border-left: 1px solid rgba(255, 255, 255, .9); }
+#ov .fold { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px dashed rgba(63, 95, 90, .6); pointer-events: none; z-index: 1; }
+#ov .fold span { position: absolute; top: 6px; left: 50%; transform: translateX(-50%); font: 600 10.5px/1.2 Inter, sans-serif; color: #fff; background: #3f5f5a; border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
+.spanbox { margin: 0 0 14px; padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg); }
+.spanbox h2 { margin: 0 0 8px; }
+.spanbox .og-radio small { display: block; font-size: 12px; color: var(--muted); font-weight: 400; }
+.spanbox .og-radio { padding-top: 6px; padding-bottom: 6px; }
+.spanbox .sp-ck { position: relative; display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 8px 0 36px; cursor: pointer; font-size: 13.5px; }
+.spanbox .sp-ck input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.spanbox .sp-ck::before { content: ""; position: absolute; left: 8px; top: 50%; width: 18px; height: 18px; margin-top: -9px; border: 2px solid var(--ctl); border-radius: 4px; background: var(--panel); }
+.spanbox .sp-ck:has(input:checked)::before { border-color: var(--accent); background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 8.5l3 3 6-7'/%3E%3C/svg%3E") center / 14px no-repeat; }
+.spanbox .sp-ck:has(input:focus-visible), .spanbox .og-radio:has(input:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 8px; }
+.spanbox .note { margin: 8px 0 4px; }
+.spanbox .kdpl.bad { color: var(--warn); font-weight: 600; }
+#sidepick { margin: 0 auto 8px; display: none; }
+@media (min-width: 961px) { html[data-mode="edit"][data-pk="spread"] main { grid-template-columns: 250px minmax(240px, 320px) minmax(0, 1fr); } html[data-mode="edit"][data-pk="spread"] .prev { width: 100%; } html[data-mode="edit"][data-pk="spread"] .prev .paper { margin: 0 auto; } }
+@media (max-width: 960px) {
+  #sidepick:not([hidden]) { display: inline-flex; }
+  #pv .spreadpv.sideL .page.recto, #pv .spreadpv.sideR .page.verso { display: none; }
+  .prev { text-align: center; }
 }
 /*__VSCSS__*/
 /*__LIBCSS__*/
@@ -455,6 +480,7 @@ input[type=text], input[type=password], input[type=url], input:not([type]), sele
   </aside>
   <section class="edit" aria-label="Blocks on the page">
     <h2 class="sec">On the page</h2>
+    <section class="spanbox" id="spanbox" aria-labelledby="span-h" hidden></section>
     <p class="note" id="day-note"></p>
     <p class="note">Drag <b>⋮⋮</b> to reorder, or drag right on the preview. Switch a block off to hide it for now, or remove it.</p>
     <div class="fixed"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>Date · Title · Tags stay at the top for scanning</div>
@@ -467,6 +493,7 @@ input[type=text], input[type=password], input[type=url], input:not([type]), sele
   </div>
   <section class="prev" aria-label="Page preview">
     <p class="meter" id="meter"></p>
+    <span class="seg" id="sidepick" role="group" aria-label="Which page of the spread to show" hidden><button type="button" id="side-l" aria-pressed="true">Left page</button><button type="button" id="side-r" aria-pressed="false">Right page</button></span>
     <ul class="probs" id="problems" aria-live="polite" hidden></ul>
     <div class="paper" id="paper" tabindex="-1"><div id="pv"></div><div id="ov" hidden></div></div>
     <p class="gtools" id="gtools" hidden><button class="btn" id="actual" aria-pressed="false">Actual size</button><span id="gnote"></span></p>
@@ -573,8 +600,12 @@ function setLayoutFrom(X, L) { X.blocks = L.blocks; if (L.grid) X.grid = true; e
 // IS that page's layout (EK is its kind) and the day layout waits in PGE.stash; the page's layout is saved into the book (book.json) through
 // the organiser, never into daypage.json. dayNow() is always the day layout (the Versions drawer reads it).
 let EK = 'day', PGE = null; // PGE = { eid, kind, title, stash: { layout, history, selected } }
+// Spread days (S1): a day the book makes a spread (book.json, the days entry) opens on its own two-page canvas. While it is open `layout` IS the spread
+// layout (EK is 'spread': 8 columns, the fold after column 4) and the day layout waits in SPD.stash with the spread kept in it (daypage.json `spread`),
+// which is what is saved. The span of the day itself (page or spread) is the book's, set in the box above the blocks.
+let SPD = null; // { stash: { layout, history, selected } }
 const BLOCK_PAGE_TYPES = ['notes', 'collection', 'blank'];
-const dayNow = () => (PGE ? PGE.stash.layout : layout);
+const dayNow = () => (PGE ? PGE.stash.layout : SPD ? SPD.stash.layout : layout);
 const pageEditable = (p) => !!p && !p.auto && !!p.eid && BLOCK_PAGE_TYPES.includes(p.etype);
 let db = null, dl = null, saveTimer = null, readOnly = false, dirty = false;
 const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} } };
@@ -583,11 +614,11 @@ const store = { get(k) { try { return localStorage.getItem(k); } catch { return 
 function snapshot() { history.push(JSON.stringify(layout)); if (history.length > 60) history.shift(); $('#undo').disabled = false; }
 function change(fn, { list = true, hist = true } = {}) {
   if (hist) snapshot();
-  fn(layout); layout = normalize(layout, size);
+  fn(layout); layout = normalize(layout, size); spdSync();
   if (list) drawList();
   drawPalette(); drawPreview(); queueSave();
 }
-$('#undo').onclick = () => { if (!history.length) return; layout = normalize(JSON.parse(history.pop()), size); $('#undo').disabled = !history.length; drawList(); drawPalette(); drawPreview(); queueSave(); };
+$('#undo').onclick = () => { if (!history.length) return; layout = normalize(JSON.parse(history.pop()), size); spdSync(); $('#undo').disabled = !history.length; drawList(); drawPalette(); drawPreview(); queueSave(); };
 // Blocks that export_pack.py turns into X4 check-ins (/kw/checkins.txt): on, and with at least one item.
 // Mirrors CHECKIN_TYPES in x4/tools/export_pack.py: how many X4 check-in items a block makes (0 = not exported).
 const choiceN = (list) => new Set((list || []).map((w) => w.replace(/[;|,]/g, ' ').split(/\s+/).filter(Boolean).join(' ').slice(0, 12).trim()).filter(Boolean)).size;
@@ -642,7 +673,7 @@ function insertBlock(b, beforeUid) {
     const i = beforeUid ? L.blocks.findIndex((x) => x.uid === beforeUid) : -1; L.blocks.splice(i < 0 ? L.blocks.length : i, 0, b);
     if (L.grid) { // first free spot, as wide as it can be; a full page takes it switched off
       const at = placeBlock(L, b, size);
-      if (at) Object.assign(b, at); else { Object.assign(b, { col: 1, row: 1, colSpan: GRIDS[EK].cols, rowSpan: minSpan(b).rows, on: false }); noRoom = true; }
+      if (at) Object.assign(b, at); else { Object.assign(b, { col: 1, row: 1, colSpan: GRIDS[EK].fold || GRIDS[EK].cols, rowSpan: minSpan(b).rows, on: false }); noRoom = true; }
     }
   });
 }
@@ -689,7 +720,7 @@ const PLACE_LABELS = [['col', 'Column', 'Move left', 'Move right'], ['row', 'Row
 function placePanel(b) {
   const m = b.type === 'body' ? { cols: BODY_MIN.cols, rows: BODY_MIN.rows } : minSpan(b, b.colSpan), tight = b.colSpan < m.cols || b.rowSpan < m.rows;
   return `<div class="place">${PLACE_LABELS.map(([k, lab, lo, hi]) => `<div class="opt"><label>${lab}</label><span class="step" role="group" aria-label="${lab}"><button data-place="${b.uid}/${k}" data-d="-1" aria-label="${lo}">−</button><output>${b[k]}</output><button data-place="${b.uid}/${k}" data-d="1" aria-label="${hi}">+</button></span></div>`).join('')}
-    <p class="minn ${tight ? 'bad' : ''}">Smallest for its content: ${m.cols} columns × ${m.rows} rows. The page has ${GRIDS[EK].cols} columns × ${gridRows(size, EK)} rows.</p></div>`;
+    <p class="minn ${tight ? 'bad' : ''}">Smallest for its content: ${m.cols} columns × ${m.rows} rows. ${SPD ? `Each page has ${GRIDS.spread.fold} columns × ${gridRows(size, EK)} rows; the spread has ${GRIDS.spread.cols}, with the fold after column ${GRIDS.spread.fold}, and a block stays on one page.` : `The page has ${GRIDS[EK].cols} columns × ${gridRows(size, EK)} rows.`}</p></div>`;
 }
 function drawList() {
   drawScan();
@@ -764,16 +795,16 @@ $('#list').addEventListener('change', (e) => { if (e.target.matches('[data-text]
 // The preview draws the real marks (marksHtml) with a sample code; real codes differ in their size of symbol (a QR, or a code with the
 // page id, needs a bigger one), which the print build measures, raises to a safe size and reports.
 const SCAN_MODULES = { data_matrix: { book: 16, id: 20 }, qr: { book: 25, id: 25 } };
-const sendtoOn = () => layout.blocks.some((b) => b.type === 'sendto' && b.on);
-function scanPreview() {
-  const sc = resolveScan(layout.scan), fit = fitSize(SCAN_MODULES[sc.code.format][sc.code.content], sc.code.size), mm = fit.error ? sc.code.size : fit.mm;
-  const n = (/class="pno">(\d+)/.exec(KIT.strip) || [])[1] || '';
+const sendtoOn = () => !SPD && layout.blocks.some((b) => b.type === 'sendto' && b.on); // (a spread's pages keep the strip's own SEND TO)
+function scanPreview(side = 'verso', num) { // side and num: the two pages of a spread each have their own strip (own number and code)
+  const sc = resolveScan(dayNow().scan), fit = fitSize(SCAN_MODULES[sc.code.format][sc.code.content], sc.code.size), mm = fit.error ? sc.code.size : fit.mm;
+  const n = num || (/class="pno">(\d+)/.exec(KIT.strip) || [])[1] || '';
   const grow = mm > DEFAULT_SIZE_MM + 0.05 ? ` style="padding-bottom:${(0.3 + 9 / 72 + 0.5 + mm / 25.4 + 0.08).toFixed(3)}in"` : '';
-  return { attrs: (sc.frame === 'off' ? ' data-scan-frame="off"' : '') + grow, marks: marksHtml({ n, sc, side: 'verso', sendBlock: sendtoOn(), svg: KIT.code, mm, quiet: 0, label: sc.code.label ? (sc.code.content === 'id' ? 'day.2026-10-31' : '2610 S040') : '' }) };
+  return { attrs: (sc.frame === 'off' ? ' data-scan-frame="off"' : '') + grow, marks: marksHtml({ n, sc, side, sendBlock: sendtoOn(), svg: KIT.code, mm, quiet: 0, label: sc.code.label ? (sc.code.content === 'id' ? 'day.2026-10-31' : '2610 S040') : '' }) };
 }
 const scanOpen = () => store.get('kw-scan-open') === '1';
 function drawScan() {
-  const box = $('#scan'), on = editing() && !PGE; // (the scan settings are the day page's; other pages keep the book's)
+  const box = $('#scan'), on = editing() && !PGE && !SPD; // (the scan settings are the day page's, and its spreads follow them; other pages keep the book's)
   box.hidden = !on; if (!on) { $('#scan-body').innerHTML = ''; return; }
   const sc = resolveScan(layout.scan), c = sc.code, open = scanOpen(), custom = !!layout.scan;
   $('#scan-t').setAttribute('aria-expanded', open); $('#scan-body').hidden = !open;
@@ -812,8 +843,8 @@ $('#scan').addEventListener('click', (e) => {
 // ---------- Settings: print accessibility options (a11yprint.mjs) ----------
 // Large print and high-contrast ink are stored as layout.print ({large, contrast}, only what is on) in the day layout, so they are saved,
 // versioned and committed with it, and the print build reads them (they win over profile.json, which can also switch them on: shown locked).
-const printOwn = () => cleanPrint(layout.print) || {};
-const printEff = () => (PGE ? { large: false, contrast: false } : printOptions(KIT.print, layout.print)); // a block page keeps its own look
+const printOwn = () => cleanPrint(dayNow().print) || {};
+const printEff = () => (PGE ? { large: false, contrast: false } : printOptions(KIT.print, dayNow().print)); // a block page keeps its own look
 const psCache = {};
 function printStyle(po) { // the override block for these options, scoped to the preview and kept
   const k = (po.large ? 'L' : '') + (po.contrast ? 'C' : '');
@@ -828,7 +859,7 @@ const PRINT_SETS = [
 // The switches are drawn when the dialog opens (and emptied when it closes), so the editor has none in the page while viewing.
 function drawSettings(keep) {
   const own = printOwn(), locked = { large: !!(KIT.print && KIT.print.large_print), contrast: !!(KIT.print && KIT.print.high_contrast) };
-  const blocked = PGE ? 'Open a day page to change these: they apply to every day page.' : readOnly ? 'View only: these cannot be changed here.' : '';
+  const blocked = PGE || SPD ? 'Open a one-page day to change these: they apply to every day page, spreads included.' : readOnly ? 'View only: these cannot be changed here.' : '';
   $('#set-print').innerHTML = PRINT_SETS.map(([k, name, why]) => {
     const on = !!own[k] || locked[k], off = !!blocked || locked[k];
     return `<div class="sw-row"><span class="lab" id="set-l-${k}">${name}</span><button class="sw" type="button" role="switch" aria-checked="${on}" aria-labelledby="set-l-${k}" aria-describedby="set-d-${k}" data-set="${k}"${off ? ' disabled' : ''}></button></div>
@@ -858,7 +889,19 @@ function drawRules(root, large = false) { // same rule-drawing as the print buil
     for (let i = 0; i < n; i++) { const d = document.createElement('div'); d.className = 'rule'; d.style.height = pitch + 'px'; el.appendChild(d); }
   });
 }
+// A spread day (S1): both pages, each drawn by spreadPage() from its half of the canvas, each with its own header, strip and code. On a narrow screen
+// one page shows at a time (the "Left page / Right page" switch); CSS hides the other.
+let SIDE = 'L';
+const spreadHeaderR = () => headerZone(`${new Date(KIT.day.date + 'T12:00:00Z').toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' }).toUpperCase()} · ${KIT.day.date} · cont.`); // the right page says it continues the day
+function drawSpreadPreview() {
+  const po = printEff(), n0 = +((/class="pno">(\d+)/.exec(KIT.strip) || [])[1] || 40), left = n0 % 2 ? n0 + 1 : n0;
+  const html = (side) => { const pm = scanPreview(side === 'L' ? 'verso' : 'recto', left + (side === 'L' ? 0 : 1)); return `<div class="page ${side === 'L' ? 'verso' : 'recto'} dayp m"${pm.attrs}>${spreadPage(side === 'R' ? { ...KIT, headerR: spreadHeaderR() } : KIT, layout, side, { tag: true, size })}${pm.marks}</div>`; };
+  pv.innerHTML = `<style>${KIT.css}${printStyle(po)}#pv .page { width: ${SIZES[size]}in; }</style><div class="spreadpv side${SIDE}">${html('L')}${html('R')}</div>`;
+  drawRules(pv, po.large);
+  fit(); meter(); hl(selected); drawOverlay();
+}
 function drawPreview() {
+  if (SPD) return drawSpreadPreview();
   const parts = PGE ? { ...KIT, header: kindHeader(EK, PGE.title), routines: [] } : KIT; // a block page has its own fixed top (a blank one has none)
   const po = printEff(), day = dayBlocks(parts, po.large ? largeLayout(layout) : layout, { tag: true, size, kind: EK });
   const pm = scanPreview();
@@ -882,20 +925,21 @@ function movedOnPage(shown) {
   });
 }
 function fit() {
-  const W = SIZES[size] * 96, H = 8.5 * 96, narrow = matchMedia('(max-width: 960px)').matches;
-  const hh = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hh')) || 84, byW = Math.min(paper.parentElement.clientWidth || 360, 600);
+  const narrow = matchMedia('(max-width: 960px)').matches, wide2 = !!SPD && !narrow; // a spread shows both pages on a wide screen, one at a time on a narrow one
+  const W = SIZES[size] * 96 * (wide2 ? 2 : 1), H = 8.5 * 96;
+  const hh = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hh')) || 84, byW = Math.min(paper.parentElement.clientWidth || 360, wide2 ? 1400 : 600);
   let avail;
   if (narrow && editing()) { const sheet = $('#panels').offsetHeight || 0; avail = Math.min(byW, Math.max((window.innerHeight - hh - sheet - 24) / H * W, byW * 0.62)); } // page stays in view above the sheet
   else if (narrow) avail = byW;
-  else avail = Math.min(editing() ? (layout.grid ? 640 : 430) : 660, (window.innerHeight - hh - (editing() ? 66 : 96)) / H * W);
+  else avail = Math.min(wide2 ? byW : editing() ? (layout.grid ? 640 : 430) : 660, (window.innerHeight - hh - (editing() ? 66 : 96)) / H * W);
   // Actual size (grid only, wide screens): 1 CSS inch = 96 px, so the paper is as big as the printed page (the 8.5x11 page is the layout zoomed 1.294x)
-  const s = (layout.grid || !editing()) && actualSize && !narrow ? (size === 'letter' ? 11 / 8.5 : 1) : Math.max(0.4, avail / W);
+  const s = (layout.grid || !editing()) && actualSize && !narrow ? (size === 'letter' ? 11 / 8.5 : 1) : Math.max(wide2 ? 0.25 : 0.4, avail / W);
   pv.style.transform = `scale(${s})`; paper.style.width = W * s + 'px'; paper.style.height = H * s + 'px';
 }
 function meter() {
   if (!editing()) { $('#meter').innerHTML = ''; return; }
-  const page = pv.querySelector('.page'), body = pv.querySelector('[data-zone="body"]');
-  const day = pv.querySelector('.day.full'), h = body ? body.offsetHeight / 96 : 0, over = page.scrollHeight > page.clientHeight + 1 || day.scrollHeight > day.clientHeight + 1, noBody = !body && !bodyLocked(EK);
+  const pages = [...pv.querySelectorAll('.page')], body = pv.querySelector('[data-zone="body"]');
+  const days = [...pv.querySelectorAll('.day.full')], h = body ? body.offsetHeight / 96 : 0, over = pages.some((pg) => pg.scrollHeight > pg.clientHeight + 1) || days.some((day) => day.scrollHeight > day.clientHeight + 1), noBody = !body && !bodyLocked(EK);
   const x4n = layout.blocks.reduce((t, b) => t + x4Items(b), 0), cap = x4n > 16 ? `<span class="warn">X4 holds 16 custom items; you have ${x4n}. The last ${x4n - 16} stay on paper.</span>` : '';
   $('#meter').innerHTML = cap + (over ? `<span class="warn">Too full: the page overflows. Switch something off or shorten a block.</span>`
     : noBody ? 'Everything fits on the page.' : `Writing space <b>${h.toFixed(1)} in</b> <span>· ${(h * 2.54).toFixed(1)} cm</span>${h < 1.3 ? '<span class="warn">Too full for busy days</span>' : h < 1.7 ? '<span class="warn">Getting tight</span>' : ''}`);
@@ -937,7 +981,15 @@ function checkPlace(uid, patch) {
   const before = new Set(gridProblems(layout, size).map((p) => p.msg));
   return gridProblems(cand, size).filter((p) => !before.has(p.msg));
 }
+// On a spread a column step that would put a block across the fold lands it at the edge of the other page instead (nothing crosses the fold).
+function foldSnap(b, nc) {
+  const per = GRIDS.spread.fold, half = Math.ceil(b.col / per);
+  if (nc > b.col && half === 1 && nc + b.colSpan - 1 > per) return per + 1;
+  if (nc < b.col && half === 2 && nc < per + 1) return Math.max(1, per + 1 - b.colSpan);
+  return nc;
+}
 function applyPlace(uid, patch) {
+  if (SPD && patch.col !== undefined) { const b = find(uid); if (b) patch = { ...patch, col: foldSnap(b, patch.col) }; }
   const bad = checkPlace(uid, patch);
   if (bad.length) { toast(bad[0].msg); return false; }
   focusUid = document.activeElement && document.activeElement.dataset && document.activeElement.dataset.uid === uid ? uid : null;
@@ -964,12 +1016,12 @@ function drawProblems() {
   ul.hidden = !list.length;
   ul.innerHTML = list.map((p) => `<li data-uid="${p.uid}" data-code="${p.code}" role="button" tabindex="0">${WARN}<span>${escH(p.msg)}</span></li>`).join('');
   document.querySelectorAll('#list > li').forEach((li) => li.classList.toggle('prob', list.some((p) => p.uid === li.dataset.uid)));
-  $('#gnote').textContent = layout.grid && editing() ? `${GRIDS[EK].cols} columns × ${gridRows(size, EK)} rows · a row is one tight line (5.6 mm)` : '';
+  $('#gnote').textContent = layout.grid && editing() ? (SPD ? `2 pages × ${GRIDS.spread.fold} columns × ${gridRows(size, EK)} rows · the fold is after column ${GRIDS.spread.fold} · a row is one tight line (5.6 mm)` : `${GRIDS[EK].cols} columns × ${gridRows(size, EK)} rows · a row is one tight line (5.6 mm)`) : '';
 }
 $('#problems').addEventListener('click', (e) => { const li = e.target.closest('li'); if (li) { select(li.dataset.uid); const g = ov.querySelector(`.gb[data-uid="${li.dataset.uid}"]`); if (g) g.focus({ preventScroll: true }); } });
 $('#problems').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.target.click(); } });
 function boxStyle(g, p) {
-  g.style.left = M.x + (p.col - 1) * (M.cw + M.gap) + 'px'; g.style.top = M.y + (p.row - 1) * M.rh + 'px';
+  g.style.left = (M.colX(p.col) ?? M.x + (p.col - 1) * (M.cw + M.gap)) + 'px'; g.style.top = M.y + (p.row - 1) * M.rh + 'px';
   g.style.width = p.colSpan * M.cw + (p.colSpan - 1) * M.gap + 'px'; g.style.height = p.rowSpan * M.rh + 'px';
 }
 function drawOverlay() {
@@ -977,24 +1029,32 @@ function drawOverlay() {
   $('#main').classList.toggle('gridmode', on);
   $('#lay-f').setAttribute('aria-pressed', !g); $('#lay-g').setAttribute('aria-pressed', g);
   $('#gtools').hidden = ed ? !g : false; $('#gnote').hidden = !ed; ov.hidden = !on; // viewing keeps only the Actual size button
-  $('#dragtip').textContent = on ? 'Drag a block to move it, or its corner handle to resize. It snaps to the grid. Arrow keys move the block you focus; Shift + arrows resize.' : 'A busy sample day. Tap a block to find it; hold and drag to move it.';
+  $('#dragtip').textContent = on ? (SPD ? 'Drag a block to move it, on its page or across to the other, or its corner handle to resize. It snaps to the grid and stays on one page: nothing crosses the fold. Arrow keys move the block you focus; Shift + arrows resize.' : 'Drag a block to move it, or its corner handle to resize. It snaps to the grid. Arrow keys move the block you focus; Shift + arrows resize.') : (SPD ? 'A busy sample day, both pages. Tap a block to find it.' : 'A busy sample day. Tap a block to find it; hold and drag to move it.');
   overs = [];
-  const gg = pv.querySelector('.gg');
-  if (!on || !gg || !gg.offsetWidth || !paper.offsetWidth) { ov.innerHTML = ''; M = null; drawProblems(); return; } // (hidden on a phone until the Preview tab opens)
-  const pr = paper.getBoundingClientRect(), gr = gg.getBoundingClientRect(), G = GRIDS[EK], R = gridRows(size, EK);
-  const gap = G.gapPx * (gr.width / gg.offsetWidth), cw = (gr.width - gap * (G.cols - 1)) / G.cols, rh = G.rowIn * 96 * (gr.width / gg.offsetWidth);
-  M = { x: gr.left - pr.left, y: gr.top - pr.top, cw, gap, rh, R, cols: G.cols };
+  const ggs = [...pv.querySelectorAll('.gg')].filter((x) => x.offsetWidth), gg = ggs[0];
+  if (!on || !gg || !paper.offsetWidth) { ov.innerHTML = ''; M = null; drawProblems(); return; } // (hidden on a phone until the Preview tab opens)
+  const pr = paper.getBoundingClientRect(), gr = gg.getBoundingClientRect(), G = GRIDS[EK], R = gridRows(size, EK), per = G.fold || G.cols; // per: the columns of one page
+  const k = gr.width / gg.offsetWidth, gap = G.gapPx * k, cw = (gr.width - gap * (per - 1)) / per, rh = G.rowIn * 96 * k;
+  // each page shown has its own grid: its first column number (0 for the left page, 4 for the right) and where it sits
+  const pgs = ggs.map((x) => { const q = x.getBoundingClientRect(); return { c0: x.closest('.page.recto') ? per : 0, x: q.left - pr.left, w: q.width }; });
+  M = { x: gr.left - pr.left, y: gr.top - pr.top, cw, gap, rh, R, cols: G.cols, per, pgs, colX(c) { const q = pgs.find((z) => c > z.c0 && c <= z.c0 + per); return q ? q.x + (c - q.c0 - 1) * (cw + gap) : null; } };
   let h = `<svg class="gridl" aria-hidden="true">`;
-  for (let r = 0; r <= R; r++) h += `<path d="M${M.x} ${M.y + r * rh}H${M.x + gr.width}" stroke="rgba(63,95,90,${r % 4 === 0 ? .32 : .16})" stroke-width="1"/>`;
-  for (let c = 0; c < G.cols; c++) { const x = M.x + c * (cw + gap); h += `<path d="M${x} ${M.y}V${M.y + R * rh}M${x + cw} ${M.y}V${M.y + R * rh}" stroke="rgba(63,95,90,.28)" stroke-width="1" stroke-dasharray="3 3"/>`; }
-  for (let r = 0; r < R; r += 4) h += `<text x="${M.x - 6}" y="${M.y + r * rh + 11}" text-anchor="end" font-size="10" fill="#5a5448" font-family="Inter,sans-serif">${r + 1}</text>`;
+  for (const q of pgs) {
+    for (let r = 0; r <= R; r++) h += `<path d="M${q.x} ${M.y + r * rh}H${q.x + q.w}" stroke="rgba(63,95,90,${r % 4 === 0 ? .32 : .16})" stroke-width="1"/>`;
+    for (let c = 0; c < per; c++) { const x = q.x + c * (cw + gap); h += `<path d="M${x} ${M.y}V${M.y + R * rh}M${x + cw} ${M.y}V${M.y + R * rh}" stroke="rgba(63,95,90,.28)" stroke-width="1" stroke-dasharray="3 3"/>`; }
+    for (let r = 0; r < R; r += 4) h += `<text x="${q.x - 6}" y="${M.y + r * rh + 11}" text-anchor="end" font-size="10" fill="#5a5448" font-family="Inter,sans-serif">${r + 1}</text>`;
+  }
   h += '</svg>';
-  // locked parts: the header above the grid and the scan strip below it never move
-  const dr = pv.querySelector('.day.full').getBoundingClientRect(), sr = pv.querySelector('.strip');
+  // locked parts: the header above the grid and the scan strip below it never move (on every page shown)
   const lock = (t, l, tp, w, hh) => `<div class="lk" title="${t} stay put" style="left:${l}px;top:${tp}px;width:${w}px;height:${hh}px"><span role="img" aria-label="${t}: fixed">${LOCK}</span></div>`;
-  if (gr.top - dr.top > 1) h += lock('Date · Title · Tags', dr.left - pr.left, dr.top - pr.top, dr.width, gr.top - dr.top); // (a blank page has no header)
-  if (sr) { const q = sr.getBoundingClientRect(); h += lock('Send to · page code', q.left - pr.left, q.top - pr.top, q.width, q.height); }
-  for (const b of layout.blocks.filter((x) => x.on && placed(x))) {
+  for (const dayEl of pv.querySelectorAll('.day.full')) {
+    const dr = dayEl.getBoundingClientRect(), g2 = dayEl.querySelector('.gg'), gq = g2 && g2.getBoundingClientRect();
+    if (dr.width && gq && gq.top - dr.top > 1) h += lock('Date · Title · Tags', dr.left - pr.left, dr.top - pr.top, dr.width, gq.top - dr.top); // (a blank page has no header)
+  }
+  for (const sr of pv.querySelectorAll('.strip')) { const q = sr.getBoundingClientRect(); if (q.width) h += lock('Send to · page code', q.left - pr.left, q.top - pr.top, q.width, q.height); }
+  const rc = pv.querySelector('.page.recto'); // the fold of a spread, between the two pages
+  if (SPD && rc && rc.offsetWidth) h += `<div class="fold" aria-hidden="true" style="left:${rc.getBoundingClientRect().left - pr.left}px"><span>Fold</span></div>`;
+  for (const b of layout.blocks.filter((x) => x.on && placed(x) && M.colX(x.col) !== null)) {
     const cell = pv.querySelector(`.gc[data-b="${b.uid}"]`);
     if (cell && (cell.scrollHeight > cell.clientHeight + 1 || cell.scrollWidth > cell.clientWidth + 1)) overs.push(b.uid);
     h += `<div class="gb" data-uid="${b.uid}" tabindex="0" role="group" aria-label="${escH(TYPES[b.type].name)}: column ${b.col}, row ${b.row}, ${b.colSpan} wide, ${b.rowSpan} tall. Arrow keys move it; Shift and arrows resize it."><span class="gl">${escH(TYPES[b.type].name)}</span><span class="rh" data-rh aria-hidden="true"><i></i></span></div>`;
@@ -1019,8 +1079,10 @@ ov.addEventListener('pointermove', (e) => {
   const dx = e.clientX - s.x0, dy = e.clientY - s.y0;
   if (!s.active) { if (Math.hypot(dx, dy) > 8) { clearTimeout(s.timer); dragSt = null; } return; }
   const dc = Math.round(dx / (M.cw + M.gap)), dr = Math.round(dy / M.rh), o = s.o;
-  const p = s.mode === 'move' ? { col: clampN(o.col + dc, 1, M.cols - o.colSpan + 1), row: clampN(o.row + dr, 1, M.R - o.rowSpan + 1) }
-    : { colSpan: clampN(o.colSpan + dc, 1, M.cols - o.col + 1), rowSpan: clampN(o.rowSpan + dr, 1, M.R - o.row + 1) };
+  const colAt = (x) => { let best = o.col, d = 1e9; for (let c = 1; c <= M.cols; c++) { const cx = M.colX(c); if (cx !== null && Math.abs(cx - x) < d) { d = Math.abs(cx - x); best = c; } } return best; }; // the column whose left edge is nearest
+  const endOf = SPD ? Math.ceil(o.col / M.per) * M.per : M.cols; // a block grows to the end of its own page (not across the fold)
+  const p = s.mode === 'move' ? { col: SPD ? clampN(colAt((M.colX(o.col) ?? 0) + dx), 1, M.cols - o.colSpan + 1) : clampN(o.col + dc, 1, M.cols - o.colSpan + 1), row: clampN(o.row + dr, 1, M.R - o.rowSpan + 1) }
+    : { colSpan: clampN(o.colSpan + dc, 1, endOf - o.col + 1), rowSpan: clampN(o.rowSpan + dr, 1, M.R - o.row + 1) };
   s.patch = p; s.moved = Object.keys(p).some((k) => p[k] !== o[k]);
   boxStyle(s.g, { ...o, ...p });
   s.g.classList.toggle('bad', s.moved && checkPlace(s.uid, p).length > 0);
@@ -1049,7 +1111,7 @@ $('#lay-g').onclick = () => {
   change((L) => { L.grid = true; if (L.blocks.some((b) => !placed(b)) || gridProblems(L, size).length) dropped = autoPlace(L, size); });
   toast(dropped.length ? `Grid on. Switched off ${dropped.map((u) => TYPES[find(u).type].name).join(', ')} for room: turn it on again and place it where you like.` : 'Grid on. Drag a block to move it, or its corner to resize.');
 };
-$('#lay-f').onclick = () => { if (!layout.grid) return; change((L) => { delete L.grid; }); toast('Flow: blocks stack in order again. Undo brings the grid back.'); };
+$('#lay-f').onclick = () => { if (SPD) { toast('A spread is always on the grid: its two pages are laid out together.'); return; } if (!layout.grid) return; change((L) => { delete L.grid; }); toast('Flow: blocks stack in order again. Undo brings the grid back.'); };
 $('#actual').onclick = () => { actualSize = !actualSize; $('#actual').setAttribute('aria-pressed', actualSize); fit(); drawOverlay(); };
 document.addEventListener('keydown', (e) => { if (editing() && (e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'z' && !e.target.matches('input,textarea')) { e.preventDefault(); $('#undo').click(); } });
 
@@ -1070,7 +1132,7 @@ menu.addEventListener('click', (e) => { if (e.target.closest('[role=menuitem]'))
 // ---------- save / load ----------
 const setStatus = (t, cls = '') => { const s = $('#status'); s.textContent = t; s.className = 'status ' + cls; };
 function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('show'), Math.max(4000, t.length * 70)); } // long enough to read, even the longer explanations (WCAG 2.2.1)
-const json = () => JSON.stringify(layout, null, 2) + '\n';
+const json = () => JSON.stringify(dayNow(), null, 2) + '\n';
 // A block page's layout goes into the book (book.json) through the organiser: validated by the book's own rules, kept in the browser, the
 // Artifact store or the Studio draft like any other change to the book, and downloaded or committed with it.
 function pgeSave() {
@@ -1086,19 +1148,19 @@ function queueSave() {
   if (PGE) { pgeSave(); return; }
   if (MODE === 'demo') { setStatus('Demo: not saved anywhere'); return; }
   stQueueDraft(); // Studio draft autosave (does nothing unless signed in to a Studio project)
-  if (MODE === 'pages') { store.set('kw-daypage', JSON.stringify(layout)); dirty = true; setStatus('Saved in this browser · not on GitHub yet'); return; }
+  if (MODE === 'pages') { store.set('kw-daypage', JSON.stringify(dayNow())); dirty = true; setStatus('Saved in this browser · not on GitHub yet'); return; }
   if (!db || readOnly) { setStatus(db ? 'View only' : 'Preview only: changes aren’t saved here', 'bad'); return; }
   setStatus('Saving…'); clearTimeout(saveTimer); saveTimer = setTimeout(save, 600);
 }
 async function save(retry = true) {
-  try { await db.doc('layouts/day').set({ layout, savedAt: new Date().toISOString() }); setStatus('Saved', 'ok'); }
+  try { await db.doc('layouts/day').set({ layout: dayNow(), savedAt: new Date().toISOString() }); setStatus('Saved', 'ok'); }
   catch (e) {
     if (e && e.code === 'unavailable' && retry) return setTimeout(() => save(false), 800 + Math.random() * 800);
     if (e && e.code === 'invalid_argument') { readOnly = true; setStatus('View only', 'bad'); return; }
     setStatus('Couldn’t save. Try again in a moment', 'bad');
   }
 }
-$('#m-reset').onclick = () => { if (!confirm(PGE ? 'Put this page back to its starting layout?' : 'Put the day page back to the original layout?')) return; change((L) => { L.blocks = structuredClone((PGE ? defaultLayout(EK) : DEFAULT_LAYOUT).blocks); delete L.grid; }); toast('Back to the original page. Undo is still there.'); };
+$('#m-reset').onclick = () => { if (!confirm(SPD ? 'Put this spread back to its starting layout?' : PGE ? 'Put this page back to its starting layout?' : 'Put the day page back to the original layout?')) return; change((L) => { L.blocks = structuredClone((PGE || SPD ? defaultLayout(EK) : DEFAULT_LAYOUT).blocks); if (!SPD) delete L.grid; }); toast('Back to the original page. Undo is still there.'); };
 // Method layouts (content/layouts.mjs): replace the page, one undo step; confirm first if it isn't the original page.
 const sameBlocks = (a, c) => JSON.stringify(normalize({ v: 2, blocks: a }).blocks) === JSON.stringify(normalize({ v: 2, blocks: c }).blocks);
 let pickedMethod = null;
@@ -1456,7 +1518,7 @@ function bkSize() { // 5.5x8.5 <-> 8.5x11: same pages, the page width changes
 // and back/forward and reload restore it. Everything else in the script asks for a level through navGo(); nothing else touches the hash.
 const NAV = { level: 'book', view: 'book', s: 0, n: 0, id: '', date: '', sid: '', edit: false, tok: 0, lockUntil: 0, tap: null, busy() { return performance.now() < this.lockUntil; } };
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-const dateOf = (id) => { const m = /^day\.(\d{4}-\d{2}-\d{2})$/.exec(id || ''); return m ? m[1] : ''; };
+const dateOf = (id) => { const m = /^day\.(\d{4}-\d{2}-\d{2})(?:\.cont)?$/.exec(id || ''); return m ? m[1] : ''; }; // (a spread day's right page, day.DATE.cont, is the same day)
 const dayLabel = (d) => new Date(d + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
 const pageName = (p) => p.label || (BK.data.types.find((t) => t.key === p.type) || {}).name || p.id;
 const navHash = () => {
@@ -1491,12 +1553,12 @@ function applyMode() {
   const day = NAV.view === 'day', shelf = NAV.view === 'shelf', bookLv = NAV.view === 'book' && NAV.level === 'book', blockPg = NAV.view === 'page' && pageEditable(BK.pages[NAV.n - 1]);
   const canEdit = day || shelf || bookLv || blockPg, ed = canEdit && NAV.edit, dayEd = day && ed; // Library, Series and Book edit their settings; the day edits its blocks
   document.documentElement.dataset.mode = ed ? 'edit' : 'view';
-  if (PGE) document.documentElement.dataset.pk = EK; else delete document.documentElement.dataset.pk; // (CSS hides what is the day page's alone: methods, daypage.json, scan settings)
+  if (PGE || SPD) document.documentElement.dataset.pk = EK; else delete document.documentElement.dataset.pk; // (CSS hides what is the day page's alone: methods, daypage.json, scan settings)
   $('#edit').hidden = !canEdit || ed; $('#done').hidden = !ed; $('#edit-pill').hidden = !ed;
   $('#edit').title = shelf ? (NAV.level === 'series' ? 'Edit this series (E)' : 'Edit the library (E)') : bookLv ? 'Edit this book: its pages and settings' : 'Edit this page (E)';
   $('#edit').setAttribute('aria-label', shelf ? (NAV.level === 'series' ? 'Edit this series' : 'Edit the library') : bookLv ? 'Edit this book’s pages and settings' : 'Edit this page');
   $('#done').title = shelf || bookLv ? 'Done editing (Escape)' : 'Done editing (Escape)';
-  $('#undo').hidden = !dayEd; $('#laygrp').hidden = !dayEd; $('#panels').hidden = !dayEd;
+  $('#undo').hidden = !dayEd; $('#laygrp').hidden = !dayEd || !!SPD; $('#panels').hidden = !dayEd;
   $('#meter').hidden = !dayEd; $('#dragtip').hidden = !dayEd; $('#viewnote').hidden = ed;
   $('#bk-set').hidden = !bookLv; orgMode(bookLv && ed);
   if (!dayEd) { $('#problems').hidden = true; $('#ov').hidden = true; }
@@ -1534,15 +1596,74 @@ function showCanvas() {
 // Open a Notes, blank or collection page for editing: its layout (the book's entry, else the page's starting layout) becomes the working one.
 function pgeEnter(p) {
   if (PGE && PGE.eid === p.eid) return;
-  pgeLeave();
+  spdLeave(); pgeLeave();
   const at = BKE.locate(orgList(), p.eid), e = at && at.entry, kind = e ? e.type : p.etype;
   PGE = { eid: p.eid, kind, title: kind === 'blank' ? '' : (e && e.options && e.options.title) || (kind === 'notes' ? 'Notes' : 'Collection'), stash: { layout, history, selected } };
   EK = kind; layout = normalize((e && e.layout) || defaultLayout(kind), size, kind); history = []; selected = null; $('#undo').disabled = true;
 }
 function pgeLeave() { // back to the day layout (what is open when no block page is)
-  if (!PGE) return;
+  if (!PGE) { spdLeave(); return; }
   const s = PGE.stash; layout = s.layout; history = s.history; selected = s.selected; EK = 'day'; PGE = null; $('#undo').disabled = !history.length;
 }
+// ---------- spread days (S1) ----------
+function spdSync() { // the spread layout goes back into the day layout (daypage.json `spread`, only when it is not the starting spread): that is what is saved
+  if (!SPD) return;
+  const d = structuredClone(SPD.stash.layout); if (isDefaultSpread(layout, size)) delete d.spread; else d.spread = structuredClone(layout);
+  SPD.stash.layout = normalize(d, size);
+}
+const spdWant = () => !PGE && NAV.view === 'day' && !!NAV.date && !!ORG.cat && !!ORG.book && BKE.dayFormatOf(ORG.book, orgMonth(), NAV.date).format === 'spread';
+function spdEnter() {
+  if (SPD) return;
+  SPD = { stash: { layout, history, selected } };
+  EK = 'spread'; layout = normalize(layout.spread || defaultSpread(), size, 'spread'); history = []; selected = null; $('#undo').disabled = true;
+}
+function spdLeave() {
+  if (!SPD) return;
+  spdSync(); const st = SPD.stash; layout = st.layout; history = st.history; selected = st.selected; EK = 'day'; SPD = null; $('#undo').disabled = !history.length;
+}
+function spdEnsure() { const want = spdWant(); if (want && !SPD) spdEnter(); else if (!want && SPD) spdLeave(); }
+// The span box (edit mode of a day): one page or a spread, for this day, for every day of its weekday, or for every day. It changes the book (the
+// days entry of book.json), the same book the page organiser edits, so the page count and the KDP limits are said right here.
+function drawSpan() {
+  const box = $('#spanbox'), on = editing() && !PGE && !!NAV.date && !!ORG.cat && !!ORG.book && !!BKE.locate(orgList(), 'days');
+  if (!on) { box.hidden = true; box.innerHTML = ''; return; }
+  const f = BKE.dayFormatOf(ORG.book, orgMonth(), NAV.date), o = BKE.locate(orgList(), 'days').entry.options || {};
+  const k = BKE.kdpNote(ORG.flow.pages.length, ORG.hard), auto = ORG.flow.autoNotes;
+  box.hidden = false;
+  box.innerHTML = `<h2 class="sec" id="span-h">This day covers</h2>
+    <fieldset class="og-scope"><legend class="sr">How much room this day gets</legend>
+      <label class="og-radio"><input type="radio" name="span" value="page" ${f.format === 'page' ? 'checked' : ''}><span>One page<small>Today’s day page, with the layout every day uses.</small></span></label>
+      <label class="og-radio"><input type="radio" name="span" value="spread" ${f.format === 'spread' ? 'checked' : ''}><span>A spread: a left and a right page<small>Its own layout on a two-page canvas. Each page keeps its own date, title and tags, SEND TO strip and page code.</small></span></label></fieldset>
+    <label class="sp-ck"><input type="checkbox" id="span-wd" ${(o.weekdays || {})[f.weekday] === 'spread' ? 'checked' : ''}><span>Every ${f.weekdayName} is a spread</span></label>
+    <label class="sp-ck"><input type="checkbox" id="span-all" ${o.format === 'spread' ? 'checked' : ''}><span>Every day is a spread</span></label>
+    <p class="note" id="span-note" role="status" aria-live="polite">${f.format === 'spread' ? 'A spread day starts on a left-hand page. ' : ''}${auto ? `${auto} Notes ${auto === 1 ? 'page is' : 'pages are'} added by themselves so left and right pages face correctly. ` : ''}<span class="kdpl ${k.ok ? '' : 'bad'}">${escH(k.text)}</span></p>`;
+}
+function spanApply(r, say) {
+  if (r.err) { toast(r.err); drawSpan(); return; }
+  if (BKE.sameBook(r.book, ORG.book)) { drawSpan(); return; }
+  const ae = document.activeElement, sel = ae && ae.id ? '#' + ae.id : ae && ae.name ? `#spanbox input[name="${ae.name}"][value="${ae.value}"]` : null; // the box is drawn again: keep the keyboard where it was
+  ORG.undo.push({ book: ORG.book, sel: ORG.sel, pid: ORG.selPid }); if (ORG.undo.length > 80) ORG.undo.shift();
+  ORG.book = r.book; ORG.touched = true; ORG.redo = [];
+  orgFlow(); BK.stale = true; orgPersist();
+  const p = BK.pages.find((x) => x.date === NAV.date); if (p) { NAV.n = p.n; NAV.s = bkSpreadOf(p.n); }
+  const was = !!SPD; spdEnsure();
+  setStatus(orgSaveText(), MODE === 'artifact' && !db ? 'bad' : '');
+  refreshDay(); navRefresh();
+  const k = BKE.kdpNote(ORG.flow.pages.length, ORG.hard);
+  announce(`${r.msg}. ${was !== !!SPD ? (SPD ? 'The page is now a spread: a left and a right page.' : 'The page is a single page again.') : ''} ${k.text}`);
+  if (sel) { const el = $(sel); if (el) el.focus({ preventScroll: true }); }
+}
+$('#spanbox').addEventListener('change', (e) => {
+  const t = e.target; if (!NAV.date) return;
+  const f = BKE.dayFormatOf(ORG.book, orgMonth(), NAV.date);
+  if (t.name === 'span') spanApply(BKE.setDayFormat(ORG.book, ORG.cat, orgMonth(), { date: NAV.date }, t.value), t.value === 'spread' ? 'This day is a spread' : 'This day is one page');
+  else if (t.id === 'span-wd') spanApply(BKE.setDayFormat(ORG.book, ORG.cat, orgMonth(), { weekday: f.weekday }, t.checked ? 'spread' : null), t.checked ? `Every ${f.weekdayName} is a spread` : `${f.weekdayName}s follow the book again`);
+  else if (t.id === 'span-all') spanApply(BKE.setDayFormat(ORG.book, ORG.cat, orgMonth(), { all: true }, t.checked ? 'spread' : null), t.checked ? 'Every day is a spread' : 'Days follow their own settings again');
+});
+$('#side-l').onclick = () => spdSide('L'); $('#side-r').onclick = () => spdSide('R');
+function spdSide(s) { SIDE = s; $('#side-l').setAttribute('aria-pressed', s === 'L'); $('#side-r').setAttribute('aria-pressed', s === 'R'); const w = pv.querySelector('.spreadpv'); if (w) { w.classList.toggle('sideL', s === 'L'); w.classList.toggle('sideR', s === 'R'); } fit(); drawOverlay(); announce(s === 'L' ? 'Showing the left page.' : 'Showing the right page.'); }
+function refreshDay() { applyMode(); drawPalette(); drawList(); drawPreview(); drawSpan(); $('#sidepick').hidden = !SPD; }
+
 function showBlockPage(p) {
   pgeEnter(p);
   NAV.view = 'day'; document.documentElement.dataset.view = 'day'; applyMode();
@@ -1550,9 +1671,9 @@ function showBlockPage(p) {
   $('#day-note').textContent = `${pageName(p)}: ${PAGE_KINDS[EK].name.toLowerCase()}, page ${p.n}. It has its own blocks and grid (${GRIDS[EK].cols} columns × ${gridRows(size, EK)} rows). What you change is saved in the book. The preview is sample data.`;
 }
 function showDay() {
-  pgeLeave(); NAV.view = 'day'; document.documentElement.dataset.view = 'day'; applyMode();
-  drawPalette(); drawList(); drawPreview(); // the editor was hidden (no size to measure): draw it again now it is shown
-  $('#day-note').textContent = NAV.date ? `Every day page uses this one layout. ${dayLabel(NAV.date)} is open here; the preview is a busy sample day.` : 'Every day page uses this one layout. The preview is a busy sample day.';
+  pgeLeave(); NAV.view = 'day'; document.documentElement.dataset.view = 'day'; spdEnsure(); // a spread day opens on its own two-page canvas
+  refreshDay(); // the editor was hidden (no size to measure): draw it again now it is shown
+  $('#day-note').textContent = SPD ? `${dayLabel(NAV.date)} is a spread: two pages with one layout on a canvas of ${GRIDS.spread.cols} columns (the fold is after column ${GRIDS.spread.fold}). Every spread day uses this layout; the preview is a busy sample day.` : NAV.date ? `Every day page uses this one layout. ${dayLabel(NAV.date)} is open here; the preview is a busy sample day.` : 'Every day page uses this one layout. The preview is a busy sample day.';
 }
 function pgvFit() {
   const W = SIZES[size] * 96, Hh = 8.5 * 96, avail = Math.min(620, Math.max(240, ($('#pageview').clientWidth || 390) - 32)), s = avail / W;
@@ -1662,7 +1783,7 @@ function navRefresh() {
   } else if (NAV.view !== 'book') {
     const fk = NAV.view + NAV.n + NAV.date, mk = fk + (NAV.edit ? 'E' : 'V');
     if (navRefresh.focusFor !== fk) { navRefresh.focusFor = fk; navRefresh.modeFor = mk; const cur = $('#crumb-list [aria-current]'); if (cur) { cur.tabIndex = -1; cur.focus({ preventScroll: true }); } }
-    else if (navRefresh.modeFor !== mk) { navRefresh.modeFor = mk; const to = NAV.edit ? $('#laygrp [aria-pressed="true"]') : $('#edit'); if (to) to.focus(); } // Edit: first editing control; Done: back on the Edit button
+    else if (navRefresh.modeFor !== mk) { navRefresh.modeFor = mk; const to = NAV.edit ? (SPD ? $('#spanbox input:checked') : $('#laygrp [aria-pressed="true"]')) : $('#edit'); if (to) to.focus(); } // Edit: first editing control; Done: back on the Edit button
   } else {
     navRefresh.focusFor = null;
     if (navRefresh.bookMode !== NAV.edit && NAV.level === 'book') { const was = navRefresh.bookMode; navRefresh.bookMode = NAV.edit; if (was !== undefined) { const to = NAV.edit ? $('#bk-set') : $('#edit'); if (to) to.focus(); } }

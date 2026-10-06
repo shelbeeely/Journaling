@@ -4,7 +4,7 @@
 // The editor builds sample pages with the same call on the generic sample calendar (test.ics), never a private one.
 import fs from 'node:fs';
 import { build, busCoverage, readFeed } from './data.mjs';
-import { normalize } from './daypage.mjs';
+import { normalize, normalizeSpread } from './daypage.mjs';
 import { usePuzzlePack } from './puzzles/render.mjs';
 import { printOptions, largeLayout } from './a11yprint.mjs';
 import { PROFILE, moduleOn, bookNo as bookNoOf, readContent, MODULE_BLOCKS } from './profile.mjs';
@@ -12,13 +12,15 @@ import { PROFILE, moduleOn, bookNo as bookNoOf, readContent, MODULE_BLOCKS } fro
 // A switched-off module leaves its day-page blocks out of the layout (they stay in the file, so switching the module back on restores them).
 export function applyModules(layout) {
   const off = Object.entries(MODULE_BLOCKS).filter(([m]) => !moduleOn(m)).flatMap(([, types]) => types);
-  return off.length ? { ...layout, blocks: layout.blocks.map((b) => (off.includes(b.type) ? { ...b, on: false } : b)) } : layout;
+  if (!off.length) return layout;
+  const sw = (L) => ({ ...L, blocks: L.blocks.map((b) => (off.includes(b.type) ? { ...b, on: false } : b)) });
+  return { ...sw(layout), ...(layout.spread ? { spread: sw(layout.spread) } : {}) }; // (a spread day's own layout too)
 }
 // The day layout a book prints, and the print accessibility options in force (a11yprint.mjs: the profile's, overridden by the layout's own).
 // With large print on, the layout gets its wider writing lines and fewer rows; with both off it is exactly the layout in the file.
 export function dayContext(raw) {
   const L = applyModules(normalize(raw)), print = printOptions(PROFILE.print, L.print);
-  return { dayLayout: print.large ? largeLayout(L) : L, print };
+  return { dayLayout: print.large ? largeLayout(L) : L, print, spreadLayout: L.spread || applyModules(normalizeSpread(null)) }; // spreadLayout: what a spread day prints (S1)
 }
 const here = (p) => new URL(p, import.meta.url);
 export const readJson = (p) => (fs.existsSync(here(p)) ? JSON.parse(fs.readFileSync(here(p), 'utf8')) : null);

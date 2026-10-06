@@ -308,17 +308,24 @@ export const PAGE_KINDS = {
   notes: { name: 'Notes page', body: true, header: 'title' },
   collection: { name: 'Collection page', body: true, header: 'title' },
   blank: { name: 'Blank page', body: false, header: 'none' },
+  // Spread days (S1): `spread` is the layout of a whole two-page day, one canvas of 8 columns (the left page's 4, then the right page's 4) with the fold
+  // between columns 4 and 5. It is stored in daypage.json as `spread`. `half` is one page of it (4 columns, as a day page), made by spreadHalf() at print.
+  spread: { name: 'Day spread', body: true, header: 'day' },
+  half: { name: 'Spread page', body: false, header: 'day' },
 };
 // (sendto too: the SEND TO strip is a day page setting; other pages keep the book's scan settings.)
 const DAY_ONLY = new Set(['sky', 'notes', 'events', 'fact', 'lookback', 'prompt', 'tl24', 'weekstrip', 'sendto']);
 export const pageKind = (k) => (PAGE_KINDS[k] ? k : 'day');
-export const allowedIn = (kind, type) => kind === 'day' || !DAY_ONLY.has(type);
+// A spread is a day: it can hold the day's own blocks. Not `sendto`: each page of a spread keeps its own SEND TO strip (the strip is the page's).
+export const allowedIn = (kind, type) => (kind === 'day' ? true : kind === 'spread' || kind === 'half' ? type !== 'sendto' : !DAY_ONLY.has(type));
 export const bodyLocked = (kind) => !!PAGE_KINDS[pageKind(kind)].body;
 export const kindHeader = (kind, title = '') => (PAGE_KINDS[pageKind(kind)].header === 'title' ? headerZone('', esc(title)) : '');
 // The starting layout of each kind. Notes: what the original Notes page has (a dot grid, four action lines). Collection: ruled lines.
 export function defaultLayout(kind = 'day') {
   kind = pageKind(kind);
   if (kind === 'day') return DEFAULT_LAYOUT;
+  if (kind === 'spread') return defaultSpread();
+  if (kind === 'half') return { v: 2, kind: 'half', grid: true, blocks: [] };
   const B = (t, o = {}) => newBlock(t, o, t);
   const blocks = kind === 'notes' ? [B('body'), B('actions', { routines: false, count: 4 })] : kind === 'collection' ? [B('body', { style: 'lines' })] : [];
   return { v: 2, kind, blocks };
@@ -371,8 +378,7 @@ export const DEFAULT_LAYOUT = {
 // { col, row, colSpan, rowSpan }. Flow layouts never carry `grid`; placements left on their blocks are ignored.
 export function normalize(L, size = 'small', kindIn) {
   const kind = pageKind(kindIn || (L && L.kind));
-  const dflt = kind === 'day' ? DEFAULT_LAYOUT : defaultLayout(kind);
-  let src = L && Array.isArray(L.blocks) ? L.blocks : dflt.blocks;
+  let src = L && Array.isArray(L.blocks) ? L.blocks : (kind === 'day' ? DEFAULT_LAYOUT : defaultLayout(kind)).blocks;
   if (!L || L.v !== 2) src = src.map((b) => (b && b.id ? { ...b, uid: b.id, type: b.id === 'gratitude' ? 'good' : b.id } : b));
   const singles = new Set(), uids = new Set(), blocks = [];
   for (const s of src) {
@@ -384,11 +390,15 @@ export function normalize(L, size = 'small', kindIn) {
     blocks.push(fixOpts({ ...structuredClone(s), uid, on: s.on === undefined ? true : !!s.on }, kind));
   }
   if (PAGE_KINDS[kind].body && !singles.has('body')) { const i = blocks.findIndex((b) => b.type === 'actions'); blocks.splice(i < 0 ? blocks.length : i, 0, newBlock('body', {}, 'body')); }
-  const scan = kind === 'day' ? cleanScan(L && L.scan) : undefined, grid = !!(L && L.grid && L.v === 2), head = kind === 'day' ? { v: 2 } : { v: 2, kind };
+  const scan = kind === 'day' ? cleanScan(L && L.scan) : undefined, head = kind === 'day' ? { v: 2 } : { v: 2, kind };
+  const grid = kind === 'spread' || kind === 'half' ? true : !!(L && L.grid && L.v === 2); // a spread is always on the grid: it is two pages' grids side by side
   const prt = kind === 'day' ? cleanPrint(L && L.print) : undefined; // print accessibility options (a11yprint.mjs): only when one is on, so the default layout is unchanged
+  // The day's spread layout (daypage.json `spread`, S1): only when it says something other than the starting spread, so a day layout that never touched it is unchanged
+  let spread;
+  if (kind === 'day' && L && L.spread && typeof L.spread === 'object' && !Array.isArray(L.spread)) { const S = normalize(L.spread, size, 'spread'); if (!isDefaultSpread(S, size)) spread = S; }
   for (const b of blocks) for (const k of PLACE) { const v = Math.round(+b[k]); if (Number.isFinite(v) && v >= 1 && b[k] !== null && b[k] !== '') b[k] = v; else delete b[k]; }
-  if (!grid) return { ...head, ...(scan ? { scan } : {}), ...(prt ? { print: prt } : {}), blocks };
-  const out = { ...head, grid: true, ...(scan ? { scan } : {}), ...(prt ? { print: prt } : {}), blocks };
+  if (!grid) return { ...head, ...(scan ? { scan } : {}), ...(prt ? { print: prt } : {}), blocks, ...(spread ? { spread } : {}) };
+  const out = { ...head, grid: true, ...(scan ? { scan } : {}), ...(prt ? { print: prt } : {}), blocks, ...(spread ? { spread } : {}) };
   if (blocks.some((b) => PLACE.some((k) => b[k] === undefined))) placeMissing(out, size);
   return out;
 }
@@ -409,7 +419,12 @@ export const GRIDS = {
   notes: { cols: 4, rowIn: 0.22, gapPx: 8, rows: { small: 24, letter: 24 } },
   collection: { cols: 4, rowIn: 0.22, gapPx: 8, rows: { small: 24, letter: 24 } },
   blank: { cols: 4, rowIn: 0.22, gapPx: 8, rows: { small: 27, letter: 27 } },
+  // A spread day (S1) is two day pages side by side: 2 x 4 columns and the same 24 rows, with the fold after column 4 (`fold`). Each page keeps its own
+  // fixed header, strip and code, so the grid of one page is exactly a day page's; nothing crosses the fold in this version (BUILD-PLAN section 12).
+  spread: { cols: 8, fold: 4, rowIn: 0.22, gapPx: 8, rows: { small: 24, letter: 24 } },
+  half: { cols: 4, rowIn: 0.22, gapPx: 8, rows: { small: 24, letter: 24 } },
 };
+export const colsOf = (kind = 'day') => GRIDS[pageKind(kind)].cols;
 export const PLACE = ['col', 'row', 'colSpan', 'rowSpan'];
 export const gridRows = (size, kind = 'day') => GRIDS[pageKind(kind)].rows[size === 'letter' ? 'letter' : 'small'];
 // Locked: the DATE/TITLE/TAGS header (above the grid), the SEND TO strip, the page code and the 9pt frame (below and around it) are
@@ -498,15 +513,18 @@ const span = (a, n) => (n > 1 ? `${a}–${a + n - 1}` : `${a}`);
 const rectOf = (b) => ({ c1: b.col, c2: b.col + b.colSpan - 1, r1: b.row, r2: b.row + b.rowSpan - 1 });
 const hit = (a, c) => a.c1 <= c.c2 && c.c1 <= a.c2 && a.r1 <= c.r2 && c.r1 <= a.r2;
 const placed = (b) => PLACE.every((k) => Number.isInteger(b[k]) && b[k] >= 1);
+// Nothing crosses the fold of a spread (BUILD-PLAN section 12): a block lies wholly in the left page's columns or the right page's.
+const crossesFold = (b, G) => Math.ceil(b.col / G.fold) !== Math.ceil((b.col + b.colSpan - 1) / G.fold);
 // Every reason a grid layout cannot be printed, in words: [{ uid, code, msg }]. Empty = valid. Blocks that are off take no room.
 export function gridProblems(L, size = 'small') {
-  const G = GRIDS.day, R = gridRows(size, L.kind), out = [], on = L.blocks.filter((b) => b.on);
+  const G = GRIDS[pageKind(L.kind)], R = gridRows(size, L.kind), out = [], on = L.blocks.filter((b) => b.on);
   const bad = (b, code, msg) => out.push({ uid: b.uid, code, msg });
   for (const b of on) {
     const nm = blockName(b);
     if (!placed(b)) { bad(b, 'unplaced', `${nm} has no place on the grid yet.`); continue; }
     if (b.col + b.colSpan - 1 > G.cols) bad(b, 'columns', `${nm} sticks out of the page: it uses columns ${span(b.col, b.colSpan)} and the page has ${G.cols}.`);
     if (b.row + b.rowSpan - 1 > R) bad(b, 'rows', `${nm} runs off the bottom: it uses rows ${span(b.row, b.rowSpan)} and the page has ${R}.`);
+    if (G.fold && b.col <= G.cols && crossesFold(b, G)) bad(b, 'fold', `${nm} crosses the fold: it uses columns ${span(b.col, b.colSpan)}, and the fold is between columns ${G.fold} and ${G.fold + 1}. Keep it on one page.`);
     const m = minSpan(b, b.colSpan);
     if (b.type === 'body') {
       if (b.rowSpan < BODY_MIN.rows || b.colSpan < BODY_MIN.cols) bad(b, 'body', `The Writing space stays at least ${BODY_MIN.rows} rows tall (${(BODY_MIN.rows * 5.588).toFixed(0)} mm) and ${BODY_MIN.cols} columns wide; it is ${b.rowSpan} rows by ${b.colSpan} columns.`);
@@ -523,8 +541,9 @@ export function gridProblems(L, size = 'small') {
 }
 // The first free rectangle of `cols` × `rows` cells (top to bottom, then left to right), ignoring `except` (a uid), or null.
 export function findFree(L, cols, rows, size = 'small', except = null) {
-  const G = GRIDS.day, R = gridRows(size, L.kind), taken = L.blocks.filter((b) => b.on && b.uid !== except && placed(b)).map(rectOf);
+  const G = GRIDS[pageKind(L.kind)], R = gridRows(size, L.kind), taken = L.blocks.filter((b) => b.on && b.uid !== except && placed(b)).map(rectOf);
   for (let r = 1; r + rows - 1 <= R; r++) for (let c = 1; c + cols - 1 <= G.cols; c++) {
+    if (G.fold && crossesFold({ col: c, colSpan: cols }, G)) continue;
     const q = { c1: c, c2: c + cols - 1, r1: r, r2: r + rows - 1 };
     if (!taken.some((t) => hit(t, q))) return { col: c, row: r, colSpan: cols, rowSpan: rows };
   }
@@ -532,7 +551,8 @@ export function findFree(L, cols, rows, size = 'small', except = null) {
 }
 // Place a block on the first free spot, as wide as it can be (full width first, then narrower down to its minimum); null if the page is full.
 export function placeBlock(L, b, size = 'small') {
-  for (let w = GRIDS.day.cols; w >= 1; w--) {
+  const G = GRIDS[pageKind(L.kind)];
+  for (let w = G.fold || G.cols; w >= 1; w--) {
     const m = minSpan(b, w); if (w < m.cols) break;
     const f = findFree(L, w, m.rows, size, b.uid); if (f) return f;
   }
@@ -566,8 +586,60 @@ function placeMissing(L, size) {
     if (placed(b)) continue;
     for (const k of PLACE) delete b[k];
     const m = minSpan(b), at = placeBlock({ ...L, blocks: L.blocks.filter((x) => x !== b) }, b, size);
-    Object.assign(b, at || { col: 1, row: 1, colSpan: GRIDS.day.cols, rowSpan: m.rows });
+    Object.assign(b, at || { col: 1, row: 1, colSpan: GRIDS[pageKind(L.kind)].fold || GRIDS[pageKind(L.kind)].cols, rowSpan: m.rows });
   }
+}
+
+// ======================= spread days (S1) =======================
+// A day can cover a whole two-page spread (book.json: the `days` entry's `format`, see bookrules.mjs dayFormat). Its layout is `spread` in
+// daypage.json: ONE canvas of 8 columns x 24 rows, the left page's grid (columns 1-4) then the right page's (columns 5-8), the fold between
+// column 4 and 5. In this version no block crosses the fold (BUILD-PLAN section 12), so a block is wholly on one page: that keeps text out of
+// the gutter and the rulings clean, and every page's own grid is exactly a day page's (4 x 24). Each page keeps its own fixed parts, so every
+// page stays unique and scannable: the DATE/TITLE/TAGS header (the right page's says "cont."), the 9 pt frame, the SEND TO strip and its own
+// Data Matrix page code. The default spread is the day page as it is today on the left and one ruled page to write on, on the right.
+let DEFAULT_SPREAD = null;
+export function defaultSpread() {
+  if (!DEFAULT_SPREAD) {
+    const left = { v: 2, grid: true, blocks: DEFAULT_LAYOUT.blocks.map((b) => structuredClone(b)) };
+    autoPlace(left, 'small'); // the day page's own default, on the grid
+    const lines = newBlock('lines', { title: 'Notes', n: 2 }, 'lines');
+    Object.assign(lines, { col: 5, row: 1, colSpan: 4, rowSpan: gridRows('small', 'spread') });
+    DEFAULT_SPREAD = { v: 2, kind: 'spread', grid: true, blocks: [...left.blocks, lines] };
+  }
+  return structuredClone(DEFAULT_SPREAD);
+}
+export const isDefaultSpread = (S, size = 'small') => JSON.stringify(normalizeSpread(S, size)) === JSON.stringify(normalizeSpread(defaultSpread(), size));
+// A spread layout, cleaned: always a grid, every block placed, the Writing space present once.
+export const normalizeSpread = (S, size = 'small') => (S ? normalize(S, size, 'spread') : normalize(defaultSpread(), size, 'spread'));
+// One page of a spread layout as an ordinary day-page grid layout: the blocks of columns 1-4 (left) or 5-8 (right), moved to columns 1-4.
+export function spreadHalf(S, side) {
+  const fold = GRIDS.spread.fold, right = side === 'R';
+  const blocks = S.blocks.filter((b) => (b.col > fold) === right).map((b) => { const c = structuredClone(b); if (right) c.col -= fold; return c; });
+  return { v: 2, kind: 'half', grid: true, blocks };
+}
+// Every reason a spread layout cannot be printed, in words ([] = fine): the grid rules of both pages and the fold.
+export function spreadProblems(S, size = 'small') {
+  const out = [];
+  if (!S || typeof S !== 'object' || Array.isArray(S)) return ['must be an object like {"v":2,"kind":"spread","blocks":[...]}'];
+  if (S.v !== 2) out.push('"v" must be 2');
+  if (S.kind !== undefined && S.kind !== 'spread') out.push(`"kind" is "${S.kind}", but this is a spread layout`);
+  if (!Array.isArray(S.blocks)) return [...out, '"blocks" must be a list'];
+  const uids = new Set();
+  S.blocks.forEach((b, i) => {
+    if (!b || typeof b !== 'object') { out.push(`blocks[${i}] must be an object`); return; }
+    if (!TYPES[b.type]) out.push(`blocks[${i}]: unknown block type "${b.type}"`);
+    else if (!allowedIn('spread', b.type)) out.push(`blocks[${i}]: ${TYPES[b.type].name} can't go on a spread (each page keeps its own SEND TO strip)`);
+    if (typeof b.uid === 'string') { if (uids.has(b.uid)) out.push(`blocks[${i}]: uid "${b.uid}" is used twice`); uids.add(b.uid); }
+  });
+  if (!out.length) out.push(...gridProblems(normalize(S, size, 'spread'), size).map((x) => x.msg));
+  return out;
+}
+// One page of a spread day, finished. `parts` is the day's (header, sky, events ...); `headerR` is the right page's header (it says "cont.").
+export function spreadPage(parts, S, side, opt = {}) {
+  const L = normalizeSpread(S, opt.size);
+  const size = opt.size === 'letter' ? 'letter' : 'small', probs = gridProblems(L, size);
+  if (probs.length && !opt.tag) throw new Error('The day spread layout cannot be printed:\n - ' + probs.map((x) => x.msg).join('\n - '));
+  return dayBlocks({ ...parts, header: side === 'R' && parts.headerR ? parts.headerR : parts.header }, spreadHalf(L, side), { ...opt, size, kind: 'half' });
 }
 
 // ---------- rendering ----------

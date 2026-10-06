@@ -120,9 +120,10 @@ async function stSaveDraft() {
 // ----- putting a version into the editor -----
 function stApply(day, persist = false) {
   if (PGE) { pgeLeave(); navGo({ level: 'book' }, { push: false }); } // a version replaces the day layout (and maybe the book): the page editor closes behind it
+  spdLeave(); // (a spread day: back to the day layout first; the spread rides inside it and comes back below)
   const same = stDay(dayNow()) === stDay(day);
   if (!same) snapshot();
-  ST.loading = true; try { selected = null; layout = normalize(day); drawList(); drawPalette(); drawPreview(); } finally { ST.loading = false; }
+  ST.loading = true; try { selected = null; layout = normalize(day); spdEnsure(); drawList(); drawPalette(); drawPreview(); drawSpan(); } finally { ST.loading = false; }
   if (persist) queueSave(); // the editor's own save (this browser or the Artifact store)
   return !same;
 }

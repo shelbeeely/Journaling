@@ -1475,5 +1475,91 @@ ok(!errs.length, 'no page errors after the Book view ' + errs.join(' | '));
   await sp.close();
   ok(!perr.length, 'no page errors in Settings ' + perr.join(' | '));
 }
+// ---------- Spread days (S1): choose a day's span in edit mode; the spread canvas ----------
+{
+  const SAT = URL0 + '#day/2026-10-17/edit', sp = await b.newPage({ viewport: { width: 1400, height: 950 } }), perr = [];
+  sp.on('pageerror', (e) => perr.push(e.message));
+  await sp.goto(SAT, { waitUntil: 'networkidle' }); await sp.waitForFunction(() => document.documentElement.dataset.view === 'day' && document.querySelectorAll('#pv [data-b]').length >= 3);
+  ok(await sp.evaluate(() => !SPD && EK === 'day' && document.querySelectorAll('#pv .page').length === 1 && document.querySelector('#spanbox') && !document.querySelector('#spanbox').hidden && document.querySelector('#spanbox input[value="page"]').checked), 'Spread days: a day opens as one page, and the "This day covers" box says so');
+  ok(await sp.evaluate(() => { const r = [...document.querySelectorAll('#spanbox label')]; return r.length === 4 && r.every((x) => x.getBoundingClientRect().height >= 43.5) && !!document.querySelector('#spanbox legend'); }), 'Spread days: the choices are labelled and every one is at least 44 px tall');
+  const pagesBefore = await sp.evaluate(() => BK.pages.length);
+  await sp.locator('#spanbox input[value="spread"]').check({ force: true }); await sp.waitForTimeout(500);
+  const S = await sp.evaluate(() => ({ spd: !!SPD, ek: EK, pages: document.querySelectorAll('#pv .page').length, cls: [...document.querySelectorAll('#pv .page')].map((x) => x.className), kinds: layout.kind, grid: layout.grid, hz: document.querySelectorAll('#pv .hz').length, strips: document.querySelectorAll('#pv .strip').length, codes: document.querySelectorAll('#pv .strip .qr svg').length,
+    zones: [...document.querySelectorAll('#pv .page')].map((pg) => ['date', 'title', 'tags'].every((z) => pg.querySelector(`[data-zone="${z}"]`)) && !!pg.querySelector('.strip .send')), dates: [...document.querySelectorAll('#pv .page .zdate .zv')].map((x) => x.textContent), nums: [...document.querySelectorAll('#pv .strip .pno')].map((x) => +x.textContent),
+    fold: !!document.querySelector('#ov .fold'), note: document.querySelector('#gnote').textContent, problems: gridProblems(layout, size).length, sx: document.documentElement.scrollWidth <= innerWidth }));
+  ok(S.spd && S.ek === 'spread' && S.pages === 2 && S.kinds === 'spread' && S.grid, 'Spread days: choosing "A spread" opens the two-page canvas (kind spread, always on the grid)');
+  ok(S.hz === 2 && S.strips === 2 && S.codes === 2 && S.zones.every(Boolean), 'Spread days: each page keeps its own DATE / TITLE / TAGS header, SEND TO strip and page code');
+  ok(/cont\./.test(S.dates[1]) && !/cont\./.test(S.dates[0]) && S.nums[1] === S.nums[0] + 1, `Spread days: the right page says "cont." (${S.dates.join(' | ')}) and has the next page number (${S.nums.join(', ')})`);
+  ok(S.fold && /2 pages × 4 columns × 24 rows/.test(S.note) && S.problems === 0 && S.sx, 'Spread days: the fold is marked, the grid is said in words (2 pages × 4 columns × 24 rows) and nothing is wrong');
+  ok(await sp.evaluate(() => document.documentElement.dataset.pk === 'spread' && document.querySelector('#laygrp').hidden && getComputedStyle(document.querySelector('#m-method')).display === 'none'), 'Spread days: Flow/Grid and the day-only menu items (methods, import) are out of the way');
+  const bk = await sp.evaluate(() => ({ n: BK.pages.length, ids: BK.pages.filter((p) => p.date === '2026-10-17').map((p) => p.id), ob: JSON.stringify(BKE.locate(orgList(), 'days').entry.options) }));
+  ok(bk.n > pagesBefore && bk.ids.join() === 'day.2026-10-17,day.2026-10-17.cont' && bk.ob === '{"dates":{"2026-10-17":"spread"}}', `Spread days: the book now has the extra pages (${pagesBefore} to ${bk.n}) and records just this date (${bk.ob})`);
+  ok(/pages|KDP/.test(await sp.locator('#span-note').textContent()) && await sp.evaluate(() => /inside the KDP range|over the|under the/.test(document.querySelector('#span-note').textContent)), 'Spread days: the page count and the KDP limit are said right in the box');
+  // the default spread: the day on the left, a ruled page on the right; no block crosses the fold
+  ok(await sp.evaluate(() => layout.blocks.filter((b) => b.on).every((b) => Math.ceil(b.col / 4) === Math.ceil((b.col + b.colSpan - 1) / 4)) && !!document.querySelector('#pv .page.verso [data-zone="care"]') && !!document.querySelector('#pv .page.recto [data-zone="lines"]') && !document.querySelector('#pv .page.recto [data-zone="care"]')), 'Spread days: the starting spread is the day on the left and a ruled page on the right, nothing across the fold');
+  // overlay: one box per block, on both pages; the boxes line up with their blocks
+  ok(await sp.evaluate(() => { const g = [...document.querySelectorAll('#ov .gb')], c = (u) => document.querySelector(`#pv .gc[data-b="${u}"]`).getBoundingClientRect(), o = (u) => document.querySelector(`#ov .gb[data-uid="${u}"]`).getBoundingClientRect(); return g.length >= 8 && layout.blocks.filter((b) => b.on).every((b) => Math.abs(c(b.uid).left - o(b.uid).left) < 3 && Math.abs(c(b.uid).width - o(b.uid).width) < 3 && Math.abs(c(b.uid).top - o(b.uid).top) < 3); }), 'Spread days: the grid overlay boxes sit exactly on their blocks, on both pages');
+  // keyboard: a block moves across the fold to the other page, never onto it
+  await sp.evaluate(() => { select('lines'); });
+  const l0 = await sp.evaluate(() => { const b = find('lines'); return [b.col, b.colSpan]; });
+  ok(l0[0] === 5 && l0[1] === 4, 'Spread days: the ruled page block fills columns 5 to 8');
+  await sp.evaluate(() => { change((L) => { L.blocks = L.blocks.filter((b) => b.type !== 'actions'); Object.assign(L.blocks.find((b) => b.uid === 'lines'), { col: 5, row: 18, colSpan: 2, rowSpan: 4 }); }); }); // (room on the left page, rows 18 to 21)
+  await sp.locator('#ov .gb[data-uid="lines"]').focus(); await sp.keyboard.press('ArrowLeft');
+  ok(await sp.evaluate(() => { const b = find('lines'); return b.col === 3 && b.colSpan === 2; }), 'Spread days: Arrow Left from the right page jumps to the left page, not across the fold (columns 3 and 4)');
+  await sp.locator('#ov .gb[data-uid="lines"]').focus(); await sp.keyboard.press('ArrowRight');
+  ok(await sp.evaluate(() => { const b = find('lines'); return b.col === 5; }), 'Spread days: Arrow Right jumps back to the right page (column 5)');
+  await sp.locator('#ov .gb[data-uid="lines"]').focus(); await sp.keyboard.press('Shift+ArrowRight'); await sp.keyboard.press('Shift+ArrowRight'); await sp.keyboard.press('Shift+ArrowRight');
+  ok(await sp.evaluate(() => { const b = find('lines'); return b.col + b.colSpan - 1 <= 8 && gridProblems(layout, size).length === 0; }), 'Spread days: resizing stops at the edge of its page');
+  await sp.evaluate(() => { change((L) => { Object.assign(L.blocks.find((b) => b.uid === 'lines'), { col: 3, colSpan: 2, rowSpan: 4, row: 18 }); }); });
+  ok(await sp.evaluate(() => { const r = checkPlace('lines', { col: 4 }); return r.some((p) => p.code === 'fold' && /crosses the fold/.test(p.msg)); }), 'Spread days: a block put across the fold is refused with the reason (checkPlace)');
+  await sp.evaluate(() => { applyPlace('lines', { col: 4 }); });
+  ok(await sp.evaluate(() => { const b = find('lines'); return Math.ceil(b.col / 4) === Math.ceil((b.col + b.colSpan - 1) / 4); }), 'Spread days: the stepper never leaves a block across the fold');
+  // the palette adds a block wholly on one page
+  await sp.evaluate(() => { change((L) => { L.blocks = L.blocks.filter((b) => b.type !== 'lines'); }); });
+  await sp.locator('#pal [data-add="t:checks"]').click();
+  ok(await sp.evaluate(() => { const b = layout.blocks.find((x) => x.type === 'checks'); return b && b.on && Math.ceil(b.col / 4) === Math.ceil((b.col + b.colSpan - 1) / 4) && gridProblems(layout, size).length === 0; }), 'Spread days: a block added from the palette lands wholly on one page');
+  // undo, and the layout is saved in daypage.json (spread), only now that it differs from the starting spread
+  const saved = await sp.evaluate(() => { const j = JSON.parse(json()); return { spread: !!j.spread, kind: j.spread && j.spread.kind, blocks: j.spread && j.spread.blocks.length, day: j.blocks.map((x) => x.type).join(' ') }; });
+  ok(saved.spread && saved.kind === 'spread' && saved.day === 'sky notes events care spoons good body actions review fact', 'Spread days: daypage.json carries the spread beside the day layout (the day layout is untouched)');
+  await sp.click('#undo'); await sp.waitForTimeout(100);
+  ok(await sp.evaluate(() => !layout.blocks.some((x) => x.type === 'checks')), 'Spread days: undo takes the added block away again');
+  // reload: the book remembers the spread day; the spread layout is restored
+  await sp.waitForTimeout(700);
+  await sp.reload({ waitUntil: 'networkidle' }); await sp.waitForFunction(() => document.documentElement.dataset.view === 'day' && document.querySelectorAll('#pv [data-b]').length >= 3);
+  ok(await sp.evaluate(() => !!SPD && document.querySelectorAll('#pv .page').length === 2 && document.querySelector('#spanbox input[value="spread"]').checked), 'Spread days: reload brings the spread day back (the book is saved in the browser)');
+  // view mode: the spread at true size, no editing furniture
+  await sp.click('#done'); await sp.waitForTimeout(300);
+  ok(await sp.evaluate(() => document.documentElement.dataset.mode === 'view' && document.querySelectorAll('#pv .page').length === 2 && document.querySelector('#spanbox').hidden && document.querySelector('#ov').hidden && /spread/.test(document.querySelector('#day-note').textContent)), 'Spread days: viewing shows both pages, read-only, with nothing to edit drawn');
+  await sp.screenshot({ path: `${OUT}/spread-view.png` });
+  // the right page opens the same day; other Saturdays follow the weekday setting
+  await sp.goto(URL0 + '#day/2026-10-24/edit', { waitUntil: 'networkidle' }); await sp.waitForFunction(() => document.documentElement.dataset.view === 'day' && document.querySelectorAll('#pv [data-b]').length >= 3);
+  ok(await sp.evaluate(() => !SPD && document.querySelector('#spanbox input[value="page"]').checked), 'Spread days: another Saturday is still one page');
+  await sp.locator('#span-wd').check({ force: true }); await sp.waitForTimeout(500);
+  ok(await sp.evaluate(() => !!SPD && /"sat":"spread"/.test(JSON.stringify(BKE.locate(orgList(), 'days').entry.options)) && BKE.dayFormatOf(ORG.book, orgMonth(), '2026-10-03').format === 'spread' && BKE.dayFormatOf(ORG.book, orgMonth(), '2026-10-18').format === 'page'), 'Spread days: "Every Saturday is a spread" makes every Saturday one (and not the Sundays)');
+  await sp.locator('#span-wd').uncheck({ force: true }); await sp.locator('#spanbox input[value="page"]').check({ force: true }); await sp.waitForTimeout(400);
+  ok(await sp.evaluate(() => !SPD && JSON.stringify(BKE.locate(orgList(), 'days').entry.options) === '{}'), 'Spread days: switching the weekday off puts Saturdays back to one page (the one date setting was repeating it, so it was dropped)');
+  await sp.locator('#spanbox input[value="spread"]').check({ force: true }); await sp.locator('#spanbox input[value="page"]').check({ force: true }); await sp.waitForTimeout(400);
+  ok(await sp.evaluate(() => !SPD && JSON.stringify(ORG.book) === JSON.stringify(ORG.cat.defaultBook)), 'Spread days: back to one page everywhere gives back the original book (nothing left in book.json)');
+  // the book canvas lays the spread out and the day opens from either page
+  await sp.locator('#spanbox input[value="spread"]').check({ force: true }); await sp.waitForTimeout(400);
+  await sp.evaluate(() => navGo({ level: 'day', id: 'day.2026-10-24.cont' }, { push: false, anim: false })); await sp.waitForTimeout(500);
+  ok(await sp.evaluate(() => NAV.date === '2026-10-24' && !!SPD), 'Spread days: the right page of a spread day opens the same day');
+  await sp.evaluate(() => { location.hash = '#book/edit'; }); await sp.waitForFunction(() => ORG.on && document.querySelector('#og-body [data-eid="days"] small'));
+  ok(await sp.evaluate(() => /spread day by date/.test(document.querySelector('#og-body [data-eid="days"] small').textContent) && /\d+ pages/.test(document.querySelector('#og-sum').textContent)), 'Spread days: the page organiser says which days are spreads on the Day pages row, and counts the pages');
+  ok(!perr.length, 'no page errors on spread days ' + perr.join(' | '));
+  // the phone: one page at a time, nothing scrolls sideways at 390 px, targets are 44 px
+  const ph = await b.newPage({ viewport: { width: 390, height: 844 } }), perr2 = [];
+  ph.on('pageerror', (e) => perr2.push(e.message));
+  await ph.goto(SAT, { waitUntil: 'networkidle' }); await ph.waitForFunction(() => document.documentElement.dataset.view === 'day' && document.querySelectorAll('#pv [data-b]').length >= 3);
+  await ph.evaluate(() => { document.querySelector('#spanbox input[value="spread"]').click(); }); await ph.waitForTimeout(600);
+  const m = await ph.evaluate(() => ({ spd: !!SPD, sx: document.documentElement.scrollWidth, w: innerWidth, vis: [...document.querySelectorAll('#pv .page')].map((x) => x.offsetWidth > 0), side: !document.querySelector('#sidepick').hidden, t: [...document.querySelectorAll('#sidepick button')].map((x) => Math.round(x.getBoundingClientRect().height)), paper: document.querySelector('#paper').getBoundingClientRect().width }));
+  ok(m.spd && m.sx <= m.w && m.paper <= m.w, `Spread days (390 px): no sideways scroll (${m.sx} of ${m.w}), the paper fits (${Math.round(m.paper)} px)`);
+  ok(m.vis.join() === 'true,false' && m.side && m.t.every((x) => x >= 44), 'Spread days (390 px): the left page shows, with a Left page / Right page switch at 44 px');
+  await ph.click('#side-r'); await ph.waitForTimeout(250);
+  ok(await ph.evaluate(() => [...document.querySelectorAll('#pv .page')].map((x) => x.offsetWidth > 0).join() === 'false,true' && document.querySelector('#side-r').getAttribute('aria-pressed') === 'true' && document.documentElement.scrollWidth <= innerWidth), 'Spread days (390 px): the Right page switch shows the right page');
+  await ph.screenshot({ path: `${OUT}/spread-phone.png` });
+  ok(!perr2.length, 'no page errors on spread days (phone) ' + perr2.join(' | '));
+  await ph.close(); await sp.close();
+}
 await b.close(); srv.close();
 if (fails.length) { console.log(`\n${fails.length} failed`); process.exit(1); }

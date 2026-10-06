@@ -28,6 +28,25 @@ for (const dir of process.argv.slice(2)) {
   }
   const mixed = []; for (let i = 1; i < pages.length; i += 2) if (pages[i + 1] !== undefined && noFrame[i] !== noFrame[i + 1]) mixed.push(`${i + 1}-${i + 2}`);
   if (noFrame.some(Boolean)) console.log(`${dir}: ${noFrame.filter(Boolean).length} page(s) without the scanning border${mixed.length ? `; spreads with one bordered page: ${mixed.join(', ')}` : ''}`);
+  // Spread days (S1): a left page on a verso with its right page (same date, "cont.") on the facing recto, and every page of it keeps its own
+  // fixed parts: the DATE/TITLE/TAGS header (own zones), the frame, the SEND TO strip and its own page code.
+  if (existsSync(`${dir}/layout.json`)) {
+    const L = JSON.parse(readFileSync(`${dir}/layout.json`, 'utf8'));
+    L.pages.forEach((p, i) => {
+      if (!p.spread) return;
+      const n = i + 1, q = L.pages[i + 1];
+      if (p.spread === 'L') {
+        if (n % 2 !== 0) errs.push(`spread day ${p.id} starts on recto p${n}`);
+        if (!q || q.spread !== 'R' || q.id !== `${p.id}.cont` || q.date !== p.date) errs.push(`spread day ${p.id} p${n} has no right page after it`);
+      } else if (p.spread === 'R') { const l = L.pages[i - 1]; if (n % 2 !== 1 || !l || l.spread !== 'L' || l.id !== p.id.replace(/\.cont$/, '')) errs.push(`right page ${p.id} p${n} does not face its left page`); }
+      const zs = new Set(p.zones.map((z) => z.zone));
+      for (const z of ['date', 'title', 'tags']) if (!zs.has(z)) errs.push(`${p.id} p${n} has no ${z.toUpperCase()} header zone`);
+      if (p.scan && p.scan.frame && !zs.has('send_to')) errs.push(`${p.id} p${n} has no SEND TO strip`);
+      if (p.code && !zs.has('page_code')) errs.push(`${p.id} p${n} has no page code zone`);
+      if (!p.code && !(p.scan && p.scan.code === false)) errs.push(`${p.id} p${n} has no page code`);
+    });
+    const codes = L.pages.filter((p) => p.spread && p.code).map((p) => p.code); if (new Set(codes).size !== codes.length) errs.push('two pages of spread days share a page code');
+  }
   const id = /m(\d{4}-\d{2})/.exec(dir)?.[1];
   if (id === firstMonthId() && /in the previous book/.test(html)) errs.push('first book says "previous book"');
   if (id === lastMonthId() && /in the next book/.test(html)) errs.push('last book says "next book"');
