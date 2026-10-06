@@ -8,6 +8,7 @@
 //   node site/tools/make-guide-shots.mjs                 # regenerate every image (commit them)
 //   node site/tools/make-guide-shots.mjs --check         # CI: drive every shot, write nothing, fail if a selector is gone or an image is missing
 //   node site/tools/make-guide-shots.mjs --only=trim,day-edit
+//   node site/tools/make-guide-shots.mjs --only=trim --no-build   # reuse the editor already built in journal/editor/dist-guide (writing a new shot)
 //
 // Needs the same as make-screens.mjs: journal/node_modules (npm ci) and Chromium (CHROMIUM_PATH, the sandbox copy, or Playwright's).
 // Offline sandbox: set SORTABLE_JS=/path/Sortable.min.js (the editor loads its drag library from a CDN; CI has the network).
@@ -35,9 +36,12 @@ if (!CHECK) fs.mkdirSync(IMG, { recursive: true });
 
 // ---- build the editor exactly as site/build.sh does (generic profile, test.ics), then serve the demo and the working build ----
 const env = { ...process.env, KW_PROFILE: 'content/profile.example.json', KW_OUT: 'out-shots/guide', EDITOR_DIST: 'editor/dist-guide/' };
-console.log('building the editor from the generic profile');
-sh('node', ['render.mjs', 'month', '2026-10', 'test.ics'], { cwd: J, env });
-sh('node', ['editor/build.mjs'], { cwd: J, env });
+if (process.argv.includes('--no-build') && fs.existsSync(path.join(J, 'editor/dist-guide/site/index.html'))) console.log('reusing the editor built earlier (--no-build)');
+else {
+  console.log('building the editor from the generic profile');
+  sh('node', ['render.mjs', 'month', '2026-10', 'test.ics'], { cwd: J, env });
+  sh('node', ['editor/build.mjs'], { cwd: J, env });
+}
 function serve(dir) {
   const types = { '.html': 'text/html', '.json': 'application/json' };
   const srv = http.createServer((q, r) => {
@@ -47,6 +51,22 @@ function serve(dir) {
   return { url: `http://127.0.0.1:${srv.address().port}/`, close: () => srv.close() };
 }
 const servers = { demo: serve(path.join(J, 'editor/dist-guide/demo')), app: serve(path.join(J, 'editor/dist-guide/site')) };
+// build 'studio': the working editor served by a real Studio server (an empty database in memory, one made-up user and one public sample project with
+// one release), so the Releases list in the Versions drawer is the real thing. Started only when a shot asks for it. Generic data only.
+let studio = null;
+async function studioServer() {
+  if (studio) return studio;
+  const { serve: start, sampleJournalDir } = await import(path.join(ROOT, 'studio/test/helpers.mjs'));
+  const { snapshotFromJournal } = await import(path.join(ROOT, 'studio/src/pipeline.mjs'));
+  const t = await start({ staticDir: path.join(J, 'editor/dist-guide/site') });
+  const token = await t.signup('sam');
+  const made = await t.call('POST', '/api/projects', { token, body: { name: 'Northlight', visibility: 'public', snapshot: snapshotFromJournal(sampleJournalDir()) } });
+  if (made.status >= 300) throw new Error('could not make the sample Studio project: ' + JSON.stringify(made.body).slice(0, 120));
+  const rel = await t.call('POST', `/api/projects/${made.body.project.id}/releases`, { token, body: { name: 'v0.9', notes: 'Proof copy for the printer.' } });
+  if (rel.status >= 300) throw new Error('could not make the sample release: ' + JSON.stringify(rel.body).slice(0, 120));
+  studio = { url: t.base + '/', password: 'correct horse battery', project: made.body.project.id, close: () => t.close() };
+  return studio;
+}
 
 const { launch } = await import(path.join(J, 'browser.mjs'));
 const browser = await launch();
@@ -66,6 +86,7 @@ async function toWebp(png, q, maxW) {
 // ---- the numbered ring: a fixed overlay on top of the page, drawn from the measured boxes ----
 const drawMarks = (pg, marks) => pg.evaluate((marks) => {
   document.querySelectorAll('.__gm').forEach((e) => e.remove());
+  const host = [...document.querySelectorAll('dialog[open]')].pop() || document.body; // an open modal dialog sits in the top layer, above anything in the body: the rings go inside it
   for (const m of marks) {
     const g = 3, r = document.createElement('div'); r.className = '__gm';
     r.style.cssText = `position:fixed;left:${m.x - g}px;top:${m.y - g}px;width:${m.w + 2 * g}px;height:${m.h + 2 * g}px;border:3px solid #d9480f;border-radius:10px;box-shadow:0 0 0 2px #fff,inset 0 0 0 2px #fff;pointer-events:none;z-index:2147483646;box-sizing:border-box`;
@@ -73,7 +94,7 @@ const drawMarks = (pg, marks) => pg.evaluate((marks) => {
     const at = m.at || 'tl', cx = at.includes('r') ? m.x + m.w + g : at.includes('l') ? m.x - g : m.x + m.w / 2, cy = at.includes('b') ? m.y + m.h + g : at.includes('t') ? m.y - g : m.y + m.h / 2;
     const bx = Math.min(Math.max(cx, 15), innerWidth - 15), by = Math.min(Math.max(cy, 15), innerHeight - 15);
     b.style.cssText = `position:fixed;left:${bx - 14}px;top:${by - 14}px;width:28px;height:28px;border-radius:50%;background:#d9480f;color:#fff;font:700 15px/28px system-ui,sans-serif;text-align:center;box-shadow:0 0 0 2px #fff;pointer-events:none;z-index:2147483647`;
-    document.body.append(r, b);
+    host.append(r, b);
   }
 }, marks);
 
@@ -91,12 +112,13 @@ async function runShot(id, theme) {
     return loc;
   };
   try {
-    await pg.goto(servers[s.build].url + s.hash); await pg.waitForTimeout(1500);
+    await pg.goto((s.build === 'studio' ? (await studioServer()).url : servers[s.build].url) + s.hash); await pg.waitForTimeout(1500);
     for (const [op, a, b] of s.setup || []) {
       if (op === 'wait') await pg.waitForTimeout(a);
       else if (op === 'eval') await pg.evaluate(a);
       else if (op === 'click') await (await need(a, 'setup click')).click({ timeout: 5000 });
-      else if (op === 'fill') await (await need(a, 'setup field')).fill(b, { timeout: 5000 });
+      else if (op === 'fill') await (await need(a, 'setup field')).fill(b === '@studio-password' ? studio.password : b, { timeout: 5000 });
+      else if (op === 'select') await (await need(a, 'setup menu')).selectOption(b === '@studio-project' ? studio.project : b, { timeout: 5000 });
       else if (op === 'hide') await pg.evaluate((q) => document.querySelectorAll(q).forEach((e) => (e.style.visibility = 'hidden')), a);
       else if (op === 'key') await pg.keyboard.press(a);
       else throw new Error('unknown setup op ' + op);
@@ -139,7 +161,7 @@ for (const id of ids) {
   if (!s.callouts?.length) { fail(id, 'a shot needs at least one callout'); continue; }
   for (const theme of s.themes || ['light']) await runShot(id, theme);
 }
-await browser.close(); Object.values(servers).forEach((v) => v.close());
+await browser.close(); Object.values(servers).forEach((v) => v.close()); if (studio) await studio.close();
 
 // ---- every shot must have its committed image(s), and nothing in the folder may be unused ----
 if (CHECK) {

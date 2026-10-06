@@ -56,6 +56,10 @@ const part = (p) => {
   problems.push('unknown chapter part ' + JSON.stringify(p).slice(0, 60)); return '';
 };
 
+// {{ch:id}} in any text becomes that chapter's number, so a chapter can be inserted without a stale "chapter 5" left behind.
+const NUM = Object.fromEntries(CHAPTERS.map((c, i) => [c.id, i + 1]));
+const nums = (t) => String(t).replace(/\{\{ch:([a-z0-9-]+)\}\}/g, (m, id) => { if (!NUM[id]) { problems.push(`{{ch:${id}}} names a chapter that does not exist`); return m; } return NUM[id]; });
+
 const toc = CHAPTERS.map((c, i) => `          <li><a href="#${c.id}">${esc(c.title)}${c.time ? ` <small>${esc(c.time)}</small>` : ''}</a></li>`).join('\n');
 const chapters = CHAPTERS.map((c, i) => `      <section class="g-ch" id="${c.id}" aria-labelledby="${c.id}-h">
         <h2 id="${c.id}-h"><span class="g-n" aria-hidden="true">${i + 1}</span><span>${esc(c.title)}</span>${c.time ? `<span class="g-time">${esc(c.time)}</span>` : ''}</h2>
@@ -66,6 +70,7 @@ ${c.parts.map(part).filter(Boolean).join('\n')}
 for (const id of Object.keys(SHOTS)) if (!used.has(id)) problems.push(`shot "${id}" is defined but no chapter uses it`);
 let html = fs.readFileSync(path.join(G, 'index.html'), 'utf8');
 html = html.replace('<!--@@toc-->', toc).replace('<!--@@chapters-->', chapters);
+html = nums(html);
 for (const m of html.matchAll(/<img\b[^>]*>/g)) if (!/\salt="[^"]{8,}"/.test(m[0])) problems.push('image without useful alt text: ' + m[0].slice(0, 70));
 if (problems.length) { console.error(problems.map((p) => '  ' + p).join('\n') + `\n${problems.length} guide problem(s)`); process.exit(1); }
 fs.mkdirSync(path.join(OUT, 'guide'), { recursive: true });
