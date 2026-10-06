@@ -1561,5 +1561,59 @@ ok(!errs.length, 'no page errors after the Book view ' + errs.join(' | '));
   ok(!perr2.length, 'no page errors on spread days (phone) ' + perr2.join(' | '));
   await ph.close(); await sp.close();
 }
+// ---------- languages (BUILD-PLAN section 18, I1): the pseudo-locales load and work ----------
+// en-XA is English accented and a third longer, in [brackets]; ar-XB is the same text forced right to left. Neither is a real language: they show
+// what a translation will do to the page. Everything below must hold in both: no page errors, no key the catalog lacks, the words reach labels and
+// live regions, the direction is set, nothing scrolls sideways at 390 px. (English itself is what every test above checks.)
+for (const lang of ['en-XA', 'ar-XB']) {
+  const marked = (s) => (lang === 'en-XA' ? /[áéíóúçñöšţ]/.test(s) && s.includes('[') : s.includes('‮'));
+  const px = await b.newPage({ viewport: { width: 1400, height: 950 } }), perrs = [];
+  px.on('pageerror', (e) => perrs.push(e.message));
+  await px.goto(`${URL0}?lang=${lang}#day/2026-10-14/edit`, { waitUntil: 'networkidle' }); await atDay(px);
+  const st = await px.evaluate(() => ({ lang: document.documentElement.lang, dir: document.documentElement.dir, body: getComputedStyle(document.body).direction, kw: window.KWI18N && KWI18N.lang, title: document.title }));
+  ok(st.lang === lang && st.kw === lang && st.dir === (lang === 'ar-XB' ? 'rtl' : 'ltr') && st.body === (lang === 'ar-XB' ? 'rtl' : 'ltr'), `${lang}: <html lang> is ${st.lang} and dir is ${st.dir}`);
+  ok(marked(st.title), `${lang}: the page title is translated (${st.title})`);
+  const labels = await px.evaluate(() => ({ ver: document.querySelector('#v-ver').getAttribute('aria-label'), undo: document.querySelector('#undo').getAttribute('aria-label'), grid: document.querySelector('#lay-g').title, h3: document.querySelector('#pal h3') && document.querySelector('#pal h3').textContent, skip: document.querySelector('.skip-day').textContent, tabs: document.querySelector('.tabs').getAttribute('aria-label') }));
+  ok(marked(labels.ver) && marked(labels.undo) && marked(labels.grid) && marked(labels.skip) && marked(labels.tabs), `${lang}: aria-labels, titles, skip links and group names come from the catalog`);
+  await px.screenshot({ path: `${OUT}/i18n-${lang}-day.png` });
+  // a toast and a live announcement
+  await px.click('#pal [data-add="t:checks"]'); await px.waitForTimeout(250);
+  const said = await px.evaluate(() => document.querySelector('#toast').textContent);
+  ok(marked(said), `${lang}: a toast is translated (${said.slice(0, 60)})`);
+  await px.focus('#list > li:nth-child(2) .grip'); await px.keyboard.press('ArrowDown'); await px.waitForTimeout(200);
+  const live = await px.evaluate(() => document.querySelector('#live').textContent), grip = await px.evaluate(() => document.querySelector('#list > li:nth-child(2) .grip').getAttribute('aria-label'));
+  ok(marked(live) && marked(grip), `${lang}: the live region and the grip's aria-label are translated (${live.slice(0, 50)})`);
+  await px.click('#v-ver'); await px.waitForSelector('#versions[open]'); await px.waitForTimeout(200);
+  ok(marked(await px.evaluate(() => document.querySelector('#vs-chip').textContent + document.querySelector('#vs-h').firstChild.textContent)), `${lang}: the Versions drawer is translated`);
+  await px.screenshot({ path: `${OUT}/i18n-${lang}-versions.png` }); await px.keyboard.press('Escape');
+  await px.click('#v-set'); await px.waitForSelector('#settings[open]'); await px.waitForTimeout(150);
+  ok(marked(await px.evaluate(() => document.querySelector('#settings-h').textContent + document.querySelector('#set-print .lab').textContent)), `${lang}: the Settings dialog is translated`);
+  await px.keyboard.press('Escape');
+  // the book, the organiser and the library
+  await px.evaluate(() => { location.hash = '#book/edit'; }); await px.waitForFunction(() => ORG.on && document.querySelector('#og-body h3')); await px.waitForTimeout(400);
+  await px.evaluate(() => bkSelect(7)); await px.keyboard.press('Escape'); await px.waitForTimeout(100);
+  ok(marked(await px.evaluate(() => document.querySelector('#og-body h3').textContent + document.querySelector('#os-what').textContent + document.querySelector('#bk-info').textContent)), `${lang}: the book view, its page panel and its toolbar are translated`);
+  await px.screenshot({ path: `${OUT}/i18n-${lang}-book.png` });
+  await px.evaluate(() => { location.hash = '#library'; }); await px.waitForFunction(() => document.documentElement.dataset.view === 'shelf' && document.querySelectorAll('#sh-list .sh-item').length); await px.waitForTimeout(300);
+  ok(marked(await px.evaluate(() => document.querySelector('#sh-title').textContent + document.querySelector('#sh-sub').textContent + document.querySelector('#nav-live').textContent)), `${lang}: the library is translated, and so is what a screen reader hears when the level changes`);
+  await px.screenshot({ path: `${OUT}/i18n-${lang}-library.png` });
+  const miss = await px.evaluate(() => KWI18N.missing());
+  ok(!miss.length, `${lang}: every key the editor asked for is in the catalog` + (miss.length ? ' (missing: ' + miss.slice(0, 5).join(', ') + ')' : ''));
+  ok(!perrs.length, `${lang}: no page errors ` + perrs.join(' | '));
+  await px.close();
+  // the phone: nothing scrolls sideways with the longer (or mirrored) text
+  const ps = await b.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 }), perrs2 = [];
+  ps.on('pageerror', (e) => perrs2.push(e.message));
+  for (const [name, hash] of [['day', '#day/2026-10-14/edit'], ['book', '#book/edit'], ['library', '#library/edit'], ['grid day', '#day/2026-10-14/edit']]) {
+    await ps.goto(`${URL0}?lang=${lang}${hash}`, { waitUntil: 'networkidle' }); await ps.waitForFunction(() => document.documentElement.dataset.view); await ps.waitForTimeout(700);
+    if (name === 'grid day') { await ps.evaluate(() => document.querySelector('#lay-g') && document.querySelector('#lay-g').click()); await ps.waitForTimeout(300); }
+    if (name === 'book') await ps.evaluate(() => { const t = document.querySelector('#og-toggle'); if (t && document.querySelector('#org') && !document.querySelector('#org').hidden) t.click(); });
+    const w = await ps.evaluate(() => ({ sx: document.documentElement.scrollWidth, w: innerWidth, dir: document.documentElement.dir }));
+    ok(w.sx <= w.w, `${lang} at 390 px, ${name}: no sideways scroll (${w.sx} of ${w.w})`);
+    await ps.screenshot({ path: `${OUT}/i18n-${lang}-phone-${name.replace(' ', '-')}.png` });
+  }
+  ok(!perrs2.length, `${lang} (phone): no page errors ` + perrs2.join(' | '));
+  await ps.close();
+}
 await b.close(); srv.close();
 if (fails.length) { console.log(`\n${fails.length} failed`); process.exit(1); }

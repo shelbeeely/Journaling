@@ -9,9 +9,9 @@ name: Editor
 on:
   push:
     branches: [main]
-    paths: ['journal/daypage.mjs', 'journal/scan.mjs', 'journal/pages.mjs', 'journal/book.mjs', 'journal/bookrules.mjs', 'journal/bookedit.mjs', 'journal/context.mjs', 'journal/editor/**', 'journal/content/layouts.mjs', 'journal/render.mjs', 'journal/content/daypage.json', 'journal/profile.mjs', 'journal/content/profile.example.json', 'site/**', 'docs/journaling/methods/**', 'CONTRIBUTING.md', 'studio/src/diff.mjs', 'studio/src/canonical.mjs', '.github/workflows/editor.yml']
+    paths: ['journal/daypage.mjs', 'journal/scan.mjs', 'journal/pages.mjs', 'journal/book.mjs', 'journal/bookrules.mjs', 'journal/bookedit.mjs', 'journal/context.mjs', 'journal/editor/**', 'journal/i18n/**', 'journal/test-i18n.mjs', 'journal/content/layouts.mjs', 'journal/render.mjs', 'journal/content/daypage.json', 'journal/profile.mjs', 'journal/content/profile.example.json', 'site/**', 'docs/journaling/methods/**', 'CONTRIBUTING.md', 'studio/src/diff.mjs', 'studio/src/canonical.mjs', '.github/workflows/editor.yml']
   pull_request:
-    paths: ['site/**', 'docs/journaling/methods/**', 'CONTRIBUTING.md', 'journal/profile.mjs', 'journal/content/profile.example.json', 'journal/daypage.mjs', 'journal/scan.mjs', 'journal/pages.mjs', 'journal/book.mjs', 'journal/bookrules.mjs', 'journal/bookedit.mjs', 'journal/context.mjs', 'journal/editor/**', 'journal/content/layouts.mjs', 'studio/src/diff.mjs', 'studio/src/canonical.mjs']
+    paths: ['site/**', 'docs/journaling/methods/**', 'CONTRIBUTING.md', 'journal/profile.mjs', 'journal/content/profile.example.json', 'journal/daypage.mjs', 'journal/scan.mjs', 'journal/pages.mjs', 'journal/book.mjs', 'journal/bookrules.mjs', 'journal/bookedit.mjs', 'journal/context.mjs', 'journal/editor/**', 'journal/i18n/**', 'journal/test-i18n.mjs', 'journal/content/layouts.mjs', 'studio/src/diff.mjs', 'studio/src/canonical.mjs']
   workflow_dispatch:
 permissions: { contents: read, pages: write, id-token: write }
 concurrency: { group: "${{ github.event_name == 'pull_request' && format('editor-{0}', github.ref) || 'pages' }}", cancel-in-progress: true }  # PR runs only cancel their own PR; main pushes share the Pages group
@@ -27,7 +27,9 @@ jobs:
       - name: Sample book (test.ics only) for the page CSS
         run: node render.mjs month 2026-10 test.ics
       - run: node editor/build.mjs
-      - name: Editor tests (drag from palette, every block, overflow meter)
+      - name: "Languages check (I1: the catalog, the pseudo-locales, no hard-coded English in the editor, and the built editor script parses)"
+        run: node test-i18n.mjs
+      - name: Editor tests (drag from palette, every block, overflow meter, the en-XA and ar-XB pseudo-locales)
         run: node editor/test.mjs
       - name: Accessibility checks (axe, names, contrast tokens, 44 px targets, reflow at 320/390, focus, reduced motion, keyboard tasks); fails on anything not in the documented allowlist
         run: node editor/test-a11y.mjs --report

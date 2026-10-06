@@ -381,6 +381,14 @@ Edit the book (Edit at the whole-book level) and the canvas becomes an organiser
   that `editor/samples.mjs` builds; `moveEntry`, `setOn`, `addEntry`, ...), `editor/organiser.{html,css,js}` (the UI).
   `node test-organiser.mjs` proves `flowBook` equals `assemble` and that an organised book builds and passes `check.mjs`, `check-pages.mjs` and `check-codes.mjs`.
 
+### Languages (I1: the editor's message catalog)
+The editor's words are in `i18n/en.json`, not in the code. English is the only language you can pick; the two pseudo-locales (accented and a third longer `en-XA`, and right-to-left `ar-XB`) are there to show what a translation will do. Details and what is not done: BUILD-PLAN section 18, "I1 as built".
+- **Try it:** `node editor/build.mjs`, open the site build with `?lang=en-XA` or `?lang=ar-XB` (or set `localStorage` `kw-lang`). `<html lang>` and `dir` follow; labels, toasts and live regions are translated too.
+- **Add or change a word:** script text: `_t('area.key', { name })` in `editor/*.js` or `template.html`, and the message in `i18n/en.json` (`{n, plural, one {# page} other {# pages}}` for counts). Page text: put `data-i18n="area.key"` on the element (`data-i18n-html` for markup inside, `data-i18n-attr="aria-label:area.key"` for attributes) and the same words in `en.json`. Block, option and care-row names come from the code tables: change them there and run `node i18n/sync-tables.mjs`.
+- **Check:** `node test-i18n.mjs` (also in Books and Editor CI): every locale has every key with the same placeholders, no unused or missing key, no hard-coded English in the extracted files (an exception goes in `i18n/allow.json`, with a reason in the pull request), HTML words are marked and match en.json. A new editor file goes in the test's `AREAS` list. `editor/test.mjs` loads the editor in both pseudo-locales (no page errors, no missing key, `dir`, no sideways scroll at 390 px).
+- **Printed words** are not translated yet. `node i18n/print-report.mjs` rewrites `i18n/print-strings.md`, the list of printed strings and where each lives; the test fails when it is out of date.
+- **Files:** `i18n/i18n.mjs` (lookup, format, pseudo-locales), `i18n/tables.mjs` and `sync-tables.mjs` (the data tables), `i18n/htmlscan.mjs` and `lex.mjs` (the lint's readers), `i18n/runtime.js` (the in-page part), `i18n/print-report.mjs`.
+
 ## Day page editor
 (This is the day level of the editor: open a day page from the Book, or `#day/2026-10-14`.)
 `daypage.mjs` is the block library: order, on/off and options for every day page block. `content/daypage.json`
