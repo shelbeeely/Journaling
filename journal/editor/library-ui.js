@@ -6,8 +6,8 @@ const LM = /*__LIBM__*/;
 const SAMPLE_LIB = /*__SAMPLELIB__*/null; // the public demo's generic library; null in every other build
 const LB = { lib: null, undo: [], cur: '', touched: false, warned: false, focus: null, tkey: '' };
 const LB_KEY = 'kw-library', LB_CUR = 'kw-lib-cur';
-const BOOK_TITLE0 = (($('#ttl small') || {}).textContent || '').split(' · ')[0].trim() || 'My book'; // the build's own book title (the header says it)
-const SCOPE_LABEL = { month: 'Month', quarter: 'Quarter', season: 'Season', 'half-year': 'Half year', year: 'Year', custom: 'Custom dates', undated: 'Undated' };
+const BOOK_TITLE0 = String(I18N_VARS.title || '').trim() || _t('lib.my_book'); // the build's own book title (the header says it)
+const SCOPE_LABEL = { get month() { return _t('lib.scope_month'); }, get quarter() { return _t('lib.scope_quarter'); }, get season() { return _t('lib.scope_season'); }, get 'half-year'() { return _t('lib.scope_half_year'); }, get year() { return _t('lib.scope_year'); }, get custom() { return _t('lib.scope_custom'); }, get undated() { return _t('lib.scope_undated'); } };
 const SCOPE_PICK = LM.SCOPES.filter((s) => s !== 'custom');
 const lbClone = (x) => JSON.parse(JSON.stringify(x));
 const lbBook = (id) => LM.bookOf(LB.lib, id), lbSeries = (id) => LM.seriesOf(LB.lib, id), lbSeriesOfBook = (id) => LM.seriesOfBook(LB.lib, id);
@@ -23,16 +23,16 @@ const LI = {
 };
 
 // ----- plain words for library.mjs problems -----
-const FIELD_NAME = { title: 'title', subtitle: 'subtitle', spineTitle: 'spine title', slug: 'file name', edition: 'edition', start: 'start month', bookId: 'scan-code id', seriesId: 'series', 'plan.scope': 'plan', order: 'book order', defaults: 'defaults' };
+const FIELD_NAME = { get title() { return _t('lib.field_title'); }, get subtitle() { return _t('lib.field_subtitle'); }, get spineTitle() { return _t('lib.field_spine_title'); }, get slug() { return _t('lib.field_slug'); }, get edition() { return _t('lib.field_edition'); }, get start() { return _t('lib.field_start'); }, get bookId() { return _t('lib.field_book_id'); }, get seriesId() { return _t('lib.field_series'); }, get 'plan.scope'() { return _t('lib.field_plan'); }, get order() { return _t('lib.field_order'); }, get defaults() { return _t('lib.field_defaults'); } };
 function lbPlain(lib, m) {
   const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1) + (/[.!?]$/.test(t) ? '' : '.');
-  const words = (t) => t.replace(/"([a-z0-9-]+)"/g, (x, id) => { const o = LM.bookOf(lib, id) || LM.seriesOf(lib, id); return o ? `“${o.title}”` : x; }); // ids become titles
+  const words = (t) => t.replace(/"([a-z0-9-]+)"/g, (x, id) => { const o = LM.bookOf(lib, id) || LM.seriesOf(lib, id); return o ? _t('lib.quoted', { title: o.title }) : x; }); // ids become titles
   const r = /^(books|series)\[(\d+)\](?:\.([\w.]+))?: (.*)$/.exec(m);
   if (!r) return cap(words(m.replace(/^\w+: /, '')));
   const kind = r[1] === 'books' ? 'book' : 'series', item = (lib[r[1]] || [])[+r[2]], msg = words(r[4]);
-  if (r[3] === 'title' && /^required/.test(r[4])) return kind === 'book' ? 'Give the book a title. It is printed on the cover and the title page.' : 'Give the series a title, for example “Monthly books”.';
+  if (r[3] === 'title' && /^required/.test(r[4])) return kind === 'book' ? _t('lib.give_book_title') : _t('lib.give_series_title');
   const f = r[3] ? (FIELD_NAME[r[3]] || r[3].replace(/^defaults\./, 'default ').replace(/^plan\./, 'plan ')) : '';
-  return cap(`${kind === 'book' ? 'Book' : 'Series'} ${item && item.title ? `“${item.title}”` : `number ${+r[2] + 1}`}${f ? `, ${f}` : ''}: ${msg}`);
+  return cap(`${kind === 'book' ? _t('lib.kind_book') : _t('lib.kind_series')} ${item && item.title ? _t('lib.quoted', { title: item.title }) : _t('lib.number_n', { n: +r[2] + 1 })}${f ? `, ${f}` : ''}: ${msg}`);
 }
 
 // ----- the library: load, keep, change, undo -----
@@ -57,15 +57,15 @@ function lbPersist() { // saves; returns a warning when it could not (said with 
   if (MODE === 'demo') return '';
   if (typeof ST !== 'undefined' && ST.pid) { // a Studio project: the library is part of the project's draft
     if (stWrites()) { stQueueDraft(); return ''; }
-    if (!LB.warned) { LB.warned = true; return 'This project is read-only for you, so library changes are not saved.'; }
+    if (!LB.warned) { LB.warned = true; return _t('lib.readonly_project'); }
     return '';
   }
   let w = '';
   if (MODE === 'pages') {
     const j = JSON.stringify(LB.lib); store.set(LB_KEY, j);
-    if (store.get(LB_KEY) !== j) { w = 'This browser can’t keep your library (its storage is blocked). Export it from Edit mode to keep a copy.'; }
-  } else if (db && !readOnly) db.doc('layouts/library').set({ library: LB.lib, savedAt: new Date().toISOString() }).catch(() => lbSnack('Couldn’t save the library. Try again in a moment.'));
-  else if (!LB.warned) { LB.warned = true; w = 'Preview only: library changes aren’t saved here. Export it from Edit mode to keep a copy.'; }
+    if (store.get(LB_KEY) !== j) { w = _t('lib.storage_blocked'); }
+  } else if (db && !readOnly) db.doc('layouts/library').set({ library: LB.lib, savedAt: new Date().toISOString() }).catch(() => lbSnack(_t('lib.cant_save_library')));
+  else if (!LB.warned) { LB.warned = true; w = _t('lib.preview_only'); }
   return w;
 }
 // Apply a new library: validated by library.mjs first; returns the problems in plain words (empty = done).
@@ -80,7 +80,7 @@ function lbApply(next, snack) {
 function lbUndo(quiet) {
   if (!LB.undo.length) return;
   LB.lib = LB.undo.pop(); LB.touched = true; const w = lbPersist(); lbEnsureContext(); lbRedraw();
-  if (!quiet || w) lbSnack(quiet ? w : ['Undone.', w].filter(Boolean).join(' '));
+  if (!quiet || w) lbSnack(quiet ? w : [_t('lib.undone'), w].filter(Boolean).join(' '));
 }
 // A book or series that no longer exists: the level falls back (a deleted book while it is open, an undo, an import).
 function lbEnsureContext() {
@@ -139,27 +139,27 @@ function shelfCard(e, i, total, edit) {
   if (e.kind === 'series') {
     const first = e.books[0], n = e.books.length;
     cover = `<span class="sh-stack st ${n > 1 ? '' : 'one'}">${first ? lbCover(first) : '<span class="cv empty"></span>'}</span>`;
-    meta = `${n} ${n === 1 ? 'book' : 'books'}${e.series.subtitle ? ' · ' + escH(e.series.subtitle) : ''}`; label = `Open the series ${nm}, ${n} ${n === 1 ? 'book' : 'books'}`;
+    meta = `${_t('lib.count_book', { n })}${e.series.subtitle ? ' · ' + escH(e.series.subtitle) : ''}`; label = _t('lib.open_series', { name: nm, count: _t('lib.count_book', { n }) });
   } else {
     cover = `<span class="sh-stack">${lbCover(e.book)}${e.n ? `<span class="sh-n" aria-hidden="true">${e.n}</span>` : ''}</span>`;
-    meta = escH(lbMeta(e.book)); label = `Open the book ${nm}${e.n ? `, book ${e.n} of ${e.of}` : ''}, ${lbMeta(e.book)}`;
+    meta = escH(lbMeta(e.book)); label = e.n ? _t('lib.open_book_n', { name: nm, n: e.n, of: e.of, meta: lbMeta(e.book) }) : _t('lib.open_book', { name: nm, meta: lbMeta(e.book) });
   }
-  const tools = edit ? `<div class="sh-tools" role="group" aria-label="Edit ${escH(nm)}">
-    <button class="bk-b sh-grip" type="button" data-act="grip" aria-label="Drag ${escH(nm)} to a new place" title="Drag to reorder"><span aria-hidden="true">${LI.grip}</span></button>
-    <button class="bk-b" type="button" data-act="earlier" aria-label="Move ${escH(nm)} earlier"${i === 0 ? ' disabled' : ''}>${LI.left}</button>
-    <button class="bk-b" type="button" data-act="later" aria-label="Move ${escH(nm)} later"${i === total - 1 ? ' disabled' : ''}>${LI.right}</button>
-    <button class="bk-b" type="button" data-act="settings" aria-label="Settings for ${escH(nm)}">${LI.gear}</button></div>` : '';
+  const tools = edit ? `<div class="sh-tools" role="group" aria-label="${_t('lib.edit_name', { name: escH(nm) })}">
+    <button class="bk-b sh-grip" type="button" data-act="grip" aria-label="${_t('lib.drag_to_place', { name: escH(nm) })}" title="${_t('lib.drag_reorder')}"><span aria-hidden="true">${LI.grip}</span></button>
+    <button class="bk-b" type="button" data-act="earlier" aria-label="${_t('lib.move_earlier', { name: escH(nm) })}"${i === 0 ? ' disabled' : ''}>${LI.left}</button>
+    <button class="bk-b" type="button" data-act="later" aria-label="${_t('lib.move_later', { name: escH(nm) })}"${i === total - 1 ? ' disabled' : ''}>${LI.right}</button>
+    <button class="bk-b" type="button" data-act="settings" aria-label="${_t('lib.settings_for', { name: escH(nm) })}">${LI.gear}</button></div>` : '';
   return `<li class="sh-item" data-key="${escH(key)}" data-kind="${e.kind}" data-id="${escH(e.kind === 'series' ? e.series.id : e.book.id)}"><div class="sh-card">${cover}<span class="sh-name">${escH(nm)}</span><span class="sh-meta">${meta}</span><button class="sh-open"${i === 0 ? ' id="sh-first"' : ''} type="button" data-act="open" aria-label="${escH(label)}"></button></div>${tools}</li>`;
 }
 function shelfDraw(keepFocus) {
   if (NAV.view !== 'shelf') return;
   const lv = NAV.level, edit = NAV.edit, lib = LB.lib, ser = lv === 'series' ? lbSeries(NAV.sid) : null;
   const items = lbEntries(), n = lib.books.length;
-  $('#sh-title').textContent = ser ? ser.title : 'Library';
-  $('#sh-sub').textContent = ser ? [ser.subtitle, `${ser.order.length} ${ser.order.length === 1 ? 'book' : 'books'} in order`].filter(Boolean).join(' · ') : `${n} ${n === 1 ? 'book' : 'books'}${lib.series.length ? ` · ${lib.series.length} ${lib.series.length === 1 ? 'series' : 'series'}` : ''}`;
-  $('#sh-list').setAttribute('aria-label', ser ? `Books in ${ser.title}` : 'Books and series');
-  $('#sh-list').innerHTML = items.length ? items.map((e, i) => shelfCard(e, i, items.length, edit)).join('') : `<li class="sh-empty">${ser ? 'This series has no books yet. Press Edit, then New book, or move a book into it from that book’s settings.' : 'The library is empty.'}</li>`;
-  $('#sh-note').textContent = edit ? '' : ser ? '' : n === 1 ? 'One book so far. Press Edit to add a book or a series.' : '';
+  $('#sh-title').textContent = ser ? ser.title : _t('lib.library');
+  $('#sh-sub').textContent = ser ? [ser.subtitle, _t('lib.books_in_order', { n: ser.order.length })].filter(Boolean).join(' · ') : `${_t('lib.count_book', { n })}${lib.series.length ? ' · ' + _t('lib.count_series', { n: lib.series.length }) : ''}`;
+  $('#sh-list').setAttribute('aria-label', ser ? _t('lib.books_in', { title: ser.title }) : _t('lib.books_and_series'));
+  $('#sh-list').innerHTML = items.length ? items.map((e, i) => shelfCard(e, i, items.length, edit)).join('') : `<li class="sh-empty">${ser ? _t('lib.series_empty') : _t('lib.library_empty')}</li>`;
+  $('#sh-note').textContent = edit ? '' : ser ? '' : n === 1 ? _t('lib.one_book_note') : '';
   $('#sh-new-series').hidden = lv === 'series'; $('#sh-series-set').hidden = lv !== 'series'; $('#sh-export').hidden = $('#sh-import').hidden = lv === 'series';
   $('#sh-undo').disabled = !LB.undo.length;
   $('#sh-out').disabled = lv === 'library'; $('#sh-in').disabled = !items.length;
@@ -191,7 +191,7 @@ function lbAfterMove(next, from, to, before) {
   const moved = before[to] || before[from], key = moved ? keyOf(moved) : null;
   const errs = lbApply(next);
   if (errs.length) { lbSnack(errs[0]); shelfDraw(); return; }
-  live(`Moved to position ${to + 1}.`); shelfDraw(key);
+  live(_t('lib.moved_to_position', { n: to + 1 })); shelfDraw(key);
 }
 function live(t) { const el = $('#live'); el.textContent = ''; setTimeout(() => { el.textContent = t; }, 30); }
 function lbRedraw() {
@@ -261,7 +261,7 @@ const fld = (id, label, inner, hint, from) => `<div class="ls-f"><label for="${i
 const txt = (id, v, max, req) => `<input type="text" id="${id}" value="${escH(v || '')}" maxlength="${max}" autocomplete="off"${req ? ' required aria-required="true"' : ''}${''}>`;
 const sel = (id, opts, cur) => `<select id="${id}">${opts.map(([v, t]) => `<option value="${escH(v)}"${String(v) === String(cur) ? ' selected' : ''}>${escH(t)}</option>`).join('')}</select>`;
 const withHint = (html, id) => html.replace('<input ', `<input aria-describedby="${id}-h" `).replace('<select ', `<select aria-describedby="${id}-h" `);
-const modOpts = (inherit) => [['', inherit], ['on', 'On'], ['off', 'Off']];
+const modOpts = (inherit) => [['', inherit], ['on', _t('lib.on')], ['off', _t('lib.off')]];
 const triOf = (v) => (v === true ? 'on' : v === false ? 'off' : '');
 const EDITIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => [n, String(n)]);
 let sheet = null; // { kind, id, isNew, build(next) -> void, extra }
@@ -297,10 +297,10 @@ function lbAsk({ title, text, list, buttons }) {
     d.onclose = () => res(null); d.showModal(); (acts.querySelector('.btn:not(.danger)') || acts.firstChild).focus();
   });
 }
-const CANCEL = { text: 'Cancel', value: null };
+const CANCEL = { get text() { return _t('lib.cancel'); }, value: null };
 
 function modulesFields(prefix, cur, inherit) {
-  return `<div class="ls-mods">${Object.entries(LM.MODULES).map(([k, d]) => fld(`${prefix}-m-${k}`, escH(k.replace(/_/g, ' ')), sel(`${prefix}-m-${k}`, modOpts(inherit), triOf(cur && cur[k])), null)).join('')}</div>`;
+  return `<div class="ls-mods">${Object.entries(LM.MODULES).map(([k, d]) => fld(`${prefix}-m-${k}`, escH(_tx('lib.module_' + k, k.replace(/_/g, ' '))), sel(`${prefix}-m-${k}`, modOpts(inherit), triOf(cur && cur[k])), null)).join('')}</div>`;
 }
 function readModules(prefix) {
   const m = {}; for (const k of Object.keys(LM.MODULES)) { const v = $(`#${prefix}-m-${k}`).value; if (v) m[k] = v === 'on'; }
@@ -312,25 +312,25 @@ const setOrDel = (o, k, v) => { if (v === undefined || v === '' || v === null) d
 function lbBookSheet(id, { isNew, back } = {}) {
   const b = lbBook(id); if (!b) return;
   const r = LM.resolveBook(LB.lib, id, {}), s = lbSeriesOfBook(id), sd = (s && s.defaults) || {}, sp = sd.plan || {};
-  const scope = (b.plan && b.plan.scope) || '', scopeOpts = [['', s && sp.scope ? `Same as the series (${SCOPE_LABEL[sp.scope]})` : 'Month (the default)'], ...SCOPE_PICK.filter((x) => x !== 'month' || (s && sp.scope)).map((x) => [x, SCOPE_LABEL[x]])];
-  if (scope === 'custom') scopeOpts.push(['custom', 'Custom dates (set in the plan file)']);
-  const coverInherit = s && sd.cover ? 'Same as the series' : 'Night (the default)';
+  const scope = (b.plan && b.plan.scope) || '', scopeOpts = [['', s && sp.scope ? _t('lib.same_series_scope', { scope: SCOPE_LABEL[sp.scope] }) : _t('lib.month_default')], ...SCOPE_PICK.filter((x) => x !== 'month' || (s && sp.scope)).map((x) => [x, SCOPE_LABEL[x]])];
+  if (scope === 'custom') scopeOpts.push(['custom', _t('lib.custom_dates_plan')]);
+  const coverInherit = s && sd.cover ? _t('lib.same_series') : _t('lib.night_default');
   const body = [
-    fld('bs-title', 'Title', txt('bs-title', b.title, 120, true), 'Printed on the cover and the title page, and used for file names.'),
-    fld('bs-sub', 'Subtitle', txt('bs-sub', b.subtitle, 200)),
-    fld('bs-spine', 'Spine title', txt('bs-spine', b.spineTitle, 40), 'Printed on the spine of a thick book. Leave it empty to use the title.'),
-    fld('bs-series', 'Series', sel('bs-series', [['', 'None: a book on its own'], ...LB.lib.series.map((x) => [x.id, x.title])], b.seriesId || ''), 'A book belongs to one series or none. The series sets the numbering and its defaults.'),
-    `<p class="ls-sec">Plan</p>`,
-    fld('bs-scope', 'Length', sel('bs-scope', scopeOpts, scope), scope === 'undated' || (!scope && sp.scope === 'undated') ? 'An undated book prints no dates: you write them.' : 'What one book covers. Longer books split into volumes past 110 pages.'),
-    fld('bs-start', 'First month', `<input type="month" id="bs-start" value="${escH(b.start || '')}">`, 'The month the book starts. Undated books do not need one.'),
-    fld('bs-ed', 'Edition', sel('bs-ed', [['', `Same as the ${s && sp.edition ? 'series' : 'default'} (${r.edition})`], ...EDITIONS], b.edition ?? ''), 'Part of every scan code. Two books that cover the same months need different editions.'),
-    `<p class="ls-sec">Cover and modules</p>`,
-    fld('bs-cover', 'Cover style', sel('bs-cover', [['', coverInherit], ...LM.COVER_STYLES.map((x) => [x, x.charAt(0).toUpperCase() + x.slice(1)])], (b.cover && b.cover.style) || '')),
-    `<details><summary class="ls-l" style="min-height:44px;display:flex;align-items:center;cursor:pointer">Modules for this book</summary>${modulesFields('bs', b.modules, s && sd.modules ? 'Same as the series' : 'Same as the project')}</details>`,
-    `<div class="ls-danger"><button class="btn" type="button" id="bs-dup">Duplicate book</button><button class="btn danger" type="button" id="bs-del">Delete book…</button></div>`,
+    fld('bs-title', _t('lib.f_title'), txt('bs-title', b.title, 120, true), _t('lib.hint_book_title')),
+    fld('bs-sub', _t('lib.f_subtitle'), txt('bs-sub', b.subtitle, 200)),
+    fld('bs-spine', _t('lib.f_spine'), txt('bs-spine', b.spineTitle, 40), _t('lib.hint_spine')),
+    fld('bs-series', _t('lib.f_series'), sel('bs-series', [['', _t('lib.none_alone')], ...LB.lib.series.map((x) => [x.id, x.title])], b.seriesId || ''), _t('lib.hint_series')),
+    `<p class="ls-sec">${_t('lib.sec_plan')}</p>`,
+    fld('bs-scope', _t('lib.f_length'), sel('bs-scope', scopeOpts, scope), scope === 'undated' || (!scope && sp.scope === 'undated') ? _t('lib.hint_undated') : _t('lib.hint_length')),
+    fld('bs-start', _t('lib.f_first_month'), `<input type="month" id="bs-start" value="${escH(b.start || '')}">`, _t('lib.hint_first_month')),
+    fld('bs-ed', _t('lib.f_edition'), sel('bs-ed', [['', s && sp.edition ? _t('lib.same_series_ed', { n: r.edition }) : _t('lib.same_default_ed', { n: r.edition })], ...EDITIONS], b.edition ?? ''), _t('lib.hint_edition')),
+    `<p class="ls-sec">${_t('lib.sec_cover_modules')}</p>`,
+    fld('bs-cover', _t('lib.f_cover'), sel('bs-cover', [['', coverInherit], ...LM.COVER_STYLES.map((x) => [x, _tx('lib.cover_' + x, x.charAt(0).toUpperCase() + x.slice(1))])], (b.cover && b.cover.style) || '')),
+    `<details><summary class="ls-l" style="min-height:44px;display:flex;align-items:center;cursor:pointer">${_t('lib.modules_book')}</summary>${modulesFields('bs', b.modules, s && sd.modules ? _t('lib.same_series') : _t('lib.same_project'))}</details>`,
+    `<div class="ls-danger"><button class="btn" type="button" id="bs-dup">${_t('lib.duplicate_book')}</button><button class="btn danger" type="button" id="bs-del">${_t('lib.delete_book')}</button></div>`,
   ].join('');
-  sheetOpen(isNew ? 'New book' : `Book settings`, body, {
-    kind: 'book', id, isNew, back, saved: isNew ? 'Book added.' : 'Book saved.',
+  sheetOpen(isNew ? _t('lib.new_book') : _t('lib.book_settings'), body, {
+    kind: 'book', id, isNew, back, saved: isNew ? _t('lib.book_added') : _t('lib.book_saved'),
     build(next) {
       const nb = LM.bookOf(next, id); nb.title = $('#bs-title').value.trim();
       setOrDel(nb, 'subtitle', $('#bs-sub').value.trim()); setOrDel(nb, 'spineTitle', $('#bs-spine').value.trim());
@@ -343,16 +343,16 @@ function lbBookSheet(id, { isNew, back } = {}) {
       const want = $('#bs-series').value; if ((nb.seriesId || '') !== want) { const moved = LM.moveBookToSeries(next, id, want || null); Object.assign(next, moved); }
     },
   });
-  $('#bs-dup').onclick = () => { const r2 = LM.duplicateBook(LB.lib, id); const errs = lbApply(r2.library, `Duplicated as “${LM.bookOf(r2.library, r2.id).title}”.`); if (errs.length) return lbShowErrs(errs); sheet.isNew = false; LB.focus = 'book:' + r2.id; sheetClose(true); };
+  $('#bs-dup').onclick = () => { const r2 = LM.duplicateBook(LB.lib, id); const errs = lbApply(r2.library, _t('lib.duplicated_as', { title: LM.bookOf(r2.library, r2.id).title })); if (errs.length) return lbShowErrs(errs); sheet.isNew = false; LB.focus = 'book:' + r2.id; sheetClose(true); };
   $('#bs-del').onclick = () => lbDeleteBook(id);
 }
 const lbShowErrs = (errs) => { const ul = $('#ls-errs'); ul.innerHTML = errs.map((m) => `<li>${escH(m)}</li>`).join(''); ul.hidden = false; };
 async function lbDeleteBook(id) {
   const b = lbBook(id); if (!b) return;
-  const ok = await lbAsk({ title: `Delete “${b.title}”?`, text: 'The book and its settings are removed from the library. Its printed copies and files are untouched. Undo brings it back.', buttons: [CANCEL, { text: 'Delete book', value: 'del', danger: true }] });
+  const ok = await lbAsk({ title: _t('lib.delete_book_q', { title: b.title }), text: _t('lib.delete_book_text'), buttons: [CANCEL, { text: _t('lib.delete_book_btn'), value: 'del', danger: true }] });
   if (ok !== 'del') { const d = $('#lib-sheet'); if (d.open) $('#ls-body input, #ls-body select')?.focus(); return; }
-  const errs = lbApply(LM.removeBook(LB.lib, id), `Deleted “${b.title}”.`);
-  if (errs.length) { await lbAsk({ title: 'This book can’t be deleted', list: errs, buttons: [{ text: 'OK', value: 'ok', primary: true }] }); return; }
+  const errs = lbApply(LM.removeBook(LB.lib, id), _t('lib.deleted_book', { title: b.title }));
+  if (errs.length) { await lbAsk({ title: _t('lib.cant_delete_book'), list: errs, buttons: [{ text: _t('lib.ok'), value: 'ok', primary: true }] }); return; }
   if (sheet) { sheet.isNew = false; sheetClose(true); }
   if (NAV.bid === id || LB.cur === id) { lbInitCur(); if (NAV.view !== 'shelf') navGo(lbLanding(), { push: false, anim: false }); }
   LB.focus = null; if (NAV.view === 'shelf') shelfFocus(null);
@@ -363,21 +363,21 @@ function lbSeriesSheet(id, { isNew, back } = {}) {
   const s = lbSeries(id); if (!s) return; const d = s.defaults || {}, p = d.plan || {}, show = s.show || [];
   let order = [...s.order];
   const body = [
-    fld('ss-title', 'Title', txt('ss-title', s.title, 120, true), 'For example “Monthly books” or “Theme system, year 2”.'),
-    fld('ss-sub', 'Subtitle', txt('ss-sub', s.subtitle, 200)),
-    `<div class="ls-f"><span class="ls-l" id="ss-ord-l">Books, in order</span><ol class="ls-order" id="ss-order" aria-labelledby="ss-ord-l"></ol><p class="ls-h" id="ss-ord-h">The order is the numbering: “Book 3 of ${Math.max(order.length, 3)}”. Use the arrows, or drag the grip.</p></div>`,
-    `<p class="ls-sec">Defaults for every book in the series</p><p class="ls-h">A book can override any of these in its own settings.</p>`,
-    fld('ss-scope', 'Length', sel('ss-scope', [['', 'Not set'], ...SCOPE_PICK.map((x) => [x, SCOPE_LABEL[x]])], p.scope || '')),
-    fld('ss-keeper', 'Keeper', sel('ss-keeper', [['', 'Not set'], ['twelve-book', 'One Keeper for the year'], ['per-book', 'One Keeper for each book'], ['none', 'No Keeper']], p.keeper || ''), 'The Keeper can span the whole series.'),
-    fld('ss-closing', 'Closing page', sel('ss-closing', [['', 'Not set'], ['month', 'After each month'], ['end', 'At the end of the book']], p.closing || '')),
-    fld('ss-ed', 'Edition', sel('ss-ed', [['', 'Not set'], ...EDITIONS], p.edition ?? '')),
-    fld('ss-cover', 'Cover style', sel('ss-cover', [['', 'Not set'], ...LM.COVER_STYLES.map((x) => [x, x.charAt(0).toUpperCase() + x.slice(1)])], (d.cover && d.cover.style) || '')),
-    `<details><summary class="ls-l" style="min-height:44px;display:flex;align-items:center;cursor:pointer">Modules for the series</summary>${modulesFields('ss', d.modules, 'Not set')}</details>`,
-    `<fieldset class="ls-f" style="border:0;padding:0;margin:0"><legend class="ls-l">Print the series line</legend><div class="ls-checks"><label><input type="checkbox" id="ss-show-cover"${show.includes('cover') ? ' checked' : ''}> On the cover: “Book 3 of 12 in this series”</label><label><input type="checkbox" id="ss-show-tp"${show.includes('titlepage') ? ' checked' : ''}> On the title page</label></div></fieldset>`,
-    `<div class="ls-danger"><button class="btn" type="button" id="ss-dup">Duplicate series</button><button class="btn danger" type="button" id="ss-del">Delete series…</button></div>`,
+    fld('ss-title', _t('lib.f_title'), txt('ss-title', s.title, 120, true), _t('lib.hint_series_title')),
+    fld('ss-sub', _t('lib.f_subtitle'), txt('ss-sub', s.subtitle, 200)),
+    `<div class="ls-f"><span class="ls-l" id="ss-ord-l">${_t('lib.books_in_order_l')}</span><ol class="ls-order" id="ss-order" aria-labelledby="ss-ord-l"></ol><p class="ls-h" id="ss-ord-h">${_t('lib.order_hint', { n: Math.max(order.length, 3) })}</p></div>`,
+    `<p class="ls-sec">${_t('lib.series_defaults')}</p><p class="ls-h">${_t('lib.series_defaults_hint')}</p>`,
+    fld('ss-scope', _t('lib.f_length'), sel('ss-scope', [['', _t('lib.not_set')], ...SCOPE_PICK.map((x) => [x, SCOPE_LABEL[x]])], p.scope || '')),
+    fld('ss-keeper', _t('lib.f_keeper'), sel('ss-keeper', [['', _t('lib.not_set')], ['twelve-book', _t('lib.keeper_year')], ['per-book', _t('lib.keeper_book')], ['none', _t('lib.keeper_none')]], p.keeper || ''), _t('lib.hint_keeper')),
+    fld('ss-closing', _t('lib.f_closing'), sel('ss-closing', [['', _t('lib.not_set')], ['month', _t('lib.closing_month')], ['end', _t('lib.closing_end')]], p.closing || '')),
+    fld('ss-ed', _t('lib.f_edition'), sel('ss-ed', [['', _t('lib.not_set')], ...EDITIONS], p.edition ?? '')),
+    fld('ss-cover', _t('lib.f_cover'), sel('ss-cover', [['', _t('lib.not_set')], ...LM.COVER_STYLES.map((x) => [x, _tx('lib.cover_' + x, x.charAt(0).toUpperCase() + x.slice(1))])], (d.cover && d.cover.style) || '')),
+    `<details><summary class="ls-l" style="min-height:44px;display:flex;align-items:center;cursor:pointer">${_t('lib.modules_series')}</summary>${modulesFields('ss', d.modules, _t('lib.not_set'))}</details>`,
+    `<fieldset class="ls-f" style="border:0;padding:0;margin:0"><legend class="ls-l">${_t('lib.print_series_line')}</legend><div class="ls-checks"><label><input type="checkbox" id="ss-show-cover"${show.includes('cover') ? ' checked' : ''}> ${_t('lib.show_on_cover')}</label><label><input type="checkbox" id="ss-show-tp"${show.includes('titlepage') ? ' checked' : ''}> ${_t('lib.show_on_title')}</label></div></fieldset>`,
+    `<div class="ls-danger"><button class="btn" type="button" id="ss-dup">${_t('lib.duplicate_series')}</button><button class="btn danger" type="button" id="ss-del">${_t('lib.delete_series')}</button></div>`,
   ].join('');
-  sheetOpen(isNew ? 'New series' : 'Series settings', body, {
-    kind: 'series', id, isNew, back, saved: isNew ? 'Series added.' : 'Series saved.',
+  sheetOpen(isNew ? _t('lib.new_series') : _t('lib.series_settings'), body, {
+    kind: 'series', id, isNew, back, saved: isNew ? _t('lib.series_added') : _t('lib.series_saved'),
     build(next) {
       const ns = LM.seriesOf(next, id); ns.title = $('#ss-title').value.trim(); setOrDel(ns, 'subtitle', $('#ss-sub').value.trim());
       const inSeries = new Set(order); ns.order = [...order]; for (const b of next.books) { if (inSeries.has(b.id)) b.seriesId = id; }
@@ -390,34 +390,34 @@ function lbSeriesSheet(id, { isNew, back } = {}) {
     },
   });
   const drawOrder = (focusIdx, dir) => {
-    $('#ss-order').innerHTML = order.length ? order.map((bid, i) => { const b = lbBook(bid); return `<li data-id="${escH(bid)}"><span class="n">${i + 1}</span><span class="t">${escH(b ? b.title : bid)}</span><button class="bk-b" type="button" data-mv="-1" aria-label="Move ${escH(b ? b.title : bid)} up"${i === 0 ? ' disabled' : ''}>${LI.up}</button><button class="bk-b" type="button" data-mv="1" aria-label="Move ${escH(b ? b.title : bid)} down"${i === order.length - 1 ? ' disabled' : ''}>${LI.down}</button><button class="bk-b sh-grip" type="button" data-grip aria-label="Drag ${escH(b ? b.title : bid)}" tabindex="-1">${LI.grip}</button></li>`; }).join('') : '<li><span class="t">No books yet. Choose this series in a book’s settings.</span></li>';
+    $('#ss-order').innerHTML = order.length ? order.map((bid, i) => { const b = lbBook(bid); return `<li data-id="${escH(bid)}"><span class="n">${i + 1}</span><span class="t">${escH(b ? b.title : bid)}</span><button class="bk-b" type="button" data-mv="-1" aria-label="${_t('lib.move_up', { name: escH(b ? b.title : bid) })}"${i === 0 ? ' disabled' : ''}>${LI.up}</button><button class="bk-b" type="button" data-mv="1" aria-label="${_t('lib.move_down', { name: escH(b ? b.title : bid) })}"${i === order.length - 1 ? ' disabled' : ''}>${LI.down}</button><button class="bk-b sh-grip" type="button" data-grip aria-label="${_t('lib.drag_name', { name: escH(b ? b.title : bid) })}" tabindex="-1">${LI.grip}</button></li>`; }).join('') : '<li><span class="t">' + _t('lib.no_books_yet') + '</span></li>';
     if (focusIdx != null) { const li = $(`#ss-order li:nth-child(${focusIdx + 1})`), btn = li && (li.querySelector(`[data-mv="${dir}"]:not(:disabled)`) || li.querySelector('[data-mv]:not(:disabled)')); if (btn) btn.focus(); } // the keyboard stays on the book it moved
   };
   drawOrder();
   $('#ss-order').onclick = (e) => {
     const b = e.target.closest('[data-mv]'); if (!b) return; const li = b.closest('li'), i = [...li.parentNode.children].indexOf(li), j = i + +b.dataset.mv;
-    if (j < 0 || j >= order.length) return; [order[i], order[j]] = [order[j], order[i]]; drawOrder(j, +b.dataset.mv); live(`${lbBook(order[j]) ? lbBook(order[j]).title : ''} is now book ${j + 1} of ${order.length}.`);
+    if (j < 0 || j >= order.length) return; [order[i], order[j]] = [order[j], order[i]]; drawOrder(j, +b.dataset.mv); live(_t('lib.is_now_book', { title: lbBook(order[j]) ? lbBook(order[j]).title : '', n: j + 1, of: order.length }));
   };
   if (typeof Sortable !== 'undefined' && order.length > 1) Sortable.create($('#ss-order'), { handle: '[data-grip]', animation: ANIM, onEnd: (ev) => { if (ev.oldIndex !== ev.newIndex) { const [x] = order.splice(ev.oldIndex, 1); order.splice(ev.newIndex, 0, x); drawOrder(); } } });
-  $('#ss-dup').onclick = () => { const r2 = LM.duplicateSeries(LB.lib, id); const errs = lbApply(r2.library, `Duplicated as “${LM.seriesOf(r2.library, r2.id).title}”.`); if (errs.length) return lbShowErrs(errs); sheet.isNew = false; LB.focus = 'series:' + r2.id; sheetClose(true); };
+  $('#ss-dup').onclick = () => { const r2 = LM.duplicateSeries(LB.lib, id); const errs = lbApply(r2.library, _t('lib.duplicated_as', { title: LM.seriesOf(r2.library, r2.id).title })); if (errs.length) return lbShowErrs(errs); sheet.isNew = false; LB.focus = 'series:' + r2.id; sheetClose(true); };
   $('#ss-del').onclick = () => lbDeleteSeries(id);
 }
 async function lbDeleteSeries(id) {
   const s = lbSeries(id); if (!s) return; const n = s.order.length;
-  const choice = await lbAsk({ title: `Delete the series “${s.title}”?`, text: n ? `It has ${n} ${n === 1 ? 'book' : 'books'}. Keep them as books on their own, or delete them with it. Undo brings everything back.` : 'It has no books. Undo brings it back.', buttons: [CANCEL, ...(n ? [{ text: 'Keep the books', value: 'keep' }, { text: `Delete series and ${n === 1 ? 'book' : n + ' books'}`, value: 'all', danger: true }] : [{ text: 'Delete series', value: 'keep', danger: true }])] });
+  const choice = await lbAsk({ title: _t('lib.delete_series_q', { title: s.title }), text: n ? _t('lib.series_has_books', { n }) : _t('lib.series_no_books'), buttons: [CANCEL, ...(n ? [{ text: _t('lib.keep_books'), value: 'keep' }, { text: _t('lib.delete_series_and', { n }), value: 'all', danger: true }] : [{ text: _t('lib.delete_series_btn'), value: 'keep', danger: true }])] });
   if (!choice) { if ($('#lib-sheet').open) $('#ls-body input, #ls-body select')?.focus(); return; }
-  const errs = lbApply(LM.removeSeries(LB.lib, id, { withBooks: choice === 'all' }), `Deleted the series “${s.title}”${choice === 'all' && n ? ` and its ${n === 1 ? 'book' : n + ' books'}` : ''}.`);
-  if (errs.length) { await lbAsk({ title: 'This series can’t be deleted', list: errs, buttons: [{ text: 'OK', value: 'ok', primary: true }] }); return; }
+  const errs = lbApply(LM.removeSeries(LB.lib, id, { withBooks: choice === 'all' }), (choice === 'all' && n ? _t('lib.deleted_series_books', { title: s.title, n }) : _t('lib.deleted_series', { title: s.title })));
+  if (errs.length) { await lbAsk({ title: _t('lib.cant_delete_series'), list: errs, buttons: [{ text: _t('lib.ok'), value: 'ok', primary: true }] }); return; }
   if (sheet) { sheet.isNew = false; sheetClose(true); }
   LB.focus = null; if (NAV.level === 'series' && NAV.sid === id) navGo({ level: 'library' }, { push: false, anim: false });
 }
 $('#sh-new-book').onclick = () => {
-  const r = LM.addBook(LB.lib, { title: 'Untitled book', ...(NAV.level === 'series' ? { seriesId: NAV.sid } : {}) });
+  const r = LM.addBook(LB.lib, { title: _t('lib.untitled_book'), ...(NAV.level === 'series' ? { seriesId: NAV.sid } : {}) });
   const errs = lbApply(r.library); if (errs.length) return lbSnack(errs[0]);
   lbBookSheet(r.id, { isNew: true, back: '#sh-new-book' });
 };
 $('#sh-new-series').onclick = () => {
-  const r = LM.addSeries(LB.lib, { title: 'New series' }); const errs = lbApply(r.library); if (errs.length) return lbSnack(errs[0]);
+  const r = LM.addSeries(LB.lib, { title: _t('lib.new_series') }); const errs = lbApply(r.library); if (errs.length) return lbSnack(errs[0]);
   lbSeriesSheet(r.id, { isNew: true, back: '#sh-new-series' });
 };
 $('#sh-series-set').onclick = () => lbSeriesSheet(NAV.sid, { back: '#sh-series-set' });
@@ -427,19 +427,19 @@ $('#bk-set').onclick = () => lbBookSheet(LB.cur, { back: '#bk-set' });
 // ----- export and import (a file the person keeps; nothing leaves the browser) -----
 async function lbExport() {
   const j = JSON.stringify(LB.lib, null, 1) + '\n';
-  if (dl) { try { await dl.save({ filename: 'library.json', data: j }); } catch (e) { if (e && e.code !== 'declined') lbSnack('Couldn’t save the file.'); } return; }
+  if (dl) { try { await dl.save({ filename: 'library.json', data: j }); } catch (e) { if (e && e.code !== 'declined') lbSnack(_t('lib.cant_save_file')); } return; }
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([j], { type: 'application/json' })); a.download = 'library.json'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
 $('#sh-export').onclick = lbExport;
 $('#sh-import').onclick = () => $('#lib-file').click();
 $('#lib-file').onchange = async () => {
   const f = $('#lib-file').files[0]; $('#lib-file').value = ''; if (!f) return;
-  let j; try { j = JSON.parse(await f.text()); } catch { return lbAsk({ title: 'That file can’t be used', text: 'It is not a library file (it is not JSON). Export a library from Edit mode to get one.', buttons: [{ text: 'OK', value: 'ok', primary: true }] }); }
+  let j; try { j = JSON.parse(await f.text()); } catch { return lbAsk({ title: _t('lib.file_unusable'), text: _t('lib.file_not_json'), buttons: [{ text: _t('lib.ok'), value: 'ok', primary: true }] }); }
   const errs = LM.validateLibrary(j);
-  if (errs.length) return lbAsk({ title: 'That library file has problems', text: 'Nothing was changed. Fix these in the file and try again.', list: errs.slice(0, 12).map((m) => lbPlain(j, m)), buttons: [{ text: 'OK', value: 'ok', primary: true }] });
-  const go = await lbAsk({ title: 'Replace the library?', text: `The file has ${j.books.length} ${j.books.length === 1 ? 'book' : 'books'} and ${(j.series || []).length} series. Your current library (${LB.lib.books.length} ${LB.lib.books.length === 1 ? 'book' : 'books'}) is replaced. Undo brings it back.`, buttons: [CANCEL, { text: 'Replace', value: 'go', primary: true }] });
+  if (errs.length) return lbAsk({ title: _t('lib.file_problems'), text: _t('lib.file_problems_text'), list: errs.slice(0, 12).map((m) => lbPlain(j, m)), buttons: [{ text: _t('lib.ok'), value: 'ok', primary: true }] });
+  const go = await lbAsk({ title: _t('lib.replace_q'), text: _t('lib.replace_text', { books: j.books.length, series: (j.series || []).length, current: LB.lib.books.length }), buttons: [CANCEL, { text: _t('lib.replace'), value: 'go', primary: true }] });
   if (go !== 'go') return;
-  const e2 = lbApply(j, 'Library imported.'); if (e2.length) return lbSnack(e2[0]);
+  const e2 = lbApply(j, _t('lib.imported')); if (e2.length) return lbSnack(e2[0]);
   if (NAV.level === 'series' && !lbSeries(NAV.sid)) navGo({ level: 'library' }, { push: false, anim: false });
 };
 

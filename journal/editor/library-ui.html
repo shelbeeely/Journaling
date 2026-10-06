@@ -2,32 +2,32 @@
 <section id="shelf" role="main" aria-labelledby="sh-title">
   <div class="sh-head">
     <div class="sh-titles">
-      <h2 id="sh-title" tabindex="-1">Library</h2>
+      <h2 id="sh-title" tabindex="-1" data-i18n="lib.library">Library</h2>
       <p class="sh-sub" id="sh-sub"></p>
     </div>
     <div class="sh-acts">
-      <div class="bk-grp" role="group" aria-label="Zoom">
-        <button class="bk-b" id="sh-out" type="button" aria-label="Zoom out" title="Zoom out (Escape)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.5"/><path d="M6.8 10h6.4"/></svg></button>
-        <button class="bk-b" id="sh-in" type="button" aria-label="Zoom in" title="Zoom in (Enter)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.5"/><path d="M6.8 10h6.4M10 6.8v6.4"/></svg></button>
+      <div class="bk-grp" role="group" aria-label="Zoom" data-i18n-attr="aria-label:lib.zoom">
+        <button class="bk-b" id="sh-out" type="button" aria-label="Zoom out" title="Zoom out (Escape)" data-i18n-attr="aria-label:lib.zoom_out;title:lib.zoom_out_escape"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.5"/><path d="M6.8 10h6.4"/></svg></button>
+        <button class="bk-b" id="sh-in" type="button" aria-label="Zoom in" title="Zoom in (Enter)" data-i18n-attr="aria-label:lib.zoom_in;title:lib.zoom_in_enter"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.5"/><path d="M6.8 10h6.4M10 6.8v6.4"/></svg></button>
       </div>
-      <button class="bk-b editonly" id="sh-new-book" type="button" title="New book"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg><span class="lab">New book</span></button>
-      <button class="bk-b editonly" id="sh-new-series" type="button" title="New series"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="12" height="4" rx="1"/><rect x="4" y="8" width="12" height="4" rx="1"/><path d="M10 14v4M8 16h4"/></svg><span class="lab">New series</span></button>
-      <button class="bk-b editonly" id="sh-series-set" type="button" title="Series settings"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="2.6"/><path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M4.7 15.3l1.4-1.4M13.9 6.1l1.4-1.4"/></svg><span class="lab">Series settings</span></button>
-      <button class="bk-b editonly" id="sh-undo" type="button" title="Undo the last library change" disabled><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h7a4 4 0 0 1 0 8H8M4 8l3-3M4 8l3 3"/></svg><span class="lab">Undo</span></button>
-      <button class="bk-b editonly" id="sh-export" type="button" title="Export the library to a file"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3v9M6.5 8.5 10 12l3.5-3.5M4 15.5h12"/></svg><span class="lab">Export</span></button>
-      <button class="bk-b editonly" id="sh-import" type="button" title="Import a library file"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 12V3M6.5 6.5 10 3l3.5 3.5M4 15.5h12"/></svg><span class="lab">Import</span></button>
+      <button class="bk-b editonly" id="sh-new-book" type="button" title="New book" data-i18n-attr="title:lib.new_book"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg><span class="lab" data-i18n="lib.new_book">New book</span></button>
+      <button class="bk-b editonly" id="sh-new-series" type="button" title="New series" data-i18n-attr="title:lib.new_series"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="12" height="4" rx="1"/><rect x="4" y="8" width="12" height="4" rx="1"/><path d="M10 14v4M8 16h4"/></svg><span class="lab" data-i18n="lib.new_series">New series</span></button>
+      <button class="bk-b editonly" id="sh-series-set" type="button" title="Series settings" data-i18n-attr="title:lib.series_settings"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="2.6"/><path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M4.7 15.3l1.4-1.4M13.9 6.1l1.4-1.4"/></svg><span class="lab" data-i18n="lib.series_settings">Series settings</span></button>
+      <button class="bk-b editonly" id="sh-undo" type="button" title="Undo the last library change" disabled data-i18n-attr="title:lib.undo_the_last_library_change"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h7a4 4 0 0 1 0 8H8M4 8l3-3M4 8l3 3"/></svg><span class="lab" data-i18n="lib.undo">Undo</span></button>
+      <button class="bk-b editonly" id="sh-export" type="button" title="Export the library to a file" data-i18n-attr="title:lib.export_the_library_to_a"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3v9M6.5 8.5 10 12l3.5-3.5M4 15.5h12"/></svg><span class="lab" data-i18n="lib.export">Export</span></button>
+      <button class="bk-b editonly" id="sh-import" type="button" title="Import a library file" data-i18n-attr="title:lib.import_a_library_file"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 12V3M6.5 6.5 10 3l3.5 3.5M4 15.5h12"/></svg><span class="lab" data-i18n="lib.import">Import</span></button>
     </div>
   </div>
   <ul class="sh-grid" id="sh-list"></ul>
   <p class="sh-note" id="sh-note"></p>
 </section>
-<div class="lib-snack" id="lib-snack" role="status" aria-live="polite" hidden><span id="lib-snack-t"></span><button class="btn" id="lib-snack-undo" type="button" hidden>Undo</button></div>
+<div class="lib-snack" id="lib-snack" role="status" aria-live="polite" hidden><span id="lib-snack-t"></span><button class="btn" id="lib-snack-undo" type="button" hidden data-i18n="lib.undo">Undo</button></div>
 <dialog id="lib-sheet" class="sheet-dlg" aria-labelledby="ls-h">
   <form id="ls-form" novalidate>
-    <div class="ls-head"><h3 id="ls-h"></h3><button class="bk-b" id="ls-x" type="button" aria-label="Close without saving"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15"/></svg></button></div>
+    <div class="ls-head"><h3 id="ls-h"></h3><button class="bk-b" id="ls-x" type="button" aria-label="Close without saving" data-i18n-attr="aria-label:lib.close_without_saving"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15"/></svg></button></div>
     <div class="ls-body" id="ls-body"></div>
     <ul class="ls-errs" id="ls-errs" role="alert" hidden></ul>
-    <div class="acts"><button class="btn" id="ls-cancel" type="button">Cancel</button><button class="btn primary" id="ls-save" type="submit">Save</button></div>
+    <div class="acts"><button class="btn" id="ls-cancel" type="button" data-i18n="lib.cancel">Cancel</button><button class="btn primary" id="ls-save" type="submit" data-i18n="lib.save">Save</button></div>
   </form>
 </dialog>
 <dialog id="lib-confirm" aria-labelledby="lc-h">

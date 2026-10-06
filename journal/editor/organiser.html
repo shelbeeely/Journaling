@@ -1,49 +1,49 @@
 <!-- PAGE ORGANISER (C4): edit mode of the Book view. Three pieces, cut apart by build.mjs at the @@ markers: bar buttons, the selected-page toolbar, the panel. Drawn by organiser.js. -->
 <!--@@bar-->
-<button class="bk-b editonly" id="og-undo" type="button" disabled aria-label="Undo the last page change" title="Undo (Ctrl+Z)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 4.5 3.5 8.5l4 4M4 8.5h8a4 4 0 0 1 0 8H9"/></svg><span class="lab">Undo</span></button>
-<button class="bk-b editonly" id="og-redo" type="button" disabled aria-label="Redo the change you undid" title="Redo (Ctrl+Shift+Z)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.5 4.5l4 4-4 4M16 8.5H8a4 4 0 0 0 0 8h3"/></svg><span class="lab">Redo</span></button>
-<button class="bk-b editonly" id="og-toggle" type="button" aria-expanded="true" aria-controls="org" title="Show or hide the pages panel"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3.5" width="14" height="13" rx="1.6"/><path d="M12 3.5v13M5.5 7h4M5.5 10h4M5.5 13h4"/></svg><span class="lab">Pages</span></button>
+<button class="bk-b editonly" id="og-undo" type="button" disabled aria-label="Undo the last page change" title="Undo (Ctrl+Z)" data-i18n-attr="aria-label:org.undo_the_last_page_change;title:org.undo_ctrl_z"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 4.5 3.5 8.5l4 4M4 8.5h8a4 4 0 0 1 0 8H9"/></svg><span class="lab" data-i18n="org.undo">Undo</span></button>
+<button class="bk-b editonly" id="og-redo" type="button" disabled aria-label="Redo the change you undid" title="Redo (Ctrl+Shift+Z)" data-i18n-attr="aria-label:org.redo_the_change_you_undid;title:org.redo_ctrl_shift_z"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.5 4.5l4 4-4 4M16 8.5H8a4 4 0 0 0 0 8h3"/></svg><span class="lab" data-i18n="org.redo">Redo</span></button>
+<button class="bk-b editonly" id="og-toggle" type="button" aria-expanded="true" aria-controls="org" title="Show or hide the pages panel" data-i18n-attr="title:org.show_or_hide_the_pages"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3.5" width="14" height="13" rx="1.6"/><path d="M12 3.5v13M5.5 7h4M5.5 10h4M5.5 13h4"/></svg><span class="lab" data-i18n="org.pages">Pages</span></button>
 <!--@@sel-->
-<div id="org-sel" class="editonly" role="group" aria-label="The selected page" hidden>
+<div id="org-sel" class="editonly" role="group" aria-label="The selected page" hidden data-i18n-attr="aria-label:org.the_selected_page">
   <p id="os-what" class="os-what"></p>
   <div class="os-acts">
-    <button class="og-b" id="os-earlier" type="button"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg><span>Earlier</span></button>
-    <button class="og-b" id="os-later" type="button"><span>Later</span><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg></button>
-    <button class="og-b" id="os-moveto" type="button" aria-haspopup="dialog"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h9M3 10h9M3 14h5M15 6v8M12.5 11.5 15 14l2.5-2.5"/></svg><span>Move to…</span></button>
-    <button class="og-b" id="os-eye" type="button" aria-describedby="os-why"><span id="os-eye-ic" aria-hidden="true"></span><span id="os-eye-t">Hide</span></button>
-    <button class="og-b" id="os-edit" type="button" hidden aria-label="Edit this page’s blocks" title="Edit this page’s blocks"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 3.5l3 3L7 16l-4 1 1-4Z"/></svg><span>Edit blocks</span></button>
-    <button class="og-b" id="os-dup" type="button" hidden><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="7" width="9" height="9" rx="1.5"/><path d="M13 7V5.5A1.5 1.5 0 0 0 11.5 4h-6A1.5 1.5 0 0 0 4 5.5v6A1.5 1.5 0 0 0 5.5 13H7"/></svg><span>Duplicate</span></button>
-    <button class="og-b" id="os-del" type="button" hidden><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h12M8 6V4.5h4V6M5.5 6l.7 10h7.6l.7-10"/></svg><span>Remove</span></button>
-    <label class="os-title" id="os-title-w" hidden><span>Title</span><input id="os-title" type="text" maxlength="40" autocomplete="off" spellcheck="false"></label>
+    <button class="og-b" id="os-earlier" type="button"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg><span data-i18n="org.earlier">Earlier</span></button>
+    <button class="og-b" id="os-later" type="button"><span data-i18n="org.later">Later</span><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg></button>
+    <button class="og-b" id="os-moveto" type="button" aria-haspopup="dialog"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h9M3 10h9M3 14h5M15 6v8M12.5 11.5 15 14l2.5-2.5"/></svg><span data-i18n="org.move_to">Move to…</span></button>
+    <button class="og-b" id="os-eye" type="button" aria-describedby="os-why"><span id="os-eye-ic" aria-hidden="true"></span><span id="os-eye-t" data-i18n="org.hide">Hide</span></button>
+    <button class="og-b" id="os-edit" type="button" hidden aria-label="Edit this page’s blocks" title="Edit this page’s blocks" data-i18n-attr="aria-label:org.edit_this_page_s_blocks;title:org.edit_this_page_s_blocks"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 3.5l3 3L7 16l-4 1 1-4Z"/></svg><span data-i18n="org.edit_blocks">Edit blocks</span></button>
+    <button class="og-b" id="os-dup" type="button" hidden><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="7" width="9" height="9" rx="1.5"/><path d="M13 7V5.5A1.5 1.5 0 0 0 11.5 4h-6A1.5 1.5 0 0 0 4 5.5v6A1.5 1.5 0 0 0 5.5 13H7"/></svg><span data-i18n="org.duplicate">Duplicate</span></button>
+    <button class="og-b" id="os-del" type="button" hidden><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h12M8 6V4.5h4V6M5.5 6l.7 10h7.6l.7-10"/></svg><span data-i18n="org.remove">Remove</span></button>
+    <label class="os-title" id="os-title-w" hidden><span data-i18n="org.title">Title</span><input id="os-title" type="text" maxlength="40" autocomplete="off" spellcheck="false"></label>
   </div>
   <p id="os-why" class="os-why"></p>
 </div>
 <!--@@panel-->
 <aside id="org" class="editonly" aria-labelledby="og-h" hidden>
-  <div class="og-head"><h2 id="og-h">Pages</h2><p id="og-state" class="og-state" role="status"></p></div>
+  <div class="og-head"><h2 id="og-h" data-i18n="org.pages">Pages</h2><p id="og-state" class="og-state" role="status"></p></div>
   <div id="og-body"></div>
 </aside>
 <dialog id="org-move" aria-labelledby="om-h">
   <form method="dialog" id="om-form">
-    <h3 id="om-h">Move</h3>
+    <h3 id="om-h" data-i18n="org.move">Move</h3>
     <p id="om-p"></p>
-    <label>Put it<select id="om-sel"></select></label>
-    <div class="acts"><button class="btn" value="cancel" id="om-cancel">Cancel</button><button class="btn primary" value="go" id="om-go">Move it</button></div>
+    <label data-i18n="org.put_it">Put it<select id="om-sel"></select></label>
+    <div class="acts"><button class="btn" value="cancel" id="om-cancel" data-i18n="org.cancel">Cancel</button><button class="btn primary" value="go" id="om-go" data-i18n="org.move_it">Move it</button></div>
   </form>
 </dialog>
 <dialog id="org-warn" aria-labelledby="ow-h">
   <form method="dialog" id="ow-form">
-    <h3 id="ow-h">A page would point to nothing</h3>
+    <h3 id="ow-h" data-i18n="org.a_page_would_point_to">A page would point to nothing</h3>
     <ul id="ow-list" class="og-warnlist"></ul>
-    <p>The build refuses a page that points to a page the book doesn't have, so this book can't be saved or printed until you put that page back. Undo brings it back at any time.</p>
-    <div class="acts"><button class="btn" value="cancel" id="ow-cancel" autofocus>Cancel</button><button class="btn primary" value="go" id="ow-go">Apply anyway</button></div>
+    <p data-i18n="org.the_build_refuses_a_page">The build refuses a page that points to a page the book doesn't have, so this book can't be saved or printed until you put that page back. Undo brings it back at any time.</p>
+    <div class="acts"><button class="btn" value="cancel" id="ow-cancel" autofocus data-i18n="org.cancel">Cancel</button><button class="btn primary" value="go" id="ow-go" data-i18n="org.apply_anyway">Apply anyway</button></div>
   </form>
 </dialog>
 <dialog id="org-reset" aria-labelledby="or-h">
   <form method="dialog">
-    <h3 id="or-h">Put the book back to the original pages?</h3>
-    <p id="or-p">Every hidden, moved and added page goes back to the default, for every month. Undo brings your changes back.</p>
-    <div class="acts"><button class="btn" value="cancel" autofocus>Cancel</button><button class="btn primary" value="go" id="or-go">Reset the book</button></div>
+    <h3 id="or-h" data-i18n="org.put_the_book_back_to">Put the book back to the original pages?</h3>
+    <p id="or-p" data-i18n="org.every_hidden_moved_and_added">Every hidden, moved and added page goes back to the default, for every month. Undo brings your changes back.</p>
+    <div class="acts"><button class="btn" value="cancel" autofocus data-i18n="org.cancel">Cancel</button><button class="btn primary" value="go" id="or-go" data-i18n="org.reset_the_book">Reset the book</button></div>
   </form>
 </dialog>
 <p class="sr" id="org-live" role="status" aria-live="polite"></p>

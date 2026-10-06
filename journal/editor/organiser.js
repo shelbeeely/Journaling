@@ -12,7 +12,7 @@ const orgMonth = () => (ORG.only && ORG.mon ? ORG.mon : null);
 const orgList = (b = ORG.book) => BKE.listFor(b, orgMonth());
 const orgMeta = (t) => (ORG.cat && ORG.cat.meta[t]) || {};
 const orgName = (e) => BKE.entryName(ORG.cat, e);
-const orgPlural = (n, a, b) => `${n} ${n === 1 ? a : b}`;
+const orgPlural = (n, kind) => (kind === 'spread' ? _t('org.count_spread', { n }) : _t('org.count_page', { n }));
 const OG_SVG = (d, extra = '') => `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${d}</svg>`;
 const OG_IC = {
   eye: OG_SVG('<path d="M2.5 10s2.7-5 7.5-5 7.5 5 7.5 5-2.7 5-7.5 5-7.5-5-7.5-5z"/><circle cx="10" cy="10" r="2.2"/>'),
@@ -102,64 +102,65 @@ function orgCommit(r, say, keep, again) {
   return true;
 }
 function orgWarn(list, go) {
-  $('#ow-list').innerHTML = list.map((m) => `<li><b>${escH(m.from.slice(0, 3).join(', '))}${m.from.length > 3 ? ' and more' : ''}</b> points to <b>${escH(m.target)}</b>, which the book would no longer have.</li>`).join('');
+  $('#ow-list').innerHTML = list.map((m) => `<li>${_t('org.warn_points', { from: m.from.length > 3 ? _t('org.names_and_more', { names: escH(m.from.slice(0, 3).join(', ')) }) : escH(m.from.join(', ')), target: escH(m.target) })}</li>`).join('');
   const dlg = $('#org-warn'); dlg.dataset.go = ''; dlg.returnValue = ''; ORG.warnGo = go; dlg.showModal();
 }
-$('#org-warn').addEventListener('close', () => { const dlg = $('#org-warn'), go = ORG.warnGo; ORG.warnGo = null; if (dlg.returnValue === 'go' && go) go(); else orgSay('Nothing changed.'); if (orgOn()) orgFocusBack(); });
+$('#org-warn').addEventListener('close', () => { const dlg = $('#org-warn'), go = ORG.warnGo; ORG.warnGo = null; if (dlg.returnValue === 'go' && go) go(); else orgSay(_t('org.nothing_changed')); if (orgOn()) orgFocusBack(); });
 function orgUndo() {
-  const s = ORG.undo.pop(); if (!s) { orgSay('Nothing to undo.'); return; }
+  const s = ORG.undo.pop(); if (!s) { orgSay(_t('org.nothing_to_undo')); return; }
   ORG.redo.push({ book: ORG.book, sel: ORG.sel, pid: ORG.selPid }); ORG.book = s.book; ORG.touched = true;
-  orgRender((f) => 'Undone. The book is back to ' + f.pages.length + ' pages.', s.pid || undefined, s.sel); orgPersist();
+  orgRender((f) => _t('org.undone', { n: f.pages.length }), s.pid || undefined, s.sel); orgPersist();
 }
 function orgRedo() {
-  const s = ORG.redo.pop(); if (!s) { orgSay('Nothing to redo.'); return; }
+  const s = ORG.redo.pop(); if (!s) { orgSay(_t('org.nothing_to_redo')); return; }
   ORG.undo.push({ book: ORG.book, sel: ORG.sel, pid: ORG.selPid }); ORG.book = s.book; ORG.touched = true;
-  orgRender((f) => 'Redone. The book has ' + f.pages.length + ' pages.', s.pid || undefined, s.sel); orgPersist();
+  orgRender((f) => _t('org.redone', { n: f.pages.length }), s.pid || undefined, s.sel); orgPersist();
 }
 
 // What each change says, once the book is laid out again.
+const orgScopeWord = (s) => (s === 'month' ? _t('org.scope_month') : _t('org.scope_week'));
 function orgMoveSay(id, pid, r) {
-  return (f) => { const p = (pid && f.pages.find((x) => x.id === pid && x.eid === id)) || f.pages.find((x) => x.eid === id), e = orgEntry(id); return p ? `Moved ${p.label || orgName(e.entry)} to page ${p.n}${r.scope && r.scope !== 'book' ? `, and every ${r.scope} follows` : ''}.` : `Moved ${orgName(e.entry)}.`; };
+  return (f) => { const p = (pid && f.pages.find((x) => x.id === pid && x.eid === id)) || f.pages.find((x) => x.eid === id), e = orgEntry(id); return p ? (r.scope && r.scope !== 'book' ? _t('org.moved_follow', { label: p.label || orgName(e.entry), n: p.n, scope: orgScopeWord(r.scope) }) : _t('org.moved_to', { label: p.label || orgName(e.entry), n: p.n })) : _t('org.moved', { name: orgName(e.entry) }); };
 }
 function orgMove(spec, id = ORG.sel) {
-  if (!id) { orgSay('Select a page first.', true); return; }
+  if (!id) { orgSay(_t('org.select_first'), true); return; }
   const pid = ORG.selPid && orgPageOf(id) && (BK.pages[BK.sel - 1] || {}).eid === id ? ORG.selPid : '';
   const r = BKE.moveEntry(ORG.book, ORG.cat, orgMonth(), id, spec);
   if (!pid) ORG.sel = id;
   return orgCommit(r, r.err ? null : orgMoveSay(id, pid, r), pid || undefined, false);
 }
 function orgEye(id = ORG.sel) {
-  const at = orgEntry(id); if (!at) { orgSay('Select a page first.', true); return; }
+  const at = orgEntry(id); if (!at) { orgSay(_t('org.select_first'), true); return; }
   const on = at.entry.on === false, r = BKE.setOn(ORG.book, ORG.cat, orgMonth(), id, on);
   if (r.err) { orgSay(r.err, true); return; }
   const n = orgName(at.entry);
-  orgCommit(r, (f) => (on ? `${n} is back in the book${f.pages.find((p) => p.eid === id) ? `, from page ${f.pages.find((p) => p.eid === id).n}` : ''}.` : `${n} is hidden. It is not printed; it waits under the book.`), undefined, false);
+  orgCommit(r, (f) => (on ? (f.pages.find((p) => p.eid === id) ? _t('org.back_in_from', { name: n, n: f.pages.find((p) => p.eid === id).n }) : _t('org.back_in', { name: n })) : _t('org.is_hidden', { name: n })), undefined, false);
 }
 function orgAdd(type, where) {
   const r = BKE.addEntry(ORG.book, ORG.cat, orgMonth(), type, where || {});
   if (r.err) { orgSay(r.err, true); return; }
   const id = r.id;
-  if (orgCommit(r, (f) => { const p = f.pages.find((x) => x.eid === id); return `Added ${p ? p.label : 'a page'} as page ${p ? p.n : '?'}.`; }, undefined, false)) { ORG.focusFk = `sel:${id}`; orgSelectEntry(id); orgFocusBack(); }
+  if (orgCommit(r, (f) => { const p = f.pages.find((x) => x.eid === id); return _t('org.added', { label: p ? p.label : _t('org.a_page'), n: p ? p.n : '?' }); }, undefined, false)) { ORG.focusFk = `sel:${id}`; orgSelectEntry(id); orgFocusBack(); }
 }
 function orgRemove(id = ORG.sel) {
   const at = orgEntry(id); if (!at) return;
   const r = BKE.removeEntry(ORG.book, ORG.cat, orgMonth(), id); if (r.err) { orgSay(r.err, true); return; }
   const list = at.arr, next = (list[at.i + 1] || list[at.i - 1] || {}).id, name = orgName(at.entry);
-  if (orgCommit(r, () => `Removed ${name}. Undo brings it back.`, undefined, false)) { if (next) { ORG.focusFk = `sel:${next}`; orgSelectEntry(next); } else { ORG.sel = ''; bkSelect(0); } orgFocusBack(); }
+  if (orgCommit(r, () => _t('org.removed', { name }), undefined, false)) { if (next) { ORG.focusFk = `sel:${next}`; orgSelectEntry(next); } else { ORG.sel = ''; bkSelect(0); } orgFocusBack(); }
 }
 function orgDup(id = ORG.sel) {
   const r = BKE.duplicateEntry(ORG.book, ORG.cat, orgMonth(), id); if (r.err) { orgSay(r.err, true); return; }
   const nid = r.id;
-  if (orgCommit(r, (f) => { const p = f.pages.find((x) => x.eid === nid); return `Duplicated as ${p ? p.label : 'a new page'}, page ${p ? p.n : '?'}.`; }, undefined, false)) { ORG.focusFk = `sel:${nid}`; orgSelectEntry(nid); orgFocusBack(); }
+  if (orgCommit(r, (f) => { const p = f.pages.find((x) => x.eid === nid); return _t('org.duplicated', { label: p ? p.label : _t('org.a_new_page'), n: p ? p.n : '?' }); }, undefined, false)) { ORG.focusFk = `sel:${nid}`; orgSelectEntry(nid); orgFocusBack(); }
 }
 function orgRename(id, title) {
   const r = BKE.setTitle(ORG.book, ORG.cat, orgMonth(), id, title); if (r.err) { orgSay(r.err, true); orgSelBar(); return; }
   if (BKE.sameBook(r.book, ORG.book)) return;
-  orgCommit(r, (f) => `Renamed to ${(f.pages.find((x) => x.eid === id) || {}).label || 'Notes'}.`, ORG.selPid || undefined, false);
+  orgCommit(r, (f) => _t('org.renamed', { label: (f.pages.find((x) => x.eid === id) || {}).label || _t('org.notes') }), ORG.selPid || undefined, false);
 }
 function orgResetMonth(mon) {
   const r = BKE.resetMonth(ORG.book, ORG.cat, mon); if (r.err) { orgSay(r.err, true); return; }
-  if (orgCommit(r, () => `${orgMonthName(mon)} follows the default pages again.`, undefined, false) && ORG.only && ORG.mon === mon) { orgRender(); }
+  if (orgCommit(r, () => _t('org.month_follows_again', { month: orgMonthName(mon) }), undefined, false) && ORG.only && ORG.mon === mon) { orgRender(); }
 }
 const orgMonthName = (m) => new Date(Date.UTC(+m.slice(0, 4), +m.slice(5) - 1, 1)).toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
 
@@ -193,31 +194,31 @@ function orgSelBar() {
   bar.hidden = false;
   const set = (id, disabled) => { const b = $(id); b.setAttribute('aria-disabled', disabled ? 'true' : 'false'); };
   if (!p && !hid) {
-    $('#os-what').innerHTML = '<span>Select a page to move, hide, add to or remove. Tap or click a page; drag it to move it; Alt+Left and Alt+Right move it one place.</span>';
+    $('#os-what').innerHTML = '<span>' + _t('org.select_hint') + '</span>';
     for (const id of ['#os-earlier', '#os-later', '#os-moveto', '#os-eye']) set(id, true);
-    $('#os-dup').hidden = $('#os-del').hidden = $('#os-title-w').hidden = $('#os-edit').hidden = true; $('#os-why').textContent = ''; $('#os-eye-t').textContent = 'Hide'; $('#os-eye-ic').innerHTML = BK_IC.eyeoff;
+    $('#os-dup').hidden = $('#os-del').hidden = $('#os-title-w').hidden = $('#os-edit').hidden = true; $('#os-why').textContent = ''; $('#os-eye-t').textContent = _t('org.hide'); $('#os-eye-ic').innerHTML = BK_IC.eyeoff;
     return;
   }
   if (p && p.auto) {
-    $('#os-what').innerHTML = `<b>Page ${p.n}</b> <span>${escH(p.label)} · added by itself to keep the spreads facing and the page count even. It moves and goes away on its own, so it has no controls.</span>`;
+    $('#os-what').innerHTML = `<b>${_t('org.page_n', { n: p.n })}</b> <span>${escH(p.label)} · ${_t('org.auto_note')}</span>`;
     for (const id of ['#os-earlier', '#os-later', '#os-moveto', '#os-eye']) set(id, true);
-    $('#os-dup').hidden = $('#os-del').hidden = $('#os-title-w').hidden = $('#os-edit').hidden = true; $('#os-why').textContent = ''; $('#os-eye-t').textContent = 'Hide'; $('#os-eye-ic').innerHTML = BK_IC.eyeoff;
+    $('#os-dup').hidden = $('#os-del').hidden = $('#os-title-w').hidden = $('#os-edit').hidden = true; $('#os-why').textContent = ''; $('#os-eye-t').textContent = _t('org.hide'); $('#os-eye-ic').innerHTML = BK_IC.eyeoff;
     return;
   }
   const e = at.entry, T = orgMeta(e.type), off = e.on === false, prot = !!T.protected || e.type === 'weeks', built = (ORG.cat.builtIn || []).includes(e.id) || e.type === 'weeks';
-  const scopeTxt = at.scope === 'book' ? '' : at.scope === 'month' ? ' · month page, in every month' : ' · week page, in every week';
-  $('#os-what').innerHTML = `<b>${off ? 'Hidden' : `Page ${p.n}`}</b> <span>${escH(off ? orgName(e) : (p.label || orgName(e)))}${!off && (p.label || orgName(e)) !== orgName(e) ? ' · ' + escH(orgName(e)) : ''}${scopeTxt}${p && p.n % 2 ? ' · right-hand' : p ? ' · left-hand' : ''}${off ? ' · not printed' : ''}</span>`;
+  const scopeTxt = at.scope === 'book' ? '' : at.scope === 'month' ? ' · ' + _t('org.month_page_note') : ' · ' + _t('org.week_page_note');
+  $('#os-what').innerHTML = `<b>${off ? _t('org.hidden') : _t('org.page_n', { n: p.n })}</b> <span>${escH(off ? orgName(e) : (p.label || orgName(e)))}${!off && (p.label || orgName(e)) !== orgName(e) ? ' · ' + escH(orgName(e)) : ''}${scopeTxt}${p && p.n % 2 ? ' · ' + _t('org.right_hand') : p ? ' · ' + _t('org.left_hand') : ''}${off ? ' · ' + _t('org.not_printed') : ''}</span>`;
   for (const id of ['#os-earlier', '#os-later', '#os-moveto']) set(id, off);
-  $('#os-earlier span').textContent = 'Earlier'; $('#os-later span').textContent = 'Later';
+  $('#os-earlier span').textContent = _t('org.earlier'); $('#os-later span').textContent = _t('org.later');
   const eye = $('#os-eye');
   eye.setAttribute('aria-disabled', prot && !off ? 'true' : 'false');
-  $('#os-eye-t').textContent = prot && !off ? 'Can’t hide' : off ? 'Show' : 'Hide';
+  $('#os-eye-t').textContent = prot && !off ? _t('org.cant_hide') : off ? _t('org.show') : _t('org.hide');
   $('#os-eye-ic').innerHTML = prot && !off ? BK_IC.lock : off ? OG_IC.eye : BK_IC.eyeoff;
-  eye.setAttribute('aria-label', prot && !off ? `${orgName(e)} is protected: it can move but can’t be hidden` : off ? `Show ${orgName(e)} again` : `Hide ${orgName(e)}`);
-  $('#os-why').textContent = prot && !off ? BKE.protectWhy(ORG.cat, e) : off ? 'Hidden pages are not printed. Show it to put it back where it was.' : ''; $('#os-why').className = 'os-why';
+  eye.setAttribute('aria-label', prot && !off ? _t('org.protected_label', { name: orgName(e) }) : off ? _t('org.show_again', { name: orgName(e) }) : _t('org.hide_name', { name: orgName(e) }));
+  $('#os-why').textContent = prot && !off ? BKE.protectWhy(ORG.cat, e) : off ? _t('org.hidden_why') : ''; $('#os-why').className = 'os-why';
   $('#os-dup').hidden = !BKE.repeatTypes.includes(e.type);
   $('#os-edit').hidden = !(p && !off && pageEditable(p)); // Notes, blank and collection pages edit their blocks (C5a)
-  $('#os-del').hidden = built; $('#os-del span').textContent = 'Remove'; $('#os-del').setAttribute('aria-label', `Remove ${orgName(e)} from the book`);
+  $('#os-del').hidden = built; $('#os-del span').textContent = _t('org.remove'); $('#os-del').setAttribute('aria-label', _t('org.remove_from_book', { name: orgName(e) }));
   const tw = $('#os-title-w'); tw.hidden = !BKE.repeatTypes.includes(e.type);
   if (BKE.repeatTypes.includes(e.type) && document.activeElement !== $('#os-title')) $('#os-title').value = (e.options && e.options.title) || '';
 }
@@ -233,15 +234,15 @@ $('#os-moveto').onclick = () => orgMoveDialog();
 
 // ----- Move to… (the way to move on a phone, and for anyone who does not drag) -----
 function orgMoveDialog(id = ORG.sel, back) {
-  const at = orgEntry(id); if (!at) { orgSay('Select a page first.', true); return; }
-  if (at.entry.on === false) { orgSay('Show this page before you move it.', true); return; }
-  const e = at.entry, sibs = at.arr.filter((x) => x.id !== id), where = at.scope === 'book' ? 'front and back pages' : at.scope === 'month' ? 'month pages' : 'week pages';
-  const pageTxt = (x) => { const p = orgPageOf(x.id); return at.scope === 'book' && p ? ` (page ${p.n})` : ''; };
+  const at = orgEntry(id); if (!at) { orgSay(_t('org.select_first'), true); return; }
+  if (at.entry.on === false) { orgSay(_t('org.show_before_move'), true); return; }
+  const e = at.entry, sibs = at.arr.filter((x) => x.id !== id), where = at.scope === 'book' ? _t('org.where_book') : at.scope === 'month' ? _t('org.where_month') : _t('org.where_week');
+  const pageTxt = (x) => { const p = orgPageOf(x.id); return at.scope === 'book' && p ? ' ' + _t('org.paren_page', { n: p.n }) : ''; };
   const opts = []; const cur = at.arr[at.i + 1] ? at.arr[at.i + 1].id : null, prev = at.arr[at.i - 1] ? at.arr[at.i - 1].id : null;
-  sibs.forEach((s) => { if (s.id !== cur) opts.push([`before:${s.id}`, `Before ${orgName(s)}${pageTxt(s)}${s.on === false ? ' (hidden)' : ''}`]); });
-  if (cur) opts.push(['after:' + at.arr[at.arr.length - 1].id, `At the very end of the ${where}`]);
-  $('#om-h').textContent = `Move ${orgName(e)}`;
-  $('#om-p').textContent = `${orgName(e)} is one of the ${where}, so it can go anywhere among them.${at.scope === 'book' ? ' The weeks are one block in this list: put a page before or after it.' : ` Every ${at.scope} follows.`}`;
+  sibs.forEach((s) => { if (s.id !== cur) opts.push([`before:${s.id}`, `${_t('org.before', { name: orgName(s) })}${pageTxt(s)}${s.on === false ? ' ' + _t('org.paren_hidden') : ''}`]); });
+  if (cur) opts.push(['after:' + at.arr[at.arr.length - 1].id, _t('org.at_very_end', { where })]);
+  $('#om-h').textContent = _t('org.move_name', { name: orgName(e) });
+  $('#om-p').textContent = `${_t('org.one_of', { name: orgName(e), where })}${at.scope === 'book' ? ' ' + _t('org.weeks_block') : ' ' + _t('org.every_follows', { scope: orgScopeWord(at.scope) })}`;
   $('#om-sel').innerHTML = opts.map(([v, t]) => `<option value="${escH(v)}">${escH(t)}</option>`).join('');
   $('#om-go').disabled = !opts.length; $('#org-move').dataset.id = id; $('#org-move').returnValue = ''; ORG.moveBack = back || document.activeElement;
   $('#org-move').showModal();
@@ -262,34 +263,34 @@ function orgFocusBack(fk = ORG.focusFk) {
   if (fk.startsWith('sel:') || fk.startsWith('del:')) { const f = $('#org [data-act="sel"]'); if (f) f.focus(); }
 }
 function orgPagesText(e, scope) {
-  if (e.on === false) return 'hidden';
-  if (scope === 'week') { const sp = e.type === 'days' ? BKE.daySummary(e.options) : ''; return `every week${sp ? ' · ' + sp : ''}`; } if (scope === 'month') return 'each month';
-  const ns = ORG.flow.pages.filter((p) => p.eid === e.id).map((p) => p.n); if (!ns.length) return e.type === 'weeks' ? '' : 'not in this book';
-  if (e.type === 'weeks') return `pages ${ns[0]} to ${ns[ns.length - 1]}`;
-  return ns.length === 1 ? `page ${ns[0]}` : ns.every((x, i) => i === 0 || x === ns[i - 1] + 1) ? `pages ${ns[0]} to ${ns[ns.length - 1]}` : `pages ${ns.join(', ')}`;
+  if (e.on === false) return _t('org.state_hidden');
+  if (scope === 'week') { const sp = e.type === 'days' ? BKE.daySummary(e.options) : ''; return `${_t('org.every_week')}${sp ? ' · ' + sp : ''}`; } if (scope === 'month') return _t('org.each_month');
+  const ns = ORG.flow.pages.filter((p) => p.eid === e.id).map((p) => p.n); if (!ns.length) return e.type === 'weeks' ? '' : _t('org.not_in_book');
+  if (e.type === 'weeks') return _t('org.pages_range', { first: ns[0], last: ns[ns.length - 1] });
+  return ns.length === 1 ? _t('org.page_one', { n: ns[0] }) : ns.every((x, i) => i === 0 || x === ns[i - 1] + 1) ? _t('org.pages_range', { first: ns[0], last: ns[ns.length - 1] }) : _t('org.pages_list', { list: ns.join(', ') });
 }
 function orgRow(e, scope, list, i) {
   const T = orgMeta(e.type), off = e.on === false, isW = e.type === 'weeks', prot = !!T.protected || isW, built = (ORG.cat.builtIn || []).includes(e.id) || isW, name = orgName(e);
   const first = i === 0, last = i === list.length - 1, gcls = scope === 'book' ? 'og-gt' : 'og-gs';
-  const eyeLab = isW ? `${name}: the journal itself, can’t be hidden` : prot ? `${name} is protected: it can move but can’t be hidden` : off ? `Show ${name}` : `Hide ${name}`;
-  const why = isW ? 'The weeks are the journal itself, so they can’t be hidden.' : prot ? BKE.protectWhy(ORG.cat, e) : '';
+  const eyeLab = isW ? _t('org.weeks_label', { name }) : prot ? _t('org.protected_label', { name }) : off ? _t('org.show_name', { name }) : _t('org.hide_name', { name });
+  const why = isW ? _t('org.weeks_why') : prot ? BKE.protectWhy(ORG.cat, e) : '';
   return `<li class="og-row${off ? ' off' : ''}${ORG.sel === e.id ? ' sel' : ''}${BKE.repeatTypes.includes(e.type) || !built ? ' many' : ''}" data-eid="${escH(e.id)}" data-scope="${scope}">
     <span class="og-grip ${gcls}" aria-hidden="true">${GRIP}</span>
     <button class="og-name" type="button" data-act="sel" data-fk="sel:${escH(e.id)}" ${ORG.sel === e.id ? 'aria-current="true"' : ''}><b>${prot ? BK_IC.lock : ''}${off ? BK_IC.eyeoff : ''}<span>${escH(name)}</span></b><small>${escH(orgPagesText(e, scope))}</small></button>
     <span class="og-btns">
-      <button class="og-b" type="button" data-act="up" data-fk="up:${escH(e.id)}" aria-label="Move ${escH(name)} earlier" ${first || off ? 'aria-disabled="true"' : ''}>${OG_IC.up}</button>
-      <button class="og-b" type="button" data-act="down" data-fk="down:${escH(e.id)}" aria-label="Move ${escH(name)} later" ${last || off ? 'aria-disabled="true"' : ''}>${OG_IC.down}</button>
+      <button class="og-b" type="button" data-act="up" data-fk="up:${escH(e.id)}" aria-label="${_t('org.move_earlier', { name: escH(name) })}" ${first || off ? 'aria-disabled="true"' : ''}>${OG_IC.up}</button>
+      <button class="og-b" type="button" data-act="down" data-fk="down:${escH(e.id)}" aria-label="${_t('org.move_later', { name: escH(name) })}" ${last || off ? 'aria-disabled="true"' : ''}>${OG_IC.down}</button>
       ${isW ? '' : `<button class="og-b" type="button" data-act="eye" data-fk="eye:${escH(e.id)}" aria-label="${escH(eyeLab)}" ${prot ? `aria-disabled="true" aria-describedby="ogw-${escH(e.id)}"` : `aria-pressed="${off}"`}>${prot ? BK_IC.lock : off ? OG_IC.eye : BK_IC.eyeoff}</button>`}
-      ${BKE.repeatTypes.includes(e.type) ? `<button class="og-b" type="button" data-act="dup" data-fk="dup:${escH(e.id)}" aria-label="Duplicate ${escH(name)}">${OG_IC.dup}</button>` : ''}
-      ${built ? '' : `<button class="og-b danger" type="button" data-act="del" data-fk="del:${escH(e.id)}" aria-label="Remove ${escH(name)} from the book">${OG_IC.del}</button>`}
+      ${BKE.repeatTypes.includes(e.type) ? `<button class="og-b" type="button" data-act="dup" data-fk="dup:${escH(e.id)}" aria-label="${_t('org.duplicate_name', { name: escH(name) })}">${OG_IC.dup}</button>` : ''}
+      ${built ? '' : `<button class="og-b danger" type="button" data-act="del" data-fk="del:${escH(e.id)}" aria-label="${_t('org.remove_from_book', { name: escH(name) })}">${OG_IC.del}</button>`}
     </span>
     ${why ? `<small class="og-why-row" id="ogw-${escH(e.id)}">${escH(why)}</small>` : ''}
     ${isW ? orgWeeksGroup(e) : ''}</li>`;
 }
 function orgWeeksGroup(w) {
   const o = w.options || {}, m = o.month || [], k = o.week || [];
-  return `<div class="og-group" style="grid-column:1/-1"><p class="og-grouplab" id="ogl-m">Month pages: each month has these, in this order</p><ul class="og-list" data-list="month" aria-labelledby="ogl-m">${m.map((e, i) => orgRow(e, 'month', m, i)).join('')}</ul>
-    <p class="og-grouplab" id="ogl-w">Week pages: every week has these, in this order</p><ul class="og-list" data-list="week" aria-labelledby="ogl-w">${k.map((e, i) => orgRow(e, 'week', k, i)).join('')}</ul></div>`;
+  return `<div class="og-group" style="grid-column:1/-1"><p class="og-grouplab" id="ogl-m">${_t('org.month_group')}</p><ul class="og-list" data-list="month" aria-labelledby="ogl-m">${m.map((e, i) => orgRow(e, 'month', m, i)).join('')}</ul>
+    <p class="og-grouplab" id="ogl-w">${_t('org.week_group')}</p><ul class="og-list" data-list="week" aria-labelledby="ogl-w">${k.map((e, i) => orgRow(e, 'week', k, i)).join('')}</ul></div>`;
 }
 function orgPanel() {
   const body = $('#og-body'); if (!body || !ORG.cat) return;
@@ -301,46 +302,46 @@ function orgPanel() {
   const flat = list.flatMap((x) => (x.type === 'weeks' ? [...((x.options || {}).month || []), ...((x.options || {}).week || [])] : [x]));
   const typeRows = Object.entries(ORG.cat.meta).filter(([k]) => k !== 'weeks' && !BKE.repeatTypes.includes(k)).map(([k, T]) => {
     const e = flat.find((x) => x.type === k);
-    const state = e ? (e.on === false ? 'Hidden: switch it on with the eye' : `Already in the book (${orgPagesText(e, T.scope)})`) : `${T.scope === 'book' ? 'Front or back page' : T.scope === 'month' ? 'Month page' : 'Week page'}`;
-    return `<li><span>${escH(T.name)}<small>${escH(state)}</small></span>${e ? '' : `<button class="og-b" type="button" data-act="add" data-type="${k}" data-fk="add:${k}" aria-label="Add ${escH(T.name)}">${OG_IC.plus}<span>Add</span></button>`}</li>`;
+    const state = e ? (e.on === false ? _t('org.hidden_switch') : _t('org.already_in', { where: orgPagesText(e, T.scope) })) : `${T.scope === 'book' ? _t('org.front_back_page') : T.scope === 'month' ? _t('org.month_page') : _t('org.week_page')}`;
+    return `<li><span>${escH(T.name)}<small>${escH(state)}</small></span>${e ? '' : `<button class="og-b" type="button" data-act="add" data-type="${k}" data-fk="add:${k}" aria-label="${_t('org.add_name', { name: escH(T.name) })}">${OG_IC.plus}<span>${_t('org.add')}</span></button>`}</li>`;
   }).join('');
   const top = list;
-  const whereOpts = () => { const w = []; top.forEach((x) => { const p = orgPageOf(x.id); w.push(`<option value="before:${escH(x.id)}">Before ${escH(orgName(x))}${p && x.type !== 'weeks' ? ` (page ${p.n})` : x.type === 'weeks' ? ' (the weeks start here)' : ''}</option>`); }); w.push('<option value="end" selected>At the end of the book</option>'); return w.join(''); };
+  const whereOpts = () => { const w = []; top.forEach((x) => { const p = orgPageOf(x.id); w.push(`<option value="before:${escH(x.id)}">${_t('org.before', { name: escH(orgName(x)) })}${p && x.type !== 'weeks' ? ' ' + _t('org.paren_page', { n: p.n }) : x.type === 'weeks' ? ' ' + _t('org.paren_weeks_start') : ''}</option>`); }); w.push('<option value="end" selected>' + _t('org.at_end_of_book') + '</option>'); return w.join(''); };
   const whereSel = $('#og-where') ? $('#og-where').value : '';
   const auto = f.autoNotes;
   body.innerHTML = `
-    <div class="og-sum" id="og-sum"><div><b>${orgPlural(f.pages.length, 'page', 'pages')}</b> <span class="fine">· ${orgPlural(spreads, 'spread', 'spreads')}${ORG.hard ? ' · hardcover' : ' · paperback'}</span></div>
+    <div class="og-sum" id="og-sum"><div><b>${orgPlural(f.pages.length, 'page')}</b> <span class="fine">· ${orgPlural(spreads, 'spread')}${ORG.hard ? ' · ' + _t('org.hardcover') : ' · ' + _t('org.paperback')}</span></div>
       <div class="kdp ${kdp.ok ? 'ok' : 'bad'}">${kdp.ok ? OG_IC.ok : OG_IC.bad}<span>${escH(kdp.text)}</span></div>
-      <button class="og-sw" type="button" role="switch" aria-checked="${ORG.hard}" data-act="hard" data-fk="hard" style="justify-content:flex-start">Count as a hardcover (76 pages at least)</button>
-      <p class="fine" style="margin:0">${orgPlanScope() !== 'month' ? `This book’s plan is ${escH(LM.SCOPE_NAMES[orgPlanScope()] || orgPlanScope())}: it prints as volumes of at most 110 pages, cut on month or week boundaries. The sample here is one month.` : 'The sample shows one month. Every month follows the same page list, with its own weeks.'}</p></div>
-    ${missing.length ? `<div class="og-warn" id="og-missing" role="alert"><b>This book can’t be saved or printed yet.</b><ul>${missing.map((m) => `<li>${escH(m.from.slice(0, 3).join(', '))}${m.from.length > 3 ? ' and more' : ''} points to <b>${escH(m.target)}</b>, which isn’t in the book. Put ${escH(m.target)} back, or undo.</li>`).join('')}</ul></div>` : ''}
-    <h3>Changes apply to</h3>
-    <fieldset class="og-scope"><legend class="sr">Which months a change applies to</legend>
-      <label class="og-radio"><input type="radio" name="og-scope" value="all" ${ORG.only ? '' : 'checked'} data-fk="scope-all"> All months</label>
-      <label class="og-radio"><input type="radio" name="og-scope" value="one" ${ORG.only ? 'checked' : ''} data-fk="scope-one"> Only <select id="og-mon" aria-label="Which month" data-fk="scope-mon">${months.map((m) => `<option value="${m}" ${m === ORG.mon ? 'selected' : ''}>${orgMonthName(m)}${own.includes(m) ? ' (own pages)' : ''}</option>`).join('')}</select></label></fieldset>
-    <p class="fine" style="margin-top:8px">${ORG.only ? (own.includes(ORG.mon) ? `${orgMonthName(ORG.mon)} has its own page list. Changes here don’t touch the other months.` : `${orgMonthName(ORG.mon)} follows the default. Your first change here gives it its own page list.`) : own.length ? `Changes here don’t reach the ${own.length} ${own.length === 1 ? 'month that has its own pages' : 'months that have their own pages'}. Reset ${own.length === 1 ? 'it' : 'them'} to follow the default.` : 'Every month shares one page list.'}</p>
-    ${own.length ? `<ul class="og-months" aria-label="Months with their own pages">${own.map((m) => `<li><span>${escH(orgMonthName(m))}</span><button class="og-b" type="button" data-act="resetmon" data-mon="${m}" data-fk="reset:${m}" aria-label="Reset ${escH(orgMonthName(m))} to the default pages">Reset</button></li>`).join('')}</ul>` : ''}
-    <h3>${mon ? escH(orgMonthName(mon)) + ': pages' : 'Pages, front to back'}</h3>
-    <ul class="og-list" data-list="book" id="og-list" aria-label="${mon ? escH(orgMonthName(mon)) + ' pages' : 'Pages of the book'}">${top.map((e, i) => orgRow(e, 'book', top, i)).join('')}</ul>
-    <p class="fine" style="margin-top:8px">Drag a row by its handle, or use the arrows. Month pages stay among month pages, week pages among week pages.</p>
-    <h3>Add a page</h3>
-    <label class="og-where"><span>Where</span><select id="og-where" data-fk="where">${whereOpts()}</select></label>
-    <ul class="og-add"><li><span>Notes page<small>A header and a dot grid to write on. You can add as many as you like.</small></span><button class="og-b primary" type="button" data-act="add" data-type="notes" data-fk="add:notes" aria-label="Add a Notes page">${OG_IC.plus}<span>Add</span></button></li>
-      <li><span>Collection page<small>A title and ruled lines for a list you keep: books, places, ideas. As many as you like.</small></span><button class="og-b primary" type="button" data-act="add" data-type="collection" data-fk="add:collection" aria-label="Add a Collection page">${OG_IC.plus}<span>Add</span></button></li></ul>
-    <details class="og-more"${moreOpen ? ' open' : ''}><summary>Other page types</summary><ul class="og-add">${typeRows}</ul>
-      <p class="fine" style="margin-top:8px">Only Notes and Collection pages can repeat. A built-in page can be hidden with the eye, not deleted. Pages you add can be removed.</p></details>
-    <details class="og-auto"${openDet ? ' open' : ''}><summary>${OG_IC.info} Automatic: made for you, not editable</summary><ul>
-      <li>${auto ? `${orgPlural(auto, 'Notes page', 'Notes pages')} ${auto === 1 ? 'is' : 'are'} added by itself (dashed on the canvas) so left and right pages face correctly and the count stays even, at least 24 (76 for a hardcover).` : 'No Notes pages needed: the spreads face correctly and the count is even.'}</li>
-      <li>Page numbers, and every “see page N” pointer, follow the pages when they move.</li>
-      <li>Scan codes and page codes are made at print. The Keeper’s page number is filled in for you.</li></ul></details>
-    <h3>The book file</h3>
+      <button class="og-sw" type="button" role="switch" aria-checked="${ORG.hard}" data-act="hard" data-fk="hard" style="justify-content:flex-start">${_t('org.count_hardcover')}</button>
+      <p class="fine" style="margin:0">${orgPlanScope() !== 'month' ? _t('org.plan_volumes', { scope: escH(LM.SCOPE_NAMES[orgPlanScope()] || orgPlanScope()) }) : _t('org.plan_month')}</p></div>
+    ${missing.length ? `<div class="og-warn" id="og-missing" role="alert"><b>${_t('org.cant_save_yet')}</b><ul>${missing.map((m) => `<li>${_t('org.missing_row', { from: m.from.length > 3 ? _t('org.names_and_more', { names: escH(m.from.slice(0, 3).join(', ')) }) : escH(m.from.join(', ')), target: escH(m.target) })}</li>`).join('')}</ul></div>` : ''}
+    <h3>${_t('org.changes_apply_to')}</h3>
+    <fieldset class="og-scope"><legend class="sr">${_t('org.which_months')}</legend>
+      <label class="og-radio"><input type="radio" name="og-scope" value="all" ${ORG.only ? '' : 'checked'} data-fk="scope-all"> ${_t('org.all_months')}</label>
+      <label class="og-radio"><input type="radio" name="og-scope" value="one" ${ORG.only ? 'checked' : ''} data-fk="scope-one"> ${_t('org.only')} <select id="og-mon" aria-label="${_t('org.which_month')}" data-fk="scope-mon">${months.map((m) => `<option value="${m}" ${m === ORG.mon ? 'selected' : ''}>${orgMonthName(m)}${own.includes(m) ? ' ' + _t('org.paren_own_pages') : ''}</option>`).join('')}</select></label></fieldset>
+    <p class="fine" style="margin-top:8px">${ORG.only ? (own.includes(ORG.mon) ? _t('org.month_own', { month: orgMonthName(ORG.mon) }) : _t('org.month_default', { month: orgMonthName(ORG.mon) })) : own.length ? _t('org.own_reach', { n: own.length }) : _t('org.shares_one')}</p>
+    ${own.length ? `<ul class="og-months" aria-label="${_t('org.months_own_label')}">${own.map((m) => `<li><span>${escH(orgMonthName(m))}</span><button class="og-b" type="button" data-act="resetmon" data-mon="${m}" data-fk="reset:${m}" aria-label="${_t('org.reset_month_label', { month: escH(orgMonthName(m)) })}">${_t('org.reset')}</button></li>`).join('')}</ul>` : ''}
+    <h3>${mon ? _t('org.month_pages_h', { month: escH(orgMonthName(mon)) }) : _t('org.pages_front_back')}</h3>
+    <ul class="og-list" data-list="book" id="og-list" aria-label="${mon ? _t('org.month_pages_label', { month: escH(orgMonthName(mon)) }) : _t('org.pages_of_book')}">${top.map((e, i) => orgRow(e, 'book', top, i)).join('')}</ul>
+    <p class="fine" style="margin-top:8px">${_t('org.drag_row')}</p>
+    <h3>${_t('org.add_a_page')}</h3>
+    <label class="og-where"><span>${_t('org.where')}</span><select id="og-where" data-fk="where">${whereOpts()}</select></label>
+    <ul class="og-add"><li><span>${_t('org.notes_page')}<small>${_t('org.notes_page_note')}</small></span><button class="og-b primary" type="button" data-act="add" data-type="notes" data-fk="add:notes" aria-label="${_t('org.add_notes_page')}">${OG_IC.plus}<span>${_t('org.add')}</span></button></li>
+      <li><span>${_t('org.collection_page')}<small>${_t('org.collection_page_note')}</small></span><button class="og-b primary" type="button" data-act="add" data-type="collection" data-fk="add:collection" aria-label="${_t('org.add_collection_page')}">${OG_IC.plus}<span>${_t('org.add')}</span></button></li></ul>
+    <details class="og-more"${moreOpen ? ' open' : ''}><summary>${_t('org.other_types')}</summary><ul class="og-add">${typeRows}</ul>
+      <p class="fine" style="margin-top:8px">${_t('org.only_notes_repeat')}</p></details>
+    <details class="og-auto"${openDet ? ' open' : ''}><summary>${OG_IC.info} ${_t('org.automatic')}</summary><ul>
+      <li>${auto ? _t('org.auto_notes', { n: auto }) : _t('org.no_notes_needed')}</li>
+      <li>${_t('org.numbers_follow')}</li>
+      <li>${_t('org.codes_at_print')}</li></ul></details>
+    <h3>${_t('org.book_file')}</h3>
     <p class="fine" id="og-fmsg">${escH(orgSaveText())}</p>
     <div class="og-file">
-      <button class="og-b" type="button" data-act="download" data-fk="download">Download book.json</button>
-      <button class="og-b" type="button" data-act="copy" data-fk="copy">Copy</button>
-      <button class="og-b" type="button" data-act="import" data-fk="import">Import…</button>
-      ${MODE === 'pages' ? `<button class="og-b" type="button" data-act="gh" data-fk="gh">Save to GitHub…</button><button class="og-b" type="button" data-act="ghload" data-fk="ghload">Load from GitHub</button>` : ''}
-      <button class="og-b danger" type="button" data-act="reset" data-fk="reset">Reset to the original</button></div>`;
+      <button class="og-b" type="button" data-act="download" data-fk="download">${_t('org.download_book')}</button>
+      <button class="og-b" type="button" data-act="copy" data-fk="copy">${_t('org.copy')}</button>
+      <button class="og-b" type="button" data-act="import" data-fk="import">${_t('org.import')}</button>
+      ${MODE === 'pages' ? `<button class="og-b" type="button" data-act="gh" data-fk="gh">${_t('org.save_github')}</button><button class="og-b" type="button" data-act="ghload" data-fk="ghload">${_t('org.load_github')}</button>` : ''}
+      <button class="og-b danger" type="button" data-act="reset" data-fk="reset">${_t('org.reset_original')}</button></div>`;
   body.scrollTop = pos;
   orgSortable();
   const w = $('#og-where'); if (w && whereSel && [...w.options].some((o) => o.value === whereSel)) w.value = whereSel;
@@ -360,11 +361,11 @@ function orgMarkRows() {
   orgSelWhere();
 }
 function orgSaveText() {
-  if (MODE === 'demo') return 'Demo: your changes stay on this page and are not saved anywhere.';
-  if (!ORG.touched) return MODE === 'pages' ? 'The book matches the pages the books use now.' : 'The book matches the original pages.';
-  if (MODE === 'pages') return ORG.ghDirty ? 'Saved in this browser · not on GitHub yet.' : 'Saved in this browser and on GitHub.';
-  if (MODE === 'artifact') return db ? 'Saved.' : 'Preview only: changes aren’t saved here.';
-  return 'Saved.';
+  if (MODE === 'demo') return _t('org.save_demo');
+  if (!ORG.touched) return MODE === 'pages' ? _t('org.save_matches_now') : _t('org.save_matches_original');
+  if (MODE === 'pages') return ORG.ghDirty ? _t('org.save_browser_not_github') : _t('org.save_browser_github');
+  if (MODE === 'artifact') return db ? _t('org.saved') : _t('org.preview_only');
+  return _t('org.saved');
 }
 
 // Drag a row (the list is a second, always-available way to drag; the canvas is the first). A list only takes its own kind of page.
@@ -385,57 +386,57 @@ function orgSortable() {
 $('#og-body').addEventListener('click', (e) => {
   const b = e.target.closest('[data-act]'); if (!b) return; const li = b.closest('.og-row'), id = li && li.dataset.eid, act = b.dataset.act;
   if (act === 'sel') { const at = BKE.locate(orgList(), id); if (at && at.entry.on === false) orgSelectEntry(id, { hidden: true }); else orgSelectEntry(id); ORG.focusFk = 'sel:' + id; return; }
-  if (act === 'up' || act === 'down') { if (b.getAttribute('aria-disabled') === 'true') { const at = BKE.locate(orgList(), id); orgSay(at && at.entry.on === false ? 'Show this page before you move it.' : 'It is already at the end of its list.', true); return; } ORG.focusFk = `${act}:${id}`; orgSelectEntry(id); orgMove({ step: act === 'up' ? -1 : 1 }, id); return; }
+  if (act === 'up' || act === 'down') { if (b.getAttribute('aria-disabled') === 'true') { const at = BKE.locate(orgList(), id); orgSay(at && at.entry.on === false ? _t('org.show_before_move') : _t('org.already_end'), true); return; } ORG.focusFk = `${act}:${id}`; orgSelectEntry(id); orgMove({ step: act === 'up' ? -1 : 1 }, id); return; }
   if (act === 'eye') { const at = BKE.locate(orgList(), id); if (b.getAttribute('aria-disabled') === 'true') { orgSay(BKE.protectWhy(ORG.cat, at.entry), true); return; } ORG.focusFk = `eye:${id}`; orgEye(id); return; }
   if (act === 'dup') { orgDup(id); return; }
   if (act === 'del') { orgRemove(id); return; }
   if (act === 'add') { const w = $('#og-where').value; ORG.whereTouched = false; orgAdd(b.dataset.type, w === 'end' || !BKE.repeatTypes.includes(b.dataset.type) ? {} : { before: w.slice(7) }); return; }
   if (act === 'resetmon') { orgResetMonth(b.dataset.mon); return; }
-  if (act === 'hard') { ORG.hard = !ORG.hard; orgRender(); orgSay(ORG.hard ? 'Counting as a hardcover: at least 76 pages.' : 'Counting as a paperback: at least 24 pages.'); return; }
+  if (act === 'hard') { ORG.hard = !ORG.hard; orgRender(); orgSay(ORG.hard ? _t('org.counting_hardcover') : _t('org.counting_paperback')); return; }
   if (act === 'download') return orgDownload(); if (act === 'copy') return orgCopy(); if (act === 'import') return $('#org-file').click();
   if (act === 'gh') return orgGh(); if (act === 'ghload') return orgGhLoad();
   if (act === 'reset') { $('#org-reset').returnValue = ''; $('#org-reset').showModal(); }
 });
 $('#og-body').addEventListener('change', (e) => {
-  if (e.target.name === 'og-scope') { ORG.only = e.target.value === 'one'; orgRender(); orgSay(ORG.only ? `Changes now apply only to ${orgMonthName(ORG.mon)}.` : 'Changes now apply to all months.'); }
-  else if (e.target.id === 'og-mon') { ORG.mon = e.target.value; ORG.only = true; orgRender(); orgSay(`Showing ${orgMonthName(ORG.mon)}${BKE.overridden(ORG.book).includes(ORG.mon) ? ', which has its own pages' : ', which follows the default'}.`); }
+  if (e.target.name === 'og-scope') { ORG.only = e.target.value === 'one'; orgRender(); orgSay(ORG.only ? _t('org.apply_only', { month: orgMonthName(ORG.mon) }) : _t('org.apply_all')); }
+  else if (e.target.id === 'og-mon') { ORG.mon = e.target.value; ORG.only = true; orgRender(); orgSay((BKE.overridden(ORG.book).includes(ORG.mon) ? _t('org.showing_own', { month: orgMonthName(ORG.mon) }) : _t('org.showing_default', { month: orgMonthName(ORG.mon) }))); }
   else if (e.target.id === 'og-where') ORG.whereTouched = true;
 });
-$('#org-reset').addEventListener('close', () => { if ($('#org-reset').returnValue === 'go') orgCommit({ book: orgClone(ORG.cat.defaultBook) }, () => 'The book is back to the original pages.', undefined, false); orgFocusBack('reset'); });
+$('#org-reset').addEventListener('close', () => { if ($('#org-reset').returnValue === 'go') orgCommit({ book: orgClone(ORG.cat.defaultBook) }, () => _t('org.back_to_original'), undefined, false); orgFocusBack('reset'); });
 $('#og-undo').onclick = orgUndo; $('#og-redo').onclick = orgRedo;
 $('#og-toggle').onclick = () => { ORG.open = !ORG.open; ORG.userToggled = true; orgLayout(); setTimeout(() => { if (BK.ready) bkResize(); }, 0); };
 $('#org-file').onchange = async () => {
   const f = $('#org-file').files[0]; $('#org-file').value = ''; if (!f) return;
-  try { const b = JSON.parse(await f.text()), errs = BKE.checkBook(b, ORG.cat); if (errs.length) { orgSay(`That file isn’t a valid book: ${errs[0]}${errs.length > 1 ? ` (and ${errs.length - 1} more)` : ''}`, true); return; } orgCommit({ book: b }, (fl) => `Imported a book of ${fl.pages.length} pages.`, undefined, false); }
-  catch { orgSay('That file isn’t a book.json.', true); }
+  try { const b = JSON.parse(await f.text()), errs = BKE.checkBook(b, ORG.cat); if (errs.length) { orgSay((errs.length > 1 ? _t('org.invalid_book_more', { first: errs[0], n: errs.length - 1 }) : _t('org.invalid_book', { first: errs[0] })), true); return; } orgCommit({ book: b }, (fl) => _t('org.imported', { n: fl.pages.length }), undefined, false); }
+  catch { orgSay(_t('org.not_a_book'), true); }
 };
 
 // ----- saving (download, GitHub, the browser, the artifact store, the Studio draft) -----
-const orgBlocked = () => { const m = ORG.flow && ORG.flow.missing; if (m && m.length) { orgSay(`Not saved: ${m[0].from[0]} points to ${m[0].target}, which isn’t in the book. Put it back, or undo.`, true); return true; } return false; };
+const orgBlocked = () => { const m = ORG.flow && ORG.flow.missing; if (m && m.length) { orgSay(_t('org.not_saved_points', { from: m[0].from[0], target: m[0].target }), true); return true; } return false; };
 async function orgDownload() {
   if (orgBlocked()) return;
   const text = BKE.bookJson(ORG.book);
-  if (typeof dl !== 'undefined' && dl) { try { await dl.save({ filename: 'book.json', data: text }); orgSay('Saved book.json.'); } catch (e) { if (e && e.code !== 'declined') orgSay('Couldn’t save the file.', true); } return; }
+  if (typeof dl !== 'undefined' && dl) { try { await dl.save({ filename: 'book.json', data: text }); orgSay(_t('org.saved_book_json')); } catch (e) { if (e && e.code !== 'declined') orgSay(_t('org.cant_save_file'), true); } return; }
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' })); a.download = 'book.json'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-  orgSay('Downloaded book.json. Put it in journal/content/ to use it.');
+  orgSay(_t('org.downloaded'));
 }
-async function orgCopy() { if (orgBlocked()) return; try { await navigator.clipboard.writeText(BKE.bookJson(ORG.book)); orgSay('Copied the book JSON.'); } catch { orgSay('Couldn’t copy here. Use Download instead.', true); } }
+async function orgCopy() { if (orgBlocked()) return; try { await navigator.clipboard.writeText(BKE.bookJson(ORG.book)); orgSay(_t('org.copied')); } catch { orgSay(_t('org.cant_copy'), true); } }
 function orgGh() { if (orgBlocked()) return; ghOpen({ path: 'journal/content/book.json', msg: 'Book pages from the editor', body: () => BKE.bookJson(ORG.book), after: () => { ORG.ghDirty = false; $('#og-state').textContent = orgSaveText(); const m = $('#og-fmsg'); if (m) m.textContent = orgSaveText(); } }); }
 async function orgGhLoad() {
   const repo = ghRepo(), branch = store.get('kw-gh-branch') || 'main', token = store.get('kw-gh-token') || sessionToken;
   if (!repo) { orgGh(); return; }
   try {
     const f = await gh('GET', repo, token, `journal/content/book.json?ref=${encodeURIComponent(branch)}`);
-    if (!f) { orgSay('No book.json on GitHub yet: the books use the original pages.'); return; }
-    const b = JSON.parse(unb64(f.content)), errs = BKE.checkBook(b, ORG.cat); if (errs.length) { orgSay(`The book on GitHub isn’t valid: ${errs[0]}`, true); return; }
-    orgCommit({ book: b }, (fl) => `Loaded the book from GitHub: ${fl.pages.length} pages.`, undefined, false); ORG.ghDirty = false;
-  } catch (e) { orgSay(e.message || 'Couldn’t reach GitHub.', true); }
+    if (!f) { orgSay(_t('org.no_github_book')); return; }
+    const b = JSON.parse(unb64(f.content)), errs = BKE.checkBook(b, ORG.cat); if (errs.length) { orgSay(_t('org.github_invalid', { first: errs[0] }), true); return; }
+    orgCommit({ book: b }, (fl) => _t('org.github_loaded', { n: fl.pages.length }), undefined, false); ORG.ghDirty = false;
+  } catch (e) { orgSay(e.message || _t('org.cant_reach_github'), true); }
 }
 function orgPersist() {
   const changed = !BKE.sameBook(ORG.book, ORG.base);
   if (MODE === 'demo') { $('#og-state').textContent = orgSaveText(); return; }
   if (MODE === 'pages') { store.set(ORG_KEY, BKE.sameBook(ORG.book, ORG.cat.defaultBook) && !changed ? null : JSON.stringify(ORG.book)); ORG.ghDirty = changed; if (changed) dirty = true; }
-  else if (db && !readOnly && !(ORG.flow.missing || []).length) { clearTimeout(ORG.timer); ORG.timer = setTimeout(async () => { try { await db.doc('layouts/book').set({ book: ORG.book, savedAt: new Date().toISOString() }); } catch { setStatus('Couldn’t save the book. Try again in a moment', 'bad'); } }, 600); }
+  else if (db && !readOnly && !(ORG.flow.missing || []).length) { clearTimeout(ORG.timer); ORG.timer = setTimeout(async () => { try { await db.doc('layouts/book').set({ book: ORG.book, savedAt: new Date().toISOString() }); } catch { setStatus(_t('org.cant_save_book'), 'bad'); } }, 600); }
   if (typeof stQueueDraft === 'function') stQueueDraft(); // the Studio draft carries the book too (KWBK.part)
   $('#og-state').textContent = orgSaveText(); const m = $('#og-fmsg'); if (m) m.textContent = orgSaveText();
 }
@@ -461,8 +462,8 @@ function orgMode(on) {
   const was = ORG.on; ORG.on = !!on;
   if (ORG.on && !was && !ORG.userToggled) ORG.open = !matchMedia('(max-width: 960px)').matches; // a phone starts with the canvas and the page toolbar; Pages opens the list
   orgLayout();
-  bkView.setAttribute('aria-label', 'Book canvas. Drag to move, scroll or pinch to zoom in and out, arrow keys to move, plus and minus to zoom, Enter to go in one level, Escape to go out one level, 0 whole book, 1 spread, 2 day page, bracket keys for the previous and next page.' + (ORG.on ? ' Editing: Alt with Left or Right moves the selected page, H hides or shows it, Delete removes a page you added, Control Z undoes.' : ''));
-  $('#book').setAttribute('aria-label', ORG.on ? 'Book canvas, editing pages' : 'Book canvas, read-only');
+  bkView.setAttribute('aria-label', _t('app.book_canvas_drag_to_move') + (ORG.on ? ' ' + _t('org.canvas_editing_hint') : ''));
+  $('#book').setAttribute('aria-label', ORG.on ? _t('org.canvas_editing') : _t('app.book_canvas_read_only'));
   if (ORG.on && ORG.cat) { orgRender(); if (BK.ready) setTimeout(() => bkResize(), 0); }
   else { $('#org-sel').hidden = true; orgDragCancel(); if (was && BK.ready) setTimeout(() => bkResize(), 0); }
 }
@@ -473,13 +474,13 @@ $('#book').addEventListener('keydown', (e) => {
   const typing = e.target.closest('input, textarea, select, dialog');
   if (typing) return;
   const k = e.key;
-  if (e.altKey && !e.ctrlKey && !e.metaKey && (k === 'ArrowLeft' || k === 'ArrowRight')) { e.preventDefault(); e.stopPropagation(); const at = orgEntry(); if (!at) { orgSay('Select a page first: click it, or press the bracket keys.', true); return; } if (BK.sel && BK.pages[BK.sel - 1].auto) { orgSay('This Notes page was added by itself, so it can’t be moved.', true); return; } if (at.entry.on === false) { orgSay('Show this page before you move it.', true); return; } orgMove({ step: k === 'ArrowLeft' ? -1 : 1 }); return; }
+  if (e.altKey && !e.ctrlKey && !e.metaKey && (k === 'ArrowLeft' || k === 'ArrowRight')) { e.preventDefault(); e.stopPropagation(); const at = orgEntry(); if (!at) { orgSay(_t('org.select_first_keys'), true); return; } if (BK.sel && BK.pages[BK.sel - 1].auto) { orgSay(_t('org.auto_cant_move'), true); return; } if (at.entry.on === false) { orgSay(_t('org.show_before_move'), true); return; } orgMove({ step: k === 'ArrowLeft' ? -1 : 1 }); return; }
   if ((e.ctrlKey || e.metaKey) && !e.altKey && (k === 'z' || k === 'Z')) { e.preventDefault(); e.shiftKey ? orgRedo() : orgUndo(); return; }
   if ((e.ctrlKey || e.metaKey) && !e.altKey && (k === 'y' || k === 'Y')) { e.preventDefault(); orgRedo(); return; }
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   if (e.target === bkView) {
     if (k === 'h' || k === 'H') { e.preventDefault(); orgEye(); }
-    else if (k === 'Delete') { e.preventDefault(); const at = orgEntry(); if (at && !(ORG.cat.builtIn || []).includes(at.entry.id)) orgRemove(); else orgSay(at ? BKE.removeEntry(ORG.book, ORG.cat, orgMonth(), at.entry.id).err : 'Select a page first.', true); }
+    else if (k === 'Delete') { e.preventDefault(); const at = orgEntry(); if (at && !(ORG.cat.builtIn || []).includes(at.entry.id)) orgRemove(); else orgSay(at ? BKE.removeEntry(ORG.book, ORG.cat, orgMonth(), at.entry.id).err : _t('org.select_first'), true); }
     else if (k === 'm' || k === 'M') { e.preventDefault(); orgMoveDialog(); }
   }
 }, true);
@@ -501,7 +502,7 @@ function orgResolve(x, y, mover) { // the pointer's page and side -> a place in 
   const rr = slot.getBoundingClientRect(), right = x > rr.left + rr.width / 2, pages = BK.pages, gapA = right ? n : n - 1, gapB = right ? n + 1 : n;
   const A = pages[gapA - 1], B = pages[gapB - 1], cands = [];
   if (B && !B.auto && B.eid !== mover) cands.push({ before: B.eid }); if (A && !A.auto && A.eid !== mover) cands.push({ after: A.eid });
-  if (!cands.length) { const same = (A && A.eid === mover) || (B && B.eid === mover); return { n, right, err: same ? '' : 'Drop it between two pages of the book.' }; }
+  if (!cands.length) { const same = (A && A.eid === mover) || (B && B.eid === mover); return { n, right, err: same ? '' : _t('org.drop_between') }; }
   let first = null;
   for (const c of cands) { const r = BKE.moveEntry(ORG.book, ORG.cat, orgMonth(), mover, c); if (r.book) return { n, right, spec: c }; first = first || r.err; }
   return { n, right, err: /is already there/.test(first || '') ? '' : first }; // passing over its own place is not an error
@@ -519,9 +520,9 @@ bkView.addEventListener('pointermove', (e) => {
     if (Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < 4) return;
     if (d.hid >= 0) { ogDrag = null; return; }  // a hidden page comes back with the eye, not by dragging
     const p = BK.pages[d.n - 1];
-    if (!p || p.auto) { orgSay('This Notes page was added by itself, so it can’t be moved. It goes where the book needs it.', true); ogDrag = null; return; }
+    if (!p || p.auto) { orgSay(_t('org.auto_cant_move_goes'), true); ogDrag = null; return; }
     d.live = true; d.mover = p.eid; orgEat(e); bkView.classList.add('moving'); d.el.classList.add('dragging'); bkSelect(d.n);
-    d.fly = document.createElement('div'); d.fly.className = 'og-ghost-fly'; d.fly.textContent = `Moving ${p.label || orgName(orgEntry(p.eid).entry)}`; document.body.appendChild(d.fly);
+    d.fly = document.createElement('div'); d.fly.className = 'og-ghost-fly'; d.fly.textContent = _t('org.moving', { label: p.label || orgName(orgEntry(p.eid).entry) }); document.body.appendChild(d.fly);
   }
   e.stopPropagation(); e.preventDefault();
   d.fly.style.left = e.clientX + 14 + 'px'; d.fly.style.top = e.clientY + 14 + 'px';
@@ -536,7 +537,7 @@ const orgUp = (e) => {
   const t = d.drop, mover = d.mover; orgDragCancel();
   if (e.type === 'pointerup' && t && t.spec) orgMove(t.spec, mover);
   else if (e.type === 'pointerup' && t && t.err) orgSay(t.err, true);
-  else orgSay('Nothing moved.');
+  else orgSay(_t('org.nothing_moved'));
 };
 bkView.addEventListener('pointerup', orgUp, true); bkView.addEventListener('pointercancel', orgUp, true);
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && ogDrag && ogDrag.live) { e.stopPropagation(); orgDragCancel(); orgSay('Nothing moved.'); } }, true);
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && ogDrag && ogDrag.live) { e.stopPropagation(); orgDragCancel(); orgSay(_t('org.nothing_moved')); } }, true);

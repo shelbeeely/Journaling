@@ -1,100 +1,100 @@
 <dialog id="versions" class="drawer" aria-labelledby="vs-h">
   <div class="vs-head">
-    <h2 id="vs-h">Versions<small id="vs-sub">This browser</small></h2>
-    <button class="vs-b" id="vs-close" type="button" aria-label="Close versions"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15"/></svg></button>
+    <h2 id="vs-h" data-i18n="ver.versions">Versions<small id="vs-sub" data-i18n="ver.this_browser">This browser</small></h2>
+    <button class="vs-b" id="vs-close" type="button" aria-label="Close versions" data-i18n-attr="aria-label:ver.close_versions"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15"/></svg></button>
   </div>
   <div class="vs-in">
     <section id="vs-guest" class="vs-card" aria-labelledby="vs-gh">
-      <h3 id="vs-gh">Sign in to save versions</h3>
-      <p class="note">Versions kept on a Studio server can be shared, branched and restored from anywhere. Until you sign in, your history stays in this browser, and signing in uploads nothing unless you save a version.</p>
+      <h3 id="vs-gh" data-i18n="ver.sign_in_to_save_versions">Sign in to save versions</h3>
+      <p class="note" data-i18n="ver.versions_kept_on_a_studio">Versions kept on a Studio server can be shared, branched and restored from anywhere. Until you sign in, your history stays in this browser, and signing in uploads nothing unless you save a version.</p>
       <form id="vs-conn" autocomplete="on">
         <div class="vs-fields">
-          <label for="vs-url">Studio server <input id="vs-url" type="url" inputmode="url" placeholder="http://127.0.0.1:8787" autocomplete="off" spellcheck="false"></label>
-          <label for="vs-user">Username <input id="vs-user" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
-          <label for="vs-pass">Password <input id="vs-pass" type="password" autocomplete="current-password"></label>
+          <label for="vs-url" data-i18n="ver.studio_server">Studio server <input id="vs-url" type="url" inputmode="url" placeholder="http://127.0.0.1:8787" autocomplete="off" spellcheck="false"></label>
+          <label for="vs-user" data-i18n="ver.username">Username <input id="vs-user" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
+          <label for="vs-pass" data-i18n="ver.password">Password <input id="vs-pass" type="password" autocomplete="current-password"></label>
         </div>
-        <div class="vs-acts"><button class="btn primary" type="submit">Sign in</button><button class="btn" type="button" id="vs-reg">Create account</button></div>
+        <div class="vs-acts"><button class="btn primary" type="submit" data-i18n="ver.sign_in">Sign in</button><button class="btn" type="button" id="vs-reg" data-i18n="ver.create_account">Create account</button></div>
         <p id="vs-err" class="vs-err" role="alert"></p>
       </form>
     </section>
-    <div id="vs-who" class="vs-who" hidden><span>Signed in as <b id="vs-me"></b></span><button class="vs-b" id="vs-out" type="button" aria-label="Sign out"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4H5.5A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8M12 6.5 15.5 10 12 13.5M15.5 10H8"/></svg><span class="lab">Sign out</span></button></div>
+    <div id="vs-who" class="vs-who" hidden><span data-i18n="ver.signed_in_as">Signed in as <b id="vs-me"></b></span><button class="vs-b" id="vs-out" type="button" aria-label="Sign out" data-i18n-attr="aria-label:ver.sign_out"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4H5.5A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8M12 6.5 15.5 10 12 13.5M15.5 10H8"/></svg><span class="lab" data-i18n="ver.sign_out">Sign out</span></button></div>
     <div class="vs-top" id="vs-ctx">
-      <label class="vs-sel" for="vs-proj"><span>Project</span><select id="vs-proj"></select></label>
-      <label class="vs-sel" for="vs-br" id="vs-brwrap"><span>Branch</span><select id="vs-br"></select></label>
-      <button class="vs-b" id="vs-nb" type="button" aria-expanded="false" aria-controls="vs-newbr" aria-label="New branch"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5.5" cy="4.5" r="1.8"/><circle cx="5.5" cy="15.5" r="1.8"/><circle cx="14.5" cy="7.5" r="1.8"/><path d="M5.5 6.3v7.4M14.5 9.3c0 3-3 3.2-9 4.6"/></svg><span class="lab">New branch</span></button>
-      <button class="vs-b" id="vs-fork" type="button" hidden aria-haspopup="dialog"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5.5" cy="4.5" r="1.8"/><circle cx="14.5" cy="4.5" r="1.8"/><circle cx="10" cy="15.5" r="1.8"/><path d="M5.5 6.3v1.7A2 2 0 0 0 7.5 10h5a2 2 0 0 0 2-2V6.3M10 10v3.7"/></svg><span class="lab">Fork</span></button>
+      <label class="vs-sel" for="vs-proj"><span data-i18n="ver.project">Project</span><select id="vs-proj"></select></label>
+      <label class="vs-sel" for="vs-br" id="vs-brwrap"><span data-i18n="ver.branch">Branch</span><select id="vs-br"></select></label>
+      <button class="vs-b" id="vs-nb" type="button" aria-expanded="false" aria-controls="vs-newbr" aria-label="New branch" data-i18n-attr="aria-label:ver.new_branch"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5.5" cy="4.5" r="1.8"/><circle cx="5.5" cy="15.5" r="1.8"/><circle cx="14.5" cy="7.5" r="1.8"/><path d="M5.5 6.3v7.4M14.5 9.3c0 3-3 3.2-9 4.6"/></svg><span class="lab" data-i18n="ver.new_branch">New branch</span></button>
+      <button class="vs-b" id="vs-fork" type="button" hidden aria-haspopup="dialog"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5.5" cy="4.5" r="1.8"/><circle cx="14.5" cy="4.5" r="1.8"/><circle cx="10" cy="15.5" r="1.8"/><path d="M5.5 6.3v1.7A2 2 0 0 0 7.5 10h5a2 2 0 0 0 2-2V6.3M10 10v3.7"/></svg><span class="lab" data-i18n="ver.fork">Fork</span></button>
       <span id="vs-chip" class="vs-chip" role="status" aria-live="polite"></span>
     </div>
     <p id="vs-attr" class="vs-attr" hidden></p>
-    <div class="seg vs-tabs" id="vs-tabs" role="group" aria-label="Show" hidden><button type="button" id="vs-t-hist" aria-pressed="true">History</button><button type="button" id="vs-t-prop" aria-pressed="false">Proposals<span id="vs-t-n" class="vs-n" hidden></span></button></div>
+    <div class="seg vs-tabs" id="vs-tabs" role="group" aria-label="Show" hidden data-i18n-attr="aria-label:ver.show"><button type="button" id="vs-t-hist" aria-pressed="true" data-i18n="ver.history">History</button><button type="button" id="vs-t-prop" aria-pressed="false" data-i18n="ver.proposals">Proposals<span id="vs-t-n" class="vs-n" hidden></span></button></div>
     <form id="vs-newbr" class="vs-newbr" hidden>
-      <label for="vs-brname">Branch name <input id="vs-brname" maxlength="64" placeholder="try-purple" autocomplete="off" autocapitalize="none" spellcheck="false"></label>
-      <button class="btn primary" type="submit">Create branch</button><button class="btn" type="button" id="vs-brx">Cancel</button>
+      <label for="vs-brname" data-i18n="ver.branch_name">Branch name <input id="vs-brname" maxlength="64" placeholder="try-purple" autocomplete="off" autocapitalize="none" spellcheck="false"></label>
+      <button class="btn primary" type="submit" data-i18n="ver.create_branch">Create branch</button><button class="btn" type="button" id="vs-brx" data-i18n="ver.cancel">Cancel</button>
     </form>
     <div id="vs-banner" class="vs-banner" role="alert" hidden></div>
     <form id="vs-save" class="vs-save">
-      <label class="sr" for="vs-msg">What changed</label>
-      <input id="vs-msg" maxlength="200" placeholder="What did you change? e.g. Added habit boxes" autocomplete="off">
-      <button class="btn primary" id="vs-savebtn" type="submit">Save version</button>
+      <label class="sr" for="vs-msg" data-i18n="ver.what_changed">What changed</label>
+      <input id="vs-msg" maxlength="200" placeholder="What did you change? e.g. Added habit boxes" autocomplete="off" data-i18n-attr="placeholder:ver.what_did_you_change_e">
+      <button class="btn primary" id="vs-savebtn" type="submit" data-i18n="ver.save_version">Save version</button>
       <span class="vs-hint" id="vs-hint"></span>
     </form>
     <div class="vs-cols" id="vs-cols" data-pane="log">
-      <div class="vs-logwrap"><h3 class="sec">History</h3><ol id="vs-log" class="vs-log"></ol></div>
+      <div class="vs-logwrap"><h3 class="sec" data-i18n="ver.history">History</h3><ol id="vs-log" class="vs-log"></ol></div>
       <div id="vs-cmp" class="vs-cmp" aria-live="polite"></div>
     </div>
     <section id="vl" class="vl" aria-labelledby="vl-h" hidden>
-      <h3 class="sec" id="vl-h">Releases</h3>
-      <p class="note" id="vl-hint">A release is a named, frozen copy of a saved version. It never changes, so a printed book can always be traced back to it.</p>
+      <h3 class="sec" id="vl-h" data-i18n="ver.releases">Releases</h3>
+      <p class="note" id="vl-hint" data-i18n="ver.a_release_is_a_named">A release is a named, frozen copy of a saved version. It never changes, so a printed book can always be traced back to it.</p>
       <ul id="vl-list" class="vl-list"></ul>
       <form id="vl-form" class="vl-form" hidden>
-        <label for="vl-name">Release name <input id="vl-name" maxlength="40" placeholder="v1.0" autocomplete="off" autocapitalize="none" spellcheck="false"></label>
-        <label for="vl-notes">Notes <textarea id="vl-notes" rows="2" maxlength="2000" placeholder="What is in this release"></textarea></label>
-        <button class="btn primary" type="submit">Release the latest saved version</button>
+        <label for="vl-name" data-i18n="ver.release_name">Release name <input id="vl-name" maxlength="40" placeholder="v1.0" autocomplete="off" autocapitalize="none" spellcheck="false"></label>
+        <label for="vl-notes" data-i18n="ver.notes">Notes <textarea id="vl-notes" rows="2" maxlength="2000" placeholder="What is in this release" data-i18n-attr="placeholder:ver.what_is_in_this_release"></textarea></label>
+        <button class="btn primary" type="submit" data-i18n="ver.release_the_latest_saved_version">Release the latest saved version</button>
         <p id="vl-err" class="vs-err" role="alert"></p>
       </form>
     </section>
-    <section id="vp" class="vp" aria-label="Change proposals" hidden>
+    <section id="vp" class="vp" aria-label="Change proposals" hidden data-i18n-attr="aria-label:ver.change_proposals">
       <div id="vp-listv">
-        <div class="vp-head"><h3 class="sec" id="vp-h">Change proposals</h3><button class="btn primary" id="vp-new" type="button" hidden aria-haspopup="dialog">New proposal</button></div>
+        <div class="vp-head"><h3 class="sec" id="vp-h" data-i18n="ver.change_proposals">Change proposals</h3><button class="btn primary" id="vp-new" type="button" hidden aria-haspopup="dialog" data-i18n="ver.new_proposal">New proposal</button></div>
         <p id="vp-hint" class="note"></p>
         <ul id="vp-list" class="vp-list"></ul>
       </div>
       <div id="vp-detv" hidden></div>
     </section>
-    <section id="vs-pub" class="vs-pub" aria-labelledby="vs-pubh" hidden><h3 class="sec" id="vs-pubh">Public projects on this server</h3><ul class="vs-pubs" id="vs-publist"></ul></section>
+    <section id="vs-pub" class="vs-pub" aria-labelledby="vs-pubh" hidden><h3 class="sec" id="vs-pubh" data-i18n="ver.public_projects_on_this_server">Public projects on this server</h3><ul class="vs-pubs" id="vs-publist"></ul></section>
   </div>
 </dialog>
 <dialog id="vs-np">
   <form method="dialog">
-    <h3 id="vs-nph">New project from this page</h3>
-    <p id="vs-npp">Starts a project with the day page you have open and the default book, and saves it as the first version.</p>
-    <label>Name <input type="text" id="vs-npname" maxlength="120" autocomplete="off" placeholder="My journal"></label>
-    <label>Who can see it <select id="vs-npvis"><option value="private">Only people I add</option><option value="public">Anyone can read it</option></select></label>
-    <label class="check"><input type="checkbox" id="vs-npreuse"> Allow others to reuse it later</label>
-    <label class="check" id="vs-nphistwrap"><input type="checkbox" id="vs-nphist" checked> <span id="vs-nphistl">Include the versions saved in this browser</span></label>
-    <div class="acts"><button class="btn" value="cancel">Cancel</button><button class="btn primary" value="create">Create project</button></div>
+    <h3 id="vs-nph" data-i18n="ver.new_project_from_this_page">New project from this page</h3>
+    <p id="vs-npp" data-i18n="ver.starts_a_project_with_the">Starts a project with the day page you have open and the default book, and saves it as the first version.</p>
+    <label data-i18n="ver.name">Name <input type="text" id="vs-npname" maxlength="120" autocomplete="off" placeholder="My journal" data-i18n-attr="placeholder:ver.my_journal"></label>
+    <label data-i18n="ver.who_can_see_it">Who can see it <select id="vs-npvis"><option value="private" data-i18n="ver.only_people_i_add">Only people I add</option><option value="public" data-i18n="ver.anyone_can_read_it">Anyone can read it</option></select></label>
+    <label class="check" data-i18n="ver.allow_others_to_reuse_it"><input type="checkbox" id="vs-npreuse"> Allow others to reuse it later</label>
+    <label class="check" id="vs-nphistwrap"><input type="checkbox" id="vs-nphist" checked> <span id="vs-nphistl" data-i18n="ver.include_the_versions_saved_in">Include the versions saved in this browser</span></label>
+    <div class="acts"><button class="btn" value="cancel" data-i18n="ver.cancel">Cancel</button><button class="btn primary" value="create" data-i18n="ver.create_project">Create project</button></div>
   </form>
 </dialog>
 <dialog id="vs-fk" aria-labelledby="vs-fkh">
   <form id="vs-fkf">
-    <h3 id="vs-fkh">Fork this project</h3>
+    <h3 id="vs-fkh" data-i18n="ver.fork_this_project">Fork this project</h3>
     <p id="vs-fkp"></p>
-    <label>Name <input type="text" id="vs-fkname" maxlength="120" autocomplete="off"></label>
-    <label>Who can see your copy <select id="vs-fkvis"><option value="private">Only people I add</option><option value="public">Anyone can read it</option></select></label>
-    <label class="check"><input type="checkbox" id="vs-fkreuse"> Allow others to reuse my copy later</label>
+    <label data-i18n="ver.name">Name <input type="text" id="vs-fkname" maxlength="120" autocomplete="off"></label>
+    <label data-i18n="ver.who_can_see_your_copy">Who can see your copy <select id="vs-fkvis"><option value="private" data-i18n="ver.only_people_i_add">Only people I add</option><option value="public" data-i18n="ver.anyone_can_read_it">Anyone can read it</option></select></label>
+    <label class="check" data-i18n="ver.allow_others_to_reuse_my"><input type="checkbox" id="vs-fkreuse"> Allow others to reuse my copy later</label>
     <p id="vs-fkerr" class="vs-err" role="alert"></p>
-    <div class="acts"><button class="btn" type="button" id="vs-fkx">Cancel</button><button class="btn primary" type="submit">Make my copy</button></div>
+    <div class="acts"><button class="btn" type="button" id="vs-fkx" data-i18n="ver.cancel">Cancel</button><button class="btn primary" type="submit" data-i18n="ver.make_my_copy">Make my copy</button></div>
   </form>
 </dialog>
 <dialog id="vp-np" aria-labelledby="vp-nph">
   <form id="vp-npf">
-    <h3 id="vp-nph">Propose changes</h3>
+    <h3 id="vp-nph" data-i18n="ver.propose_changes">Propose changes</h3>
     <p id="vp-npp"></p>
-    <label>Title <input type="text" id="vp-nptitle" maxlength="120" autocomplete="off" placeholder="Habit boxes and a calmer review"></label>
-    <label>What changed and why <textarea id="vp-npdesc" rows="3" maxlength="2000"></textarea></label>
-    <label>My branch <select id="vp-npsrc"></select></label>
-    <label>Into <select id="vp-nptgt"></select></label>
+    <label data-i18n="ver.title">Title <input type="text" id="vp-nptitle" maxlength="120" autocomplete="off" placeholder="Habit boxes and a calmer review" data-i18n-attr="placeholder:ver.habit_boxes_and_a_calmer"></label>
+    <label data-i18n="ver.what_changed_and_why">What changed and why <textarea id="vp-npdesc" rows="3" maxlength="2000"></textarea></label>
+    <label data-i18n="ver.my_branch">My branch <select id="vp-npsrc"></select></label>
+    <label data-i18n="ver.into">Into <select id="vp-nptgt"></select></label>
     <p id="vp-nperr" class="vs-err" role="alert"></p>
-    <div class="acts"><button class="btn" type="button" id="vp-npx">Cancel</button><button class="btn primary" type="submit">Send proposal</button></div>
+    <div class="acts"><button class="btn" type="button" id="vp-npx" data-i18n="ver.cancel">Cancel</button><button class="btn primary" type="submit" data-i18n="ver.send_proposal">Send proposal</button></div>
   </form>
 </dialog>
