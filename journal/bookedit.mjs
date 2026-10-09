@@ -34,10 +34,10 @@ export function flowBook(entries, cat, opts = {}) {
   const specsOf = (entry, k) => {
     if (REPEATS.includes(entry.type)) { // Notes and Collection pages: the layout of blocks the entry carries (none: the starting page)
       const base = entry.type === 'notes' ? 'Notes' : 'Collection', t = (entry.options && entry.options.title) || base;
-      const html = entry.layout ? kindPage(entry.type, t, entry.layout, opts.size, { pageId: entry.id, dayStart }) : entry.type === 'notes' ? notesHtml(cat, t) : kindPage('collection', t, null, opts.size, { dayStart });
+      const html = entry.layout ? kindPage(entry.type, t, entry.layout, opts.size, { pageId: entry.id, dayStart, lenient: true }) : entry.type === 'notes' ? notesHtml(cat, t) : kindPage('collection', t, null, opts.size, { dayStart, lenient: true });
       return [{ cls: 'notes', type: entry.type, id: entry.id, label: t, html }];
     }
-    if (entry.type === 'blank' && entry.layout) return [{ cls: '', type: 'blank', id: 'blank', label: '', shared: false, html: kindPage('blank', '', entry.layout, opts.size, { pageId: entry.id, dayStart }) }];
+    if (entry.type === 'blank' && entry.layout) return [{ cls: '', type: 'blank', id: 'blank', label: '', shared: false, html: kindPage('blank', '', entry.layout, opts.size, { pageId: entry.id, dayStart, lenient: true }) }];
     if (entry.type === 'days') return daySpecs(entry, k);
     return ((cat.occ || {})[entry.type] || [])[k] || [];
   };

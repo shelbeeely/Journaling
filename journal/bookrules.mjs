@@ -84,7 +84,7 @@ function checkList(where, list, errs, PAGE_TYPES) {
       for (const k of Object.keys(it)) if (!['id', 'type', 'on', 'options', 'scan', 'layout'].includes(k)) bad(label, `unknown key "${k}" (a page has id, type, on, options, scan, layout)`);
       if (it.layout !== undefined) {
         if (!BLOCK_PAGES.includes(it.type)) bad(label, `only ${BLOCK_PAGES.map((t) => nameOf_(t)).join(', ')} pages have a layout of blocks`);
-        else for (const m of pageLayoutProblems(it.layout, it.type)) bad(`${label} layout`, m);
+        else for (const m of pageLayoutProblems(it.layout, it.type, 'letter')) bad(`${label} layout`, m); // checked at 8.5x11, the roomier trim: a photo frame that only fits there is a valid book.json, and the 5.5x8.5 build says why it cannot print it
       }
       errs.push(...scanProblems(it.scan, `${label} scan`));
       if (it.on !== undefined && typeof it.on !== 'boolean') bad(label, '"on" must be true or false');

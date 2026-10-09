@@ -10,6 +10,7 @@ export const fresh = async (month) => {
   const ctx = await loadContext({ month, ics: 'test.ics', size: 'small', quiet: true });
   ctx.CLINIC = null; // a real clinic's details do not belong in a public editor
   ctx.keeperPage = undefined; // the Keeper's page numbers are per person
+  ctx.lenient = true; // the editor's sample pages are drawn at 5.5x8.5 even for a photo frame that only fits 8.5x11 (the print build says no; the editor only shows it)
   return ctx;
 };
 const allOn = (list) => list.map((e) => ({ ...e, on: true, ...(e.options && e.type === 'weeks' ? { options: { month: allOn(e.options.month || []), week: allOn(e.options.week || []) } } : {}) }));

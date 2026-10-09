@@ -658,7 +658,7 @@ export function spreadProblems(S, size = 'small') {
 export function spreadPage(parts, S, side, opt = {}) {
   const L = normalizeSpread(S, opt.size);
   const size = opt.size === 'letter' ? 'letter' : 'small', probs = gridProblems(L, size);
-  if (probs.length && !opt.tag) throw new Error('The day spread layout cannot be printed:\n - ' + probs.map((x) => x.msg).join('\n - '));
+  if (probs.length && !opt.tag && !(opt.lenient && probs.every((x) => /^photo/.test(x.code)))) throw new Error('The day spread layout cannot be printed:\n - ' + probs.map((x) => x.msg).join('\n - '));
   return dayBlocks({ ...parts, header: side === 'R' && parts.headerR ? parts.headerR : parts.header }, spreadHalf(L, side), { ...opt, size, kind: 'half' });
 }
 
@@ -881,34 +881,34 @@ function photoHtml(b, parts, Z, opt) {
   const x = b.type === 'photodaily' ? { days: dailyDays(b, date), note: !!b.note && dayStart > 0 } : {};
   const p = photoPlan(b, size, opt.cols || GRIDS.day.cols, x), z = p.z, st = sizeText(b);
   const vars = `--ins:${inch(MARK_INSET_IN / z)};--arm:${inch(markArm(p.print.w, p.print.h) / z)}`;
-  const mk = (f) => `<div class="php" aria-hidden="true" style="left:${inch(f.x)};top:${inch(f.y)};width:${inch(f.w)};height:${inch(f.h)}"><i class="pm a"></i><i class="pm b"></i><i class="pm c"></i><i class="pm d"></i></div>`;
-  const under = (f, cls, inner) => `<span class="phd${cls}" aria-hidden="true" style="left:${inch(f.x)};top:${inch(f.y + f.h)};width:${inch(f.w)};height:${inch(p.cap)}">${inner}</span>`;
+  const mk = (f) => `<div class="pjf" aria-hidden="true" style="left:${inch(f.x)};top:${inch(f.y)};width:${inch(f.w)};height:${inch(f.h)}"><i class="pjm a"></i><i class="pjm b"></i><i class="pjm c"></i><i class="pjm d"></i></div>`;
+  const under = (f, cls, inner) => `<span class="pjd${cls}" aria-hidden="true" style="left:${inch(f.x)};top:${inch(f.y + f.h)};width:${inch(f.w)};height:${inch(p.cap)}">${inner}</span>`;
   const line = (t) => `<div class="hrw">${lbl('', t)}${ruled(1)}</div>`;
   let head, alt, marks = p.frames.map(mk).join(''), lines = '';
   if (b.type === 'photoframe') {
     const f = p.frames[0], tl = Math.max(0.03, p.g - TICK_GAP_IN / z - 0.025 / z), t0 = 0.02 / z, gz = TICK_GAP_IN / z;
-    if (b.cut) marks += `<i class="pt v" aria-hidden="true" style="left:${inch(f.x + f.w / 2)};top:${inch(t0)};height:${inch(tl)}"></i><i class="pt v" aria-hidden="true" style="left:${inch(f.x + f.w / 2)};top:${inch(f.y + f.h + gz)};height:${inch(tl)}"></i><i class="pt h" aria-hidden="true" style="top:${inch(f.y + f.h / 2)};left:${inch(t0)};width:${inch(tl)}"></i><i class="pt h" aria-hidden="true" style="top:${inch(f.y + f.h / 2)};left:${inch(f.x + f.w + gz)};width:${inch(tl)}"></i>`;
-    head = `${lbl('photoframe', b.title || 'Photo')}<span class="phs">${st}</span>${b.cut ? '<span class="phc">trim your print to this</span>' : ''}`;
+    if (b.cut) marks += `<i class="pjt v" aria-hidden="true" style="left:${inch(f.x + f.w / 2)};top:${inch(t0)};height:${inch(tl)}"></i><i class="pjt v" aria-hidden="true" style="left:${inch(f.x + f.w / 2)};top:${inch(f.y + f.h + gz)};height:${inch(tl)}"></i><i class="pjt h" aria-hidden="true" style="top:${inch(f.y + f.h / 2)};left:${inch(t0)};width:${inch(tl)}"></i><i class="pjt h" aria-hidden="true" style="top:${inch(f.y + f.h / 2)};left:${inch(f.x + f.w + gz)};width:${inch(tl)}"></i>`;
+    head = `${lbl('photoframe', b.title || 'Photo')}<span class="pjs">${st}</span>${b.cut && p.avail * z >= 2.4 ? '<span class="pjc">trim your print to this</span>' : ''}`; // (the words need room: a narrow cell keeps just the four ticks)
     lines = (b.lines === 'three' ? line('What') + line('Where') + line('Why this one') : b.lines === 'one' ? line('What and where') : '') + (b.who ? `<div class="hrw">${lbl('', 'Who')}${ruled(1)}${lbl('', 'When')}${ruled(1)}</div>` : '');
     alt = `${b.title || 'Photo frame'}: space for a ${st} print, ${p.print.w > p.print.h ? 'landscape' : p.print.w < p.print.h ? 'portrait' : 'square'}. Paste your print here${b.cut ? ' and trim it to this size' : ''}.${b.lines === 'three' ? ' Three caption lines: what, where, why this one.' : b.lines === 'one' ? ' One caption line: what and where.' : ''}${b.who ? ' A line for who and when.' : ''}`;
   } else if (b.type === 'photostrip') {
     if (b.dates) marks += p.frames.map((f) => under(f, '', '<b>date</b><i></i>')).join('');
-    head = `${lbl('photostrip', b.title || 'Photo strip')}<span class="phs">${p.n} frames · ${st}</span>`;
+    head = `${lbl('photostrip', b.title || 'Photo strip')}<span class="pjs">${p.n} frames · ${st}</span>`;
     lines = b.lines === 'one' ? line('About these') : '';
     alt = `${b.title || 'Photo strip'}: ${p.n} frames of ${st}, ${b.dir === 'column' ? 'one under the other' : 'side by side'}.${b.dates ? ' Each has a date line under it.' : ''}${b.lines === 'one' ? ' One caption line under the strip.' : ''}`;
   } else if (b.type === 'contactsheet') {
-    marks += p.frames.map((f) => under(f, ' sp', `<b>${f.n}</b>${b.pick ? '<span class="pk"></span>' : ''}`)).join('');
-    head = `${lbl('contactsheet', b.title || 'Contact sheet')}<span class="phs">${p.n} frames · ${st}</span>`;
+    marks += p.frames.map((f) => under(f, ' sp', `<b>${f.n}</b>${b.pick ? '<span class="pjk"></span>' : ''}`)).join('');
+    head = `${lbl('contactsheet', b.title || 'Contact sheet')}<span class="pjs">${p.n} frames · ${st}</span>`;
     lines = b.lines === 'one' ? line('The one I picked, and why') : '';
     alt = `${b.title || 'Contact sheet'}: ${p.n} numbered frames of ${st}.${b.pick ? ' Each has a tick box to pick the one to keep.' : ''}${b.lines === 'one' ? ' One caption line: the one I picked and why.' : ''}`;
   } else { // photodaily
     const today = +(date.slice(8, 10) || 0), mo = date ? `${MON3[+date.slice(5, 7) - 1]} ${date.slice(0, 4)}` : '';
     marks += p.frames.map((f) => under(f, f.n === today ? ' td' : '', `<b>${f.n}</b>`)).join('');
-    head = `${lbl('photodaily', b.title || 'Photo a day')}<span class="phs">${mo ? mo + ' · ' : ''}${st}</span>`;
+    head = `${lbl('photodaily', b.title || 'Photo a day')}<span class="pjs">${mo ? mo + ' · ' : ''}${st}</span>`;
     lines = x.note ? `<div class="hrw"><span class="cap">A day starts at ${clock12(dayStart)}</span></div>` : '';
     alt = `${b.title || 'Photo a day'}: ${p.n} small frames of ${st}, one for each day${mo ? ' of ' + mo : ''}, numbered by date.${x.note ? ` A day starts at ${clock12(dayStart)}: a photo taken before then goes in the day before.` : ''}`;
   }
-  return `<div class="ph" ${Z} role="group" aria-label="${escA(alt)}"><div class="phh">${head}</div><div class="phw" style="width:${inch(p.areaW)};height:${inch(p.areaH)};${vars}">${marks}</div>${lines}</div>`;
+  return `<div class="pjb" ${Z} role="group" aria-label="${escA(alt)}"><div class="pjh">${head}</div><div class="pjw" style="width:${inch(p.areaW)};height:${inch(p.areaH)};${vars}">${marks}</div>${lines}</div>`;
 }
 
 // parts: pre-built, data-driven strings from render.mjs: header, sky, notes, events, fact ('' when none), routines [].
@@ -949,7 +949,8 @@ function careBox(b, on, sp) {
 const FILLS = new Set(['body', 'lines', 'split', 'sketch', 'dump']);
 function gridBlocks(parts, L, opt) {
   const size = opt.size === 'letter' ? 'letter' : 'small', probs = gridProblems(L, size);
-  if (probs.length && !opt.tag) throw new Error(`The ${PAGE_KINDS[pageKind(L.kind)].name.toLowerCase()} grid layout cannot be printed:\n - ` + probs.map((x) => x.msg).join('\n - '));
+  // opt.lenient (the page organiser's thumbnails and page counts): a photo frame that only fits the other trim is drawn anyway; the print build never sets it
+  if (probs.length && !opt.tag && !(opt.lenient && probs.every((x) => /^photo/.test(x.code)))) throw new Error(`The ${PAGE_KINDS[pageKind(L.kind)].name.toLowerCase()} grid layout cannot be printed:\n - ` + probs.map((x) => x.msg).join('\n - '));
   const on = L.blocks.filter((b) => b.on), count = {}, seen = {}, out = [];
   for (const b of on) {
     count[b.type] = (count[b.type] || 0) + 1;
@@ -1053,16 +1054,16 @@ export const DAYPAGE_CSS = PZ_CSS + `
 .gc.fill > .xb.xsplit { display: grid; grid-template-rows: minmax(0, 1fr); }
 .gc.fill .xsplit > div { display: flex; flex-direction: column; min-height: 0; } .gc.fill .xsplit > div > .ru { flex: 1; min-height: 0; height: auto !important; }
 /* Photo blocks (photo.mjs): frames for prints that are glued on. Marks are 1px = 0.75pt (the floor), drawn inside the print's edge so the print covers them. */
-.ph { display: block; font: 500 7pt Inter, sans-serif; color: #333; }
-.phh { display: flex; align-items: center; gap: 5px; height: 0.22in; overflow: hidden; white-space: nowrap; } .phh > .xl { flex: 0 1 auto; min-width: 0; } .phh > .xl > span { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-.phs { flex: none; font: 600 7pt Inter, sans-serif; color: #333; } .phc { flex: 0 100 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; font: italic 500 6.5pt Inter, sans-serif; color: #666; margin-left: auto; }
-.phw { position: relative; margin: 0 auto; } .php { position: absolute; }
-.pm { position: absolute; display: block; width: var(--arm); height: var(--arm); border: 0 solid #8c8c8c; }
-.pm.a { left: var(--ins); top: var(--ins); border-top-width: 1px; border-left-width: 1px; } .pm.b { right: var(--ins); top: var(--ins); border-top-width: 1px; border-right-width: 1px; }
-.pm.c { left: var(--ins); bottom: var(--ins); border-bottom-width: 1px; border-left-width: 1px; } .pm.d { right: var(--ins); bottom: var(--ins); border-bottom-width: 1px; border-right-width: 1px; }
-.pt { position: absolute; display: block; border: 0 solid #8c8c8c; } .pt.v { width: 0; border-left-width: 1px; } .pt.h { height: 0; border-top-width: 1px; }
-.phd { position: absolute; display: flex; align-items: flex-end; gap: 3px; overflow: hidden; } .phd b { font: 700 6pt/1 Inter, sans-serif; color: #555; flex: none; } .phd i { flex: 1; min-width: 0; height: 0.12in; border-bottom: 1px solid #a0a0a0; }
-.phd.sp { justify-content: space-between; align-items: center; } .phd .pk { flex: none; width: 0.1in; height: 0.1in; border: 1.1px solid #000; display: block; }
-.phd.td b { color: #000; border-bottom: 1.4px solid #000; }
-.ph .cap { font: italic 500 6.5pt Inter, sans-serif; color: #666; white-space: nowrap; }
+.pjb { display: block; font: 500 7pt Inter, sans-serif; color: #333; }
+.pjh { display: flex; align-items: center; gap: 5px; height: 0.22in; overflow: hidden; white-space: nowrap; } .pjh > .xl { flex: 0 1 auto; min-width: 0; } .pjh > .xl > span { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.pjs { flex: none; font: 600 7pt Inter, sans-serif; color: #333; } .pjc { flex: 0 100 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; font: italic 500 6.5pt Inter, sans-serif; color: #666; margin-left: auto; }
+.pjw { position: relative; margin: 0 auto; } .pjf { position: absolute; }
+.pjm { position: absolute; display: block; width: var(--arm); height: var(--arm); border: 0 solid #8c8c8c; }
+.pjm.a { left: var(--ins); top: var(--ins); border-top-width: 1px; border-left-width: 1px; } .pjm.b { right: var(--ins); top: var(--ins); border-top-width: 1px; border-right-width: 1px; }
+.pjm.c { left: var(--ins); bottom: var(--ins); border-bottom-width: 1px; border-left-width: 1px; } .pjm.d { right: var(--ins); bottom: var(--ins); border-bottom-width: 1px; border-right-width: 1px; }
+.pjt { position: absolute; display: block; border: 0 solid #8c8c8c; } .pjt.v { width: 0; border-left-width: 1px; } .pjt.h { height: 0; border-top-width: 1px; }
+.pjd { position: absolute; display: flex; align-items: flex-end; gap: 3px; overflow: hidden; } .pjd b { font: 700 6pt/1 Inter, sans-serif; color: #555; flex: none; } .pjd i { flex: 1; min-width: 0; height: 0.12in; border-bottom: 1px solid #a0a0a0; }
+.pjd.sp { justify-content: space-between; align-items: center; } .pjd .pjk { flex: none; width: 0.1in; height: 0.1in; border: 1.1px solid #000; display: block; }
+.pjd.td b { color: #000; border-bottom: 1.4px solid #000; }
+.pjb .cap { font: italic 500 6.5pt Inter, sans-serif; color: #666; white-space: nowrap; }
 ${SCAN_CSS}`;

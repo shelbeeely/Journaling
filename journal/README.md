@@ -358,6 +358,14 @@ A day can cover one page (the default) or a whole two-page spread: a left page a
 - **In the editor:** a day's edit mode has a "This day covers" box (One page / A spread; every weekday; every day) with the page count and the KDP note; the spread opens on a two-page canvas (one page at a time, with a switch, on a phone). The Book view's page organiser says which days are spreads on the Day pages row.
 - **Tests:** `node test-spreaddays.mjs` (Books CI), the Spread days sections of `editor/test.mjs` and `editor/test-a11y.mjs`, `studio/test/spread.test.mjs`. Decisions and what is not done: `docs/journaling/BUILD-PLAN.md` section 12, "S1 as built".
 
+### Photo blocks (PH1: prints you paste in)
+Four blocks in the palette group **Photos**: `photoframe` (a true-size window for one print), `photostrip` (2 to 4 small frames with date lines), `photodaily` (a tiny frame per day of the month, labelled by date, with the profile's day start), `contactsheet` (6 to 12 numbered frames with a pick-one tick). Plan, fit tables and paper advice: BUILD-PLAN section 23.
+- **Paper only.** No upload, no image field, no camera, no Studio storage, no X4 items. The photo is glued on by hand.
+- **True size.** A print of W inches is drawn W / zoom CSS inches (the 8.5x11 page is zoomed 1.294), so it measures W on paper in both trims. Corner marks (0.75 pt, mid grey) sit 0.04 in inside the print's edge so a trimmed print covers them; a keep-clear glue margin (0.08 in, 0.06 in for sheets) goes round every frame. `photo.mjs` holds the geometry; `daypage.mjs` the options and drawing.
+- **Fit.** `gridProblems(layout, size)` refuses a block that does not fit its columns or rows, per trim, with the numbers (code `photowidth`, `photorows`); the editor shows the same words under the block. 4x6, a lying Instax wide and a lying 3x4 do not fit 5.5x8.5. A layout that only fits 8.5x11 is a valid `book.json` (validated at 8.5x11); the 5.5x8.5 build stops and says why (`SIZES=letter ./build-all.sh`).
+- **Where.** Any page kind. Notes, Collection and day pages keep their Writing space (8 of 24 rows), so big prints go on the blank page or a spread page. Nothing crosses a spread's fold; every frame stays at least 0.625 in from the spine (`GUTTER_KEEP_IN`).
+- **Test:** `node test-photoblocks.mjs` (sizes measured in the page and in the 300 dpi PDF, fit refusals, gutter, determinism, every page kind, large print and high contrast, Studio allowlist).
+
 ### Page organiser (Book view, edit mode)
 Edit the book (Edit at the whole-book level) and the canvas becomes an organiser; viewing stays read-only.
 - **Move:** drag a page on the canvas (mouse or pen; on a touch screen use Move to…), select a page and press Alt+Left / Alt+Right, use

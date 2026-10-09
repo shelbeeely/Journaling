@@ -715,3 +715,122 @@ Every slice: default pages byte-identical (24/24), `check.mjs` "[] 0", `pdffonts
    **Answered 2026-10-06:** an agent drafts prompts and paths and the owner reviews before merge; all original or openly licensed.
 12. **Name:** "Drawing practice" for the kit and method doc, or something else?
    **Answered 2026-10-06:** "Drawing practice".
+
+## 23. Photo journaling (glue-in) (2026-10-09, slice PH1 built)
+
+Shelbee wants photo journaling where **the photos are pasted onto the printed page by hand**. So the work is blocks that give a print somewhere exact to go, and nothing else. The photo itself never touches the system.
+
+**What this is not (decided, do not add without asking)**
+- **No photo upload, no image handling, no camera, no Studio storage.** No block, option, snapshot, pack or page holds a picture. A Studio snapshot only carries the options a block declares (the existing allowlist: `studio/src/snapshot.mjs` copies `TYPES[type].opts` and the grid placement, so a stray `src` or `photo` field is dropped; `test-photoblocks.mjs` proves it).
+- **No X4 involvement.** The firmware, the X4 export and the check-in bridge are untouched; these blocks have no X4 items. A reference image on the X4 stays a LATER item with its own review (22.7 answer 9).
+- **No generative AI**, as everywhere (section 22 principles). Prompts below are written for this project.
+- Calm and low-stimulation: light marks, generous space, nothing printed that a pasted print has to cover except the marks.
+
+### 23.1 The blocks
+
+All four are ordinary blocks of the declarative format (section 20): `{uid, type, on, ...options}` declared in `daypage.mjs` `TYPES` (group **Photos** in the palette, each with an icon), laid out by the page grid, with one `data-zone` each (repeats `_2`, `_3`), a minimum span, and the same `gridProblems` checks as every block. The geometry lives in `journal/photo.mjs` (no imports; the editor inlines it).
+
+| Block (`type`) | What it is | Options | Zone | Smallest span |
+|---|---|---|---|---|
+| `photoframe` | One true-size window for one print: four light corner marks, a keep-clear glue margin, a "trim your print to this" guide (four tick marks and the words), caption lines | `size` (2x3, 3x3, 3x4, 4x6, Instax mini 2.1x3.4, Instax square 2.4x2.4, Instax wide 3.4x2.1, Polaroid picture 3.1x3.1, custom), `turn` (portrait or landscape), `cw`/`ch` (custom, tenths of an inch, 1.0 to 6.0 in), `cut` (trim marks), `lines` (none, one: what and where, three: what, where, why this one), `who` (a who and when line), `title` | `photoframe` | per size and trim, see 23.3 |
+| `photostrip` | 2 to 4 small frames in a row or a column, a date line under each, an optional caption line under the strip | `size` (1x1, 1x1.5, 1.5x1.5, 1.5x2, 2x2, 2x3, Instax mini), `turn`, `n` (2 to 4), `dir` (row or column), `dates`, `lines` (none or one), `title` | `photostrip` | per size and trim |
+| `photodaily` | A grid of tiny frames, one per day of the month, each labelled with its date, for a photo-a-day habit. On a day page it counts that month's days and marks today's number; elsewhere it is numbered 1 to 31. It says when the day starts (the profile's `day_start_hour`: "A day starts at 4 a.m.") so a photo taken at 2 a.m. goes in yesterday's frame | `size` (0.5x0.5 or 0.75x0.75), `days` (this page's month, or 28 to 31), `note` (the day-start line), `title` | `photodaily` | per size and trim |
+| `contactsheet` | 6 to 12 small numbered frames, each with a pick-one tick box, and a line for the one you kept and why | `size` (0.75x0.75, 1x1, 1x1.5, 1.5x1.5), `turn`, `n` (6 to 12), `pick`, `lines` (none or one), `title` | `contactsheet` | per size and trim |
+
+**Captions are options, not extra blocks.** `photoframe` carries the what, where and why-this-one lines and the who and when line; `photostrip` carries a date under every frame; `contactsheet` carries the numbers, the pick tick and the "which one and why" line; `photodaily` carries the date labels. The caption lines are the book's ordinary ruled lines, so they print and scan like the rest.
+
+**How a frame is drawn (and why it is safe to paste over)**
+- The window is the **nominal print size**. The corner marks are drawn **0.04 in inside** its edge, so a print cut to size covers them and **no edge peeks out**, even if the print is a hair small or a hair off.
+- Marks are 1 px = **0.75 pt** thick (the floor), mid grey (`#8c8c8c`, about 45 percent black): visible on the page, light enough to leave the print the loudest thing. High contrast turns them black.
+- The **keep-clear glue margin** is 0.08 in round a frame (0.06 in round a sheet's frames) and nothing prints in it, so squeezed-out glue never lands on text. The margin is inside the block's cell, so the neighbour block cannot be closer than that.
+- The **cut guide** (`cut`): the words "trim your print to this" and a short tick on each side, just outside the print, so you can line a cut print against them.
+- **Sizes are physical.** A 3 x 4 in frame is 3 x 4 in on paper at 5.5x8.5 and at 8.5x11. The 8.5x11 page is drawn at 6.57 in wide and zoomed 1.294x, so the code draws a print of W inches as W / 1.294 CSS inches there. `test-photoblocks.mjs` measures it in the page and in the PDF.
+
+### 23.2 Which pages they work on
+
+All four are allowed on every page kind (`allowedIn`): a day page (flow or grid), a Notes page, a Collection page, the blank page, the day spread and its pages. They are not day-only: they read a date only if there is one (`photodaily`'s month label).
+
+What limits where a big print can go is **rows**, because Notes, Collection and day pages keep a Writing space of at least 8 of their 24 rows (it is locked on), a blank page has 27 rows and no Writing space, and each page of a spread has 24 rows (a spread needs a Writing space somewhere, not on every page).
+
+| Page | Rows for the photo block | What fits (standing prints, one caption line) |
+|---|---|---|
+| Blank page | up to 27 | 5.5x8.5: up to 3x4, Polaroid picture, Instax square or mini. 8.5x11: up to 4x6 |
+| Right (or left) page of a spread day | up to 24, with the Writing space on the other page | 5.5x8.5: up to 3x4 (21 rows). 8.5x11: up to 4x6 (24 rows) |
+| Notes, Collection or day page (Writing space kept, 16 rows left) | up to 16 | 5.5x8.5: 2x3, 3x3, Polaroid, Instax square with no caption lines, or a strip or sheet. 8.5x11: up to 3x4 with no caption lines |
+| Photo a day (0.5 in frames, 31 days) | 22 rows at 5.5x8.5, 13 at 8.5x11 | a blank page or a spread page at 5.5x8.5; any page at 8.5x11 where 16 rows are free |
+
+No block crosses the fold of a spread (the existing rule, section 12): a frame lies wholly on one page. The default pages carry none of these blocks and print as before.
+
+### 23.3 Fit table: print size per trim and per grid
+
+The page is 3.45 in wide inside the scan frame at 5.5x8.5 and 5.85 in at 8.5x11. A grid column is **0.80 / 1.68 / 2.57 / 3.45 in** for 1 / 2 / 3 / 4 columns at 5.5x8.5 and **1.38 / 2.87 / 4.36 / 5.85 in** at 8.5x11 (widths include the gaps). A frame fits when its print plus 0.16 in of glue margin is no wider than its columns. Rows: a grid row is 0.22 in at 5.5x8.5 and 0.285 in at 8.5x11. Smallest columns and rows for a standing frame with one caption line (`photoframe`):
+
+| Print | 5.5x8.5 smallest | 8.5x11 smallest |
+|---|---|---|
+| 2 x 3 | 3 cols x 17 rows | 2 cols x 14 rows |
+| 3 x 3 | 4 x 17 | 3 x 14 |
+| 3 x 4 | 4 x 21 | 3 x 17 |
+| 4 x 6 | **does not fit** (4.16 in needed, 3.45 in page) | 3 x 24 |
+| Instax mini 2.1 x 3.4 | 3 x 19 | 2 x 15 |
+| Instax square 2.4 x 2.4 | 3 x 14 | 2 x 12 |
+| Instax wide 3.4 x 2.1 (lying) | **does not fit** (3.56 in needed) | 3 x 11 |
+| Polaroid picture 3.1 x 3.1 | 4 x 17 | 3 x 14 |
+| Custom 1.0 to 6.0 in a side | by the same rule | by the same rule |
+
+Turned on its side, a 3x4 needs 4.16 in across (letter only, 3 cols x 14 rows) and a 4x6 needs 6.16 in (does not fit either trim). Three caption lines add 2 rows; a who-and-when line adds 1.
+
+Strips, sheets and the daily grid, 31 days or a full sheet, smallest rows (4 columns wide), `no` = does not fit that width:
+
+| Block | 5.5x8.5 | 8.5x11 |
+|---|---|---|
+| Strip, 3 x 1 x 1.5 in in a row | 10 rows | 8 rows |
+| Strip, 4 x 1 x 1 in in a row | no (4.52 in needed) | 7 rows |
+| Strip, 2 x 2 x 3 in in a row | no | 14 rows |
+| Contact sheet, 6 x 1 x 1 in | 14 rows (3 a row) | 12 rows |
+| Contact sheet, 12 x 0.75 x 0.75 in | 17 rows (4 a row) | 10 rows |
+| Contact sheet, 12 x 1 x 1 in | 26 rows | 17 rows |
+| Photo a day, 0.5 x 0.5 in | 22 rows (6 a row) | 13 rows (8 a row) |
+| Photo a day, 0.75 x 0.75 in | does not fit a page (38 rows) | 20 rows (7 a row) |
+
+**Refusals.** `gridProblems(layout, size)` refuses any block that does not fit its cells, with a plain reason: *"Photo frame does not fit: a 4 × 6 in print needs 4.16 in across with its glue margin, and 4 columns of the 5.5×8.5 page are 3.45 in wide (the whole page is 3.45 in). Pick a smaller print or turn it, or build the 8.5×11 trim."* The same words show in the editor under the block's options and in its problem list ("does not fit"), and a flow layout stops the build with them. The check is per trim, so a layout that only fits 8.5x11 is a valid `book.json` (validation runs at 8.5x11, the roomier trim) and the 5.5x8.5 build stops with the reason. A 4x6 book is an 8.5x11 book.
+
+### 23.4 Print rules (enforced by the build and `test-photoblocks.mjs`)
+- **Strokes at least 0.75 pt** (every mark, tick, caption line and pick box is a 1 px border or more). **Mid grey, not a fill**: nothing a print could not hide.
+- **No Type 3 fonts**: the blocks use the page's own embedded fonts only (`pdffonts` is checked on every test build).
+- **Scan zones untouched**: the DATE/TITLE/TAGS header, the 9 pt frame, the SEND TO strip and the Data Matrix code are not blocks and never move. A frame sits inside the grid, which is inside the frame's quiet zone, and carries its own `data-zone` so `layout.json` maps it.
+- **Gutter keep-out.** A glued print must start at least **0.625 in** from the spine edge (a bound page curves for about half an inch next to the spine, and a print bridging the curve lifts). Every grid cell is already at least 0.925 in (5.5x8.5) or 1.197 in (8.5x11) from the nearest trim edge, because of the margin and the 9 pt frame with its 0.5 in quiet zone; `photo.mjs` states the rule (`GUTTER_KEEP_IN`) and `gridProblems` refuses a block if the page ever moves in (the test also measures every frame on the built pages).
+- **Large print and high contrast** never move or resize a frame (physical sizes), the check `"[] 0"` passes on every page with both on, and the marks go black under high contrast.
+- **No bleed**: a frame stays inside the safe margin. Nothing is printed outside the grid.
+
+### 23.5 Paper and glue guidance (for the front matter and the Guide; verify on a printed proof)
+- **Dry adhesive only**: glue stick, tape runner, photo corners or double-sided tape. No wet glue, no paste, no wet-media scrapbooking: KDP interior paper is thin and wet glue wrinkles it and can show through to the page behind (see the dry-media note in 22).
+- **Thickness piles up.** Each pasted print adds paper. Many prints on the same part of every page make the spine side fatter than the other and the book will not close flat. Spread prints around the page, paste at most a few a spread, and keep the 0.625 in gutter clear.
+- **Print thin.** Lightweight matte photo paper (or a plain-paper print) behaves better than glossy card. Trim the print to the size on the frame, a hair small rather than large.
+- **The page behind**: a print shows through a thin page as a dark patch. Keep what is on the back of a photo page light (no dense drawing page behind it, as in 22.7 answer 6).
+- **A photo book is heavier.** KDP paperback is 24 to 110 pages and hardcover needs 75 or more; a book with many prints is thicker than its page count says. Order one proof before buying copies and paste test prints into it.
+- None of this has been tested on real KDP paper. A glue-and-paper proof page is slice PH3.
+
+### 23.6 Prompts (original text; the caption lines carry them)
+- **Frame:** what / where / why this one. Who / when.
+- **Strip:** a date under each frame; one line under the strip: "what changed between these".
+- **Contact sheet:** the numbers; pick one; "the one I picked, and why".
+- **Photo a day:** the date under each frame; a single "one I would keep" note on the month's page.
+- Possible daily prompts for the `prompt` block later (original, short, no outcome promises): "A small thing that was in the light today.", "Something I walked past and finally looked at.", "Hands doing something.", "A place I was today, from where I stood.", "Something that took longer than I thought.", "The meal, from above.", "A colour that kept turning up.", "What was on the table when I sat down."
+
+### 23.7 Slices
+| Slice | Output | Size |
+|---|---|---|
+| **PH1** (this change) | `photoframe`, `photostrip`, `photodaily`, `contactsheet` in `daypage.mjs` with `photo.mjs` geometry; palette group Photos with icons; options, minimum spans and `gridProblems` fit and gutter checks; the editor's does-not-fit note; i18n; `test-photoblocks.mjs` (true size measured in the DOM and the 300 dpi PDF, refusals, the gutter, determinism, every page kind, large print and high contrast) | M |
+| **PH2** | Ready-made pages: a "Photo page" (blank page with one frame), a "Photo day" method layout (a strip, a caption, a Writing space), a "Month of photos" page (photo a day plus a contact sheet), a "Photo page" entry in the organiser's add-page menu (the blank page cannot repeat today) | S to M |
+| **PH3** | A glue-and-paper proof page in the KDP proof test sheet (`proof-test.mjs`): frames on both sides of a page, one print per adhesive, a show-through patch; the front-matter adhesive note; real marks tone and thickness decided from the proof | S |
+| **PH4** | A Guide chapter and a site feature block (annotated screenshots) | S |
+| **PH5** | Month-aware photo a day on Notes pages (the book's month), a photo index page (number, page, date), the pocket fold line from AJ3's `collage` for loose prints | M |
+
+### 23.8 Questions for Shelbee
+1. **Instax and Polaroid sizes.** I used your numbers as the size of what you paste. Instax mini 2.1 x 3.4 is the whole card (its picture is smaller); Instax square 2.4 x 2.4 is the picture only (the whole card is bigger); "Instax wide 3.4 x 2.1" is the size of a mini card lying down (a real wide card is bigger). Do you want the sizes to mean the picture you cut out, or the whole card?
+2. **4x6 and other big prints.** 4x6 only fits the 8.5x11 trim. Is that fine, or do you want a 5.5x8.5 book with a 3.5 x 5 or a 4 x 4 option? (A 4 in wide print needs 4.16 in with its glue margin; the 5.5x8.5 page is 3.45 in.)
+3. **Photo a day.** At 5.5x8.5 the biggest frame for 31 days on one page is 0.5 in (about a postage stamp). Is that useful? Alternatives: a spread per month, a 0.75 in frame at 8.5x11, or 7 frames a page and a week at a time.
+4. **Mark tone.** Mid grey (about 45 percent black) at 0.75 pt: right? It is the lightest that is likely to survive KDP's halftone; a proof decides.
+5. **How many prints?** A rough limit per book (for spine thickness) would let the front matter say so. Do you want a cap, or just advice?
+6. **Where do photo pages go?** Today a book can have one blank page, and Notes or Collection pages keep their Writing space. Do you want a repeatable "Photo page" (PH2)?
+7. **Hardcover.** More paper, more pasted thickness: any limit?
