@@ -8,6 +8,7 @@ import { SEND_KEYS, SEND_LABELS, SEND_SIZES, sendBlockHtml, cleanScan, SCAN_CSS 
 import { PZ_WS_MIN, PZ_WS_MAX } from './puzzles/wordsearch.mjs';
 import { PZ_CW_MIN, PZ_CW_MAX } from './puzzles/crossword.mjs';
 import { pzBlock, pzHeight, PZ_CSS } from './puzzles/render.mjs';
+import { PHOTO_TYPES, isPhoto, FRAME_SIZES, STRIP_SIZES, SHEET_SIZES, DAILY_SIZES, CUSTOM_MIN, CUSTOM_MAX, photoPlan, photoMin, photoFit, sizeText, dailyDays, monthDays, linesCount, markArm, MARK_INSET_IN, TICK_GAP_IN, zoomOf, gutterProblem } from './photo.mjs';
 
 export const IC = {
   pill: '<rect x="1.3" y="4" width="9.4" height="4" rx="2" transform="rotate(-35 6 6)"/><path d="M6 3.1 L6 8.9" transform="rotate(-35 6 6)"/>',
@@ -67,6 +68,11 @@ export const IC = {
   pixel: '<rect x="1.6" y="1.6" width="8.8" height="8.8" rx="1"/><path d="M1.6 6h8.8v4.4H1.6Z" fill="currentColor"/>',
   wordsearch: '<rect x="1.4" y="1.4" width="9.2" height="9.2" rx="1"/><path d="M3.4 8.6 8.6 3.4"/>',
   crossword: '<rect x="1.4" y="1.4" width="9.2" height="9.2" rx="1"/><path d="M1.4 4.5h9.2M1.4 7.5h9.2M4.5 1.4v9.2M7.5 1.4v9.2"/>',
+  // photo journaling (glue-in): a frame with a hill and a sun, three frames in a row, a small grid with the day ringed, a contact sheet with a tick
+  photoframe: '<rect x="1.4" y="2" width="9.2" height="8" rx="1"/><circle cx="4.3" cy="4.7" r=".9"/><path d="M1.8 9.4l2.9-2.6 1.9 1.7 1.5-1.3 2.1 2"/>',
+  photostrip: '<rect x="1" y="3" width="2.8" height="6" rx=".5"/><rect x="4.6" y="3" width="2.8" height="6" rx=".5"/><rect x="8.2" y="3" width="2.8" height="6" rx=".5"/>',
+  photodaily: '<rect x="1.2" y="1.6" width="2.4" height="2.4" rx=".4"/><rect x="4.8" y="1.6" width="2.4" height="2.4" rx=".4"/><rect x="8.4" y="1.6" width="2.4" height="2.4" rx=".4"/><rect x="1.2" y="5" width="2.4" height="2.4" rx=".4"/><rect x="4.8" y="5" width="2.4" height="2.4" rx=".4"/><rect x="8.4" y="5" width="2.4" height="2.4" rx=".4"/><path d="M1.2 10.2h9.6"/>',
+  contactsheet: '<rect x="1.2" y="1.4" width="4" height="4" rx=".5"/><rect x="6.8" y="1.4" width="4" height="4" rx=".5"/><rect x="1.2" y="6.8" width="4" height="4" rx=".5"/><path d="M7.4 8.9l1.2 1.2 2.2-2.4"/>',
 };
 export const ic = (k, t = '') => `<svg class="ic" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="${t || k}">${IC[k]}</svg>`;
 export const box = (label) => `<span class="ck"><i></i>${label ? `<span>${label}</span>` : ''}</span>`;
@@ -146,6 +152,7 @@ const PZ_SOURCE = [
   { k: 'seed', kind: 'text', label: 'Seed (change it for a new puzzle)', def: '', max: 24 },
 ];
 
+const PH_TURN = { k: 'turn', kind: 'choice', label: 'Turn', choices: [['portrait', 'Portrait (tall)'], ['landscape', 'Landscape (wide)']], def: 'portrait' };
 // group: where the block sits in the "Add blocks" palette.
 export const TYPES = {
   // ---- from your day (single) ----
@@ -207,6 +214,11 @@ export const TYPES = {
   // ---- puzzles (puzzles/): seeded, the same puzzle on any reprint; paper only ----
   wordsearch: { name: 'Word search', group: 'Puzzles', icon: 'wordsearch', hint: 'A letter grid with hidden words. Same page, same puzzle on every reprint. Paper only', opts: [T('Title', 'Word search', 24), N('size', 'Grid size', PZ_WS_MIN, PZ_WS_MAX, 10), PZ_LEVEL('Across and down', 'And diagonals', 'And backwards'), ...PZ_SOURCE, B('answers', 'Show answers', false), B('big', 'Large print', false)] },
   crossword: { name: 'Crossword', group: 'Puzzles', icon: 'crossword', hint: 'A small crossword with its clues. Same page, same puzzle on every reprint. Paper only', opts: [T('Title', 'Crossword', 24), N('size', 'Largest grid', PZ_CW_MIN, PZ_CW_MAX, 9), PZ_LEVEL('Fewer, short words', 'More words', 'Most, longer words', 'medium'), ...PZ_SOURCE, B('answers', 'Show answers', false), B('big', 'Large print', false)] },
+  // ---- photos (photo.mjs, BUILD-PLAN section 23): frames for prints that are GLUED onto the page. Paper only: no image is ever uploaded, stored or printed ----
+  photoframe: { name: 'Photo frame', group: 'Photos', icon: 'photoframe', hint: 'A true-size window for a print you paste in: corner marks, room for glue, caption lines. Paper only', opts: [T('Label', '', 24), { k: 'size', kind: 'choice', label: 'Print size', choices: FRAME_SIZES, def: '2x3' }, PH_TURN, N('cw', 'Custom width (tenths of an inch; custom size only)', CUSTOM_MIN, CUSTOM_MAX, 30), N('ch', 'Custom height (tenths of an inch; custom size only)', CUSTOM_MIN, CUSTOM_MAX, 40), B('cut', 'Trim marks (cut guide)'), { k: 'lines', kind: 'choice', label: 'Caption lines', choices: [['none', 'None'], ['one', 'One: what and where'], ['three', 'Three: what, where, why this one']], def: 'one' }, B('who', 'Who and when line', false)] },
+  photostrip: { name: 'Photo strip', group: 'Photos', icon: 'photostrip', hint: '2 to 4 small frames in a row or a column, a date line under each. Paper only', opts: [T('Label', '', 24), { k: 'size', kind: 'choice', label: 'Print size', choices: STRIP_SIZES, def: '1x1.5' }, PH_TURN, N('n', 'Frames', 2, 4, 3), { k: 'dir', kind: 'choice', label: 'Direction', choices: [['row', 'In a row'], ['column', 'In a column']], def: 'row' }, B('dates', 'Date line under each frame'), { k: 'lines', kind: 'choice', label: 'Caption line', choices: [['none', 'None'], ['one', 'One line under the strip']], def: 'none' }] },
+  photodaily: { name: 'Photo a day', group: 'Photos', icon: 'photodaily', hint: 'A tiny frame for every day of the month, labelled by date, for a photo-a-day habit. Paper only', opts: [T('Label', '', 24), { k: 'size', kind: 'choice', label: 'Print size', choices: DAILY_SIZES, def: '0.5x0.5' }, { k: 'days', kind: 'choice', label: 'Days', choices: [['auto', 'This page\'s month (31 off a day page)'], [28, '28'], [29, '29'], [30, '30'], [31, '31']], def: 'auto' }, B('note', 'Say when the day starts')] },
+  contactsheet: { name: 'Contact sheet', group: 'Photos', icon: 'contactsheet', hint: '6 to 12 small numbered frames and a tick to pick the one to keep. Paper only', opts: [T('Label', '', 24), { k: 'size', kind: 'choice', label: 'Print size', choices: SHEET_SIZES, def: '1x1' }, PH_TURN, N('n', 'Frames', 6, 12, 6), B('pick', 'Pick-one tick under each'), { k: 'lines', kind: 'choice', label: 'Caption line', choices: [['none', 'None'], ['one', 'One: the one I picked, and why']], def: 'one' }] },
   // ---- layout ----
   divider: { name: 'Divider', group: 'Layout', icon: 'calm', hint: 'A thin line', opts: [{ k: 'icon', kind: 'choice', label: 'Icon', choices: [['none', 'None'], ['sun', 'Sun'], ['moon', 'Moon']], def: 'none' }] },
   sendto: { name: 'Send to', group: 'Layout', icon: 'send', hint: 'The symbol strip the scanner reads, anywhere on the page. Needs the scanning border on', opts: [
@@ -447,6 +459,9 @@ const more = (n, d) => Math.max(1, Math.ceil(n / d)); // a list longer than the 
 const colPx = 76.8, gapPx = 8; // a column and the gap between columns, in px (small trim; the letter trim is wider, so this is the safe one)
 const fitCols = (px) => { for (let c = 1; c < GRIDS.day.cols; c++) if (c * (colPx + gapPx) - gapPx >= px + 4) return c; return GRIDS.day.cols; };
 const hoursOf = (b) => Math.ceil((Math.max(b.to, b.from + 1) - b.from) / b.every);
+// What a photo block's plan counts when no page is known (a layout is made before any date): a photo-a-day grid of 31 days and its day-start line.
+const photoX = (b) => (b.type === 'photodaily' ? { days: dailyDays(b, ''), note: !!b.note } : {});
+const photoMinOf = (b, w, size) => { const m = photoMin(b, w, size, photoX(b)); return [m.cols, m.h]; };
 const MINSPAN = {
   sky: () => [2, 0.4], // the season line wraps on some days, so two rows at any width
   notes: () => [2, 0.15],
@@ -498,13 +513,15 @@ const MINSPAN = {
   range: (b, w) => [2, at([0.45, 0.45, 0.31, 0.2], w) * more(b.steps, 5)],
   sendto: (b) => { const z = SEND_SIZES[b.size] || SEND_SIZES.m, n = SEND_KEYS.filter((k) => b.symbols[k]).length; return [fitCols((b.label ? 55 : 0) + n * z.px + (n - 1) * 9.6 + (b.style === 'box' ? 14 : 0)), (z.bubble + z.px + 8) / 96 + (b.style === 'box' ? 0.06 : 0)]; },
   wordsearch: (b) => [4, pzHeight(b)], crossword: (b) => [4, pzHeight(b)], // the grid and its text sit side by side across the whole page width
+  // photo blocks: the plan (photo.mjs) gives the width a print needs and the height of the block; sheets count their worst case (31 days, the day-start line)
+  photoframe: (b, w, size) => photoMinOf(b, w, size), photostrip: (b, w, size) => photoMinOf(b, w, size), photodaily: (b, w, size) => photoMinOf(b, w, size), contactsheet: (b, w, size) => photoMinOf(b, w, size),
   divider: () => [1, 0.02],
   spacer: (b) => [1, b.h / 10 + 0.01],
   body: () => [BODY_MIN.cols, BODY_MIN.rows * ROW_IN - 0.05],
 };
-export function minSpan(b, colSpan = GRIDS.day.cols) {
+export function minSpan(b, colSpan = GRIDS.day.cols, size = 'small') {
   const f = MINSPAN[b.type] || (() => [2, 0.5]);
-  const [cols, h] = f(b, Math.max(colSpan, 1));
+  const [cols, h] = f(b, Math.max(colSpan, 1), size === 'letter' ? 'letter' : 'small');
   return { cols: Math.min(GRIDS.day.cols, cols), rows: rowsIn(h) };
 }
 
@@ -525,8 +542,11 @@ export function gridProblems(L, size = 'small') {
     if (b.col + b.colSpan - 1 > G.cols) bad(b, 'columns', `${nm} sticks out of the page: it uses columns ${span(b.col, b.colSpan)} and the page has ${G.cols}.`);
     if (b.row + b.rowSpan - 1 > R) bad(b, 'rows', `${nm} runs off the bottom: it uses rows ${span(b.row, b.rowSpan)} and the page has ${R}.`);
     if (G.fold && b.col <= G.cols && crossesFold(b, G)) bad(b, 'fold', `${nm} crosses the fold: it uses columns ${span(b.col, b.colSpan)}, and the fold is between columns ${G.fold} and ${G.fold + 1}. Keep it on one page.`);
-    const m = minSpan(b, b.colSpan);
-    if (b.type === 'body') {
+    const m = minSpan(b, b.colSpan, size);
+    if (isPhoto(b)) { // a print is a physical size: it fits its cells or the layout says why not (photo.mjs), and it stays clear of the spine
+      const f = photoFit(b, b.colSpan, b.rowSpan, size, photoX(b), nm); if (f) bad(b, f.code, f.msg);
+      const gp = gutterProblem(size); if (gp) bad(b, 'gutter', `${nm}: ${gp}`);
+    } else if (b.type === 'body') {
       if (b.rowSpan < BODY_MIN.rows || b.colSpan < BODY_MIN.cols) bad(b, 'body', `The Writing space stays at least ${BODY_MIN.rows} rows tall (${(BODY_MIN.rows * 5.588).toFixed(0)} mm) and ${BODY_MIN.cols} columns wide; it is ${b.rowSpan} rows by ${b.colSpan} columns.`);
     } else if (b.colSpan < m.cols) bad(b, 'min', `${nm} needs at least ${m.cols} columns to fit its content; it has ${b.colSpan}.`);
     else if (b.rowSpan < m.rows) bad(b, 'min', `${nm} needs at least ${m.rows} rows to fit its content at this width; it has ${b.rowSpan}.`);
@@ -553,7 +573,7 @@ export function findFree(L, cols, rows, size = 'small', except = null) {
 export function placeBlock(L, b, size = 'small') {
   const G = GRIDS[pageKind(L.kind)];
   for (let w = G.fold || G.cols; w >= 1; w--) {
-    const m = minSpan(b, w); if (w < m.cols) break;
+    const m = minSpan(b, w, size); if (w < m.cols) break;
     const f = findFree(L, w, m.rows, size, b.uid); if (f) return f;
   }
   return null;
@@ -564,7 +584,7 @@ export function placeBlock(L, b, size = 'small') {
 // then blocks are switched off from the end of the list until the Writing space has its minimum. Returns those blocks (uids), in order.
 export function autoPlace(L, size = 'small') {
   const R = gridRows(size, L.kind), W = GRIDS.day.cols, dropped = [];
-  const used = () => L.blocks.filter((b) => b.on && b.type !== 'body').reduce((t, b) => t + minSpan(b, W).rows, 0);
+  const used = () => L.blocks.filter((b) => b.on && b.type !== 'body').reduce((t, b) => t + minSpan(b, W, size).rows, 0);
   const need = PAGE_KINDS[pageKind(L.kind)].body ? BODY_MIN.rows : 0;
   while (R - used() < need) {
     const last = [...L.blocks].reverse().find((b) => b.on && b.type !== 'body');
@@ -574,7 +594,7 @@ export function autoPlace(L, size = 'small') {
   const room = R - used();
   let row = 1;
   for (const b of L.blocks) {
-    const rows = b.type === 'body' ? Math.max(BODY_MIN.rows, room) : minSpan(b, W).rows;
+    const rows = b.type === 'body' ? Math.max(BODY_MIN.rows, room) : minSpan(b, W, size).rows;
     Object.assign(b, { col: 1, row, colSpan: W, rowSpan: rows });
     if (b.on) row += rows;
   }
@@ -585,7 +605,7 @@ function placeMissing(L, size) {
   for (const b of L.blocks) {
     if (placed(b)) continue;
     for (const k of PLACE) delete b[k];
-    const m = minSpan(b), at = placeBlock({ ...L, blocks: L.blocks.filter((x) => x !== b) }, b, size);
+    const m = minSpan(b, undefined, size), at = placeBlock({ ...L, blocks: L.blocks.filter((x) => x !== b) }, b, size);
     Object.assign(b, at || { col: 1, row: 1, colSpan: GRIDS[pageKind(L.kind)].fold || GRIDS[pageKind(L.kind)].cols, rowSpan: m.rows });
   }
 }
@@ -761,9 +781,10 @@ const THOUGHT_BOXES = { 3: ['Thought', 'Trap', 'Balanced'], 5: ['Situation', 'Fe
 // The seed text of a puzzle block: the page it is on (the day's date, or the page's id), the block's uid and the block's own seed, so a
 // reprint gives the same puzzle and every page gets its own.
 const pzSeed = (b, parts) => `${parts.day ? parts.day.date || 'n' + parts.day.n : parts.seed || ''}|${b.uid}|${b.seed}`;
-function renderBlock(b, parts, zone) {
+function renderBlock(b, parts, zone, opt = {}) {
   const Z = `data-zone="${zone}"`;
   switch (b.type) {
+    case 'photoframe': case 'photostrip': case 'photodaily': case 'contactsheet': return photoHtml(b, parts, Z, opt);
     case 'wordsearch': case 'crossword': { const p = pzBlock(b, pzSeed(b, parts)); return `<div class="xb pz${b.big ? ' big' : ''}" ${Z}>${lbl(b.type, p.label)}<div class="pzr">${p.body}</div></div>`; }
     case 'sky': case 'notes': case 'events': case 'fact': return parts[b.type] || '';
     case 'spoons': return `<div class="care solo">${spoonRow(b)}</div>`;
@@ -848,6 +869,48 @@ function renderBlock(b, parts, zone) {
   return '';
 }
 
+// ---------- photo blocks (photo.mjs): the drawn frames ----------
+// A frame is a window the size of the print, drawn as four light corner marks a little INSIDE its edge (so the pasted print covers them and no
+// edge peeks out), with an empty margin round it for the glue. Sizes are physical: in CSS inches under the page's zoom they are W / zoom.
+const inch = (v) => `${+v.toFixed(4)}in`;
+const escA = (t) => esc(t).replace(/"/g, '&quot;');
+const clock12 = (h) => `${h % 12 || 12} ${h % 24 < 12 ? 'a.m.' : 'p.m.'}`;
+function photoHtml(b, parts, Z, opt) {
+  const size = opt.size === 'letter' ? 'letter' : 'small', date = parts.day && !parts.day.undated ? parts.day.date || '' : '';
+  const dayStart = opt.dayStart !== undefined ? opt.dayStart : parts.dayStart;
+  const x = b.type === 'photodaily' ? { days: dailyDays(b, date), note: !!b.note && dayStart > 0 } : {};
+  const p = photoPlan(b, size, opt.cols || GRIDS.day.cols, x), z = p.z, st = sizeText(b);
+  const vars = `--ins:${inch(MARK_INSET_IN / z)};--arm:${inch(markArm(p.print.w, p.print.h) / z)}`;
+  const mk = (f) => `<div class="php" aria-hidden="true" style="left:${inch(f.x)};top:${inch(f.y)};width:${inch(f.w)};height:${inch(f.h)}"><i class="pm a"></i><i class="pm b"></i><i class="pm c"></i><i class="pm d"></i></div>`;
+  const under = (f, cls, inner) => `<span class="phd${cls}" aria-hidden="true" style="left:${inch(f.x)};top:${inch(f.y + f.h)};width:${inch(f.w)};height:${inch(p.cap)}">${inner}</span>`;
+  const line = (t) => `<div class="hrw">${lbl('', t)}${ruled(1)}</div>`;
+  let head, alt, marks = p.frames.map(mk).join(''), lines = '';
+  if (b.type === 'photoframe') {
+    const f = p.frames[0], tl = Math.max(0.03, p.g - TICK_GAP_IN / z - 0.025 / z), t0 = 0.02 / z, gz = TICK_GAP_IN / z;
+    if (b.cut) marks += `<i class="pt v" aria-hidden="true" style="left:${inch(f.x + f.w / 2)};top:${inch(t0)};height:${inch(tl)}"></i><i class="pt v" aria-hidden="true" style="left:${inch(f.x + f.w / 2)};top:${inch(f.y + f.h + gz)};height:${inch(tl)}"></i><i class="pt h" aria-hidden="true" style="top:${inch(f.y + f.h / 2)};left:${inch(t0)};width:${inch(tl)}"></i><i class="pt h" aria-hidden="true" style="top:${inch(f.y + f.h / 2)};left:${inch(f.x + f.w + gz)};width:${inch(tl)}"></i>`;
+    head = `${lbl('photoframe', b.title || 'Photo')}<span class="phs">${st}</span>${b.cut ? '<span class="phc">trim your print to this</span>' : ''}`;
+    lines = (b.lines === 'three' ? line('What') + line('Where') + line('Why this one') : b.lines === 'one' ? line('What and where') : '') + (b.who ? `<div class="hrw">${lbl('', 'Who')}${ruled(1)}${lbl('', 'When')}${ruled(1)}</div>` : '');
+    alt = `${b.title || 'Photo frame'}: space for a ${st} print, ${p.print.w > p.print.h ? 'landscape' : p.print.w < p.print.h ? 'portrait' : 'square'}. Paste your print here${b.cut ? ' and trim it to this size' : ''}.${b.lines === 'three' ? ' Three caption lines: what, where, why this one.' : b.lines === 'one' ? ' One caption line: what and where.' : ''}${b.who ? ' A line for who and when.' : ''}`;
+  } else if (b.type === 'photostrip') {
+    if (b.dates) marks += p.frames.map((f) => under(f, '', '<b>date</b><i></i>')).join('');
+    head = `${lbl('photostrip', b.title || 'Photo strip')}<span class="phs">${p.n} frames · ${st}</span>`;
+    lines = b.lines === 'one' ? line('About these') : '';
+    alt = `${b.title || 'Photo strip'}: ${p.n} frames of ${st}, ${b.dir === 'column' ? 'one under the other' : 'side by side'}.${b.dates ? ' Each has a date line under it.' : ''}${b.lines === 'one' ? ' One caption line under the strip.' : ''}`;
+  } else if (b.type === 'contactsheet') {
+    marks += p.frames.map((f) => under(f, ' sp', `<b>${f.n}</b>${b.pick ? '<span class="pk"></span>' : ''}`)).join('');
+    head = `${lbl('contactsheet', b.title || 'Contact sheet')}<span class="phs">${p.n} frames · ${st}</span>`;
+    lines = b.lines === 'one' ? line('The one I picked, and why') : '';
+    alt = `${b.title || 'Contact sheet'}: ${p.n} numbered frames of ${st}.${b.pick ? ' Each has a tick box to pick the one to keep.' : ''}${b.lines === 'one' ? ' One caption line: the one I picked and why.' : ''}`;
+  } else { // photodaily
+    const today = +(date.slice(8, 10) || 0), mo = date ? `${MON3[+date.slice(5, 7) - 1]} ${date.slice(0, 4)}` : '';
+    marks += p.frames.map((f) => under(f, f.n === today ? ' td' : '', `<b>${f.n}</b>`)).join('');
+    head = `${lbl('photodaily', b.title || 'Photo a day')}<span class="phs">${mo ? mo + ' · ' : ''}${st}</span>`;
+    lines = x.note ? `<div class="hrw"><span class="cap">A day starts at ${clock12(dayStart)}</span></div>` : '';
+    alt = `${b.title || 'Photo a day'}: ${p.n} small frames of ${st}, one for each day${mo ? ' of ' + mo : ''}, numbered by date.${x.note ? ` A day starts at ${clock12(dayStart)}: a photo taken before then goes in the day before.` : ''}`;
+  }
+  return `<div class="ph" ${Z} role="group" aria-label="${escA(alt)}"><div class="phh">${head}</div><div class="phw" style="width:${inch(p.areaW)};height:${inch(p.areaH)};${vars}">${marks}</div>${lines}</div>`;
+}
+
 // parts: pre-built, data-driven strings from render.mjs: header, sky, notes, events, fact ('' when none), routines [].
 // opt.tag (editor only): mark each block's outer element with data-b="<uid>" so the preview can be dragged.
 export function dayBlocks(parts, layout, opt = {}) {
@@ -865,7 +928,8 @@ export function dayBlocks(parts, layout, opt = {}) {
       push(b, careBox(b, on, sp));
       continue;
     }
-    push(b, renderBlock(b, parts, zone));
+    if (isPhoto(b) && !opt.tag) { const f = photoFit(b, GRIDS.day.cols, undefined, opt.size === 'letter' ? 'letter' : 'small', photoX(b), blockName(b)); if (f) throw new Error(`The day page layout cannot be printed:\n - ${f.msg}`); }
+    push(b, renderBlock(b, parts, zone, opt));
   }
   return `<div class="day full">\n    ${parts.header}\n    ${out.join('\n    ')}\n  </div>`;
 }
@@ -889,7 +953,7 @@ function gridBlocks(parts, L, opt) {
   const on = L.blocks.filter((b) => b.on), count = {}, seen = {}, out = [];
   for (const b of on) {
     count[b.type] = (count[b.type] || 0) + 1;
-    let h = b.type === 'care' ? careBox(b, on, null) : renderBlock(b, parts, count[b.type] > 1 ? `${b.type}_${count[b.type]}` : b.type);
+    let h = b.type === 'care' ? careBox(b, on, null) : renderBlock(b, parts, count[b.type] > 1 ? `${b.type}_${count[b.type]}` : b.type, { ...opt, size, cols: b.colSpan });
     if (!h) continue; // data-driven blocks (holidays, events, the fact) leave their cell empty on days without one
     if (b.roomy) h = h.replace(/class="xb( |")/, 'class="xb rm$1');
     const m = /data-zone="([^"]+)"/.exec(h);
@@ -988,4 +1052,17 @@ export const DAYPAGE_CSS = PZ_CSS + `
 .gc.fill .dbox { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .gc.fill > .xb.xsplit { display: grid; grid-template-rows: minmax(0, 1fr); }
 .gc.fill .xsplit > div { display: flex; flex-direction: column; min-height: 0; } .gc.fill .xsplit > div > .ru { flex: 1; min-height: 0; height: auto !important; }
+/* Photo blocks (photo.mjs): frames for prints that are glued on. Marks are 1px = 0.75pt (the floor), drawn inside the print's edge so the print covers them. */
+.ph { display: block; font: 500 7pt Inter, sans-serif; color: #333; }
+.phh { display: flex; align-items: center; gap: 5px; height: 0.22in; overflow: hidden; white-space: nowrap; } .phh > .xl { flex: 0 1 auto; min-width: 0; } .phh > .xl > span { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.phs { flex: none; font: 600 7pt Inter, sans-serif; color: #333; } .phc { flex: 0 100 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; font: italic 500 6.5pt Inter, sans-serif; color: #666; margin-left: auto; }
+.phw { position: relative; margin: 0 auto; } .php { position: absolute; }
+.pm { position: absolute; display: block; width: var(--arm); height: var(--arm); border: 0 solid #8c8c8c; }
+.pm.a { left: var(--ins); top: var(--ins); border-top-width: 1px; border-left-width: 1px; } .pm.b { right: var(--ins); top: var(--ins); border-top-width: 1px; border-right-width: 1px; }
+.pm.c { left: var(--ins); bottom: var(--ins); border-bottom-width: 1px; border-left-width: 1px; } .pm.d { right: var(--ins); bottom: var(--ins); border-bottom-width: 1px; border-right-width: 1px; }
+.pt { position: absolute; display: block; border: 0 solid #8c8c8c; } .pt.v { width: 0; border-left-width: 1px; } .pt.h { height: 0; border-top-width: 1px; }
+.phd { position: absolute; display: flex; align-items: flex-end; gap: 3px; overflow: hidden; } .phd b { font: 700 6pt/1 Inter, sans-serif; color: #555; flex: none; } .phd i { flex: 1; min-width: 0; height: 0.12in; border-bottom: 1px solid #a0a0a0; }
+.phd.sp { justify-content: space-between; align-items: center; } .phd .pk { flex: none; width: 0.1in; height: 0.1in; border: 1.1px solid #000; display: block; }
+.phd.td b { color: #000; border-bottom: 1.4px solid #000; }
+.ph .cap { font: italic 500 6.5pt Inter, sans-serif; color: #666; white-space: nowrap; }
 ${SCAN_CSS}`;
