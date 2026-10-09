@@ -239,7 +239,7 @@ const blockOut = (b) => {
 export function serializeDay(d, errs) {
   if (d !== null && d !== undefined && !isObj(d)) { errs.push('day must be an object like {"v":2,"blocks":[...]}'); return null; }
   if (isObj(d) && d.blocks !== undefined && !Array.isArray(d.blocks)) { errs.push('day.blocks must be a list'); return null; }
-  if (isObj(d) && d.spread !== undefined && d.spread !== null) { const bad = spreadProblems(d.spread); if (bad.length) { errs.push(...bad.slice(0, 3).map((m) => `day.spread: ${m}`)); return null; } }
+  if (isObj(d) && d.spread !== undefined && d.spread !== null) { const bad = spreadProblems(d.spread, 'letter'); if (bad.length) { errs.push(...bad.slice(0, 3).map((m) => `day.spread: ${m}`)); return null; } }
   const L = normalize(d && Object.keys(d).length ? d : null);
   return {
     v: 2,

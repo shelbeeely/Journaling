@@ -26,7 +26,7 @@ export const sameBook = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 // ---------- laying out ----------
 export function flowBook(entries, cat, opts = {}) {
-  const meta = cat.meta, pages = [], refs = {}, hidden = [];
+  const meta = cat.meta, pages = [], refs = {}, hidden = [], dayStart = opts.dayStart !== undefined ? opts.dayStart : cat.dayStart; // the profile's day start, for the photo-a-day block's line
   let sec = 'front', notesN = 0;
   const push = (s, entry, auto) => pages.push({ cls: '', date: '', shared: false, label: '', ...s, section: sec, eid: auto ? '' : entry.id, etype: auto ? 'notes' : entry.type, auto: !!auto });
   const addNotes = () => { notesN++; const t = `Notes ${notesN}`; push({ cls: 'notes', type: 'notes', id: `notes.${notesN}`, label: t, html: notesHtml(cat, t) }, null, true); };
@@ -34,10 +34,10 @@ export function flowBook(entries, cat, opts = {}) {
   const specsOf = (entry, k) => {
     if (REPEATS.includes(entry.type)) { // Notes and Collection pages: the layout of blocks the entry carries (none: the starting page)
       const base = entry.type === 'notes' ? 'Notes' : 'Collection', t = (entry.options && entry.options.title) || base;
-      const html = entry.layout ? kindPage(entry.type, t, entry.layout, opts.size, { pageId: entry.id }) : entry.type === 'notes' ? notesHtml(cat, t) : kindPage('collection', t, null, opts.size);
+      const html = entry.layout ? kindPage(entry.type, t, entry.layout, opts.size, { pageId: entry.id, dayStart, lenient: true }) : entry.type === 'notes' ? notesHtml(cat, t) : kindPage('collection', t, null, opts.size, { dayStart, lenient: true });
       return [{ cls: 'notes', type: entry.type, id: entry.id, label: t, html }];
     }
-    if (entry.type === 'blank' && entry.layout) return [{ cls: '', type: 'blank', id: 'blank', label: '', shared: false, html: kindPage('blank', '', entry.layout, opts.size, { pageId: entry.id }) }];
+    if (entry.type === 'blank' && entry.layout) return [{ cls: '', type: 'blank', id: 'blank', label: '', shared: false, html: kindPage('blank', '', entry.layout, opts.size, { pageId: entry.id, dayStart, lenient: true }) }];
     if (entry.type === 'days') return daySpecs(entry, k);
     return ((cat.occ || {})[entry.type] || [])[k] || [];
   };

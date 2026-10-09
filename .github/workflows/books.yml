@@ -40,6 +40,8 @@ jobs:
         run: node test-blockpages.mjs
       - name: "Spread days check (S1: a day is a page or a whole spread; the rules, the 8 x 24 canvas with the fold after column 4 and nothing across it; a spread day opens on a left page, each page keeps its own header, strip and code; flowBook equals assemble; page counts and the 110-page limit follow; builds in both trims, hardcover and as a quarter, check.mjs [] 0, no Type 3 fonts)"
         run: node test-spreaddays.mjs
+      - name: "Photo blocks check (PH1: photoframe, photostrip, photodaily and contactsheet; print sizes are true, measured in the page and in the 300 dpi PDF; fit refusals per trim with a plain reason; gutter keep-out; every page kind; deterministic; builds in both trims with large print and high contrast on, check.mjs [] 0, no Type 3 fonts; Studio allowlist keeps no image field)"
+        run: node test-photoblocks.mjs
       - name: Busy-calendar check (month cells and week rows cap and clamp; every page fits)
         run: node test-busy.mjs
       - name: Profile check (a generic person in a made-up city builds a clean book; module switches remove their pages)

@@ -645,9 +645,9 @@ const find = (uid) => layout.blocks.find((b) => b.uid === uid);
 const icon = (k, cls = '') => `<svg class="${cls}" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k] || IC.box}</svg>`;
 
 // ---------- palette ----------
-const PAL_GROUPS = ['From your day', 'Check-ins', 'Writing', 'Planning', 'Puzzles', 'Therapy', 'Body', 'Layout'];
+const PAL_GROUPS = ['From your day', 'Check-ins', 'Writing', 'Planning', 'Photos', 'Puzzles', 'Therapy', 'Body', 'Layout'];
 const palGroup = (g) => _tx('pal.group_' + g.toLowerCase().replace(/[^a-z0-9]+/g, '_'), g);
-const PAL_NOTES = { Therapy: _t('pal.note_therapy'), Body: _t('pal.note_body') };
+const PAL_NOTES = { Therapy: _t('pal.note_therapy'), Body: _t('pal.note_body'), Photos: _t('pal.note_photos') };
 function paletteItems() {
   const items = Object.entries(TYPES).filter(([t]) => (t !== 'body' || !bodyLocked(EK)) && allowedIn(EK, t)).map(([t, d]) => ({ key: 't:' + t, type: t, name: tName(t), group: d.group, icon: d.icon }));
   PRESETS.filter((p) => allowedIn(EK, p.type)).forEach((p, i) => items.push({ key: 'p:' + i, type: p.type, name: pName(p), group: p.group, icon: TYPES[p.type].icon, preset: p }));
@@ -675,7 +675,7 @@ function insertBlock(b, beforeUid) {
     const i = beforeUid ? L.blocks.findIndex((x) => x.uid === beforeUid) : -1; L.blocks.splice(i < 0 ? L.blocks.length : i, 0, b);
     if (L.grid) { // first free spot, as wide as it can be; a full page takes it switched off
       const at = placeBlock(L, b, size);
-      if (at) Object.assign(b, at); else { Object.assign(b, { col: 1, row: 1, colSpan: GRIDS[EK].fold || GRIDS[EK].cols, rowSpan: minSpan(b).rows, on: false }); noRoom = true; }
+      if (at) Object.assign(b, at); else { Object.assign(b, { col: 1, row: 1, colSpan: GRIDS[EK].fold || GRIDS[EK].cols, rowSpan: minSpan(b, undefined, size).rows, on: false }); noRoom = true; }
     }
   });
 }
@@ -720,9 +720,15 @@ function rowItem(bu, r) {
 // Grid: where a block sits, as four steppers (column, row, columns wide, rows tall). Moves that break a rule are refused with the reason.
 const placeLabels = () => [['col', _t('app.pl_column'), _t('app.pl_left'), _t('app.pl_right')], ['row', _t('app.pl_row'), _t('app.pl_up'), _t('app.pl_down')], ['colSpan', _t('app.pl_wide'), _t('app.pl_fewer_cols'), _t('app.pl_more_cols')], ['rowSpan', _t('app.pl_tall'), _t('app.pl_fewer_rows'), _t('app.pl_more_rows')]];
 function placePanel(b) {
-  const m = b.type === 'body' ? { cols: BODY_MIN.cols, rows: BODY_MIN.rows } : minSpan(b, b.colSpan), tight = b.colSpan < m.cols || b.rowSpan < m.rows;
+  const m = b.type === 'body' ? { cols: BODY_MIN.cols, rows: BODY_MIN.rows } : minSpan(b, b.colSpan, size), tight = b.colSpan < m.cols || b.rowSpan < m.rows;
   return `<div class="place">${placeLabels().map(([k, lab, lo, hi]) => `<div class="opt"><label>${lab}</label><span class="step" role="group" aria-label="${lab}"><button data-place="${b.uid}/${k}" data-d="-1" aria-label="${lo}">−</button><output>${b[k]}</output><button data-place="${b.uid}/${k}" data-d="1" aria-label="${hi}">+</button></span></div>`).join('')}
     <p class="minn ${tight ? 'bad' : ''}">${_t('app.smallest', { cols: m.cols, rows: m.rows })} ${SPD ? _t('app.spread_grid_note', { fold: GRIDS.spread.fold, rows: gridRows(size, EK), cols: GRIDS.spread.cols }) : _t('app.page_grid_note', { cols: GRIDS[EK].cols, rows: gridRows(size, EK) })}</p></div>`;
+}
+// A photo block whose print cannot fit its width or its rows says why, in words, right where its options are (photo.mjs photoFit; nothing is hidden: it still prints the way you set it up, or the build stops and says the same).
+function photoNote(b) {
+  if (!isPhoto(b)) return '';
+  const f = photoFit(b, layout.grid ? b.colSpan : GRIDS.day.cols, layout.grid ? b.rowSpan : undefined, size, photoX(b), tName(b.type));
+  return f ? `<p class="minn bad" role="note">${escH(f.msg)}</p>` : '';
 }
 function drawList() {
   drawScan();
@@ -730,7 +736,7 @@ function drawList() {
   const ul = $('#list'), probs = layout.grid ? gridProblems(layout, size) : [];
   ul.innerHTML = layout.blocks.map((b) => {
     const t = { ...TYPES[b.type], name: tName(b.type) }, open = openIds.has(b.uid);
-    const o = (layout.grid ? placePanel(b) : '') + (b.type === 'sendto' && layout.scan && layout.scan.frame === 'off' ? '<p class="minn bad" role="note">' + _t('app.border_off_note') + '</p>' : '') + (b.type === 'care' ? `<ul class="sub" data-care="${b.uid}">${b.rows.map((r) => rowItem(b.uid, r)).join('')}</ul>` : t.opts.map((x) => optControl(x, b[x.k], `${b.uid}/${x.k}`)).join(''));
+    const o = (layout.grid ? placePanel(b) : '') + (b.type === 'sendto' && layout.scan && layout.scan.frame === 'off' ? '<p class="minn bad" role="note">' + _t('app.border_off_note') + '</p>' : '') + photoNote(b) + (b.type === 'care' ? `<ul class="sub" data-care="${b.uid}">${b.rows.map((r) => rowItem(b.uid, r)).join('')}</ul>` : t.opts.map((x) => optControl(x, b[x.k], `${b.uid}/${x.k}`)).join(''));
     const gp = layout.grid && b.on ? _t('app.grid_pos', { col: b.col, row: b.row, w: b.colSpan, h: b.rowSpan }) + ' · ' : '';
     return `<li class="blk ${b.on ? '' : 'off'} ${open ? 'open' : ''} ${selected === b.uid ? 'sel' : ''} ${probs.some((p) => p.uid === b.uid) ? 'prob' : ''}" data-uid="${b.uid}">
       <div class="row"><span class="grip" role="button" tabindex="0" aria-label="${_t('app.move_arrows', { name: escH(t.name) })}">${GRIP}</span>${icon(t.icon, 'bico')}

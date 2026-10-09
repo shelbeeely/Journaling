@@ -10,6 +10,7 @@ export const fresh = async (month) => {
   const ctx = await loadContext({ month, ics: 'test.ics', size: 'small', quiet: true });
   ctx.CLINIC = null; // a real clinic's details do not belong in a public editor
   ctx.keeperPage = undefined; // the Keeper's page numbers are per person
+  ctx.lenient = true; // the editor's sample pages are drawn at 5.5x8.5 even for a photo frame that only fits 8.5x11 (the print build says no; the editor only shows it)
   return ctx;
 };
 const allOn = (list) => list.map((e) => ({ ...e, on: true, ...(e.options && e.type === 'weeks' ? { options: { month: allOn(e.options.month || []), week: allOn(e.options.week || []) } } : {}) }));
@@ -47,7 +48,7 @@ export async function catalog(month, book) {
   // Spread days (S1): every day of the sample month as a spread (left page, right page), so the organiser can lay out whichever days a book makes spreads.
   const spreadDays = (PAGE_TYPES.days ? D.weeks.map((W) => { const all = PAGE_TYPES.days.build(ctx, { W, entry: { id: 'days', type: 'days', on: true, options: { format: 'spread' } } }); return pack(all).reduce((a, x, i) => (i % 2 ? (a[a.length - 1].push(x), a) : [...a, [x]]), []); }) : []);
   const months = []; { let [y, m] = month.split('-').map(Number); for (let i = 0; i < 12; i++) { months.push(`${y}-${String(m).padStart(2, '0')}`); if (++m > 12) { m = 1; y++; } } }
-  return { meta: typeMeta(PAGE_TYPES), occ, weeks: D.weeks.map((W) => ({ month: D.months.findIndex((M) => monthStartWeek(M) === W), days: W.days.map((d) => ({ date: d.date, weekday: d.weekday })) })), spreadDays, notes: notesPage(NOTES_MARK), defaultBook: DEFAULT_BOOK, builtIn: flatIds(DEFAULT_BOOK.default), book, months };
+  return { meta: typeMeta(PAGE_TYPES), occ, weeks: D.weeks.map((W) => ({ month: D.months.findIndex((M) => monthStartWeek(M) === W), days: W.days.map((d) => ({ date: d.date, weekday: d.weekday })) })), spreadDays, notes: notesPage(NOTES_MARK), dayStart: ctx.PROFILE.day_start_hour, defaultBook: DEFAULT_BOOK, builtIn: flatIds(DEFAULT_BOOK.default), book, months };
 }
 
 // The sample book follows content/book.json (else DEFAULT_BOOK). Pages the book hides are listed apart in `hidden` (one per
