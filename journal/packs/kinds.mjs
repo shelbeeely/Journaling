@@ -177,14 +177,32 @@ export const KINDS = {
   },
   puzzles: {
     title: 'puzzles', file: 'puzzles.json', privacy: 'public', limits: { maxFileBytes: 200_000, maxTotalBytes: 400_000 },
-    schema: '{ lists: [{ id, title, entries: [{ word: "LETTERS", clue: "an original clue" }] }] } ; words are 3 to 12 letters A-Z, clues up to 40 characters and never contain their answer',
-    consumedBy: 'The word search and crossword blocks (day and Notes pages), when a block\'s "Words from" is "My puzzles pack". The block\'s "List name" picks a list by id. profile paths.puzzles',
+    schema: '{ lists: [{ id, title, entries: [{ word: "LETTERS", clue: "an original clue" }] }], quotes: [{ id, title, items: [{ text: "An original sentence." }] }] } ; words are 3 to 12 letters A-Z, clues up to 40 characters and never contain their answer; quotes (for the cryptogram) are original sentences of 15 to 110 characters (letters, spaces and . , ; : ! ? \' - only), never copied from anyone',
+    consumedBy: 'The word search, crossword and cryptogram blocks (day, Notes, Collection and blank pages), when a block\'s "Words from" is "My puzzles pack". The block\'s "List name" picks a list (word lists) or a quote list (cryptogram) by id. profile paths.puzzles',
     print: 'Clues must be original or openly licensed (the manifest needs an author and a licence, and the build credits the pack): never copied from a published crossword.',
     validate(data) {
       const errors = [], warnings = [];
-      if (!isObj(data) || !Array.isArray(data.lists) || !data.lists.length) return { errors: ['must be {"lists": [{"id", "title", "entries": [{"word", "clue"}]}]} with at least one list'], warnings };
+      const hasLists = isObj(data) && Array.isArray(data.lists) && data.lists.length, hasQuotes = isObj(data) && Array.isArray(data.quotes) && data.quotes.length;
+      if (!hasLists && !hasQuotes) return { errors: ['must be {"lists": [{"id", "title", "entries": [{"word", "clue"}]}]} with at least one list (and/or "quotes": [{"id", "title", "items": [{"text"}]}])'], warnings };
       const ids = new Set();
-      data.lists.forEach((l, li) => {
+      (hasQuotes ? data.quotes : []).forEach((q, qi) => {
+        const at = `quotes[${qi}]`;
+        if (!isObj(q)) { errors.push(`${at}: must be an object {id, title, items}`); return; }
+        if (!(str(q.id) && /^[a-z0-9]+(-[a-z0-9]+)*$/.test(q.id))) errors.push(`${at}.id: is required, lowercase with dashes`);
+        else if (ids.has('q:' + q.id)) errors.push(`${at}.id: "${q.id}" is used twice`); else ids.add('q:' + q.id);
+        if (!str(q.title) || q.title.length > 30) errors.push(`${at}.title: is required, up to 30 characters`);
+        if (!Array.isArray(q.items) || !q.items.length) { errors.push(`${at}.items: is required (a list of {text})`); return; }
+        if (q.items.length < 8) warnings.push(`${at}: ${q.items.length} quotes; 8 or more gives a month of cryptograms some variety`);
+        const seen = new Set();
+        q.items.forEach((it, ii) => {
+          const ea = `${at}.items[${ii}]`, t = isObj(it) ? it.text : null;
+          if (typeof t !== 'string' || t.trim().length < 15 || t.length > 110) { errors.push(`${ea}.text: is required, 15 to 110 characters`); return; }
+          if (!/^[A-Za-z .,;:!?'\-]+$/.test(t)) errors.push(`${ea}.text: letters, spaces and . , ; : ! ? ' - only (the letter boxes cannot show anything else)`);
+          else if ((t.match(/[A-Za-z]/g) || []).length < 12) errors.push(`${ea}.text: needs at least 12 letters`);
+          if (seen.has(t.toLowerCase())) errors.push(`${ea}.text: is in this list twice`); seen.add(t.toLowerCase());
+        });
+      });
+      (hasLists ? data.lists : []).forEach((l, li) => {
         const at = `lists[${li}]`;
         if (!isObj(l)) { errors.push(`${at}: must be an object {id, title, entries}`); return; }
         if (!(str(l.id) && /^[a-z0-9]+(-[a-z0-9]+)*$/.test(l.id))) errors.push(`${at}.id: is required, lowercase with dashes`);
@@ -205,7 +223,7 @@ export const KINDS = {
       });
       return { errors, warnings };
     },
-    consume: (data) => ({ lists: Object.fromEntries(data.lists.map((l) => [l.id, { title: l.title, entries: l.entries.map((e) => ({ word: e.word.toUpperCase(), clue: e.clue })) }])) }),
+    consume: (data) => ({ quotes: Object.fromEntries((data.quotes || []).map((q) => [q.id, { title: q.title, items: q.items.map((i) => i.text) }])), lists: Object.fromEntries((data.lists || []).map((l) => [l.id, { title: l.title, entries: l.entries.map((e) => ({ word: e.word.toUpperCase(), clue: e.clue })) }])) }),
   },
   // A bundle: one pack that provides several of the kinds above for a region (files by the conventions above). Each part is checked by
   // its own kind, and the pack is personal when any part is. Packs of a single kind work the same way.

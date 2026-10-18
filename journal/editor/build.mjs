@@ -40,7 +40,7 @@ const kit = {
 };
 // scan.mjs comes first (the block library uses it), then the block library, then the method layouts (their import of daypage.mjs is already in scope).
 // The puzzle generators (puzzles/*.mjs, names start with pz) come before the block library, which draws the puzzle blocks with them.
-const puzzleCode = ['rng', 'wordsearch', 'crossword', 'samples', 'render'].map((f) => read(`puzzles/${f}.mjs`).replace(/^import .*$/gm, '').replace(/^export /gm, '')).join('\n') + '\n';
+const puzzleCode = ['rng', 'wordsearch', 'crossword', 'samples', 'samples2', 'sudoku', 'maze', 'cipher', 'ladder', 'nonogram', 'kakuro', 'dots', 'render', 'render2'].map((f) => read(`puzzles/${f}.mjs`).replace(/^import .*$/gm, '').replace(/^export /gm, '')).join('\n') + '\n';
 // The print accessibility options (a11yprint.mjs) get their own scope: its helper names stay out of the block library's.
 const a11y = `const { cleanPrint, printOptions, printOn, printCss, largeLayout } = (() => {\n${read('a11yprint.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '')}\nreturn { cleanPrint, printOptions, printOn, printCss, largeLayout };\n})();\n`;
 // photo.mjs (the glue-in photo blocks' geometry, no imports) comes right before the block library that draws them.

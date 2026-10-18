@@ -8,6 +8,10 @@ import { SEND_KEYS, SEND_LABELS, SEND_SIZES, sendBlockHtml, cleanScan, SCAN_CSS 
 import { PZ_WS_MIN, PZ_WS_MAX } from './puzzles/wordsearch.mjs';
 import { PZ_CW_MIN, PZ_CW_MAX } from './puzzles/crossword.mjs';
 import { pzBlock, pzHeight, PZ_CSS } from './puzzles/render.mjs';
+import { pzxBlock, pzxMin, pzxFit, pzxIs, PZX_TYPES, PZX_CSS } from './puzzles/render2.mjs';
+import { PZ_MZ_MIN, PZ_MZ_MAX } from './puzzles/maze.mjs';
+import { PZ_NN_MIN, PZ_NN_MAX } from './puzzles/nonogram.mjs';
+import { PZ_DD_IDS, PZ_DD_SHAPES } from './puzzles/dots.mjs';
 import { PHOTO_TYPES, isPhoto, FRAME_SIZES, STRIP_SIZES, SHEET_SIZES, DAILY_SIZES, CUSTOM_MIN, CUSTOM_MAX, photoPlan, photoMin, photoFit, sizeText, dailyDays, monthDays, linesCount, markArm, MARK_INSET_IN, TICK_GAP_IN, zoomOf, gutterProblem } from './photo.mjs';
 
 export const IC = {
@@ -68,6 +72,13 @@ export const IC = {
   pixel: '<rect x="1.6" y="1.6" width="8.8" height="8.8" rx="1"/><path d="M1.6 6h8.8v4.4H1.6Z" fill="currentColor"/>',
   wordsearch: '<rect x="1.4" y="1.4" width="9.2" height="9.2" rx="1"/><path d="M3.4 8.6 8.6 3.4"/>',
   crossword: '<rect x="1.4" y="1.4" width="9.2" height="9.2" rx="1"/><path d="M1.4 4.5h9.2M1.4 7.5h9.2M4.5 1.4v9.2M7.5 1.4v9.2"/>',
+  sudoku: '<rect x="1.4" y="1.4" width="9.2" height="9.2" rx="1"/><path d="M4.5 1.4v9.2M7.5 1.4v9.2M1.4 4.5h9.2M1.4 7.5h9.2"/><path d="M2.4 3h1.2M5.4 6h1.2M8.4 9h1.2"/>',
+  maze: '<rect x="1.4" y="1.4" width="9.2" height="9.2"/><path d="M4.2 1.4v5M4.2 6.4h3.6M7.8 3.4v5M5.6 3.4h2.2"/>',
+  cryptogram: '<rect x="1.4" y="1.8" width="3.6" height="3.6" rx=".5"/><rect x="7" y="1.8" width="3.6" height="3.6" rx=".5"/><path d="M1.4 8.8h3.6M7 8.8h3.6"/>',
+  wordladder: '<path d="M3.5 1.4v9.2M8.5 1.4v9.2M3.5 3.6h5M3.5 6h5M3.5 8.4h5"/>',
+  nonogram: '<rect x="1.4" y="1.4" width="9.2" height="9.2"/><path d="M4.5 1.4v9.2M7.5 1.4v9.2M1.4 4.5h9.2M1.4 7.5h9.2"/><path d="M4.5 4.5h3v3h-3z" fill="currentColor"/>',
+  kakuro: '<rect x="1.4" y="1.4" width="9.2" height="9.2"/><path d="M1.4 1.4l4 4M5.4 5.4v5.2M5.4 5.4h5.2"/>',
+  dottodot: '<circle cx="2.6" cy="9" r=".8"/><circle cx="6" cy="2.6" r=".8"/><circle cx="9.4" cy="9" r=".8"/><path d="M3 8.2 5.6 3.4M6.4 3.4 9 8.2" stroke-dasharray="1 1"/>',
   // photo journaling (glue-in): a frame with a hill and a sun, three frames in a row, a small grid with the day ringed, a contact sheet with a tick
   photoframe: '<rect x="1.4" y="2" width="9.2" height="8" rx="1"/><circle cx="4.3" cy="4.7" r=".9"/><path d="M1.8 9.4l2.9-2.6 1.9 1.7 1.5-1.3 2.1 2"/>',
   photostrip: '<rect x="1" y="3" width="2.8" height="6" rx=".5"/><rect x="4.6" y="3" width="2.8" height="6" rx=".5"/><rect x="8.2" y="3" width="2.8" height="6" rx=".5"/>',
@@ -145,6 +156,7 @@ const PAPER = { k: 'paper', kind: 'choice', label: 'Paper', choices: [['lines', 
 
 // Puzzle blocks (wordsearch, crossword): difficulty, where the words come from, and the seed (change it for a different puzzle).
 const PZ_LEVEL = (e, m, h, def = 'easy') => ({ k: 'difficulty', kind: 'choice', label: 'Difficulty', choices: [['easy', e], ['medium', m], ['hard', h]], def });
+const PZX_SEED = { k: 'seed', kind: 'text', label: 'Seed (change it for a new puzzle)', def: '', max: 24 };
 const PZ_SOURCE = [
   { k: 'source', kind: 'choice', label: 'Words from', choices: [['sample', 'Built-in lists'], ['pack', 'My puzzles pack'], ['custom', 'My own words']], def: 'sample' },
   { k: 'theme', kind: 'text', label: 'List name (garden, kitchen, sky, calm, or your pack\'s)', def: 'garden', max: 24 },
@@ -214,6 +226,14 @@ export const TYPES = {
   // ---- puzzles (puzzles/): seeded, the same puzzle on any reprint; paper only ----
   wordsearch: { name: 'Word search', group: 'Puzzles', icon: 'wordsearch', hint: 'A letter grid with hidden words. Same page, same puzzle on every reprint. Paper only', opts: [T('Title', 'Word search', 24), N('size', 'Grid size', PZ_WS_MIN, PZ_WS_MAX, 10), PZ_LEVEL('Across and down', 'And diagonals', 'And backwards'), ...PZ_SOURCE, B('answers', 'Show answers', false), B('big', 'Large print', false)] },
   crossword: { name: 'Crossword', group: 'Puzzles', icon: 'crossword', hint: 'A small crossword with its clues. Same page, same puzzle on every reprint. Paper only', opts: [T('Title', 'Crossword', 24), N('size', 'Largest grid', PZ_CW_MIN, PZ_CW_MAX, 9), PZ_LEVEL('Fewer, short words', 'More words', 'Most, longer words', 'medium'), ...PZ_SOURCE, B('answers', 'Show answers', false), B('big', 'Large print', false)] },
+  // ---- puzzles P2 (puzzles/render2.mjs, BUILD-PLAN section 20 "Puzzles P2 as built"): seeded, one solution each where that makes sense; paper only ----
+  sudoku: { name: 'Sudoku', group: 'Puzzles', icon: 'sudoku', hint: 'A 4×4, 6×6 or 9×9 number puzzle with exactly one solution. Same page, same puzzle on every reprint. Paper only', opts: [T('Title', 'Sudoku', 24), { k: 'size', kind: 'choice', label: 'Grid', choices: [[4, '4 × 4'], [6, '6 × 6'], [9, '9 × 9']], def: 9 }, PZ_LEVEL('Easy: singles only', 'Medium', 'Hard: fewest numbers given'), PZX_SEED, B('answers', 'Show answers', false), B('big', 'Large print', false)] },
+  maze: { name: 'Maze', group: 'Puzzles', icon: 'maze', hint: 'A square maze with one way through, wide enough to trace with a pen. Paper only', opts: [T('Title', 'Maze', 24), N('size', 'Squares per side', PZ_MZ_MIN, PZ_MZ_MAX, 12), { k: 'style', kind: 'choice', label: 'Style', choices: [['winding', 'Long winding paths'], ['branchy', 'Many short dead ends']], def: 'winding' }, PZX_SEED, B('answers', 'Show the way through', false), B('big', 'Large print', false)] },
+  cryptogram: { name: 'Cryptogram', group: 'Puzzles', icon: 'cryptogram', hint: 'A short sentence in a letter code, with a box for each letter. Paper only', opts: [T('Title', 'Cryptogram', 24), { k: 'length', kind: 'choice', label: 'Length', choices: [['any', 'Any'], ['short', 'Short'], ['long', 'Longer']], def: 'any' }, PZ_SOURCE[0], { ...PZ_SOURCE[1], label: 'List name (gentle, wise, seasons, or your pack\'s)', def: 'gentle' }, { k: 'words', kind: 'list', label: 'My own sentences (letters and . , ! ? only)', def: [], max: 10, len: 110 }, PZX_SEED, B('hint', 'Give one hint letter', false), B('freq', 'Letter count strip', false), B('answers', 'Show answers', false), B('big', 'Large print', false)] },
+  wordladder: { name: 'Word ladder', group: 'Puzzles', icon: 'wordladder', hint: 'Change one letter at a time to get from one word to another. Paper only', opts: [T('Title', 'Word ladder', 24), { k: 'length', kind: 'choice', label: 'Word length', choices: [[3, '3 letters'], [4, '4 letters'], [5, '5 letters']], def: 4 }, N('steps', 'Steps', 2, 8, 4), { k: 'source', kind: 'choice', label: 'Words from', choices: [['sample', 'Built-in words'], ['custom', 'My own pair']], def: 'sample' }, { k: 'words', kind: 'list', label: 'My own pair (start-end, like cold-warm)', def: [], max: 1, len: 24 }, PZX_SEED, B('hint', 'Mark the letter that changes', false), B('answers', 'Show answers', false), B('big', 'Large print', false)] },
+  nonogram: { name: 'Nonogram', group: 'Puzzles', icon: 'nonogram', hint: 'Fill squares from the number clues to reveal a picture; one solution. Paper only', opts: [T('Title', 'Nonogram', 24), N('size', 'Squares per side', PZ_NN_MIN, PZ_NN_MAX, 10), PZ_LEVEL('Easy: line logic', 'Medium', 'Hard: may need a guess', 'medium'), PZX_SEED, B('answers', 'Show answers', false), B('big', 'Large print', false)] },
+  kakuro: { name: 'Kakuro', group: 'Puzzles', icon: 'kakuro', hint: 'A number-sum grid: digits 1 to 9 that add up to the clues, one solution. Paper only', opts: [T('Title', 'Kakuro', 24), { k: 'size', kind: 'choice', label: 'Size', choices: [[5, '4 × 4'], [6, '5 × 5']], def: 6 }, PZX_SEED, B('answers', 'Show answers', false), B('big', 'Large print', false)] },
+  dottodot: { name: 'Dot to dot', group: 'Puzzles', icon: 'dottodot', hint: 'Numbered dots to join into a simple picture. Paper only', opts: [T('Title', 'Dot to dot', 24), { k: 'shape', kind: 'choice', label: 'Picture', choices: [['auto', 'A different one each page'], ...PZ_DD_IDS.map((id) => [id, PZ_DD_SHAPES[id].name.replace(/^an? /, '').replace(/^./, (c) => c.toUpperCase())])], def: 'auto' }, { k: 'detail', kind: 'choice', label: 'Dots', choices: [[1, 'Fewer'], [2, 'More'], [3, 'Most']], def: 2 }, PZX_SEED, B('answers', 'Show the picture', false), B('big', 'Large print', false)] },
   // ---- photos (photo.mjs, BUILD-PLAN section 23): frames for prints that are GLUED onto the page. Paper only: no image is ever uploaded, stored or printed ----
   photoframe: { name: 'Photo frame', group: 'Photos', icon: 'photoframe', hint: 'A true-size window for a print you paste in: corner marks, room for glue, caption lines. Paper only', opts: [T('Label', '', 24), { k: 'size', kind: 'choice', label: 'Print size', choices: FRAME_SIZES, def: '2x3' }, PH_TURN, N('cw', 'Custom width (tenths of an inch; custom size only)', CUSTOM_MIN, CUSTOM_MAX, 30), N('ch', 'Custom height (tenths of an inch; custom size only)', CUSTOM_MIN, CUSTOM_MAX, 40), B('cut', 'Trim marks (cut guide)'), { k: 'lines', kind: 'choice', label: 'Caption lines', choices: [['none', 'None'], ['one', 'One: what and where'], ['three', 'Three: what, where, why this one']], def: 'one' }, B('who', 'Who and when line', false)] },
   photostrip: { name: 'Photo strip', group: 'Photos', icon: 'photostrip', hint: '2 to 4 small frames in a row or a column, a date line under each. Paper only', opts: [T('Label', '', 24), { k: 'size', kind: 'choice', label: 'Print size', choices: STRIP_SIZES, def: '1x1.5' }, PH_TURN, N('n', 'Frames', 2, 4, 3), { k: 'dir', kind: 'choice', label: 'Direction', choices: [['row', 'In a row'], ['column', 'In a column']], def: 'row' }, B('dates', 'Date line under each frame'), { k: 'lines', kind: 'choice', label: 'Caption line', choices: [['none', 'None'], ['one', 'One line under the strip']], def: 'none' }] },
@@ -519,6 +539,7 @@ const MINSPAN = {
   spacer: (b) => [1, b.h / 10 + 0.01],
   body: () => [BODY_MIN.cols, BODY_MIN.rows * ROW_IN - 0.05],
 };
+for (const t of PZX_TYPES) MINSPAN[t] = (b) => pzxMin(b); // puzzles P2: the drawing's own size (puzzles/render2.mjs)
 export function minSpan(b, colSpan = GRIDS.day.cols, size = 'small') {
   const f = MINSPAN[b.type] || (() => [2, 0.5]);
   const [cols, h] = f(b, Math.max(colSpan, 1), size === 'letter' ? 'letter' : 'small');
@@ -546,6 +567,8 @@ export function gridProblems(L, size = 'small') {
     if (isPhoto(b)) { // a print is a physical size: it fits its cells or the layout says why not (photo.mjs), and it stays clear of the spine
       const f = photoFit(b, b.colSpan, b.rowSpan, size, photoX(b), nm); if (f) bad(b, f.code, f.msg);
       const gp = gutterProblem(size); if (gp) bad(b, 'gutter', `${nm}: ${gp}`);
+    } else if (pzxIs(b.type)) { // a puzzle's squares must stay big enough to write in: its own plain reason (puzzles/render2.mjs)
+      const f = pzxFit(b, b.colSpan, b.rowSpan, size, nm, ROW_IN); if (f) bad(b, 'puzzle', f);
     } else if (b.type === 'body') {
       if (b.rowSpan < BODY_MIN.rows || b.colSpan < BODY_MIN.cols) bad(b, 'body', `The Writing space stays at least ${BODY_MIN.rows} rows tall (${(BODY_MIN.rows * 5.588).toFixed(0)} mm) and ${BODY_MIN.cols} columns wide; it is ${b.rowSpan} rows by ${b.colSpan} columns.`);
     } else if (b.colSpan < m.cols) bad(b, 'min', `${nm} needs at least ${m.cols} columns to fit its content; it has ${b.colSpan}.`);
@@ -785,6 +808,7 @@ function renderBlock(b, parts, zone, opt = {}) {
   const Z = `data-zone="${zone}"`;
   switch (b.type) {
     case 'photoframe': case 'photostrip': case 'photodaily': case 'contactsheet': return photoHtml(b, parts, Z, opt);
+    case 'sudoku': case 'maze': case 'cryptogram': case 'wordladder': case 'nonogram': case 'kakuro': case 'dottodot': { const p = pzxBlock(b, pzSeed(b, parts), { cols: opt.cols }); return `<div class="xb pzx${b.big ? ' big' : ''}" ${Z}>${lbl(b.type, p.label)}${p.body}</div>`; }
     case 'wordsearch': case 'crossword': { const p = pzBlock(b, pzSeed(b, parts)); return `<div class="xb pz${b.big ? ' big' : ''}" ${Z}>${lbl(b.type, p.label)}<div class="pzr">${p.body}</div></div>`; }
     case 'sky': case 'notes': case 'events': case 'fact': return parts[b.type] || '';
     case 'spoons': return `<div class="care solo">${spoonRow(b)}</div>`;
@@ -967,7 +991,7 @@ function gridBlocks(parts, L, opt) {
 }
 
 // Extra CSS the blocks need (appended to the page CSS).
-export const DAYPAGE_CSS = PZ_CSS + `
+export const DAYPAGE_CSS = PZ_CSS + PZX_CSS + `
 .rev .zl { display: flex; align-items: center; gap: 3px; } .rev .zl i { font-style: normal; font-size: 6.5pt; letter-spacing: 0.4px; white-space: nowrap; }
 .cbi { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; padding: 3px 0 4px; font-size: 7.5pt; line-height: 1.2; border-bottom: 1px solid #DCDCDC; }
 .ci { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; } .ci i { width: 10px; height: 10px; border: 1.2px solid #000; flex: none; } .ci span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .cbi .more { font-style: italic; color: #444; }
