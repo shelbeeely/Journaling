@@ -48,7 +48,7 @@ export const reviewH = (b) => NOTE_OVER + NOTE_HDR + b.n * nbRow(b);
 
 // ---- Cornell notes ----
 export const cornellH = (b) => NOTE_OVER + nbHdr(b) + (b.head ? NOTE_HDR : 0) + NB_SMALL + b.n * nbRow(b) + 0.04 + NB_SMALL + b.s * nbRow(b); // label, topic line, column heads, rows, the summary strip
-export const cornellNeed = () => 1.5;
+export const cornellNeed = (b) => (b.head ? 2.0 : 1.5); // the topic and date line: two labels, a line of 0.4 in and the date rule of 0.8 in
 // ---- a note area: header lines, then paper that takes the rest of its cell ----
 export const noteHead = (b) => (b.title !== '' || b.topic || b.date ? 1 : 0) + (b.source ? 1 : 0);
 export const noteareaH = (b) => NOTE_OVER + noteHead(b) * NOTE_HDR + b.n * nbRow(b);

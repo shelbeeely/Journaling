@@ -1011,7 +1011,7 @@ function noteHtml(b, Z, opt) {
     }
     case 'reviewtracker': {
       const ks = reviewSteps(b), tpl = `1fr ${b.date ? '0.5in ' : ''}repeat(${ks.length}, 0.3in)`;
-      const head = `<div class="flx-rh" aria-hidden="true" style="grid-template-columns:${tpl}"><div>${lbl('reviewtracker', b.title || 'Reviews')}</div>${b.date ? '<span class="flx-l">learned</span>' : ''}${ks.map((k) => `<span class="flx-l">${REVIEW_DAYS[k]}d</span>`).join('')}</div>`;
+      const head = `<div class="flx-rh" aria-hidden="true" style="grid-template-columns:${tpl}"><div>${lbl('reviewtracker', b.title || 'Reviews')}</div>${b.date ? '<span class="flx-l">date</span>' : ''}${ks.map((k) => `<span class="flx-l">${REVIEW_DAYS[k]}d</span>`).join('')}</div>`;
       const rows = Array.from({ length: b.n }, () => `<div class="flx-rv" style="grid-template-columns:${tpl};height:${nbIn(row)}">${ruled(1, '', b.pitch)}${b.date ? ruled(1, '', b.pitch) : ''}${ks.map(() => `<span class="flx-c">${nbBox()}</span>`).join('')}</div>`).join('');
       return wrap('flx-rt', `${b.title || 'Reviews'}: ${nbPlural(b.n, 'topic line')}${b.date ? ', each with a learned-on date' : ''} and a tick box for a review after ${ks.map((k) => nbPlural(REVIEW_DAYS[k], 'day')).join(', ')}. A starting rhythm to change as you like.`, `${head}<div aria-hidden="true">${rows}</div>`);
     }

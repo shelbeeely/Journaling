@@ -366,6 +366,14 @@ Four blocks in the palette group **Photos**: `photoframe` (a true-size window fo
 - **Where.** Any page kind. Notes, Collection and day pages keep their Writing space (8 of 24 rows), so big prints go on the blank page or a spread page. Nothing crosses a spread's fold; every frame stays at least 0.625 in from the spine (`GUTTER_KEEP_IN`).
 - **Test:** `node test-photoblocks.mjs` (sizes measured in the page and in the 300 dpi PDF, fit refusals, gutter, determinism, every page kind, large print and high contrast, Studio allowlist).
 
+### Note, flash card and stimming blocks (B1)
+Ten blocks, paper only (no upload, storage, sensor or X4 items). Palette group **Notes and study**: `cornell`, `notearea` (ruled, dot, grid or blank, with topic, date and source lines; fills its cell), `conceptmap` (a centre bubble and 3 to 8 branches), `questions`, `summarybox`, `flashstrip` and `reviewtracker`. Palette group **Regulation**: `stimlog`, `stimmenu` (by sense) and `stimtrace` (waves, zigzags, loops, spirals or grid lines to trace). Plan, overlaps with existing blocks and the later slices: BUILD-PLAN section 24. `noteblocks.mjs` holds the widths, heights, fit rules and tracing paths; `daypage.mjs` the options and drawing.
+- **Flash cards are fold-over strips: no perforation, no cutting.** Each row is number, term line, review ticks | fold | answer line. One dashed fold line (0.75 pt, vector) sits at 40, 50 or 60 percent of the strip's width, at the same x on every row, so one fold of the page edge hides every answer; two strips of the same width and share fold along the same line. Answers are on the right by default (fold the outer edge of a right-hand page); set "Answers on: the left" for a left-hand page. Review ticks (0 to 5) and the optional got it / again pair stay on the term side, in view.
+- **Stimming is self-regulation.** The stim blocks say so and none asks anyone to stop; a test scans their words.
+- **Fit.** Rows are fixed height, so a block's height is its plan (`noteMin`). `gridProblems` refuses a block that is too narrow or short with the numbers (codes `notewidth`, `noterows`), per trim; the editor shows the same words under the block.
+- **Print.** Vector only, strokes at least 0.75 pt, no Type 3 fonts. Class names `nbk-`, `flx-`, `stm-` belong to these blocks (a test guards it); the default layout is unchanged.
+- **Test:** `node test-noteblocks.mjs` (plans and refusals, every page kind, fold line measured in the page and the 300 dpi PDF, vector only, large print and high contrast, Studio allowlist).
+
 ### Page organiser (Book view, edit mode)
 Edit the book (Edit at the whole-book level) and the canvas becomes an organiser; viewing stays read-only.
 - **Move:** drag a page on the canvas (mouse or pen; on a touch screen use Move to…), select a page and press Alt+Left / Alt+Right, use

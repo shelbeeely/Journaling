@@ -212,7 +212,7 @@ const stack = (kind, size, blocks) => { // blocks one under the other at full wi
   ok(cnt(mk('questions', { n: 6 }), /class="nbk-n">\d+</g) === 6 && cnt(mk('questions', { n: 6, answers: false }), /class="nbk-q"/g) === 6 && cnt(mk('questions', { n: 6 }), /class="nbk-q"/g) === 12 && cnt(mk('questions', { n: 6, tick: false }), /class="nbk-bx"/g) === 0 && cnt(mk('questions', { n: 6 }), /class="nbk-bx"/g) === 6, 'questions: numbered, an answer line under each (or not), a box to tick when answered (or not)');
   const steps = (o) => NB.reviewSteps(B('reviewtracker', o)).length;
   ok(cnt(mk('reviewtracker', { n: 5 }), /class="flx-c"/g) === 5 * 4 && cnt(mk('reviewtracker', { n: 3, every: { d1: true, d3: false, d7: false, d14: true, d21: false, d30: true } }), /class="flx-c"/g) === 9 && ['1d', '3d', '7d', '21d'].every((d) => new RegExp(`class="flx-l">${d}<`).test(mk('reviewtracker'))) && steps({}) === 4, 'review tracker: a tick for each topic and review time (1, 3, 7 and 21 days by default; 14 and 30 on request), labelled in the header');
-  ok(/learned/.test(mk('reviewtracker')) && !/learned/.test(mk('reviewtracker', { date: false })), 'review tracker: a learned-on date column, or none');
+  ok(/flx-l">date</.test(mk('reviewtracker')) && !/flx-l">date</.test(mk('reviewtracker', { date: false })), 'review tracker: a learned-on date column, or none');
   ok(/rhythm to change as you like/.test(labelsOf(mk('reviewtracker'))), 'review tracker: the text alternative says the rhythm is a starting point');
   ok(/Topic/.test(mk('cornell')) && !/Topic/.test(mk('cornell', { head: false })) && /Cues/.test(mk('cornell')) && /Summary/.test(mk('cornell')) && /grid-template-columns:35% 1fr/.test(mk('cornell')) && /grid-template-columns:30% 1fr/.test(mk('cornell', { cue: 30 })), 'cornell: a topic and date line, a cue column, notes and a summary strip; the cue share is an option');
   ok(/Topic/.test(mk('notearea')) && /Date/.test(mk('notearea')) && !/Source/.test(mk('notearea')) && /Source/.test(mk('notearea', { source: true })) && !/Topic/.test(mk('notearea', { topic: false })) && /nbk-bl/.test(mk('notearea', { paper: 'blank' })) && /class="ru pd/.test(mk('notearea', { paper: 'dots' })) && /class="ru pg/.test(mk('notearea', { paper: 'grid' })), 'note area: topic, date and source lines on request; ruled, dot, 4 mm grid or blank paper');
@@ -353,7 +353,7 @@ const TOL = 0.004;
       const seam = s.termFirst ? s.term.map((t) => t.x + t.w) : s.term.map((t) => t.x), seam2 = s.termFirst ? s.ans.map((t) => t.x) : s.ans.map((t) => t.x + t.w);
       assert.ok(seam.every((x) => near(x, foldX, TOL)) && seam2.every((x) => near(x, foldX, TOL)), `${label} ${pg.id}: every row\'s term and answer cells meet at the fold line (${seam.map((x) => x.toFixed(3)).join(' ')} | ${seam2.map((x) => x.toFixed(3)).join(' ')} vs ${foldX.toFixed(3)})`);
       assert.ok(near(s.fold.y, s.rw.y, TOL) && near(s.fold.h, s.rw.h, 0.006) && s.rows.every((r) => near(r.w, s.rw.w, TOL) && near(r.x, s.rw.x, TOL)), `${label} ${pg.id}: the fold line runs the whole height of the rows, and every row is as wide as the strip`);
-      assert.ok(s.boxW.every((w) => w >= 1) && s.hint !== undefined, `${label} ${pg.id}: tick boxes have 1 px (0.75 pt) borders or more`);
+      assert.ok(s.boxW.every((w) => w * z >= 0.99) && s.hint !== undefined, `${label} ${pg.id}: tick boxes have 1 px (0.75 pt) borders or more`);
       
       // the strip spans the whole width of its columns, so the fold is a fixed share of the page's content width
       const cw = PH.cellWidth(4, bd.size) * z;
