@@ -67,7 +67,7 @@ const pzxPlan = {
     return { gw: L * (bw + 3) + 3, gh: (steps + 1) * pitch, bw, pitch, L, text: ['Change one letter at a time to turn START into END in 8 steps. Every rung is a word.', ...(b.hint ? ['The thick line marks the letter that changes.'] : [])] };
   },
   nonogram(b) {
-    const n = +b.size, per = Math.ceil(n / 2), rw = per * (n >= 10 ? 8.4 : 7) + 4, ch = per * (b.big ? 11 : 9.6) + 4, cell = Math.min(b.big ? 28 : 24, Math.floor((331 - rw) / n));
+    const n = +b.size, per = Math.ceil(n / 2), rw = per * (b.big ? 10.6 : 9) + (n >= 10 ? 6 : 0) + 4, ch = per * (b.big ? 11 : 9.6) + 4, cell = Math.min(b.big ? 28 : 24, Math.floor((331 - rw) / n));
     return { gw: rw + n * cell + 2, gh: ch + n * cell + 2, cell, rw, ch, text: ['The numbers give the runs of filled squares in each row and column, in order, with at least one gap between runs. Fill squares to find the picture.'] };
   },
   kakuro(b) {
@@ -184,7 +184,8 @@ function pzxLadderSvg(ld, plan, b, answers, id, title) {
 
 function pzxNonoSvg(nn, plan, b, answers, id, title) {
   const n = nn.n, c = plan.cell, fs = b.big ? 10.5 : 9, per = Math.max(...nn.rowClues.map((a) => a.length)), perC = Math.max(...nn.colClues.map((a) => a.length));
-  const ox = Math.min(plan.rw, per * (n >= 10 ? 8.4 : 7) + 4), oy = Math.min(plan.ch, perC * (b.big ? 11 : 9.6) + 4);
+  const nw = (v) => String(v).length * (b.big ? 6.4 : 5.4) + (b.big ? 4.2 : 3.6), rowW = Math.max(...nn.rowClues.map((a) => a.reduce((t, v) => t + nw(v), 0))) + 4;
+  const ox = Math.min(plan.rw, rowW), oy = Math.min(plan.ch, perC * (b.big ? 11 : 9.6) + 4);
   const clueTxt = (a) => (a.length === 1 && a[0] === 0 ? '0' : a.join(' '));
   let s = pzxOpen(ox + n * c + 2, oy + n * c + 2, id, title, `Nonogram, ${n} by ${n}. Row clues, top to bottom: ${nn.rowClues.map(clueTxt).join('; ')}. Column clues, left to right: ${nn.colClues.map(clueTxt).join('; ')}.${answers ? ' Solution rows, # filled: ' + nn.rows.join(' ') : ''}`);
   if (answers) nn.rows.forEach((row, y) => { for (let x = 0; x < n; x++) if (row[x] === '#') s += `<rect x="${ox + x * c + 1}" y="${oy + y * c + 1}" width="${c - 2}" height="${c - 2}" fill="#000"/>`; });
@@ -192,7 +193,7 @@ function pzxNonoSvg(nn, plan, b, answers, id, title) {
     const w = i % 5 === 0 ? 1.8 : PZX_STROKE;
     s += pzxLine(ox + i * c, oy, ox + i * c, oy + n * c, w) + pzxLine(ox, oy + i * c, ox + n * c, oy + i * c, w);
   }
-  nn.rowClues.forEach((cl, y) => { s += `<text x="${ox - 4}" y="${pzxN(oy + (y + 0.5) * c + fs * 0.36)}" font-size="${fs}" font-weight="600" text-anchor="end" fill="#000">${cl.join('\u2002')}</text>`; });
+  nn.rowClues.forEach((cl, y) => { let x = ox - 3; for (let k = cl.length - 1; k >= 0; k--) { s += `<text x="${pzxN(x - (String(cl[k]).length * (b.big ? 6.4 : 5.4)) / 2)}" y="${pzxN(oy + (y + 0.5) * c + fs * 0.36)}" font-size="${fs}" font-weight="600" text-anchor="middle" fill="#000">${cl[k]}</text>`; x -= nw(cl[k]); } });
   nn.colClues.forEach((cl, x) => cl.forEach((v, k) => { s += pzxText(ox + (x + 0.5) * c, oy - 3 - (cl.length - 1 - k) * (fs + 1.2), fs, String(v), 'font-weight="600" fill="#000"'); }));
   return s + '</svg>';
 }

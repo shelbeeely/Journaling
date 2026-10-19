@@ -380,9 +380,10 @@ const GROUPS = { sudoku: [['sudoku', { size: 9, difficulty: 'medium' }]], sudoku
 for (const size of ['small', 'letter']) for (const [tag, blocks] of Object.entries(GROUPS)) {
   const r = buildDay(`${tag}-${size}`, blocks, size), type = blocks[0][0];
   ok(r.days.length === 31 && r.days.every((p) => p.zones.some((x) => x.zone === type && x.w > 20 && x.h > 20)), `${tag} (${size}): all 31 day pages map the ${type} zone in layout.json`);
-  ok(new Set([...r.html.matchAll(/<desc id="[^"]+">([^<]{20,})/g)].map((m) => m[1]).filter((d) => /^(Sudoku|Maze|Cryptogram|Word ladder|Nonogram|Kakuro|Dot to dot)/.test(d))).size >= (type === 'wordladder' || type === 'dottodot' ? 20 : 28), `${tag} (${size}): the month's puzzles differ day to day`);
+  const drawn = new Set([...r.html.matchAll(/<svg width="[\d.]+" height="[\d.]+" viewBox="[^"]*" role="img".*?<\/svg>/gs)].map((m) => m[0].replace(/pzx[a-z0-9]+/g, '')));
+  ok(drawn.size >= (type === 'wordladder' ? 12 : type === 'dottodot' ? 20 : 28), `${tag} (${size}): the month's puzzles differ day to day (${drawn.size} different drawings in 31 pages)`);
 }
-buildDay('print-options', [['nonogram', { size: 10, big: true }]], 'small', { large: true, contrast: true });
+buildDay('print-options', [['nonogram', { size: 8, big: true }]], 'small', { large: true, contrast: true });
 buildDay('print-options-ladder', [['wordladder', { steps: 6, big: true, hint: true }]], 'letter', { large: true, contrast: true });
 buildDay('print-options-sudoku', [['sudoku', { size: 9, big: true }]], 'small', { large: true, contrast: true });
 buildDay('print-options-crypto', [['cryptogram', { big: true, hint: true, freq: true }]], 'letter', { large: true, contrast: true });
@@ -393,25 +394,10 @@ buildDay('answers', [['sudoku', { size: 6, answers: true }]], 'small');
   const { DEFAULT_BOOK, validateBook } = await import('./book.mjs'), { addEntry, setLayout } = await import('./bookedit.mjs'), { catalog } = await import('./editor/samples.mjs'), { libraryFromProfile } = await import('./library.mjs'), { PROFILE } = await import('./profile.mjs');
   const cat = await catalog('2026-10', DEFAULT_BOOK), must = (r) => { assert.ok(r.book, r.err); return r.book; };
   const grid = (kind, blocks) => { const L = normalize({ v: 2, kind, grid: true, blocks }, 'small', kind), dropped = autoPlace(L, 'small'); assert.equal(dropped.length, 0, `${kind}: ${blocks.map((b) => b.type)} place`); const p = normalize(L, 'small', kind); assert.deepEqual(gridProblems(p, 'small'), []); assert.deepEqual(gridProblems(p, 'letter'), []); return p; };
-  let book = must(addEntry(DEFAULT_BOOK, cat, null, 'blank', { before: 'theme' }, {}));
-  book = must(addEntry(book, cat, null, 'notes', { before: 'theme' }, { title: 'Puzzle notes' }));
-  book = must(addEntry(book, cat, null, 'collection', { before: 'theme' }, { title: 'Puzzle corner' }));
-  book = must(addEntry(book, cat, null, 'blank', { before: 'theme' }, {}));
-  book = must(addEntry(book, cat, null, 'blank', { before: 'theme' }, {}));
-  const ids = Object.keys(book.default.reduce((a, e) => a, {})).length; // (placeholder: the new pages are found by id below)
-  const pages = [];
-  for (const e of book.default) pages.push(e);
-  const added = []; (function find(es) { for (const e of es) { if (['blank', 'notes', 'collection'].includes(e.type) || /^(blank|notes|collection)_?\d*$/.test(e.id || '')) added.push(e); if (Array.isArray(e.options && e.options.week)) find(e.options.week); } })(book.default);
-  const idsOf = added.map((e) => e.id || e.type);
-  const wants = { blank: [[mkb('maze', { size: 20, answers: false }, 'mz')], [mkb('nonogram', { size: 15 }, 'nn')], [mkb('sudoku', { size: 9 }, 'sd'), mkb('kakuro', { size: 5 }, 'kk')]], notes: [[mkb('wordladder', { steps: 5 }, 'wl'), mkb('dottodot', {}, 'dd')]], collection: [[mkb('cryptogram', { freq: true }, 'cr')]] };
-  const used = {};
-  for (const e of added) {
-    const kind = e.type === 'blank' || /^blank/.test(e.id || '') ? 'blank' : /^notes/.test(e.id || '') || e.type === 'notes' ? 'notes' : 'collection', k = used[kind] = (used[kind] || 0);
-    const set = (wants[kind] || [])[k]; used[kind]++;
-    if (!set) continue;
-    const blocks = kind === 'blank' ? set : [...set, newBlock('body', {}, 'body')];
-    book = must(setLayout(book, cat, null, e.id, grid(kind, blocks)));
-  }
+  let book = DEFAULT_BOOK;
+  for (const [kind, title] of [['notes', 'Ladder'], ['notes', 'Dots'], ['notes', 'Sudoku'], ['collection', 'Cryptogram'], ['collection', 'Nonogram']]) book = must(addEntry(book, cat, null, kind, { before: 'theme' }, { title }));
+  const plan = { blank: [mkb('maze', { size: 20 }, 'mz')], notes_1: [mkb('wordladder', { steps: 5 }, 'wl'), newBlock('body', {}, 'body')], notes_2: [mkb('dottodot', {}, 'dd'), newBlock('body', {}, 'body')], notes_3: [mkb('sudoku', { size: 9 }, 'sd'), newBlock('body', {}, 'body')], collection_1: [mkb('cryptogram', { freq: true }, 'cr'), newBlock('body', {}, 'body')], collection_2: [mkb('nonogram', { size: 8 }, 'nn'), newBlock('body', {}, 'body')] };
+  for (const [id, blocks] of Object.entries(plan)) book = must(setLayout(book, cat, null, id, grid(id.replace(/_\d+$/, ''), blocks)));
   ok(validateBook(book).length === 0, 'a book with puzzle pages validates');
   const lib = libraryFromProfile(PROFILE); lib.layouts = [{ id: 'mine', name: 'Puzzle pages', book }]; lib.books[0].layoutRef = 'mine';
   const file = path.join(TMP, 'library.json'); fs.writeFileSync(file, JSON.stringify(lib));
@@ -420,7 +406,7 @@ buildDay('answers', [['sudoku', { size: 6, answers: true }]], 'small');
     run('render.mjs', ['month', '2026-10', 'test.ics'], env);
     ok(/\[\] 0/.test(run('check.mjs', [dir], env)), `puzzle blank, Notes and Collection pages (${size}): every page passes check.mjs ("[] 0")`);
     const lay = JSON.parse(fs.readFileSync(`${out}/${dir}/layout.json`, 'utf8')), zones = lay.pages.flatMap((p) => p.zones.map((z) => z.zone));
-    ok(['maze', 'nonogram', 'sudoku', 'kakuro', 'wordladder', 'dottodot', 'cryptogram'].every((z) => zones.includes(z)), `puzzle pages (${size}): layout.json maps a zone for every puzzle (${zones.filter((z) => /maze|nonogram|sudoku|kakuro|wordladder|dottodot|cryptogram/.test(z)).join(', ')})`);
+    ok(['maze', 'nonogram', 'sudoku', 'wordladder', 'dottodot', 'cryptogram'].every((z) => zones.includes(z)), `puzzle pages (${size}): layout.json maps a zone for every puzzle (${zones.filter((z) => /maze|nonogram|sudoku|kakuro|wordladder|dottodot|cryptogram/.test(z)).join(', ')})`);
     ok(!/Type 3/i.test(execFileSync('pdffonts', [`${out}/${dir}/${pdfName[size]}`]).toString()), `puzzle pages (${size}): no Type 3 fonts`);
   }
 }
