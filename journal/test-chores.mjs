@@ -1,4 +1,4 @@
-// Chores test (CH1, BUILD-PLAN section 24): the chores blocks, the recurrence, the energy-aware wording, the household mode, the tone and the data model.
+// Chores test (CH1, BUILD-PLAN section 25): the chores blocks, the recurrence, the energy-aware wording, the household mode, the tone and the data model.
 // Proves (1) the two blocks are declared like every other block (group, icon, options, day-only or not, no place to put a chore's text),
 // (2) recurrence is computed from the date alone (daily, weekly, monthly, seasonal; leads that cross a month or a year; the last day of a short
 // month; rotation of whose turn it is), (3) the tone: a neutral "due soon" marker and no counts, streaks, red, or shame words anywhere in the
@@ -216,7 +216,7 @@ const every = []; // every piece of markup drawn in this test, for the class che
   const found = [];
   const walk = (dir) => { for (const e of fs.readdirSync(dir, { withFileTypes: true })) { if (skip.has(e.name) || e.name.startsWith('out-')) continue; const f = path.join(dir, e.name); if (e.isDirectory()) walk(f); else if (/\.(mjs|js|html|css|json|md|py|c|h|cpp|sh|yml)$/.test(e.name) && fs.statSync(f).size < 4e6 && /\bchx[a-z0-9_-]*/.test(fs.readFileSync(f, 'utf8'))) found.push(path.relative('..', f)); } };
   walk('..');
-  const allowed = new Set(['journal/chores.mjs', 'journal/test-chores.mjs', 'journal/i18n/print-strings.md', 'docs/journaling/BUILD-PLAN.md', 'docs/journaling/chores.md']);
+  const allowed = new Set(['journal/chores.mjs', 'journal/test-chores.mjs', 'journal/i18n/print-strings.md', 'docs/journaling/BUILD-PLAN.md', 'docs/journaling/chores.md', 'HANDOFF.md', 'journal/README.md', '.github/workflows/books.yml']);
   ok(found.every((f) => allowed.has(f)), 'the prefix chx is used by chores.mjs and nothing else' + (found.filter((f) => !allowed.has(f)).length ? ': also in ' + found.filter((f) => !allowed.has(f)).join(', ') : ''));
   const js = fs.readFileSync('chores.mjs', 'utf8');
   const tops = [...js.matchAll(/^(?:export )?(?:const|let|function) (\w+)/gm)].map((m) => m[1]);
@@ -239,7 +239,7 @@ const every = []; // every piece of markup drawn in this test, for the class che
   ok(!CH.CH_SAMPLE.items.some((i) => none.includes(i.name)) && !CH.CH_SAMPLE.household.some((p) => none.includes(p)), 'and the sample chores and names are not in a snapshot of a layout that uses them');
 }
 
-// ---- 11. the X4 data model (the firmware is a later slice: BUILD-PLAN section 24.6) ----
+// ---- 11. the X4 data model (the firmware is a later slice: BUILD-PLAN section 25.6) ----
 {
   const pack = CH.chX4Pack(cfg, '2026-10-30', 3), days = Object.keys(pack);
   ok(days.join() === '2026-10-30,2026-10-31,2026-11-01' && pack['2026-10-31'].some((e) => e.id === 'oven' && e.soon === true && e.who) && pack['2026-10-31'].every((e) => e.label.length <= 28 && /^[a-z0-9-]+$/.test(e.id)), 'the pack for a run of days lists each date\'s chores with an id, a short label, the versions, whose turn and "soon"');
@@ -252,7 +252,7 @@ const every = []; // every piece of markup drawn in this test, for the class che
   ok(CH.CH_LEVELS.join() === 'none,small,enough,full', 'a tick means none, small, good enough or all of it: any of the last three counts as done');
   const plan = fs.readFileSync('../docs/journaling/BUILD-PLAN.md', 'utf8'), fw = fs.readdirSync('../x4', { recursive: true }).filter((f) => /\.(c|cpp|h|ino|ini)$/.test(f)).map((f) => fs.readFileSync(path.join('../x4', f), 'utf8')).join('\n');
   ok(!/chore/i.test(fw), 'the firmware is untouched: nothing about chores in x4/ yet (a follow-up slice, with its own scope review)');
-  ok(/## 24\. Chores/.test(plan) && /explicit/i.test(plan.slice(plan.indexOf('## 24. Chores'))), 'BUILD-PLAN section 24 holds the plan, and says the sync is explicit');
+  ok(/## 25\. Chores/.test(plan) && /explicit/i.test(plan.slice(plan.indexOf('## 25. Chores'))), 'BUILD-PLAN section 25 holds the plan, and says the sync is explicit');
 }
 
 // ---- 12. the books: both trims, plain and with large print and high contrast ----

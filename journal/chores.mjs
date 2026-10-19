@@ -1,4 +1,4 @@
-// Chores (BUILD-PLAN section 24, slice CH1): a tickable list of today's chores, rotation grids for a week or a month, and the
+// Chores (BUILD-PLAN section 25, slice CH1): a tickable list of today's chores, rotation grids for a week or a month, and the
 // energy-aware wording (a small version and a good-enough version of each chore). For one person, or an optional shared household.
 //
 // WHERE THE CHORES COME FROM. The profile's optional `chores` section (content/profile.json; `profile.example.json` shows the shape):
@@ -190,7 +190,7 @@ export function chMonth(cfg, n, groups) {
   return { weeks, daily, rows };
 }
 
-// ---- the X4 check-in (data model only: the firmware slice CH3 reads it, BUILD-PLAN section 24.6) ----
+// ---- the X4 check-in (data model only: the firmware slice CH3 reads it, BUILD-PLAN section 25.6) ----
 // What the pack export would put on the SD card for a run of days: the day's chores with their labels and the two versions. The X4 sends back
 // ticks as { date, ticks: { <chore id>: 0..3 } } (CH_LEVELS) over the user-started sync, never in the background. Nothing here counts anything.
 export function chX4Pack(cfg, from, days) {

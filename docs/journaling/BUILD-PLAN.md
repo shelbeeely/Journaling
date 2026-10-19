@@ -835,16 +835,140 @@ Strips, sheets and the daily grid, 31 days or a full sheet, smallest rows (4 col
 6. **Where do photo pages go?** Today a book can have one blank page, and Notes or Collection pages keep their Writing space. Do you want a repeatable "Photo page" (PH2)?
 7. **Hardcover.** More paper, more pasted thickness: any limit?
 
-## 24. Chores (2026-10-18, slice CH1 built)
+
+## 24. More block groups: study, regulation, planning, creative (2026-10-18, slice B1 built)
+
+Shelbee asked for new blocks: note taking, flash cards, stimming "and more". She chose four groups: **Study and learning**, **Regulation and sensory**, **Planning and tracking**, **Creative and fun**. This section proposes the blocks, prunes the suggestions against what already exists (`TYPES` in `daypage.mjs` was read first), and builds the first slice (B1: note taking, flash cards, stimming).
+
+**Rules for all of it (decided, do not add without asking)**
+- **Everything is physical paper.** No new data handling: no upload, no storage, no sensor, no audio, no camera, nothing in a Studio snapshot beyond the existing allowlist (`studio/src/snapshot.mjs` copies only `TYPES[type].opts` and the grid placement; `test-noteblocks.mjs` proves a stray `src`, `audio` or `url` is dropped). No X4 involvement and no generative AI.
+- **No cutting, no perforation.** KDP cannot print perforation or cut-out cards. Flash cards are **fold-over strips** (below).
+- **Stimming is valid self-regulation.** Every stimming block says so in its copy, and no block, label, hint or palette note says "reduce", "stop", "suppress", "control" or "fix" (a test scans the words). The blocks help someone notice what works for them. This follows `autistic-sensory-journaling.md` (stims and supports are "deposits", the Hull et al. list of masking techniques names suppressing stims as one to notice, not to do).
+- Calm and low-stimulation, icons over words, no streaks, no scores, no "bad".
+- Same machinery as every block (section 20): declared in `TYPES`, laid out on the page grid, one `data-zone` each (repeats `_2`, `_3`), a minimum span per trim, `gridProblems` refusals with plain reasons, a palette group, an icon, catalog strings, a text alternative, vector-only drawing.
+
+### 24.1 What already exists (so nothing is duplicated)
+
+| Idea | Already in `TYPES` | Decision |
+|---|---|---|
+| Ruled, dot or grid note area | `lines` (label, rows, lines/dots/grid, pitch), `body` (Writing space), `dump` (box) | New `notearea`: adds a topic, date and source line, a blank paper, and fills its cell. `lines` is left alone (adding options to it would change every saved layout). |
+| Numbered list | `top` (priorities with time circles), `bullets` | New `questions` is different: a question line plus an answer line and an answered box. |
+| Summary / say it back | `keep`, `review` (went well / hard / tomorrow), `lines` | New `summarybox` (framed, with a prompt). Small, kept because it was asked for. |
+| Gratitude | `good` ("Small good things", with a because line) | **Covered.** `gratitude3` is a preset of `good` (n 3, because on), no new block. |
+| Brain dump | `dump`, `later`, `wall` | **Covered.** No `braindump` block. |
+| Meds | `care` row `meds` (morning, evening, as needed) | **Covered.** No `meds` block. |
+| Symptoms | `scale` preset "Pain", `bodysig`, `sites`, `fields` | Partly. A `symptomlog` row table is proposed (B3) only if the presets prove too thin. |
+| Sensory | `sensory` (load 0 to 3 per sense), preset `Supports` (headphones, hood, dark room, alone time), preset `Overload` | The stimming blocks are new; `sensory` stays. |
+| Appointments | `events` (read from the calendar), `reach`, `bus` | New `appointments` (B3): what, when, where, bring, ask. |
+| Weekly review | `review` (daily), preset "Weekly review" (one tick) | Extend `review` with a week wording rather than a new block (B3). |
+| Routine, project steps | `checks` presets (Rituals, Shutdown), `top`, `actions`, `rounds`, `stamps` | `routinebuilder` and `projectsteps` are proposed (B3) because none holds minutes, a cue or a next-action mark. |
+| Mind map | none; `conceptmap` is built in B1 | `mindmap` is `conceptmap` with a tree style (B4), not a second block. |
+| Tracing pattern | none; `stimtrace` is built in B1 | `tracepattern` **is** `stimtrace`. |
+| Colour-in pattern | section 22 plans `pattern` | `colourpattern` **is** section 22's `pattern`. |
+| Doodle prompt | section 22 plans `doodle`; `sketch` has a caption | `doodleprompt` is a `sketch` with a seeded prompt line (B4). |
+| Maze | `puzzles/` (word search, crossword: seeded, vector) | `maze` joins the Puzzles group as a third seeded puzzle (B4). |
+
+### 24.2 The blocks
+
+Minimum span is columns x rows at the default options, 5.5x8.5 first, then 8.5x11 (a grid row is 0.22 in on the page layout; the 8.5x11 page is the same layout zoomed 1.294x, so rows match and columns are wider relative to the type). Built blocks are measured from the code; proposed ones are estimates to be measured in their slice.
+
+**Notes and study** (palette group "Notes and study")
+
+| Block | Purpose | Options | Page kinds | Min span (small / letter) | Overlaps |
+|---|---|---|---|---|---|
+| `cornell` (B1) | Cue column, notes column, summary strip | label, topic and date line, note rows 4-16, summary lines 1-4, cue width 30/35/40 percent, paper (lines, dots, grid), pitch | all | 2 x 15 / 2 x 15 | none (a page-sized `lines`) |
+| `notearea` (B1) | Paper to take notes on, with a header | label, topic, date, source, rows 2-24, paper (lines, dots, grid, blank), pitch. Fills its cell | all | 3 x 10 / 2 x 10 | `lines`, `body` (see 24.1) |
+| `conceptmap` (B1) | Centre bubble with 3 to 8 branches, vector | label, branches, height | all | 3 x 13 / 3 x 13 | none |
+| `questions` (B1) | Questions to answer, answer line, answered box | label, questions 2-10, answer line, answered box, pitch | all | 2 x 10 / 2 x 10 | `top` |
+| `summarybox` (B1) | Framed box to say it back | label, lines 2-8, prompt (none, one sentence, own words, tell a friend, main idea), pitch | all | 2 x 5 / 1 x 5 | `keep` |
+| `flashstrip` (B1) | Fold-over flash cards (24.3) | label, cards 4-12, numbers, fold position 40/50/60, answers on right or left, review ticks 0-5, got it / again, fold hint, pitch | all | 3 x 9 / 3 x 9 | none |
+| `reviewtracker` (B1) | Topics with a tick per spaced review | label, topics 2-12, review times (1, 3, 7, 14, 21, 30 days; 1, 3, 7, 21 by default), learned-on date, pitch | all | 3 x 7 / 3 x 7 | habit dots (no dates) |
+| `feynman` (B2) | Explain it simply / where I got stuck / simpler words: three boxes | label, lines per box | all | 3 x 12 | `review` (different prompts) |
+
+**Regulation and sensory** (palette group "Regulation")
+
+| Block | Purpose | Options | Page kinds | Min span (small / letter) | Overlaps |
+|---|---|---|---|---|---|
+| `stimlog` (B1) | When, what felt good, where it helped, how settled before and after, how much (optional). Says stimming is self-regulation | label, entries 1-6, where, before and after, how much 1-5, the line, pitch | all | 4 x 10 / 3 x 10 | `sensory`, `urge` (different job) |
+| `stimmenu` (B1) | My stims and tools by sense (touch, movement, sound, sight, taste and chew, deep pressure): box and free line each, blank "new stim idea" rows | label, senses, rows 1-4, new idea rows 0-4, the line, pitch | all | 3 x 14 / 2 x 14 | preset `Supports` (fixed words) |
+| `stimtrace` (B1) | A pattern to trace slowly with a pen or finger: waves, zigzags, loops, spirals, grid lines; vector only | label, pattern, size small/medium/large, height, frame | all | 2 x 8 / 2 x 8 | none |
+| `shutdownlog` (B2) | The method doc's overload log: meltdown, shutdown or near-miss; before (where, senses, masking 0-3, slept, ate); after (what helped, recovery time). Both are involuntary: no blame wording | label, before, after, recovery | all | 4 x 14 (estimate) | `urge`, `sensory`, preset `Overload` |
+| `sensoryplan` (B2) | The doc's "sensory diet", renamed (some autistic adults find "diet" clinical): a grid of times of day by senses to tick | label, times, senses | all | 4 x 8 | `stimmenu` |
+| `comfortkit` (B2) | What is in my kit: item, in the bag, at home, in the car | label, rows, columns | all | 3 x 8 | preset `Supports` |
+| `calmroutine` (B2) | The doc's recovery plan as a block: first signs, what helps in order, who to tell | label, steps | all | 4 x 12 | Safety plan page (pages stay separate) |
+
+**Planning and tracking** (palette group "Planning")
+
+| Block | Purpose | Options | Page kinds | Min span | Overlaps |
+|---|---|---|---|---|---|
+| `routinebuilder` (B3) | Ordered steps, minutes each, a total, a tick | steps, minutes, cue column | all | 3 x 8 | presets "Rituals", `rounds` |
+| `projectsteps` (B3) | Project, goal, steps with a next-action mark and a due date | steps, due | all | 3 x 10 | `top`, `actions` |
+| `appointments` (B3) | What, when, where, bring, questions to ask | rows | all | 4 x 6 | `events`, `reach` |
+| `review` week wording (B3) | "Next week" instead of "Tomorrow" | `period` day/week | all | as `review` | `review` |
+| `symptomlog` (B3, maybe) | Symptom, severity 0-10, time, trigger | rows, scale | all | 4 x 6 | `scale`, `bodysig` |
+
+**Creative and fun** (palette group "Creative")
+
+| Block | Purpose | Options | Page kinds | Min span | Overlaps |
+|---|---|---|---|---|---|
+| `medialog` (B4) | Books, shows, music: title, kind icon, date, 1-5, one line | rows, kinds | all | 4 x 8 | `keep` |
+| `bingo` (B4) | 3x3, 4x4 or 5x5 squares with a free centre; fill your own words | size, free centre | all | 3 x 12 | none |
+| `maze` (B4) | Seeded maze (puzzle module, vector) | size, seed, answer | all | 4 x 14 | `puzzles/` |
+| `mindmap` (B4) | Tree style of `conceptmap` | `style` radial/tree | all | 3 x 13 | `conceptmap` |
+| `doodleprompt` (B4) | A frame with a seeded prompt line | prompt list, height | all | 2 x 8 | `sketch`, section 22 `doodle` |
+| `colourpattern` (B4) | Section 22's `pattern` | kind, height | all | 2 x 6 | section 22 |
+
+### 24.3 Flash cards: fold-over strips
+
+No perforation, no cut-out cards (KDP cannot print them). A strip is `n` rows (4 to 12). Each row is **[number] [term line] [review ticks] | fold | [answer line]**.
+- **The fold.** One light dashed line (vector, 1 px = 0.75 pt) and a small "fold here" hint. The line sits at a fixed share of the strip's width (40, 50 or 60 percent) at the same x on every row, so one fold of the paper along it hides every answer. The term and answer cells meet exactly on the line (measured). Two strips on a page with the same width and share fold along the same line. A strip is never wider than its page, so it never crosses a spread's fold.
+- **Which edge.** The answers are on the right by default: fold the page's **right (outer) edge** back along the line, so use it on right-hand pages. On a left-hand page the right edge is the spine, so set **Answers on: the left** (the strip is mirrored, the left edge folds). A spread day puts the left setting on its left page. The editor draws one page, so it cannot choose for you (open question 1).
+- **Ticks stay in view.** The review-count boxes (0 to 5, default 3) and the optional got it / again pair are on the term side, so they stay visible with the answers folded away.
+- **Why not cut.** A cut strip is loose paper; a fold keeps the card in the book.
+
+### 24.4 Print rules, accessibility and grounding
+
+- **Print.** Strokes at least 0.75 pt (a 1 px border or SVG stroke; the test checks every border and stroke, and measures the fold line in the 300 dpi PDF). Vector only (no raster image in the PDF: the tracing patterns, bubbles and the fold are paths). No Type 3 fonts. Rules are the page's ordinary `.ru` rulings. No bleed. Tracing patterns stay 0.1 in inside their box.
+- **Scan zones.** The DATE/TITLE/TAGS header, the 9 pt frame, the SEND TO strip and the Data Matrix code are untouched. Each block has one `data-zone`. The Keeper never gets these blocks.
+- **Default layout.** No default markup changes: classes are `nbk-`, `flx-`, `stm-` and nothing else uses them (a test, as `photo.mjs` has), and `check-identical` still passes.
+- **Large print and high contrast.** Rows are fixed height, so type grows without moving a row; rules and marks go darker; the overflow gate (`check.mjs` "[] 0") passes with both on at both trims. A fold line, box or pattern is never smaller in large print.
+- **Editor.** Controls have labels, 44 px targets, light and dark mode, no sideways scroll at 390 px; a block that does not fit says why under its options. Each block has a text alternative (`role="group"` and `aria-label`) in the preview and the page.
+- **Languages.** Block names, options and palette notes are catalog strings; printed words are in the print-strings report.
+- **Grounding in the methods docs.** Stim blocks: `autistic-sensory-journaling.md` (stims and supports as deposits; the overload log, recovery plan and sensory diet entries; masking and suppressing stims as something to notice; "diet" framing is clinical). Regulation blocks also draw on `adhd-journaling.md` and `dbt-diary-card.md` (urges and skills, diary card style: fixed rows, no judgement). Note blocks: `commonplace-book.md` (the generation effect: writing your own response is remembered better than copying; the handwriting-beats-typing claim did not reliably replicate, so no copy claims it), `bullet-journal.md` (rapid logging, migration) and `cbt-thought-record.md` (boxed prompts). Review times (1, 3, 7, 21 days) are a common starting rhythm for spaced review, not a prescription; the text says so. **There is no study-skills or learning method doc in `docs/journaling/methods/` yet**, so the evidence for spacing and retrieval practice is not cited in the repo; slice B0 writes it (with sources checked) before any copy makes a claim.
+
+### 24.5 Slices (small first)
+
+| Slice | Output | Size |
+|---|---|---|
+| **B0** | Two method docs from `TEMPLATE.md`: study and note taking (Cornell, retrieval and spacing evidence, claimed versus supported) and stimming and self-regulation (affirming sources, what not to claim) | S |
+| **B1** (this change) | `cornell`, `notearea`, `conceptmap`, `questions`, `summarybox`, `flashstrip`, `reviewtracker`, `stimlog`, `stimmenu`, `stimtrace`; `noteblocks.mjs`; palette groups; icons; i18n; `test-noteblocks.mjs` | L |
+| **B2** | `feynman`, `shutdownlog`, `sensoryplan`, `comfortkit`, `calmroutine`; a "Study day" and a "Regulation day" method layout; presets (`gratitude3` as `good`) | M |
+| **B3** | `routinebuilder`, `projectsteps`, `appointments`, `review` week wording, maybe `symptomlog` | M |
+| **B4** | `medialog`, `bingo`, `maze` (puzzles), `mindmap` style, `doodleprompt`, `colourpattern` with section 22 | M |
+| **B5** | Ready-made pages (a flash card page, a Cornell page, a stim page) and the organiser's repeatable add-page for them; a KDP proof page with a real fold test | S to M |
+| **B6** | Guide chapter and site feature block; icon key rows on the Key page (not changed in B1, so the default book stays identical) | S |
+
+### 24.6 Questions for Shelbee
+1. **Which edge folds?** Answers on the right only fold on right-hand pages. I made "answers on the left" an option and the default is the right. Want the default to flip itself on left-hand pages (the preview cannot show it, the printed book would)?
+2. **Fold position.** 50 percent, with 40 and 60 as options. Do you want the answer side bigger by default?
+3. **Review ticks.** Three per card, plus an optional got it / again pair. Is that the right count, or do you want a date column instead?
+4. **Review times.** 1, 3, 7 and 21 days as a starting rhythm. Your own times? (14 and 30 days are already options.)
+5. **Printed stim prompts.** The menu has no example stims printed (blank boxes only). Want an option that prints a few examples per sense? They would be written for this project.
+6. **The stim lines.** "Stimming is self-regulation." (log) and "My stims are valid." (menu). Your words?
+7. **Trace patterns.** Waves, zigzags, loops, spirals, grid lines. More shapes (stars, scales, braids)? Grey or darker ink?
+8. **Group names.** "Notes and study", "Regulation" are built; the other two groups would be "Planning" (existing) and "Creative". OK?
+9. **B0 first?** Should the two method docs come before B2 so the copy has sources?
+10. **Key page.** Add the new icons to the Key page now (changes the default book, so a fingerprint update) or leave them to B6?
+## 25. Chores (2026-10-18, slice CH1 built)
 
 Owner decisions: **for one person, and for an optional shared household**. First pieces, in order: (1) a **chores day-page block** (today's chores as a tick list), (2) **rotation pages** (a week or month grid: daily, weekly, monthly, seasonal; household mode adds a person column set with a tick box each), (3) **energy-aware options** (a small version and a good-enough version of every chore, no-guilt wording), (4) an **X4 check-in** (explicit, user-started sync only, per the firmware scope in CLAUDE.md). Overdue tone: **a gentle neutral "due soon" marker and nothing else: no red, no counts, no streaks, no shame wording.**
 
 **What is decided (do not add without asking)**
-- **No generative AI, no notifications, no feeds, no badges.** Nothing is sent anywhere by the paper blocks. The X4 part (24.6) is a plan only, and any sync it needs is the explicit one from section 19.
+- **No generative AI, no notifications, no feeds, no badges.** Nothing is sent anywhere by the paper blocks. The X4 part (25.6) is a plan only, and any sync it needs is the explicit one from section 19.
 - **The chores are not in the code and not in a Studio snapshot.** They live in the profile's optional `chores` section; a block holds only how to draw them (lines, rhythms, versions, household on or off). `profile.example.json` stays generic; with no `chores` section the blocks draw a generic invented sample (`CH_SAMPLE` in `chores.mjs`), so the editor demo and the site show invented chores only.
 - **Recurrence is computed from the date, never stored.** A page printed in advance already knows what belongs on it. Nothing records what was done, so nothing can be "overdue" or counted.
 
-### 24.1 The blocks
+### 25.1 The blocks
 Both are ordinary blocks of the declarative format (section 20), palette group **Chores**, each with an icon, declared in `daypage.mjs` `TYPES`, laid out by the page grid, one `data-zone` each (repeats `_2`, `_3`), a minimum span and the same `gridProblems` checks. The logic and the drawing live in `journal/chores.mjs` (no imports; every top-level name starts with `ch` or `CH_`, every CSS class with `chx`); `daypage.mjs` only declares the options, the minimum spans and one `case` that calls it.
 
 | Block (`type`) | What it is | Options | Smallest span |
@@ -854,7 +978,7 @@ Both are ordinary blocks of the declarative format (section 20), palette group *
 
 Four ready-made blocks in the palette: Low-energy chores, Week of chores, Month of chores, Household week. A rotation page is a Collection page (or a blank page) with a `chorerota` block: nothing new in the page organiser.
 
-### 24.2 Chores in the profile (`chores`, validated by `chProblems`)
+### 25.2 Chores in the profile (`chores`, validated by `chProblems`)
 ```
 "chores": {
   "household": ["Alex", "Sam"],                 optional, 1 to 4 names (turns on whose-turn and the person boxes)
@@ -864,7 +988,7 @@ Four ready-made blocks in the palette: Low-energy chores, Week of chores, Month 
 ```
 `id` (lowercase, digits, dashes; it names the chore on the X4), `name` (28 characters), `every` (`day`, `week`, `month`, `season`), `days` (daily: weekdays), `day` (weekly: a weekday; monthly and seasonal: 1 to 28 or `last`), `months` (seasonal, default 3, 6, 9, 12), `lead` (days before the due date to start listing it), `min` and `ok` (60 characters), `who` (`rotate` or a household name), `x4` (false keeps it off the device).
 
-### 24.3 Recurrence (all from the date)
+### 25.3 Recurrence (all from the date)
 | every | Due | Listed | Default lead |
 |---|---|---|---|
 | `day` | the day | every day, or the `days` | none |
@@ -875,22 +999,22 @@ Four ready-made blocks in the palette: Low-energy chores, Week of chores, Month 
 
 `k` numbers the occurrences, and a chore with `who: "rotate"` goes to `people[k mod n]`: the same person for the whole week a weekly chore is listed, the next person next week. An undated page never guesses whose turn it is. Tests: `node test-chores.mjs` checks the dates above, month ends, a leap year, a year end and the rotation.
 
-### 24.4 Tone (the rule, and how it is enforced)
+### 25.4 Tone (the rule, and how it is enforced)
 - The only marker is **"due soon"**: a small open diamond and the word "soon", grey, on the due day and the day before, for a chore that is not daily. It can be switched off per block.
 - **No overdue state exists.** Paper cannot know what was done, and a chore that is not listed today is not "late": the next one is not listed yet either.
 - **No counts, no streaks, no red.** A list longer than its room ends in "and more". The module exports nothing that counts, scores or measures lateness. `test-chores.mjs` fails on overdue, late, missed, behind, streak, count, score, red, should, must, only, just and the like in any printed or spoken word, on any `+3 more` style number, and on any CSS colour that is not a grey.
 - **Wording:** "small" and "good enough" (and "all of it" for the whole chore). Never "only", never "just", never "at least".
 
-### 24.5 Energy-aware options
+### 25.5 Energy-aware options
 A chore may carry `min` (a small version) and `ok` (a good-enough version). A block shows them as a quiet line under the chore (`tiers: text`), or replaces the box with three round marks, a quarter, a half and a full circle, for small, good enough and all of it (`tiers: ticks`, one person: a household's boxes are one per person). **Any of the three counts as done.** The sample chores show the style: "Dishes: small, rinse what is in the sink; good enough, everything in the dishwasher or drying". The text is the person's own; the build never writes it for them.
 
-### 24.6 X4 check-in (plan; the firmware is a follow-up slice, CH3)
+### 25.6 X4 check-in (plan; the firmware is a follow-up slice, CH3)
 - **Data model (built, tested):** `chX4Pack(config, fromDate, days)` is what the pack export would put on the SD card: for each date, the day's chores with `id`, a short `label`, the two versions, whose turn and `soon`. Computed at export time, so the device needs no recurrence code. `chTicks(report, config)` is what the device may send back: `{ <chore id>: 1..3 }` (1 small, 2 good enough, 3 all of it; 0 is simply absent), known ids only. There is no field for a count, a streak or a lateness.
 - **Firmware (not built):** a Chores screen listing today's chores with the same marks (button check-ins like the care ticks), the pack read from the SD card, ticks written to the day log under `c.<id>` (old logs keep their keys), and nothing else. No background sync, no push, no badge.
 - **Sync:** ticks go to Journalwright Studio only through the explicit sync from section 19 (N2: the user starts it on the device, over Wi-Fi they configured, to their own account). A household shares one Studio project; a person's ticks are their own device's. Down-sync of an edited chore list is N3, not this slice.
 - **Review before building:** firmware scope (CLAUDE.md), screen RAM on the C3, the SD pack size (62 days of lists), and whether chores belong in the Keeper's month-end boxes (decided: no, they are not a measure).
 
-### 24.7 Slices
+### 25.7 Slices
 | Slice | Output | Size |
 |---|---|---|
 | **CH1** (this change) | `chores.mjs`, the two blocks and four presets, the profile `chores` section and validation, rotation, tiers, household, the "due soon" marker, i18n, `test-chores.mjs`, the guide `docs/journaling/chores.md` | M |
@@ -898,7 +1022,7 @@ A chore may carry `min` (a small version) and `ok` (a good-enough version). A bl
 | **CH3** | X4: the pack export (`export_pack.py` reads `chX4Pack`), the Chores screen, ticks in the day log, the sync payload and the Studio store | L (firmware scope review first) |
 | **CH4** | Month-aware rotation on undated pages (the book's month), a printed chore list for the Keeper handoff, a household "who did what" page that never totals | S |
 
-### 24.8 Questions for Shelbee
+### 25.8 Questions for Shelbee
 1. **Household names on the page.** Names print as a letter (A, S) with a line naming them. Do you want the full name in the column head instead (needs a wider page or smaller type)?
 2. **Rotation.** "Rotate" hands a chore to the next person each time it comes round. Do you also want fixed turns by weekday, or a way to swap?
 3. **Month grid weeks.** W1 to W5 are days 1 to 7, 8 to 14 and so on, so a page needs no calendar. Would Monday-to-Sunday weeks matter more to you?

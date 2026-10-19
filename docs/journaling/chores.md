@@ -62,6 +62,6 @@ In a month grid, W1 to W5 mean days 1 to 7, 8 to 14, 15 to 21, 22 to 28 and 29 o
 
 ## Good to know
 
-- **Paper only for now.** The X4 does not show chores yet. The plan (a list on the device, ticks sent only when you start a sync) is in the build plan, section 24.
+- **Paper only for now.** The X4 does not show chores yet. The plan (a list on the device, ticks sent only when you start a sync) is in the build plan, section 25.
 - **Private.** The block's settings (how many lines, which kinds, whether to show household boxes) go into a saved version of your book. Your chores and your household's names do not.
 - **Print.** Marks are drawn, not typed, so the book passes the KDP font check. Large print and high contrast work with both blocks.

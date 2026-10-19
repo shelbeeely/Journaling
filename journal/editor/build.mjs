@@ -48,7 +48,8 @@ const a11y = `const { cleanPrint, printOptions, printOn, printCss, largeLayout }
 const photoCode = read('photo.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '') + '\n';
 // chores.mjs (the chores blocks' recurrence and drawing, no imports; names start with ch) comes right before the block library too.
 const choresCode = read('chores.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '') + '\n';
-const lib = a11y + read('scan.mjs').replace(/^export /gm, '') + '\n' + puzzleCode + photoCode + choresCode + read('daypage.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '') + '\n' + read('content/layouts.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '');
+const noteCode = read('noteblocks.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '') + '\n'; // noteblocks.mjs (notes, flash cards, stimming) follows it: it uses the photo page widths
+const lib = a11y + read('scan.mjs').replace(/^export /gm, '') + '\n' + puzzleCode + photoCode + noteCode + choresCode + read('daypage.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '') + '\n' + read('content/layouts.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '');
 // The Versions view (Journalwright Studio) computes its compare view in the browser with the same diff code the Studio server uses (studio/src/diff.mjs).
 const studioCode = ['../studio/src/canonical.mjs', '../studio/src/diff.mjs'].map((f) => read(f).replace(/^import .*$/gm, '').replace(/^export /gm, '')).join('\n');
 const studio = `(() => {\n${studioCode}\nreturn { canonical, diffSnapshots };\n})()`;
