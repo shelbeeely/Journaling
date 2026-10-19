@@ -1,4 +1,4 @@
-// ---------- Fewer decisions (BUILD-PLAN section 25): the guided start, ready-made books, the Basic view, and what the editor remembers ----------
+// ---------- Fewer decisions (BUILD-PLAN section 26): the guided start, ready-made books, the Basic view, and what the editor remembers ----------
 // The choices and the layouts come from journal/presets.mjs (inlined above, so the page and the tests run the same code). This file draws them.
 // Every word goes through the catalog: the words of the data tables with _tx('guided.d_...'), the rest with _t('guided....').
 // Nothing here makes a decision for the person: every step has a recommended answer already chosen, Back and Close change nothing, and Undo takes back a made book's page.

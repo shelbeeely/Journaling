@@ -1,4 +1,4 @@
-// Fewer decisions (BUILD-PLAN section 25): the guided questions, the ready-made books, the Basic view's eight blocks, the recommended values and what
+// Fewer decisions (BUILD-PLAN section 26): the guided questions, the ready-made books, the Basic view's eight blocks, the recommended values and what
 // is remembered. No browser (editor/test-guided.mjs does the screen). Sample data only.
 //   node test-presets.mjs
 import fs from 'node:fs';

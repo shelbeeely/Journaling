@@ -1,4 +1,4 @@
-// Remembered choices (BUILD-PLAN section 25): the account's "start the next book the way the last one went". Choices only, cleaned on the server too,
+// Remembered choices (BUILD-PLAN section 26): the account's "start the next book the way the last one went". Choices only, cleaned on the server too,
 // private to the account, never in a project or snapshot. Sample data only.
 import test from 'node:test';
 import assert from 'node:assert/strict';

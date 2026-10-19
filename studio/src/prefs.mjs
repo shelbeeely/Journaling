@@ -1,4 +1,4 @@
-// Remembered choices (BUILD-PLAN section 25): "start the next book the way the last one went". Studio methods (installed on Studio.prototype by repo.mjs).
+// Remembered choices (BUILD-PLAN section 26): "start the next book the way the last one went". Studio methods (installed on Studio.prototype by repo.mjs).
 // One key today, `startFrom`. The value is cleaned by the editor's own cleaner (journal/presets.mjs cleanLast) before it is stored, so only choices
 // are kept: never a title, a calendar, a profile field, a pack or a page. It belongs to the account and is never in a snapshot, a fork or an export.
 import { fail } from './db.mjs';

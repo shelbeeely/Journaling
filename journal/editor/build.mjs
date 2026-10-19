@@ -33,6 +33,7 @@ const kit = {
   fact: pick(/<div class="fact".*?<\/div>/s),
   day: sampleDay,
   dayStart: PROFILE.day_start_hour, // the photo-a-day block's "a day starts at" line
+  chores: PROFILE.chores || null, // the chores blocks' list (chores.mjs); null = the generic sample
   print: { large_print: PROFILE.print.large_print, high_contrast: PROFILE.print.high_contrast }, // what profile.json already switches on (the Settings panel adds to it)
   routines: ['7:30a Morning routine', '8:00p Evening routine'], // a busy day, so the meter errs on the safe side
   code: (seg.match(/<span class="qr"[^>]*>(<svg.*?<\/svg>)\s*<\/span>/s) || [, ''])[1], // a real page's code, drawn as the sample in the preview
@@ -45,8 +46,10 @@ const puzzleCode = ['rng', 'wordsearch', 'crossword', 'samples', 'render'].map((
 const a11y = `const { cleanPrint, printOptions, printOn, printCss, largeLayout } = (() => {\n${read('a11yprint.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '')}\nreturn { cleanPrint, printOptions, printOn, printCss, largeLayout };\n})();\n`;
 // photo.mjs (the glue-in photo blocks' geometry, no imports) comes right before the block library that draws them.
 const photoCode = read('photo.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '') + '\n';
+// chores.mjs (the chores blocks' recurrence and drawing, no imports; names start with ch) comes right before the block library too.
+const choresCode = read('chores.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '') + '\n';
 const noteCode = read('noteblocks.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '') + '\n'; // noteblocks.mjs (notes, flash cards, stimming) follows it: it uses the photo page widths
-const lib = a11y + read('scan.mjs').replace(/^export /gm, '') + '\n' + puzzleCode + photoCode + noteCode + read('daypage.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '') + '\n' + read('content/layouts.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '') + '\n' + read('presets.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '');
+const lib = a11y + read('scan.mjs').replace(/^export /gm, '') + '\n' + puzzleCode + photoCode + noteCode + choresCode + read('daypage.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '') + '\n' + read('content/layouts.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '') + '\n' + read('presets.mjs').replace(/^import .*$/gm, '').replace(/^export /gm, '');
 // The Versions view (Journalwright Studio) computes its compare view in the browser with the same diff code the Studio server uses (studio/src/diff.mjs).
 const studioCode = ['../studio/src/canonical.mjs', '../studio/src/diff.mjs'].map((f) => read(f).replace(/^import .*$/gm, '').replace(/^export /gm, '')).join('\n');
 const studio = `(() => {\n${studioCode}\nreturn { canonical, diffSnapshots };\n})()`;

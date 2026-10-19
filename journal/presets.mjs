@@ -1,4 +1,4 @@
-// Fewer decisions (BUILD-PLAN section 25): the guided start, the ready-made books, the Basic view and what the editor remembers.
+// Fewer decisions (BUILD-PLAN section 26): the guided start, the ready-made books, the Basic view and what the editor remembers.
 // Pure data and functions, no fs and no browser, so the editor inlines this file after daypage.mjs (imports and "export" stripped)
 // and the tests run it in Node. Top-level names must not clash with daypage.mjs, content/layouts.mjs or scan.mjs.
 //

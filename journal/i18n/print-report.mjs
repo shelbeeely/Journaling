@@ -11,7 +11,7 @@ const root = new URL('../', import.meta.url);
 export const SECTIONS = [
   ['The pages of the book', ['pages.mjs', 'render.mjs', 'cover.mjs', 'handoff.mjs', 'keeper.mjs', 'planview.mjs', 'context.mjs']],
   ['The day page and its blocks (the editor\'s tables in daypage.mjs, TYPES and the like, are editor words: they are in the catalog already)', ['daypage.mjs']],
-  ['Scan zones, accessibility print options, puzzle pages', ['scan.mjs', 'a11yprint.mjs', 'puzzles/render.mjs', 'puzzles/samples.mjs', 'puzzles/crossword.mjs', 'puzzles/wordsearch.mjs']],
+  ['Scan zones, accessibility print options, puzzle pages', ['scan.mjs', 'a11yprint.mjs', 'chores.mjs', 'puzzles/render.mjs', 'puzzles/samples.mjs', 'puzzles/crossword.mjs', 'puzzles/wordsearch.mjs']],
   ['Content tables: facts, holidays, rulings, year text', ['facts.mjs', 'holidays.mjs', 'pioneers.mjs', 'rulings.mjs', 'japanese.mjs', 'payperiods.mjs', 'content/year.mjs', 'content/year-research.mjs']],
 ];
 

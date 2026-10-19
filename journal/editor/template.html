@@ -589,6 +589,7 @@ input[type=text], input[type=password], input[type=url], input:not([type]), sele
 <script>
 /*__DAYPAGE__*/
 /*__KIT__*/
+chUse(KIT.chores); // the chores blocks draw the profile's chores (chores.mjs); null = the generic sample
 const MODE = '__MODE__';
 const BOOK_DATA = '__BOOKDATA__'; // Artifact build: the sample book, gzipped + base64. Site build: empty (fetched as pages-sample.json).
 
@@ -649,9 +650,9 @@ const find = (uid) => layout.blocks.find((b) => b.uid === uid);
 const icon = (k, cls = '') => `<svg class="${cls}" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k] || IC.box}</svg>`;
 
 // ---------- palette ----------
-const PAL_GROUPS = ['From your day', 'Check-ins', 'Writing', 'Planning', 'Notes and study', 'Photos', 'Puzzles', 'Therapy', 'Body', 'Regulation', 'Layout'];
+const PAL_GROUPS = ['From your day', 'Check-ins', 'Writing', 'Planning', 'Chores', 'Notes and study', 'Photos', 'Puzzles', 'Therapy', 'Body', 'Regulation', 'Layout'];
 const palGroup = (g) => _tx('pal.group_' + g.toLowerCase().replace(/[^a-z0-9]+/g, '_'), g);
-const PAL_NOTES = { Therapy: _t('pal.note_therapy'), Body: _t('pal.note_body'), Photos: _t('pal.note_photos'), Regulation: _t('pal.note_regulation'), 'Notes and study': _t('pal.note_notes_and_study') };
+const PAL_NOTES = { Therapy: _t('pal.note_therapy'), Body: _t('pal.note_body'), Photos: _t('pal.note_photos'), Regulation: _t('pal.note_regulation'), Chores: _t('pal.note_chores'), 'Notes and study': _t('pal.note_notes_and_study') };
 function paletteItems() {
   const items = Object.entries(TYPES).filter(([t]) => (t !== 'body' || !bodyLocked(EK)) && allowedIn(EK, t)).map(([t, d]) => ({ key: 't:' + t, type: t, name: tName(t), group: d.group, icon: d.icon }));
   PRESETS.filter((p) => allowedIn(EK, p.type)).forEach((p, i) => items.push({ key: 'p:' + i, type: p.type, name: pName(p), group: p.group, icon: TYPES[p.type].icon, preset: p }));

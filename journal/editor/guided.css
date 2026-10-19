@@ -1,4 +1,4 @@
-/* ---------- Fewer decisions (BUILD-PLAN section 25): the Basic and Advanced switch, "back to recommended", the guided start ---------- */
+/* ---------- Fewer decisions (BUILD-PLAN section 26): the Basic and Advanced switch, "back to recommended", the guided start ---------- */
 .vm { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 0 0 10px; }
 .vm .seg button { min-height: 44px; min-width: 44px; padding: 0 16px; font-size: 14px; }
 .vm .note { margin: 0; flex: 1 1 100%; }

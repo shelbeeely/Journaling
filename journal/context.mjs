@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import { build, busCoverage, readFeed } from './data.mjs';
 import { normalize, normalizeSpread } from './daypage.mjs';
 import { usePuzzlePack } from './puzzles/render.mjs';
+import { chUse } from './chores.mjs';
 import { printOptions, largeLayout } from './a11yprint.mjs';
 import { PROFILE, moduleOn, bookNo as bookNoOf, readContent, MODULE_BLOCKS } from './profile.mjs';
 
@@ -48,6 +49,7 @@ export async function loadContext({ month, ics, size = 'small', quiet = false })
   if (!quiet && Object.values(missing).some(Boolean)) console.warn('content gaps:', JSON.stringify(missing));
   const NET = moduleOn('bus') && PROFILE.paths.transit ? readFeed('network.json') : null;
   if (!quiet && NET && BUS_COV === 'partial') console.warn(`! ${PROFILE.transit.agency} schedule ends ${NET.valid_to}; ${VOL.id} is only partly covered (pages say so). Refresh the transit feed before printing.`);
+  chUse(PROFILE.chores); // the profile's chores (if any) feed the chores blocks; none = the generic sample
   usePuzzlePack(readContent('puzzles')); // the profile's puzzles pack (if any) feeds the puzzle blocks' "pack" word list source
   const ki = readJson('./out/keeper/index.json');
   return {
