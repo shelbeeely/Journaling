@@ -1,4 +1,4 @@
-// Fewer decisions (BUILD-PLAN section 24), in the browser: the Basic view, "back to recommended", the guided start (five questions and four ready-made
+// Fewer decisions (BUILD-PLAN section 25), in the browser: the Basic view, "back to recommended", the guided start (five questions and four ready-made
 // books), what is remembered (this browser, the Studio when signed in, nothing in the demo), a phone, the dark theme and the pseudo-locales.
 //   node render.mjs month 2026-10 test.ics && node editor/build.mjs && node editor/test-guided.mjs     (screens -> editor/dist/test/guided-*.png)
 // Offline sandbox: SORTABLE_JS=/path/Sortable.min.js serves the drag library locally (CI has the network).
