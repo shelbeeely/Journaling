@@ -16,7 +16,8 @@ export const PZ_LH = 11, PZ_CLUE_LH = 10.4; // line heights in px
 export const PZ_STROKE = 1.1; // px; 0.75 pt is 1 px
 const pzEsc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 let PZ_PACK = null;
-export const usePuzzlePack = (c) => { PZ_PACK = c && c.lists ? c : null; };
+export const usePuzzlePack = (c) => { PZ_PACK = c && (c.lists || c.quotes) ? c : null; };
+export const pzPackQuotes = () => (PZ_PACK && PZ_PACK.quotes) || {}; // the pack's quote lists by id (the cryptogram block reads them: puzzles/render2.mjs)
 
 export const pzCell = (b) => (b.type === 'crossword' ? Math.min(b.big ? 28 : 22, Math.floor((PZ_PAGE_W - PZ_GAP - PZ_SIDE_CW) / b.size)) : Math.min(b.big ? 26 : 20, Math.floor((PZ_PAGE_W - PZ_GAP - PZ_SIDE_WS) / b.size)));
 
@@ -37,7 +38,7 @@ function pzList(b) {
     if (entries.length >= min) return { title: '', entries };
     return sample(b.theme); // too few usable words (a crossword needs "word=clue"): the sample list rather than an empty puzzle
   }
-  if (b.source === 'pack' && PZ_PACK) {
+  if (b.source === 'pack' && PZ_PACK && PZ_PACK.lists && Object.keys(PZ_PACK.lists).length) {
     const l = PZ_PACK.lists[b.theme] || PZ_PACK.lists[Object.keys(PZ_PACK.lists)[0]];
     if (l) return { title: l.title, entries: l.entries };
   }

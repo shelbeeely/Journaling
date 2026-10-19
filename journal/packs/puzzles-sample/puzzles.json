@@ -48,5 +48,25 @@
         { "word": "QUIET", "clue": "The house rule in a reading room" }
       ]
     }
+  ],
+  "quotes": [
+    {
+      "id": "evenings",
+      "title": "Evenings",
+      "items": [
+        { "text": "The lamp is lit and nothing else is due." },
+        { "text": "Evening folds the day like a letter." },
+        { "text": "Dinner dishes can wait until the morning." },
+        { "text": "A warm sweater is a hug you can wear." },
+        { "text": "The moon keeps watch so you can close your eyes." },
+        { "text": "Tonight, the only task is to be comfortable." },
+        { "text": "Soft light, soft socks, soft music, slow minds." },
+        { "text": "The kettle sings and the room agrees." },
+        { "text": "Let the stars count the hours for you." },
+        { "text": "A page, a pen and a quiet corner are plenty." },
+        { "text": "Sleep is the day's last kindness." },
+        { "text": "Close the book gently; the story will keep." }
+      ]
+    }
   ]
 }
