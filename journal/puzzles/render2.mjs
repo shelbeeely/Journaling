@@ -88,7 +88,7 @@ function pzxFlow(plan, cols, big) {
 }
 export function pzxMin(b) {
   const plan = pzxPlan[b.type](b), cols = pzxNeed(plan.gw);
-  return [cols, (PZX_CHROME + pzxFlow(plan, cols, !!b.big).h + 3) / 96];
+  return [cols, (PZX_CHROME + pzxFlow(plan, cols, !!b.big).h + 6) / 96];
 }
 const pzxDescribe = (b) => ({ sudoku: `${b.size} × ${b.size} sudoku`, maze: `${b.size} × ${b.size} maze`, cryptogram: 'cryptogram', wordladder: 'word ladder', nonogram: `${b.size} × ${b.size} nonogram`, kakuro: 'kakuro', dottodot: 'dot to dot' })[b.type];
 // Why a block does not fit its place on the grid, in plain words (null when it fits). `rowIn` = the grid row in inches.
@@ -249,7 +249,7 @@ export function pzxBlock(b, key, opt = {}) {
     if (b.hint && cg.hint) text[text.length - 1] = (`Hint: every ${cg.hint.cipher} is ${/^[AEIOU]/.test(cg.hint.plain) ? 'an' : 'a'} ${cg.hint.plain}.`);
   } else if (b.type === 'wordladder') {
     const ld = pzxLadder(b, seed);
-    svg = pzxLadderSvg(ld, plan, b, answers, id, name); label = `${name} · ${ld.words[0].toUpperCase()} to ${ld.words[ld.words.length - 1].toUpperCase()}`;
+    svg = pzxLadderSvg(ld, plan, b, answers, id, name); label = name;
     text = [`Change one letter at a time to turn <b>${pzxEsc(ld.words[0].toUpperCase())}</b> into <b>${pzxEsc(ld.words[ld.words.length - 1].toUpperCase())}</b> in ${ld.steps} steps. Every rung is a word.`, ...(b.hint ? ['The thick line marks the letter that changes.'] : [])];
   } else if (b.type === 'nonogram') {
     const nn = pzxCached(`nn|${b.size}|${b.difficulty}|${seed}`, () => generateNonogram({ size: +b.size, difficulty: b.difficulty, seed }));

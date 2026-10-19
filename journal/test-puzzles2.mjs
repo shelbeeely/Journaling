@@ -298,8 +298,8 @@ for (const type of PZX_TYPES) {
   const pk = html('cryptogram', { source: 'pack', theme: 'evenings' }); ok(/Evenings/.test(pk), 'cryptogram: the "pack" source reads the puzzles pack\'s quotes');
   usePuzzlePack(null);
   ok(/Gentle days/.test(html('cryptogram', { source: 'pack', theme: 'evenings' })), 'cryptogram: no pack, the built-in list');
-  const cl = html('wordladder', { source: 'custom', words: ['cold-warm'] }); ok(/COLD to WARM/.test(cl) && /<b>COLD<\/b> into <b>WARM<\/b>/.test(cl), 'word ladder: "My own pair" uses cold-warm');
-  ok(/to /.test(html('wordladder', { source: 'custom', words: ['xxxx-yyyy'], steps: 3 })), 'word ladder: a pair with no ladder falls back to a built-in one');
+  const cl = html('wordladder', { source: 'custom', words: ['cold-warm'] }); ok(/<b>COLD<\/b> into <b>WARM<\/b>/.test(cl), 'word ladder: "My own pair" uses cold-warm');
+  ok(/<b>[A-Z]+<\/b> into <b>[A-Z]+<\/b> in \d steps/.test(html("wordladder", { source: "custom", words: ["xxxx-yyyy"], steps: 3 })) && !/XXXX/.test(html("wordladder", { source: "custom", words: ["xxxx-yyyy"], steps: 3 })), 'word ladder: a pair with no ladder falls back to a built-in one');
 }
 { // large print and the options are real changes
   for (const type of PZX_TYPES) ok(minSpan(mkb(type, { big: true })).rows >= minSpan(mkb(type)).rows, `${type}: large print never asks for less room`);
