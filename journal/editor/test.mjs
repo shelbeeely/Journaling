@@ -16,7 +16,7 @@ const atDay = (pg) => pg.waitForFunction(() => document.documentElement.dataset.
 const fails = [], ok = (c, m) => { if (!c) fails.push(m); console.log((c ? 'ok   ' : 'FAIL ') + m); };
 const b = await launch(), errs = [];
 // Offline sandbox: fonts are not fetched, and SORTABLE_JS=/path/Sortable.min.js serves the drag library locally (CI has the network).
-{ const np = b.newPage.bind(b); b.newPage = async (o) => { const pg = await np(o); await pg.route(/fonts\.(googleapis|gstatic)/, (r) => r.abort()); if (process.env.SORTABLE_JS) await pg.route(/cdnjs\.cloudflare\.com/, (r) => r.fulfill({ path: process.env.SORTABLE_JS, contentType: 'text/javascript' })); return pg; }; }
+{ const np = b.newPage.bind(b); b.newPage = async (o) => { const pg = await np(o); await pg.addInitScript(() => { try { localStorage.setItem('kw-view', 'advanced'); } catch {} }); /* these tests walk every block and option: the Basic view is tested in test-guided.mjs */ await pg.route(/fonts\.(googleapis|gstatic)/, (r) => r.abort()); if (process.env.SORTABLE_JS) await pg.route(/cdnjs\.cloudflare\.com/, (r) => r.fulfill({ path: process.env.SORTABLE_JS, contentType: 'text/javascript' })); return pg; }; }
 const p = await b.newPage({ viewport: { width: 1400, height: 950 } });
 p.on('pageerror', (e) => errs.push(e.message));
 await p.goto(DAY, { waitUntil: 'networkidle' }); await atDay(p);
@@ -744,7 +744,7 @@ ok(!errs.length, 'no page errors ' + errs.join(' | '));
   await ap.click('#vs-close');
   await ap.evaluate(() => KW.go({ level: 'spread', s: 7 })); await ap.waitForFunction(() => NAV.level === 'spread' && BK.level !== 'book'); await ap.waitForTimeout(400);
   await ap.evaluate(() => KW.go({ level: 'day', date: '2026-10-14', edit: true })); await ap.waitForFunction(() => document.documentElement.dataset.view === 'day' && !NAV.busy());
-  ok(await ap.evaluate(() => document.querySelectorAll('#pv [data-b]').length >= 3 && document.querySelectorAll('#pal li.pi').length > 20 && /Day Oct 14/.test(document.querySelector('#crumbs').textContent)), 'Artifact build: the day level is the editor, with its breadcrumb');
+  ok(await ap.evaluate(() => document.querySelectorAll('#pv [data-b]').length >= 3 && document.querySelectorAll('#pal li.pi').length >= 8 && /Day Oct 14/.test(document.querySelector('#crumbs').textContent)), 'Artifact build: the day level is the editor, with its breadcrumb');
   await ap.click('#nv-back'); await ap.waitForFunction(() => document.documentElement.dataset.view === 'book'); ok(true, 'Artifact build: Back works without history support');
   await ap.close();
 }
@@ -861,7 +861,7 @@ ok(!errs.length, 'no page errors after the Book view ' + errs.join(' | '));
   await ap.evaluate(() => KW.go({ level: 'day', date: '2026-10-14' })); await inMode(ap, 'view');
   ok(await ap.evaluate(() => document.querySelectorAll('#pal *, #list *').length === 0 && !!document.querySelector('#edit').offsetParent), 'Artifact build: the day opens for viewing');
   await ap.click('#edit'); await inMode(ap, 'edit');
-  ok(await ap.evaluate(() => document.querySelectorAll('#pal li.pi').length > 20 && !!document.querySelector('#done').offsetParent), 'Artifact build: Edit shows the editor, Done is there');
+  ok(await ap.evaluate(() => document.querySelectorAll('#pal li.pi').length >= 8 && !!document.querySelector('#done').offsetParent), 'Artifact build: Edit shows the editor, Done is there');
   await ap.click('#done'); await inMode(ap, 'view'); await ap.close();
   ok(!e1.length, 'no page errors on the phone, dark, reduced-motion or Artifact runs ' + e1.join(' | '));
 }

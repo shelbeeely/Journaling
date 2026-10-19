@@ -52,6 +52,8 @@ jobs:
         run: node test-profile.mjs
       - name: "Languages check (I1: the message catalog and the pseudo-locales en-XA and ar-XB; every locale has every key with the same placeholders; no hard-coded English in the editor scripts or HTML; the data-table keys follow the tables; the print strings report is current)"
         run: node test-i18n.mjs
+      - name: "Fewer decisions check (DF1: five questions each with a recommended answer, every answer combination makes a valid book with a writing space, four ready-made books, Basic view of eight blocks, a recommended value for every option, remembered choices hold choices only, calm wording)"
+        run: node test-presets.mjs
       - name: Book plan check (every scope builds; a year splits into volumes that pass every gate; undated books print no dates; codes unique across books)
         run: node test-scopes.mjs
       - name: Library check (books and series, custom titles on covers and title pages, series defaults with per-book override, a single-book profile migrates and builds the same book)

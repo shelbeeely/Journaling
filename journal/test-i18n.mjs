@@ -61,8 +61,8 @@ ok(LOCALES['en-XA'].pseudo && LOCALES['ar-XB'].dir === 'rtl', 'the two pseudo-lo
 const AREAS = [ // the editor's own UI: its script and static HTML. Add a file here when the editor grows one.
   { file: 'editor/template.html', js: true, html: true },
   { file: 'i18n/runtime.js', js: true },
-  { file: 'editor/organiser.js', js: true }, { file: 'editor/library-ui.js', js: true }, { file: 'editor/versions.js', js: true },
-  { file: 'editor/organiser.html', html: true }, { file: 'editor/library-ui.html', html: true }, { file: 'editor/versions.html', html: true },
+  { file: 'editor/organiser.js', js: true }, { file: 'editor/library-ui.js', js: true }, { file: 'editor/versions.js', js: true }, { file: 'editor/guided.js', js: true },
+  { file: 'editor/organiser.html', html: true }, { file: 'editor/library-ui.html', html: true }, { file: 'editor/versions.html', html: true }, { file: 'editor/guided.html', html: true },
 ];
 const allow = JSON.parse(read('i18n/allow.json'));
 const allowJs = new Set(allow.js), allowHtml = new Set(allow.html);
@@ -139,7 +139,7 @@ ok(!hard.length, 'no hard-coded English in the editor scripts (add words to i18n
 
 // CSS prints words too (content: "..."): they must come from a variable the page sets in its language (content: var(--t-x, "English")).
 {
-  const css = [read('editor/template.html').slice(0, read('editor/template.html').indexOf('</style>')), read('editor/organiser.css'), read('editor/library-ui.css'), read('editor/versions.css')].join('\n');
+  const css = [read('editor/template.html').slice(0, read('editor/template.html').indexOf('</style>')), read('editor/organiser.css'), read('editor/library-ui.css'), read('editor/versions.css'), read('editor/guided.css')].join('\n');
   const words = [...css.replace(/var\([^)]*\)/g, '').matchAll(/content:\s*(["'])([^"']*)\1/g)].map((m) => m[2]).filter((w) => /[A-Za-z]{2}/.test(w) && !allowJs.has(w));
   ok(!words.length, 'no CSS content: "word" that the catalog cannot translate (use var(--t-name, "English") and set it in i18n/runtime.js)' + (words.length ? ': ' + words.join(', ') : ''));
 }

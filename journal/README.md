@@ -359,6 +359,13 @@ A day can cover one page (the default) or a whole two-page spread: a left page a
 - **In the editor:** a day's edit mode has a "This day covers" box (One page / A spread; every weekday; every day) with the page count and the KDP note; the spread opens on a two-page canvas (one page at a time, with a switch, on a phone). The Book view's page organiser says which days are spreads on the Day pages row.
 - **Tests:** `node test-spreaddays.mjs` (Books CI), the Spread days sections of `editor/test.mjs` and `editor/test-a11y.mjs`, `studio/test/spread.test.mjs`. Decisions and what is not done: `docs/journaling/BUILD-PLAN.md` section 12, "S1 as built".
 
+### Fewer decisions (DF1: guided start, ready-made books, Basic view)
+BUILD-PLAN section 26. `presets.mjs` (pure; the editor inlines it after `daypage.mjs`) holds the data and the rules; `editor/guided.html|css|js` draw them.
+- **Guided start**: Library, edit mode, **Guided start** (or More, "Start a book with questions"). Five questions (size, length, what to track, tone, room to write) each with a recommended answer chosen, or one of four ready-made books (`STARTERS`), or "Start from my last book". The review shows a true-size preview, the blocks, and anything left off to keep the page calm. **Make this book** adds a library book and sets the day page; it asks first if your page is not the original. `guidedBook(answers)` is deterministic.
+- **Basic and Advanced**: the Add-blocks panel starts in Basic (eight blocks, `BASIC_TYPES`; a block's first `BASIC_OPTS` options). Advanced is everything. `recOf(option)` is every option's recommended value.
+- **Remembered**: `kw-last-book` (browser), Studio `PUT /api/me/prefs/startFrom` when signed in, nothing in the demo. `cleanLast` keeps choices only (no title, place, calendar, pack or profile field).
+- **Tests**: `node test-presets.mjs` (no browser), `node editor/test-guided.mjs` (needs the built editor; `SORTABLE_JS=...` offline), `studio/test/prefs.test.mjs`. The older editor tests start in Advanced (`kw-view`) because they walk every block.
+
 ### Photo blocks (PH1: prints you paste in)
 Four blocks in the palette group **Photos**: `photoframe` (a true-size window for one print), `photostrip` (2 to 4 small frames with date lines), `photodaily` (a tiny frame per day of the month, labelled by date, with the profile's day start), `contactsheet` (6 to 12 numbered frames with a pick-one tick). Plan, fit tables and paper advice: BUILD-PLAN section 23.
 - **Paper only.** No upload, no image field, no camera, no Studio storage, no X4 items. The photo is glued on by hand.

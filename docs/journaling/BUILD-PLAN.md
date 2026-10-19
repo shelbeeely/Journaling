@@ -1047,3 +1047,81 @@ A chore may carry `min` (a small version) and `ok` (a good-enough version). A bl
 3. **Month grid weeks.** W1 to W5 are days 1 to 7, 8 to 14 and so on, so a page needs no calendar. Would Monday-to-Sunday weeks matter more to you?
 4. **Where the list is edited.** Today it is the profile file. Is the CH2 Settings editor the right next step, or the X4 first?
 5. **Seasonal chores.** I made them months-based (the first of March, June, September, December by default). Do you want solstice and equinox dates from the sky data instead?
+
+
+## 26. Fewer decisions: guided start, ready-made books, Basic view, remembered choices (2026-10-18, slice DF1 built)
+
+Shelbee asked to cut decision fatigue in the builder and the editor. Four decisions, all made by her:
+1. **Guided start.** About five plain-language questions that produce a finished book layout. No blank canvas.
+2. **Ready-made books.** A few complete books she accepts as they are or tweaks.
+3. **Fewer choices by default.** A Basic view of about eight blocks with sensible defaults, every option with a recommended value, Advanced one tap away, nothing removed.
+4. **Remember choices.** A new book starts from the last one: browser storage in the editor, the Studio when signed in, the generic default otherwise. No personal data in the repo or the site demo.
+
+**What this is not (decided, do not add without asking)**
+- **No generative AI, no suggestions, no scoring.** The questions are a fixed table; the same answers always make the same book.
+- **No change to any printed page.** The default day layout, every block and every build are untouched (`check-identical` stays 24/24; the day pages of a default build were diffed against the build before). This slice adds a way to *choose* a layout, never a new way a page prints.
+- **No streaks, no "you missed", no nudges.** Every string is in guide tone: what is on the page, what was left off, how to add it back. `test-presets.mjs` fails on pressure or guilt words in any `guided.*` string.
+- **No new blocks.** Everything uses blocks that already exist. "Art practice" is a sketch box, a tick box and a few lines; the art blocks of section 22 are still a plan.
+
+### 26.1 The five questions (`journal/presets.mjs`, `QUESTIONS`)
+
+Each has a recommended answer already chosen and marked "Recommended", so pressing Next five times makes a good book. "Use the recommended answers for the rest" skips ahead. Back and Close change nothing.
+
+| # | Question | Options (recommended first) |
+|---|---|---|
+| 1 | Which size will you print first? | 5.5 x 8.5, 8.5 x 11. Only sets the preview: both sizes are always built, and the profile's trim is not touched |
+| 2 | How much time should the book cover? | One month (about 80 pages), three, six, twelve months (one volume a month), or undated 28 days (no dates; skip days freely) |
+| 3 | What would you like to keep track of? | Tasks and priorities, mood and feelings, small good things (recommended), habits, energy, sleep, meds and body care, drawing or making, planning my hours, events and holidays |
+| 4 | How should the page feel? | Gentle (three things at most, roomy boxes), balanced (up to five), full (everything that fits) |
+| 5 | How much room to write? | Lots, some, a little: the writing space keeps at least 4.2, 3.2 or 2.2 in |
+
+`guidedBook(answers)` makes the day layout: each tracked thing is a few existing blocks (`TRACK`, with the inches each takes, measured in the editor preview at both sizes), taken in a fixed rank order until the tone's count or the room's budget runs out. **What was left off is said, not hidden**: the review lists it and says Advanced adds it back. The writing space (`body`) is always the last block. A page that would be over budget cannot happen: `editor/test-guided.mjs` builds 90 combinations (45 at each size) and checks the meter and the room left.
+
+### 26.2 The four ready-made books (`STARTERS`)
+
+| Book | Length | Blocks | Modules |
+|---|---|---|---|
+| Daily planner | one month | Top 3, time blocks 8 to 20, rituals ticks, small good things, writing space | none |
+| Mood log | three months | Mood scale, feeling words, sleep, body care ticks, small good things | none |
+| Low-energy week | undated, 28 days | Energy scale and the basics (both roomy), a done list, one kind thing | spoons |
+| Art practice | one month | Sketch box with tape marks, "made something" ticks, what I noticed | none |
+
+Each is a complete book: a day layout (fixed uids, so the X4 check-in keys keep their history if re-applied), a length and modules. Open one, see a true-size preview of its page, rename it, and press **Make this book** or **Make it and change things**. The low-energy book is undated on purpose: a skipped day costs nothing. (Shelbee: it is called a week because that is how she named it; it is 28 day pages. Say if you want 14 or 7.)
+
+### 26.3 What "make" does
+
+One library entry (title, first month, length, modules), the day page set to the book's layout, the size set. If the day page you have is not the original, it asks first ("Replace your day page?") and Cancel changes nothing. Two monthly books over the same months need different editions (their scan codes would repeat), so the editor picks the first edition that works (1, then 2 to 9) instead of showing an error. **Undo** (the day editor's, and the library's) takes both back. The book's layout is the editor's one working day page: the library's per-book layouts have no editor yet, so none is created.
+
+### 26.4 Basic and Advanced (`BASIC_TYPES`, `BASIC_OPTS`)
+
+- **Basic** (the start view): the Add-blocks panel shows eight everyday blocks in one list: Top priorities, Time blocks, Checkboxes, Scale, Words to circle, Lined notes, Small good things, Sketch box. A block's options show the first three and "N more options"; an option you changed is always shown. Blocks already on the page always show, whatever the view.
+- **Advanced**: exactly the editor as it was (every group, every preset, every option). One segmented control at the top of the panel; the choice is kept in this browser (`kw-view`).
+- **Recommended values.** Every option already has one: the value a new block starts on (`recOf`; `test-presets.mjs` checks all 150+ options). An option that is not on it shows "Recommended" (a 44 px button that puts it back); a block with any changed option shows "Use all recommended settings".
+
+### 26.5 What is remembered, and where
+
+| Where | When | What |
+|---|---|---|
+| Browser storage `kw-last-book` (try/catch; blocked storage just means nothing is remembered) | the working editor and the Artifact build | choices only (below) |
+| Studio `user_prefs` (migration 005, `GET/PUT/DELETE /api/me/prefs/startFrom`) | signed in | the same, cleaned again on the server |
+| Nothing | the public demo, and nothing saved yet | a new book starts from the generic default: the original page, one month, no modules |
+
+**Choices only**: the five answers, the ready-made book used, the length, the modules `sky` / `spoons` / `therapy`, the size, and the day layout's blocks with the options each block declares. `cleanLast` (one function, used by the editor and the Studio) drops everything else: a title, a first month, a name, a place, a calendar, a pack, any field a block does not declare, modules that depend on a person's packs (bus, trans support). Block labels (for example the words on a checkbox block) are part of the layout, so they are kept; they stay in the person's own browser or account. Size-capped at 16,000 characters. `test-presets.mjs`, `studio/test/prefs.test.mjs` and `editor/test-guided.mjs` prove it, and that the demo writes nothing to browser storage.
+
+New uses: the **New book** button starts a book with the last one's length and modules (and the working day page is already the last one's); the guided start offers **Start from my last book**.
+
+### 26.6 Slices
+
+| Slice | What | Status |
+|---|---|---|
+| **DF1** | Questions, four ready-made books, Basic view, recommended values, remembered choices (browser and Studio), tests, Guide chapter | Built |
+| **DF2** | The first-run screen of a brand-new working editor opens the guided start by itself (today it is one button on the Library and an item in More) | Not built |
+| **DF3** | A "start a book" command line that asks the same five questions (`npm run init` asks about the person and the place, not the pages) | Not built |
+| **DF4** | A start that writes the book's page set too (leave out the moon pages, the Keeper, the support pages for a calmer book) | Not built |
+
+### 26.7 Questions for Shelbee
+1. **Basic's eight.** I picked Top priorities, Time blocks, Checkboxes, Scale, Words to circle, Lined notes, Small good things, Sketch box. Swap any?
+2. **Defaults.** Recommended is "tasks, mood, small good things / balanced / some room". Right for someone starting out?
+3. **First run (DF2).** Should a brand-new editor open on the guided start, or stay quiet until asked?
+4. **Page set (DF4).** Should the gentle tone also drop the moon and sky pages and shorten the back matter? It changes how many pages a month is (about 80 today).
+5. **Names.** "Low-energy week" is 28 undated day pages. Better as "Low-energy days"?
