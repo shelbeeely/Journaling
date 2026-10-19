@@ -32,7 +32,10 @@ export function createApp(studio, { staticDir = null, corsOrigins = [], openRegi
   route('POST', '/api/auth/logout', (c) => { S.logout(c.token); return { ok: true }; });
   route('GET', '/api/me', (c) => { if (!c.user) throw new StudioError(401, 'login_required', 'Sign in first.'); return { user: c.user }; });
 
-  route('GET', '/api/projects', (c) => ({ projects: S.listProjects(c.user, { publicOnly: c.query.get('public') === '1' }) }));
+  route('GET', '/api/me/prefs/([A-Za-z]+)', (c) => S.getPref(c.user, c.m[1]));
+  route('PUT', '/api/me/prefs/([A-Za-z]+)', async (c) => S.setPref(c.user, c.m[1], await c.body()));
+  route('DELETE', '/api/me/prefs/([A-Za-z]+)', (c) => S.deletePref(c.user, c.m[1]));
+  route('GET', '/api/projects',(c) => ({ projects: S.listProjects(c.user, { publicOnly: c.query.get('public') === '1' }) }));
   route('POST', '/api/projects', async (c) => [201, { project: S.createProject(c.user, await c.body()) }]);
   route('GET', P, (c) => ({ project: S.getProject(c.user, c.m[1]) }));
   route('PATCH', P, async (c) => ({ project: S.updateProject(c.user, c.m[1], await c.body()) }));

@@ -412,7 +412,7 @@ async function lbDeleteSeries(id) {
   LB.focus = null; if (NAV.level === 'series' && NAV.sid === id) navGo({ level: 'library' }, { push: false, anim: false });
 }
 $('#sh-new-book').onclick = () => {
-  const r = LM.addBook(LB.lib, { title: _t('lib.untitled_book'), ...(NAV.level === 'series' ? { seriesId: NAV.sid } : {}) });
+  const r = LM.addBook(LB.lib, { title: _t('lib.untitled_book'), ...gdBookDefaults(), ...(NAV.level === 'series' ? { seriesId: NAV.sid } : {}) }); // a new book starts the way the last one did (guided.js)
   const errs = lbApply(r.library); if (errs.length) return lbSnack(errs[0]);
   lbBookSheet(r.id, { isNew: true, back: '#sh-new-book' });
 };

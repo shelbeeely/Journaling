@@ -55,7 +55,7 @@ export const SHOTS = {
       { sel: '#paper', name: 'The page', does: 'The day page at print size. Every block you add or move shows up here as you do it.' }] },
   'day-edit': { build: 'demo', vp: [1600, 1000], hash: DAYEDIT, themes: ['light', 'dark'], maxW: 1300, alt: 'The day page in edit mode: the block palette on the left, the list of blocks on the page in the middle and the live page preview on the right.',
     callouts: [
-      { sel: 'aside.pal', name: 'Add blocks', does: 'Every block you can use, in groups. Drag one, or press its + button.' },
+      { sel: 'aside.pal', name: 'Add blocks', does: 'Eight everyday blocks to start with. Drag one, or press its + button. Advanced shows every block.' },
       { sel: '#list', name: 'On the page', does: 'The blocks on this page, top to bottom. Drag the grip to reorder; use the switch to hide one.' },
       { sel: '#paper', name: 'Live preview', does: 'The real page. It redraws after every change.' },
       { sel: '#meter', name: 'Writing space', does: 'How much blank room is left for writing. Blocks take it away, so watch this number.' },
@@ -82,6 +82,36 @@ export const SHOTS = {
     callouts: [
       { sel: '#done', name: 'Done', does: 'Finishes editing.' },
       { sel: '#undo', name: 'Undo', does: 'Takes back the last change. Press it again to keep going back. Ctrl+Z does the same.' }] },
+
+  // ---------- fewer decisions: Basic and Advanced, recommended values, the guided start ----------
+  'basic-advanced': { build: 'demo', vp: [1600, 1000], hash: DAYEDIT, scale: 2, crop: { pad: 20, sels: ['#pal'] }, alt: 'The Add blocks panel in the Basic view: a Basic and Advanced switch, a line saying eight everyday blocks are shown, and the eight blocks with their plus buttons.',
+    callouts: [
+      { sel: '#vm', name: 'Basic and Advanced', does: 'Basic shows eight everyday blocks. Advanced shows every block and every option. Nothing is removed, and your choice is remembered in this browser.' },
+      { sel: '#pal li[data-key="t:top"]', at: 'l', name: 'An everyday block', does: 'Top priorities, time blocks, checkboxes, a scale, words to circle, lined notes, small good things and a sketch box.' },
+      { sel: '[data-vm="advanced"]', name: 'Show all blocks', does: 'Another way to switch to Advanced.' }] },
+  'recommended': { build: 'demo', vp: [1600, 1000], hash: DAYEDIT, scale: 2,
+    setup: [['click', '#pal [data-add="t:checks"]'], ['wait', 500], ['fill', '#list > li[data-uid^="checks"] input[data-text$="/title"]', 'Mine'], ['key', 'Tab'], ['wait', 400]],
+    crop: { pad: 20, sels: ['#list > li[data-uid^="checks"]'] }, alt: 'The Checkboxes block with its options open. Three options show, then a button for one more option. The title was changed, so it has a Recommended button, and the block has a Use all recommended settings button.',
+    callouts: [
+      { sel: '#list > li[data-uid^="checks"] [data-more]', name: 'More options', does: 'Basic shows the first three options of a block. This opens the rest. An option you changed is always shown.' },
+      { sel: '#list > li[data-uid^="checks"] .rec-b', name: 'Recommended', does: 'Puts this option back to the value we suggest. It only appears when you have changed the option.' },
+      { sel: '#list > li[data-uid^="checks"] [data-rec$="/*"]', name: 'All recommended', does: 'Puts every option of this block back to the suggested values.' }] },
+  'guided-home': { build: 'demo', vp: [1280, 860], hash: '#library', scale: 1, setup: [['wait', 600], ['click', '#edit'], ['wait', 400], ['click', '#sh-guided'], ['wait', 600]], crop: { pad: 18, sels: ['#guided'] }, alt: 'The Start a book sheet. A button to answer five short questions, then four ready-made books: Daily planner, Mood log, Low-energy week and Art practice.',
+    callouts: [
+      { sel: '#guided [data-gd="questions"]', at: 'l', name: 'Five questions', does: 'The size, how long the book is, what to track, how the page should feel and how much room to write. Every question already has a recommended answer.' },
+      { sel: '#guided [data-starter="mood-log"]', at: 'l', name: 'A ready-made book', does: 'Four complete books. Open one, change anything, or take it as it is.' },
+      { sel: '#gd-x', name: 'Close', does: 'Closes the sheet. Nothing has changed on your page.' }] },
+  'guided-question': { build: 'demo', vp: [1280, 860], hash: '#library', scale: 1, setup: [['wait', 600], ['click', '#edit'], ['wait', 400], ['click', '#sh-guided'], ['wait', 600], ['click', '#guided [data-gd="questions"]'], ['wait', 300], ['click', '#gd-next'], ['click', '#gd-next'], ['wait', 300]], crop: { pad: 18, sels: ['#guided'] }, alt: 'Question 3 of 5, what would you like to keep track of. Ten choices with tick boxes. Three are ticked and marked Recommended.',
+    callouts: [
+      { sel: '#gd-body .gd-rec >> nth=0', at: 'r', name: 'Recommended', does: 'The answer we suggest, already chosen. You can press Next without changing anything.' },
+      { sel: '#gd-skip', at: 'tl', name: 'Use the recommended answers', does: 'Skips the rest of the questions and shows the finished book.' },
+      { sel: '#gd-next', at: 'tr', name: 'Next', does: 'Goes to the next question. Back goes the other way and changes nothing.' }] },
+  'guided-review': { build: 'demo', vp: [1280, 860], hash: '#library', scale: 1, setup: [['wait', 600], ['click', '#edit'], ['wait', 400], ['click', '#sh-guided'], ['wait', 600], ['click', '#guided [data-gd="questions"]'], ['wait', 300], ['click', '#gd-skip'], ['wait', 1200]], crop: { pad: 18, sels: ['#guided'] }, alt: 'Here is your book: a small picture of the day page, a title box, a first month, one month of about 80 pages, the blocks on the page, and a note about what was left off to keep the page calm.',
+    callouts: [
+      { sel: '#guided .gd-pvbox', at: 'tl', name: 'The page', does: 'A true-size picture of the day page this book will print.' },
+      { sel: '#gd-title', at: 'tr', name: 'Title', does: 'Name the book. It is printed on the cover and the title page.' },
+      { sel: '#gd-next', at: 'tr', name: 'Make this book', does: 'Adds the book to your Library and sets your day page. Undo brings your old page back.' },
+      { sel: '#gd-tweak', at: 'tl', name: 'Make it and change things', does: 'Does the same, then opens the day page so you can adjust it.' }] },
 
   // ---------- 4. The grid ----------
   'grid-toggle': { build: 'demo', vp: [1600, 1000], hash: DAYEDIT, scale: 2, crop: { pad: 22 }, alt: 'The Flow and Grid switch in the top bar.',
@@ -232,7 +262,7 @@ export const SHOTS = {
       { sel: '#os-title', name: 'Title', does: 'The name printed in the title box of the page. 40 characters at most.' }] },
   'blockpage': { build: 'demo', vp: [1440, 960], hash: BOOKEDIT, setup: [['click', '[data-act="add"][data-type="collection"]'], ['wait', 700], ['click', '#os-edit'], ['wait', 1200]], maxW: 1200, alt: 'A Collection page open in the block editor: the palette on the left, one block (Writing space) in the middle list, and the page preview on the right with the header at the top.',
     callouts: [
-      { sel: 'aside.pal', name: 'Add blocks', does: 'The same palette as the day page, minus the blocks that read a day (moon, events, the rotating prompt) and SEND TO.' },
+      { sel: 'aside.pal', name: 'Add blocks', does: 'The same palette as the day page (Basic or Advanced), minus the blocks that read a day (moon, events, the rotating prompt) and SEND TO.' },
       { sel: '#day-note', name: 'The page\'s own grid', does: 'Says which page this is and its grid: 4 columns by 24 rows. Changes are saved into the book.' },
       { sel: '#list', name: 'On the page', does: 'The page\'s blocks, top to bottom. A Collection page starts with only a Writing space.' },
       { sel: '#paper', name: 'Live preview', does: 'The page as it prints. The header and the page code are fixed.' }] },
@@ -242,11 +272,11 @@ export const SHOTS = {
       { sel: '#paper', name: 'Preview', does: 'Empty until you add blocks. The frame, SEND TO strip and page code stay.' }] },
 
   // ---------- G2: puzzles ----------
-  'pz-palette': { build: 'demo', vp: [1600, 1000], hash: DAYEDIT, scale: 2, crop: { pad: 20, sels: ['#pal li[data-key="t:wordsearch"]', '#pal li[data-key="t:crossword"]'] }, alt: 'The Puzzles group in the block palette: a Word search tile and a Crossword tile, each with a plus button.',
+  'pz-palette': { build: 'demo', vp: [1600, 1000], setup: [['eval', "vmSet('advanced')"]], hash: DAYEDIT, scale: 2, crop: { pad: 20, sels: ['#pal li[data-key="t:wordsearch"]', '#pal li[data-key="t:crossword"]'] }, alt: 'The Puzzles group in the block palette: a Word search tile and a Crossword tile, each with a plus button.',
     callouts: [
       { sel: '#pal [data-add="t:wordsearch"]', name: 'Word search +', does: 'Adds a Word search block at the end of the list.' },
       { sel: '#pal [data-add="t:crossword"]', name: 'Crossword +', does: 'Adds a Crossword block at the end of the list.' }] },
-  'pz-options': { build: 'demo', vp: [1600, 1200], hash: BOOKEDIT, setup: [['click', '[data-act="add"][data-type="collection"]'], ['wait', 700], ['click', '#os-edit'], ['wait', 1200], ['click', '#pal [data-add="t:wordsearch"]'], ['wait', 800], ['eval', "openIds.add(document.querySelector('#list > li[data-uid^=wordsearch]').dataset.uid); drawList()"], ['wait', 600]],
+  'pz-options': { build: 'demo', vp: [1600, 1200], hash: BOOKEDIT, setup: [['eval', "vmSet('advanced')"], ['click', '[data-act="add"][data-type="collection"]'], ['wait', 700], ['click', '#os-edit'], ['wait', 1200], ['click', '#pal [data-add="t:wordsearch"]'], ['wait', 800], ['eval', "openIds.add(document.querySelector('#list > li[data-uid^=wordsearch]').dataset.uid); drawList()"], ['wait', 600]],
     crop: { pad: 20, sels: ['#list > li[data-uid^="wordsearch"]'] }, alt: 'A Word search block opened in the list to show its options: title, grid size, difficulty, where the words come from, a seed, and switches for answers and large print.',
     callouts: [
       { sel: '#list > li[data-uid^="wordsearch"] .opt:has([data-num$="/size"])', name: 'Grid size', does: 'Squares per side. Bigger grids hold more words and need more of the page.' },
@@ -254,12 +284,12 @@ export const SHOTS = {
       { sel: '#list > li[data-uid^="wordsearch"] .opt:has([data-choice$="/source"])', name: 'Words from', does: 'Built-in lists, your own puzzles pack (the print build reads it), or words you type.' },
       { sel: '#list > li[data-uid^="wordsearch"] .opt:has([data-text$="/seed"])', name: 'Seed', does: 'The same seed on the same page gives the same puzzle on every reprint. Type something else for a different one.' },
       { sel: '#list > li[data-uid^="wordsearch"] [data-bool$="/answers"]', name: 'Show answers', does: 'Prints the solution into the puzzle. Leave it off for a puzzle to solve.' }] },
-  'pz-ws': { build: 'demo', vp: [1600, 1200], hash: BOOKEDIT, setup: [['click', '[data-act="add"][data-type="collection"]'], ['wait', 700], ['click', '#os-edit'], ['wait', 1200], ['click', '#pal [data-add="t:wordsearch"]'], ['wait', 1000], ['hide', '#meter']],
+  'pz-ws': { build: 'demo', vp: [1600, 1200], hash: BOOKEDIT, setup: [['eval', "vmSet('advanced')"], ['click', '[data-act="add"][data-type="collection"]'], ['wait', 700], ['click', '#os-edit'], ['wait', 1200], ['click', '#pal [data-add="t:wordsearch"]'], ['wait', 1000], ['hide', '#meter']],
     scale: 2, crop: { pad: 18, sels: ['#paper'] }, alt: 'A Collection page with a word search on it: a ten by ten grid of letters with the words to find listed to its right, and ruled writing lines below.',
     callouts: [
       { sel: '#paper .pzg >> nth=0', at: 'bl', name: 'Letter grid', does: 'The words are hidden across and down. Each is in the list beside the grid.' },
       { sel: '#paper .pzr', at: 'tr', name: 'Puzzle block', does: 'The whole block: the title line, the grid and the word list. The grid is drawn as shapes and text, so it prints sharp.' }] },
-  'pz-cw': { build: 'demo', vp: [1600, 1200], hash: BOOKEDIT, setup: [['click', '[data-act="add"][data-type="collection"]'], ['wait', 700], ['click', '#os-edit'], ['wait', 1200], ['click', '#pal [data-add="t:crossword"]'], ['wait', 1000], ['hide', '#meter']],
+  'pz-cw': { build: 'demo', vp: [1600, 1200], hash: BOOKEDIT, setup: [['eval', "vmSet('advanced')"], ['click', '[data-act="add"][data-type="collection"]'], ['wait', 700], ['click', '#os-edit'], ['wait', 1200], ['click', '#pal [data-add="t:crossword"]'], ['wait', 1000], ['hide', '#meter']],
     scale: 2, crop: { pad: 18, sels: ['#paper'] }, alt: 'A Collection page with a crossword on it: a grid of numbered squares with the Across and Down clues listed to its right.',
     callouts: [
       { sel: '#paper .pzg >> nth=0', at: 'bl', name: 'Crossword grid', does: 'Numbered squares. The answers are blank unless you switch on Show answers.' },
@@ -290,7 +320,7 @@ export const SHOTS = {
       { sel: '#vl-form button[type="submit"]', name: 'Release', does: 'Freezes the latest saved version of the book under that name. It never changes afterwards.' }] },
 
   // ---------- G2: troubleshooting ----------
-  'trouble-toofull': { build: 'demo', vp: [1600, 1200], hash: BOOKEDIT, setup: [['click', '[data-act="add"][data-type="collection"]'], ['wait', 700], ['click', '#os-edit'], ['wait', 1200], ['click', '#pal [data-add="t:wordsearch"]'], ['wait', 600], ['click', '#pal [data-add="t:crossword"]'], ['wait', 1000]],
+  'trouble-toofull': { build: 'demo', vp: [1600, 1200], hash: BOOKEDIT, setup: [['eval', "vmSet('advanced')"], ['click', '[data-act="add"][data-type="collection"]'], ['wait', 700], ['click', '#os-edit'], ['wait', 1200], ['click', '#pal [data-add="t:wordsearch"]'], ['wait', 600], ['click', '#pal [data-add="t:crossword"]'], ['wait', 1000]],
     crop: { pad: 20, sels: ['#paper', '#meter'] }, alt: 'A Collection page with a word search and a crossword on it. A red warning above the page preview says Too full: the page overflows.',
     callouts: [
       { sel: '#meter .warn', name: 'Too full', does: 'The page overflows: something does not fit. Switch a block off, shorten it, or make a puzzle smaller.' }] },
@@ -349,11 +379,24 @@ const BASE = [
       { p: 'The header (date, title and tags) shows a small padlock. It is fixed on purpose, so the scanner and the app can always find it.' },
       { h3: 'Add a block' },
       { shot: 'add-block' },
+      { h3: 'Basic and Advanced' },
+      { p: 'The palette starts in <b>Basic</b>: eight everyday blocks in one list, and each block shows its first three options. <b>Advanced</b> is every block and every option, exactly as before. Nothing is removed in Basic, and a block that is already on your page always shows. The choice is kept in this browser.' },
+      { shot: 'basic-advanced' },
+      { p: 'Every option has a recommended value, the one a new block starts on. When you change an option, a small <b>Recommended</b> button appears beside it and puts it back. A block with any changed option also offers <b>Use all recommended settings</b>.' },
+      { shot: 'recommended' },
       { h3: 'Reorder, hide and remove' },
       { shot: 'block-row' },
       { h3: 'Set a block\'s options' },
       { p: 'Each block lists its own choices: how many lines, how tall, which rows, which words. The block\'s name or the small arrow opens them.' },
       { shot: 'block-options' },
+      { h3: 'Start a whole book from questions' },
+      { p: 'You do not need to build a page first. Open the Library, press <b>Edit</b>, then <b>Guided start</b> (it is also in the More menu). You can answer five short questions, pick one of four ready-made books (a daily planner, a mood log, a low-energy week or art practice), or start from your last book.' },
+      { shot: 'guided-home' },
+      { p: 'Every question has a recommended answer already chosen and marked, so you can press <b>Next</b> all the way through. <b>Use the recommended answers for the rest</b> skips ahead. Back and Close never change anything.' },
+      { shot: 'guided-question' },
+      { p: 'The last step shows the finished book: a true-size picture of the page, a title and first month, how long it is, and the blocks on the page. If your choices were more than a calm page holds, it says which ones were left off and that Advanced adds them back. <b>Make this book</b> adds it to your Library and sets your day page. If your page was not the original, it asks first, and Undo on the day page brings it back.' },
+      { shot: 'guided-review' },
+      { note: 'The editor remembers your choices (not your title, your calendar or anything personal) so the next book starts the way this one did: in this browser, or in your Studio account when you are signed in. The demo remembers nothing. Both print sizes are always built; the size question only sets the preview.' },
       { h3: 'Start from a method' },
       { p: 'You do not have to start with a blank list. The editor has ready-made arrangements built from the methods library (bullet journal, time blocking, a care check-in and others). The result is just blocks, so you can change any of it.' },
       { shot: 'method-menu' },

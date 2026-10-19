@@ -81,6 +81,7 @@ Crisis and support numbers are never filled in for someone else. The `generic` p
 | Accessibility baseline, the 44 methods library, e-ink companion (check-ins, focus timer, settings, Wi-Fi) | Ready |
 | Page organiser, spread days, notes/blank/collection pages as blocks, word-search and crossword blocks, releases and reusable pages (Studio API), print accessibility options (large print, high contrast) with a Settings panel, X4 sync client (needs the `x4-tls` build; not tested on hardware) | Ready |
 | Content packs (support, clinic, transit, holidays, seasons) and `npm run init` onboarding | Ready |
+| Fewer decisions: a guided start (five questions), four ready-made books, a Basic view of eight blocks with a recommended value for every option, and new books that start from your last one | Ready |
 | Pack ecosystem (themes, graphics, icon packs, block packs) | In progress |
 | Languages (editor strings are extracted into a catalog with test languages; no switcher or real translation yet) | In progress |
 | Block-based month and week pages, account locations, the e-ink editor, a reusable-pages picker in the editor | Planned |

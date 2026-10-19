@@ -40,12 +40,13 @@ const b = await launch();
 const found = [];
 const add = (rule, where, msg) => found.push({ rule, where, msg, key: `${where}: ${msg}` });
 
-async function open(target, { hash = "", w = 1400, h = 900, scheme = 'light', reduce = false, forced = false, contrast = null, wait = 350, lib = false } = {}) {
+async function open(target, { hash = "", w = 1400, h = 900, scheme = 'light', reduce = false, forced = false, contrast = null, wait = 350, lib = false, basic = false } = {}) {
   const ctx = await b.newContext({ viewport: { width: w, height: h }, colorScheme: scheme, reducedMotion: reduce ? 'reduce' : 'no-preference', forcedColors: forced ? 'active' : 'none' });
   const p = await ctx.newPage();
   await p.route(/fonts\.(googleapis|gstatic)/, (r) => r.abort());
   if (process.env.SORTABLE_JS) await p.route(/cdnjs\.cloudflare\.com/, (r) => r.fulfill({ path: process.env.SORTABLE_JS, contentType: 'text/javascript' }));
   const errs = []; p.on('pageerror', (e) => errs.push(e.message));
+  if (!basic) await p.addInitScript(() => { try { localStorage.setItem('kw-view', 'advanced'); } catch {} }); // most scenes walk every block; the Basic view has its own scenes below
   if (lib) await p.addInitScript((l) => { try { localStorage.setItem('kw-library', JSON.stringify(l)); } catch {} }, SAMPLE_LIBRARY); // the generic sample library (L1b): a library with two series and a standalone book
   await p.goto(`${ORIGIN}/${target}/${hash}`, { waitUntil: 'load' });
   if (contrast) await p.emulateMedia({ contrast });
@@ -59,7 +60,7 @@ const close = (p) => p.ctx.close();
 
 // ---------- helpers run inside the page ----------
 const INTERACTIVE = 'button, a[href], input:not([type=hidden]), select, textarea, summary, [role=button], [role=switch], [role=tab], [tabindex]:not([tabindex="-1"])';
-const EXEMPT = '#pv, #pv *, #bk-world, #bk-world *, .sr, input[type=checkbox], input[type=file], .demo a';
+const EXEMPT = '#pv, #pv *, #bk-world, #bk-world *, .sr, input[type=checkbox], input[type=radio], input[type=file], .demo a'; // a radio or a checkbox sits inside a label that is the 44 px target (test-guided.mjs measures the label)
 async function smallTargets(p, label, { min = 44, skipInline = false } = {}) {
   const bad = await p.evaluate(({ INTERACTIVE, EXEMPT, min, skipInline }) => {
     const out = {};
@@ -493,6 +494,30 @@ for (const [w, scheme] of [[1400, 'light'], [1400, 'dark'], [390, 'light'], [390
   await close(p);
 }
 await tokens();
+// 6b) fewer decisions (BUILD-PLAN section 24): the Basic view with a changed option (so "back to recommended" shows), and the guided start sheet at three steps
+for (const [w, scheme, tag] of [[1400, 'light', 'desktop, light'], [390, 'light', 'phone, light'], [1200, 'dark', 'desktop, dark']]) {
+  const p = await open('site', { hash: DAY, basic: true, w, h: w === 390 ? 844 : 900, scheme });
+  await p.evaluate(() => { const b = newBlock('checks', { title: 'Mine' }); layout.blocks.splice(layout.blocks.length - 3, 0, b); openIds.add(b.uid); drawPalette(); drawList(); });
+  if (w === 390) await p.evaluate(() => tab('add'));
+  await axeRun(p, `Basic view (${tag})`); await smallTargets(p, `Basic view (${tag})`); await reflow(p, `Basic view (${tag})`);
+  if (w === 390) { await p.evaluate(() => tab('edit')); await smallTargets(p, `Basic view, blocks (${tag})`); }
+  if (w === 1400) await focusRing(p, 'Basic view', 14);
+  await close(p);
+}
+for (const [w, scheme, tag] of [[1400, 'light', 'desktop, light'], [390, 'light', 'phone, light'], [390, 'dark', 'phone, dark']]) {
+  const p = await open('site', { hash: '#library', basic: true, w, h: w === 390 ? 844 : 900, scheme });
+  if (!(await p.locator('#sh-guided').isVisible())) await p.locator('#edit').click();
+  await p.locator('#sh-guided').click(); await p.waitForSelector('#guided[open] [data-gd="questions"]');
+  const when = async (label) => { await axeRun(p, `Guided start, ${label} (${tag})`); await smallTargets(p, `Guided start, ${label} (${tag})`); await reflow(p, `Guided start, ${label} (${tag})`); };
+  await when('home');
+  if (w === 1400) await focusRing(p, 'Guided start', 8);
+  await p.locator('[data-gd="questions"]').click(); await when('a question');
+  await p.locator('#gd-skip').click(); await p.waitForSelector('#gd-title'); await p.waitForTimeout(500); await when('the finished book');
+  // keyboard: Escape closes the sheet and focus returns to the page (the library's Guided start button or its heading)
+  await p.keyboard.press('Escape');
+  if (await p.evaluate(() => document.querySelector('#guided').open)) add('keyboard', 'Guided start', 'Escape does not close the sheet');
+  await close(p);
+}
 // 7) the product site (site/): axe, reflow, targets, focus, reduced motion
 for (const [w, scheme] of [[1280, 'light'], [390, 'light'], [320, 'dark']]) {
   const p = await open('product', { w, h: 900, scheme });

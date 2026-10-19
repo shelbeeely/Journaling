@@ -143,6 +143,8 @@ Migrations live in `migrations/NNN_name.sql`, applied in order and recorded in `
         GET  /api/device/info                             device token: its name and the month logs it has sent {month, size}
         POST /api/device/log/:YYYY-MM                     device token, header X-Offset: bytes, body: text (at most 16 KB): appends at EXACTLY the stored size, else 409 {details.size}
 
+    DF1 GET|PUT|DELETE /api/me/prefs/startFrom            the signed-in user's remembered choices for the next book (the editor's guided start, BUILD-PLAN section 24). PUT {value} is cleaned by `journal/presets.mjs` `cleanLast` before it is stored: choices only (answers, length, modules sky/spoons/therapy, size, the day layout's declared options), never a title, calendar, profile field or pack; at most 16,000 characters; 422 for anything that is not a v1 remembered start. Stored in `user_prefs` (migration 005), never in a project, snapshot, fork or export
+
 The diff (`src/diff.mjs`, also inlined into the editor) reports `added`, `removed`, `moved`, `changed[{key,before,after}]` for **book pages by
 page id** (including the month/week lists and per-month overrides) and **day blocks by uid** (care rows by row id), plus meta, print, assets
 and components. Moves are minimal (only the items that changed order).
@@ -327,6 +329,7 @@ Approval is not required to merge; a `changes_requested` review blocks it.
 | `collab.test.mjs` | fork consent and permissions, attribution, independent history, forbidden content never forked (planted in a private branch, in the published line, and as an unknown field), proposals (who may propose, comment, review, close; guests read only; private hides), review status and stale approvals, merge commits with two parents, all-or-nothing resolution, expected-head concurrency, accepting selected changes, direct merges, a full HTTP run |
 | `collab-ui.test.mjs` | fork, propose, review, accept some, resolve conflicts and merge in a browser: guests read only, keyboard use, focus kept while controls redraw, 44px targets and accessible names, no sideways scroll at 390px, light and dark; screens in `journal/editor/dist/test/collab-*.png` |
 | `print.test.mjs` | (adds) fork, edit both sides, resolve a conflict, merge, export the merge commit, render both trims, `check.mjs` "[] 0" |
+| `prefs.test.mjs` | remembered choices: save, read, replace, delete; only choices are stored whatever is sent (no title, place, calendar, pack, undeclared block field); signed-in only, one key, bad values 422, another account sees nothing, never in a project object |
 | `ui.test.mjs` | the Versions drawer in a browser: guest (local versions, public project read-only, no writes), sign-in changes nothing, move to account, draft, save, conflict, compare, restore, branch, book compare, phone, dark; screens in `journal/editor/dist/test/studio-*.png` |
 
 `print.test.mjs` and `ui.test.mjs` need `npm ci` in `journal/` and Chromium (and, for the UI test, the built editor); they skip otherwise.

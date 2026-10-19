@@ -36,4 +36,4 @@ export function tableStrings({ TYPES, PRESETS, CARE_ROWS, ROW_OPTS, PAGE_KINDS, 
 }
 
 // The keys the editor builds at run time (the table keys above, and the palette groups): the unused-key check treats these prefixes as used.
-export const DYNAMIC_PREFIXES = ['block.', 'care.', 'preset.', 'pagekind.', 'method.', 'scan.', 'pal.group_', 'lib.module_', 'lib.cover_', 'ver.role_'];
+export const DYNAMIC_PREFIXES = ['block.', 'care.', 'preset.', 'pagekind.', 'method.', 'scan.', 'pal.group_', 'lib.module_', 'lib.cover_', 'ver.role_', 'guided.d_'];

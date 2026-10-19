@@ -369,6 +369,7 @@ html[data-mode="view"] #pv [data-b]:hover { outline: none; }
 /*__VSCSS__*/
 /*__LIBCSS__*/
 /*__ORGCSS__*/
+/*__GUIDEDCSS__*/
 /* ---------- accessibility (A11Y audit: docs/review/accessibility-audit.md; journal/editor/test-a11y.mjs guards it) ---------- */
 .skip { position: absolute; left: 8px; top: -80px; z-index: 30; min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; background: var(--panel); color: var(--ink); border: 2px solid var(--focus); border-radius: 8px; font-weight: 600; text-decoration: none; }
 .skip:focus { top: 8px; }
@@ -439,6 +440,7 @@ input[type=text], input[type=password], input[type=url], input:not([type]), sele
     <button class="btn" id="undo" disabled aria-label="Undo" data-i18n-attr="aria-label:app.undo">↶<span class="lab" data-i18n="app.undo"> Undo</span></button>
     <div class="menu" id="menu"><button class="btn" aria-haspopup="true" aria-expanded="false" id="menubtn" data-i18n="app.more">More</button>
       <div role="menu">
+        <button role="menuitem" class="editonly" id="m-guided" data-i18n="guided.menu">Start a book with questions…</button>
         <button role="menuitem" class="editonly" id="m-method" data-i18n="app.start_from_a_method">Start from a method…</button>
         <button role="menuitem" id="m-gh" hidden data-i18n="app.save_to_github">Save to GitHub…</button>
         <button role="menuitem" class="editonly" id="m-ghload" hidden data-i18n="app.load_from_github">Load from GitHub</button>
@@ -475,6 +477,7 @@ input[type=text], input[type=password], input[type=url], input:not([type]), sele
   </div>
   <aside class="pal" aria-label="Add blocks" data-i18n-attr="aria-label:app.add_blocks">
     <h2 class="sec" data-i18n="app.add_blocks">Add blocks</h2>
+    <div class="vm"><span class="seg" id="vm" role="group" aria-label="How many blocks to show" data-i18n-attr="aria-label:guided.vm_label"><button type="button" id="vm-b" aria-pressed="true" data-i18n="guided.basic">Basic</button><button type="button" id="vm-a" aria-pressed="false" data-i18n="guided.advanced">Advanced</button></span><p class="note" id="vm-note"></p></div>
     <p class="note" data-i18n="app.drag_onto_your_list_or">Drag onto your list or the page, or tap +.</p>
     <div id="pal"></div>
   </aside>
@@ -536,6 +539,7 @@ input[type=text], input[type=password], input[type=url], input:not([type]), sele
   <div class="pgv-stage" id="pgv-stage"><div class="sheet" id="pgv-paper"><div id="pgv"></div></div></div>
 </section>
 <!--__LIBHTML__-->
+<!--__GUIDEDHTML__-->
 <!--__VSHTML__-->
 <input type="file" id="file" accept=".json,application/json" hidden>
 <dialog id="gh" aria-labelledby="gh-h">
@@ -657,7 +661,7 @@ const editing = () => NAV.view === 'day' && NAV.edit; // the editor UI is drawn 
 function drawPalette() {
   if (!editing()) { $('#pal').innerHTML = ''; return; }
   const used = new Set(layout.blocks.map((b) => b.type)), items = paletteItems();
-  $('#pal').innerHTML = PAL_GROUPS.map((g) => `<h3>${palGroup(g)}</h3>${PAL_NOTES[g] ? `<p class="fine">${PAL_NOTES[g]}</p>` : ''}<ul class="pg">${items.filter((it) => it.group === g).map((it) => {
+  $('#pal').innerHTML = basicView() ? basicPalette(used, items) : PAL_GROUPS.map((g) => `<h3>${palGroup(g)}</h3>${PAL_NOTES[g] ? `<p class="fine">${PAL_NOTES[g]}</p>` : ''}<ul class="pg">${items.filter((it) => it.group === g).map((it) => {
     const u = TYPES[it.type].single && used.has(it.type);
     return `<li class="pi ${u ? 'used' : ''}" data-key="${it.key}">${icon(it.icon, 'ico')}<span class="n">${escH(it.name)}</span><button class="add" data-add="${it.key}" aria-label="${_t('app.add_name', { name: escH(it.name) })}">+</button></li>`;
   }).join('')}</ul>`).join('');
@@ -736,7 +740,7 @@ function drawList() {
   const ul = $('#list'), probs = layout.grid ? gridProblems(layout, size) : [];
   ul.innerHTML = layout.blocks.map((b) => {
     const t = { ...TYPES[b.type], name: tName(b.type) }, open = openIds.has(b.uid);
-    const o = (layout.grid ? placePanel(b) : '') + (b.type === 'sendto' && layout.scan && layout.scan.frame === 'off' ? '<p class="minn bad" role="note">' + _t('app.border_off_note') + '</p>' : '') + photoNote(b) + (b.type === 'care' ? `<ul class="sub" data-care="${b.uid}">${b.rows.map((r) => rowItem(b.uid, r)).join('')}</ul>` : t.opts.map((x) => optControl(x, b[x.k], `${b.uid}/${x.k}`)).join(''));
+    const o = (layout.grid ? placePanel(b) : '') + (b.type === 'sendto' && layout.scan && layout.scan.frame === 'off' ? '<p class="minn bad" role="note">' + _t('app.border_off_note') + '</p>' : '') + photoNote(b) + (b.type === 'care' ? `<ul class="sub" data-care="${b.uid}">${b.rows.map((r) => rowItem(b.uid, r)).join('')}</ul>` : blockOpts(b, t));
     const gp = layout.grid && b.on ? _t('app.grid_pos', { col: b.col, row: b.row, w: b.colSpan, h: b.rowSpan }) + ' · ' : '';
     return `<li class="blk ${b.on ? '' : 'off'} ${open ? 'open' : ''} ${selected === b.uid ? 'sel' : ''} ${probs.some((p) => p.uid === b.uid) ? 'prob' : ''}" data-uid="${b.uid}">
       <div class="row"><span class="grip" role="button" tabindex="0" aria-label="${_t('app.move_arrows', { name: escH(t.name) })}">${GRIP}</span>${icon(t.icon, 'bico')}
@@ -1835,6 +1839,7 @@ window.KW = { get level() { return NAV.level; }, get book() { return LB.cur; }, 
 /*__LIBJS__*/
 /*__VSJS__*/
 /*__ORGJS__*/
+/*__GUIDEDJS__*/
 
 (async function init() {
   if (store.get('kw-size') === 'letter') { size = 'letter'; $('#sz-s').setAttribute('aria-pressed', false); $('#sz-l').setAttribute('aria-pressed', true); }
