@@ -12,7 +12,9 @@ import { pzxBlock, pzxMin, pzxFit, pzxIs, PZX_TYPES, PZX_CSS } from './puzzles/r
 import { PZ_MZ_MIN, PZ_MZ_MAX } from './puzzles/maze.mjs';
 import { PZ_NN_MIN, PZ_NN_MAX } from './puzzles/nonogram.mjs';
 import { PZ_DD_IDS, PZ_DD_SHAPES } from './puzzles/dots.mjs';
+import { NOTE_TYPES, isNote, NOTE_GROUP, REG_GROUP, TRACE_PATTERNS, TRACE_SIZES, STIM_SENSES, REVIEW_DAYS, FLASH_G, flashParts, reviewSteps, stimSenses, noteMin, noteFit, notePlan, mapPlan, tracePaths, NOTE_PITCH } from './noteblocks.mjs';
 import { PHOTO_TYPES, isPhoto, FRAME_SIZES, STRIP_SIZES, SHEET_SIZES, DAILY_SIZES, CUSTOM_MIN, CUSTOM_MAX, photoPlan, photoMin, photoFit, sizeText, dailyDays, monthDays, linesCount, markArm, MARK_INSET_IN, TICK_GAP_IN, zoomOf, gutterProblem } from './photo.mjs';
+import { CH_GROUPS, CH_CSS, chHtml, chMin } from './chores.mjs';
 
 export const IC = {
   pill: '<rect x="1.3" y="4" width="9.4" height="4" rx="2" transform="rotate(-35 6 6)"/><path d="M6 3.1 L6 8.9" transform="rotate(-35 6 6)"/>',
@@ -82,8 +84,31 @@ export const IC = {
   // photo journaling (glue-in): a frame with a hill and a sun, three frames in a row, a small grid with the day ringed, a contact sheet with a tick
   photoframe: '<rect x="1.4" y="2" width="9.2" height="8" rx="1"/><circle cx="4.3" cy="4.7" r=".9"/><path d="M1.8 9.4l2.9-2.6 1.9 1.7 1.5-1.3 2.1 2"/>',
   photostrip: '<rect x="1" y="3" width="2.8" height="6" rx=".5"/><rect x="4.6" y="3" width="2.8" height="6" rx=".5"/><rect x="8.2" y="3" width="2.8" height="6" rx=".5"/>',
+  // chores (chores.mjs): a house with a tick, a week grid with a tick
+  chores: '<path d="M1.4 6 6 1.8 10.6 6M2.8 5v5.6h6.4V5"/><path d="M4.6 8.2l1.1 1.1 1.9-2.2"/>',
+  chorerota: '<rect x="1.2" y="1.6" width="9.6" height="8.8" rx="1"/><path d="M1.2 4.6h9.6M4.4 4.6v5.8M7.6 4.6v5.8"/><path d="M5.2 7.6l.9.9 1.6-1.8"/>',
   photodaily: '<rect x="1.2" y="1.6" width="2.4" height="2.4" rx=".4"/><rect x="4.8" y="1.6" width="2.4" height="2.4" rx=".4"/><rect x="8.4" y="1.6" width="2.4" height="2.4" rx=".4"/><rect x="1.2" y="5" width="2.4" height="2.4" rx=".4"/><rect x="4.8" y="5" width="2.4" height="2.4" rx=".4"/><rect x="8.4" y="5" width="2.4" height="2.4" rx=".4"/><path d="M1.2 10.2h9.6"/>',
   contactsheet: '<rect x="1.2" y="1.4" width="4" height="4" rx=".5"/><rect x="6.8" y="1.4" width="4" height="4" rx=".5"/><rect x="1.2" y="6.8" width="4" height="4" rx=".5"/><path d="M7.4 8.9l1.2 1.2 2.2-2.4"/>',
+  // notes and study (noteblocks.mjs): a cue column with a summary strip, a lined page, a bubble map, a question mark, a boxed summary, a strip with a dashed fold, three ticks, an arrow that comes round again
+  cornell: '<rect x="1.4" y="1.4" width="9.2" height="9.2" rx="1"/><path d="M4.6 1.4v6.8M1.4 8.2h9.2"/>',
+  notearea: '<path d="M2.4 1.4h5.4l2 2v7.2H2.4Z"/><path d="M4 5.2h4M4 7h4M4 8.8h2.4"/>',
+  conceptmap: '<circle cx="6" cy="6" r="1.7"/><circle cx="2.2" cy="2.4" r="1"/><circle cx="9.8" cy="2.4" r="1"/><circle cx="6" cy="10.2" r="1"/><path d="M4.8 4.8 3 3.2M7.2 4.8 9 3.2M6 7.7v1.5"/>',
+  questions: '<path d="M4.2 4.4a1.9 1.9 0 1 1 2.9 1.6c-.7.5-1.1.9-1.1 1.7"/><circle cx="6" cy="10" r=".55" fill="currentColor"/>',
+  summarybox: '<rect x="1.4" y="2.4" width="9.2" height="7.2" rx="1"/><path d="M3.4 5h5.2M3.4 7h3"/>',
+  flashstrip: '<rect x="1.2" y="2.4" width="9.6" height="7.2" rx=".8"/><path d="M6.6 2.4v7.2" stroke-dasharray="1.2 1"/><path d="M2.8 6h2.2"/>',
+  reviewtracker: '<rect x="1" y="4" width="3" height="3" rx=".5"/><rect x="4.5" y="4" width="3" height="3" rx=".5"/><rect x="8" y="4" width="3" height="3" rx=".5"/><path d="M1.6 5.6l.8.8 1.3-1.6"/><path d="M1 9.4h10"/>',
+  again: '<path d="M9.6 6a3.6 3.6 0 1 1-1.1-2.6"/><path d="M9.6 1.8v2.2H7.4"/>',
+  // regulation: a wave (a stim log), a list of boxes and lines (a menu), a spiral (a pattern to trace), and the six senses of the stim menu
+  stimlog: '<path d="M1 7c1.4-3.4 2.4-3.4 3.5 0s2.1 3.4 3.5 0 1.6-2.2 3-1"/>',
+  stimmenu: '<rect x="1.4" y="2" width="2" height="2" rx=".4"/><rect x="1.4" y="5" width="2" height="2" rx=".4"/><rect x="1.4" y="8" width="2" height="2" rx=".4"/><path d="M5 3h5.6M5 6h5.6M5 9h5.6"/>',
+  stimtrace: '<path d="M6 6c.6 0 .9-.6.5-1s-1.2-.3-1.5.3c-.4.8 0 1.8 1 2.1 1.2.3 2.3-.6 2.2-1.9-.1-1.6-1.6-2.4-3.1-2.1-1.7.4-2.5 2.2-2 3.8"/>',
+  sense_touch: '<path d="M5 6.2V2.9a1 1 0 0 1 2 0v3.2M7 5.6l2-.4a1 1 0 0 1 .4 2L8.6 10H5.4L3.2 7.4"/>',
+  sense_move: '<path d="M6 1.6v8.8M1.6 6h8.8M6 1.6 4.8 2.8M6 1.6 7.2 2.8M6 10.4 4.8 9.2M6 10.4 7.2 9.2"/>',
+  sense_sight: '<path d="M1 6s2-3.4 5-3.4S11 6 11 6s-2 3.4-5 3.4S1 6 1 6Z"/><circle cx="6" cy="6" r="1.3"/>',
+  sense_chew: '<circle cx="6" cy="6" r="4.4"/><path d="M4.2 4.6h.01M7.4 5h.01M5.2 7.6h.01M7.2 7.8h.01" stroke-width="1.7"/>',
+  sense_press: '<path d="M1.2 6h2.8M10.8 6H8M3 4.4 4.6 6 3 7.6M9 4.4 7.4 6 9 7.6"/><rect x="5.1" y="3.4" width="1.8" height="5.2" rx=".6"/>',
+  fold: '<path d="M2 2h6l2 2v6H2Z"/><path d="M8 2v2h2"/>',
+  idea: '<path d="M6 2.4v7.2M2.4 6h7.2"/>',
 };
 export const ic = (k, t = '') => `<svg class="ic" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="${t || k}">${IC[k]}</svg>`;
 export const box = (label) => `<span class="ck"><i></i>${label ? `<span>${label}</span>` : ''}</span>`;
@@ -165,6 +190,10 @@ const PZ_SOURCE = [
 ];
 
 const PH_TURN = { k: 'turn', kind: 'choice', label: 'Turn', choices: [['portrait', 'Portrait (tall)'], ['landscape', 'Landscape (wide)']], def: 'portrait' };
+// Notes, flash cards and stimming (noteblocks.mjs, BUILD-PLAN section 24): paper to write in or trace. Standard line spacing for blocks with two cells to a row.
+const NB_PITCH = (def) => ({ ...PITCH, def });
+const NB_PAPER = { ...PAPER, choices: [...PAPER.choices, ['blank', 'Blank']] };
+const NB_SENSE_DEF = { touch: true, move: true, sound: true, sight: true, chew: true, press: true };
 // group: where the block sits in the "Add blocks" palette.
 export const TYPES = {
   // ---- from your day (single) ----
@@ -239,6 +268,21 @@ export const TYPES = {
   photostrip: { name: 'Photo strip', group: 'Photos', icon: 'photostrip', hint: '2 to 4 small frames in a row or a column, a date line under each. Paper only', opts: [T('Label', '', 24), { k: 'size', kind: 'choice', label: 'Print size', choices: STRIP_SIZES, def: '1x1.5' }, PH_TURN, N('n', 'Frames', 2, 4, 3), { k: 'dir', kind: 'choice', label: 'Direction', choices: [['row', 'In a row'], ['column', 'In a column']], def: 'row' }, B('dates', 'Date line under each frame'), { k: 'lines', kind: 'choice', label: 'Caption line', choices: [['none', 'None'], ['one', 'One line under the strip']], def: 'none' }] },
   photodaily: { name: 'Photo a day', group: 'Photos', icon: 'photodaily', hint: 'A tiny frame for every day of the month, labelled by date, for a photo-a-day habit. Paper only', opts: [T('Label', '', 24), { k: 'size', kind: 'choice', label: 'Print size', choices: DAILY_SIZES, def: '0.5x0.5' }, { k: 'days', kind: 'choice', label: 'Days', choices: [['auto', 'This page\'s month (31 off a day page)'], [28, '28'], [29, '29'], [30, '30'], [31, '31']], def: 'auto' }, B('note', 'Say when the day starts')] },
   contactsheet: { name: 'Contact sheet', group: 'Photos', icon: 'contactsheet', hint: '6 to 12 small numbered frames and a tick to pick the one to keep. Paper only', opts: [T('Label', '', 24), { k: 'size', kind: 'choice', label: 'Print size', choices: SHEET_SIZES, def: '1x1' }, PH_TURN, N('n', 'Frames', 6, 12, 6), B('pick', 'Pick-one tick under each'), { k: 'lines', kind: 'choice', label: 'Caption line', choices: [['none', 'None'], ['one', 'One: the one I picked, and why']], def: 'one' }] },
+  // ---- chores (chores.mjs, BUILD-PLAN section 25): today's list and the rotation grids. The chores come from the profile; a block holds only how to draw them ----
+  chores: { name: 'Chores today', group: 'Chores', icon: 'chores', hint: 'Today\'s chores as a tick list, from their rhythm and the date. Paper only for now', opts: [T('Label', 'Chores', 24), N('n', 'Lines', 2, 10, 5), { k: 'tiers', kind: 'choice', label: 'Energy versions', choices: [['none', 'Just the chore'], ['text', 'Show the small and the good enough version'], ['ticks', 'Three marks: small, good enough, all of it (one person)']], def: 'none' }, { k: 'groups', kind: 'flags', label: 'Rhythms', items: CH_GROUPS }, B('soon', 'Show a quiet "due soon" mark'), B('people', 'Household: a tick box for each person', false)] },
+  chorerota: { name: 'Chore rotation', group: 'Chores', icon: 'chorerota', hint: 'A week or month grid of chores: daily, weekly, monthly, seasonal. Household adds a box for each person', opts: [T('Label', '', 24), { k: 'period', kind: 'choice', label: 'Grid for', choices: [['week', 'A week'], ['month', 'A month']], def: 'week' }, N('n', 'Most chores shown', 4, 16, 10), { k: 'groups', kind: 'flags', label: 'Rhythms', items: CH_GROUPS }, B('people', 'Household: a box for each person', false), B('tiers', 'Show the small and the good enough version', false)] },
+  // ---- notes and study (noteblocks.mjs, BUILD-PLAN section 24): paper to write in. Nothing is stored or uploaded; paper only ----
+  cornell: { name: 'Cornell notes', group: NOTE_GROUP, icon: 'cornell', hint: 'A cue column, a notes column and a summary strip. Paper only', opts: [T('Label', 'Cornell notes', 24), B('head', 'Topic and date line'), N('n', 'Note rows', 4, 16, 8), N('s', 'Summary lines', 1, 4, 2), { k: 'cue', kind: 'choice', label: 'Cue column', choices: [[30, 'Narrow'], [35, 'Standard'], [40, 'Wide']], def: 35 }, PAPER, PITCH] },
+  notearea: { name: 'Note area', group: NOTE_GROUP, icon: 'notearea', hint: 'Ruled, dot, grid or blank paper with a topic, date and source line. Fills its cell. Paper only', opts: [T('Label', 'Notes', 24), B('topic', 'Topic line'), B('date', 'Date line'), B('source', 'Source line', false), N('n', 'Rows', 2, 24, 8), NB_PAPER, PITCH] },
+  conceptmap: { name: 'Concept map', group: NOTE_GROUP, icon: 'conceptmap', hint: 'A centre bubble with branches to fill in. Paper only', opts: [T('Label', 'Concept map', 24), N('branches', 'Branches', 3, 8, 5), N('h', 'Height (tenths of an inch)', 14, 40, 24)] },
+  questions: { name: 'Questions to answer', group: NOTE_GROUP, icon: 'questions', hint: 'Numbered questions, an answer line under each and a box for when it is answered. Paper only', opts: [T('Label', 'Questions', 24), N('n', 'Questions', 2, 10, 4), B('answers', 'Answer line under each'), B('tick', 'Answered box'), PITCH] },
+  summarybox: { name: 'Summary box', group: NOTE_GROUP, icon: 'summarybox', hint: 'A framed box to say it back in your own words. Paper only', opts: [T('Label', 'Summary', 24), N('n', 'Lines', 2, 8, 3), { k: 'prompt', kind: 'choice', label: 'Prompt', choices: [['none', 'None'], ['one', 'In one sentence'], ['own', 'In my own words'], ['friend', 'What I would tell a friend'], ['main', 'The main idea']], def: 'own' }, PITCH] },
+  flashstrip: { name: 'Flash cards (fold-over strip)', group: NOTE_GROUP, icon: 'flashstrip', hint: 'Term on one side, answer on the other. Fold the page edge along the dashed line to hide the answers. No cutting. Paper only', opts: [T('Label', 'Flash cards', 24), N('n', 'Cards', 4, 12, 6), B('num', 'Numbers'), { k: 'split', kind: 'choice', label: 'Fold position', choices: [[40, 'Term 40 percent, answer 60'], [50, 'Even'], [60, 'Term 60 percent, answer 40']], def: 50 }, { k: 'answer', kind: 'choice', label: 'Answers on', choices: [['right', 'The right (fold the right edge: right-hand pages)'], ['left', 'The left (fold the left edge: left-hand pages)']], def: 'right' }, N('reviews', 'Review ticks per card (0 for none)', 0, 5, 3), B('gotit', 'Got it and again ticks', false), B('hint', '"Fold here" hint'), NB_PITCH(6.6)] },
+  reviewtracker: { name: 'Review tracker', group: NOTE_GROUP, icon: 'reviewtracker', hint: 'Topics with a tick for each review: after 1, 3, 7, 21 days or your own. Paper only', opts: [T('Label', 'Reviews', 24), N('n', 'Topics', 2, 12, 5), { k: 'every', kind: 'flags', label: 'Review after', items: { d1: '1 day', d3: '3 days', d7: '7 days', d14: '14 days', d21: '21 days', d30: '30 days' }, def: { d1: true, d3: true, d7: true, d14: false, d21: true, d30: false } }, B('date', 'Learned-on date'), PITCH] },
+  // ---- regulation (noteblocks.mjs): stimming is self-regulation. These blocks notice what works; none of them asks anyone to stop ----
+  stimlog: { name: 'Stim log', group: REG_GROUP, icon: 'stimlog', hint: 'When, what felt good, what helped, and how settled I felt before and after. Stimming is self-regulation. Paper only', opts: [T('Label', 'Stim log', 24), N('n', 'Entries', 1, 6, 3), B('where', 'Where and what helped'), B('ba', 'Before and after (how settled I felt)'), B('size', 'How much (1 to 5)', false), B('note', 'Line that says stimming is self-regulation'), NB_PITCH(6.6)] },
+  stimmenu: { name: 'Stim menu', group: REG_GROUP, icon: 'stimmenu', hint: 'My favourite stims and tools by sense, with boxes and free lines, and room for new ideas. Stimming is self-regulation. Paper only', opts: [T('Label', 'My stim menu', 24), { k: 'senses', kind: 'flags', label: 'Senses', items: STIM_SENSES, def: NB_SENSE_DEF }, N('rows', 'Rows for each sense', 1, 4, 2), N('ideas', 'New stim idea rows', 0, 4, 2), B('note', 'Line that says my stims are valid'), PITCH] },
+  stimtrace: { name: 'Pattern to trace', group: REG_GROUP, icon: 'stimtrace', hint: 'A repeating pattern to trace slowly with a pen or a finger, as a quiet stim. Stimming is self-regulation. Paper only', opts: [T('Label', 'Quiet stim', 24), { k: 'pattern', kind: 'choice', label: 'Pattern', choices: TRACE_PATTERNS, def: 'waves' }, { k: 'size', kind: 'choice', label: 'Size', choices: TRACE_SIZES, def: 'm' }, N('h', 'Height (tenths of an inch)', 8, 40, 14), B('frame', 'Frame')] },
   // ---- layout ----
   divider: { name: 'Divider', group: 'Layout', icon: 'calm', hint: 'A thin line', opts: [{ k: 'icon', kind: 'choice', label: 'Icon', choices: [['none', 'None'], ['sun', 'Sun'], ['moon', 'Moon']], def: 'none' }] },
   sendto: { name: 'Send to', group: 'Layout', icon: 'send', hint: 'The symbol strip the scanner reads, anywhere on the page. Needs the scanning border on', opts: [
@@ -287,6 +331,10 @@ P1('checks', 'Good today', { title: 'Good today', labels: ['Warmth', 'Food', 'Re
 P1('checks', 'Device-free hour', { title: 'Device-free', labels: ['Phone away 1 h'] }, 'Check-ins');
 P1('habits', 'Outside & light', { title: 'Outside & light', labels: ['Outside', 'Daylight on face', 'Moved'] }, 'Check-ins');
 P1('fields', 'One small good thing', { title: 'One good thing', labels: ['Good thing'] }, 'Check-ins');
+P1('chores', 'Low-energy chores', { title: 'Chores, any size', n: 4, tiers: 'text' }, 'Chores');
+P1('chorerota', 'Week of chores', { period: 'week' }, 'Chores');
+P1('chorerota', 'Month of chores', { period: 'month', n: 8 }, 'Chores');
+P1('chorerota', 'Household week', { period: 'week', people: true }, 'Chores');
 // scan-ready marks (optical mark reading): added here so the scale block's own option list stays untouched
 TYPES.checks.opts.push(OMR); TYPES.scale.opts.push(OMR);
 // Roomy rows: single-row blocks whose height is fixed today get more room to write in (off = today's page)
@@ -326,6 +374,8 @@ function fixOpts(b, kind = 'day') {
     });
   }
   if (b.type === 'sendto' && !SEND_KEYS.some((k) => b.symbols[k])) b.symbols = Object.fromEntries(SEND_KEYS.map((k) => [k, true])); // at least one symbol
+  if (b.type === 'reviewtracker' && !reviewSteps(b).length) b.every = { d1: true, d3: true, d7: true, d14: false, d21: true, d30: false }; // at least one review time
+  if (b.type === 'stimmenu' && !stimSenses(b).length) b.senses = { ...NB_SENSE_DEF }; // at least one sense
   if (TYPES[b.type].locked && bodyLocked(kind)) b.on = true;
   return b;
 }
@@ -346,7 +396,7 @@ export const PAGE_KINDS = {
   half: { name: 'Spread page', body: false, header: 'day' },
 };
 // (sendto too: the SEND TO strip is a day page setting; other pages keep the book's scan settings.)
-const DAY_ONLY = new Set(['sky', 'notes', 'events', 'fact', 'lookback', 'prompt', 'tl24', 'weekstrip', 'sendto']);
+const DAY_ONLY = new Set(['chores', 'sky', 'notes', 'events', 'fact', 'lookback', 'prompt', 'tl24', 'weekstrip', 'sendto']);
 export const pageKind = (k) => (PAGE_KINDS[k] ? k : 'day');
 // A spread is a day: it can hold the day's own blocks. Not `sendto`: each page of a spread keeps its own SEND TO strip (the strip is the page's).
 export const allowedIn = (kind, type) => (kind === 'day' ? true : kind === 'spread' || kind === 'half' ? type !== 'sendto' : !DAY_ONLY.has(type));
@@ -535,6 +585,10 @@ const MINSPAN = {
   wordsearch: (b) => [4, pzHeight(b)], crossword: (b) => [4, pzHeight(b)], // the grid and its text sit side by side across the whole page width
   // photo blocks: the plan (photo.mjs) gives the width a print needs and the height of the block; sheets count their worst case (31 days, the day-start line)
   photoframe: (b, w, size) => photoMinOf(b, w, size), photostrip: (b, w, size) => photoMinOf(b, w, size), photodaily: (b, w, size) => photoMinOf(b, w, size), contactsheet: (b, w, size) => photoMinOf(b, w, size),
+  chores: (b) => chMin(b), chorerota: (b) => chMin(b), // chores.mjs: the head, n rows and what the options add
+  // notes, flash cards and stimming: the plan (noteblocks.mjs) gives the width a block needs at a trim and the height of its rows
+  cornell: (b, w, size) => noteMin(b, size), notearea: (b, w, size) => noteMin(b, size), conceptmap: (b, w, size) => noteMin(b, size), questions: (b, w, size) => noteMin(b, size), summarybox: (b, w, size) => noteMin(b, size),
+  flashstrip: (b, w, size) => noteMin(b, size), reviewtracker: (b, w, size) => noteMin(b, size), stimlog: (b, w, size) => noteMin(b, size), stimmenu: (b, w, size) => noteMin(b, size), stimtrace: (b, w, size) => noteMin(b, size),
   divider: () => [1, 0.02],
   spacer: (b) => [1, b.h / 10 + 0.01],
   body: () => [BODY_MIN.cols, BODY_MIN.rows * ROW_IN - 0.05],
@@ -569,6 +623,8 @@ export function gridProblems(L, size = 'small') {
       const gp = gutterProblem(size); if (gp) bad(b, 'gutter', `${nm}: ${gp}`);
     } else if (pzxIs(b.type)) { // a puzzle's squares must stay big enough to write in: its own plain reason (puzzles/render2.mjs)
       const f = pzxFit(b, b.colSpan, b.rowSpan, size, nm, ROW_IN); if (f) bad(b, 'puzzle', f);
+    } else if (isNote(b)) { // a block of fixed rows and widths: it fits its cells or the layout says why not (noteblocks.mjs)
+      const f = noteFit(b, b.colSpan, b.rowSpan, size, nm); if (f) bad(b, f.code, f.msg);
     } else if (b.type === 'body') {
       if (b.rowSpan < BODY_MIN.rows || b.colSpan < BODY_MIN.cols) bad(b, 'body', `The Writing space stays at least ${BODY_MIN.rows} rows tall (${(BODY_MIN.rows * 5.588).toFixed(0)} mm) and ${BODY_MIN.cols} columns wide; it is ${b.rowSpan} rows by ${b.colSpan} columns.`);
     } else if (b.colSpan < m.cols) bad(b, 'min', `${nm} needs at least ${m.cols} columns to fit its content; it has ${b.colSpan}.`);
@@ -681,7 +737,7 @@ export function spreadProblems(S, size = 'small') {
 export function spreadPage(parts, S, side, opt = {}) {
   const L = normalizeSpread(S, opt.size);
   const size = opt.size === 'letter' ? 'letter' : 'small', probs = gridProblems(L, size);
-  if (probs.length && !opt.tag && !(opt.lenient && probs.every((x) => /^photo/.test(x.code)))) throw new Error('The day spread layout cannot be printed:\n - ' + probs.map((x) => x.msg).join('\n - '));
+  if (probs.length && !opt.tag && !(opt.lenient && probs.every((x) => /^(photo|note)/.test(x.code)))) throw new Error('The day spread layout cannot be printed:\n - ' + probs.map((x) => x.msg).join('\n - '));
   return dayBlocks({ ...parts, header: side === 'R' && parts.headerR ? parts.headerR : parts.header }, spreadHalf(L, side), { ...opt, size, kind: 'half' });
 }
 
@@ -809,6 +865,8 @@ function renderBlock(b, parts, zone, opt = {}) {
   switch (b.type) {
     case 'photoframe': case 'photostrip': case 'photodaily': case 'contactsheet': return photoHtml(b, parts, Z, opt);
     case 'sudoku': case 'maze': case 'cryptogram': case 'wordladder': case 'nonogram': case 'kakuro': case 'dottodot': { const p = pzxBlock(b, pzSeed(b, parts), { cols: opt.cols }); return `<div class="xb pzx${b.big ? ' big' : ''}" ${Z}>${lbl(b.type, p.label)}${p.body}</div>`; }
+    case 'chores': case 'chorerota': return chHtml(b, parts, Z, { esc, lbl });
+    case 'cornell': case 'notearea': case 'conceptmap': case 'questions': case 'summarybox': case 'flashstrip': case 'reviewtracker': case 'stimlog': case 'stimmenu': case 'stimtrace': return noteHtml(b, Z, opt);
     case 'wordsearch': case 'crossword': { const p = pzBlock(b, pzSeed(b, parts)); return `<div class="xb pz${b.big ? ' big' : ''}" ${Z}>${lbl(b.type, p.label)}<div class="pzr">${p.body}</div></div>`; }
     case 'sky': case 'notes': case 'events': case 'fact': return parts[b.type] || '';
     case 'spoons': return `<div class="care solo">${spoonRow(b)}</div>`;
@@ -935,6 +993,89 @@ function photoHtml(b, parts, Z, opt) {
   return `<div class="pjb" ${Z} role="group" aria-label="${escA(alt)}"><div class="pjh">${head}</div><div class="pjw" style="width:${inch(p.areaW)};height:${inch(p.areaH)};${vars}">${marks}</div>${lines}</div>`;
 }
 
+// ---------- notes, flash cards and stimming (noteblocks.mjs): the drawn blocks ----------
+// Every block is fixed rows: a row's height is its pitch, so the plan in noteblocks.mjs is the height. Rules are the page's ordinary
+// rulings (.ru: vector in print), boxes are 1.1 px borders, the fold line and the tracing patterns are SVG (strokes of 1 px = 0.75 pt or more).
+// Classes are nbk-, flx- and stm- and nothing else on the page uses those names (test-noteblocks.mjs).
+const nbHead = (icon, title, cap = '') => (title || cap ? `<div class="nbk-h">${title ? lbl(icon, title) : ''}${cap ? `<span class="nbk-c">${esc(cap)}</span>` : ''}</div>` : '');
+const nbBox = (n = 1) => '<i class="nbk-bx"></i>'.repeat(n);
+const nbBubs = (n = 5) => `<span class="stm-bb">${bubs(n)}</span>`;
+const nbIn = (v) => `${+v.toFixed(4)}in`;
+const nbPaper = (b, n) => (b.paper === 'blank' ? `<span class="blk nbk-bl" style="height:${nbIn(n * NOTE_PITCH[b.pitch])}"></span>` : ruled(n, PAPER_CLS[b.paper] || '', b.pitch));
+const NB_PROMPT_TEXT = { one: 'In one sentence', own: 'In my own words', friend: 'What I would tell a friend', main: 'The main idea' };
+const nbPlural = (n, one, many = one + 's') => `${n} ${n === 1 ? one : many}`;
+function noteHtml(b, Z, opt) {
+  const size = opt.size === 'letter' ? 'letter' : 'small', cols = opt.cols || GRIDS.day.cols, p = notePlan(b, size, cols), row = NOTE_PITCH[b.pitch] || 0.22;
+  const wrap = (cls, alt, inner) => `<div class="xb ${cls}" ${Z} role="group" aria-label="${escA(alt)}">${inner}</div>`;
+  switch (b.type) {
+    case 'cornell': {
+      const top = b.head ? `<div class="hrw">${lbl('', 'Topic')}${ruled(1)}${lbl('', 'Date')}${ruled(1, 'nbk-d')}</div>` : '';
+      const cg = `<div class="nbk-cg" aria-hidden="true" style="grid-template-columns:${b.cue}% 1fr;height:${nbIn(b.n * row)}"><div class="nbk-cu"></div><div class="nbk-no">${ruled(b.n, PAPER_CLS[b.paper] || '', b.pitch)}</div></div>`;
+      const heads = `<div class="nbk-cg nbk-ch" aria-hidden="true" style="grid-template-columns:${b.cue}% 1fr"><div>${lbl('', 'Cues')}</div><div>${lbl('', 'Notes')}</div></div>`;
+      const sum = `<div class="nbk-su" aria-hidden="true"><div class="nbk-sl">${lbl('', 'Summary')}</div>${ruled(b.s, '', b.pitch)}</div>`;
+      return wrap('nbk-cn', `${b.title || 'Cornell notes'}: ${b.head ? 'a line for the topic and the date, ' : ''}a cue column on the left, ${nbPlural(b.n, 'ruled row')} of notes on the right, and a summary strip of ${nbPlural(b.s, 'line')} at the bottom.`, `${nbHead('cornell', b.title)}${top}${heads}${cg}${sum}`);
+    }
+    case 'notearea': {
+      const first = b.title !== '' || b.topic || b.date;
+      const top = first ? `<div class="hrw">${b.title ? lbl('notearea', b.title) : ''}${b.topic ? `${lbl('', 'Topic')}${ruled(1)}` : ''}${b.date ? `${lbl('', 'Date')}${ruled(1, b.topic ? 'nbk-d' : '')}` : ''}${!b.topic && !b.date ? ruled(1) : ''}</div>` : '';
+      const src = b.source ? `<div class="hrw">${lbl('', 'Source')}${ruled(1)}</div>` : '';
+      const kind = { lines: 'ruled', dots: 'dot grid', grid: '4 mm grid', blank: 'blank' }[b.paper];
+      return wrap('nbk-na', `${b.title || 'Note area'}: ${[b.topic && 'a topic line', b.date && 'a date line', b.source && 'a source line'].filter(Boolean).join(', ') || 'no header lines'}, then ${nbPlural(b.n, 'row')} of ${kind} paper to write on.`, `${top}${src}${nbPaper(b, b.n)}`);
+    }
+    case 'conceptmap': {
+      const W = p.avail - 0.01, H = b.h / 10, mp = mapPlan(b.branches, W, H), px = (v) => +(v * 96).toFixed(2);
+      const ell = (e, w = 1.1) => `<ellipse cx="${px(e.cx)}" cy="${px(e.cy)}" rx="${px(e.rx)}" ry="${px(e.ry)}" stroke-width="${w}"/>`;
+      const svg = `<svg class="nbk-cm" width="${nbIn(W)}" height="${nbIn(H)}" viewBox="0 0 ${px(W)} ${px(H)}" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true">${ell(mp.centre, 1.5)}${mp.nodes.map((e) => ell(e)).join('')}<path stroke-width="1.1" d="${mp.links.map((l) => `M${px(l.x1)} ${px(l.y1)}L${px(l.x2)} ${px(l.y2)}`).join('')}"/></svg>`;
+      return wrap('nbk-mp', `${b.title || 'Concept map'}: a centre bubble with ${nbPlural(b.branches, 'branch', 'branches')} round it, each ending in a bubble to fill in.`, `${nbHead('conceptmap', b.title)}${svg}`);
+    }
+    case 'questions': {
+      const rows = Array.from({ length: b.n }, (_, i) => `<div class="${b.answers ? 'nbk-p' : 'nbk-pn'}"><div class="nbk-q"><span class="nbk-n">${i + 1}</span>${ruled(1, '', b.pitch)}${b.tick ? nbBox() : ''}</div>${b.answers ? `<div class="nbk-q"><span class="nbk-n"></span>${ruled(1, '', b.pitch)}</div>` : ''}</div>`).join('');
+      return wrap('nbk-qs', `${b.title || 'Questions'}: ${nbPlural(b.n, 'numbered question line')}${b.answers ? ', each with an answer line under it' : ''}${b.tick ? ' and a box to tick when it is answered' : ''}.`, `${nbHead('questions', b.title)}${rows}`);
+    }
+    case 'summarybox': {
+      const pr = NB_PROMPT_TEXT[b.prompt] || '';
+      return wrap('nbk-sb', `${b.title || 'Summary'}: a framed box with ${nbPlural(b.n, 'line')} to say it back in your own words${pr ? `. Prompt: ${pr.toLowerCase()}` : ''}.`, `<div class="nbk-bxf"><div class="nbk-h">${lbl('summarybox', b.title || 'Summary')}${pr ? `<span class="nbk-c">${pr}</span>` : ''}</div>${ruled(b.n, '', b.pitch)}</div>`);
+    }
+    case 'flashstrip': {
+      const left = b.answer === 'left', at = left ? 100 - b.split : b.split, tpl = left ? `${100 - b.split}% ${b.split}%` : `${b.split}% ${100 - b.split}%`;
+      const tick = b.reviews ? `<span class="flx-k">${nbBox(b.reviews)}</span>` : '', pair = b.gotit ? `<span class="flx-g">${ic('well', 'Got it')}${nbBox()}${ic('again', 'Again')}${nbBox()}</span>` : '';
+      const term = (i) => `<div class="flx-t">${b.num ? `<span class="nbk-n">${i + 1}</span>` : ''}${ruled(1, '', b.pitch)}${tick}${pair}</div>`, ans = `<div class="flx-a">${ruled(1, '', b.pitch)}</div>`;
+      const rows = Array.from({ length: b.n }, (_, i) => `<div class="flx-r" style="grid-template-columns:${tpl};height:${nbIn(row)}">${left ? ans + term(i) : term(i) + ans}</div>`).join('');
+      const th = `<div class="flx-th">${lbl('flashstrip', b.title || 'Flash cards')}</div>`, ah = `<div class="flx-ah${left ? ' l' : ''}">${b.hint ? `${ic('fold', 'Fold')}<span>fold here</span>` : ''}</div>`;
+      const H = b.n * row, fold = `<svg class="flx-f" style="left:${at}%" width="3" height="${+(H * 96).toFixed(2)}" viewBox="0 0 3 ${+(H * 96).toFixed(2)}" aria-hidden="true"><line x1="1.5" y1="0" x2="1.5" y2="${+(H * 96).toFixed(2)}" stroke="currentColor" stroke-width="1" stroke-dasharray="4 3"/></svg>`;
+      return wrap('flx-fs', `${b.title || 'Flash cards'}: ${nbPlural(b.n, 'fold-over card')}. ${left ? 'Answers on the left, terms on the right: fold the left edge of the page along the dashed line to hide the answers.' : 'Terms on the left, answers on the right: fold the right edge of the page along the dashed line to hide the answers.'}${b.reviews ? ` Each card has ${nbPlural(b.reviews, 'tick box', 'tick boxes')} to count reviews.` : ''}${b.gotit ? ' Each card has a got it box and an again box.' : ''} Nothing is cut out.`,
+        `<div class="flx-hd" aria-hidden="true" style="grid-template-columns:${tpl}">${left ? ah + th : th + ah}</div><div class="flx-rw" aria-hidden="true">${rows}${fold}</div>`);
+    }
+    case 'reviewtracker': {
+      const ks = reviewSteps(b), tpl = `1fr ${b.date ? '0.5in ' : ''}repeat(${ks.length}, 0.3in)`;
+      const head = `<div class="flx-rh" aria-hidden="true" style="grid-template-columns:${tpl}"><div>${lbl('reviewtracker', b.title || 'Reviews')}</div>${b.date ? '<span class="flx-l">date</span>' : ''}${ks.map((k) => `<span class="flx-l">${REVIEW_DAYS[k]}d</span>`).join('')}</div>`;
+      const rows = Array.from({ length: b.n }, () => `<div class="flx-rv" style="grid-template-columns:${tpl};height:${nbIn(row)}">${ruled(1, '', b.pitch)}${b.date ? ruled(1, '', b.pitch) : ''}${ks.map(() => `<span class="flx-c">${nbBox()}</span>`).join('')}</div>`).join('');
+      return wrap('flx-rt', `${b.title || 'Reviews'}: ${nbPlural(b.n, 'topic line')}${b.date ? ', each with a learned-on date' : ''} and a tick box for a review after ${ks.map((k) => nbPlural(REVIEW_DAYS[k], 'day')).join(', ')}. A starting rhythm to change as you like.`, `${head}<div aria-hidden="true">${rows}</div>`);
+    }
+    case 'stimlog': {
+      const k = (t) => `<span class="stm-k">${t}</span>`;
+      const entry = `<div class="stm-e"><div class="stm-r" style="height:${nbIn(row)}">${k('when')}${ruled(1, 'stm-s', b.pitch)}${k('felt good')}${ruled(1, '', b.pitch)}${b.size ? nbBubs() : ''}</div>${b.where || b.ba ? `<div class="stm-r" style="height:${nbIn(row)}">${b.where ? `${k('where / helped')}${ruled(1, '', b.pitch)}` : ''}${b.ba ? `${k('before')}${nbBubs()}${k('after')}${nbBubs()}` : ''}</div>` : ''}</div>`;
+      return wrap('stm-l', `${b.title || 'Stim log'}: ${nbPlural(b.n, 'entry', 'entries')}, each with a time, what felt good${b.where ? ', where it was and what helped' : ''}${b.ba ? ', and how settled I felt before and after, from 1 unsettled to 5 settled' : ''}${b.size ? ', and how much, from 1 to 5' : ''}. Stimming is self-regulation: nothing here is judged.`,
+        `${nbHead('stimlog', b.title)}${b.note ? '<div class="stm-nt">Stimming is self-regulation.</div>' : ''}${Array(b.n).fill(entry).join('')}`);
+    }
+    case 'stimmenu': {
+      const senses = stimSenses(b), icn = { touch: 'sense_touch', move: 'sense_move', sound: 'ear', sight: 'sense_sight', chew: 'sense_chew', press: 'sense_press' };
+      const grp = (s) => `<div class="stm-s"><div class="stm-sh">${ic(icn[s], STIM_SENSES[s])}<span>${STIM_SENSES[s]}</span></div>${Array(b.rows).fill(`<div class="stm-q" style="height:${nbIn(row)}">${nbBox()}${ruled(1, '', b.pitch)}</div>`).join('')}</div>`;
+      const ideas = b.ideas ? `<div class="stm-id">${Array.from({ length: b.ideas }, (_, i) => `<div class="stm-q" style="height:${nbIn(row)}">${ic('idea', 'New stim idea')}${i ? '' : '<span class="stm-k">new stim idea</span>'}${ruled(1, '', b.pitch)}</div>`).join('')}</div>` : '';
+      return wrap('stm-m', `${b.title || 'Stim menu'}: ${senses.map((s) => STIM_SENSES[s].toLowerCase()).join(', ')}, with ${nbPlural(b.rows, 'box and line', 'boxes and lines')} each for my favourite stims and tools${b.ideas ? `, and ${nbPlural(b.ideas, 'row')} for new stim ideas` : ''}. My stims are valid.`,
+        `${nbHead('stimmenu', b.title)}${b.note ? '<div class="stm-nt">My stims are valid.</div>' : ''}<div class="stm-g">${senses.map(grp).join('')}</div>${ideas}`);
+    }
+    case 'stimtrace': {
+      const W = p.avail - (b.frame ? 0.05 : 0.01), H = b.h / 10 - (b.frame ? 0.03 : 0), px = (v) => +(v * 96).toFixed(2);
+      const paths = tracePaths(b.pattern, b.size, W, H);
+      const svg = `<svg class="nbk-tr" width="${nbIn(W)}" height="${nbIn(H)}" viewBox="0 0 ${px(W)} ${px(H)}" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths.map((d) => `<path d="${d}"/>`).join('')}</svg>`;
+      const name = (TRACE_PATTERNS.find(([k]) => k === b.pattern) || [0, b.pattern])[1].toLowerCase(), sz = (TRACE_SIZES.find(([k]) => k === b.size) || [0, b.size])[1].toLowerCase();
+      return wrap('nbk-tc', `${b.title || 'Pattern to trace'}: ${name}, ${sz}. Trace slowly with a pen or a finger, for as long as it feels good. A quiet stim.`, `${nbHead('stimtrace', b.title, 'trace slowly')}<div class="nbk-tf${b.frame ? ' fr' : ''}" style="height:${nbIn(b.h / 10)}">${svg}</div>`);
+    }
+  }
+  return '';
+}
+
 // parts: pre-built, data-driven strings from render.mjs: header, sky, notes, events, fact ('' when none), routines [].
 // opt.tag (editor only): mark each block's outer element with data-b="<uid>" so the preview can be dragged.
 export function dayBlocks(parts, layout, opt = {}) {
@@ -953,6 +1094,7 @@ export function dayBlocks(parts, layout, opt = {}) {
       continue;
     }
     if (isPhoto(b) && !opt.tag) { const f = photoFit(b, GRIDS.day.cols, undefined, opt.size === 'letter' ? 'letter' : 'small', photoX(b), blockName(b)); if (f) throw new Error(`The day page layout cannot be printed:\n - ${f.msg}`); }
+    if (isNote(b) && !opt.tag) { const f = noteFit(b, GRIDS.day.cols, undefined, opt.size === 'letter' ? 'letter' : 'small', blockName(b)); if (f) throw new Error(`The day page layout cannot be printed:\n - ${f.msg}`); }
     push(b, renderBlock(b, parts, zone, opt));
   }
   return `<div class="day full">\n    ${parts.header}\n    ${out.join('\n    ')}\n  </div>`;
@@ -970,11 +1112,11 @@ function careBox(b, on, sp) {
 // data-zone (its rectangle is the scan zone: the zone name of the block's first element moves to the cell) and, in the editor, data-b.
 // Blocks with room to spare (Lined notes, Two columns, Sketch box, Brain dump, Writing space) fill their cell: extra rows become lines.
 // A grid layout that breaks a rule cannot print: the build stops and says why (the editor passes opt.tag and shows the problems instead).
-const FILLS = new Set(['body', 'lines', 'split', 'sketch', 'dump']);
+const FILLS = new Set(['body', 'lines', 'split', 'sketch', 'dump', 'notearea']);
 function gridBlocks(parts, L, opt) {
   const size = opt.size === 'letter' ? 'letter' : 'small', probs = gridProblems(L, size);
   // opt.lenient (the page organiser's thumbnails and page counts): a photo frame that only fits the other trim is drawn anyway; the print build never sets it
-  if (probs.length && !opt.tag && !(opt.lenient && probs.every((x) => /^photo/.test(x.code)))) throw new Error(`The ${PAGE_KINDS[pageKind(L.kind)].name.toLowerCase()} grid layout cannot be printed:\n - ` + probs.map((x) => x.msg).join('\n - '));
+  if (probs.length && !opt.tag && !(opt.lenient && probs.every((x) => /^(photo|note)/.test(x.code)))) throw new Error(`The ${PAGE_KINDS[pageKind(L.kind)].name.toLowerCase()} grid layout cannot be printed:\n - ` + probs.map((x) => x.msg).join('\n - '));
   const on = L.blocks.filter((b) => b.on), count = {}, seen = {}, out = [];
   for (const b of on) {
     count[b.type] = (count[b.type] || 0) + 1;
@@ -991,7 +1133,7 @@ function gridBlocks(parts, L, opt) {
 }
 
 // Extra CSS the blocks need (appended to the page CSS).
-export const DAYPAGE_CSS = PZ_CSS + PZX_CSS + `
+export const DAYPAGE_CSS = PZ_CSS + PZX_CSS + CH_CSS + `
 .rev .zl { display: flex; align-items: center; gap: 3px; } .rev .zl i { font-style: normal; font-size: 6.5pt; letter-spacing: 0.4px; white-space: nowrap; }
 .cbi { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; padding: 3px 0 4px; font-size: 7.5pt; line-height: 1.2; border-bottom: 1px solid #DCDCDC; }
 .ci { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; } .ci i { width: 10px; height: 10px; border: 1.2px solid #000; flex: none; } .ci span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .cbi .more { font-style: italic; color: #444; }
@@ -1090,4 +1232,32 @@ export const DAYPAGE_CSS = PZ_CSS + PZX_CSS + `
 .pjd.sp { justify-content: space-between; align-items: center; } .pjd .pjk { flex: none; width: 0.1in; height: 0.1in; border: 1.1px solid #000; display: block; }
 .pjd.td b { color: #000; border-bottom: 1.4px solid #000; }
 .pjb .cap { font: italic 500 6.5pt Inter, sans-serif; color: #666; white-space: nowrap; }
+/* Notes, flash cards and stimming (noteblocks.mjs). Class names nbk-, flx- and stm- are used by these blocks alone. Every row has a fixed height (its pitch), so the block's height is its plan.
+   Rules are ordinary .ru rulings (vector in print); boxes are 1.1 px borders; the fold line and the tracing patterns are SVG strokes of 1 px = 0.75 pt or more. */
+.nbk-h { display: flex; align-items: center; gap: 5px; height: 0.22in; overflow: hidden; white-space: nowrap; } .nbk-h > .xl { flex: 0 1 auto; min-width: 0; } .nbk-h > .xl > span { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.nbk-c { flex: 0 100 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; font: italic 500 6.5pt Inter, sans-serif; color: #666; margin-left: auto; }
+.nbk-bx { flex: none; display: block; box-sizing: border-box; width: 10px; height: 10px; border: 1.1px solid #000; }
+.nbk-n { flex: none; width: 0.14in; font: 600 7pt Inter, sans-serif; align-self: flex-end; padding-bottom: 2px; }
+.hrw > .ru.nbk-d { flex: 0 0 0.8in; min-width: 0; }
+.nbk-cg { display: grid; } .nbk-ch { height: 0.2in; } .nbk-ch > div { display: flex; align-items: center; min-width: 0; overflow: hidden; } .nbk-ch > div:first-child, .nbk-cu { border-right: 1px solid #8c8c8c; } .nbk-no { min-width: 0; padding-left: 3px; } .nbk-no > .ru { margin: 0; }
+.nbk-su { margin-top: 0.03in; border-top: 1px solid #8c8c8c; } .nbk-sl { height: 0.2in; display: flex; align-items: center; overflow: hidden; }
+.nbk-q { display: flex; align-items: flex-end; gap: 4px; } .nbk-q > .ru { flex: 1; min-width: 0; } .nbk-q > .nbk-bx { margin-bottom: 0.06in; } .nbk-p { margin-bottom: 0.02in; }
+.nbk-bxf { margin-top: 0.03in; border: 1px solid #999; border-radius: 2px; padding: 0 4px; } .nbk-bxf > .ru { margin: 0; }
+.nbk-cm, .nbk-tr { display: block; margin: 0 auto; } .nbk-cm { color: #777; } .nbk-tr { color: #8c8c8c; }
+.nbk-tf { display: flex; align-items: center; justify-content: center; box-sizing: border-box; overflow: hidden; } .nbk-tf.fr { border: 1px solid #999; border-radius: 3px; }
+.gc.fill > .xb > .nbk-bl { flex: 1; min-height: 0; height: auto !important; }
+.flx-hd, .flx-rh { display: grid; height: 0.22in; align-items: center; overflow: hidden; } .flx-th { min-width: 0; padding: 0 0.025in; overflow: hidden; white-space: nowrap; } .flx-th > .xl { min-width: 0; max-width: 100%; } .flx-th > .xl > span { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.flx-ah { display: flex; align-items: center; gap: 3px; min-width: 0; padding: 0 0.025in; overflow: hidden; white-space: nowrap; font: italic 500 6.5pt Inter, sans-serif; color: #666; } .flx-ah.l { justify-content: flex-end; } .flx-ah .ic { width: 10px; height: 10px; flex: none; }
+.flx-rw { position: relative; } .flx-r { display: grid; } .flx-t, .flx-a { display: flex; align-items: flex-end; gap: 0.04in; min-width: 0; padding: 0 0.025in; } .flx-t > .ru, .flx-a > .ru { flex: 1; min-width: 0; }
+.flx-f { position: absolute; top: 0; margin-left: -1.5px; color: #8c8c8c; display: block; pointer-events: none; }
+.flx-k, .flx-g { flex: none; display: inline-flex; align-items: flex-end; margin-bottom: 0.07in; } .flx-k { gap: 0.034in; } .flx-g { gap: 0.02in; margin-left: 0.03in; } .flx-g .ic { width: 10px; height: 10px; align-self: flex-end; margin-bottom: -1px; }
+.flx-rh > div { min-width: 0; overflow: hidden; } .flx-l { text-align: center; font: 600 5.6pt Inter, sans-serif; text-transform: uppercase; letter-spacing: 0.3px; color: #555; white-space: nowrap; overflow: hidden; }
+.flx-rv { display: grid; } .flx-rv > .ru { min-width: 0; margin-right: 0.04in; } .flx-c { display: flex; align-items: flex-end; justify-content: center; padding-bottom: 0.06in; }
+.stm-nt { height: 0.2in; line-height: 0.2in; font: italic 500 6.5pt Inter, sans-serif; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stm-e { margin-bottom: 0.04in; } .stm-r { display: flex; align-items: flex-end; gap: 4px; } .stm-r > .ru { flex: 1; min-width: 0; } .stm-r > .ru.stm-s { flex: 0 0 0.5in; }
+.stm-k { flex: none; font: 600 6pt Inter, sans-serif; color: #555; padding-bottom: 3px; white-space: nowrap; }
+.stm-bb { flex: none; display: inline-flex; gap: 2px; padding-bottom: 0.06in; } .stm-bb .bub i { width: 7px; height: 7px; border-width: 1px; } .stm-bb .bub:nth-child(5) i { border-width: 1px; }
+.stm-g { display: grid; grid-template-columns: 1fr 1fr; column-gap: 0.12in; } .stm-s { min-width: 0; margin-bottom: 0.05in; }
+.stm-sh { height: 0.2in; display: flex; align-items: center; gap: 3px; font: 700 6.4pt Inter, sans-serif; text-transform: uppercase; letter-spacing: 0.4px; color: #333; white-space: nowrap; overflow: hidden; } .stm-sh .ic { width: 11px; height: 11px; flex: none; } .stm-sh > span { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.stm-q { display: flex; align-items: flex-end; gap: 4px; } .stm-q > .ru { flex: 1; min-width: 0; } .stm-q > .nbk-bx { margin-bottom: 0.06in; } .stm-q > .ic { width: 10px; height: 10px; margin-bottom: 0.06in; color: #555; } .stm-id { margin-top: 0.03in; }
 ${SCAN_CSS}`;
