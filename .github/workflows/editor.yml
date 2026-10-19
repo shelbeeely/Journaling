@@ -31,7 +31,7 @@ jobs:
         run: node test-i18n.mjs
       - name: Editor tests (drag from palette, every block, overflow meter, the en-XA and ar-XB pseudo-locales)
         run: node editor/test.mjs
-      - name: Fewer decisions (DF1 in the browser; Basic and Advanced, back to recommended, the guided start with questions and ready-made books, what is remembered in the browser and the Studio, nothing in the demo, a phone, dark, the pseudo-locales)
+      - name: "Fewer decisions (DF1 in the browser; Basic and Advanced, back to recommended, the guided start with questions and ready-made books, what is remembered in the browser and the Studio, nothing in the demo, a phone, dark, the pseudo-locales)"
         run: node editor/test-guided.mjs
       - name: Accessibility checks (axe, names, contrast tokens, 44 px targets, reflow at 320/390, focus, reduced motion, keyboard tasks); fails on anything not in the documented allowlist
         run: node editor/test-a11y.mjs --report
