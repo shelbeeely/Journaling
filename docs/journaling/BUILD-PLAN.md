@@ -834,3 +834,73 @@ Strips, sheets and the daily grid, 31 days or a full sheet, smallest rows (4 col
 5. **How many prints?** A rough limit per book (for spine thickness) would let the front matter say so. Do you want a cap, or just advice?
 6. **Where do photo pages go?** Today a book can have one blank page, and Notes or Collection pages keep their Writing space. Do you want a repeatable "Photo page" (PH2)?
 7. **Hardcover.** More paper, more pasted thickness: any limit?
+
+## 24. Chores (2026-10-18, slice CH1 built)
+
+Owner decisions: **for one person, and for an optional shared household**. First pieces, in order: (1) a **chores day-page block** (today's chores as a tick list), (2) **rotation pages** (a week or month grid: daily, weekly, monthly, seasonal; household mode adds a person column set with a tick box each), (3) **energy-aware options** (a small version and a good-enough version of every chore, no-guilt wording), (4) an **X4 check-in** (explicit, user-started sync only, per the firmware scope in CLAUDE.md). Overdue tone: **a gentle neutral "due soon" marker and nothing else: no red, no counts, no streaks, no shame wording.**
+
+**What is decided (do not add without asking)**
+- **No generative AI, no notifications, no feeds, no badges.** Nothing is sent anywhere by the paper blocks. The X4 part (24.6) is a plan only, and any sync it needs is the explicit one from section 19.
+- **The chores are not in the code and not in a Studio snapshot.** They live in the profile's optional `chores` section; a block holds only how to draw them (lines, rhythms, versions, household on or off). `profile.example.json` stays generic; with no `chores` section the blocks draw a generic invented sample (`CH_SAMPLE` in `chores.mjs`), so the editor demo and the site show invented chores only.
+- **Recurrence is computed from the date, never stored.** A page printed in advance already knows what belongs on it. Nothing records what was done, so nothing can be "overdue" or counted.
+
+### 24.1 The blocks
+Both are ordinary blocks of the declarative format (section 20), palette group **Chores**, each with an icon, declared in `daypage.mjs` `TYPES`, laid out by the page grid, one `data-zone` each (repeats `_2`, `_3`), a minimum span and the same `gridProblems` checks. The logic and the drawing live in `journal/chores.mjs` (no imports; every top-level name starts with `ch` or `CH_`, every CSS class with `chx`); `daypage.mjs` only declares the options, the minimum spans and one `case` that calls it.
+
+| Block (`type`) | What it is | Options | Smallest span |
+|---|---|---|---|
+| `chores` | Today's chores as a tick list: the ones **due soon first**, then the daily ones, then the rest. `n` lines: leftover lines are write-in lines (a box and a rule); a longer list ends in "and more" (no number). Day pages and the two pages of a spread day only (it reads the date; undated books list the daily chores) | `title`, `n` (2 to 10), `tiers` (none, text, ticks), `groups` (daily, weekly, monthly, seasonal), `soon`, `people` | 2 columns (3 with more than two people) by header + `n` rows |
+| `chorerota` | A grid for **a week** (Monday to Sunday boxes; a chore only has boxes on the days it is listed) **or a month** (W1 to W5 = days 1 to 7, 8 to 14, ..., 29 on; daily chores print as one line, not boxes). Grouped Daily, Weekly, Monthly, Seasonal. Works on every page kind, dated or not: undated it is a template (a week leaves out monthly and seasonal chores, which need a date; a month shows seasonal chores with their months beside the name) | `title`, `period`, `n` (4 to 16), `groups`, `people`, `tiers` | 3 columns (4 with people) by head + groups + `n` rows |
+
+Four ready-made blocks in the palette: Low-energy chores, Week of chores, Month of chores, Household week. A rotation page is a Collection page (or a blank page) with a `chorerota` block: nothing new in the page organiser.
+
+### 24.2 Chores in the profile (`chores`, validated by `chProblems`)
+```
+"chores": {
+  "household": ["Alex", "Sam"],                 optional, 1 to 4 names (turns on whose-turn and the person boxes)
+  "items": [ { "id": "dishes", "name": "Dishes", "every": "day",
+               "min": "Rinse what is in the sink", "ok": "Everything in the dishwasher" },
+             { "id": "bathroom", "name": "Bathroom", "every": "week", "day": "fri", "who": "rotate" } ] }
+```
+`id` (lowercase, digits, dashes; it names the chore on the X4), `name` (28 characters), `every` (`day`, `week`, `month`, `season`), `days` (daily: weekdays), `day` (weekly: a weekday; monthly and seasonal: 1 to 28 or `last`), `months` (seasonal, default 3, 6, 9, 12), `lead` (days before the due date to start listing it), `min` and `ok` (60 characters), `who` (`rotate` or a household name), `x4` (false keeps it off the device).
+
+### 24.3 Recurrence (all from the date)
+| every | Due | Listed | Default lead |
+|---|---|---|---|
+| `day` | the day | every day, or the `days` | none |
+| `week` + `day` | that weekday | from `lead` days before | 3 |
+| `week`, no day | Sunday | all week | 6 |
+| `month` + `day` | that day of the month (`last` = the last day, so February is fine) | from `lead` days before, across month and year ends | 5 |
+| `season` + `months` + `day` | that day in each of those months | from `lead` days before | 7 |
+
+`k` numbers the occurrences, and a chore with `who: "rotate"` goes to `people[k mod n]`: the same person for the whole week a weekly chore is listed, the next person next week. An undated page never guesses whose turn it is. Tests: `node test-chores.mjs` checks the dates above, month ends, a leap year, a year end and the rotation.
+
+### 24.4 Tone (the rule, and how it is enforced)
+- The only marker is **"due soon"**: a small open diamond and the word "soon", grey, on the due day and the day before, for a chore that is not daily. It can be switched off per block.
+- **No overdue state exists.** Paper cannot know what was done, and a chore that is not listed today is not "late": the next one is not listed yet either.
+- **No counts, no streaks, no red.** A list longer than its room ends in "and more". The module exports nothing that counts, scores or measures lateness. `test-chores.mjs` fails on overdue, late, missed, behind, streak, count, score, red, should, must, only, just and the like in any printed or spoken word, on any `+3 more` style number, and on any CSS colour that is not a grey.
+- **Wording:** "small" and "good enough" (and "all of it" for the whole chore). Never "only", never "just", never "at least".
+
+### 24.5 Energy-aware options
+A chore may carry `min` (a small version) and `ok` (a good-enough version). A block shows them as a quiet line under the chore (`tiers: text`), or replaces the box with three round marks, a quarter, a half and a full circle, for small, good enough and all of it (`tiers: ticks`, one person: a household's boxes are one per person). **Any of the three counts as done.** The sample chores show the style: "Dishes: small, rinse what is in the sink; good enough, everything in the dishwasher or drying". The text is the person's own; the build never writes it for them.
+
+### 24.6 X4 check-in (plan; the firmware is a follow-up slice, CH3)
+- **Data model (built, tested):** `chX4Pack(config, fromDate, days)` is what the pack export would put on the SD card: for each date, the day's chores with `id`, a short `label`, the two versions, whose turn and `soon`. Computed at export time, so the device needs no recurrence code. `chTicks(report, config)` is what the device may send back: `{ <chore id>: 1..3 }` (1 small, 2 good enough, 3 all of it; 0 is simply absent), known ids only. There is no field for a count, a streak or a lateness.
+- **Firmware (not built):** a Chores screen listing today's chores with the same marks (button check-ins like the care ticks), the pack read from the SD card, ticks written to the day log under `c.<id>` (old logs keep their keys), and nothing else. No background sync, no push, no badge.
+- **Sync:** ticks go to Journalwright Studio only through the explicit sync from section 19 (N2: the user starts it on the device, over Wi-Fi they configured, to their own account). A household shares one Studio project; a person's ticks are their own device's. Down-sync of an edited chore list is N3, not this slice.
+- **Review before building:** firmware scope (CLAUDE.md), screen RAM on the C3, the SD pack size (62 days of lists), and whether chores belong in the Keeper's month-end boxes (decided: no, they are not a measure).
+
+### 24.7 Slices
+| Slice | Output | Size |
+|---|---|---|
+| **CH1** (this change) | `chores.mjs`, the two blocks and four presets, the profile `chores` section and validation, rotation, tiers, household, the "due soon" marker, i18n, `test-chores.mjs`, the guide `docs/journaling/chores.md` | M |
+| **CH2** | A chores editor in the Settings panel (edit the list in the browser, kept in the Studio project's settings and the profile export), a "Chores" ready-made Collection page in the organiser's add-page menu, a Guide chapter with screenshots | M |
+| **CH3** | X4: the pack export (`export_pack.py` reads `chX4Pack`), the Chores screen, ticks in the day log, the sync payload and the Studio store | L (firmware scope review first) |
+| **CH4** | Month-aware rotation on undated pages (the book's month), a printed chore list for the Keeper handoff, a household "who did what" page that never totals | S |
+
+### 24.8 Questions for Shelbee
+1. **Household names on the page.** Names print as a letter (A, S) with a line naming them. Do you want the full name in the column head instead (needs a wider page or smaller type)?
+2. **Rotation.** "Rotate" hands a chore to the next person each time it comes round. Do you also want fixed turns by weekday, or a way to swap?
+3. **Month grid weeks.** W1 to W5 are days 1 to 7, 8 to 14 and so on, so a page needs no calendar. Would Monday-to-Sunday weeks matter more to you?
+4. **Where the list is edited.** Today it is the profile file. Is the CH2 Settings editor the right next step, or the X4 first?
+5. **Seasonal chores.** I made them months-based (the first of March, June, September, December by default). Do you want solstice and equinox dates from the sky data instead?

@@ -9,6 +9,7 @@ import { PZ_WS_MIN, PZ_WS_MAX } from './puzzles/wordsearch.mjs';
 import { PZ_CW_MIN, PZ_CW_MAX } from './puzzles/crossword.mjs';
 import { pzBlock, pzHeight, PZ_CSS } from './puzzles/render.mjs';
 import { PHOTO_TYPES, isPhoto, FRAME_SIZES, STRIP_SIZES, SHEET_SIZES, DAILY_SIZES, CUSTOM_MIN, CUSTOM_MAX, photoPlan, photoMin, photoFit, sizeText, dailyDays, monthDays, linesCount, markArm, MARK_INSET_IN, TICK_GAP_IN, zoomOf, gutterProblem } from './photo.mjs';
+import { CH_GROUPS, CH_CSS, chHtml, chMin } from './chores.mjs';
 
 export const IC = {
   pill: '<rect x="1.3" y="4" width="9.4" height="4" rx="2" transform="rotate(-35 6 6)"/><path d="M6 3.1 L6 8.9" transform="rotate(-35 6 6)"/>',
@@ -71,6 +72,9 @@ export const IC = {
   // photo journaling (glue-in): a frame with a hill and a sun, three frames in a row, a small grid with the day ringed, a contact sheet with a tick
   photoframe: '<rect x="1.4" y="2" width="9.2" height="8" rx="1"/><circle cx="4.3" cy="4.7" r=".9"/><path d="M1.8 9.4l2.9-2.6 1.9 1.7 1.5-1.3 2.1 2"/>',
   photostrip: '<rect x="1" y="3" width="2.8" height="6" rx=".5"/><rect x="4.6" y="3" width="2.8" height="6" rx=".5"/><rect x="8.2" y="3" width="2.8" height="6" rx=".5"/>',
+  // chores (chores.mjs): a house with a tick, a week grid with a tick
+  chores: '<path d="M1.4 6 6 1.8 10.6 6M2.8 5v5.6h6.4V5"/><path d="M4.6 8.2l1.1 1.1 1.9-2.2"/>',
+  chorerota: '<rect x="1.2" y="1.6" width="9.6" height="8.8" rx="1"/><path d="M1.2 4.6h9.6M4.4 4.6v5.8M7.6 4.6v5.8"/><path d="M5.2 7.6l.9.9 1.6-1.8"/>',
   photodaily: '<rect x="1.2" y="1.6" width="2.4" height="2.4" rx=".4"/><rect x="4.8" y="1.6" width="2.4" height="2.4" rx=".4"/><rect x="8.4" y="1.6" width="2.4" height="2.4" rx=".4"/><rect x="1.2" y="5" width="2.4" height="2.4" rx=".4"/><rect x="4.8" y="5" width="2.4" height="2.4" rx=".4"/><rect x="8.4" y="5" width="2.4" height="2.4" rx=".4"/><path d="M1.2 10.2h9.6"/>',
   contactsheet: '<rect x="1.2" y="1.4" width="4" height="4" rx=".5"/><rect x="6.8" y="1.4" width="4" height="4" rx=".5"/><rect x="1.2" y="6.8" width="4" height="4" rx=".5"/><path d="M7.4 8.9l1.2 1.2 2.2-2.4"/>',
 };
@@ -219,6 +223,9 @@ export const TYPES = {
   photostrip: { name: 'Photo strip', group: 'Photos', icon: 'photostrip', hint: '2 to 4 small frames in a row or a column, a date line under each. Paper only', opts: [T('Label', '', 24), { k: 'size', kind: 'choice', label: 'Print size', choices: STRIP_SIZES, def: '1x1.5' }, PH_TURN, N('n', 'Frames', 2, 4, 3), { k: 'dir', kind: 'choice', label: 'Direction', choices: [['row', 'In a row'], ['column', 'In a column']], def: 'row' }, B('dates', 'Date line under each frame'), { k: 'lines', kind: 'choice', label: 'Caption line', choices: [['none', 'None'], ['one', 'One line under the strip']], def: 'none' }] },
   photodaily: { name: 'Photo a day', group: 'Photos', icon: 'photodaily', hint: 'A tiny frame for every day of the month, labelled by date, for a photo-a-day habit. Paper only', opts: [T('Label', '', 24), { k: 'size', kind: 'choice', label: 'Print size', choices: DAILY_SIZES, def: '0.5x0.5' }, { k: 'days', kind: 'choice', label: 'Days', choices: [['auto', 'This page\'s month (31 off a day page)'], [28, '28'], [29, '29'], [30, '30'], [31, '31']], def: 'auto' }, B('note', 'Say when the day starts')] },
   contactsheet: { name: 'Contact sheet', group: 'Photos', icon: 'contactsheet', hint: '6 to 12 small numbered frames and a tick to pick the one to keep. Paper only', opts: [T('Label', '', 24), { k: 'size', kind: 'choice', label: 'Print size', choices: SHEET_SIZES, def: '1x1' }, PH_TURN, N('n', 'Frames', 6, 12, 6), B('pick', 'Pick-one tick under each'), { k: 'lines', kind: 'choice', label: 'Caption line', choices: [['none', 'None'], ['one', 'One: the one I picked, and why']], def: 'one' }] },
+  // ---- chores (chores.mjs, BUILD-PLAN section 24): today's list and the rotation grids. The chores come from the profile; a block holds only how to draw them ----
+  chores: { name: 'Chores today', group: 'Chores', icon: 'chores', hint: 'Today\'s chores as a tick list, from their rhythm and the date. Paper only for now', opts: [T('Label', 'Chores', 24), N('n', 'Lines', 2, 10, 5), { k: 'tiers', kind: 'choice', label: 'Energy versions', choices: [['none', 'Just the chore'], ['text', 'Show the small and the good enough version'], ['ticks', 'Three marks: small, good enough, all of it (one person)']], def: 'none' }, { k: 'groups', kind: 'flags', label: 'Rhythms', items: CH_GROUPS }, B('soon', 'Show a quiet "due soon" mark'), B('people', 'Household: a tick box for each person', false)] },
+  chorerota: { name: 'Chore rotation', group: 'Chores', icon: 'chorerota', hint: 'A week or month grid of chores: daily, weekly, monthly, seasonal. Household adds a box for each person', opts: [T('Label', '', 24), { k: 'period', kind: 'choice', label: 'Grid for', choices: [['week', 'A week'], ['month', 'A month']], def: 'week' }, N('n', 'Most chores shown', 4, 16, 10), { k: 'groups', kind: 'flags', label: 'Rhythms', items: CH_GROUPS }, B('people', 'Household: a box for each person', false), B('tiers', 'Show the small and the good enough version', false)] },
   // ---- layout ----
   divider: { name: 'Divider', group: 'Layout', icon: 'calm', hint: 'A thin line', opts: [{ k: 'icon', kind: 'choice', label: 'Icon', choices: [['none', 'None'], ['sun', 'Sun'], ['moon', 'Moon']], def: 'none' }] },
   sendto: { name: 'Send to', group: 'Layout', icon: 'send', hint: 'The symbol strip the scanner reads, anywhere on the page. Needs the scanning border on', opts: [
@@ -267,6 +274,10 @@ P1('checks', 'Good today', { title: 'Good today', labels: ['Warmth', 'Food', 'Re
 P1('checks', 'Device-free hour', { title: 'Device-free', labels: ['Phone away 1 h'] }, 'Check-ins');
 P1('habits', 'Outside & light', { title: 'Outside & light', labels: ['Outside', 'Daylight on face', 'Moved'] }, 'Check-ins');
 P1('fields', 'One small good thing', { title: 'One good thing', labels: ['Good thing'] }, 'Check-ins');
+P1('chores', 'Low-energy chores', { title: 'Chores, any size', n: 4, tiers: 'text' }, 'Chores');
+P1('chorerota', 'Week of chores', { period: 'week' }, 'Chores');
+P1('chorerota', 'Month of chores', { period: 'month', n: 8 }, 'Chores');
+P1('chorerota', 'Household week', { period: 'week', people: true }, 'Chores');
 // scan-ready marks (optical mark reading): added here so the scale block's own option list stays untouched
 TYPES.checks.opts.push(OMR); TYPES.scale.opts.push(OMR);
 // Roomy rows: single-row blocks whose height is fixed today get more room to write in (off = today's page)
@@ -326,7 +337,7 @@ export const PAGE_KINDS = {
   half: { name: 'Spread page', body: false, header: 'day' },
 };
 // (sendto too: the SEND TO strip is a day page setting; other pages keep the book's scan settings.)
-const DAY_ONLY = new Set(['sky', 'notes', 'events', 'fact', 'lookback', 'prompt', 'tl24', 'weekstrip', 'sendto']);
+const DAY_ONLY = new Set(['chores', 'sky', 'notes', 'events', 'fact', 'lookback', 'prompt', 'tl24', 'weekstrip', 'sendto']);
 export const pageKind = (k) => (PAGE_KINDS[k] ? k : 'day');
 // A spread is a day: it can hold the day's own blocks. Not `sendto`: each page of a spread keeps its own SEND TO strip (the strip is the page's).
 export const allowedIn = (kind, type) => (kind === 'day' ? true : kind === 'spread' || kind === 'half' ? type !== 'sendto' : !DAY_ONLY.has(type));
@@ -515,6 +526,7 @@ const MINSPAN = {
   wordsearch: (b) => [4, pzHeight(b)], crossword: (b) => [4, pzHeight(b)], // the grid and its text sit side by side across the whole page width
   // photo blocks: the plan (photo.mjs) gives the width a print needs and the height of the block; sheets count their worst case (31 days, the day-start line)
   photoframe: (b, w, size) => photoMinOf(b, w, size), photostrip: (b, w, size) => photoMinOf(b, w, size), photodaily: (b, w, size) => photoMinOf(b, w, size), contactsheet: (b, w, size) => photoMinOf(b, w, size),
+  chores: (b) => chMin(b), chorerota: (b) => chMin(b), // chores.mjs: the head, n rows and what the options add
   divider: () => [1, 0.02],
   spacer: (b) => [1, b.h / 10 + 0.01],
   body: () => [BODY_MIN.cols, BODY_MIN.rows * ROW_IN - 0.05],
@@ -785,6 +797,7 @@ function renderBlock(b, parts, zone, opt = {}) {
   const Z = `data-zone="${zone}"`;
   switch (b.type) {
     case 'photoframe': case 'photostrip': case 'photodaily': case 'contactsheet': return photoHtml(b, parts, Z, opt);
+    case 'chores': case 'chorerota': return chHtml(b, parts, Z, { esc, lbl });
     case 'wordsearch': case 'crossword': { const p = pzBlock(b, pzSeed(b, parts)); return `<div class="xb pz${b.big ? ' big' : ''}" ${Z}>${lbl(b.type, p.label)}<div class="pzr">${p.body}</div></div>`; }
     case 'sky': case 'notes': case 'events': case 'fact': return parts[b.type] || '';
     case 'spoons': return `<div class="care solo">${spoonRow(b)}</div>`;
@@ -967,7 +980,7 @@ function gridBlocks(parts, L, opt) {
 }
 
 // Extra CSS the blocks need (appended to the page CSS).
-export const DAYPAGE_CSS = PZ_CSS + `
+export const DAYPAGE_CSS = PZ_CSS + CH_CSS + `
 .rev .zl { display: flex; align-items: center; gap: 3px; } .rev .zl i { font-style: normal; font-size: 6.5pt; letter-spacing: 0.4px; white-space: nowrap; }
 .cbi { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; padding: 3px 0 4px; font-size: 7.5pt; line-height: 1.2; border-bottom: 1px solid #DCDCDC; }
 .ci { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; } .ci i { width: 10px; height: 10px; border: 1.2px solid #000; flex: none; } .ci span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .cbi .more { font-style: italic; color: #444; }

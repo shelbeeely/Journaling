@@ -70,5 +70,12 @@
 {"name":"wordsearch 12 answers","type":"wordsearch","opts":{"size":12,"answers":true,"theme":"sky"}},
 {"name":"crossword 7 easy","type":"crossword","opts":{"size":7,"difficulty":"easy"}},
 {"name":"crossword 11 hard","type":"crossword","opts":{"size":11,"difficulty":"hard","theme":"calm"}},
-{"name":"crossword 11 big","type":"crossword","opts":{"size":11,"big":true,"difficulty":"hard","theme":"kitchen","answers":true}}
+{"name":"crossword 11 big","type":"crossword","opts":{"size":11,"big":true,"difficulty":"hard","theme":"kitchen","answers":true}},
+{"name":"chores n10 text","type":"chores","opts":{"n":10,"tiers":"text"}},
+{"name":"chores n2 ticks","type":"chores","opts":{"n":2,"tiers":"ticks"}},
+{"name":"chores n6 household","type":"chores","opts":{"n":6,"people":true}},
+{"name":"chores n6 household text","type":"chores","opts":{"n":6,"people":true,"tiers":"text"}},
+{"name":"chorerota month n16 people tiers","type":"chorerota","opts":{"period":"month","n":16,"people":true,"tiers":true}},
+{"name":"chorerota week n16 people tiers","type":"chorerota","opts":{"n":16,"people":true,"tiers":true}},
+{"name":"chorerota week n4","type":"chorerota","opts":{"n":4}}
 ]
