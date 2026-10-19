@@ -15,6 +15,7 @@ import { assertLibrary, effectiveProfile, libraryFromProfile } from './library.m
 import { readPart, partPath, usedPacks, assertSellable } from './packs/pack.mjs';
 import { PROFILE_KEYS } from './packs/kinds.mjs';
 import { printProblems } from './a11yprint.mjs';
+import { chProblems } from './chores.mjs';
 
 const HERE = path.dirname(new URL(import.meta.url).pathname);
 export const PROFILE_FILE = process.env.KW_PROFILE ? path.resolve(process.env.KW_PROFILE) : path.join(HERE, 'content/profile.json');
@@ -70,6 +71,7 @@ export function validateProfile(p) {
     }
   }
   errs.push(...printProblems(p.print)); // optional print accessibility options (a11yprint.mjs)
+  errs.push(...chProblems(p.chores)); // optional chores (chores.mjs): the list the chores blocks draw
   if (p.crisis !== undefined && !(isObj(p.crisis) && Array.isArray(p.crisis.lines) && p.crisis.lines.every(str))) bad('crisis.lines', 'optional; must be a list of text, printed on the safety plan after "my prescriber;"');
   if (p.paths !== undefined) {
     if (!isObj(p.paths)) bad('paths', 'must be an object');

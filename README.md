@@ -81,6 +81,7 @@ Crisis and support numbers are never filled in for someone else. The `generic` p
 | Accessibility baseline, the 44 methods library, e-ink companion (check-ins, focus timer, settings, Wi-Fi) | Ready |
 | Page organiser, spread days, notes/blank/collection pages as blocks, word-search and crossword blocks, releases and reusable pages (Studio API), print accessibility options (large print, high contrast) with a Settings panel, X4 sync client (needs the `x4-tls` build; not tested on hardware) | Ready |
 | Content packs (support, clinic, transit, holidays, seasons) and `npm run init` onboarding | Ready |
+| Chores: a tick list of today's chores, week and month rotation grids (daily, weekly, monthly, seasonal; optional household boxes per person), small and good-enough versions, a neutral "due soon" mark (paper; the X4 check-in is planned, [BUILD-PLAN section 25](docs/journaling/BUILD-PLAN.md)) | Ready |
 | Pack ecosystem (themes, graphics, icon packs, block packs) | In progress |
 | Languages (editor strings are extracted into a catalog with test languages; no switcher or real translation yet) | In progress |
 | Block-based month and week pages, account locations, the e-ink editor, a reusable-pages picker in the editor | Planned |
