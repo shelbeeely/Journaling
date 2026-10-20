@@ -68,7 +68,7 @@ async function studioServer() {
   return studio;
 }
 
-const { launch } = await import(path.join(J, 'browser.mjs'));
+const { launchEditor: launch } = await import(path.join(J, 'browser.mjs'));
 const browser = await launch();
 const conv = await browser.newPage(); await conv.goto('about:blank'); // turns PNG into WebP (Chromium encodes it)
 async function toWebp(png, q, maxW) {

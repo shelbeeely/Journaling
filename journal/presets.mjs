@@ -7,6 +7,8 @@
 //   guidedBook(answers)  answers -> { layout, plan, modules, trim, left, used }: a finished day layout, never a blank page
 //   BASIC_TYPES          the eight blocks the Basic view offers (Advanced shows all of them; nothing is removed)
 //   recOf(option)        the recommended value of a block option: the value it ships with
+//   applyPages(book, p)  the page set of a made book: 'full' (every page) or 'calm' (no moon and sky pages, a shorter back of the book)
+//   calmLibrary(lib, id, defaultBook)  the library with that book on the calm page set (a layout that hides one back page, see CALM_HIDE)
 //   cleanLast(x)         what the editor may remember about the last book (choices only: no calendar, no profile, no pages)
 //   GUIDED_STRINGS()     the English words of the tables above, keyed for i18n/en.json (test-presets.mjs checks the catalog has them)
 // The layouts are ordinary v2 layouts: they print, scan and pass check.mjs like any other. Every block they use is in daypage.mjs.
@@ -43,7 +45,7 @@ export const TRACK_IDS = TRACK.map((t) => t.id);
 export const QUESTIONS = [
   { id: 'trim', kind: 'one', rec: 'small', q: 'Which size will you print first?', hint: 'Both sizes are always built, so this only sets the preview.',
     o: [['small', '5.5 × 8.5 in', 'Fits a bag.'], ['letter', '8.5 × 11 in', 'More room for each page.']] },
-  { id: 'length', kind: 'one', rec: 'month', q: 'How much time should the book cover?', hint: 'A month is about 80 pages. A longer book is cut into volumes of up to 110 pages.',
+  { id: 'length', kind: 'one', rec: 'month', q: 'How much time should the book cover?', hint: 'A month is about 80 pages (about 70 with the calm page set). A longer book is cut into volumes of up to 110 pages.',
     o: [['month', 'One month', 'The easiest place to start.'], ['quarter', 'Three months', 'Three volumes, one a month.'], ['half-year', 'Six months', 'Six volumes.'], ['year', 'A year', 'Twelve volumes.'], ['undated', 'Undated, 28 days', 'No dates on the pages. Start on any day, skip days freely.']] },
   { id: 'track', kind: 'many', rec: ['tasks', 'mood', 'good'], q: 'What would you like to keep track of?', hint: 'Pick any. A calm page keeps the first few and tells you what it left off.',
     o: [['tasks', 'Tasks and priorities', 'Three lines for what matters today.'], ['mood', 'Mood and feelings', 'A scale and words to circle.'], ['habits', 'Habits and routines', 'Tick boxes.'], ['good', 'Small good things', 'A few lines at the end of the day.'], ['energy', 'Energy', 'One scale.'], ['sleep', 'Sleep', 'Bed, wake and how it felt.'], ['body', 'Meds and body care', 'Tick boxes.'], ['making', 'Drawing or making', 'A frame to draw or stick things in.'], ['time', 'Planning my hours', 'Hours down the side.'], ['calendar', 'Events and holidays from my calendar', 'Prints only on days that have one.']] },
@@ -53,21 +55,28 @@ export const QUESTIONS = [
     o: [['lots', 'Lots', 'A big open page.'], ['some', 'Some', 'A good amount.'], ['compact', 'A little', 'More boxes, less blank.']] },
 ];
 export const QUESTION_IDS = QUESTIONS.map((q) => q.id);
-export const RECOMMENDED = () => Object.fromEntries(QUESTIONS.map((q) => [q.id, structuredClone(q.rec)]));
+export const RECOMMENDED = () => ({ ...Object.fromEntries(QUESTIONS.map((q) => [q.id, structuredClone(q.rec)])), pages: 'full' }); // the page set is not a sixth question: it follows the tone, and the review shows it
 const LENGTH_MONTHS = { month: 1, quarter: 3, 'half-year': 6, year: 12 };
 const TONE_MAX = { gentle: 3, balanced: 5, full: 99 };
 // Inches the blocks may take. A day page has about 5.4 in under its header; this keeps at least 4.2 (lots), 3.2 (some) or 2.2 (a little) for writing.
 export const ROOM_BUDGET = { lots: 1.2, some: 2.2, compact: 3.2 };
 export const ROOMY_EXTRA = 0.15; // a roomy block (the gentle tone) takes a little more
 export const PAGES_PER_MONTH = 80; // a month of this book is 74 to 86 pages (HANDOFF.md)
+// The calm page set (BUILD-PLAN section 26.7): the moon and sky pages are left out (module `sky` off), and the back of the book is shorter (the bus
+// times pages, module `bus` off, and the "Where each piece comes from" page, hidden by a layout). Safety plan, Support and Closing stay.
+// A month of it is about 70 pages (measured on the sample book: 80 become 71, see the plan).
+export const PAGES_PER_MONTH_CALM = 70;
+export const CALM_MODULES = { sky: false, bus: false };
+export const CALM_HIDE = ['lineage']; // page types the calm layout switches off
+export const CALM_LAYOUT_ID = 'calm-pages';
 
 const nextMonth = (from = new Date()) => { const d = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth() + 1, 1)); return d.toISOString().slice(0, 7); };
 
 // What a length means in pages, in words a person can use. Dated books are cut into monthly volumes; the undated book is 28 day pages and a few extras.
-export function lengthFacts(length) {
+export function lengthFacts(length, pages = 'full') {
   if (length === 'undated') return { months: 0, volumes: 1, about: null, days: 28 };
   const m = LENGTH_MONTHS[length] || 1;
-  return { months: m, volumes: m, about: m * PAGES_PER_MONTH, days: null };
+  return { months: m, volumes: m, about: m * (pages === 'calm' ? PAGES_PER_MONTH_CALM : PAGES_PER_MONTH), days: null };
 }
 
 // Clean answers: anything missing or unknown becomes the recommended answer, so a stale or hand-edited remembered answer never breaks the start.
@@ -78,6 +87,7 @@ export function cleanAnswers(a = {}) {
     if (q.kind === 'one') out[q.id] = ok.includes(v) ? v : rec[q.id];
     else { const list = Array.isArray(v) ? v.filter((x) => ok.includes(x)) : rec[q.id]; out[q.id] = TRACK_IDS.filter((x) => list.includes(x)); }
   }
+  out.pages = a.pages === 'full' || a.pages === 'calm' ? a.pages : out.tone === 'gentle' ? 'calm' : 'full'; // the page set follows the tone (gentle = calm) unless it was chosen
   out.start = /^\d{4}-(0[1-9]|1[0-2])$/.test(a.start || '') ? a.start : nextMonth();
   return out;
 }
@@ -97,7 +107,28 @@ export function guidedBook(answersIn) {
   for (const t of kept) for (const [type, uid, o] of t.b) blocks.push({ uid, type, on: true, ...(roomy && TYPES_ROOMY.has(type) ? { roomy: true } : {}), ...o });
   blocks.push({ uid: 'body', type: 'body', on: true, style: 'dots' });
   const layout = normalize({ v: 2, blocks });
-  return { layout, answers: a, kept: kept.map((t) => t.id), left, used, trim: a.trim, ...planFor(a.length, a.start) };
+  return applyPages({ layout, answers: a, kept: kept.map((t) => t.id), left, used, trim: a.trim, ...planFor(a.length, a.start) }, a.pages);
+}
+// The page set of a made book. 'calm' leaves out the moon and sky pages and shortens the back of the book (modules sky and bus off; the library
+// layout from calmLibrary hides the rest); 'full' is every page, the book as it always was. Other modules the book already has are kept.
+export function applyPages(book, pages) {
+  const calm = pages === 'calm', modules = { ...(book.modules || {}) };
+  for (const k of Object.keys(CALM_MODULES)) { if (calm) modules[k] = CALM_MODULES[k]; else if (modules[k] === CALM_MODULES[k]) delete modules[k]; }
+  return { ...book, pages: calm ? 'calm' : 'full', modules, answers: book.answers ? { ...book.answers, pages: calm ? 'calm' : 'full' } : book.answers };
+}
+// The calm layout (book.json shape): the default book with the pages in CALM_HIDE switched off. Pure; the caller passes the project's default book.
+export function calmBook(defaultBook) {
+  const b = structuredClone(defaultBook);
+  const hide = (list) => { for (const e of list || []) { if (CALM_HIDE.includes(e.type)) e.on = false; if (e.options) { hide(e.options.month); hide(e.options.week); } } };
+  hide(b.default);
+  return b;
+}
+// The library with book `bookId` on the calm page set: adds (or refreshes) the layout and points the book at it. No default book given: the modules alone do the work.
+export function calmLibrary(lib, bookId, defaultBook) {
+  if (!defaultBook) return lib;
+  const layouts = (lib.layouts || []).filter((l) => l.id !== CALM_LAYOUT_ID);
+  layouts.push({ id: CALM_LAYOUT_ID, name: 'Calm pages', book: calmBook(defaultBook) });
+  return { ...lib, layouts, books: lib.books.map((x) => (x.id === bookId ? { ...x, layoutRef: CALM_LAYOUT_ID } : x)) };
 }
 const TYPES_ROOMY = new Set(['checks', 'scale', 'words', 'sleeptimes']);
 
@@ -117,7 +148,7 @@ export const STARTERS = [
   { id: 'mood-log', icon: 'heart', name: 'Mood log', blurb: 'How I felt, in a number and in words, with sleep and a few care ticks.',
     length: 'quarter', modules: {},
     blocks: [sb('scale', 'g-mood', { title: 'Mood', steps: 5, lo: 'low', hi: 'high' }), sb('words', 'g-feel', { title: 'Feeling' }), sb('sleeptimes', 'g-sleep'), sb('checks', 'g-body', { title: 'Body care', labels: ['Meds', 'Water', 'Moved'] }), sb('good', 'g-good', { label: 'Small good things', n: 2 }), sb('body', 'body', { style: 'dots' })] },
-  { id: 'low-energy', icon: 'spoon', name: 'Low-energy week', blurb: 'Undated pages with a few big boxes: how much energy there is, the basics, and what got done.',
+  { id: 'low-energy', icon: 'spoon', name: 'Low-energy days', blurb: 'Undated pages with a few big boxes: how much energy there is, the basics, and what got done.',
     length: 'undated', modules: { spoons: true },
     blocks: [sb('scale', 'g-energy', { title: 'Energy', steps: 5, lo: 'drained', hi: 'full', roomy: true }), sb('checks', 'g-basics', { title: 'The basics', labels: ['Ate', 'Drank', 'Rested'], roomy: true }), sb('done', 'g-done', { title: 'Done', n: 3 }), sb('good', 'g-good', { label: 'One kind thing', n: 1 }), sb('body', 'body', { style: 'dots' })] },
   { id: 'art-practice', icon: 'box', name: 'Art practice', blurb: 'A frame to draw in, a line about what you noticed, and a tick for showing up.',
@@ -131,13 +162,13 @@ export const starterOf = (id) => STARTERS.find((s) => s.id === id) || null;
 export function starterBook(id, { trim = 'small', start } = {}) {
   const s = starterOf(id); if (!s) return null;
   const st = /^\d{4}-(0[1-9]|1[0-2])$/.test(start || '') ? start : nextMonth();
-  return { layout: normalize({ v: 2, blocks: structuredClone(s.blocks) }), trim: trim === 'letter' ? 'letter' : 'small', starter: s.id, ...planFor(s.length, st), modules: structuredClone(s.modules), left: [], kept: s.blocks.map((b) => b.type) };
+  return { layout: normalize({ v: 2, blocks: structuredClone(s.blocks) }), trim: trim === 'letter' ? 'letter' : 'small', starter: s.id, ...planFor(s.length, st), modules: structuredClone(s.modules), pages: 'full', left: [], kept: s.blocks.map((b) => b.type) };
 }
 // The answers that would make about the same book (so "tweak" can open the five questions on a starter's choices).
 export function starterAnswers(id) {
   const s = starterOf(id); if (!s) return RECOMMENDED();
   const have = new Set(s.blocks.map((b) => b.uid)), track = TRACK.filter((t) => t.b.every(([, u]) => have.has(u))).map((t) => t.id);
-  return cleanAnswers({ length: s.length, track, tone: s.id === 'low-energy' ? 'gentle' : 'balanced', room: s.id === 'art-practice' ? 'lots' : 'some' });
+  return cleanAnswers({ length: s.length, track, tone: s.id === 'low-energy' ? 'gentle' : 'balanced', room: s.id === 'art-practice' ? 'lots' : 'some', pages: 'full' }); // a ready-made book is the full page set unless asked otherwise
 }
 
 // ---------- what the editor remembers ----------
@@ -154,7 +185,7 @@ export function cleanLast(x) {
     out.layout = { v: 2, blocks: L.blocks.map((b) => { const keep = new Set(['uid', 'type', 'on', 'rows', ...TYPES[b.type].opts.map((o) => o.k)]); return Object.fromEntries(Object.entries(b).filter(([k]) => keep.has(k))); }) };
   }
   if (x.plan && typeof x.plan === 'object') { const sc = ['month', 'quarter', 'half-year', 'year', 'undated'].includes(x.plan.scope) ? x.plan.scope : 'month'; out.plan = sc === 'undated' ? { scope: sc, undated: { days: 28, extras: ['theme', 'tracker'] } } : { scope: sc }; }
-  if (x.modules && typeof x.modules === 'object') out.modules = Object.fromEntries(['sky', 'spoons', 'therapy'].filter((k) => typeof x.modules[k] === 'boolean').map((k) => [k, x.modules[k]]));
+  if (x.modules && typeof x.modules === 'object') out.modules = Object.fromEntries(['sky', 'spoons', 'therapy', 'bus'].filter((k) => (k === 'bus' ? x.modules[k] === false : typeof x.modules[k] === 'boolean')).map((k) => [k, x.modules[k]])); // bus only as "off": a bus feed is somebody's own place
   if (x.trim === 'letter' || x.trim === 'small') out.trim = x.trim;
   const s = JSON.stringify(out);
   return s.length <= 16000 ? out : null;

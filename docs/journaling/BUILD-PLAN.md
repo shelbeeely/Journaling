@@ -900,7 +900,7 @@ Minimum span is columns x rows at the default options, 5.5x8.5 first, then 8.5x1
 | `conceptmap` (B1) | Centre bubble with 3 to 8 branches, vector | label, branches, height | all | 3 x 13 / 3 x 13 | none |
 | `questions` (B1) | Questions to answer, answer line, answered box | label, questions 2-10, answer line, answered box, pitch | all | 2 x 10 / 2 x 10 | `top` |
 | `summarybox` (B1) | Framed box to say it back | label, lines 2-8, prompt (none, one sentence, own words, tell a friend, main idea), pitch | all | 2 x 5 / 1 x 5 | `keep` |
-| `flashstrip` (B1) | Fold-over flash cards (24.3) | label, cards 4-12, numbers, fold position 40/50/60, answers on right or left, review ticks 0-5, got it / again, fold hint, pitch | all | 3 x 9 / 3 x 9 | none |
+| `flashstrip` (B1) | Fold-over flash cards (24.3) | label, cards 4-12, numbers, fold position 40/50/60, answers on the outer edge (auto, default), always right or always left, review ticks 0-5, got it / again, fold hint, pitch | all | 3 x 9 / 3 x 9 | none |
 | `reviewtracker` (B1) | Topics with a tick per spaced review | label, topics 2-12, review times (1, 3, 7, 14, 21, 30 days; 1, 3, 7, 21 by default), learned-on date, pitch | all | 3 x 7 / 3 x 7 | habit dots (no dates) |
 | `feynman` (B2) | Explain it simply / where I got stuck / simpler words: three boxes | label, lines per box | all | 3 x 12 | `review` (different prompts) |
 
@@ -909,7 +909,7 @@ Minimum span is columns x rows at the default options, 5.5x8.5 first, then 8.5x1
 | Block | Purpose | Options | Page kinds | Min span (small / letter) | Overlaps |
 |---|---|---|---|---|---|
 | `stimlog` (B1) | When, what felt good, where it helped, how settled before and after, how much (optional). Says stimming is self-regulation | label, entries 1-6, where, before and after, how much 1-5, the line, pitch | all | 4 x 10 / 3 x 10 | `sensory`, `urge` (different job) |
-| `stimmenu` (B1) | My stims and tools by sense (touch, movement, sound, sight, taste and chew, deep pressure): box and free line each, blank "new stim idea" rows | label, senses, rows 1-4, new idea rows 0-4, the line, pitch | all | 3 x 14 / 2 x 14 | preset `Supports` (fixed words) |
+| `stimmenu` (B1) | My stims and tools by sense (touch, movement, sound, sight, taste and chew, deep pressure): box and free line each, blank "new stim idea" rows | label, senses, rows 1-4, new idea rows 0-4, print examples (off), the line, pitch | all | 3 x 14 / 2 x 14 (a little wider with examples) | preset `Supports` (fixed words) |
 | `stimtrace` (B1) | A pattern to trace slowly with a pen or finger: waves, zigzags, loops, spirals, grid lines; vector only | label, pattern, size small/medium/large, height, frame | all | 2 x 8 / 2 x 8 | none |
 | `shutdownlog` (B2) | The method doc's overload log: meltdown, shutdown or near-miss; before (where, senses, masking 0-3, slept, ate); after (what helped, recovery time). Both are involuntary: no blame wording | label, before, after, recovery | all | 4 x 14 (estimate) | `urge`, `sensory`, preset `Overload` |
 | `sensoryplan` (B2) | The doc's "sensory diet", renamed (some autistic adults find "diet" clinical): a grid of times of day by senses to tick | label, times, senses | all | 4 x 8 | `stimmenu` |
@@ -941,7 +941,7 @@ Minimum span is columns x rows at the default options, 5.5x8.5 first, then 8.5x1
 
 No perforation, no cut-out cards (KDP cannot print them). A strip is `n` rows (4 to 12). Each row is **[number] [term line] [review ticks] | fold | [answer line]**.
 - **The fold.** One light dashed line (vector, 1 px = 0.75 pt) and a small "fold here" hint. The line sits at a fixed share of the strip's width (40, 50 or 60 percent) at the same x on every row, so one fold of the paper along it hides every answer. The term and answer cells meet exactly on the line (measured). Two strips on a page with the same width and share fold along the same line. A strip is never wider than its page, so it never crosses a spread's fold.
-- **Which edge.** The answers are on the right by default: fold the page's **right (outer) edge** back along the line, so use it on right-hand pages. On a left-hand page the right edge is the spine, so set **Answers on: the left** (the strip is mirrored, the left edge folds). A spread day puts the left setting on its left page. The editor draws one page, so it cannot choose for you (open question 1).
+- **Which edge.** By default the answers go on **the outer edge** and flip by themselves (decision 1 in 24.6): on a right-hand page the answers are on the right and you fold the page's right edge back along the line; on a left-hand page the strip is mirrored, the answers are on the left and the left edge folds. A spread day's left page is a left-hand page, so it flips too. "Always the right" and "Always the left" stay for the person who wants to choose. The editor draws one page, so it shows the right-hand version; the book shows each page for its own side.
 - **Ticks stay in view.** The review-count boxes (0 to 5, default 3) and the optional got it / again pair are on the term side, so they stay visible with the answers folded away.
 - **Why not cut.** A cut strip is loose paper; a fold keeps the card in the book.
 
@@ -959,25 +959,29 @@ No perforation, no cut-out cards (KDP cannot print them). A strip is `n` rows (4
 
 | Slice | Output | Size |
 |---|---|---|
-| **B0** | Two method docs from `TEMPLATE.md`: study and note taking (Cornell, retrieval and spacing evidence, claimed versus supported) and stimming and self-regulation (affirming sources, what not to claim) | S |
+| **B0** (done 2026-10-20) | Two method docs from `TEMPLATE.md`: study and note taking (Cornell, retrieval and spacing evidence, claimed versus supported) and stimming and self-regulation (affirming sources, what not to claim) | S |
 | **B1** (this change) | `cornell`, `notearea`, `conceptmap`, `questions`, `summarybox`, `flashstrip`, `reviewtracker`, `stimlog`, `stimmenu`, `stimtrace`; `noteblocks.mjs`; palette groups; icons; i18n; `test-noteblocks.mjs` | L |
 | **B2** | `feynman`, `shutdownlog`, `sensoryplan`, `comfortkit`, `calmroutine`; a "Study day" and a "Regulation day" method layout; presets (`gratitude3` as `good`) | M |
 | **B3** | `routinebuilder`, `projectsteps`, `appointments`, `review` week wording, maybe `symptomlog` | M |
 | **B4** | `medialog`, `bingo`, `maze` (puzzles), `mindmap` style, `doodleprompt`, `colourpattern` with section 22 | M |
 | **B5** | Ready-made pages (a flash card page, a Cornell page, a stim page) and the organiser's repeatable add-page for them; a KDP proof page with a real fold test | S to M |
-| **B6** | Guide chapter and site feature block; icon key rows on the Key page (not changed in B1, so the default book stays identical) | S |
+| **B6** | Guide chapter and site feature block. (The icon key rows on the Key page were done early, with the owner's decision 10 in 24.6.) | S |
 
-### 24.6 Questions for Shelbee
-1. **Which edge folds?** Answers on the right only fold on right-hand pages. I made "answers on the left" an option and the default is the right. Want the default to flip itself on left-hand pages (the preview cannot show it, the printed book would)?
-2. **Fold position.** 50 percent, with 40 and 60 as options. Do you want the answer side bigger by default?
-3. **Review ticks.** Three per card, plus an optional got it / again pair. Is that the right count, or do you want a date column instead?
-4. **Review times.** 1, 3, 7 and 21 days as a starting rhythm. Your own times? (14 and 30 days are already options.)
-5. **Printed stim prompts.** The menu has no example stims printed (blank boxes only). Want an option that prints a few examples per sense? They would be written for this project.
-6. **The stim lines.** "Stimming is self-regulation." (log) and "My stims are valid." (menu). Your words?
-7. **Trace patterns.** Waves, zigzags, loops, spirals, grid lines. More shapes (stars, scales, braids)? Grey or darker ink?
-8. **Group names.** "Notes and study", "Regulation" are built; the other two groups would be "Planning" (existing) and "Creative". OK?
-9. **B0 first?** Should the two method docs come before B2 so the copy has sources?
-10. **Key page.** Add the new icons to the Key page now (changes the default book, so a fingerprint update) or leave them to B6?
+### 24.6 Decisions (Shelbee answered the ten questions, 2026-10-20)
+
+Each line is the question, then what was decided and what was built. Status: all answered; nothing in this list is still open except where it says so.
+
+1. **Which edge folds?** Decided: **the answers flip by themselves on left-hand pages**, so the fold is always on the outer edge, and the manual choice stays. Built: the `answer` option is now **The outer edge (flips by itself on left-hand pages)** (`auto`, the new default), **Always the right** or **Always the left**. `daypage.mjs` draws an `auto` strip for the side of the page it is on (`withPageSide`; a page with no side, such as the editor's one-page preview, is a right-hand page), and `book.mjs` `assemble()` draws every page inside it, because only the finished page order knows the side (page 1 is a right-hand page; a spread day's left page is a left-hand one). The text alternative says "fold the left edge" or "fold the right edge" for the page it is on. Tested at both trims, plain and with large print and high contrast: every `auto` strip on a left-hand page has the answers first, the fold at the mirrored share, and the Cards page's two strips still fold along one line (`test-noteblocks.mjs`).
+2. **Fold position.** Decided: **50 percent by default; 40 and 60 stay as options.** No change.
+3. **Review ticks.** Decided: **keep as built**: three boxes per card and an optional got it / again pair. No date column.
+4. **Review times.** Decided: **keep 1, 3, 7 and 21 days as the starting rhythm; 14 and 30 stay as options.** No change.
+5. **Printed stim prompts.** Decided: **an optional "print examples" setting on the stim menu, off by default, boxes stay blank.** Built: `examples` (off). When on, each sense prints as many light italic examples as it has rows (one to four) in the lines beside the blank boxes. Four original examples per sense are in `noteblocks.mjs` `STIM_EXAMPLES` (touch: smooth stone, soft fabric, fidget ring, warm mug; movement: rocking, bouncing, pacing, hand flapping; sound: humming, a song on repeat, tapping a rhythm, soft rain sounds; sight: lava lamp, sunlit leaves, a spinning top, sorting colours; taste and chew: chewy sweets, crunchy snacks, a chew necklace, ice chips; deep pressure: a heavy blanket, a tight hug, pressing palms, a weighted lap pad). The menu needs a little more width with examples (2.45 in against 2.15). The test checks none of them uses a word that asks anyone to stop.
+6. **The stim lines.** Decided: **they stay**: "Stimming is self-regulation." (log) and "My stims are valid." (menu).
+7. **Trace patterns.** Not answered. Stays as built (waves, zigzags, loops, spirals, grid lines; one mid grey, 1.6 px). Open: more shapes (stars, scales, braids) or darker ink, if wanted.
+8. **Group names.** Decided: **they stay**: "Notes and study", "Regulation", "Planning" (existing); **the fourth group is "Creative"** (used by B4).
+9. **B0 first?** Decided: **yes, the method docs come before B2.** Written: `docs/journaling/methods/study-and-note-taking.md` (Cornell, retrieval practice, spacing, the generation effect, claimed versus supported) and `docs/journaling/methods/stimming-and-self-regulation.md` (affirming sources, what not to claim). CC0 front matter, all 28 sections, original wording, sources opened and cited. Slice B0 is done.
+10. **Key page.** Decided: **add the new block icons now.** Built: a "Flash cards and stim menu" row of icons on **Key, continued** (fold here, again, new stim idea, and the six senses: touch, movement, sound, sight, taste and chew, deep pressure; `ICON_KEY_NOTES` in `pages.mjs`). **This intentionally changes the default book**: the shared Key, continued page is different in every default book, so the fingerprints in `journal/identical.json` were regenerated (`check-identical.mjs --update`) and say so. The page count is unchanged (80 for the October sample) and no other page's fingerprint changed (the diff of the old and new fingerprints is the Key page's hash and nothing else, in all 24 books).
+
 ## 25. Chores (2026-10-18, slice CH1 built)
 
 Owner decisions: **for one person, and for an optional shared household**. First pieces, in order: (1) a **chores day-page block** (today's chores as a tick list), (2) **rotation pages** (a week or month grid: daily, weekly, monthly, seasonal; household mode adds a person column set with a tick box each), (3) **energy-aware options** (a small version and a good-enough version of every chore, no-guilt wording), (4) an **X4 check-in** (explicit, user-started sync only, per the firmware scope in CLAUDE.md). Overdue tone: **a gentle neutral "due soon" marker and nothing else: no red, no counts, no streaks, no shame wording.**
@@ -993,7 +997,7 @@ Both are ordinary blocks of the declarative format (section 20), palette group *
 | Block (`type`) | What it is | Options | Smallest span |
 |---|---|---|---|
 | `chores` | Today's chores as a tick list: the ones **due soon first**, then the daily ones, then the rest. `n` lines: leftover lines are write-in lines (a box and a rule); a longer list ends in "and more" (no number). Day pages and the two pages of a spread day only (it reads the date; undated books list the daily chores) | `title`, `n` (2 to 10), `tiers` (none, text, ticks), `groups` (daily, weekly, monthly, seasonal), `soon`, `people` | 2 columns (3 with more than two people) by header + `n` rows |
-| `chorerota` | A grid for **a week** (Monday to Sunday boxes; a chore only has boxes on the days it is listed) **or a month** (W1 to W5 = days 1 to 7, 8 to 14, ..., 29 on; daily chores print as one line, not boxes). Grouped Daily, Weekly, Monthly, Seasonal. Works on every page kind, dated or not: undated it is a template (a week leaves out monthly and seasonal chores, which need a date; a month shows seasonal chores with their months beside the name) | `title`, `period`, `n` (4 to 16), `groups`, `people`, `tiers` | 3 columns (4 with people) by head + groups + `n` rows |
+| `chorerota` | A grid for **a week** (Monday to Sunday boxes; a chore only has boxes on the days it is listed) **or a month** (on a dated page the real calendar weeks, Monday to Sunday, four to six columns named in days of the month; an undated template keeps W1 to W5 = days 1 to 7, 8 to 14, ..., 29 on and says so; daily chores print as one line, not boxes). Grouped Daily, Weekly, Monthly, Seasonal. Works on every page kind, dated or not: undated it is a template (a week leaves out monthly and seasonal chores, which need a date; a month shows seasonal chores with their months beside the name) | `title`, `period`, `n` (4 to 16), `groups`, `people`, `tiers` | 3 columns (4 with people) by head + groups + `n` rows |
 
 Four ready-made blocks in the palette: Low-energy chores, Week of chores, Month of chores, Household week. A rotation page is a Collection page (or a blank page) with a `chorerota` block: nothing new in the page organiser.
 
@@ -1003,7 +1007,8 @@ Four ready-made blocks in the palette: Low-energy chores, Week of chores, Month 
   "household": ["Alex", "Sam"],                 optional, 1 to 4 names (turns on whose-turn and the person boxes)
   "items": [ { "id": "dishes", "name": "Dishes", "every": "day",
                "min": "Rinse what is in the sink", "ok": "Everything in the dishwasher" },
-             { "id": "bathroom", "name": "Bathroom", "every": "week", "day": "fri", "who": "rotate" } ] }
+             { "id": "bathroom", "name": "Bathroom", "every": "week", "day": "fri", "who": "rotate" } ],
+  "swaps": [ { "chore": "bathroom", "date": "2026-10-23", "to": "Sam" } ] }   optional: trade one turn of a rotating chore (25.8)
 ```
 `id` (lowercase, digits, dashes; it names the chore on the X4), `name` (28 characters), `every` (`day`, `week`, `month`, `season`), `days` (daily: weekdays), `day` (weekly: a weekday; monthly and seasonal: 1 to 28 or `last`), `months` (seasonal, default 3, 6, 9, 12), `lead` (days before the due date to start listing it), `min` and `ok` (60 characters), `who` (`rotate` or a household name), `x4` (false keeps it off the device).
 
@@ -1016,7 +1021,7 @@ Four ready-made blocks in the palette: Low-energy chores, Week of chores, Month 
 | `month` + `day` | that day of the month (`last` = the last day, so February is fine) | from `lead` days before, across month and year ends | 5 |
 | `season` + `months` + `day` | that day in each of those months | from `lead` days before | 7 |
 
-`k` numbers the occurrences, and a chore with `who: "rotate"` goes to `people[k mod n]`: the same person for the whole week a weekly chore is listed, the next person next week. An undated page never guesses whose turn it is. Tests: `node test-chores.mjs` checks the dates above, month ends, a leap year, a year end and the rotation.
+`k` numbers the occurrences, and a chore with `who: "rotate"` goes to `people[k mod n]`: the same person for the whole week a weekly chore is listed, the next person next week. A **swap** (25.8) hands one occurrence, found by its due date, to a named person instead; the rotation is not shifted. An undated page never guesses whose turn it is. Tests: `node test-chores.mjs` checks the dates above, month ends, a leap year, a year end and the rotation.
 
 ### 25.4 Tone (the rule, and how it is enforced)
 - The only marker is **"due soon"**: a small open diamond and the word "soon", grey, on the due day and the day before, for a chore that is not daily. It can be switched off per block.
@@ -1037,17 +1042,17 @@ A chore may carry `min` (a small version) and `ok` (a good-enough version). A bl
 | Slice | Output | Size |
 |---|---|---|
 | **CH1** (this change) | `chores.mjs`, the two blocks and four presets, the profile `chores` section and validation, rotation, tiers, household, the "due soon" marker, i18n, `test-chores.mjs`, the guide `docs/journaling/chores.md` | M |
-| **CH2** | A chores editor in the Settings panel (edit the list in the browser, kept in the Studio project's settings and the profile export), a "Chores" ready-made Collection page in the organiser's add-page menu, a Guide chapter with screenshots | M |
+| **CH2** (next, decided 2026-10-20, not built) | A chores editor in the Settings panel (edit the list in the browser, kept in the Studio project's settings and the profile export), including the household and its swaps; a "Chores" ready-made Collection page in the organiser's add-page menu; a Guide chapter with screenshots | M |
 | **CH3** | X4: the pack export (`export_pack.py` reads `chX4Pack`), the Chores screen, ticks in the day log, the sync payload and the Studio store | L (firmware scope review first) |
 | **CH4** | Month-aware rotation on undated pages (the book's month), a printed chore list for the Keeper handoff, a household "who did what" page that never totals | S |
 
-### 25.8 Questions for Shelbee
-1. **Household names on the page.** Names print as a letter (A, S) with a line naming them. Do you want the full name in the column head instead (needs a wider page or smaller type)?
-2. **Rotation.** "Rotate" hands a chore to the next person each time it comes round. Do you also want fixed turns by weekday, or a way to swap?
-3. **Month grid weeks.** W1 to W5 are days 1 to 7, 8 to 14 and so on, so a page needs no calendar. Would Monday-to-Sunday weeks matter more to you?
-4. **Where the list is edited.** Today it is the profile file. Is the CH2 Settings editor the right next step, or the X4 first?
-5. **Seasonal chores.** I made them months-based (the first of March, June, September, December by default). Do you want solstice and equinox dates from the sky data instead?
+### 25.8 Decisions (Shelbee answered the five questions, 2026-10-20)
 
+1. **Household names on the page.** Decided: **they stay a letter plus a legend line** (A, S, with "A Alex · S Sam" under the heading). No full names in the column head.
+2. **Rotation.** Decided: **rotate, plus swaps.** A swap is a way to trade a turn. Built: an optional `swaps` list in the profile's `chores` section, `{ "chore": "bathroom", "date": "2026-10-23", "to": "Sam" }`: the chore's `id`, the day it is due, and who takes that one turn. The rotation carries on as before (the next turn is the rotation's own); a trade is two swaps (you take my Friday, I take yours). The swap holds for the whole time that turn is listed, on the day list, the week and month grids and the X4 pack (`chWho` takes the swap; `chSwapOf` looks it up). `chProblems` checks it in plain words: the chore must exist (it lists the ids), must have `"who": "rotate"` ("Sweep does not rotate, so it has no turn to trade. Give it "who": "rotate" first"), the date must be a real date and a day the chore is due (it says the next day it is due), the person must be in the household, the person must not already have that turn, and the same turn cannot be traded twice. Fixed turns by weekday were not asked for and are not built. Nothing counts or scores a swap. Tests: `test-chores.mjs` section 3b.
+3. **Month grid weeks.** Decided: **Monday-to-Sunday real calendar weeks, which need a date.** Built: on a dated page the month grid has one column per calendar week, four to six of them (week 1 is the week the 1st falls in, even if it starts in the month before), a chore has a box in the week it is due in, and a line under the heading names the columns in days of the month ("W1 1–4 · W2 5–11 · W3 12–18 · W4 19–25 · W5 26–31"). An **undated template stays W1 to W5** (days 1 to 7, 8 to 14, 15 to 21, 22 to 28, 29 on) and the page says so in a line. The block needs one more line of height for that key (`chMin`). Tests cover three years of months (every day in exactly one week, every week after the first starts on a Monday), October 2026, a six-week November 2026, February 2027 and a leap February.
+4. **Where the list is edited.** Decided: **the CH2 Settings editor is the next slice** (not the X4 first). **Not built here**; recorded in 25.7.
+5. **Seasonal chores.** Decided: **they stay fixed months** (the first of March, June, September and December by default, or the months the chore names). No solstice or equinox dates from the sky data.
 
 ## 26. Fewer decisions: guided start, ready-made books, Basic view, remembered choices (2026-10-18, slice DF1 built)
 
@@ -1059,7 +1064,7 @@ Shelbee asked to cut decision fatigue in the builder and the editor. Four decisi
 
 **What this is not (decided, do not add without asking)**
 - **No generative AI, no suggestions, no scoring.** The questions are a fixed table; the same answers always make the same book.
-- **No change to any printed page.** The default day layout, every block and every build are untouched (`check-identical` stays 24/24; the day pages of a default build were diffed against the build before). This slice adds a way to *choose* a layout, never a new way a page prints.
+- **No change to any printed page.** The default day layout, every block and every build are untouched (`check-identical` stayed 24/24 for DF1; the day pages of a default build were diffed against the build before). This slice adds a way to *choose* a layout, never a new way a page prints. (One later, intended change to the default book is the Key, continued page, 24.6 decision 10.)
 - **No streaks, no "you missed", no nudges.** Every string is in guide tone: what is on the page, what was left off, how to add it back. `test-presets.mjs` fails on pressure or guilt words in any `guided.*` string.
 - **No new blocks.** Everything uses blocks that already exist. "Art practice" is a sketch box, a tick box and a few lines; the art blocks of section 22 are still a plan.
 
@@ -1083,10 +1088,10 @@ Each has a recommended answer already chosen and marked "Recommended", so pressi
 |---|---|---|---|
 | Daily planner | one month | Top 3, time blocks 8 to 20, rituals ticks, small good things, writing space | none |
 | Mood log | three months | Mood scale, feeling words, sleep, body care ticks, small good things | none |
-| Low-energy week | undated, 28 days | Energy scale and the basics (both roomy), a done list, one kind thing | spoons |
+| Low-energy days | undated, 28 days | Energy scale and the basics (both roomy), a done list, one kind thing | spoons |
 | Art practice | one month | Sketch box with tape marks, "made something" ticks, what I noticed | none |
 
-Each is a complete book: a day layout (fixed uids, so the X4 check-in keys keep their history if re-applied), a length and modules. Open one, see a true-size preview of its page, rename it, and press **Make this book** or **Make it and change things**. The low-energy book is undated on purpose: a skipped day costs nothing. (Shelbee: it is called a week because that is how she named it; it is 28 day pages. Say if you want 14 or 7.)
+Each is a complete book: a day layout (fixed uids, so the X4 check-in keys keep their history if re-applied), a length and modules. Open one, see a true-size preview of its page, rename it, and press **Make this book** or **Make it and change things**. The low-energy book is undated on purpose: a skipped day costs nothing. (It was called "Low-energy week"; Shelbee renamed it "Low-energy days" on 2026-10-20, see 26.7. It is 28 day pages.)
 
 ### 26.3 What "make" does
 
@@ -1115,13 +1120,15 @@ New uses: the **New book** button starts a book with the last one's length and m
 | Slice | What | Status |
 |---|---|---|
 | **DF1** | Questions, four ready-made books, Basic view, recommended values, remembered choices (browser and Studio), tests, Guide chapter | Built |
-| **DF2** | The first-run screen of a brand-new working editor opens the guided start by itself (today it is one button on the Library and an item in More) | Not built |
+| **DF2** | The first-run screen of a brand-new working editor opens the guided start by itself, with a Skip (and the demo too) | Built (2026-10-20) |
 | **DF3** | A "start a book" command line that asks the same five questions (`npm run init` asks about the person and the place, not the pages) | Not built |
-| **DF4** | A start that writes the book's page set too (leave out the moon pages, the Keeper, the support pages for a calmer book) | Not built |
+| **DF4** | A start that writes the book's page set too | Part built (2026-10-20): the calm page set (no moon and sky pages, no bus pages, no "where each piece comes from" page; about 70 pages a month). Not built: leaving out the Keeper or the support pages (they stay) |
 
-### 26.7 Questions for Shelbee
-1. **Basic's eight.** I picked Top priorities, Time blocks, Checkboxes, Scale, Words to circle, Lined notes, Small good things, Sketch box. Swap any?
-2. **Defaults.** Recommended is "tasks, mood, small good things / balanced / some room". Right for someone starting out?
-3. **First run (DF2).** Should a brand-new editor open on the guided start, or stay quiet until asked?
-4. **Page set (DF4).** Should the gentle tone also drop the moon and sky pages and shorten the back matter? It changes how many pages a month is (about 80 today).
-5. **Names.** "Low-energy week" is 28 undated day pages. Better as "Low-energy days"?
+### 26.7 Decisions (Shelbee answered the five questions, 2026-10-20)
+
+1. **Basic's eight.** Decided: **they stay**: Top priorities, Time blocks, Checkboxes, Scale, Words to circle, Lined notes, Small good things, Sketch box.
+2. **Defaults.** Decided: **the recommended answers stay**: tasks, mood and small good things; balanced; some room.
+3. **First run (DF2).** Decided: **a brand-new editor opens on the guided start, with a visible Skip.** Built (`editor/guided.js` `gdFirstRun`): it opens by itself once, at the start page (no hash, `#library` or `#book`; a deep link to a day, a page or the Versions panel is left alone), when the person has never skipped it, has made no book before (no remembered last book, here or in the Studio), has the original day page and still has the one starting book in the Library. **Skip** is a button on the first step, next to Back, and the close button and Escape count as skipping. The skip is remembered as one flag, `kw-guided-skip`, in browser storage inside try/catch (when storage is blocked, such as a private window or a sandboxed frame, a Skip could not be remembered, so the guide does not open by itself at all; it is still in the Library and in More). **The demo does it too**: a visitor sees the same first run, and the flag is the only thing the demo keeps (it still saves no book, library, layout or view). The guide stays in the Library and in More. Every test that drives the editor starts as a person who has skipped it (`launchEditor` in `browser.mjs`); `test-guided.mjs` tests the real first run.
+4. **Page set (DF4, the part that changes length).** Decided: **the gentle tone does shorten the book: drop the moon and sky pages and shorten the back matter.** Built as a page-set answer, not a sixth question: `answers.pages` is `full` or `calm`, follows the tone (gentle is calm, balanced and full are full) until it is chosen, and the review step shows it as a **Calm page set** choice the person can turn on or off. Calm means: module `sky` off (the sky & seasons and moon pages, and the day page's moon line), module `bus` off (the bus times pages), and a library layout (`calm-pages`, made by `calmLibrary` from the project's own default book) that hides the "Where each piece comes from" page. The month grid, the review, the Closing page, Support and the Safety plan stay. **Page counts, measured 2026-10-20 on the sample book (`test.ics`)**: with the repository's own profile the October 2026 book goes from **80 to 70 pages**, November 2026 from 84 to 74, February 2027 from 68 to 64; with the generic example profile (no bus pages) October 72 to 70, November 76 to 74, February 66 to 64. So a calm month is **about 70 pages** (it says so on the review, and in the length question's hint: "about 80, about 70 with the calm page set"). Default books are unchanged (a book without the choice has no layout and no module change), and the ready-made books are the full set unless asked. Tests: `test-presets.mjs` builds the calm October book and checks the page count, the missing pages, the overflow gate and the codes.
+5. **Names.** Decided: **"Low-energy week" is now "Low-energy days"**, everywhere: the ready-made book's name (`presets.mjs`, `en.json` `guided.d_starter_low_energy_name`), the Guide, the tests. The id (`low-energy`) is unchanged, so a remembered last book still works. It is still 28 undated day pages.
+

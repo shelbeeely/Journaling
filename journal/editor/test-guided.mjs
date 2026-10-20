@@ -5,9 +5,10 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
-import { launch } from '../browser.mjs';
+import { launchEditor as launch } from '../browser.mjs';
+import { launchEditor as launchPlain } from '../browser.mjs'; // the same function, asked for the real first run: nothing is seeded (see browser.mjs)
 import { serve as studioServe } from '../../studio/test/helpers.mjs';
-import { BASIC_TYPES, ROOM_BUDGET, TRACK_IDS, STARTER_IDS } from '../presets.mjs';
+import { BASIC_TYPES, ROOM_BUDGET, TRACK_IDS, STARTER_IDS, STARTERS, PAGES_PER_MONTH, PAGES_PER_MONTH_CALM } from '../presets.mjs';
 
 const DIST = new URL('./dist/', import.meta.url).pathname, OUT = DIST + 'test/';
 fs.mkdirSync(OUT, { recursive: true });
@@ -141,7 +142,7 @@ const meterOk = (p) => p.evaluate(() => !/Too full|overflows/.test(document.quer
   await p.locator('input[name="gd-track"][value="habits"]').check({ force: true }); await p.locator('#gd-next').click();
   await p.locator('input[name="gd-tone"][value="gentle"]').check({ force: true }); await p.locator('#gd-next').click();
   await p.locator('#gd-next').click();
-  ok((await p.locator('.gd-facts').first().textContent()).includes('3 months: about 240 pages, as 3 volumes'), 'three months says about 240 pages, as 3 volumes');
+  ok((await p.locator('.gd-facts').first().textContent()).includes('3 months: about 210 pages, as 3 volumes'), 'three months of the gentle feel says about 210 pages (70 a month with the calm page set it brings), as 3 volumes');
   ok(await p.locator('#gd-body .ls-h').first().textContent().then((t) => t.includes('not on it yet')), 'a calm page says what it left off, and how to add it back');
   await p.locator('#gd-tweak').click();
   await p.waitForFunction(() => /^#day\/.*\/edit$/.test(location.hash) && document.documentElement.dataset.view === 'day');
@@ -207,7 +208,7 @@ async function atShelfFromDay(p) { await p.evaluate(() => { location.hash = '#li
   await p.waitForFunction(() => !document.querySelector('#guided').open);
   ok(await p.evaluate(() => layout.blocks.map((x) => x.type).join(' ')) === 'sketch checks lines body', 'the demo makes the book in memory');
   const keys = await p.evaluate(() => { try { return Object.keys(localStorage); } catch { return ['blocked']; } });
-  ok(!keys.some((k) => ['kw-last-book', 'kw-library', 'kw-daypage', 'kw-view'].includes(k)), `and saves nothing: no last book, library, layout or view in browser storage (${keys.join(', ') || 'none'})`);
+  ok(!keys.some((k) => ['kw-last-book', 'kw-library', 'kw-daypage', 'kw-view'].includes(k)) && keys.every((k) => k === 'kw-guided-skip'), `and saves nothing: no last book, library, layout or view in browser storage, only the flag that the guide was skipped (${keys.join(', ') || 'none'})`);
   await p.c.close();
 }
 
@@ -236,6 +237,143 @@ async function atShelfFromDay(p) { await p.evaluate(() => { location.hash = '#li
     ok(true, 'but it offers "Start from my last book", from the account');
     await p.c.close(); await p2.c.close();
   } finally { await t.close(); }
+}
+
+
+// ---------- 8. the first run: a brand-new editor opens on the guided start, with a Skip (BUILD-PLAN 26.7, decision 3) ----------
+{
+  const bf = await launchPlain({ firstRun: true });
+  const fresh = async ({ url = '/site/', hash = '', init = null, ctx = null, w = 1400, h = 950 } = {}) => {
+    const c = ctx || await bf.newContext({ viewport: { width: w, height: h } });
+    const p = await c.newPage();
+    await p.route(/fonts\.(googleapis|gstatic)/, (r) => r.abort());
+    if (process.env.SORTABLE_JS) await p.route(/cdnjs\.cloudflare\.com/, (r) => r.fulfill({ path: process.env.SORTABLE_JS, contentType: 'text/javascript' }));
+    p.on('pageerror', (e) => errs.push(e.message));
+    if (init) await p.addInitScript(init);
+    p.c = c; await p.goto(ORIGIN + url + hash, { waitUntil: 'networkidle' });
+    return p;
+  };
+  const isOpen = (p) => p.evaluate(() => document.querySelector('#guided').open);
+  const flag = (p) => p.evaluate(() => { try { return localStorage.getItem('kw-guided-skip'); } catch { return 'blocked'; } });
+  const settle = (p) => p.waitForTimeout(1500);
+  {
+    const p = await fresh(); await p.waitForSelector('#guided[open] [data-gd="questions"]', { timeout: 15000 });
+    ok(await isOpen(p) && await p.locator('#gd-h').textContent() === 'Start a book' && await p.locator('.gd-first').isVisible(), 'a brand-new working editor opens on the guided start by itself, and says why');
+    const later = p.locator('#gd-later'), bb = await later.boundingBox();
+    ok(await later.isVisible() && (await later.textContent()).trim() === 'Skip' && bb.height >= 44 && bb.width >= 44, 'with a visible Skip button on the first step (a 44 px target)');
+    ok(await flag(p) === null, 'nothing is stored until the person decides');
+    await later.click(); await p.waitForFunction(() => !document.querySelector('#guided').open);
+    ok(await flag(p) === '1', 'Skip closes it and remembers that, in browser storage');
+    await p.reload({ waitUntil: 'networkidle' }); await settle(p);
+    ok(!(await isOpen(p)), 'and the guide does not open by itself again');
+    await atShelf(p); await openGuided(p); ok(await isOpen(p) && await p.locator('.gd-first').count() === 0, 'it is still there when asked for (Guided start), without the first-run note');
+    await p.c.close();
+  }
+  for (const how of ['close', 'escape']) {
+    const p = await fresh(); await p.waitForSelector('#guided[open]');
+    if (how === 'close') await p.locator('#gd-x').click(); else await p.keyboard.press('Escape');
+    await p.waitForFunction(() => !document.querySelector('#guided').open);
+    ok(await flag(p) === '1', `the ${how === 'close' ? 'close button' : 'Escape key'} counts as skipping too`);
+    await p.c.close();
+  }
+  {
+    const p = await fresh({ hash: '#day/2026-10-14/edit' }); await atDay(p); await settle(p);
+    ok(!(await isOpen(p)) && await flag(p) === null, 'a link to a day (or a page, or the Versions panel) is left alone: the guide does not jump in');
+    await p.c.close();
+  }
+  {
+    const p = await fresh({ init: () => { try { localStorage.setItem('kw-daypage', JSON.stringify({ v: 2, blocks: [{ type: 'body', uid: 'body', on: true }] })); } catch {} } }); await settle(p);
+    ok(!(await isOpen(p)), 'an editor that already has its own day page does not open on the guide');
+    await p.c.close();
+  }
+  {
+    const p = await fresh({ init: () => { try { localStorage.setItem('kw-last-book', JSON.stringify({ v: 1, answers: {} })); } catch {} } }); await settle(p);
+    ok(!(await isOpen(p)), 'an editor that has made a book before does not open on the guide');
+    await p.c.close();
+  }
+  {
+    const p = await fresh(); await p.waitForSelector('#guided[open] [data-starter="art-practice"]');
+    await p.locator('[data-starter="art-practice"]').click(); await p.locator('#gd-next').click();
+    await p.waitForFunction(() => !document.querySelector('#guided').open);
+    await p.reload({ waitUntil: 'networkidle' }); await settle(p);
+    ok(!(await isOpen(p)), 'after the first book is made the guide does not come back by itself');
+    await p.c.close();
+  }
+  {
+    const p = await fresh({ url: '/demo/' }); await p.waitForSelector('#guided[open] [data-gd="questions"]', { timeout: 15000 });
+    ok(await p.locator('#gd-later').isVisible(), 'the public demo opens on the same first run, with the same Skip');
+    await p.locator('#gd-later').click(); await p.waitForFunction(() => !document.querySelector('#guided').open);
+    const keys = await p.evaluate(() => { try { return Object.keys(localStorage); } catch { return ['blocked']; } });
+    ok(keys.join() === 'kw-guided-skip', `the demo remembers the skip and nothing else (${keys.join(', ')})`);
+    await p.reload({ waitUntil: 'networkidle' }); await settle(p);
+    ok(!(await isOpen(p)), 'and does not open it again');
+    await p.c.close();
+  }
+  {
+    const p = await fresh({ init: () => { Object.defineProperty(window, 'localStorage', { get() { throw new Error('blocked'); } }); } }); await settle(p);
+    ok(!(await isOpen(p)) && await p.locator('#edit').count() === 1, 'with browser storage blocked (a private window, a sandboxed frame) the editor starts and the guide does not jump in, because a Skip could not be remembered; it stays in the Library and in More');
+    await p.c.close();
+  }
+  {
+    const p = await fresh({ w: 390, h: 800 }); await p.waitForSelector('#guided[open]');
+    const r = await p.evaluate(() => { const d = document.querySelector('#guided'); const small = [...d.querySelectorAll('button')].filter((e) => { const r = e.getBoundingClientRect(); return r.width && (r.height < 43.5 || r.width < 43.5); }).map((e) => e.id || e.textContent.trim()); return { sw: document.documentElement.scrollWidth, small, vis: !!d.querySelector('#gd-later').offsetParent }; });
+    ok(r.sw <= 390 && !r.small.length && r.vis, 'on a phone the first run has no sideways scroll, a visible Skip and 44 px buttons' + (r.small.length ? ': ' + r.small.join(', ') : ''));
+    await p.screenshot({ path: `${OUT}guided-first-run-phone.png` });
+    await p.c.close();
+  }
+  {
+    const p = await fresh(); await p.waitForSelector('#guided[open]'); await p.screenshot({ path: `${OUT}guided-first-run.png` }); await p.c.close();
+  }
+  await bf.close();
+}
+
+// ---------- 9. the calm page set (BUILD-PLAN 26.7, decision 4) and the new name (decision 5) ----------
+{
+  const p = await page({ hash: '#library' }); await atShelf(p); await openGuided(p);
+  const names = await p.locator('[data-starter] b').allTextContents();
+  ok(names.includes('Low-energy days') && !names.some((n) => /Low-energy week/.test(n)) && names.length === 4, 'the ready-made book is called "Low-energy days"');
+  await p.locator('[data-gd="questions"]').click(); await p.locator('#gd-next').click(); await p.locator('#gd-next').click(); await p.locator('#gd-next').click();
+  await p.locator('input[name="gd-tone"][value="gentle"]').check({ force: true });
+  await p.locator('#gd-skip').click(); await p.waitForSelector('#gd-calm');
+  ok(await p.locator('#gd-calm').isChecked() && /about 70 pages/.test(await p.locator('#gd-facts').textContent()), `the gentle feel turns the calm page set on by itself, and the review says a month is about ${PAGES_PER_MONTH_CALM} pages`);
+  const lab = await p.locator('label.gd-pages').textContent();
+  ok(/moon and sky pages/.test(lab) && /bus times/.test(lab) && /about 70 pages a month instead of 80/i.test(lab), 'and says what it leaves out and what it saves: ' + lab.trim().replace(/\s+/g, ' ').slice(0, 120));
+  const cb = await p.locator('#gd-calm').boundingBox(), lb = await p.locator('label.gd-pages').boundingBox();
+  ok(cb.width >= 22 && lb.height >= 44, 'the choice is a labelled checkbox in a 44 px row');
+  await p.locator('#gd-calm').uncheck({ force: true });
+  ok(/about 80 pages/.test(await p.locator('#gd-facts').textContent()), 'turning it off puts the full count back');
+  await p.locator('#gd-calm').check({ force: true });
+  await p.waitForFunction(() => typeof ORG !== 'undefined' && !!ORG.base, null, { timeout: 15000 }).catch(() => {});
+  await p.locator('#gd-next').click(); await p.waitForFunction(() => !document.querySelector('#guided').open || document.querySelector('#lib-confirm').open);
+  if (await p.locator('#lib-confirm').evaluate((e) => e.open)) await p.locator('#lc-acts .btn.primary').click();
+  await p.waitForFunction(() => !document.querySelector('#guided').open);
+  const made = await p.evaluate(() => { const x = LB.lib.books.find((b) => b.title === 'My journal'); return { book: x, layouts: (LB.lib.layouts || []).map((l) => ({ id: l.id, hidden: JSON.stringify(l.book).includes('"type":"lineage","on":false') })), errs: LM.validateLibrary(LB.lib) }; });
+  ok(made.book && made.book.modules && made.book.modules.sky === false && made.book.modules.bus === false && made.book.layoutRef === 'calm-pages' && made.layouts.some((l) => l.id === 'calm-pages' && l.hidden) && !made.errs.length, 'making it turns the sky and bus modules off on the book and points it at a "calm-pages" layout that hides the "where each piece comes from" page; the library stays valid');
+  const last = JSON.parse(await stored(p, 'kw-last-book'));
+  ok(last.answers.pages === 'calm' && last.modules.sky === false, 'and what is remembered says so');
+  await p.c.close();
+}
+{
+  const p = await page({ hash: '#library' }); await atShelf(p); await openGuided(p);
+  await p.locator('[data-gd="questions"]').click(); await p.locator('#gd-skip').click(); await p.waitForSelector('#gd-calm');
+  ok(!(await p.locator('#gd-calm').isChecked()) && new RegExp(`about ${PAGES_PER_MONTH} pages`).test(await p.locator('#gd-facts').textContent()), 'the recommended answers (balanced) are the full page set, about 80 pages a month');
+  await p.locator('#gd-back').click(); await p.locator('#gd-back').click(); // back to the tone question
+  await p.locator('input[name="gd-tone"][value="gentle"]').check({ force: true }); await p.locator('#gd-skip').click(); await p.waitForSelector('#gd-calm');
+  ok(await p.locator('#gd-calm').isChecked(), 'going back and choosing gentle makes the page set follow the tone again');
+ 
+  await p.c.close();
+}
+{
+  const p = await page({ hash: '#library' }); await atShelf(p); await openGuided(p);
+  await p.locator('[data-starter="low-energy"]').click(); await p.waitForSelector('#gd-calm');
+  ok(!(await p.locator('#gd-calm').isChecked()), 'a ready-made book is the full page set until the person asks for calm');
+  await p.locator('#gd-calm').check({ force: true }); await p.waitForFunction(() => typeof ORG !== 'undefined' && !!ORG.base, null, { timeout: 15000 }).catch(() => {});
+  await p.locator('#gd-next').click(); await p.waitForFunction(() => !document.querySelector('#guided').open || document.querySelector('#lib-confirm').open);
+  if (await p.locator('#lib-confirm').evaluate((e) => e.open)) await p.locator('#lc-acts .btn.primary').click();
+  await p.waitForFunction(() => !document.querySelector('#guided').open);
+  const m = await p.evaluate(() => LB.lib.books.find((b) => b.title === 'Low-energy days').modules);
+  ok(m && m.spoons === true && m.sky === false, 'a ready-made book keeps its own modules (spoons) when calm is added, and is named "Low-energy days"');
+  await p.c.close();
 }
 
 // ---------- 7. a phone, the dark theme, and the pseudo-locales ----------

@@ -86,6 +86,16 @@ export function mapPlan(n, W, H) {
 
 // ---- stimming ----
 export const STIM_SENSES = { touch: 'Touch', move: 'Movement', sound: 'Sound', sight: 'Sight', chew: 'Taste and chew', press: 'Deep pressure' };
+// A few examples per sense, written for this project, printed in light italics on the first lines of a sense when the menu's "examples" option is on.
+// Boxes stay blank: they are for the person to tick. Short (about 20 characters at most) so each fits half a column; none asks anyone to stop.
+export const STIM_EXAMPLES = {
+  touch: ['smooth stone', 'soft fabric', 'fidget ring', 'warm mug'],
+  move: ['rocking', 'bouncing', 'pacing', 'hand flapping'],
+  sound: ['humming', 'a song on repeat', 'tapping a rhythm', 'soft rain sounds'],
+  sight: ['lava lamp', 'sunlit leaves', 'a spinning top', 'sorting colours'],
+  chew: ['chewy sweets', 'crunchy snacks', 'a chew necklace', 'ice chips'],
+  press: ['a heavy blanket', 'a tight hug', 'pressing palms', 'a weighted lap pad'],
+};
 export const stimSenses = (b) => Object.keys(STIM_SENSES).filter((k) => b.senses && b.senses[k]);
 const NB_NOTE_LINE = NB_SMALL; // the affirming caption row
 export const stimlogRows = (b) => 1 + (b.where || b.ba ? 1 : 0);
@@ -94,7 +104,7 @@ export const stimlogH = (b) => NOTE_OVER + nbHdr(b) + (b.note ? NB_NOTE_LINE : 0
 export const stimlogNeed = (b) => Math.max(1.85 + (b.size ? 0.6 : 0), (b.where ? 1.2 : 0) + (b.ba ? 1.75 : 0));
 export const stimmenuRows = (b) => Math.ceil(stimSenses(b).length / 2);
 export const stimmenuH = (b) => NOTE_OVER + nbHdr(b) + (b.note ? NB_NOTE_LINE : 0) + stimmenuRows(b) * (NB_SMALL + b.rows * nbRow(b) + 0.05) + (b.ideas ? 0.03 + b.ideas * nbRow(b) : 0);
-export const stimmenuNeed = () => 2.15;
+export const stimmenuNeed = (b) => (b.examples ? 2.45 : 2.15); // examples need a little more width to read in
 export const traceH = (b) => NOTE_OVER + NOTE_HDR + b.h / 10; // the label row always carries the "trace slowly" hint
 export const traceNeed = () => 1.2;
 

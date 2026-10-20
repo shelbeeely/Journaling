@@ -15,7 +15,7 @@ const types = (p) => p.evaluate(() => layout.blocks.map((x) => x.type).join(' ')
 const openDrawer = async (p) => { await p.click('#v-ver'); await p.waitForSelector('#versions[open]'); await p.waitForTimeout(300); }; // the drawer slides in
 
 test('guests: local versions in this browser (no account), read a public project, nothing uploaded, no writes', { skip, timeout: 240_000 }, async () => {
-  const { launch } = await import('../../journal/browser.mjs');
+  const { launchEditor: launch } = await import('../../journal/browser.mjs');
   fs.mkdirSync(OUT, { recursive: true });
   const t = await serve({ staticDir: SITE });
   const b = await launch(), errs = [];
@@ -93,7 +93,7 @@ test('guests: local versions in this browser (no account), read a public project
 });
 
 test('accounts: sign in changes nothing until you choose; move this browser’s project up in one step; draft, version, conflict, compare, restore, branch; phone and dark mode', { skip, timeout: 300_000 }, async () => {
-  const { launch } = await import('../../journal/browser.mjs');
+  const { launchEditor: launch } = await import('../../journal/browser.mjs');
   fs.mkdirSync(OUT, { recursive: true });
   const t = await serve({ staticDir: SITE });
   const b = await launch(), errs = [];

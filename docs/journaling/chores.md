@@ -54,11 +54,23 @@ A chore that is coming up gets a small open diamond and the word "soon" on the d
 
 Turn on **Household** and each chore gets a box for each person, with a short line saying which letter is whom. A chore marked `"who": "rotate"` goes to the next person each time it comes round and stays with one person for the whole week it shows. Their box is drawn a little heavier. You can also give a chore to one person with `"who": "Alex"`.
 
+### Trading a turn
+
+Sometimes it is not your week. A **swap** hands one turn of a rotating chore to someone else, and the rotation carries on as it was. Add a `swaps` list next to `items`:
+
+```json
+"swaps": [
+  { "chore": "bathroom", "date": "2026-10-23", "to": "Sam" }
+]
+```
+
+`chore` is the chore's `id`, `date` is the day it is due (the Friday, for a chore due on Fridays) and `to` is who takes that turn. The turn is theirs for as long as it is listed, on the day list, the grids and the X4 pack. A trade is two swaps: you take my Friday, I take yours. If a swap does not fit, the profile check says what to change in plain words: the chore does not rotate, it is not due on that day (and when it is next), the name is not in the household, or the person already has that turn.
+
 ## Make a rotation page
 
 A rotation page is a Collection page (or a blank page) with a Chore rotation block on it. In the page organiser, add a Collection page, choose **Edit blocks**, add *Week of chores* or *Month of chores* from the palette and give it the room it asks for. On a day page it shows that week's chores, with the days named. On any other page it is a template: the chores that repeat every week, and for a month the weekly, monthly and seasonal ones, with the months a seasonal chore belongs to written next to it.
 
-In a month grid, W1 to W5 mean days 1 to 7, 8 to 14, 15 to 21, 22 to 28 and 29 on, so the page does not need a calendar.
+In a month grid on a page that has a date, the columns are the month's real calendar weeks, Monday to Sunday. The first column is the week the 1st falls in (it can start in the month before) and the last is the week the last day falls in, so a month has four to six of them. A line under the heading names them in days of the month ("W1 1–4 · W2 5–11 ..."). A chore gets a box in the week it is due in. On a page with no date (a template) there is no calendar to count from, so the columns stay W1 to W5, meaning days 1 to 7, 8 to 14, 15 to 21, 22 to 28 and 29 on, and the page says so.
 
 ## Good to know
 

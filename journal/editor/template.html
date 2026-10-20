@@ -1867,6 +1867,7 @@ window.KW = { get level() { return NAV.level; }, get book() { return LB.cur; }, 
   const wantVersions = location.hash === '#versions';
   navGo(navParse(location.hash), { push: false, anim: false });
   stInit().then(() => { if (wantVersions) showVersions(); });
+  if (!wantVersions && typeof gdFirstRun === 'function') gdFirstRun(); // a brand-new editor opens on the guided start (with a Skip)
 })();
 </script>
 <!--__FOOT__-->

@@ -32,7 +32,7 @@ const audit = (p, scope = '#vp, #vs-fk, #vp-np') => p.evaluate((sel) => {
 const noSideways = (p) => p.evaluate(() => { const d = document.querySelector('#versions'); return [document.documentElement.scrollWidth <= innerWidth + 1, d.scrollWidth <= d.clientWidth + 1]; });
 
 test('forks, proposals and the conflict resolver: fork, propose, review, accept some, resolve conflicts, merge; guests read only; phone and dark mode', { skip, timeout: 420_000 }, async () => {
-  const { launch } = await import('../../journal/browser.mjs');
+  const { launchEditor: launch } = await import('../../journal/browser.mjs');
   fs.mkdirSync(OUT, { recursive: true });
   const t = await serve({ staticDir: SITE });
   const b = await launch(), errs = [];
@@ -219,7 +219,7 @@ test('forks, proposals and the conflict resolver: fork, propose, review, accept 
 });
 
 test('the resolver: reorder by hand with the arrow buttons, a setting typed in, the branch moving while you choose, and a merge that then succeeds', { skip, timeout: 240_000 }, async () => {
-  const { launch } = await import('../../journal/browser.mjs');
+  const { launchEditor: launch } = await import('../../journal/browser.mjs');
   fs.mkdirSync(OUT, { recursive: true });
   const t = await serve({ staticDir: SITE });
   const b = await launch(), errs = [];

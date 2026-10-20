@@ -29,7 +29,7 @@ const manifest = fs.existsSync(MAN) ? JSON.parse(fs.readFileSync(MAN, 'utf8')) :
 const saveManifest = () => { for (const k of Object.keys(manifest)) if (k[0] !== '_' && !fs.existsSync(path.join(IMG, k + '.webp'))) delete manifest[k]; fs.writeFileSync(MAN, JSON.stringify(manifest, null, 1) + '\n'); };
 const sh = (cmd, args, opt = {}) => execFileSync(cmd, args, { stdio: ['ignore', 'pipe', 'inherit'], ...opt });
 
-const { launch } = await import(path.join(J, 'browser.mjs'));
+const { launchEditor: launch } = await import(path.join(J, 'browser.mjs'));
 const browser = await launch();
 const conv = await browser.newPage(); // a blank page that turns PNGs into WebP (Chromium encodes it; no extra tools needed)
 await conv.goto('about:blank');
