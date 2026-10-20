@@ -42,7 +42,7 @@ To make your own, copy `journal/content/profile.example.json` to `journal/conten
 | `journal/content/` | The profile, content packs (support, clinic, trans, seasons), the book plan and method layouts |
 | `x4/` | ESP32-C3 firmware for the X4, a host preview, and the SD-card tools |
 | `site/` | The product website: plain HTML, CSS and JS, sample page images, a docs builder and a link checker |
-| `docs/journaling/` | [BUILD-PLAN.md](docs/journaling/BUILD-PLAN.md) and the [methods library](docs/journaling/methods/) (44 docs) |
+| `docs/journaling/` | [BUILD-PLAN.md](docs/journaling/BUILD-PLAN.md) and the [methods library](docs/journaling/methods/) (46 docs) |
 | `.github/workflows/` | CI: books, firmware, editor and site (GitHub Pages), STA schedules |
 
 ## How it fits together: three layers
@@ -78,7 +78,7 @@ Crisis and support numbers are never filled in for someone else. The `generic` p
 | --- | --- |
 | Block editor, page grid, book canvas, library and series, scan options, KDP output, book scopes and volumes, profiles | Ready |
 | Versioning and accounts: history, compare, restore, branches; forks, proposals and three-way merge | Ready |
-| Accessibility baseline, the 44 methods library, e-ink companion (check-ins, focus timer, settings, Wi-Fi) | Ready |
+| Accessibility baseline, the 46 methods library, e-ink companion (check-ins, focus timer, settings, Wi-Fi) | Ready |
 | Page organiser, spread days, notes/blank/collection pages as blocks, word-search and crossword blocks, releases and reusable pages (Studio API), print accessibility options (large print, high contrast) with a Settings panel, X4 sync client (needs the `x4-tls` build; not tested on hardware) | Ready |
 | Content packs (support, clinic, transit, holidays, seasons) and `npm run init` onboarding | Ready |
 | Chores: a tick list of today's chores, week and month rotation grids (daily, weekly, monthly, seasonal; optional household boxes per person), small and good-enough versions, a neutral "due soon" mark (paper; the X4 check-in is planned, [BUILD-PLAN section 25](docs/journaling/BUILD-PLAN.md)) | Ready |
