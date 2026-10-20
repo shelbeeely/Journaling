@@ -10,6 +10,7 @@
 // Protected pages (Safety plan, Support, Closing the month) can be moved but never hidden or removed.
 import { PAGE_TYPES, notesPage, fillRefs } from './pages.mjs';
 import { mergeScan, cleanScan } from './scan.mjs';
+import { withPageSide } from './daypage.mjs';
 import { validateBookWith } from './bookrules.mjs';
 
 const e = (type, options = {}) => ({ id: type, type, on: true, options });
@@ -115,8 +116,10 @@ export function assemble(ctx, entries, opts = {}) {
   const min = opts.hardcover ? 76 : 24;
   while (pages.length < min || pages.length % 2) addNotes();
   if (opts.count) return { pages, refs };
-  for (const p of pages) {
-    const raw = p.html();
+  for (let i = 0; i < pages.length; i++) {
+    const p = pages[i];
+    const raw = withPageSide(i % 2 ? 'verso' : 'recto', () => p.html()); // page 1 is a right-hand page: a flash strip set to "the outer edge" folds on the edge you can reach
+
     const miss = [...raw.matchAll(/\{\{P_(\w+)\}\}/g)].map((m) => m[1].toLowerCase()).filter((k) => refs[k] === undefined);
     if (miss.length) throw new Error(`Page "${p.label || p.id}" points to page "${miss[0]}", which this book doesn't have. Put that page back or remove the pointer.`);
     p.html = fillRefs(raw, refs);

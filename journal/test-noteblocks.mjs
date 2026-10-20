@@ -21,7 +21,7 @@ import { libraryFromProfile } from './library.mjs';
 import { PROFILE } from './profile.mjs';
 import { launch } from './browser.mjs';
 import { pageProblems } from './pageoverflow.mjs';
-import { newBlock, normalize, kindPage, dayBlocks, gridProblems, minSpan, spreadHalf, spreadProblems, spreadPage, placeBlock, findFree, GRIDS, gridRows, allowedIn, TYPES, IC, DEFAULT_LAYOUT, PAGE_KINDS, PITCH_IN, DAYPAGE_CSS } from './daypage.mjs';
+import { newBlock, normalize, kindPage, dayBlocks, withPageSide, gridProblems, minSpan, spreadHalf, spreadProblems, spreadPage, placeBlock, findFree, GRIDS, gridRows, allowedIn, TYPES, IC, DEFAULT_LAYOUT, PAGE_KINDS, PITCH_IN, DAYPAGE_CSS } from './daypage.mjs';
 import * as NB from './noteblocks.mjs';
 import * as PH from './photo.mjs';
 import { serializeDay } from '../studio/src/snapshot.mjs';
@@ -54,9 +54,9 @@ const labelsOf = (html) => [...html.matchAll(/aria-label="([^"]*)"/g)].map((m) =
   ok(NB.NOTE_TYPES.every((t) => !TYPES[t].single && ALL.every((k) => allowedIn(k, t))), 'they repeat, and they are ordinary blocks of every page kind: day, Notes, Collection, blank, spread and spread page');
   ok(JSON.stringify(NB.NOTE_PITCH) === JSON.stringify(PITCH_IN), 'the line pitches in noteblocks.mjs are the block library\'s (5.6, 6.6 and 8.5 mm)');
   const f = B('flashstrip');
-  ok(f.n === 6 && f.num === true && f.split === 50 && f.answer === 'right' && f.reviews === 3 && f.gotit === false && f.hint === true && f.pitch === 6.6, 'flashstrip starts as 6 numbered cards, an even fold, answers on the right, 3 review ticks, the fold hint, no got it / again: ' + JSON.stringify(f));
+  ok(f.n === 6 && f.num === true && f.split === 50 && f.answer === 'auto' && f.reviews === 3 && f.gotit === false && f.hint === true && f.pitch === 6.6, 'flashstrip starts as 6 numbered cards, an even fold, answers on the outer edge (it flips by itself on left-hand pages), 3 review ticks, the fold hint, no got it / again: ' + JSON.stringify(f));
   const nb = normalize({ v: 2, blocks: [{ type: 'flashstrip', uid: 'a', n: 99, split: 70, answer: 'up', reviews: 9, pitch: 1 }, { type: 'reviewtracker', uid: 'b', every: { d1: false, d3: false, d7: false, d14: false, d21: false, d30: false }, n: 1 }, { type: 'stimmenu', uid: 'c', senses: { touch: false, move: false, sound: false, sight: false, chew: false, press: false }, rows: 9 }, { type: 'stimtrace', uid: 'd', pattern: 'maze', size: 'huge', h: 400 }, { type: 'conceptmap', uid: 'e', branches: 2, h: 1 }, { type: 'summarybox', uid: 'f', prompt: 'x' }, { type: 'notearea', uid: 'g', paper: 'felt', n: 0 }].map((x) => ({ ...x })) }).blocks, g = (u) => nb.find((x) => x.uid === u);
-  ok(g('a').n === 12 && g('a').split === 50 && g('a').answer === 'right' && g('a').reviews === 5 && g('a').pitch === 6.6, 'wrong values are put right: too many cards, an odd fold position, an unknown side, too many ticks, an unknown pitch');
+  ok(g('a').n === 12 && g('a').split === 50 && g('a').answer === 'auto' && g('a').reviews === 5 && g('a').pitch === 6.6, 'wrong values are put right: too many cards, an odd fold position, an unknown side, too many ticks, an unknown pitch');
   ok(NB.reviewSteps(g('b')).join() === 'd1,d3,d7,d21' && g('b').n === 2, 'a review tracker with every time switched off gets the 1, 3, 7 and 21 day rhythm back');
   ok(NB.stimSenses(g('c')).length === 6 && g('c').rows === 4, 'a stim menu with every sense switched off gets all six back');
   ok(g('d').pattern === 'waves' && g('d').size === 'm' && g('d').h === 40 && g('e').branches === 3 && g('e').h === 14 && g('f').prompt === 'own' && g('g').paper === 'lines' && g('g').n === 2, 'an unknown pattern, size, prompt or paper, and numbers past their range, are put right');
@@ -70,6 +70,9 @@ const labelsOf = (html) => [...html.matchAll(/aria-label="([^"]*)"/g)].map((m) =
   const words = (t) => [TYPES[t].name, TYPES[t].hint, ...TYPES[t].opts.flatMap((o) => [o.label, ...(o.choices || []).map((c) => c[1]), ...(o.items ? Object.values(o.items) : [])])].join(' ');
   ok(STIMS.every((t) => !NOASK.test(words(t))), 'the stimming blocks\' names, hints, options and choices never use reduce, stop, suppress, control, fix, bad, wrong or problem');
   ok(STIMS.every((t) => /self-regulation/.test(TYPES[t].hint)), 'each stimming block\'s hint says stimming is self-regulation');
+  const exWords = Object.values(NB.STIM_EXAMPLES).flat();
+  ok(Object.keys(NB.STIM_EXAMPLES).join() === Object.keys(NB.STIM_SENSES).join() && Object.values(NB.STIM_EXAMPLES).every((l) => l.length === 4 && new Set(l).size === 4) && exWords.every((w) => w.length <= 20 && !NOASK.test(w)), 'the stim menu has four original examples for each of its six senses, short enough for half a column, and none of them uses a word that asks anyone to stop');
+  ok(B('stimmenu').examples === false && TYPES.stimmenu.opts.find((o) => o.k === 'examples').label === 'Print a few examples in the lines', 'printing examples is an option on the stim menu and is off unless asked for (the boxes stay blank either way)');
   const idx = fs.readFileSync(new URL('./i18n/en.json', import.meta.url), 'utf8');
   ok(/"pal\.note_regulation": "Stimming is self-regulation\./.test(idx) && !NOASK.test(JSON.parse(idx)['pal.note_regulation'].replace(/none of them asks you to stop/, '')), 'the palette note over the Regulation group says it: stimming is self-regulation, no block asks you to stop');
 }
@@ -82,7 +85,7 @@ const labelsOf = (html) => [...html.matchAll(/aria-label="([^"]*)"/g)].map((m) =
     ['conceptmap', {}], ['conceptmap', { branches: 8, h: 40 }], ['conceptmap', { title: '', branches: 3, h: 14 }], ['questions', {}], ['questions', { n: 10, answers: false, tick: false, title: '' }], ['questions', { n: 10, pitch: 8.5 }],
     ['summarybox', {}], ['summarybox', { n: 8, prompt: 'none', pitch: 8.5 }], ['flashstrip', {}], ['flashstrip', { n: 12, split: 60, gotit: true, reviews: 5 }], ['flashstrip', { n: 4, num: false, reviews: 0, split: 40 }], ['flashstrip', { answer: 'left', hint: false, pitch: 8.5 }],
     ['reviewtracker', {}], ['reviewtracker', { n: 12, date: false, every: { d1: true, d3: false, d7: false, d14: false, d21: false, d30: false } }], ['reviewtracker', { every: { d1: true, d3: true, d7: true, d14: true, d21: true, d30: true } }],
-    ['stimlog', {}], ['stimlog', { n: 6, size: true, note: false }], ['stimlog', { where: false, ba: false, n: 1 }], ['stimmenu', {}], ['stimmenu', { rows: 4, ideas: 4, note: false }], ['stimmenu', { senses: { touch: true, move: false, sound: false, sight: false, chew: false, press: false }, ideas: 0 }],
+    ['stimlog', {}], ['stimlog', { n: 6, size: true, note: false }], ['stimlog', { where: false, ba: false, n: 1 }], ['stimmenu', {}], ['stimmenu', { rows: 4, ideas: 4, note: false }], ['stimmenu', { rows: 2, examples: true }], ['stimmenu', { rows: 4, ideas: 4, examples: true, note: false }], ['stimmenu', { senses: { touch: true, move: false, sound: false, sight: false, chew: false, press: false }, ideas: 0 }],
     ['stimtrace', {}], ['stimtrace', { h: 40, pattern: 'spiral', size: 'l' }], ['stimtrace', { h: 8, pattern: 'grid', frame: false }]];
   let cnt = 0, narrower = 0;
   for (const size of SIZES) for (const [t, o] of variants) {
@@ -207,6 +210,17 @@ const stack = (kind, size, blocks) => { // blocks one under the other at full wi
     const html = mk('flashstrip', { split: sp, answer: ans }), at100 = ans === 'left' ? 100 - sp : sp;
     ok(new RegExp(`class="flx-f" style="left:${at100}%"`).test(html) && cnt(html, new RegExp(`grid-template-columns:${ans === 'left' ? `${100 - sp}% ${sp}%` : `${sp}% ${100 - sp}%`}`, 'g')) === 7, `split ${sp} answers ${ans}: the fold line and the header and every row use the same ${at100} percent`);
   }
+  // the owner's decision 1: the answers go on the OUTER edge by themselves, so the fold is on the edge you can reach; the manual choices stay
+  {
+    const R = mk('flashstrip', { answer: 'auto', split: 40 }), Lh = withPageSide('verso', () => mk('flashstrip', { answer: 'auto', split: 40 }));
+    ok(/data-flx="auto"/.test(R) && /class="flx-f" style="left:40%"/.test(R) && /fold the right edge/.test(labelsOf(R)) && R === mk('flashstrip', { split: 40 }), 'on a right-hand page (and anywhere a page has no side, like the editor) the outer edge is the right: terms on the left, the fold at 40 percent');
+    ok(/data-flx="auto"/.test(Lh) && /class="flx-f" style="left:60%"/.test(Lh) && /fold the left edge/.test(labelsOf(Lh)) && /grid-template-columns:60% 40%/.test(Lh), 'on a left-hand page the same block is mirrored: answers on the left, the fold at 60 percent from the left, "fold the left edge"');
+    ok(withPageSide('verso', () => mk('flashstrip', { answer: 'right', split: 40 })) === mk('flashstrip', { answer: 'right', split: 40 }) && withPageSide('recto', () => mk('flashstrip', { answer: 'left', split: 40 })) === mk('flashstrip', { answer: 'left', split: 40 }) && !/data-flx/.test(mk('flashstrip', { answer: 'left' })), 'the manual choices never flip: "always right" stays right on a left-hand page, "always left" stays left on a right-hand one');
+    withPageSide('verso', () => withPageSide('recto', () => mk('flashstrip')));
+    ok(/class="flx-f" style="left:40%"/.test(mk('flashstrip', { split: 40 })), 'the page side is put back after a page is drawn, nested or not (no side leaks into the next page)');
+    let thrown = false; try { withPageSide('verso', () => { throw new Error('x'); }); } catch { thrown = true; }
+    ok(thrown && !/flx-f" style="left:60%"/.test(mk('flashstrip', { split: 40 })), 'and put back even when the page cannot be drawn');
+  }
   ok(/Nothing is cut out/.test(labelsOf(mk('flashstrip'))) && !/perforat|cut out along|scissors/i.test(mk('flashstrip').replace('Nothing is cut out', '')), 'a flash strip has no perforation, scissors or cut-out cards: it says nothing is cut out');
   // the other study blocks
   ok(cnt(mk('questions', { n: 6 }), /class="nbk-n">\d+</g) === 6 && cnt(mk('questions', { n: 6, answers: false }), /class="nbk-q"/g) === 6 && cnt(mk('questions', { n: 6 }), /class="nbk-q"/g) === 12 && cnt(mk('questions', { n: 6, tick: false }), /class="nbk-bx"/g) === 0 && cnt(mk('questions', { n: 6 }), /class="nbk-bx"/g) === 6, 'questions: numbered, an answer line under each (or not), a box to tick when answered (or not)');
@@ -224,6 +238,13 @@ const stack = (kind, size, blocks) => { // blocks one under the other at full wi
   const log = mk('stimlog'), lt = text(log);
   ok(!/\b(good|bad)\b/i.test(lt.replace(/felt good/gi, '')) && !/\b(wrong|problem|too much|reduce|stop)\b/i.test(lt), 'the stim log\'s words are neutral: "felt good" is the only judgement word, and it is the person\'s own');
   ok(cnt(mk('stimmenu'), /class="stm-s"/g) === 6 && cnt(mk('stimmenu', { rows: 3 }), /class="stm-q"/g) === 6 * 3 + 2 && cnt(mk('stimmenu', { senses: { touch: true, move: true, sound: false, sight: false, chew: false, press: false }, rows: 2, ideas: 0 }), /class="stm-q"/g) === 4 && ['Touch', 'Movement', 'Sound', 'Sight', 'Taste and chew', 'Deep pressure'].every((s) => mk('stimmenu').includes(`<span>${s}</span>`)) && /new stim idea/.test(mk('stimmenu')) && !/new stim idea/.test(mk('stimmenu', { ideas: 0 })), 'stim menu: the six senses (or the ones you pick), boxes and free lines, and blank rows for new stim ideas');
+  {
+    const plainMenu = mk('stimmenu', { rows: 3 }), ex = mk('stimmenu', { rows: 3, examples: true }), shown = [...ex.matchAll(/class="stm-x">([^<]*)</g)].map((m) => m[1]);
+    ok(!/stm-x/.test(plainMenu) && shown.length === 6 * 3 && shown.slice(0, 3).join() === NB.STIM_EXAMPLES.touch.slice(0, 3).join() && cnt(ex, /class="stm-q"/g) === cnt(plainMenu, /class="stm-q"/g) && cnt(ex, /class="nbk-bx"/g) === cnt(plainMenu, /class="nbk-bx"/g), 'with examples on, each sense prints as many examples as it has rows, in the lines; the boxes are still blank and the rows are the same');
+    ok(shown.every((w) => Object.values(NB.STIM_EXAMPLES).flat().includes(w)) && cnt(mk('stimmenu', { rows: 1, examples: true }), /class="stm-x"/g) === 6 && cnt(mk('stimmenu', { rows: 4, examples: true }), /class="stm-x"/g) === 24 && cnt(mk('stimmenu', { rows: 4, examples: true, senses: { touch: true, move: false, sound: false, sight: false, chew: false, press: false } }), /class="stm-x"/g) === 4, 'one to four examples a sense, only for the senses that are on, all from the project\'s own list');
+    ok(/a few examples printed lightly in the lines/.test(labelsOf(ex)) && !/a few examples/.test(labelsOf(plainMenu)) && /My stims are valid\./.test(labelsOf(ex)), 'the text alternative says examples are printed, and still says the stims are valid');
+    ok(NB.stimmenuNeed(B('stimmenu', { examples: true })) > NB.stimmenuNeed(B('stimmenu')) && NB.noteFit(B('stimmenu', { examples: true }), 2, undefined, 'small', 'Stim menu') !== null, 'the menu with examples needs a little more width than the plain one, and a narrower cell is refused');
+  }
   for (const [id] of NB.TRACE_PATTERNS) {
     const h = mk('stimtrace', { pattern: id });
     ok(/trace slowly/.test(h) && cnt(h, /<path d="M/g) >= 2 && /A quiet stim/.test(labelsOf(h)) && /stroke-width="1\.6"/.test(h) && !/<image|<img|<text|<tspan|href=/.test(h), `stim trace (${id}): "trace slowly" hint, vector paths only (no image, no text), 1.6 px strokes`);
@@ -272,9 +293,9 @@ let noteBook = DEFAULT_BOOK;
   ok(validateBook(wide).length === 0 || validateBook(wide).every((m) => /does not fit/.test(m)), 'a strip too wide for any trim is a book.json problem that says "does not fit" (a book that fits only 8.5x11 is still valid)');
 }
 const dayFile = (() => {
-  const left = normalize({ v: 2, kind: 'spread', grid: true, blocks: [at(B('sky'), 1, 1, 4, 2), at(B('flashstrip', { n: 6, answer: 'left' }, 'L'), 1, 3, 4, 9), at(B('body', { style: 'lines' }), 1, 12, 4, 13), at(B('flashstrip', { n: 6, answer: 'right' }, 'R'), 5, 1, 4, 9), at(B('stimtrace', { pattern: 'spiral', h: 14 }), 5, 10, 4, 8), at(B('notearea', { n: 4 }), 5, 18, 4, 7)] }, 'small', 'spread');
+  const left = normalize({ v: 2, kind: 'spread', grid: true, blocks: [at(B('sky'), 1, 1, 4, 2), at(B('flashstrip', { n: 6, answer: 'auto' }, 'L'), 1, 3, 4, 9), at(B('body', { style: 'lines' }), 1, 12, 4, 13), at(B('flashstrip', { n: 6, answer: 'auto' }, 'R'), 5, 1, 4, 9), at(B('stimtrace', { pattern: 'spiral', h: 14 }), 5, 10, 4, 8), at(B('notearea', { n: 4 }), 5, 18, 4, 7)] }, 'small', 'spread');
   assert.equal(spreadProblems(left).length, 0, spreadProblems(left).join('; '));
-  return { ...normalize({ v: 2, grid: true, blocks: [at(B('sky'), 1, 1, 4, 2), at(B('flashstrip', { n: 4, split: 40 }), 1, 3, 4, 7), at(B('stimlog', { n: 1 }), 1, 10, 4, 6), at(B('body'), 1, 16, 4, 9)] }), spread: left };
+  return { ...normalize({ v: 2, grid: true, blocks: [at(B('sky'), 1, 1, 4, 2), at(B('flashstrip', { n: 4, split: 40, answer: 'right' }), 1, 3, 4, 7), at(B('stimlog', { n: 1 }), 1, 10, 4, 6), at(B('body'), 1, 16, 4, 9)] }), spread: left };
 })();
 const lib = libraryFromProfile(PROFILE); lib.layouts = [{ id: 'mine', name: 'Note pages', book: noteBook, day: dayFile }]; lib.books[0].layoutRef = 'mine';
 const libFile = path.join(TMP, 'library.json'); fs.writeFileSync(libFile, JSON.stringify(lib));
@@ -328,7 +349,7 @@ const domOf = async (htmlFile) => {
       n: i + 1, id: pg.dataset.pageId, side: pg.classList.contains('verso') ? 'verso' : 'recto', page: { w: a.width / 96, h: a.height / 96 },
       strips: [...pg.querySelectorAll('.flx-fs')].map((s) => {
         const rw = s.querySelector('.flx-rw'), f = s.querySelector('.flx-f'), rows = [...s.querySelectorAll('.flx-r')], t0 = rows[0].querySelector('.flx-t'), a0 = rows[0].querySelector('.flx-a');
-        return { box: rel(s), rw: rel(rw), fold: rel(f), left: f.style.left, rows: rows.map(rel), term: rows.map((r) => rel(r.querySelector('.flx-t'))), ans: rows.map((r) => rel(r.querySelector('.flx-a'))), termFirst: !!(t0.compareDocumentPosition(a0) & Node.DOCUMENT_POSITION_FOLLOWING), ticks: s.querySelectorAll('.flx-t .nbk-bx').length, boxW: [...s.querySelectorAll('.nbk-bx')].map(bw), hint: s.querySelector('.flx-ah') ? s.querySelector('.flx-ah').textContent.trim() : '', head: rel(s.querySelector('.flx-hd')), cells: [...s.querySelectorAll('.flx-hd > div')].map(rel) };
+        return { auto: s.dataset.flx === 'auto', box: rel(s), rw: rel(rw), fold: rel(f), left: f.style.left, rows: rows.map(rel), term: rows.map((r) => rel(r.querySelector('.flx-t'))), ans: rows.map((r) => rel(r.querySelector('.flx-a'))), termFirst: !!(t0.compareDocumentPosition(a0) & Node.DOCUMENT_POSITION_FOLLOWING), ticks: s.querySelectorAll('.flx-t .nbk-bx').length, boxW: [...s.querySelectorAll('.nbk-bx')].map(bw), hint: s.querySelector('.flx-ah') ? s.querySelector('.flx-ah').textContent.trim() : '', head: rel(s.querySelector('.flx-hd')), cells: [...s.querySelectorAll('.flx-hd > div')].map(rel) };
       }),
       blocks: [...pg.querySelectorAll('.xb[data-zone], .gc > .xb')].filter((x) => /(nbk|flx|stm)-/.test(x.className)).map((x) => ({ cls: x.className, box: rel(x), cell: x.closest('.gc') ? rel(x.closest('.gc')) : null, overflow: x.closest('.gc') ? x.closest('.gc').scrollHeight > x.closest('.gc').clientHeight + 1 || x.closest('.gc').scrollWidth > x.closest('.gc').clientWidth + 1 : false })),
       traces: [...pg.querySelectorAll('.nbk-tr')].map((s) => ({ box: rel(s), paths: s.querySelectorAll('path').length })),
@@ -365,6 +386,16 @@ const TOL = 0.004;
     assert.ok(near(c1[0].fold.x + c1[0].fold.w / 2 - c1[0].box.x, 0.5 * PH.cellWidth(4, bd.size) * z, TOL), `${label}: an even fold is half of ${(PH.cellWidth(4, bd.size) * z).toFixed(3)} in from the strip's left edge`);
     const l1 = page('notes_2').strips[0]; assert.ok(!l1.termFirst && near(l1.fold.x + l1.fold.w / 2 - l1.box.x, 0.4 * PH.cellWidth(4, bd.size) * z, TOL), `${label}: answers on the left with a 60 percent term side: the fold is 40 percent from the left edge`);
     const r1 = page('day.2026-10-14').strips[0]; assert.ok(r1.termFirst && near(r1.fold.x + r1.fold.w / 2 - r1.box.x, 0.4 * PH.cellWidth(4, bd.size) * z, TOL), `${label}: on the day page a 40 percent term side puts the fold 40 percent in`);
+    // the owner's decision 1: a strip set to "the outer edge" folds on the outer edge of EVERY page, left or right, in a day book, on Notes pages and on a spread day
+    const autos = d.pages.flatMap((pg) => pg.strips.filter((s) => s.auto).map((s) => ({ pg, s })));
+    assert.ok(autos.length >= 5 && autos.some((x) => x.pg.side === 'verso') && autos.some((x) => x.pg.side === 'recto'), `${label}: ${autos.length} auto strips, on both left-hand and right-hand pages`);
+    for (const { pg, s } of autos) {
+      assert.ok(s.termFirst === (pg.side === 'recto'), `${label} ${pg.id} (${pg.side}): answers go on the outer edge (terms first on a right-hand page, answers first on a left-hand one)`);
+      const foldFrom = (s.fold.x + s.fold.w / 2 - s.box.x) / s.box.w;
+      const share = s.term[0].w / s.rw.w; assert.ok(near(foldFrom, pg.side === 'recto' ? share : 1 - share, 0.004), `${label} ${pg.id}: the fold sits ${(foldFrom * 100).toFixed(1)} percent in from the left, answer side on the outer edge`);
+    }
+    const cards = page('notes_1').strips; assert.ok(cards.length === 2 && cards.every((s) => s.auto) && cards[0].termFirst === (page('notes_1').side === 'recto'), `${label}: both strips of the Cards page flip together and still fold along one line`);
+    n++; console.log(`ok   ${label}: ${autos.length} strips set to the outer edge fold on the outer edge of their page (${autos.filter((x) => x.pg.side === 'verso').length} on left-hand pages, ${autos.filter((x) => x.pg.side === 'recto').length} on right-hand pages, the spread day included)`);
     // the spread day: each page holds a strip that folds on its own outer edge, inside its page, away from the spine
     const sl = page('day.2026-10-03').strips[0], sr = page('day.2026-10-03.cont').strips[0];
     assert.ok(!sl.termFirst && sr.termFirst && sl.box.x >= 0.9 && sr.box.x >= 0.9 && sl.box.x + sl.box.w <= page('day.2026-10-03').page.w - 0.2 && sr.box.x + sr.box.w <= page('day.2026-10-03.cont').page.w - 0.2, `${label}: both pages of a spread day hold their own strip, answers on the left on the left page and on the right on the right page, wholly inside each page (nothing crosses the spread fold)`);

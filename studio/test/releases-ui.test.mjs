@@ -25,7 +25,7 @@ const audit = (p) => p.evaluate(() => {
 const noSideways = (p) => p.evaluate(() => { const d = document.querySelector('#versions'); return [document.documentElement.scrollWidth <= innerWidth + 1, d.scrollWidth <= d.clientWidth + 1]; });
 
 test('releases in the Versions drawer: the owner releases a saved version, everyone who can read it sees and downloads it; guests cannot release; phone and dark', { skip, timeout: 240_000 }, async () => {
-  const { launch } = await import('../../journal/browser.mjs');
+  const { launchEditor: launch } = await import('../../journal/browser.mjs');
   fs.mkdirSync(OUT, { recursive: true });
   const t = await serve({ staticDir: SITE });
   const b = await launch(), errs = [];

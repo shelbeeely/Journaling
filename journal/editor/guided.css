@@ -12,6 +12,8 @@
 .gd-step { margin: 0; padding: 0 16px; font-size: 13px; color: var(--muted); }
 .gd-step:empty { display: none; }
 .gd-lead { margin: 0; font-size: 15px; }
+.gd-first { margin: 0 0 8px; font-size: 14px; color: var(--muted); }
+.gd-pages { margin-top: 10px; }
 .gd-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .gd-card { display: flex; align-items: flex-start; gap: 12px; width: 100%; min-height: 56px; padding: 10px 14px; text-align: start; border: 1px solid var(--line); background: var(--panel); border-radius: 12px; cursor: pointer; }
 .gd-card:hover { background: var(--soft); }

@@ -119,9 +119,71 @@ const iso = (a) => CH.chIso(a);
   ok(validateProfile({ ...base, chores: { items: [{ id: 'a', name: '', every: 'day' }] } }).some((e) => /^chores\.items\[0\]\.name/.test(e)), 'and names the chore that is wrong');
 }
 
+const every = []; // every piece of markup drawn in this test, for the class check
+// ---- 3b. the owner's decisions (BUILD-PLAN 25.8): trading a turn, and month weeks that run Monday to Sunday ----
+{
+  const people = ['Alex', 'Sam'];
+  const base = { household: people, items: [
+    { id: 'bath', name: 'Bathroom', every: 'week', day: 'fri', who: 'rotate' }, { id: 'oven', name: 'Oven', every: 'month', day: 'last', who: 'rotate' },
+    { id: 'dish', name: 'Dishes', every: 'day' }, { id: 'sweep', name: 'Sweep', every: 'week', day: 'sat', who: 'Alex' }, { id: 'win', name: 'Windows', every: 'season', months: [10], day: 10, who: 'rotate' }] };
+  const plain = CH.chNorm(base), turn = (c, d, id = 'bath') => CH.chToday(c, D(d)).find((e) => e.it.id === id).who;
+  const t23 = turn(plain, '2026-10-23'), t30 = turn(plain, '2026-10-30'), other = people.find((p) => p !== t23);
+  ok(t23 !== t30 && people.includes(t23) && CH.chNorm({ ...base, swaps: undefined }).swaps && Object.keys(plain.swaps).length === 0, 'with no swaps a chore rotates exactly as before, and the configuration has an empty swap table');
+  // a swap hands ONE turn to someone else; the rotation carries on as before
+  const sw = { ...base, swaps: [{ chore: 'bath', date: '2026-10-23', to: other }] }, sc = CH.chNorm(sw);
+  ok(CH.chProblems(sw).length === 0 && CH.chProblems({ ...base, swaps: [] }).length === 0, 'a swap names the chore, the day it is due and who takes that turn, and it passes the profile check');
+  ok(turn(sc, '2026-10-23') === other && turn(sc, '2026-10-21') === other && turn(sc, '2026-10-30') === t30 && turn(sc, '2026-10-16') === turn(plain, '2026-10-16') && turn(sc, '2026-11-06') === turn(plain, '2026-11-06'), 'the traded turn is Sam\'s (or Alex\'s) for the whole time it is listed, and the turns before and after are the rotation\'s own');
+  ok(CH.chWeek(sc, D('2026-10-21')).find((r) => r.it.id === 'bath').who === other && CH.chX4Pack(sc, '2026-10-23', 1)['2026-10-23'].find((r) => r.id === 'bath').who === other, 'the week grid and the X4 pack show the traded turn too');
+  const both = CH.chNorm({ ...base, swaps: [{ chore: 'bath', date: '2026-10-23', to: other }, { chore: 'bath', date: '2026-10-30', to: t23 }] });
+  ok(turn(both, '2026-10-23') === other && turn(both, '2026-10-30') === t23, 'a trade is two swaps: you take my Friday, I take yours');
+  const mo = CH.chNorm({ ...base, swaps: [{ chore: 'oven', date: '2026-10-31', to: turn(plain, '2026-10-31', 'oven') === 'Alex' ? 'Sam' : 'Alex' }] });
+  ok(CH.chMonth(mo, D('2026-10-14')).rows.find((r) => r.it.id === 'oven').who !== CH.chMonth(plain, D('2026-10-14')).rows.find((r) => r.it.id === 'oven').who, 'the month grid shows a traded monthly turn');
+  ok(Object.keys(CH.chNorm({ ...base, swaps: [{ chore: 'sweep', date: '2026-10-24', to: 'Sam' }, { chore: 'bath', date: '2026-10-22', to: 'Sam' }, { chore: 'bath', date: '2026-10-23', to: 'Pat' }, { chore: 'nope', date: '2026-10-23', to: 'Sam' }, null, 7] }).swaps).join() === 'bath|2026-10-22', 'a swap that does not fit (a chore with one person, a stranger, an unknown chore, junk) is dropped when the section is used; one on a day the chore is not due changes nothing (the profile check refuses it)');
+  // the validator says what to change, in plain words
+  const say = (swaps, c = base) => CH.chProblems({ ...c, swaps }).join(' | ');
+  ok(/chores\.swaps\[0\]\.date: Bathroom is not due on 2026-10-22\. Its next due day after that is 2026-10-23/.test(say([{ chore: 'bath', date: '2026-10-22', to: 'Sam' }])), 'a swap on a day the chore is not due says the next day it is');
+  ok(/Sweep does not rotate, so it has no turn to trade\. Give it "who": "rotate" first/.test(say([{ chore: 'sweep', date: '2026-10-24', to: 'Sam' }])), 'a chore with one person has no turn to trade, and says how to change that');
+  ok(/"nope" is not one of your chores \(the ids are bath, oven, dish, sweep, win\)/.test(say([{ chore: 'nope', date: '2026-10-23', to: 'Sam' }])) && /"Pat" is not in your household \(Alex, Sam\)/.test(say([{ chore: 'bath', date: '2026-10-23', to: 'Pat' }])), 'an unknown chore or a stranger is named, with the choices');
+  ok(/use the day the chore is due, written like 2026-10-23/.test(say([{ chore: 'bath', date: 'friday', to: 'Sam' }])) && /Bathroom on 2026-10-23 is traded twice; keep one/.test(say([{ chore: 'bath', date: '2026-10-23', to: other }, { chore: 'bath', date: '2026-10-23', to: other }])), 'a date that is not a date, and a turn traded twice, are named');
+  ok(new RegExp(`${t23} already has that turn on 2026-10-23, so there is nothing to trade`).test(say([{ chore: 'bath', date: '2026-10-23', to: t23 }])), 'trading a turn to the person who already has it says so');
+  ok(/needs a household with two or more names/.test(CH.chProblems({ items: [{ id: 'a', name: 'A', every: 'day' }], swaps: [{ chore: 'a', date: '2026-10-23', to: 'Sam' }] }).join()) && /optional; a list of up to 60 trades like/.test(say('Sam')) && /is not part of a trade; use chore, date and to/.test(say([{ chore: 'bath', date: '2026-10-23', to: other, why: 'x' }])), 'swaps need a household, must be a list, and take only chore, date and to');
+  const prof = JSON.parse(fs.readFileSync('content/profile.example.json', 'utf8'));
+  ok(validateProfile({ ...prof, chores: sw }).length === 0 && validateProfile({ ...prof, chores: { ...base, swaps: [{ chore: 'bath', date: '2026-10-22', to: 'Sam' }] } }).some((e) => /^chores\.swaps\[0\]\.date/.test(e)), 'the profile check runs the swap check (a bad one is refused with its place named)');
+  ok(Object.keys(CH).every((k) => !/count|score|streak|late|overdue|missed|behind/i.test(k)) && !/count|streak|overdue/i.test(Object.keys(sc).join()), 'a swap adds no count, score or lateness to the module or the configuration');
+
+  // month weeks are real calendar weeks, Monday to Sunday, when the page has a date
+  const wk = (d) => CH.chMonth(plain, D(d)), rg = (d) => wk(d).ranges.map((r) => r.join('-')).join(' ');
+  ok(wk('2026-10-14').weeks === 5 && rg('2026-10-14') === '1-4 5-11 12-18 19-25 26-31', 'October 2026 (the 1st is a Thursday): W1 is the 1st to Sunday the 4th, then whole weeks, W5 is Monday the 26th to the 31st');
+  ok(rg('2026-11-14') === '1-1 2-8 9-15 16-22 23-29 30-30' && wk('2026-11-14').weeks === 6, 'November 2026 starts on a Sunday and needs six weeks: W1 is the 1st alone, W6 is the 30th alone');
+  ok(rg('2027-02-10') === '1-7 8-14 15-21 22-28' && wk('2027-02-10').weeks === 4, 'February 2027 starts on a Monday and is exactly four weeks');
+  ok(rg('2028-02-10') === '1-6 7-13 14-20 21-27 28-29', 'a leap February (2028) has its 29th in the last week');
+  ok(wk('2026-08-14').weeks === 6 && wk('2026-08-14').ranges[0].join('-') === '1-2' && wk('2026-08-14').ranges[5].join('-') === '31-31', 'a 31-day month that starts on a Saturday needs six weeks');
+  let sane = 0;
+  for (const y of [2026, 2027, 2028]) for (let m = 1; m <= 12; m++) {
+    const d = `${y}-${String(m).padStart(2, '0')}-10`, M = wk(d), len = new Date(Date.UTC(y, m, 0)).getUTCDate();
+    const days = M.ranges.flatMap(([a, z]) => Array.from({ length: z - a + 1 }, (_, i) => a + i));
+    assert.ok(M.weeks >= 4 && M.weeks <= 6 && days.length === len && days.every((v, i) => v === i + 1), `${d}: the weeks cover every day of the month once, in order`);
+    assert.ok(M.ranges.slice(1).every(([a]) => CH.chDow(CH.chParse(`${y}-${String(m).padStart(2, '0')}-${String(a).padStart(2, '0')}`)) === 0), `${d}: every week after the first starts on a Monday`);
+    sane++;
+  }
+  ok(sane === 36, 'for three years of months: 4 to 6 weeks each, every day in exactly one week, every week after the first starts on a Monday');
+  const r = (c, d, id) => wk(d).rows.find((x) => x.it.id === id).cells.join();
+  ok(r(plain, '2026-10-14', 'bath') === 'true,true,true,true,true' && r(plain, '2026-11-14', 'bath') === 'false,true,true,true,true,false', 'a weekly chore has a box in each week it is due in this month: November\'s first week is just Sunday the 1st and its last is just Monday the 30th, so neither has a Friday');
+  ok(r(plain, '2026-10-14', 'oven') === 'false,false,false,false,true' && r(plain, '2026-02-10', 'oven').split(',').lastIndexOf('true') === r(plain, '2026-02-10', 'oven').split(',').length - 1, 'a monthly chore is in the week its day falls in (the last day of the month: the last week)');
+  ok(r(plain, '2026-10-14', 'win') === 'false,true,false,false,false' && !wk('2026-11-14').rows.some((x) => x.it.id === 'win'), 'a seasonal chore is in the week of its day in its months, and absent in the others');
+  // the undated template keeps W1 to W5 and says so
+  const und = CH.chMonth(plain, null);
+  ok(und.weeks === 5 && und.ranges === null && /W1 to W5: days 1 to 7, 8 to 14, 15 to 21, 22 to 28, 29 on/.test(CH.CH_WORDS.weeksUndated) && und.rows.find((x) => x.it.id === 'oven').cells.join() === 'false,false,false,false,true', 'an undated month stays W1 to W5 (days 1-7, 8-14, ...) because there is no calendar to count weeks from');
+  const dated = page([B('chorerota', { period: 'month' })], 'small', '2026-10-18'), undated = page([B('chorerota', { period: 'month' })], 'small', '');
+  ok(/W1 1–4 · W2 5–11 · W3 12–18 · W4 19–25 · W5 26–31/.test(text(dated)) && /calendar weeks that run Monday to Sunday/.test(attrs(dated)) && /Oct 2026/.test(dated), 'a dated month grid prints its week columns in days of the month ("W1 1–4 · W2 5–11 ...") and its text alternative says the weeks run Monday to Sunday');
+  ok(/W1 to W5: days 1 to 7, 8 to 14, 15 to 21, 22 to 28, 29 on/.test(text(undated)) && /in weeks of the month: W1 to W5/.test(attrs(undated)), 'an undated month grid says on the page that W1 to W5 are days 1-7 and so on');
+  const nov = page([B('chorerota', { period: 'month' })], 'small', '2026-11-03');
+  ok(/W6/.test(nov) && /W1 1 · W2 2–8/.test(text(nov)) && (nov.match(/class="chxc"><b>W\d<\/b>/g) || []).length === 6, 'a six-week month has six week columns');
+  every.push(dated, undated, nov);
+}
+
 // ---- 4. the tone ----
 const FORBIDDEN = /overdue|over due|\blate\b|missed|behind|streak|failed|failure|lazy|should|must|\bonly\b|\bjust\b|shame|guilt|deadline|urgent|warning|alert|\bred\b|\bcount\b|score|points|\bbad\b|hurry|catch up/i;
-const every = []; // every piece of markup drawn in this test, for the class check
 {
   const variants = [
     page([B('chores', { tiers: 'text' })]), page([B('chores', { tiers: 'ticks' })]), page([B('chores', { people: true, tiers: 'text' })]), page([B('chores', { n: 2 })]),
@@ -195,7 +257,7 @@ const every = []; // every piece of markup drawn in this test, for the class che
   ok(/Chores this week/.test(none) && !/chxm/.test(none), 'with no date a rotation prints as a template (the chores that repeat every week, daily and weekly)');
   ok(!/Test the smoke alarms/.test(none) && /Rubbish and recycling/.test(none), 'a template week leaves out monthly and seasonal chores (they need a date to know which week); the month grid has them');
   const mo = page([B('chorerota', { period: 'month' })], 'small', '');
-  ok(/Wash the windows/.test(mo) && /<small>Apr Oct<\/small>/.test(mo) && /Test the smoke alarms/.test(mo), 'a template month shows the seasonal chores with their months beside them');
+  ok(/Wash the windows/.test(mo) && /<small>Apr Oct<\/small>/.test(mo) && /Test the smoke alarms/.test(mo) && /W1 to W5: days 1 to 7/.test(text(mo)), 'a template month shows the seasonal chores with their months beside them, and says what W1 to W5 mean');
   const mo2 = page([B('chorerota', { period: 'month' })], 'small', '2026-10-18');
   ok(/Wash the windows/.test(mo2) && !/Swap the wardrobe/.test(mo2) && /Oct 2026/.test(mo2) && /<em>Daily<\/em> Dishes/.test(mo2), 'a dated month shows only this month\'s seasonal chores, and the daily ones as one line, not boxes');
   const wk = page([B('chorerota')], 'small', '2026-10-18');

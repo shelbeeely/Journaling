@@ -3,7 +3,8 @@
 //
 // WHERE THE CHORES COME FROM. The profile's optional `chores` section (content/profile.json; `profile.example.json` shows the shape):
 //   { "household": ["Alex", "Sam"],               optional, up to 4 names: turns on the person boxes and the rotation of who
-//     "items": [ { "id", "name", "every", ... } ] }
+//     "items": [ { "id", "name", "every", ... } ],
+//     "swaps": [ { "chore": "bathroom", "date": "2026-10-23", "to": "Sam" } ] }   optional: trade one turn of a rotating chore (see chProblems)
 // With no section the blocks use CH_SAMPLE below (generic, invented). Nothing about a person's home lives in code or in a Studio snapshot:
 // a block's options say how to draw (how many lines, which groups, tiers, people on or off), never what the chores are.
 //
@@ -23,7 +24,7 @@
 export const CH_DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 export const CH_EVERY = ['day', 'week', 'month', 'season'];
 export const CH_GROUPS = { day: 'Daily', week: 'Weekly', month: 'Monthly', season: 'Seasonal' };
-export const CH_MAX_PEOPLE = 4, CH_MAX_ITEMS = 40;
+export const CH_MAX_PEOPLE = 4, CH_MAX_ITEMS = 40, CH_MAX_SWAPS = 60;
 export const CH_LEVELS = ['none', 'small', 'enough', 'full']; // what a tick can mean (X4 and paper): 0 nothing, 1 the small version, 2 good enough, 3 the whole chore
 export const CH_DEFAULT_MONTHS = [3, 6, 9, 12];
 const CH_LEAD = { day: 0, week: 3, weekAny: 6, month: 5, season: 7 }, CH_LEAD_MAX = { day: 0, week: 6, month: 27, season: 60 };
@@ -80,7 +81,38 @@ export function chProblems(c) {
     if (it.who !== undefined && !(it.who === 'rotate' ? people.length >= 2 : people.includes(it.who))) bad(`${at}.who`, '"rotate" (needs two or more names in household) or one of the household names');
     if (it.x4 !== undefined && typeof it.x4 !== 'boolean') bad(`${at}.x4`, 'optional; false keeps the chore off the X4 list');
   });
+  if (c.swaps !== undefined) chSwapProblems(c, people, out.length === 0, bad);
   return out;
+}
+// Trading a turn ("swaps"). A rotating chore goes round the household by itself; a swap hands ONE turn to someone else and the rotation carries on as
+// before. Each swap names the chore, the day it is due and who takes that turn. The messages say what to change, in plain words.
+function chSwapProblems(c, people, itemsOk, bad) {
+  const list = c.swaps;
+  if (!Array.isArray(list) || list.length > CH_MAX_SWAPS) return bad('.swaps', `optional; a list of up to ${CH_MAX_SWAPS} trades like {"chore": "bathroom", "date": "2026-10-23", "to": "Sam"}: the chore, the day it is due, and who takes that turn`);
+  if (list.length && people.length < 2) return bad('.swaps', 'trading a turn needs a household with two or more names, and a chore that has "who": "rotate"');
+  const cfg = itemsOk ? chNorm(c) : null, seen = new Set(), ids = (c.items || []).map((i) => i && i.id).filter(Boolean).join(', ');
+  list.forEach((w, i) => {
+    const at = `.swaps[${i}]`;
+    if (!w || typeof w !== 'object' || Array.isArray(w)) return bad(at, 'must look like {"chore": "bathroom", "date": "2026-10-23", "to": "Sam"}');
+    for (const k of Object.keys(w)) if (!['chore', 'date', 'to'].includes(k)) bad(`${at}.${k}`, 'is not part of a trade; use chore, date and to');
+    const it = (c.items || []).find((x) => x && x.id === w.chore);
+    if (!it) return bad(`${at}.chore`, `"${w.chore}" is not one of your chores (the ids are ${ids})`);
+    if (it.who !== 'rotate') return bad(`${at}.chore`, `${it.name || it.id} does not rotate, so it has no turn to trade. Give it "who": "rotate" first`);
+    const n = chParse(w.date);
+    if (n === null) return bad(`${at}.date`, 'use the day the chore is due, written like 2026-10-23');
+    if (!people.includes(w.to)) return bad(`${at}.to`, `"${w.to}" is not in your household (${people.join(', ')})`);
+    const key = `${w.chore}|${w.date}`;
+    if (seen.has(key)) return bad(at, `${it.name} on ${w.date} is traded twice; keep one`);
+    seen.add(key);
+    if (!cfg) return;
+    const ni = cfg.items.find((x) => x.id === w.chore), o = ni && chOcc(ni, n);
+    if (!o || o.due !== n) {
+      let next = null;
+      for (let d = n + 1; d <= n + 400 && next === null; d++) { const x = chOcc(ni, d); if (x && x.due === d) next = d; }
+      return bad(`${at}.date`, `${it.name} is not due on ${w.date}${next === null ? '' : `. Its next due day after that is ${chIso(next)}`}. A trade uses the day the chore is due`);
+    }
+    if (chWho(ni, cfg.people, o.k) === w.to) bad(`${at}.to`, `${w.to} already has that turn on ${w.date}, so there is nothing to trade`);
+  });
 }
 
 // A configuration made safe to use (a bad value falls back; the build refuses a bad profile before it gets here).
@@ -102,7 +134,12 @@ export function chNorm(c) {
     o.x4 = it.x4 !== false;
     items.push(o);
   }
-  return { people, items };
+  const swaps = {}; // 'chore id|due date' -> the person who takes that one turn (a swap of a turn; the rotation carries on as before)
+  for (const w of (Array.isArray(c.swaps) ? c.swaps : []).slice(0, CH_MAX_SWAPS)) {
+    const it = w && items.find((x) => x.id === w.chore);
+    if (it && it.who === 'rotate' && chParse(w.date) !== null && people.includes(w.to)) swaps[`${it.id}|${w.date}`] = w.to;
+  }
+  return { people, items, swaps };
 }
 export const chPeople = (cfg) => (cfg.people.length ? cfg.people : ['', '']); // household mode with no names: two write-in columns
 // One letter for a person's column; two when two names start alike.
@@ -131,7 +168,10 @@ export function chOcc(it, n) {
   return hit ? { ...hit, soon: hit.due - n <= 1 } : null;
 }
 // Whose turn it is (a name), or '' for a shared chore.
-export const chWho = (it, people, k) => (it.who === 'rotate' && people.length ? people[((k % people.length) + people.length) % people.length] : it.who || '');
+// `swapTo` is the person a swap gave this one turn to (cfg.swaps), if any; only a rotating chore can be swapped.
+export const chWho = (it, people, k, swapTo = '') => (it.who === 'rotate' && people.length ? (swapTo && people.includes(swapTo) ? swapTo : people[((k % people.length) + people.length) % people.length]) : it.who || '');
+// The person a swap gave the turn due on day n (a day number) to, or ''.
+export const chSwapOf = (cfg, it, due) => (cfg.swaps && cfg.swaps[`${it.id}|${chIso(due)}`]) || '';
 
 const chGroupOn = (groups, it) => !groups || groups[it.every] !== false;
 // What is on the day list for date n (a day number; null = no date: the daily chores only), in the order they print:
@@ -142,7 +182,7 @@ export function chToday(cfg, n, groups) {
     if (!chGroupOn(groups, it)) continue;
     if (n === null && it.every !== 'day') continue;
     const o = n === null ? { due: 0, k: 0, soon: false } : chOcc(it, n);
-    if (o) out.push({ it, soon: o.soon, who: n === null ? '' : chWho(it, cfg.people, o.k) }); // an undated page cannot know whose turn it is
+    if (o) out.push({ it, soon: o.soon, who: n === null ? '' : chWho(it, cfg.people, o.k, chSwapOf(cfg, it, o.due)) }); // an undated page cannot know whose turn it is
   }
   const rank = (e) => (e.soon ? 0 : e.it.every === 'day' ? 1 : 2);
   return out.map((e, i) => ({ e, i })).sort((a, b) => rank(a.e) - rank(b.e) || a.i - b.i).map((x) => x.e);
@@ -162,32 +202,42 @@ export function chWeek(cfg, n, groups) {
     } else if (it.every === 'day') cells = Array.from({ length: 7 }, (_, i) => ({ on: !it.days || it.days.includes(i), due: false }));
     else if (it.every === 'week') { const w = it.day === undefined ? 6 : it.day; cells = Array.from({ length: 7 }, (_, i) => ({ on: ((w - i + 7) % 7) <= it.lead, due: i === w })); }
     else continue;
-    const first = n === null ? -1 : cells.findIndex((c) => c.on), k = first < 0 ? 0 : chOcc(it, n - chDow(n) + first).k;
-    out.push({ it, cells, who: n === null ? '' : chWho(it, cfg.people, k) });
+    const first = n === null ? -1 : cells.findIndex((c) => c.on), o = first < 0 ? null : chOcc(it, n - chDow(n) + first);
+    out.push({ it, cells, who: n === null || !o ? '' : chWho(it, cfg.people, o.k, chSwapOf(cfg, it, o.due)) });
   }
   return out;
 }
 
-// The month grid: weeks are days 1-7, 8-14, 15-21, 22-28 and 29 on (W1 to W5), so a page needs no calendar to say where a chore sits.
-// Daily chores are not boxed: they print as one line. Dated (a date in the month): weekly chores every week, monthly ones in the week of their
-// day, seasonal ones only in their months. Undated: the same, with seasonal chores shown (their months are printed beside the name).
-// { weeks: 4|5, daily: [chore...], rows: [{ it, cells: [bool x weeks], who, hint }] }
+// The month grid. DATED (a date in the month): the columns are the month's real calendar weeks, Monday to Sunday. Week 1 is the week the 1st falls in
+// (it may start in the month before), the last week is the one the last day falls in, so a month has 4 to 6 of them. A chore gets a box in the week its
+// DUE day falls in (a weekly chore in each week it is due in this month; a monthly one in the week of its day; a seasonal one only in its months).
+// UNDATED (a template): no calendar to count from, so the columns stay W1 to W5 = days 1-7, 8-14, 15-21, 22-28 and 29 on, and the page says so.
+// Daily chores are not boxed: they print as one line.
+// { weeks: 4..6, ranges: [[first day, last day] of each week] | null (undated), daily: [chore...], rows: [{ it, cells: [bool x weeks], who, hint }] }
 export function chMonth(cfg, n, groups) {
-  const ym = n === null ? null : chYMD(n), weeks = ym ? Math.ceil(chLast(ym.y, ym.m) / 7) : 5, rows = [], daily = [];
+  const ym = n === null ? null : chYMD(n), len = ym ? chLast(ym.y, ym.m) : 31, first = ym ? chOn(ym.y, ym.m, 1) : 0, lead = ym ? chDow(first) : 0;
+  const weeks = ym ? Math.ceil((lead + len) / 7) : 5, wk = (day) => (ym ? Math.floor((lead + day - 1) / 7) : Math.min(weeks, Math.ceil(day / 7)) - 1); // week index of a day of the month
+  const ranges = ym ? Array.from({ length: weeks }, (_, w) => [Math.max(1, w * 7 - lead + 1), Math.min(len, w * 7 - lead + 7)]) : null;
+  const rows = [], daily = [];
   for (const it of cfg.items) {
     if (!chGroupOn(groups, it)) continue;
     if (it.every === 'day') { daily.push(it); continue; }
-    let cells = Array(weeks).fill(false), k = 0;
-    if (it.every === 'week') cells = cells.map(() => true);
-    else {
-      if (it.every === 'season' && ym && !it.months.includes(ym.m)) continue;
-      const day = it.day === 'last' ? (ym ? chLast(ym.y, ym.m) : 31) : it.day;
-      cells[Math.min(weeks, Math.ceil(Math.min(day, ym ? chLast(ym.y, ym.m) : 31) / 7)) - 1] = true;
-      k = ym ? (it.every === 'month' ? ym.y * 12 + ym.m : ym.y * it.months.length + it.months.indexOf(ym.m)) : 0;
+    const cells = Array(weeks).fill(false);
+    let who = '', hint = '';
+    if (ym) {
+      const dues = new Map(); // day of the month -> the occurrence due that day
+      for (let d = 1; d <= len; d++) { const o = chOcc(it, first + d - 1); if (o && o.due >= first && o.due < first + len) dues.set(o.due - first + 1, o); }
+      if (!dues.size) continue; // a seasonal chore outside its months
+      for (const day of dues.keys()) cells[wk(day)] = true;
+      if (it.every !== 'week') { const o = [...dues.values()][0]; who = chWho(it, cfg.people, o.k, chSwapOf(cfg, it, o.due)); } // a weekly chore changes hands every week: no one name for the row
+    } else {
+      if (it.every === 'week') cells.fill(true);
+      else cells[wk(it.day === 'last' ? 31 : Math.min(it.day, 31))] = true;
+      if (it.every === 'season') hint = it.months.map((m) => CH_MON[m - 1]).join(' ');
     }
-    rows.push({ it, cells, who: it.every === 'week' || !ym ? '' : chWho(it, cfg.people, k), hint: it.every === 'season' && !ym ? it.months.map((m) => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][m - 1]).join(' ') : '' });
+    rows.push({ it, cells, who, hint });
   }
-  return { weeks, daily, rows };
+  return { weeks, ranges, daily, rows };
 }
 
 // ---- the X4 check-in (data model only: the firmware slice CH3 reads it, BUILD-PLAN section 25.6) ----
@@ -216,7 +266,7 @@ const chMark = (level) => {
   return `<svg class="chxq" width="10" height="10" viewBox="0 0 9 9" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true"><circle cx="4.5" cy="4.5" r="3.7"/>${f}</svg>`;
 };
 const chSoon = '<svg class="chxs" width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" aria-hidden="true"><path d="M6 1.6 10.4 6 6 10.4 1.6 6Z"/></svg>';
-export const CH_WORDS = { soon: 'soon', small: 'small', enough: 'good enough', full: 'all of it', more: 'and more' }; // the printed words, in one place
+export const CH_WORDS = { soon: 'soon', small: 'small', enough: 'good enough', full: 'all of it', more: 'and more', weeksUndated: 'W1 to W5: days 1 to 7, 8 to 14, 15 to 21, 22 to 28, 29 on' }; // the printed words, in one place
 const chBox = (cls = '') => `<i class="chxb${cls}"></i>`;
 
 // The block's drawing. `H` carries daypage's helpers ({ esc, lbl }): this file imports nothing.
@@ -248,9 +298,10 @@ const chLegend = (people, ini, H) => { const t = people.map((p, i) => (p ? `${in
 const CH_MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 function chRotaHtml(b, n, dateS, Z, H) {
   const cfg = chConfig(), people = b.people ? chPeople(cfg) : [], P = people.length, ini = chInitials(people), month = b.period === 'month';
-  let cols, head, caption = '', body = [], overflow = 0, daily = [];
+  let cols, head, caption = '', body = [], overflow = 0, daily = [], weekKey = '';
   if (month) {
     const M = chMonth(cfg, n, b.groups); daily = M.daily; cols = M.weeks;
+    weekKey = M.ranges ? M.ranges.map(([a, z], i) => `W${i + 1} ${a}${z > a ? '–' + z : ''}`).join(' · ') : CH_WORDS.weeksUndated; // the week columns, said in days of the month
     head = Array.from({ length: cols }, (_, i) => `<span class="chxc"><b>W${i + 1}</b></span>`);
     body = M.rows.map((r) => ({ it: r.it, cells: r.cells.map((on) => ({ on, due: false })), who: r.who, hint: r.hint }));
     if (n !== null) { const y = chIso(n).slice(0, 4), m = +chIso(n).slice(5, 7); caption = `${CH_MON[m - 1]} ${y}`; }
@@ -274,8 +325,8 @@ function chRotaHtml(b, n, dateS, Z, H) {
   }
   if (overflow) rows.push(`<div class="chxr chxo"><span class="chxn">${CH_WORDS.more}</span></div>`);
   if (month && daily.length) rows.push(`<div class="chxr chxdl"><span class="chxn"><em>${CH_GROUPS.day}</em> ${daily.map((d) => H.esc(d.name)).join(' · ')}</span></div>`);
-  const alt = `${b.title || 'Chore rotation'}: a ${month ? 'month' : 'week'} grid${caption ? ' for ' + caption : ''}. ${body.length ? body.map((r) => r.it.name).join(', ') : 'No chores in these groups'}${overflow ? ', and more' : ''}. ${P ? 'A tick box for each person.' : ''}`;
-  return `<div class="xb chxg" ${Z} role="group" aria-label="${H.esc(alt.trim()).replace(/"/g, '&quot;')}"><div class="chxhd">${H.lbl('chorerota', b.title || (month ? 'Chores this month' : 'Chores this week'))}${caption ? `<span class="chxk">${caption}</span>` : ''}</div>${chLegend(people, ini, H)}${rows.join('')}</div>`;
+  const alt = `${b.title || 'Chore rotation'}: a ${month ? 'month' : 'week'} grid${caption ? ' for ' + caption : ''}${month ? (n === null ? `, in weeks of the month: ${weekKey}` : ', in calendar weeks that run Monday to Sunday') : ''}. ${body.length ? body.map((r) => r.it.name).join(', ') : 'No chores in these groups'}${overflow ? ', and more' : ''}. ${P ? 'A tick box for each person.' : ''}`;
+  return `<div class="xb chxg" ${Z} role="group" aria-label="${H.esc(alt.trim()).replace(/"/g, '&quot;')}"><div class="chxhd">${H.lbl('chorerota', b.title || (month ? 'Chores this month' : 'Chores this week'))}${caption ? `<span class="chxk">${caption}</span>` : ''}</div>${weekKey ? `<div class="chxkl">${weekKey}</div>` : ''}${chLegend(people, ini, H)}${rows.join('')}</div>`;
 }
 
 // ---- the size a block needs (daypage.mjs MINSPAN; the editor test measures that a block fits it) ----
@@ -284,7 +335,7 @@ export function chMin(b) {
   const P = b.people ? chPeople(chConfig()).length : 0;
   if (b.type === 'chores') return [P > 2 ? 3 : 2, CH_HEAD_IN + (b.tiers === 'ticks' || P ? CH_TIER_IN : 0) + b.n * CH_ROW_IN + (b.tiers === 'text' || (b.tiers === 'ticks' && P) ? b.n * CH_TIER_IN : 0) + 0.04];
   const g = Object.values(b.groups).filter(Boolean).length;
-  return [P ? 4 : 3, CH_HEAD_IN + (P ? CH_TIER_IN : 0) + CH_ROW_IN + g * CH_GROUP_IN + b.n * CH_ROW_IN + (b.tiers ? b.n * CH_TIER_IN : 0) + (b.period === 'month' ? CH_ROW_IN : 0) + 0.18];
+  return [P ? 4 : 3, CH_HEAD_IN + (P ? CH_TIER_IN : 0) + (b.period === 'month' ? CH_TIER_IN : 0) + CH_ROW_IN + g * CH_GROUP_IN + b.n * CH_ROW_IN + (b.tiers ? b.n * CH_TIER_IN : 0) + (b.period === 'month' ? CH_ROW_IN : 0) + 0.18];
 }
 
 export const CH_CSS = `

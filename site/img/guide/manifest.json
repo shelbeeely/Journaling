@@ -107,7 +107,7 @@
  "guided-home": {
   "w": 570,
   "h": 860,
-  "kb": 38
+  "kb": 39
  },
  "guided-question": {
   "w": 570,
@@ -117,7 +117,7 @@
  "guided-review": {
   "w": 570,
   "h": 860,
-  "kb": 32
+  "kb": 39
  },
  "levels": {
   "w": 966,

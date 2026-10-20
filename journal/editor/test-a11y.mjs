@@ -7,7 +7,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
-import { launch } from '../browser.mjs';
+import { launchEditor as launch } from '../browser.mjs';
 import { SAMPLE_LIBRARY } from './sample-library.mjs';
 
 const REPORT = process.argv.includes('--report');

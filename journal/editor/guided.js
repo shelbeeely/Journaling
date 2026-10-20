@@ -2,8 +2,8 @@
 // The choices and the layouts come from journal/presets.mjs (inlined above, so the page and the tests run the same code). This file draws them.
 // Every word goes through the catalog: the words of the data tables with _tx('guided.d_...'), the rest with _t('guided....').
 // Nothing here makes a decision for the person: every step has a recommended answer already chosen, Back and Close change nothing, and Undo takes back a made book's page.
-const GD_KEY = 'kw-last-book', VM_KEY = 'kw-view';
-const GD = { step: 'home', via: 'q', i: 0, answers: null, starter: null, book: null, last: null, loaded: false, busy: false };
+const GD_KEY = 'kw-last-book', VM_KEY = 'kw-view', GD_SKIP = 'kw-guided-skip'; // GD_SKIP: the person skipped the guided start (a flag, nothing else; the demo keeps it too)
+const GD = { step: 'home', via: 'q', i: 0, answers: null, starter: null, book: null, last: null, loaded: false, busy: false, first: false };
 
 // ----- what is remembered: this browser, or the Studio when signed in. The demo remembers nothing. -----
 async function gdLoadLast() {
@@ -89,7 +89,7 @@ function gdStepText() {
   return GD.step === 'review' ? _t('guided.step_review') : '';
 }
 function gdFacts(b) {
-  const f = lengthFacts(b.plan.scope === 'undated' ? 'undated' : b.plan.scope);
+  const f = lengthFacts(b.plan.scope === 'undated' ? 'undated' : b.plan.scope, b.pages);
   if (f.days) return _t('guided.facts_undated', { n: f.days });
   return f.months === 1 ? _t('guided.facts_month', { pages: f.about }) : _t('guided.facts_months', { n: f.months, pages: f.about, vols: f.volumes });
 }
@@ -106,13 +106,13 @@ function gdPreview(layoutObj, sz) {
   return `<div class="gd-pv" style="width:${pw}px;height:${Math.round(H * k)}px">${fr.outerHTML}</div>`;
 }
 function gdDraw() {
-  const body = $('#gd-body'), back = $('#gd-back'), next = $('#gd-next'), skip = $('#gd-skip'), tweak = $('#gd-tweak');
+  const body = $('#gd-body'), back = $('#gd-back'), next = $('#gd-next'), skip = $('#gd-skip'), tweak = $('#gd-tweak'), later = $('#gd-later');
   $('#gd-errs').hidden = true; $('#gd-step').textContent = gdStepText();
-  back.hidden = GD.step === 'home'; skip.hidden = GD.step !== 'q'; tweak.hidden = GD.step !== 'review'; next.hidden = GD.step === 'home';
+  later.hidden = GD.step !== 'home'; back.hidden = GD.step === 'home'; skip.hidden = GD.step !== 'q'; tweak.hidden = GD.step !== 'review'; next.hidden = GD.step === 'home';
   next.textContent = GD.step === 'review' ? _t('guided.make') : _t('guided.next');
   if (GD.step === 'home') {
     const last = GD.last;
-    body.innerHTML = `<p class="gd-lead">${_t('guided.home_lead')}</p>
+    body.innerHTML = `${GD.first ? `<p class="gd-first">${_t('guided.first_note')}</p>` : ''}<p class="gd-lead">${_t('guided.home_lead')}</p>
       <button class="gd-card main" type="button" data-gd="questions">${icon('pen', 'bico')}<span><b>${_t('guided.five_questions')}</b><small>${_t('guided.five_questions_hint')}</small></span></button>
       ${last ? `<button class="gd-card" type="button" data-gd="last">${icon('back', 'bico')}<span><b>${_t('guided.from_last')}</b><small>${_t('guided.from_last_hint')}</small></span></button>` : ''}
       <h4 class="ls-sec">${_t('guided.ready_made')}</h4>
@@ -132,10 +132,11 @@ function gdDraw() {
     body.innerHTML = `<div class="gd-rev"><div class="gd-pvbox">${gdPreview(b.layout, b.trim)}</div><div class="gd-sum">
       <div class="ls-f"><label for="gd-title">${_t('guided.book_title')}</label><input id="gd-title" type="text" maxlength="120" value="${escH(title)}" autocomplete="off"></div>
       ${dated ? `<div class="ls-f"><label for="gd-start">${_t('guided.first_month')}</label><input id="gd-start" type="month" value="${escH(b.start)}"></div>` : ''}
-      <p class="gd-facts">${escH(gdFacts(b))}</p>
+      <p class="gd-facts" id="gd-facts">${escH(gdFacts(b))}</p>
       <p class="gd-facts">${b.trim === 'letter' ? _t('guided.size_letter') : _t('guided.size_small')}</p></div></div>
       <h4 class="ls-sec">${_t('guided.on_each_page')}</h4><ul class="gd-blocks">${blocks.map(gdBlockLine).join('')}<li>${icon('pen', 'bico')}<span>${_t('guided.writing_space')}</span></li></ul>
       ${left.length ? `<p class="ls-h">${_t('guided.left_off', { list: escH(left.join(', ')) })}</p>` : ''}
+      <label class="gd-opt gd-pages" for="gd-calm"><input type="checkbox" id="gd-calm" ${b.pages === 'calm' ? 'checked' : ''}><span><b>${_t('guided.pages_calm')}</b><small>${_t('guided.pages_calm_hint', { pages: lengthFacts('month', 'calm').about, full: PAGES_PER_MONTH })}</small></span></label>
       <p class="ls-h">${_t('guided.review_note')}</p>`;
     $('#gd-h').textContent = _t('guided.here_is');
   }
@@ -145,13 +146,30 @@ function gdBuild() { // answers -> the finished book (GD.book)
   GD.starter = null; GD.book = guidedBook(GD.answers); GD.book.starter = null;
 }
 function gdStart() { GD.answers = cleanAnswers(GD.last && GD.last.answers ? GD.last.answers : RECOMMENDED()); GD.answers.start = nextMonth(); GD.book = null; GD.starter = null; gdGo('home'); }
-function gdOpen() {
-  if (PGE || SPD) { toast(_t('guided.close_page_first')); return; }
+function gdOpen(first = false) {
+  if (PGE || SPD) { if (!first) toast(_t('guided.close_page_first')); return; }
+  GD.first = first === true;
   if (!$('#guided').open) $('#guided').showModal();
   gdStart();
   gdLoadLast().then((v) => { const same = JSON.stringify(v) === JSON.stringify(GD.last); GD.last = v; GD.loaded = true; if (!same && GD.step === 'home' && $('#guided').open) gdStart(); }); // the Studio's copy, when signed in
 }
-function gdClose() { if ($('#guided').open) $('#guided').close(); }
+function gdClose() { if (GD.first) gdSkipped(); if ($('#guided').open) $('#guided').close(); }
+// "Skip" (and the close button, and Escape) on the first-run guide: it does not open by itself again. A flag in this browser, and nothing more: blocked storage just means it may open again.
+function gdSkipped() { GD.first = false; GD.skipped = true; store.set(GD_SKIP, '1'); }
+$('#gd-later').onclick = () => { gdSkipped(); gdClose(); announce(_t('guided.skipped')); };
+// A brand-new editor (never skipped, no book made before, the day page still the original, the Library still the one starting book) opens on the guided start. A deep link
+// (a day, a page, the Versions panel) is left alone. The demo does it too, so a visitor sees the same first run.
+function gdCanRemember() { try { localStorage.setItem('kw-probe', '1'); const ok = localStorage.getItem('kw-probe') === '1'; localStorage.removeItem('kw-probe'); return ok; } catch { return false; } }
+async function gdFirstRun() {
+  const h = location.hash;
+  if (GD.skipped || store.get(GD_SKIP) || !(h === '' || h === '#' || h === '#library' || h === '#book')) return;
+  if (!gdCanRemember()) return; // storage blocked (a private window, a sandboxed frame): a Skip could not be remembered, so the guide would come back every time. It stays in the Library and in More.
+  if (PGE || SPD || $('#guided').open) return;
+  const last = await gdLoadLast(); GD.last = last; GD.loaded = true;
+  const pristine = MODE === 'demo' || (LB.lib.books.length === 1 && !(LB.lib.series || []).length && !(LB.lib.layouts || []).length);
+  if (last || !pristine || !sameBlocks(layout.blocks, DEFAULT_LAYOUT.blocks) || store.get(GD_SKIP) || GD.skipped) return;
+  gdOpen(true);
+}
 $('#gd-x').onclick = gdClose;
 $('#guided').addEventListener('cancel', (e) => { e.preventDefault(); gdClose(); });
 $('#gd-body').addEventListener('click', (e) => {
@@ -167,8 +185,11 @@ $('#gd-body').addEventListener('click', (e) => {
   }
 });
 $('#gd-body').addEventListener('change', (e) => {
-  const el = e.target; if (el.name === undefined || !el.name.startsWith('gd-')) return;
+  const el = e.target;
+  if (el.id === 'gd-calm') { GD.book = applyPages(GD.book, el.checked ? 'calm' : 'full'); GD.answers.pages = GD.book.pages; const f = $('#gd-facts'); if (f) f.textContent = gdFacts(GD.book); return; } // the page set is the person's to change on the review
+  if (el.name === undefined || !el.name.startsWith('gd-')) return;
   const q = QUESTIONS[GD.i];
+  if (q.id === 'tone') GD.answers.pages = undefined; // the page set follows the tone again (gentle = calm) until it is chosen on the review
   if (q.kind === 'many') GD.answers[q.id] = TRACK_IDS.filter((id) => [...document.querySelectorAll(`#gd-body input[name="gd-${q.id}"]:checked`)].some((x) => x.value === id));
   else GD.answers[q.id] = el.value;
 });
@@ -200,6 +221,7 @@ async function gdMake(tweak) {
     const mk = (edition) => LM.addBook(LB.lib, { title, ...(start ? { start } : {}), ...(edition ? { edition } : {}), plan: structuredClone(b.plan), ...(Object.keys(b.modules || {}).length ? { modules: { ...b.modules } } : {}), ...(NAV.level === 'series' ? { seriesId: NAV.sid } : {}) });
     let r = mk(0);
     for (let ed = 2; ed <= 9 && LM.validateLibrary(r.library).length; ed++) r = mk(ed); // two books over the same months need different editions, so their scan codes never repeat: pick the first that works
+    if (b.pages === 'calm') r = { ...r, library: calmLibrary(r.library, r.id, ORG.base || (ORG.cat && ORG.cat.book) || null) }; // the calm page set: the modules are on the book; this hides the one back page
     const errs = lbApply(r.library, _t('guided.book_made', { title })); if (errs.length) { gdErrs(errs); return; }
     if (changes) { selected = null; change((L) => setLayoutFrom(L, dayNew)); }
     if (b.trim !== size) setSize(b.trim);
@@ -212,3 +234,4 @@ async function gdMake(tweak) {
 $('#sh-guided').onclick = gdOpen;
 $('#m-guided').onclick = () => { $('#menu').classList.remove('open'); gdOpen(); };
 vmDraw();
+window.gdFirstRun = gdFirstRun; // the editor's start-up calls it once the Library and the first level are in place

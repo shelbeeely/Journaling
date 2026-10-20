@@ -4,7 +4,7 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
-import { launch } from '../browser.mjs';
+import { launchEditor as launch } from '../browser.mjs';
 const SITE = new URL('./dist/site/', import.meta.url).pathname, OUT = new URL('./dist/test/', import.meta.url).pathname;
 fs.mkdirSync(OUT, { recursive: true });
 const srv = http.createServer((q, r) => {
